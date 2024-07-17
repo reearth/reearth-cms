@@ -65,9 +65,24 @@ type ServerInterface interface {
 	// Update Item Comment
 	// (PATCH /items/{itemId}/comments/{commentId})
 	ItemCommentUpdate(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error
+	// delete a model
+	// (DELETE /models/{modelId})
+	ModelDelete(ctx echo.Context, modelId ModelIdParam) error
 	// Returns a model.
 	// (GET /models/{modelId})
 	ModelGet(ctx echo.Context, modelId ModelIdParam) error
+	// Update a model.
+	// (PATCH /models/{modelId})
+	ModelUpdate(ctx echo.Context, modelId ModelIdParam) error
+	// create a field
+	// (POST /models/{modelId}/fields)
+	FieldCreate(ctx echo.Context, modelId ModelIdParam) error
+	// delete a field
+	// (DELETE /models/{modelId}/fields/{fieldIdOrKey})
+	FieldDelete(ctx echo.Context, modelId ModelIdParam, fieldIdOrKey FieldIdOrKeyParam) error
+	// update a field
+	// (PATCH /models/{modelId}/fields/{fieldIdOrKey})
+	FieldUpdate(ctx echo.Context, modelId ModelIdParam, fieldIdOrKey FieldIdOrKeyParam) error
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error
@@ -77,9 +92,27 @@ type ServerInterface interface {
 	// Returns a models.
 	// (GET /projects/{projectIdOrAlias}/models)
 	ModelFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error
+	// create a model
+	// (POST /projects/{projectIdOrAlias}/models)
+	ModelCreate(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelCreateParams) error
+	// Delete a model.
+	// (DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
 	// Returns a model.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey})
 	ModelGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Update a model.
+	// (PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// create a field
+	// (POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields)
+	FieldCreateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Delete a field.
+	// (DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey})
+	FieldDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, fieldIdOrKey FieldIdOrKeyParam) error
+	// update a field
+	// (PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey})
+	FieldUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, fieldIdOrKey FieldIdOrKeyParam) error
 	// Returns a list of items.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
 	ItemFilterWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemFilterWithProjectParams) error
@@ -95,6 +128,9 @@ type ServerInterface interface {
 	// Upload an asset.
 	// (POST /projects/{projectId}/assets/uploads)
 	AssetUploadCreate(ctx echo.Context, projectId ProjectIdParam) error
+	// Returns a list of projects.
+	// (GET /{workspaceId}/projects)
+	ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -380,6 +416,24 @@ func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx echo.Context) error {
 	return err
 }
 
+// ModelDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ModelDelete(ctx, modelId)
+	return err
+}
+
 // ModelGet converts echo context to params.
 func (w *ServerInterfaceWrapper) ModelGet(ctx echo.Context) error {
 	var err error
@@ -395,6 +449,94 @@ func (w *ServerInterfaceWrapper) ModelGet(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ModelGet(ctx, modelId)
+	return err
+}
+
+// ModelUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ModelUpdate(ctx, modelId)
+	return err
+}
+
+// FieldCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldCreate(ctx, modelId)
+	return err
+}
+
+// FieldDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	// ------------- Path parameter "fieldIdOrKey" -------------
+	var fieldIdOrKey FieldIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldDelete(ctx, modelId, fieldIdOrKey)
+	return err
+}
+
+// FieldUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	// ------------- Path parameter "fieldIdOrKey" -------------
+	var fieldIdOrKey FieldIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldUpdate(ctx, modelId, fieldIdOrKey)
 	return err
 }
 
@@ -455,6 +597,13 @@ func (w *ServerInterfaceWrapper) ItemFilter(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter asset: %s", err))
 	}
 
+	// ------------- Optional query parameter "query" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "query", ctx.QueryParams(), &params.Query)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter query: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ItemFilter(ctx, modelId, params)
 	return err
@@ -512,6 +661,66 @@ func (w *ServerInterfaceWrapper) ModelFilter(ctx echo.Context) error {
 	return err
 }
 
+// ModelCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ModelCreateParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ModelCreate(ctx, projectIdOrAlias, params)
+	return err
+}
+
+// ModelDeleteWithProject converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelDeleteWithProject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ModelDeleteWithProject(ctx, projectIdOrAlias, modelIdOrKey)
+	return err
+}
+
 // ModelGetWithProject converts echo context to params.
 func (w *ServerInterfaceWrapper) ModelGetWithProject(ctx echo.Context) error {
 	var err error
@@ -535,6 +744,126 @@ func (w *ServerInterfaceWrapper) ModelGetWithProject(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ModelGetWithProject(ctx, projectIdOrAlias, modelIdOrKey)
+	return err
+}
+
+// ModelUpdateWithProject converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelUpdateWithProject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ModelUpdateWithProject(ctx, projectIdOrAlias, modelIdOrKey)
+	return err
+}
+
+// FieldCreateWithProject converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldCreateWithProject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldCreateWithProject(ctx, projectIdOrAlias, modelIdOrKey)
+	return err
+}
+
+// FieldDeleteWithProject converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldDeleteWithProject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "fieldIdOrKey" -------------
+	var fieldIdOrKey FieldIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldDeleteWithProject(ctx, projectIdOrAlias, modelIdOrKey, fieldIdOrKey)
+	return err
+}
+
+// FieldUpdateWithProject converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldUpdateWithProject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "fieldIdOrKey" -------------
+	var fieldIdOrKey FieldIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldUpdateWithProject(ctx, projectIdOrAlias, modelIdOrKey, fieldIdOrKey)
 	return err
 }
 
@@ -718,6 +1047,40 @@ func (w *ServerInterfaceWrapper) AssetUploadCreate(ctx echo.Context) error {
 	return err
 }
 
+// ProjectFilter converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectFilter(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ProjectFilterParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectFilter(ctx, workspaceId, params)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -759,17 +1122,32 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/items/:itemId/comments", wrapper.ItemCommentCreate)
 	router.DELETE(baseURL+"/items/:itemId/comments/:commentId", wrapper.ItemCommentDelete)
 	router.PATCH(baseURL+"/items/:itemId/comments/:commentId", wrapper.ItemCommentUpdate)
+	router.DELETE(baseURL+"/models/:modelId", wrapper.ModelDelete)
 	router.GET(baseURL+"/models/:modelId", wrapper.ModelGet)
+	router.PATCH(baseURL+"/models/:modelId", wrapper.ModelUpdate)
+	router.POST(baseURL+"/models/:modelId/fields", wrapper.FieldCreate)
+	router.DELETE(baseURL+"/models/:modelId/fields/:fieldIdOrKey", wrapper.FieldDelete)
+	router.PATCH(baseURL+"/models/:modelId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
 	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
 	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelFilter)
+	router.POST(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelCreate)
+	router.DELETE(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelDeleteWithProject)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelGetWithProject)
+	router.PATCH(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelUpdateWithProject)
+	router.POST(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/fields", wrapper.FieldCreateWithProject)
+	router.DELETE(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/fields/:fieldIdOrKey", wrapper.FieldDeleteWithProject)
+	router.PATCH(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/fields/:fieldIdOrKey", wrapper.FieldUpdateWithProject)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemFilterWithProject)
 	router.POST(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemCreateWithProject)
 	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
 	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
 	router.POST(baseURL+"/projects/:projectId/assets/uploads", wrapper.AssetUploadCreate)
+	router.GET(baseURL+"/:workspaceId/projects", wrapper.ProjectFilter)
 
+}
+
+type NotFoundErrorResponse struct {
 }
 
 type UnauthorizedErrorResponse struct {
@@ -1333,6 +1711,40 @@ func (response ItemCommentUpdate404Response) VisitItemCommentUpdateResponse(w ht
 	return nil
 }
 
+type ModelDeleteRequestObject struct {
+	ModelId ModelIdParam `json:"modelId"`
+}
+
+type ModelDeleteResponseObject interface {
+	VisitModelDeleteResponse(w http.ResponseWriter) error
+}
+
+type ModelDelete200JSONResponse struct {
+	Id *id.ModelID `json:"id,omitempty"`
+}
+
+func (response ModelDelete200JSONResponse) VisitModelDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ModelDelete400Response struct {
+}
+
+func (response ModelDelete400Response) VisitModelDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ModelDelete401Response = UnauthorizedErrorResponse
+
+func (response ModelDelete401Response) VisitModelDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
 type ModelGetRequestObject struct {
 	ModelId ModelIdParam `json:"modelId"`
 }
@@ -1381,9 +1793,145 @@ func (response ModelGet500Response) VisitModelGetResponse(w http.ResponseWriter)
 	return nil
 }
 
+type ModelUpdateRequestObject struct {
+	ModelId ModelIdParam `json:"modelId"`
+	Body    *ModelUpdateJSONRequestBody
+}
+
+type ModelUpdateResponseObject interface {
+	VisitModelUpdateResponse(w http.ResponseWriter) error
+}
+
+type ModelUpdate200JSONResponse Model
+
+func (response ModelUpdate200JSONResponse) VisitModelUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ModelUpdate400Response struct {
+}
+
+func (response ModelUpdate400Response) VisitModelUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ModelUpdate401Response = UnauthorizedErrorResponse
+
+func (response ModelUpdate401Response) VisitModelUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type FieldCreateRequestObject struct {
+	ModelId ModelIdParam `json:"modelId"`
+	Body    *FieldCreateJSONRequestBody
+}
+
+type FieldCreateResponseObject interface {
+	VisitFieldCreateResponse(w http.ResponseWriter) error
+}
+
+type FieldCreate200JSONResponse SchemaField
+
+func (response FieldCreate200JSONResponse) VisitFieldCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldCreate400Response struct {
+}
+
+func (response FieldCreate400Response) VisitFieldCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldCreate401Response = UnauthorizedErrorResponse
+
+func (response FieldCreate401Response) VisitFieldCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type FieldDeleteRequestObject struct {
+	ModelId      ModelIdParam      `json:"modelId"`
+	FieldIdOrKey FieldIdOrKeyParam `json:"fieldIdOrKey"`
+}
+
+type FieldDeleteResponseObject interface {
+	VisitFieldDeleteResponse(w http.ResponseWriter) error
+}
+
+type FieldDelete200JSONResponse struct {
+	Id *id.FieldID `json:"id,omitempty"`
+}
+
+func (response FieldDelete200JSONResponse) VisitFieldDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldDelete400Response struct {
+}
+
+func (response FieldDelete400Response) VisitFieldDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldDelete401Response = UnauthorizedErrorResponse
+
+func (response FieldDelete401Response) VisitFieldDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type FieldUpdateRequestObject struct {
+	ModelId      ModelIdParam      `json:"modelId"`
+	FieldIdOrKey FieldIdOrKeyParam `json:"fieldIdOrKey"`
+	Body         *FieldUpdateJSONRequestBody
+}
+
+type FieldUpdateResponseObject interface {
+	VisitFieldUpdateResponse(w http.ResponseWriter) error
+}
+
+type FieldUpdate200JSONResponse SchemaField
+
+func (response FieldUpdate200JSONResponse) VisitFieldUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldUpdate400Response struct {
+}
+
+func (response FieldUpdate400Response) VisitFieldUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldUpdate401Response = UnauthorizedErrorResponse
+
+func (response FieldUpdate401Response) VisitFieldUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
 type ItemFilterRequestObject struct {
 	ModelId ModelIdParam `json:"modelId"`
 	Params  ItemFilterParams
+	Body    *ItemFilterJSONRequestBody
 }
 
 type ItemFilterResponseObject interface {
@@ -1522,6 +2070,91 @@ func (response ModelFilter500Response) VisitModelFilterResponse(w http.ResponseW
 	return nil
 }
 
+type ModelCreateRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	Params           ModelCreateParams
+	Body             *ModelCreateJSONRequestBody
+}
+
+type ModelCreateResponseObject interface {
+	VisitModelCreateResponse(w http.ResponseWriter) error
+}
+
+type ModelCreate200JSONResponse Model
+
+func (response ModelCreate200JSONResponse) VisitModelCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ModelCreate400Response struct {
+}
+
+func (response ModelCreate400Response) VisitModelCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ModelCreate401Response = UnauthorizedErrorResponse
+
+func (response ModelCreate401Response) VisitModelCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ModelDeleteWithProjectRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
+}
+
+type ModelDeleteWithProjectResponseObject interface {
+	VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error
+}
+
+type ModelDeleteWithProject200JSONResponse struct {
+	Id *id.ModelID `json:"id,omitempty"`
+}
+
+func (response ModelDeleteWithProject200JSONResponse) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ModelDeleteWithProject400Response struct {
+}
+
+func (response ModelDeleteWithProject400Response) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ModelDeleteWithProject401Response = UnauthorizedErrorResponse
+
+func (response ModelDeleteWithProject401Response) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ModelDeleteWithProject404Response struct {
+}
+
+func (response ModelDeleteWithProject404Response) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ModelDeleteWithProject500Response struct {
+}
+
+func (response ModelDeleteWithProject500Response) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type ModelGetWithProjectRequestObject struct {
 	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
 	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
@@ -1568,6 +2201,177 @@ type ModelGetWithProject500Response struct {
 
 func (response ModelGetWithProject500Response) VisitModelGetWithProjectResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
+	return nil
+}
+
+type ModelUpdateWithProjectRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
+	Body             *ModelUpdateWithProjectJSONRequestBody
+}
+
+type ModelUpdateWithProjectResponseObject interface {
+	VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error
+}
+
+type ModelUpdateWithProject200JSONResponse Model
+
+func (response ModelUpdateWithProject200JSONResponse) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ModelUpdateWithProject400Response struct {
+}
+
+func (response ModelUpdateWithProject400Response) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ModelUpdateWithProject401Response = UnauthorizedErrorResponse
+
+func (response ModelUpdateWithProject401Response) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ModelUpdateWithProject404Response struct {
+}
+
+func (response ModelUpdateWithProject404Response) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ModelUpdateWithProject500Response struct {
+}
+
+func (response ModelUpdateWithProject500Response) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type FieldCreateWithProjectRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
+	Body             *FieldCreateWithProjectJSONRequestBody
+}
+
+type FieldCreateWithProjectResponseObject interface {
+	VisitFieldCreateWithProjectResponse(w http.ResponseWriter) error
+}
+
+type FieldCreateWithProject200JSONResponse SchemaField
+
+func (response FieldCreateWithProject200JSONResponse) VisitFieldCreateWithProjectResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldCreateWithProject400Response struct {
+}
+
+func (response FieldCreateWithProject400Response) VisitFieldCreateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldCreateWithProject401Response = UnauthorizedErrorResponse
+
+func (response FieldCreateWithProject401Response) VisitFieldCreateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type FieldDeleteWithProjectRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
+	FieldIdOrKey     FieldIdOrKeyParam     `json:"fieldIdOrKey"`
+}
+
+type FieldDeleteWithProjectResponseObject interface {
+	VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error
+}
+
+type FieldDeleteWithProject200JSONResponse struct {
+	Id *id.FieldID `json:"id,omitempty"`
+}
+
+func (response FieldDeleteWithProject200JSONResponse) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldDeleteWithProject400Response struct {
+}
+
+func (response FieldDeleteWithProject400Response) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldDeleteWithProject401Response = UnauthorizedErrorResponse
+
+func (response FieldDeleteWithProject401Response) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type FieldDeleteWithProject404Response struct {
+}
+
+func (response FieldDeleteWithProject404Response) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type FieldDeleteWithProject500Response struct {
+}
+
+func (response FieldDeleteWithProject500Response) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type FieldUpdateWithProjectRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
+	FieldIdOrKey     FieldIdOrKeyParam     `json:"fieldIdOrKey"`
+	Body             *FieldUpdateWithProjectJSONRequestBody
+}
+
+type FieldUpdateWithProjectResponseObject interface {
+	VisitFieldUpdateWithProjectResponse(w http.ResponseWriter) error
+}
+
+type FieldUpdateWithProject200JSONResponse SchemaField
+
+func (response FieldUpdateWithProject200JSONResponse) VisitFieldUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldUpdateWithProject400Response struct {
+}
+
+func (response FieldUpdateWithProject400Response) VisitFieldUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldUpdateWithProject401Response = UnauthorizedErrorResponse
+
+func (response FieldUpdateWithProject401Response) VisitFieldUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
 	return nil
 }
 
@@ -1795,6 +2599,59 @@ func (response AssetUploadCreate404Response) VisitAssetUploadCreateResponse(w ht
 	return nil
 }
 
+type ProjectFilterRequestObject struct {
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	Params      ProjectFilterParams
+}
+
+type ProjectFilterResponseObject interface {
+	VisitProjectFilterResponse(w http.ResponseWriter) error
+}
+
+type ProjectFilter200JSONResponse struct {
+	Page       *int       `json:"page,omitempty"`
+	PerPage    *int       `json:"perPage,omitempty"`
+	Projects   *[]Project `json:"projects,omitempty"`
+	TotalCount *int       `json:"totalCount,omitempty"`
+}
+
+func (response ProjectFilter200JSONResponse) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectFilter400Response struct {
+}
+
+func (response ProjectFilter400Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectFilter401Response = UnauthorizedErrorResponse
+
+func (response ProjectFilter401Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectFilter404Response = NotFoundErrorResponse
+
+func (response ProjectFilter404Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectFilter500Response struct {
+}
+
+func (response ProjectFilter500Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
@@ -1836,9 +2693,24 @@ type StrictServerInterface interface {
 	// Update Item Comment
 	// (PATCH /items/{itemId}/comments/{commentId})
 	ItemCommentUpdate(ctx context.Context, request ItemCommentUpdateRequestObject) (ItemCommentUpdateResponseObject, error)
+	// delete a model
+	// (DELETE /models/{modelId})
+	ModelDelete(ctx context.Context, request ModelDeleteRequestObject) (ModelDeleteResponseObject, error)
 	// Returns a model.
 	// (GET /models/{modelId})
 	ModelGet(ctx context.Context, request ModelGetRequestObject) (ModelGetResponseObject, error)
+	// Update a model.
+	// (PATCH /models/{modelId})
+	ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error)
+	// create a field
+	// (POST /models/{modelId}/fields)
+	FieldCreate(ctx context.Context, request FieldCreateRequestObject) (FieldCreateResponseObject, error)
+	// delete a field
+	// (DELETE /models/{modelId}/fields/{fieldIdOrKey})
+	FieldDelete(ctx context.Context, request FieldDeleteRequestObject) (FieldDeleteResponseObject, error)
+	// update a field
+	// (PATCH /models/{modelId}/fields/{fieldIdOrKey})
+	FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error)
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error)
@@ -1848,9 +2720,27 @@ type StrictServerInterface interface {
 	// Returns a models.
 	// (GET /projects/{projectIdOrAlias}/models)
 	ModelFilter(ctx context.Context, request ModelFilterRequestObject) (ModelFilterResponseObject, error)
+	// create a model
+	// (POST /projects/{projectIdOrAlias}/models)
+	ModelCreate(ctx context.Context, request ModelCreateRequestObject) (ModelCreateResponseObject, error)
+	// Delete a model.
+	// (DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelDeleteWithProject(ctx context.Context, request ModelDeleteWithProjectRequestObject) (ModelDeleteWithProjectResponseObject, error)
 	// Returns a model.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey})
 	ModelGetWithProject(ctx context.Context, request ModelGetWithProjectRequestObject) (ModelGetWithProjectResponseObject, error)
+	// Update a model.
+	// (PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelUpdateWithProject(ctx context.Context, request ModelUpdateWithProjectRequestObject) (ModelUpdateWithProjectResponseObject, error)
+	// create a field
+	// (POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields)
+	FieldCreateWithProject(ctx context.Context, request FieldCreateWithProjectRequestObject) (FieldCreateWithProjectResponseObject, error)
+	// Delete a field.
+	// (DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey})
+	FieldDeleteWithProject(ctx context.Context, request FieldDeleteWithProjectRequestObject) (FieldDeleteWithProjectResponseObject, error)
+	// update a field
+	// (PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey})
+	FieldUpdateWithProject(ctx context.Context, request FieldUpdateWithProjectRequestObject) (FieldUpdateWithProjectResponseObject, error)
 	// Returns a list of items.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
 	ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error)
@@ -1866,6 +2756,9 @@ type StrictServerInterface interface {
 	// Upload an asset.
 	// (POST /projects/{projectId}/assets/uploads)
 	AssetUploadCreate(ctx context.Context, request AssetUploadCreateRequestObject) (AssetUploadCreateResponseObject, error)
+	// Returns a list of projects.
+	// (GET /{workspaceId}/projects)
+	ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error)
 }
 
 type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
@@ -2240,6 +3133,31 @@ func (sh *strictHandler) ItemCommentUpdate(ctx echo.Context, itemId ItemIdParam,
 	return nil
 }
 
+// ModelDelete operation middleware
+func (sh *strictHandler) ModelDelete(ctx echo.Context, modelId ModelIdParam) error {
+	var request ModelDeleteRequestObject
+
+	request.ModelId = modelId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelDelete(ctx.Request().Context(), request.(ModelDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelDeleteResponseObject); ok {
+		return validResponse.VisitModelDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ModelGet operation middleware
 func (sh *strictHandler) ModelGet(ctx echo.Context, modelId ModelIdParam) error {
 	var request ModelGetRequestObject
@@ -2265,12 +3183,138 @@ func (sh *strictHandler) ModelGet(ctx echo.Context, modelId ModelIdParam) error 
 	return nil
 }
 
+// ModelUpdate operation middleware
+func (sh *strictHandler) ModelUpdate(ctx echo.Context, modelId ModelIdParam) error {
+	var request ModelUpdateRequestObject
+
+	request.ModelId = modelId
+
+	var body ModelUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelUpdate(ctx.Request().Context(), request.(ModelUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelUpdateResponseObject); ok {
+		return validResponse.VisitModelUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// FieldCreate operation middleware
+func (sh *strictHandler) FieldCreate(ctx echo.Context, modelId ModelIdParam) error {
+	var request FieldCreateRequestObject
+
+	request.ModelId = modelId
+
+	var body FieldCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldCreate(ctx.Request().Context(), request.(FieldCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldCreateResponseObject); ok {
+		return validResponse.VisitFieldCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// FieldDelete operation middleware
+func (sh *strictHandler) FieldDelete(ctx echo.Context, modelId ModelIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
+	var request FieldDeleteRequestObject
+
+	request.ModelId = modelId
+	request.FieldIdOrKey = fieldIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldDelete(ctx.Request().Context(), request.(FieldDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldDeleteResponseObject); ok {
+		return validResponse.VisitFieldDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// FieldUpdate operation middleware
+func (sh *strictHandler) FieldUpdate(ctx echo.Context, modelId ModelIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
+	var request FieldUpdateRequestObject
+
+	request.ModelId = modelId
+	request.FieldIdOrKey = fieldIdOrKey
+
+	var body FieldUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldUpdate(ctx.Request().Context(), request.(FieldUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldUpdateResponseObject); ok {
+		return validResponse.VisitFieldUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ItemFilter operation middleware
 func (sh *strictHandler) ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error {
 	var request ItemFilterRequestObject
 
 	request.ModelId = modelId
 	request.Params = params
+
+	var body ItemFilterJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.ItemFilter(ctx.Request().Context(), request.(ItemFilterRequestObject))
@@ -2348,6 +3392,64 @@ func (sh *strictHandler) ModelFilter(ctx echo.Context, projectIdOrAlias ProjectI
 	return nil
 }
 
+// ModelCreate operation middleware
+func (sh *strictHandler) ModelCreate(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelCreateParams) error {
+	var request ModelCreateRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Params = params
+
+	var body ModelCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelCreate(ctx.Request().Context(), request.(ModelCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelCreateResponseObject); ok {
+		return validResponse.VisitModelCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelDeleteWithProject operation middleware
+func (sh *strictHandler) ModelDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request ModelDeleteWithProjectRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelDeleteWithProject(ctx.Request().Context(), request.(ModelDeleteWithProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelDeleteWithProject")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelDeleteWithProjectResponseObject); ok {
+		return validResponse.VisitModelDeleteWithProjectResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ModelGetWithProject operation middleware
 func (sh *strictHandler) ModelGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
 	var request ModelGetWithProjectRequestObject
@@ -2368,6 +3470,130 @@ func (sh *strictHandler) ModelGetWithProject(ctx echo.Context, projectIdOrAlias 
 		return err
 	} else if validResponse, ok := response.(ModelGetWithProjectResponseObject); ok {
 		return validResponse.VisitModelGetWithProjectResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelUpdateWithProject operation middleware
+func (sh *strictHandler) ModelUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request ModelUpdateWithProjectRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	var body ModelUpdateWithProjectJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelUpdateWithProject(ctx.Request().Context(), request.(ModelUpdateWithProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelUpdateWithProject")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelUpdateWithProjectResponseObject); ok {
+		return validResponse.VisitModelUpdateWithProjectResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// FieldCreateWithProject operation middleware
+func (sh *strictHandler) FieldCreateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request FieldCreateWithProjectRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	var body FieldCreateWithProjectJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldCreateWithProject(ctx.Request().Context(), request.(FieldCreateWithProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldCreateWithProject")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldCreateWithProjectResponseObject); ok {
+		return validResponse.VisitFieldCreateWithProjectResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// FieldDeleteWithProject operation middleware
+func (sh *strictHandler) FieldDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, fieldIdOrKey FieldIdOrKeyParam) error {
+	var request FieldDeleteWithProjectRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.FieldIdOrKey = fieldIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldDeleteWithProject(ctx.Request().Context(), request.(FieldDeleteWithProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldDeleteWithProject")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldDeleteWithProjectResponseObject); ok {
+		return validResponse.VisitFieldDeleteWithProjectResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// FieldUpdateWithProject operation middleware
+func (sh *strictHandler) FieldUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, fieldIdOrKey FieldIdOrKeyParam) error {
+	var request FieldUpdateWithProjectRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.FieldIdOrKey = fieldIdOrKey
+
+	var body FieldUpdateWithProjectJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldUpdateWithProject(ctx.Request().Context(), request.(FieldUpdateWithProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldUpdateWithProject")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldUpdateWithProjectResponseObject); ok {
+		return validResponse.VisitFieldUpdateWithProjectResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -2529,51 +3755,91 @@ func (sh *strictHandler) AssetUploadCreate(ctx echo.Context, projectId ProjectId
 	return nil
 }
 
+// ProjectFilter operation middleware
+func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error {
+	var request ProjectFilterRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectFilter(ctx.Request().Context(), request.(ProjectFilterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectFilter")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectFilterResponseObject); ok {
+		return validResponse.VisitProjectFilterResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xcTXPbONL+Kyi875GxnM3MRTevnUx5N5lJjePaQ8rlgsiWhDEJcADQtkal/76FBklR",
-	"JCiSNr2ONboklgSC/fH0090gwDUNZZJKAcJoOl3TlCmWgAGFn5jWYC6jr/ZL+zkCHSqeGi4FndLLCyLn",
-	"xCyBaIghNBARvIAGlNvfU2aWNKCCJUCnxVw0oAr+zLiCiE6NyiCgOlxCwuz8ZpXaodooLhY0oI/vFvJd",
-	"/iWPTs5wigu62QRuuhbBrlII+ZyDJg9LMEtQTi4SMcMIU0AgmUEUQUS4QPkV6Cw2uhD8zwzUqiY5rcr5",
-	"/wrmdEr/b7I13sT9qic4+iPewCphZQ1lkoAYZMj8Er8py/meY8zzfBJnTm4gGSKfHe8Xzs30HMku7QxO",
-	"rERGEF9Gv6l/w2qPcIrcwaqQEa8pPJsq+QeELXaszv5kgXGSk8sLN0tF6E5jDhb0OUb9glM4q6ZsAS3S",
-	"XWuIiJG5o51kbAEtkZH/tBUigjnLYkOn7wOacMGTLMG/CzmEgQUoJwSor6PJ4ebyi/LzaUAT9pjLcnra",
-	"LZlzhQXGWcyZ3gs8ZkcUHt3rxPq0T/ZmPhFizs20I3X/IM4vIQ/cLHMYlr89SHWnUxZChzJ7tahh8Gt+",
-	"kUOhgnk/5zOiYG5tfQ+qBQCWj73OpzEzoK1HQFiPf99+kWazmIf0JqgZ28qmpTIXXHXIF8GcC0C7SRWB",
-	"IhFXENpBhakV6FQKDSTm2gTkgccxmQHhCyGVZdF55WKuiZCGpAo0CANRi6oRVy2qWiErijL8hF+26jhU",
-	"QZ9aLXLa6VsEDRUwA9FZ1S3V77I0yv/2CI7IcbfHGuVasMwspeJ/QfRRKama6pyFIWhNjLwDYc2ccK25",
-	"WFhIcXHPYh45g7gMXhY+WA8pmYIy3N2LqXDJ7+Hjo1EM/XxlmMnwp0KPFETkQpaL21TJhQJtQz2SwobS",
-	"nPEYIo9etkoQBoT5ht+vPb+XFpqu6VyqhKHTmYF3hid28sYlcx5DV72CY2wFEA2pwAo3e+RMFdxzeCj0",
-	"KAzDk5y/7f+3+t7OvgDp/r39EN1+4zHo/GNyb3GAae/2g42ETNwJ+SC8httyUbcCFQoKqJGGxVf8r6oe",
-	"IktmNg9UUdjb3pmKPSbZVCnyuzV0sMOf9qqgMwDkDFNLUfpuK8yKjVlsZ7IsjFCLNbQgzRWXTXxjJHUb",
-	"kokVCoLD647OdE7TBhbKMBuCe+A+FtR7wXe35m0Yds4hjppWWSiZpT3r1l/sWIeuXhJ9srd04+9g5TWG",
-	"ye27L4jvWZwBOmITUPxAp+sWHR0l7KoYLnkcKRD2b1vA676sUQBCKbbqQ2LtrGHLC98P2h+fPt2QLzzK",
-	"DUfTTv5YPxFtZcnd7tuYafNFRrZZjfpLl4Bhtpe9Qmf04r18aBdzP5FI81Jqe9VMyhiYoGVWHSzkYPb1",
-	"AWIbFhV+MvBoOdb+d6aA2QKWh8tv7tuEqbvIJpqAhksI72bykQblCoC9PQ1QO1vaYHlaUB2SnoI5KBBY",
-	"NTtad+QRUMMWXhq8B6W5FBBZ9hgFu8hiekAkW9LzhHIvjBe9ekC5/pLD0o+DArSfRhKv6In9ZKKKBa3y",
-	"JqXxsgwzcAvPbm9Q+hJd01/iXY/6J96drVOUJ5QiuRQ9NG8Gjo1aCDPFzQpD0kFxBkyBOsscT6O26GL8",
-	"ejvt0pjUlelczGWzGP8dPjJllu/Ov1yRS6wRGHZMZ18v7STc2PzUMapUjr4/OT05tfrKFARLOZ3SDyen",
-	"Jx+oyygouFuS05N1vgS5cULFYJAXbLjh5BZMFCvcC/djrdP4x+kphuS2cGFpGvMQL578oZ21tw3PbiQP",
-	"q689TqmnJcdK2vVgm4D+5MSrdf2uvyG2AAVtSLm+S1yVgNe9b4N0qf6k2WXhlT817/irNGQuM+F6KsMW",
-	"2pIuKqbpzcbW96bF7L8gyT7L5p0rswdkyOpa/Xf/fbdDJjtr+Rt7fSMuJnlj4KreVjflVfRn1/uPGCLV",
-	"2/ei2qKRaVBm7/ApFtp/cO8XdIyOrhLx95vNTR0cpU7PR0lAU6k7cHCOJUq+Dgja/FNGq2eBoK0v9Dt1",
-	"d/Vx84L8UaKtiaXDA85efpisy0dQ3ck0h8mr5dS9TX/TlU4XwgTZIYgjNexSQ9A5vvbUE8mEmXC5HybX",
-	"afS3ZxNnA3J2IBDUWZIwtaooVvE37SIhLAQma/dYeS/b2H7r1Vim8tB6AMXwvEV8226t6bP1qGucK0V/",
-	"vRU0mRK6uPCEBh6PuqZgGFWVjxZ70FRlI4nV6sXivbYs0ETF2Y8Mh4D+7JfJgBIsJhrUPSgCbr4h4KmB",
-	"QJ948TPM/9XdLDt5x8uze+E3cj4qHywO2UI03preuItwr51CjyG1N81WcF0PqGZi7e797bUH0vrbOxxW",
-	"54+OfU5136BMb99fwcCx7X/7bX8DNXt4oW/PX4HI22v5q8RwpIQqJYzZ71cgcmz3q+3+IcCvUYZYb5Nm",
-	"t+/lHnyoqyfr/OHuplKMtLSObhd1s3bHzRcv/EDJ7Tfx1Z3kX1e//UqwIiFyTjINigiWgP7bdndbPxUA",
-	"QA89hZd29te7J1l13EzKGrIDPbb2sx7C8bgRmsx5bMCSBmEicvteuVj4u8NPOHbw+sR2620PXt3Zi9xj",
-	"/HZ3f5/B1V34Pca/1spKrQgYd0MGniyYrveeCygPLHQPxG2l5zJzepVjT72HDTqLkyOXNLlkJ2rHWDCq",
-	"Ucre9mfcvue4svO0lZ0fKiqGoNjt6NuzWG7zWb4TU0/W9VNDmzzX9a2MdEtpVGauEWl5K1kv7OXl05GP",
-	"D6O206MUd/7Ddy9b9tz0C7myvMSjniP0Jv/hZvm1PDJ4bFMOq015MpKbh56fiND/bRe0i+ZjQ3RsiI4J",
-	"+MdoiMpz6a9MYt1tVT0jHjusY4fVMyzaEN+SOTf57tYB2TE/JjAoPeKetgNbJXzN1JWf4XhjKestHDB5",
-	"RtZx6p00t3KOkHeauWNXifN8OYUIeMi3y9qIVCgkvqwiP0LpfmyJ0JEX9fQdTy/AaqZAF8fwyvdf4MH8",
-	"gIosjtkshuK1Kc0jk/jCCu8BwdYXDTRP8iVZbHjKlJnMpUreFQc027OlOx9eHhqcccHwvR7Nk9l9tKxr",
-	"5QuXzesd+nr74XherieWEbA3Ejvy4SRLY8lcfeOPuEutMxtw179/xlBj+YtVjCTu2vLsREuwXeOoMuSe",
-	"TQyjbh34DGKx8yaCSlIIM6Xd+2X6vtfgJdA+XOyudzLAo/81HCPwT8upOweUQ9ji0AB8e+BtNv8NAAD/",
-	"/wDywYZuUQAA",
+	"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",
+	"ywMnMavV6v8BAAD//8rqAEeyfAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

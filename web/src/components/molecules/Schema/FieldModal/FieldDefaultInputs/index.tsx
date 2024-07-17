@@ -1,10 +1,6 @@
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 
 import { FieldType } from "../../types";
 
@@ -21,27 +17,22 @@ import TextAreaField from "./TextArea";
 import TextField from "./TextField";
 import URLField from "./URLField";
 
-export interface Props {
-  selectedType: FieldType;
-  multiple?: boolean;
-  selectedValues: string[];
+interface Props {
+  multiple: boolean;
+  selectedValues?: string[];
   selectedTags?: { id: string; name: string; color: string }[];
+  selectedType: FieldType;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
   uploading: boolean;
-  defaultValue?: string;
   uploadModalVisibility: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
   page: number;
   pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
@@ -108,10 +99,10 @@ const FieldDefaultInputs: React.FC<Props> = ({
         uploadModalVisibility={uploadModalVisibility}
         uploadUrl={uploadUrl}
         uploadType={uploadType}
-        onAssetTableChange={onAssetTableChange}
         totalCount={totalCount}
         page={page}
         pageSize={pageSize}
+        onAssetTableChange={onAssetTableChange}
         onUploadModalCancel={onUploadModalCancel}
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}

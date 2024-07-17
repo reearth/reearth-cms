@@ -22,7 +22,7 @@ import useHooks from "./hooks";
 
 const { Option } = Select;
 
-type Props = {
+interface Props {
   filter: DropdownFilterType;
   close: () => void;
   defaultValue?: DefaultFilterValueType;
@@ -32,7 +32,7 @@ type Props = {
   currentView: CurrentView;
   setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   onFilterChange: (filter?: ConditionInput[]) => void;
-};
+}
 
 const DropdownRender: React.FC<Props> = ({
   filter,
@@ -91,7 +91,8 @@ const DropdownRender: React.FC<Props> = ({
               <Select
                 placeholder="Select the value"
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value?.toString()}>
+                defaultValue={defaultValue?.value?.toString()}
+                getPopupContainer={trigger => trigger.parentNode}>
                 {valueOptions.map(option => (
                   <Option key={option.value} value={option.value} label={option.label}>
                     {filter.type === "Tag" ? (

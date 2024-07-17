@@ -9,9 +9,10 @@ import FieldTitle from "../../FieldTitle";
 interface DefaultFieldProps {
   field: Field;
   itemGroupId?: string;
+  disabled?: boolean;
 }
 
-const TextareaField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
+const TextareaField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
 
   return (
@@ -31,9 +32,15 @@ const TextareaField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
           showCount
           maxLength={field.typeProperty?.maxLength}
           FieldInput={TextArea}
+          disabled={disabled}
         />
       ) : (
-        <TextArea rows={3} showCount maxLength={field.typeProperty?.maxLength} />
+        <TextArea
+          rows={3}
+          showCount
+          maxLength={field.typeProperty?.maxLength}
+          disabled={disabled}
+        />
       )}
     </Form.Item>
   );

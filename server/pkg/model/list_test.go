@@ -1,9 +1,10 @@
 package model
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -66,3 +67,15 @@ func TestList_Remove(t *testing.T) {
 	assert.Equal(t, List{mod1, mod2}, mods.Remove(mod3.ID()))
 	assert.Equal(t, List{mod2, mod3}, mods.Remove(mod1.ID()))
 }
+
+func TestList_Ordered(t *testing.T) {
+	pid := id.NewProjectID()
+	m1 := New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(key.New("key1")).Order(0).MustBuild()
+	m2 := New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(key.New("key2")).Order(1).MustBuild()
+	m3 := New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(key.New("key3")).Order(2).MustBuild()
+	models := List{m3, m1, m2}
+	ordered := models.Ordered()
+	assert.NotEqual(t, models, ordered)
+	assert.Equal(t, List{m1, m2, m3}, ordered)
+}
+

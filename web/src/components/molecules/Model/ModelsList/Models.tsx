@@ -5,16 +5,16 @@ import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types"
 
 interface Props {
   title: string;
-  collapsed?: boolean;
+  collapsed: boolean;
   selectedKey?: string;
   models?: Model[];
-  open?: boolean;
+  open: boolean;
   onModalOpen: () => void;
-  onModelKeyCheck: (key: string, ignoredKey?: string | undefined) => Promise<boolean>;
+  onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onClose: () => void;
-  onCreate?: (data: ModelFormValues) => Promise<void>;
+  onCreate: (data: ModelFormValues) => Promise<void>;
   onModelSelect: (modelId: string) => void;
-  onUpdateModelsOrder: (modelIds: string[]) => void;
+  onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
 }
 
 const Models: React.FC<Props> = ({

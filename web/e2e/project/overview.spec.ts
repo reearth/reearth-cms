@@ -20,9 +20,6 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
   await page.getByLabel("Model description").fill("model description");
   await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("model key");
-  await expect(page.getByRole("button", { name: "Ok" })).not.toBeEnabled();
-  await page.getByLabel("Model key").click();
-  await page.getByLabel("Model key").fill("model-key");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByTitle("model name")).toBeVisible();

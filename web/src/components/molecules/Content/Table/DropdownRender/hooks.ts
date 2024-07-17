@@ -277,13 +277,14 @@ export default (
       const operatorValue = filterOption.current.value as Operator;
       const currentFilters =
         currentView.filter && currentView.filter.and ? [...currentView.filter.and.conditions] : [];
-      const newFilter: {
-        [key: string]: {
+      const newFilter: Record<
+        string,
+        {
           fieldId: FieldSelector;
           operator: Operator;
           value?: string | boolean | number | Date;
-        };
-      } = { [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue } };
+        }
+      > = { [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue } };
 
       let value: string | boolean | number | Date = filterValue.current ?? "";
       if (filter.type === "Bool" || filter.type === "Checkbox") {

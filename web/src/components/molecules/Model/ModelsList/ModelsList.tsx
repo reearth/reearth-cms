@@ -8,14 +8,14 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   selectedKey?: string;
   models?: Model[];
-  collapsed?: boolean;
+  collapsed: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
-  onUpdateModelsOrder: (modelIds: string[]) => void;
-};
+  onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
+}
 
 const ModelsList: React.FC<Props> = ({
   selectedKey,
@@ -49,19 +49,30 @@ const ModelsList: React.FC<Props> = ({
     return selectedKey ? [selectedKey] : [];
   }, [selectedKey]);
 
-  const items = useMemo(() => {
-    return models
-      ?.sort((a, b) => {
-        if (a.order !== undefined && b.order !== undefined) {
-          return a.order - b.order;
-        }
-        return 0;
-      })
-      .map(model => ({
-        label: collapsed ? <Icon icon="dot" /> : model.name,
-        key: model.id,
-      }));
-  }, [collapsed, models]);
+  const scrollToSelected = useCallback(
+    (node: HTMLElement | null) => node?.scrollIntoView({ block: "nearest" }),
+    [],
+  );
+
+  const items = useMemo(
+    () =>
+      models
+        ?.sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          return 0;
+        })
+        .map(model => ({
+          label: (
+            <div ref={model.id === selectedKey ? scrollToSelected : undefined}>
+              {collapsed ? <Icon icon="dot" /> : model.name}
+            </div>
+          ),
+          key: model.id,
+        })),
+    [collapsed, models, scrollToSelected, selectedKey],
+  );
 
   return (
     <SchemaStyledMenu>
@@ -70,7 +81,7 @@ const ModelsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
+            <SchemaStyledMenuTitle>{t("MODELS")}</SchemaStyledMenuTitle>
             <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
               {!collapsed && t("Add")}
             </SchemaAddButton>
@@ -126,7 +137,6 @@ const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-right: 1px solid #f0f0f0;
 `;
 
 const MenuWrapper = styled.div`

@@ -4,8 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  Field,
+  FieldType,
+  Group,
+  SelectedSchemaType,
+} from "@reearth-cms/components/molecules/Schema/types";
 import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
@@ -17,6 +21,7 @@ import {
   useUpdateFieldMutation,
   useUpdateFieldsMutation,
   useGetModelsQuery,
+  useGetModelLazyQuery,
   useGetGroupsQuery,
   useGetGroupQuery,
   Model as GQLModel,
@@ -58,6 +63,24 @@ export default () => {
       ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
       .filter((model): model is Model => !!model);
   }, [modelsData?.models.nodes]);
+
+  const [getModel, { data: modelData }] = useGetModelLazyQuery({
+    fetchPolicy: "cache-and-network",
+  });
+
+  const handleReferencedModelGet = useCallback(
+    (modelId: string) => {
+      getModel({
+        variables: { id: modelId },
+      });
+    },
+    [getModel],
+  );
+
+  const referencedModel = useMemo<Model | undefined>(
+    () => fromGraphQLModel(modelData?.node as GQLModel),
+    [modelData?.node],
+  );
 
   const { data: groupsData } = useGetGroupsQuery({
     variables: {
@@ -107,13 +130,20 @@ export default () => {
     [navigate, projectId, workspaceId],
   );
 
+  const keyUniqueCheck = useCallback((key: string, fieldId?: string, model?: Model) => {
+    const sameKeyField = model?.schema.fields.find(field => field.key === key);
+    return !sameKeyField || sameKeyField.id === fieldId;
+  }, []);
+
   const handleFieldKeyUnique = useCallback(
-    (key: string, fieldId?: string): boolean => {
-      return !currentModel?.schema.fields.some(
-        field => field.key === key && (!fieldId || (fieldId && fieldId !== field.id)),
-      );
-    },
-    [currentModel],
+    (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),
+    [selectedField?.id, currentModel],
+  );
+
+  const handleCorrespondingFieldKeyUnique = useCallback(
+    (key: string) =>
+      keyUniqueCheck(key, selectedField?.typeProperty?.correspondingField?.id, referencedModel),
+    [selectedField?.typeProperty?.correspondingField?.id, referencedModel],
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
@@ -278,7 +308,7 @@ export default () => {
     skip: !schemaId || selectedSchemaType !== "group",
   });
 
-  const [deleteGroup] = useDeleteGroupMutation({
+  const [deleteGroup, { loading: deleteGroupLoading }] = useDeleteGroupMutation({
     refetchQueries: ["GetGroups"],
   });
 
@@ -380,8 +410,7 @@ export default () => {
         confirm({
           title: t("No available Group"),
           content: t("Please create a Group first to use the field"),
-          okText: "Create Group",
-          okType: "primary",
+          okText: t("Create Group"),
           cancelText: t("Cancel"),
           onOk() {
             handleGroupModalOpen();
@@ -416,7 +445,7 @@ export default () => {
     [setModelDeletionModalShown],
   );
 
-  const [deleteModel] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteModelLoading }] = useDeleteModelMutation({
     refetchQueries: ["GetModels"],
   });
 
@@ -543,6 +572,8 @@ export default () => {
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
+    deleteModelLoading,
+    deleteGroupLoading,
     setCollapsed,
     selectedSchemaType,
     handleModelSelect,
@@ -551,6 +582,8 @@ export default () => {
     handleFieldUpdateModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleReferencedModelGet,
+    handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldOrder,

@@ -1,7 +1,8 @@
 import { Key, useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLComment } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
@@ -20,21 +21,37 @@ export default () => {
   const t = useT();
 
   const navigate = useNavigate();
+  const location: {
+    state?: {
+      searchTerm?: string;
+      requestState: RequestState[];
+      createdByMe: boolean;
+      reviewedByMe: boolean;
+      columns: Record<string, ColumnsState>;
+      page: number;
+      pageSize: number;
+    } | null;
+  } = useLocation();
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
-  const [selectedRequests, _] = useState<string[]>([]);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
   const [selectedRequestId, setselectedRequestId] = useState<string>();
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(location.state?.page ?? 1);
+  const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
+  const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm ?? "");
 
-  const [requestState, setRequestState] = useState<RequestState[]>(["WAITING"]);
-  const [createdByMe, setCreatedByMe] = useState(false);
-  const [reviewedByMe, setReviewedByMe] = useState(false);
+  const [requestState, setRequestState] = useState<RequestState[]>(
+    location.state?.requestState ?? ["WAITING"],
+  );
+  const [createdByMe, setCreatedByMe] = useState(location.state?.createdByMe ?? false);
+  const [reviewedByMe, setReviewedByMe] = useState(location.state?.reviewedByMe ?? false);
+
+  const [columns, setColumns] = useState<Record<string, ColumnsState>>(
+    location.state?.columns ?? {},
+  );
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
@@ -51,7 +68,7 @@ export default () => {
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       sort: { key: "createdAt", reverted: true },
       key: searchTerm,
-      state: requestState as GQLRequestState[],
+      state: requestState.length === 0 ? undefined : (requestState as GQLRequestState[]),
       reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,
       createdBy: createdByMe && userData?.me?.id ? userData?.me?.id : undefined,
     },
@@ -62,8 +79,6 @@ export default () => {
   const handleRequestsReload = useCallback(() => {
     refetch();
   }, [refetch]);
-
-  const isRequest = (request: any): request is Request => !!request;
 
   const requests: Request[] = useMemo(() => {
     if (!rawRequests?.requests.nodes) return [];
@@ -87,7 +102,7 @@ export default () => {
         };
         return request;
       })
-      .filter(r => isRequest(r)) as Request[];
+      .filter((r): r is Request => r !== undefined);
     return requests;
   }, [rawRequests?.requests.nodes]);
 
@@ -102,28 +117,40 @@ export default () => {
   const handleNavigateToRequest = useCallback(
     (requestId: string) => {
       if (!projectId || !currentWorkspace?.id || !requestId) return;
-      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${requestId}`);
+      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${requestId}`, {
+        state: { searchTerm, requestState, createdByMe, reviewedByMe, columns, page, pageSize },
+      });
     },
-    [currentWorkspace?.id, navigate, projectId],
+    [
+      navigate,
+      currentWorkspace?.id,
+      projectId,
+      searchTerm,
+      requestState,
+      createdByMe,
+      reviewedByMe,
+      columns,
+      page,
+      pageSize,
+    ],
   );
 
-  const [deleteRequestMutation] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(
-    (requestsId: string[]) =>
-      (async () => {
-        if (!projectId) return;
-        const result = await deleteRequestMutation({
-          variables: { projectId, requestsId },
-          refetchQueries: ["GetRequests"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to delete one or more requests.") });
-        }
-        if (result) {
-          Notification.success({ message: t("One or more requests were successfully closed!") });
-          setSelection({ selectedRowKeys: [] });
-        }
-      })(),
+    async (requestsId: string[]) => {
+      if (!projectId) return;
+      const result = await deleteRequestMutation({
+        variables: { projectId, requestsId },
+        refetchQueries: ["GetRequests"],
+      });
+      if (result.errors) {
+        Notification.error({ message: t("Failed to delete one or more requests.") });
+      }
+      if (result) {
+        Notification.success({ message: t("One or more requests were successfully closed!") });
+        setSelection({ selectedRowKeys: [] });
+      }
+    },
     [t, projectId, deleteRequestMutation],
   );
 
@@ -147,26 +174,33 @@ export default () => {
     ) => {
       setPage(page);
       setPageSize(pageSize);
-      setRequestState(requestState ?? ["WAITING", "DRAFT", "CLOSED", "APPROVED"]);
+      setRequestState(requestState ?? []);
       setCreatedByMe(createdByMe ?? false);
       setReviewedByMe(reviewedByMe ?? false);
     },
     [],
   );
 
+  const handleColumnsChange = useCallback((cols: Record<string, ColumnsState>) => {
+    delete cols.EDIT_ICON;
+    delete cols.commentsCount;
+    setColumns(cols);
+  }, []);
+
   return {
     requests,
-    loading: loading,
+    loading,
     collapsedCommentsPanel,
     collapseCommentsPanel,
-    selectedRequests,
     selectedRequest,
     selection,
     handleNavigateToRequest,
     setSelection,
     handleRequestSelect,
     handleRequestsReload,
+    deleteLoading,
     handleRequestDelete,
+    searchTerm,
     handleSearchTerm,
     reviewedByMe,
     createdByMe,
@@ -175,5 +209,7 @@ export default () => {
     page,
     pageSize,
     handleRequestTableChange,
+    columns,
+    handleColumnsChange,
   };
 };

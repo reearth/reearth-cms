@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { useCallback, useMemo } from "react";
+import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -7,13 +8,14 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   selectedKey?: string;
   groups?: Group[];
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
-};
+  onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
+}
 
 const GroupsList: React.FC<Props> = ({
   selectedKey,
@@ -21,6 +23,7 @@ const GroupsList: React.FC<Props> = ({
   collapsed,
   onModalOpen,
   onGroupSelect,
+  onUpdateGroupsOrder,
 }) => {
   const t = useT();
 
@@ -28,11 +31,42 @@ const GroupsList: React.FC<Props> = ({
     return selectedKey ? [selectedKey] : [];
   }, [selectedKey]);
 
+  const scrollToSelected = useCallback(
+    (node: HTMLElement | null) => node?.scrollIntoView({ block: "nearest" }),
+    [],
+  );
+
+  const items = useMemo(
+    () =>
+      groups
+        ?.sort((a, b) => a.order - b.order)
+        .map(group => ({
+          label: (
+            <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
+              {collapsed ? <Icon icon="dot" /> : group.name}
+            </div>
+          ),
+          key: group.id,
+        })),
+    [collapsed, groups, scrollToSelected, selectedKey],
+  );
+
   const handleClick = useCallback(
     (e: MenuInfo) => {
       onGroupSelect?.(e.key);
     },
     [onGroupSelect],
+  );
+
+  const onDragEnd = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0 || !groups) return;
+      const [removed] = groups.splice(fromIndex, 1);
+      groups.splice(toIndex, 0, removed);
+      const groupIds = groups.map(group => group.id);
+      onUpdateGroupsOrder(groupIds);
+    },
+    [groups, onUpdateGroupsOrder],
   );
 
   return (
@@ -42,7 +76,7 @@ const GroupsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("Groups")}</SchemaStyledMenuTitle>
+            <SchemaStyledMenuTitle>{t("GROUPS")}</SchemaStyledMenuTitle>
             <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
               {!collapsed && t("Add")}
             </SchemaAddButton>
@@ -50,16 +84,18 @@ const GroupsList: React.FC<Props> = ({
         </Header>
       )}
       <MenuWrapper>
-        <StyledMenu
-          selectedKeys={selectedKeys}
-          mode={collapsed ? "vertical" : "inline"}
-          collapsed={collapsed}
-          items={groups?.map(group => ({
-            label: collapsed ? <Icon icon="dot" /> : group.name,
-            key: group.id,
-          }))}
-          onClick={handleClick}
-        />
+        <ReactDragListView
+          nodeSelector=".ant-menu-item"
+          lineClassName="dragLine"
+          onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
+          <StyledMenu
+            selectedKeys={selectedKeys}
+            mode={collapsed ? "vertical" : "inline"}
+            collapsed={collapsed}
+            items={items}
+            onClick={handleClick}
+          />
+        </ReactDragListView>
       </MenuWrapper>
     </SchemaStyledMenu>
   );
@@ -96,7 +132,6 @@ const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-right: 1px solid #f0f0f0;
 `;
 
 const MenuWrapper = styled.div`

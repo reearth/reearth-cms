@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
@@ -67,6 +67,7 @@ export default () => {
     handleRequestSearchTerm,
     handleRequestTableReload,
     loading: requestModalLoading,
+    unpublishLoading,
     totalCount: requestModalTotalCount,
     page: requestModalPage,
     pageSize: requestModalPageSize,
@@ -75,9 +76,17 @@ export default () => {
 
   const navigate = useNavigate();
   const { modelId } = useParams();
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(20);
+  const location: {
+    state?: {
+      searchTerm?: string;
+      currentView: CurrentView;
+      page: number;
+      pageSize: number;
+    } | null;
+  } = useLocation();
+  const [searchTerm, setSearchTerm] = useState<string>(location.state?.searchTerm ?? "");
+  const [page, setPage] = useState<number>(location.state?.page ?? 1);
+  const [pageSize, setPageSize] = useState<number>(location.state?.pageSize ?? 20);
   const [currentView, setCurrentView] = useState<CurrentView>({});
 
   const viewsRef = useRef<View[]>([]);
@@ -99,14 +108,14 @@ export default () => {
           setCurrentView(prev => viewList.find(view => view.id === prev.id) ?? viewList[0]);
         }
       } else {
-        setCurrentView(viewList[0]);
+        setCurrentView(location.state?.currentView ?? viewList[0]);
       }
     } else {
       setCurrentView({});
     }
     prevModelIdRef.current = modelId;
     viewsRef.current = viewList ?? [];
-  }, [modelId, setCurrentView, viewData?.view, viewLoading]);
+  }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -176,7 +185,7 @@ export default () => {
           } else {
             field.value = field.value ?? "";
           }
-          return field as typeof field & { value: any };
+          return field as typeof field & { value: unknown };
         });
         const item = await updateItemMutation({
           variables: {
@@ -268,7 +277,8 @@ export default () => {
 
   const fieldsGet = useCallback(
     (item: Item) => {
-      const result: { [key: string]: any } = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: Record<string, any> = {};
       item?.fields?.map(field => {
         result[field.schemaFieldId] = fieldValueGet(field, item);
       });
@@ -278,7 +288,8 @@ export default () => {
   );
 
   const metadataGet = useCallback((fields?: ItemField[]) => {
-    const result: { [key: string]: any } = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: Record<string, any> = {};
     fields?.forEach(field => {
       if (Array.isArray(field.value) && field.value.length > 0) {
         result[field.schemaFieldId] = field.value.map(v => "" + v);
@@ -334,7 +345,7 @@ export default () => {
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,
       dataIndex: ["fields", field.id],
-      fieldType: "FIELD",
+      fieldType: "FIELD" as const,
       key: field.id,
       ellipsis: true,
       type: field.type,
@@ -345,6 +356,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (el: any) => renderField(el, field),
     }));
 
@@ -352,7 +364,7 @@ export default () => {
       currentModel?.metadataSchema?.fields?.map(field => ({
         title: renderTitle(field),
         dataIndex: ["metadata", field.id],
-        fieldType: "META_FIELD",
+        fieldType: "META_FIELD" as const,
         key: field.id,
         ellipsis: true,
         type: field.type,
@@ -363,6 +375,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
             handleMetaItemUpdate(record.id, field.id, value, index);
@@ -419,13 +432,22 @@ export default () => {
     (itemId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${itemId}`,
-        { state: location.search },
+        { state: { searchTerm, currentView, page, pageSize } },
       );
     },
-    [currentWorkspace?.id, currentProject?.id, currentModel?.id, navigate],
+    [
+      navigate,
+      currentWorkspace?.id,
+      currentProject?.id,
+      currentModel?.id,
+      searchTerm,
+      currentView,
+      page,
+      pageSize,
+    ],
   );
 
-  const [deleteItemMutation] = useDeleteItemMutation();
+  const [deleteItemMutation, { loading: deleteLoading }] = useDeleteItemMutation();
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
@@ -499,6 +521,8 @@ export default () => {
   return {
     currentModel,
     loading,
+    deleteLoading,
+    unpublishLoading,
     contentTableFields,
     contentTableColumns,
     collapsedModelMenu,

@@ -33,7 +33,11 @@ func (i View) FindByIDs(ctx context.Context, IDs view.IDList, _ *usecase.Operato
 }
 
 func (i View) FindByModel(ctx context.Context, mID view.ModelID, _ *usecase.Operator) (view.List, error) {
-	return i.repos.View.FindByModel(ctx, mID)
+	v, err := i.repos.View.FindByModel(ctx, mID)
+	if err != nil {
+		return nil, err
+	}
+	return v.Ordered(), nil
 }
 
 func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *usecase.Operator) (*view.View, error) {
@@ -55,7 +59,7 @@ func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *
 				return nil, rerror.ErrNotFound
 			}
 
-			v, err := view.
+			vb := view.
 				New().
 				NewID().
 				Project(param.Project).
@@ -65,9 +69,17 @@ func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *
 				Sort(param.Sort).
 				Filter(param.Filter).
 				Columns(param.Columns).
-				User(*op.Operator().User()).
-				Build()
+				User(*op.Operator().User())
 
+			views, err := i.repos.View.FindByModel(ctx, param.Model)
+			if err != nil {
+				return nil, err
+			}
+			if len(views) > 0 {
+				vb = vb.Order(len(views))
+			}
+
+			v, err := vb.Build()
 			if err != nil {
 				return nil, err
 			}
@@ -104,6 +116,39 @@ func (i View) Update(ctx context.Context, ID view.ID, param interfaces.UpdateVie
 				return nil, err
 			}
 			return v, nil
+		})
+}
+
+func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecase.Operator) (view.List, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ view.List, err error) {
+			if len(ids) == 0 {
+				return nil, nil
+			}
+			v, err := i.repos.View.FindByIDs(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			if !v.AreViewsInTheSameModel() {
+				return nil, interfaces.ErrViewsAreNotInTheSameModel
+			}
+			if !operator.IsMaintainingProject(v[0].Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			views, err := i.repos.View.FindByModel(ctx, v[0].Model())
+			if err != nil {
+				return nil, err
+			}
+			if len(views) != len(ids) {
+				return nil, interfaces.ErrViewsLengthMismatch
+			}
+
+			ordered := views.OrderByIDs(ids)
+			if err := i.repos.View.SaveAll(ctx, ordered); err != nil {
+				return nil, err
+			}
+			return ordered, nil
 		})
 }
 

@@ -8,13 +8,14 @@ import {
   useUpdateProjectMutation,
   useDeleteProjectMutation,
   Role as GQLRole,
+  useCheckProjectAliasLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
-type Params = {
+interface Params {
   projectId?: string;
-};
+}
 
 export default ({ projectId }: Params) => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default ({ projectId }: Params) => {
   });
 
   const rawProject = useMemo(
-    () => data?.projects.nodes.find((p: any) => p?.id === projectId),
+    () => data?.projects.nodes.find(p => p?.id === projectId),
     [data, projectId],
   );
   const project = useMemo(
@@ -54,12 +55,13 @@ export default ({ projectId }: Params) => {
   });
 
   const handleProjectUpdate = useCallback(
-    async (name?: string, description?: string) => {
+    async (name?: string, alias?: string, description?: string) => {
       if (!projectId || !name) return;
       const result = await updateProjectMutation({
         variables: {
           projectId,
           name,
+          alias,
           description,
           requestRoles: project?.requestRoles as GQLRole[],
         },
@@ -115,6 +117,20 @@ export default ({ projectId }: Params) => {
     [assetModalOpened, setOpenAssets],
   );
 
+  const [CheckProjectAlias] = useCheckProjectAliasLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleProjectAliasCheck = useCallback(
+    async (alias: string) => {
+      if (!alias) return false;
+
+      const response = await CheckProjectAlias({ variables: { alias } });
+      return response.data ? response.data.checkProjectAlias.available : false;
+    },
+    [CheckProjectAlias],
+  );
+
   return {
     project,
     loading,
@@ -123,6 +139,7 @@ export default ({ projectId }: Params) => {
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
     handleProjectDelete,
+    handleProjectAliasCheck,
     assetModalOpened,
     toggleAssetModal,
   };

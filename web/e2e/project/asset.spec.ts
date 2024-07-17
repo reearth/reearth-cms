@@ -30,7 +30,7 @@ test("Asset CRUD and Searching has succeeded", async ({ page }) => {
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("no asset");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByText(uploadFileName)).not.toBeVisible();
+  await expect(page.getByText(uploadFileName)).toBeHidden();
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();
@@ -47,7 +47,7 @@ test("Asset CRUD and Searching has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
   await page.getByLabel("", { exact: true }).check();
   await page.getByText("Delete").click();
-  await expect(page.getByText(uploadFileName)).not.toBeVisible();
+  await expect(page.getByText(uploadFileName)).toBeHidden();
   await closeNotification(page);
 });
 

@@ -1,47 +1,40 @@
 import Form from "@reearth-cms/components/atoms/Form";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 interface AssetFieldProps {
   field: Field;
   itemGroupId?: string;
-  assetList: Asset[];
+  assetList?: Asset[];
   itemAssets?: ItemAsset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  fileList?: UploadFile[];
+  loadingAssets?: boolean;
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
+  uploadUrl?: { url: string; autoUnzip: boolean };
+  uploadType?: UploadType;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
+  disabled?: boolean;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
+  onUploadModalCancel?: () => void;
+  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadType?: (type: UploadType) => void;
+  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet?: () => void;
+  onAssetsReload?: () => void;
+  onAssetSearchTerm?: (term?: string | undefined) => void;
+  setFileList?: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility?: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
 }
 
@@ -59,6 +52,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
   totalCount,
   page,
   pageSize,
+  disabled,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -98,6 +92,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           totalCount={totalCount}
           page={page}
           pageSize={pageSize}
+          disabled={disabled}
           onAssetTableChange={onAssetTableChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}
@@ -125,6 +120,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           totalCount={totalCount}
           page={page}
           pageSize={pageSize}
+          disabled={disabled}
           onAssetTableChange={onAssetTableChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}

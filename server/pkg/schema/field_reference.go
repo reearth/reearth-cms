@@ -54,6 +54,10 @@ func (f *FieldReference) CorrespondingFieldID() *id.FieldID {
 	return f.correspondingFieldID
 }
 
+func (f *FieldReference) IsTowWay() bool {
+	return f.correspondingFieldID != nil
+}
+
 func (f *FieldReference) Type() value.Type {
 	return value.TypeReference
 }

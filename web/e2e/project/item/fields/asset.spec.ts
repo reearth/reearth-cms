@@ -52,7 +52,7 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("tileset.json")).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByRole("button", { name: `folder ${uploadFileName_1}` }).click();
   await page.getByRole("button", { name: "upload Upload Asset" }).click();
   await page.getByRole("tab", { name: "URL" }).click();
@@ -94,7 +94,7 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("no asset");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(page.locator(".ant-table-row").first()).not.toBeVisible();
+  await expect(page.locator(".ant-table-row").first()).toBeHidden();
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();

@@ -1,7 +1,8 @@
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { t } from "@reearth-cms/i18n";
 
-export type Project = {
+export interface Project {
   id: string;
   name: string;
   description?: string;
@@ -9,13 +10,13 @@ export type Project = {
   scope?: PublicScope;
   assetPublic?: boolean;
   requestRoles?: Role[];
-};
+}
 
-export type User = {
+export interface User {
   name: string;
-};
+}
 
-export type UserMember = {
+export interface UserMember {
   userId: string;
   role: Role;
   user: {
@@ -23,57 +24,61 @@ export type UserMember = {
     name: string;
     email: string;
   };
-};
+}
 
 export type Member = UserMember | IntegrationMember;
 
-export type MemberInput = {
+export interface MemberInput {
   userId: string;
   role: Role;
-};
+}
 
 export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
+t("WRITER");
+t("READER");
+t("MAINTAINER");
+t("OWNER");
 
-export type Workspace = {
+export interface Workspace {
   id: string;
   name: string;
   personal?: boolean;
   members?: Member[];
-};
+}
 
-export type WorkspaceSettings = {
+export interface WorkspaceSettings {
   id: string;
   tiles?: ResourceList<TileResource>;
   terrains?: ResourceList<TerrainResource>;
-};
+}
 
-type ResourceList<T> = {
+interface ResourceList<T> {
   resources: T[];
   selectedResource?: string;
   enabled?: boolean;
-};
+}
 
 export type Resource = TileResource | TerrainResource;
 
-export type TileResource = {
+export interface TileResource {
   id: string;
   type: TileType;
   props: UrlResourceProps;
-};
+}
 
-export type TerrainResource = {
+export interface TerrainResource {
   id: string;
   type: TerrainType;
   props: CesiumResourceProps;
-};
+}
 
-export type TileInput = {
+export interface TileInput {
   tile: TileResource;
-};
+}
 
-export type TerrainInput = {
+export interface TerrainInput {
   terrain: TerrainResource;
-};
+}
 
 export type TileType =
   | "DEFAULT"
@@ -87,16 +92,16 @@ export type TileType =
 
 export type TerrainType = "CESIUM_WORLD_TERRAIN" | "ARC_GIS_TERRAIN" | "CESIUM_ION";
 
-export type UrlResourceProps = {
+export interface UrlResourceProps {
   name: string;
   url: string;
   image: string;
-};
+}
 
-export type CesiumResourceProps = {
+export interface CesiumResourceProps {
   name: string;
   url: string;
   image: string;
   cesiumIonAssetId: string;
   cesiumIonAccessToken: string;
-};
+}

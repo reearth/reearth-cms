@@ -49,6 +49,8 @@ const ProjectSchema: React.FC = () => {
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
+    deleteModelLoading,
+    deleteGroupLoading,
     setCollapsed,
     selectedSchemaType,
     handleModelSelect,
@@ -57,6 +59,8 @@ const ProjectSchema: React.FC = () => {
     handleFieldUpdateModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleReferencedModelGet,
+    handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldOrder,
@@ -78,9 +82,9 @@ const ProjectSchema: React.FC = () => {
   return (
     <>
       <SchemaMolecule
+        data={data}
         collapsed={collapsed}
         selectedSchemaType={selectedSchemaType}
-        data={data}
         onModalOpen={handleModalOpen}
         onDeletionModalOpen={handleDeletionModalOpen}
         modelsMenu={
@@ -112,6 +116,7 @@ const ProjectSchema: React.FC = () => {
       <DeletionModal
         data={data}
         open={modelDeletionModalShown || groupDeletionModalShown}
+        deleteLoading={deleteModelLoading || deleteGroupLoading}
         onDelete={handleSchemaDelete}
         onClose={handleDeletionModalClose}
         isModel={modelDeletionModalShown}
@@ -122,6 +127,9 @@ const ProjectSchema: React.FC = () => {
           selectedType={selectedType}
           selectedField={selectedField}
           open={fieldModalShown}
+          isLoading={fieldUpdateLoading || fieldCreationLoading}
+          handleReferencedModelGet={handleReferencedModelGet}
+          handleCorrespondingFieldKeyUnique={handleCorrespondingFieldKeyUnique}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldModalClose}
           onSubmit={handleFieldCreate}

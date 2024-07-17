@@ -1,9 +1,8 @@
-import { useTranslation } from "react-i18next";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 import FieldTitle from "../../FieldTitle";
@@ -12,10 +11,11 @@ interface URLFieldProps {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => Promise<void>;
+  disabled?: boolean;
 }
 
-const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
-  const { t } = useTranslation();
+const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
+  const t = useT();
 
   return (
     <Form.Item
@@ -28,7 +28,7 @@ const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate })
           message: t("Please input field!"),
         },
         {
-          message: "URL is not valid",
+          message: t("URL is not valid"),
           validator: async (_, value) => {
             if (value) {
               if (
@@ -49,12 +49,14 @@ const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate })
           maxLength={field.typeProperty?.maxLength ?? 500}
           FieldInput={Input}
           onBlur={onMetaUpdate}
+          disabled={disabled}
         />
       ) : (
         <Input
           showCount={true}
           maxLength={field.typeProperty?.maxLength ?? 500}
           onBlur={onMetaUpdate}
+          disabled={disabled}
         />
       )}
     </Form.Item>

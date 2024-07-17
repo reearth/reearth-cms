@@ -75,6 +75,23 @@ func (r *mutationResolver) DeleteIntegration(ctx context.Context, input gqlmodel
 	}, nil
 }
 
+func (r *mutationResolver) RegenerateToken(ctx context.Context, input gqlmodel.RegenerateTokenInput) (*gqlmodel.IntegrationPayload, error) {
+	iId, err := gqlmodel.ToID[id.Integration](input.IntegrationID)
+	if err != nil {
+		return nil, err
+	}
+
+	op := getOperator(ctx)
+	res, err := usecases(ctx).Integration.RegenerateToken(ctx, iId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.IntegrationPayload{
+		Integration: gqlmodel.ToIntegration(res, op.AcOperator.User),
+	}, nil
+}
+
 func (r *mutationResolver) CreateWebhook(ctx context.Context, input gqlmodel.CreateWebhookInput) (*gqlmodel.WebhookPayload, error) {
 	iId, err := gqlmodel.ToID[id.Integration](input.IntegrationID)
 	if err != nil {

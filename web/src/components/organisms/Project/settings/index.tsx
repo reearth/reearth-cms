@@ -14,6 +14,7 @@ const ProjectSettings: React.FC = () => {
     handleProjectDelete,
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
+    handleProjectAliasCheck,
   } = useHooks({
     projectId,
   });
@@ -26,6 +27,7 @@ const ProjectSettings: React.FC = () => {
       onProjectDelete={handleProjectDelete}
       onProjectUpdate={handleProjectUpdate}
       onProjectRequestRolesUpdate={handleProjectRequestRolesUpdate}
+      onProjectAliasCheck={handleProjectAliasCheck}
     />
   );
 };

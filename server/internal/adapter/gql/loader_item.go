@@ -114,49 +114,6 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 	return vis, nil
 }
 
-func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
-	op := getOperator(ctx)
-	pid, err := gqlmodel.ToID[id.Project](projectID)
-	if err != nil {
-		return nil, err
-	}
-
-	res, pi, err := c.usecase.FindByProject(ctx, pid, p.Into(), op)
-	if err != nil {
-		return nil, err
-	}
-
-	sIds := lo.SliceToMap(res, func(v item.Versioned) (id.ItemID, id.SchemaID) {
-		return v.Value().ID(), v.Value().Schema()
-	})
-
-	ss, err := c.schemaUsecase.FindByIDs(ctx, lo.Uniq(lo.Values(sIds)), op)
-	if err != nil {
-		return nil, err
-	}
-
-	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
-	nodes := make([]*gqlmodel.Item, 0, len(res))
-	for _, i := range res {
-		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
-			return s.ID() == sIds[i.Value().ID()]
-		})
-		itm := gqlmodel.ToItem(i, s, nil)
-		edges = append(edges, &gqlmodel.ItemEdge{
-			Node:   itm,
-			Cursor: usecasex.Cursor(itm.ID),
-		})
-		nodes = append(nodes, itm)
-	}
-
-	return &gqlmodel.ItemConnection{
-		Edges:      edges,
-		Nodes:      nodes,
-		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: int(pi.TotalCount),
-	}, nil
-}
-
 func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error) {
 	_, span := trace.StartSpan(ctx, "loader/item/search")
 	t := time.Now()

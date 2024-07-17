@@ -1,21 +1,23 @@
 package value
 
 var defaultTypes = TypeRegistry{
-	TypeAsset:     &propertyAsset{},
-	TypeBool:      &propertyBool{},
-	TypeCheckbox:  &propertyBool{},
-	TypeDateTime:  &propertyDateTime{},
-	TypeInteger:   &propertyInteger{},
-	TypeNumber:    &propertyNumber{},
-	TypeText:      &propertyString{},
-	TypeTextArea:  &propertyString{},
-	TypeRichText:  &propertyString{},
-	TypeMarkdown:  &propertyString{},
-	TypeSelect:    &propertyString{},
-	TypeTag:       &propertyString{},
-	TypeGroup:     &propertyGroup{},
-	TypeReference: &propertyReference{},
-	TypeURL:       &propertyURL{},
+	TypeAsset:          &propertyAsset{},
+	TypeBool:           &propertyBool{},
+	TypeCheckbox:       &propertyBool{},
+	TypeDateTime:       &propertyDateTime{},
+	TypeInteger:        &propertyInteger{},
+	TypeNumber:         &propertyNumber{},
+	TypeText:           &propertyString{},
+	TypeTextArea:       &propertyString{},
+	TypeRichText:       &propertyString{},
+	TypeMarkdown:       &propertyString{},
+	TypeSelect:         &propertyString{},
+	TypeTag:            &propertyString{},
+	TypeGroup:          &propertyGroup{},
+	TypeReference:      &propertyReference{},
+	TypeURL:            &propertyURL{},
+	TypeGeometryObject: &propertyString{},
+	TypeGeometryEditor: &propertyString{},
 }
 
 type TypeRegistry map[Type]TypeProperty

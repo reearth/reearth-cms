@@ -83,11 +83,7 @@ test("Webhook CRUD has succeeded", async ({ page }) => {
   await closeNotification(page);
   await expect(page.getByLabel("Webhook")).not.toContainText("new webhook name");
 
-  await page
-    .locator("p")
-    .filter({ hasText: "Create a new New Webhook" })
-    .getByRole("button")
-    .click();
+  await page.locator("p").filter({ hasText: "New Webhook" }).getByRole("button").click();
   await page.getByLabel("Webhook").locator("#name").click();
   await page.getByLabel("Webhook").locator("#name").fill("webhook name");
   await page.getByLabel("Url").click();

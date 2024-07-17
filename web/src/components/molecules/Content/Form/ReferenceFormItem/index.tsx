@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../../types";
 
-type Props = {
+interface Props {
   linkedItemsModalList?: FormItem[];
   value?: string;
   disabled?: boolean;
@@ -27,9 +27,9 @@ type Props = {
   onSearchTerm?: (term?: string) => void;
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
-  onChange?: (value?: string) => void;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-};
+  onChange?: (value?: string) => void;
+}
 
 const ReferenceFormItem: React.FC<Props> = ({
   linkedItemsModalList,
@@ -55,7 +55,7 @@ const ReferenceFormItem: React.FC<Props> = ({
 
   const t = useT();
   const [visible, setVisible] = useState(false);
-  const [currentItem, setCurrentItem] = useState<FormItem | undefined>();
+  const [currentItem, setCurrentItem] = useState<FormItem>();
 
   const handleClick = useCallback(() => {
     if (!onReferenceModelUpdate || !modelId) return;
@@ -86,20 +86,24 @@ const ReferenceFormItem: React.FC<Props> = ({
             workspaceId={workspaceId}
             projectId={projectId}
             modelId={modelId}
-          />
-          <Button
             disabled={disabled}
-            type="link"
-            icon={<Icon icon={"unlinkSolid"} size={16} />}
-            onClick={() => {
-              onChange?.();
-            }}
           />
+          {!disabled && (
+            <Button
+              type="link"
+              icon={<Icon icon={"unlinkSolid"} size={16} />}
+              onClick={() => {
+                onChange?.();
+              }}
+            />
+          )}
         </ReferenceItemWrapper>
       )}
-      <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
-        <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
-      </StyledButton>
+      {!disabled && (
+        <StyledButton onClick={handleClick} type="primary">
+          <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
+        </StyledButton>
+      )}
       {!!onSearchTerm &&
         !!onLinkItemTableReload &&
         !!onLinkItemTableChange &&

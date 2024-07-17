@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
 import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
-import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
+import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCesium } from "resium";
@@ -12,19 +12,19 @@ const defaultCameraPosition: [number, number, number] = [139.767052, 35.681167, 
 const defaultOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 3000000);
 const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
-type Props = {
+interface Props {
   url: string;
   handleProperties: (prop: Property) => void;
-};
+}
 
-export type Property = { [k: string]: string | number | boolean };
+export type Property = Record<string, string | number | boolean>;
 
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
-type TileCoordinates = {
+interface TileCoordinates {
   x: number;
   y: number;
   level: number;
-};
+}
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const { viewer } = useCesium();
@@ -91,7 +91,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   }, [loadData, url]);
 
   useEffect(() => {
-    const imageryProvider = new MVTImageryProvider({
+    const imageryProvider = new CesiumMVTImageryProvider({
       urlTemplate,
       layerName: currentLayer,
       style,
@@ -154,7 +154,11 @@ const fetchLayers = async (url: string) => {
   return { ...parseMetadata(await res.json()), base };
 };
 
-type TileCoords = { x: number; y: number; level: number };
+interface TileCoords {
+  x: number;
+  y: number;
+  level: number;
+}
 
 const idFromGeometry = (
   geometry: ReturnType<VectorTileFeature["loadGeometry"]>,
@@ -170,6 +174,7 @@ const idFromGeometry = (
   return hash.hex();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseMetadata(json: any):
   | {
       layers: string[];
@@ -182,6 +187,7 @@ export function parseMetadata(json: any):
   let layers: string[] = [];
   if (typeof json.json === "string") {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       layers = JSON.parse(json.json)?.vector_layers?.map((l: any): string => l.id);
     } catch {
       // ignore

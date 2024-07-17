@@ -12,7 +12,7 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
@@ -27,10 +27,6 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 
@@ -42,11 +38,12 @@ interface Props {
   item?: Item;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
-  showPublishAction?: boolean;
+  showPublishAction: boolean;
   requests: Request[];
   itemId?: string;
-  initialFormValues: any;
-  initialMetaFormValues: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialFormValues: Record<string, any>;
+  initialMetaFormValues: Record<string, unknown>;
   loading: boolean;
   model?: Model;
   assetList: Asset[];
@@ -63,6 +60,7 @@ interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
+  publishLoading: boolean;
   requestModalLoading: boolean;
   requestModalTotalCount: number;
   requestModalPage: number;
@@ -78,11 +76,7 @@ interface Props {
   onRequestTableChange: (page: number, pageSize: number) => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
@@ -94,7 +88,7 @@ interface Props {
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onMetaItemUpdate: (data: { metaItemId?: string; metaFields: ItemField[] }) => Promise<void>;
-  onBack: (modelId?: string) => void;
+  onBack: () => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsGet: () => void;
@@ -113,7 +107,7 @@ interface Props {
       itemId: string;
     }[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => void;
+  onChange: (request: Request, itemIds: string[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -151,6 +145,7 @@ const ContentForm: React.FC<Props> = ({
   onRequestTableChange,
   onRequestSearchTerm,
   onRequestTableReload,
+  publishLoading,
   requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
@@ -194,6 +189,7 @@ const ContentForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const changedKeys = useRef(new Set<string>());
   const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
@@ -203,6 +199,7 @@ const ContentForm: React.FC<Props> = ({
   );
 
   const checkIfSingleGroupField = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (key: string, value: any) => {
       return (
         initialFormValues[key] &&
@@ -215,6 +212,7 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emptyConvert = useCallback((value: any) => {
     if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
       return undefined;
@@ -224,10 +222,12 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const handleValuesChange = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (changedValues: any) => {
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
         const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const changedFieldValue = (value as any)[groupFieldKey];
         if (
           JSON.stringify(emptyConvert(changedFieldValue)) ===
@@ -244,6 +244,7 @@ const ContentForm: React.FC<Props> = ({
       } else {
         changedKeys.current.add(key);
       }
+      setIsDisabled(changedKeys.current.size === 0);
     },
     [checkIfSingleGroupField, emptyConvert, initialFormValues],
   );
@@ -280,8 +281,7 @@ const ContentForm: React.FC<Props> = ({
         btn,
         key,
         placement: "top",
-        // TODO: Change to false when antd is updated
-        closeIcon: <span />,
+        closeIcon: false,
       });
     };
     if (blocker.state === "blocked") {
@@ -293,7 +293,6 @@ const ContentForm: React.FC<Props> = ({
     const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
       if (changedKeys.current.size === 0) return;
       event.preventDefault();
-      event.returnValue = "";
     };
 
     window.addEventListener("beforeunload", handleBeforeUnloadEvent, true);
@@ -307,10 +306,6 @@ const ContentForm: React.FC<Props> = ({
   useEffect(() => {
     metaForm.setFieldsValue(initialMetaFormValues);
   }, [metaForm, initialMetaFormValues]);
-
-  const handleBack = useCallback(() => {
-    onBack(model?.id);
-  }, [onBack, model]);
 
   const unpublishedItems = useMemo(
     () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
@@ -330,6 +325,7 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
     try {
       const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
       const groupFields = new Map<string, Field>();
@@ -397,8 +393,8 @@ const ContentForm: React.FC<Props> = ({
           fields,
         });
       }
-    } catch (info) {
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsDisabled(false);
     }
   }, [model, form, metaForm, itemId, onGroupGet, inputValueGet, onItemUpdate, onItemCreate]);
 
@@ -433,7 +429,9 @@ const ContentForm: React.FC<Props> = ({
       {
         key: "unpublish",
         label: t("Unpublish"),
-        onClick: () => itemId && (onUnpublish([itemId]) as any),
+        onClick: () => {
+          if (itemId) onUnpublish([itemId]);
+        },
       },
     ];
     if (showPublishAction) {
@@ -468,16 +466,16 @@ const ContentForm: React.FC<Props> = ({
         onValuesChange={handleValuesChange}>
         <PageHeader
           title={model?.name}
-          onBack={handleBack}
+          onBack={onBack}
           extra={
             <>
-              <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
+              <Button onClick={handleSubmit} loading={loading} disabled={!!itemId && isDisabled}>
                 {t("Save")}
               </Button>
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={handlePublishSubmit}>
+                    <Button type="primary" onClick={handlePublishSubmit} loading={publishLoading}>
                       {t("Publish")}
                     </Button>
                   )}
@@ -637,20 +635,19 @@ const ContentForm: React.FC<Props> = ({
       {itemId && (
         <>
           <RequestCreationModal
-            unpublishedItems={unpublishedItems}
-            itemId={itemId}
             open={requestModalShown}
+            requestCreationLoading={requestCreationLoading}
+            itemId={itemId}
+            unpublishedItems={unpublishedItems}
+            workspaceUserMembers={workspaceUserMembers}
             onClose={onModalClose}
             onSubmit={onRequestCreate}
-            requestCreationLoading={requestCreationLoading}
-            workspaceUserMembers={workspaceUserMembers}
           />
           <LinkItemRequestModal
             itemIds={[itemId]}
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
             visible={addItemToRequestModalShown}
-            linkedRequest={undefined}
             requestList={requests}
             onRequestTableChange={onRequestTableChange}
             requestModalLoading={requestModalLoading}
@@ -661,9 +658,10 @@ const ContentForm: React.FC<Props> = ({
             onRequestTableReload={onRequestTableReload}
           />
           <PublishItemModal
-            unpublishedItems={unpublishedItems}
-            itemId={itemId}
             open={publishModalOpen}
+            loading={publishLoading}
+            itemId={itemId}
+            unpublishedItems={unpublishedItems}
             onClose={handlePublishItemClose}
             onSubmit={onPublish}
           />

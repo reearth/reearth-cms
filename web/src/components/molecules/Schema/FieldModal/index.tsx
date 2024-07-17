@@ -1,8 +1,9 @@
 import styled from "@emotion/styled";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -11,7 +12,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
@@ -23,25 +24,21 @@ import {
   Group,
   FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
-export type Props = {
+interface Props {
   groups?: Group[];
-  open?: boolean;
-  isMeta: boolean;
-  fieldLoading: boolean;
   selectedType: FieldType;
-  selectedField?: Field | null;
+  isMeta: boolean;
+  open: boolean;
+  fieldLoading: boolean;
+  selectedField: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -52,23 +49,19 @@ export type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetSearchTerm: (term?: string) => void;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+}
 
 const initialValues: FormValues = {
   fieldId: "",
@@ -124,19 +117,28 @@ const FieldModal: React.FC<Props> = ({
   const {
     form,
     buttonDisabled,
-    setButtonDisabled,
     activeTab,
     selectedValues,
     selectedTags,
     multipleValue,
     handleMultipleChange,
     handleTabChange,
+    handleNameChange,
+    handleKeyChange,
     handleSubmit,
     handleModalReset,
-    handleModalCancel,
     isRequiredDisabled,
     isUniqueDisabled,
-  } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit);
+    keyValidate,
+  } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit, handleFieldKeyUnique);
+
+  const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
+    <>
+      {required && <Required>*</Required>}
+      {label}
+      {!required && <Optional>{`(${t("optional")})`}</Optional>}
+    </>
+  );
 
   return (
     <Modal
@@ -144,42 +146,36 @@ const FieldModal: React.FC<Props> = ({
         <FieldThumbnail>
           <StyledIcon icon={fieldTypes[selectedType].icon} color={fieldTypes[selectedType].color} />
           <h3>
-            {selectedField ? t("Update") : t("Create")} {t(fieldTypes[selectedType].title)}
+            {selectedField
+              ? t("Update Field", { field: selectedField.title })
+              : t("Create Field", { field: t(fieldTypes[selectedType].title) })}
           </h3>
         </FieldThumbnail>
       }
+      width={572}
       open={open}
-      onCancel={handleModalCancel}
-      onOk={handleSubmit}
-      confirmLoading={fieldLoading}
-      okButtonProps={{ disabled: buttonDisabled }}
-      afterClose={handleModalReset}>
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={initialValues}
-        requiredMark="optional"
-        onValuesChange={() => {
-          setTimeout(() => {
-            form
-              .validateFields()
-              .then(() => {
-                setButtonDisabled(false);
-              })
-              .catch(fieldsError => {
-                setButtonDisabled(
-                  fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-                );
-              });
-          });
-        }}>
+      onCancel={handleModalReset}
+      footer={[
+        <Button key="cancel" onClick={handleModalReset} disabled={fieldLoading}>
+          {t("Cancel")}
+        </Button>,
+        <Button
+          key="ok"
+          type="primary"
+          loading={fieldLoading}
+          onClick={handleSubmit}
+          disabled={buttonDisabled}>
+          {t("OK")}
+        </Button>,
+      ]}>
+      <Form form={form} layout="vertical" initialValues={initialValues} requiredMark={requiredMark}>
         <Tabs activeKey={activeTab} onChange={handleTabChange}>
           <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
               rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-              <Input />
+              <Input onChange={handleNameChange} />
             </Form.Item>
             <Form.Item
               name="key"
@@ -192,15 +188,11 @@ const FieldModal: React.FC<Props> = ({
                   message: t("Key is not valid"),
                   required: true,
                   validator: async (_, value) => {
-                    if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
-                      return Promise.resolve();
-                    } else {
-                      return Promise.reject();
-                    }
+                    await keyValidate(value);
                   },
                 },
               ]}>
-              <Input />
+              <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />
@@ -237,6 +229,7 @@ const FieldModal: React.FC<Props> = ({
                       if (values.some((value: string) => value.length === 0)) {
                         return Promise.reject(new Error("Empty values are not allowed"));
                       }
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
                       if (uniqueNames.size !== values.length) {
                         return Promise.reject(new Error("Labels must be unique"));
@@ -262,6 +255,7 @@ const FieldModal: React.FC<Props> = ({
                 </Select>
               </Form.Item>
             )}
+            <OptionTitle>{t("options")}</OptionTitle>
             <Form.Item
               name="multiple"
               valuePropName="checked"
@@ -328,6 +322,20 @@ const FieldModal: React.FC<Props> = ({
     </Modal>
   );
 };
+
+const Required = styled.span`
+  color: #ff4d4f;
+  margin-right: 4px;
+`;
+
+const Optional = styled.span`
+  color: #8c8c8c;
+  margin-left: 4px;
+`;
+
+const OptionTitle = styled.p`
+  margin-bottom: 8px;
+`;
 
 const FieldThumbnail = styled.div`
   display: flex;

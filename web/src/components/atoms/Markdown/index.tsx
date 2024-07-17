@@ -5,12 +5,11 @@ import ReactMarkdown from "react-markdown";
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 
 type Props = {
-  className?: string;
   value?: string;
   onChange?: (value: string) => void;
 } & TextAreaProps;
 
-const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...props }) => {
+const MarkdownInput: React.FC<Props> = ({ value = "", onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
 
@@ -20,16 +19,17 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
   }, []);
 
   const handleClick = useCallback(() => {
+    if (props.disabled) return;
     setShowMD(false);
     if (textareaRef.current) {
       setTimeout(() => {
         textareaRef.current?.focus();
       });
     }
-  }, []);
+  }, [props.disabled]);
 
   return (
-    <MarkdownWrapper className={className}>
+    <MarkdownWrapper>
       <TextArea
         {...props}
         onChange={e => onChange?.(e)}
@@ -54,7 +54,7 @@ const MarkdownWrapper = styled.div`
 `;
 
 const StyledMD = styled.div<{ disabled?: boolean }>`
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   border: 1px solid #d9d9d9;
   padding: 4px 11px;
   overflow: auto;
@@ -72,5 +72,4 @@ const StyledMD = styled.div<{ disabled?: boolean }>`
   * {
     color: ${({ disabled }) => (disabled ? "rgba(0, 0, 0, 0.25)" : "#000")};
   }
-  ${({ disabled }) => disabled && "pointer-events: none;"}
 `;

@@ -1,11 +1,13 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 
-import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
+import Button from "@reearth-cms/components/atoms/Button";
+import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 
 export interface FormValues {
   name: string;
@@ -13,14 +15,18 @@ export interface FormValues {
   description: string;
 }
 
-export type Props = {
-  open?: boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-};
+}
 
-const MINIMUM_LENGTH = 4;
+const initialValues: FormValues = {
+  name: "",
+  alias: "",
+  description: "",
+};
 
 const ProjectCreationModal: React.FC<Props> = ({
   open,
@@ -30,69 +36,112 @@ const ProjectCreationModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
-  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
+  const prevAlias = useRef<{ alias: string; isSuccess: boolean }>();
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        await onSubmit?.(values);
-        onClose?.(true);
-        form.resetFields();
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
+  const values = Form.useWatch([], form);
+  useEffect(() => {
+    if (form.getFieldValue("name") && form.getFieldValue("alias")) {
+      form
+        .validateFields()
+        .then(() => setIsDisabled(false))
+        .catch(() => setIsDisabled(true));
+    } else {
+      setIsDisabled(true);
+    }
+  }, [form, values]);
+
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      keyAutoFill(e, { form, key: "alias" });
+    },
+    [form],
+  );
+
+  const handleAliasChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      keyReplace(e, { form, key: "alias" });
+    },
+    [form],
+  );
+
+  const handleSubmit = useCallback(async () => {
+    setIsLoading(true);
+    setIsDisabled(true);
+    try {
+      const values = await form.validateFields();
+      await onSubmit(values);
+      onClose();
+      form.resetFields();
+    } catch (_) {
+      setIsDisabled(false);
+    } finally {
+      setIsLoading(false);
+    }
   }, [form, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
-    onClose?.(true);
-  }, [onClose]);
+    onClose();
+    form.resetFields();
+    setIsDisabled(true);
+  }, [form, onClose]);
 
-  const handleFormValues = useCallback(() => {
-    form
-      .validateFields()
-      .then(() => {
-        setButtonDisabled(false);
-      })
-      .catch(fieldsError => {
-        setButtonDisabled(
-          fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-        );
-      });
-  }, [form]);
+  const aliasValidate = useCallback(
+    async (value: string) => {
+      if (prevAlias.current?.alias === value) {
+        return prevAlias.current?.isSuccess ? Promise.resolve() : Promise.reject();
+      } else if (value.length >= 5 && validateKey(value) && (await onProjectAliasCheck(value))) {
+        prevAlias.current = { alias: value, isSuccess: true };
+        return Promise.resolve();
+      } else {
+        prevAlias.current = { alias: value, isSuccess: false };
+        return Promise.reject();
+      }
+    },
+    [onProjectAliasCheck],
+  );
 
   return (
     <Modal
       open={open}
       onCancel={handleClose}
-      onOk={handleSubmit}
-      okButtonProps={{ disabled: buttonDisabled }}>
-      <Form form={form} layout="vertical" onValuesChange={handleFormValues}>
+      footer={[
+        <Button key="cancel" onClick={handleClose} disabled={isLoading}>
+          {t("Cancel")}
+        </Button>,
+        <Button
+          key="ok"
+          type="primary"
+          loading={isLoading}
+          onClick={handleSubmit}
+          disabled={isDisabled}>
+          {t("OK")}
+        </Button>,
+      ]}>
+      <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
           label={t("Project name")}
           rules={[{ required: true, message: t("Please input the name of project!") }]}>
-          <Input />
+          <Input onChange={handleNameChange} />
         </Form.Item>
         <Form.Item
-          name={"alias"}
+          name="alias"
           label={t("Project alias")}
+          extra={t(
+            "Project alias must be unique and at least 5 characters long. It can only contain letters, numbers, underscores, and dashes.",
+          )}
           rules={[
             {
               message: t("Project alias is not valid"),
               required: true,
-              min: MINIMUM_LENGTH,
               validator: async (_, value) => {
-                if (!validateKey(value) || value.length <= MINIMUM_LENGTH) {
-                  return Promise.reject();
-                }
-                const isProjectAliasAvailable = await onProjectAliasCheck(value);
-                return isProjectAliasAvailable ? Promise.resolve() : Promise.reject();
+                await aliasValidate(value);
               },
             },
           ]}>
-          <Input />
+          <Input onChange={handleAliasChange} showCount maxLength={MAX_KEY_LENGTH} />
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>
           <TextArea rows={4} />

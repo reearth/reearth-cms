@@ -1,5 +1,5 @@
 import type { ParamsType } from "@ant-design/pro-provider";
-import ProTable, { ListToolBarProps, ProTableProps } from "@ant-design/pro-table";
+import ProTable, { ListToolBarProps, ProTableProps, ColumnsState } from "@ant-design/pro-table";
 import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
 import { ProColumns, TableRowSelection } from "@ant-design/pro-table/lib/typing";
 import { ConfigProvider } from "antd";
@@ -8,6 +8,7 @@ import jaJPIntl from "antd/lib/locale/ja_JP";
 
 import { useLang } from "@reearth-cms/i18n";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Props = ProTableProps<Record<string, any> | any, ParamsType, "text">;
 
 const Table: React.FC<Props> = props => {
@@ -30,4 +31,5 @@ export type {
   OptionConfig,
   TableRowSelection,
   ParamsType,
+  ColumnsState,
 };

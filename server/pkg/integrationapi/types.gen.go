@@ -10,6 +10,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 const (
@@ -26,6 +28,7 @@ const (
 
 // Defines values for AssetPreviewType.
 const (
+	Csv        AssetPreviewType = "csv"
 	Geo        AssetPreviewType = "geo"
 	Geo3dTiles AssetPreviewType = "geo_3d_Tiles"
 	GeoMvt     AssetPreviewType = "geo_mvt"
@@ -48,6 +51,73 @@ const (
 	User        CommentAuthorType = "user"
 )
 
+// Defines values for ConditionBasicOperator.
+const (
+	ConditionBasicOperatorEquals    ConditionBasicOperator = "equals"
+	ConditionBasicOperatorNotEquals ConditionBasicOperator = "notEquals"
+)
+
+// Defines values for ConditionBoolOperator.
+const (
+	ConditionBoolOperatorEquals    ConditionBoolOperator = "equals"
+	ConditionBoolOperatorNotEquals ConditionBoolOperator = "notEquals"
+)
+
+// Defines values for ConditionMultipleOperator.
+const (
+	IncludesAll    ConditionMultipleOperator = "includesAll"
+	IncludesAny    ConditionMultipleOperator = "includesAny"
+	NotIncludesAll ConditionMultipleOperator = "notIncludesAll"
+	NotIncludesAny ConditionMultipleOperator = "notIncludesAny"
+)
+
+// Defines values for ConditionNullableOperator.
+const (
+	Empty    ConditionNullableOperator = "empty"
+	NotEmpty ConditionNullableOperator = "notEmpty"
+)
+
+// Defines values for ConditionNumberOperator.
+const (
+	GreaterThan          ConditionNumberOperator = "greaterThan"
+	GreaterThanOrEqualTo ConditionNumberOperator = "greaterThanOrEqualTo"
+	LessThan             ConditionNumberOperator = "lessThan"
+	LessThanOrEqualTo    ConditionNumberOperator = "lessThanOrEqualTo"
+)
+
+// Defines values for ConditionStringOperator.
+const (
+	Contains      ConditionStringOperator = "contains"
+	EndsWith      ConditionStringOperator = "endsWith"
+	NotContains   ConditionStringOperator = "notContains"
+	NotEndsWith   ConditionStringOperator = "notEndsWith"
+	NotStartsWith ConditionStringOperator = "notStartsWith"
+	StartsWith    ConditionStringOperator = "startsWith"
+)
+
+// Defines values for ConditionTimeOperator.
+const (
+	After       ConditionTimeOperator = "after"
+	AfterOrOn   ConditionTimeOperator = "afterOrOn"
+	Before      ConditionTimeOperator = "before"
+	BeforeOrOn  ConditionTimeOperator = "beforeOrOn"
+	OfThisMonth ConditionTimeOperator = "ofThisMonth"
+	OfThisWeek  ConditionTimeOperator = "ofThisWeek"
+	OfThisYear  ConditionTimeOperator = "ofThisYear"
+)
+
+// Defines values for FieldSelectorType.
+const (
+	FieldSelectorTypeCreationDate     FieldSelectorType = "creationDate"
+	FieldSelectorTypeCreationUser     FieldSelectorType = "creationUser"
+	FieldSelectorTypeField            FieldSelectorType = "field"
+	FieldSelectorTypeId               FieldSelectorType = "id"
+	FieldSelectorTypeMetaField        FieldSelectorType = "metaField"
+	FieldSelectorTypeModificationDate FieldSelectorType = "modificationDate"
+	FieldSelectorTypeModificationUser FieldSelectorType = "modificationUser"
+	FieldSelectorTypeStatus           FieldSelectorType = "status"
+)
+
 // Defines values for RefOrVersionRef.
 const (
 	RefOrVersionRefLatest RefOrVersionRef = "latest"
@@ -56,20 +126,22 @@ const (
 
 // Defines values for ValueType.
 const (
-	ValueTypeAsset     ValueType = "asset"
-	ValueTypeBool      ValueType = "bool"
-	ValueTypeCheckbox  ValueType = "checkbox"
-	ValueTypeDate      ValueType = "date"
-	ValueTypeGroup     ValueType = "group"
-	ValueTypeInteger   ValueType = "integer"
-	ValueTypeMarkdown  ValueType = "markdown"
-	ValueTypeReference ValueType = "reference"
-	ValueTypeRichText  ValueType = "richText"
-	ValueTypeSelect    ValueType = "select"
-	ValueTypeTag       ValueType = "tag"
-	ValueTypeText      ValueType = "text"
-	ValueTypeTextArea  ValueType = "textArea"
-	ValueTypeUrl       ValueType = "url"
+	ValueTypeAsset          ValueType = "asset"
+	ValueTypeBool           ValueType = "bool"
+	ValueTypeCheckbox       ValueType = "checkbox"
+	ValueTypeDate           ValueType = "date"
+	ValueTypeGeometryEditor ValueType = "geometryEditor"
+	ValueTypeGeometryObject ValueType = "geometryObject"
+	ValueTypeGroup          ValueType = "group"
+	ValueTypeInteger        ValueType = "integer"
+	ValueTypeMarkdown       ValueType = "markdown"
+	ValueTypeReference      ValueType = "reference"
+	ValueTypeRichText       ValueType = "richText"
+	ValueTypeSelect         ValueType = "select"
+	ValueTypeTag            ValueType = "tag"
+	ValueTypeText           ValueType = "text"
+	ValueTypeTextArea       ValueType = "textArea"
+	ValueTypeUrl            ValueType = "url"
 )
 
 // Defines values for RefParam.
@@ -180,6 +252,67 @@ type Comment struct {
 // CommentAuthorType defines model for Comment.AuthorType.
 type CommentAuthorType string
 
+// Condition defines model for condition.
+type Condition struct {
+	And   *[]Condition `json:"and,omitempty"`
+	Basic *struct {
+		FieldId  *FieldSelector          `json:"fieldId,omitempty"`
+		Operator *ConditionBasicOperator `json:"operator,omitempty"`
+		Value    *interface{}            `json:"value,omitempty"`
+	} `json:"basic,omitempty"`
+	Bool *struct {
+		FieldId  FieldSelector         `json:"fieldId"`
+		Operator ConditionBoolOperator `json:"operator"`
+		Value    bool                  `json:"value"`
+	} `json:"bool,omitempty"`
+	Multiple *struct {
+		FieldId  FieldSelector             `json:"fieldId"`
+		Operator ConditionMultipleOperator `json:"operator"`
+		Value    []interface{}             `json:"value"`
+	} `json:"multiple,omitempty"`
+	Nullable *struct {
+		FieldId  *FieldSelector             `json:"fieldId,omitempty"`
+		Operator *ConditionNullableOperator `json:"operator,omitempty"`
+	} `json:"nullable,omitempty"`
+	Number *struct {
+		FieldId  FieldSelector           `json:"fieldId"`
+		Operator ConditionNumberOperator `json:"operator"`
+		Value    float32                 `json:"value"`
+	} `json:"number,omitempty"`
+	Or     *[]Condition `json:"or,omitempty"`
+	String *struct {
+		FieldId  FieldSelector           `json:"fieldId"`
+		Operator ConditionStringOperator `json:"operator"`
+		Value    string                  `json:"value"`
+	} `json:"string,omitempty"`
+	Time *struct {
+		FieldId  FieldSelector         `json:"fieldId"`
+		Operator ConditionTimeOperator `json:"operator"`
+		Value    time.Time             `json:"value"`
+	} `json:"time,omitempty"`
+}
+
+// ConditionBasicOperator defines model for Condition.Basic.Operator.
+type ConditionBasicOperator string
+
+// ConditionBoolOperator defines model for Condition.Bool.Operator.
+type ConditionBoolOperator string
+
+// ConditionMultipleOperator defines model for Condition.Multiple.Operator.
+type ConditionMultipleOperator string
+
+// ConditionNullableOperator defines model for Condition.Nullable.Operator.
+type ConditionNullableOperator string
+
+// ConditionNumberOperator defines model for Condition.Number.Operator.
+type ConditionNumberOperator string
+
+// ConditionStringOperator defines model for Condition.String.Operator.
+type ConditionStringOperator string
+
+// ConditionTimeOperator defines model for Condition.Time.Operator.
+type ConditionTimeOperator string
+
 // Field defines model for field.
 type Field struct {
 	Group *id.ItemGroupID `json:"group,omitempty"`
@@ -188,6 +321,15 @@ type Field struct {
 	Type  *ValueType      `json:"type,omitempty"`
 	Value *interface{}    `json:"value,omitempty"`
 }
+
+// FieldSelector defines model for fieldSelector.
+type FieldSelector struct {
+	FieldId *id.FieldID        `json:"fieldId,omitempty"`
+	Type    *FieldSelectorType `json:"type,omitempty"`
+}
+
+// FieldSelectorType defines model for FieldSelector.Type.
+type FieldSelectorType string
 
 // File defines model for file.
 type File struct {
@@ -225,6 +367,16 @@ type Model struct {
 	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`
 }
 
+// Project defines model for project.
+type Project struct {
+	Alias       *string       `json:"alias,omitempty"`
+	CreatedAt   *time.Time    `json:"createdAt,omitempty"`
+	Description *string       `json:"description,omitempty"`
+	Id          *id.ProjectID `json:"id,omitempty"`
+	Name        *string       `json:"name,omitempty"`
+	UpdatedAt   *time.Time    `json:"updatedAt,omitempty"`
+}
+
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
 	Ref     *RefOrVersionRef    `json:"ref,omitempty"`
@@ -247,6 +399,7 @@ type Schema struct {
 type SchemaField struct {
 	Id       *id.FieldID `json:"id,omitempty"`
 	Key      *string     `json:"key,omitempty"`
+	Multiple *bool       `json:"multiple,omitempty"`
 	Required *bool       `json:"required,omitempty"`
 	Type     *ValueType  `json:"type,omitempty"`
 }
@@ -292,6 +445,12 @@ type AssetParam = AssetEmbedding
 // CommentIdParam defines model for commentIdParam.
 type CommentIdParam = id.CommentID
 
+// FieldIdOrKeyParam defines model for fieldIdOrKeyParam.
+type FieldIdOrKeyParam = schema.FieldIDOrKey
+
+// FieldIdParam defines model for fieldIdParam.
+type FieldIdParam = id.FieldID
+
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
 
@@ -321,6 +480,9 @@ type SortDirParam string
 
 // SortParam defines model for sortParam.
 type SortParam string
+
+// WorkspaceIdParam defines model for workspaceIdParam.
+type WorkspaceIdParam = accountdomain.WorkspaceID
 
 // AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
 type AssetCommentCreateJSONBody struct {
@@ -361,6 +523,34 @@ type ItemCommentUpdateJSONBody struct {
 	Content *string `json:"content,omitempty"`
 }
 
+// ModelUpdateJSONBody defines parameters for ModelUpdate.
+type ModelUpdateJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
+
+// FieldCreateJSONBody defines parameters for FieldCreate.
+type FieldCreateJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
+}
+
+// FieldUpdateJSONBody defines parameters for FieldUpdate.
+type FieldUpdateJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
+}
+
+// ItemFilterJSONBody defines parameters for ItemFilter.
+type ItemFilterJSONBody struct {
+	Filter *Condition `json:"filter,omitempty"`
+}
+
 // ItemFilterParams defines parameters for ItemFilter.
 type ItemFilterParams struct {
 	// Sort Used to define the order of the response list
@@ -380,6 +570,9 @@ type ItemFilterParams struct {
 
 	// Asset Specifies whether asset data are embedded in the results
 	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
+
+	// Query query string
+	Query *string `form:"query,omitempty" json:"query,omitempty"`
 }
 
 // ItemFilterParamsSort defines parameters for ItemFilter.
@@ -404,6 +597,45 @@ type ModelFilterParams struct {
 
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
+// ModelCreateJSONBody defines parameters for ModelCreate.
+type ModelCreateJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
+
+// ModelCreateParams defines parameters for ModelCreate.
+type ModelCreateParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
+// ModelUpdateWithProjectJSONBody defines parameters for ModelUpdateWithProject.
+type ModelUpdateWithProjectJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
+
+// FieldCreateWithProjectJSONBody defines parameters for FieldCreateWithProject.
+type FieldCreateWithProjectJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
+}
+
+// FieldUpdateWithProjectJSONBody defines parameters for FieldUpdateWithProject.
+type FieldUpdateWithProjectJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
 }
 
 // ItemFilterWithProjectParams defines parameters for ItemFilterWithProject.
@@ -483,6 +715,15 @@ type AssetUploadCreateJSONBody struct {
 	Name          *string `json:"name,omitempty"`
 }
 
+// ProjectFilterParams defines parameters for ProjectFilter.
+type ProjectFilterParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
 type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
 
@@ -498,8 +739,32 @@ type ItemCommentCreateJSONRequestBody ItemCommentCreateJSONBody
 // ItemCommentUpdateJSONRequestBody defines body for ItemCommentUpdate for application/json ContentType.
 type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
+// ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
+type ModelUpdateJSONRequestBody ModelUpdateJSONBody
+
+// FieldCreateJSONRequestBody defines body for FieldCreate for application/json ContentType.
+type FieldCreateJSONRequestBody FieldCreateJSONBody
+
+// FieldUpdateJSONRequestBody defines body for FieldUpdate for application/json ContentType.
+type FieldUpdateJSONRequestBody FieldUpdateJSONBody
+
+// ItemFilterJSONRequestBody defines body for ItemFilter for application/json ContentType.
+type ItemFilterJSONRequestBody ItemFilterJSONBody
+
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
+
+// ModelCreateJSONRequestBody defines body for ModelCreate for application/json ContentType.
+type ModelCreateJSONRequestBody ModelCreateJSONBody
+
+// ModelUpdateWithProjectJSONRequestBody defines body for ModelUpdateWithProject for application/json ContentType.
+type ModelUpdateWithProjectJSONRequestBody ModelUpdateWithProjectJSONBody
+
+// FieldCreateWithProjectJSONRequestBody defines body for FieldCreateWithProject for application/json ContentType.
+type FieldCreateWithProjectJSONRequestBody FieldCreateWithProjectJSONBody
+
+// FieldUpdateWithProjectJSONRequestBody defines body for FieldUpdateWithProject for application/json ContentType.
+type FieldUpdateWithProjectJSONRequestBody FieldUpdateWithProjectJSONBody
 
 // ItemCreateWithProjectJSONRequestBody defines body for ItemCreateWithProject for application/json ContentType.
 type ItemCreateWithProjectJSONRequestBody ItemCreateWithProjectJSONBody

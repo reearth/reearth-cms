@@ -3,8 +3,6 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 	"net/http"
 	"net/url"
 	"testing"
@@ -31,15 +29,19 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/slices"
 )
 
 var (
 	secret = "secret_1234567890"
+	wId0   = accountdomain.NewWorkspaceID()
 	uId    = accountdomain.NewUserID()
 	iId    = id.NewIntegrationID()
 	mId1   = id.NewModelID()
 	mId2   = id.NewModelID()
 	mId3   = id.NewModelID()
+	mId4   = id.NewModelID()
 	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
@@ -48,21 +50,26 @@ var (
 	itmId2 = id.NewItemID()
 	itmId3 = id.NewItemID()
 	itmId4 = id.NewItemID()
+	itmId5 = id.NewItemID()
 	fId1   = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
 	fId4   = id.NewFieldID()
 	fId5   = id.NewFieldID()
 	fId6   = id.NewFieldID()
+	fId7   = id.NewFieldID()
+	fId8   = id.NewFieldID()
 	dvsfId = id.NewFieldID()
 	thId1  = id.NewThreadID()
 	thId2  = id.NewThreadID()
 	thId3  = id.NewThreadID()
 	thId4  = id.NewThreadID()
+	thId5  = id.NewThreadID()
 	icId   = id.NewCommentID()
 	ikey1  = key.Random()
 	ikey2  = key.Random()
 	ikey3  = key.Random()
+	ikey4  = key.Random()
 	pid    = id.NewProjectID()
 	sid1   = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
@@ -74,6 +81,8 @@ var (
 	sfKey4 = key.Random()
 	sfKey5 = id.NewKey("asset-key")
 	sfKey6 = id.NewKey("group-key")
+	sfKey7 = id.NewKey("geometry-key")
+	sfKey8 = id.NewKey("geometry-editor-key")
 	gKey1  = key.Random()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
@@ -111,7 +120,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	w := workspace.New().NewID().
+	w := workspace.New().
+		ID(wId0).
 		Name("e2e").
 		Personal(false).
 		Members(map[accountdomain.UserID]workspace.Member{uId: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
@@ -121,7 +131,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	p := project.New().ID(pid).
+	p := project.New().
+		ID(pid).
 		Name("p1").
 		Description("p1 desc").
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
@@ -211,6 +222,26 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
+	sf7 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
+	sf8 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).ID(fId8).Key(sfKey8).MustBuild()
+	s7 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf7, sf8}).MustBuild()
+	if err := r.Schema.Save(ctx, s7); err != nil {
+		return err
+	}
+	m4 := model.New().
+		ID(mId4).
+		Name("m4").
+		Description("m4 desc").
+		Public(true).
+		Key(ikey4).
+		Project(p.ID()).
+		Schema(s7.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m4); err != nil {
+		return err
+	}
 	// endregion
 
 	// region items
@@ -269,6 +300,21 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Item.Save(ctx, itm4); err != nil {
 		return err
 	}
+
+	itm5 := item.New().ID(itmId5).
+		Schema(s7.ID()).
+		Model(m4.ID()).
+		Project(p.ID()).
+		Thread(thId5).
+		IsMetadata(false).
+		Fields([]*item.Field{
+			item.NewField(fId7, value.MultipleFrom(value.TypeGeometryObject, []*value.Value{value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+			item.NewField(fId8, value.MultipleFrom(value.TypeGeometryEditor, []*value.Value{value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+		}).
+		MustBuild()
+	if err := r.Item.Save(ctx, itm5); err != nil {
+		return err
+	}
 	// endregion
 
 	// region thread & comment
@@ -316,7 +362,12 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
 	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 
-	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3}).MustBuild()
+	gst2 := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
+	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+
+	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
 		return err
 	}
@@ -336,6 +387,26 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	}
 
 	return nil
+}
+
+func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+	res := e.GET("/api/models/{modelId}/items", mId).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithQuery("page", page).
+		WithQuery("perPage", perPage).
+		WithQuery("sort", sort).
+		WithQuery("dir", sortDir).
+		WithQuery("query", query).
+		WithJSON(map[string]any{
+			"filter": filter,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
 }
 
 // GET /models/{modelId}/items
@@ -436,6 +507,660 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
+
+	e.GET("/api/models/{modelId}/items", mId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("asset", "true").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
+}
+
+// GET /models/{modelId}/items
+func TestIntegrationSearchItem(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	// region init
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+
+	fids := createFieldOfEachType(t, e, mId)
+	mfids := createMetaFieldOfEachType(t, e, mId)
+
+	sId, msID, res := getModel(e, mId)
+	tagIds := res.Path("$.data.node.metadataSchema.fields[:].typeProperty.tags[:].id").Raw().([]any)
+
+	mi1Id, _ := createItem(e, mId, msID, nil, []map[string]any{
+		{"schemaFieldId": mfids.tagFId, "value": tagIds[0], "type": "Tag"},
+		{"schemaFieldId": mfids.boolFId, "value": true, "type": "Bool"},
+		{"schemaFieldId": mfids.checkboxFId, "value": true, "type": "Checkbox"},
+		{"schemaFieldId": mfids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": mfids.urlFId, "value": "https://www.test1.com", "type": "URL"},
+		{"schemaFieldId": mfids.dateFId, "value": "2023-01-01T00:00:00.000Z", "type": "Date"},
+	})
+
+	i1Id, r1 := createItem(e, mId, sId, &mi1Id, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": fids.textAreaFId, "value": "test1", "type": "TextArea"},
+		{"schemaFieldId": fids.markdownFId, "value": "test1", "type": "MarkdownText"},
+		// {"schemaFieldId": fids.assetFId, "value": nil, "type": "Asset"},
+		{"schemaFieldId": fids.boolFId, "value": true, "type": "Bool"},
+		{"schemaFieldId": fids.selectFId, "value": "s1", "type": "Select"},
+		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
+		{"schemaFieldId": fids.urlFId, "value": "https://www.test1.com", "type": "URL"},
+		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00.000Z", "type": "Date"},
+	})
+	r1.Path("$.data.createItem.item.isMetadata").IsEqual(false)
+
+	i1ver, _ := getItem(e, i1Id)
+	updateItem(e, i1Id, i1ver, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1 updated", "type": "Text"},
+	})
+
+	mi2Id, r2 := createItem(e, mId, msID, nil, []map[string]any{
+		{"schemaFieldId": mfids.tagFId, "value": tagIds[2], "type": "Tag"},
+		{"schemaFieldId": mfids.boolFId, "value": true, "type": "Bool"},
+		{"schemaFieldId": mfids.checkboxFId, "value": true, "type": "Checkbox"},
+		{"schemaFieldId": mfids.textFId, "value": "test2", "type": "Text"},
+		{"schemaFieldId": mfids.urlFId, "value": "https://www.test2.com", "type": "URL"},
+		{"schemaFieldId": mfids.dateFId, "value": "2023-01-02T00:00:00.000Z", "type": "Date"},
+	})
+	r2.Path("$.data.createItem.item.isMetadata").IsEqual(true)
+	i2Id, _ := createItem(e, mId, sId, &mi2Id, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test2", "type": "Text"},
+		{"schemaFieldId": fids.textAreaFId, "value": "test2", "type": "TextArea"},
+		{"schemaFieldId": fids.markdownFId, "value": "test2", "type": "MarkdownText"},
+		// {"schemaFieldId": fids.assetFId, "value": nil, "type": "Asset"},
+		{"schemaFieldId": fids.boolFId, "value": false, "type": "Bool"},
+		{"schemaFieldId": fids.selectFId, "value": "s2", "type": "Select"},
+		{"schemaFieldId": fids.integerFId, "value": 2, "type": "Integer"},
+		{"schemaFieldId": fids.urlFId, "value": "https://www.test2.com", "type": "URL"},
+		{"schemaFieldId": fids.dateFId, "value": "2023-01-02T00:00:00.000Z", "type": "Date"},
+	})
+	// endregion
+
+	// region search by id
+	res = IntegrationSearchItem(e, mId, 1, 10, i1Id, "", "", nil)
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 10, i2Id, "", "", nil)
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+	// endregion
+
+	//// region fetch by schema with sort
+	//res = IntegrationSearchItem(e, map[string]any{
+	//	"project": pId,
+	//	"model":   mId,
+	//	"schema":  sId,
+	//}, map[string]any{
+	//	"field": map[string]any{
+	//		"id":   nil,
+	//		"type": "ID",
+	//	},
+	//	"direction": "DESC",
+	//}, nil, map[string]any{
+	//	"first": 2,
+	//},
+	//)
+	//
+	//res.Path("$.totalCount").Number().IsEqual(2)
+	//res.Path("$.items[:].id").Array().IsEqual([]string{i2Id, i1Id})
+	//
+	//// fetch by schema with sort
+	//res = IntegrationSearchItem(e, map[string]any{
+	//	"project": pId,
+	//	"model":   mId,
+	//	"schema":  sId,
+	//}, map[string]any{
+	//	"field": map[string]any{
+	//		"id":   fids.textFId,
+	//		"type": "FIELD",
+	//	},
+	//	"direction": "DESC",
+	//}, nil, map[string]any{
+	//	"first": 2,
+	//})
+	//
+	//res.Path("$.totalCount").Number().IsEqual(2)
+	//res.Path("$.items[:].id").Array().IsEqual([]string{i2Id, i1Id})
+	//// endregion
+
+	// region fetch by model
+	// res = IntegrationSearchItem(e, map[string]any{
+	// 	"project": pId,
+	// 	"model":   mId1,
+	// }, nil, nil, map[string]any{
+	// 	"first": 2,
+	// })
+	//
+	// res.Path("$.totalCount").Number().IsEqual(3)
+	// res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, mi1Id, i2Id})
+
+	// fetch by model with search
+	res = IntegrationSearchItem(e, mId, 1, 2, "updated", "", "", nil)
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
+
+	// region filter basic
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "equals",
+				"value":    "test1 updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notEquals",
+				"value":    "test1 updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	// user
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationUser",
+				},
+				"operator": "equals",
+				"value":    uId1.String(),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationUser",
+				},
+				"operator": "notEquals",
+				"value":    uId1.String(),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+
+	// date
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationDate",
+				},
+				"operator": "equals",
+				"value":    time.Now(),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationDate",
+				},
+				"operator": "notEquals",
+				"value":    time.Now(),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+	// endregion
+
+	// region filter nullable
+	i1ver, _ = getItem(e, i1Id)
+	updateItem(e, i1Id, i1ver, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "", "type": "Text"},
+	})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"nullable": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "empty",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"nullable": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notEmpty",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	i1ver, _ = getItem(e, i1Id)
+	updateItem(e, i1Id, i1ver, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1 updated", "type": "Text"},
+	})
+	// endregion
+
+	// region filters number
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.integerFId,
+					"type":    "field",
+				},
+				"operator": "lessThan",
+				"value":    2,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.integerFId,
+					"type":    "field",
+				},
+				"operator": "lessThanOrEqualTo",
+				"value":    2,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.integerFId,
+					"type":    "field",
+				},
+				"operator": "greaterThan",
+				"value":    1,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.integerFId,
+					"type":    "field",
+				},
+				"operator": "greaterThanOrEqualTo",
+				"value":    1,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
+
+	// region filters text
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "contains",
+				"value":    "updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notContains",
+				"value":    "updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "startsWith",
+				"value":    "test",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notStartsWith",
+				"value":    "test",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "endsWith",
+				"value":    "updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notEndsWith",
+				"value":    "updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+	// endregion
+
+	// region filters boolean
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"bool": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.boolFId,
+					"type":    "field",
+				},
+				"operator": "equals",
+				"value":    false,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"bool": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.boolFId,
+					"type":    "field",
+				},
+				"operator": "notEquals",
+				"value":    false,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
+
+	// region filters select
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"multiple": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.selectFId,
+					"type":    "field",
+				},
+				"operator": "includesAny",
+				"value":    []string{"s1", "s2", "s3"},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"multiple": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.selectFId,
+					"type":    "field",
+				},
+				"operator": "includesAny",
+				"value":    []string{"s1", "s3"},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"multiple": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.selectFId,
+					"type":    "field",
+				},
+				"operator": "notIncludesAny",
+				"value":    []string{"s1", "s2", "s3"},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+	// endregion
+
+	// region filters and
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"and": []map[string]any{
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"fieldId": fids.textFId,
+							"type":    "field",
+						},
+						"operator": "startsWith",
+						"value":    "test",
+					},
+				},
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"fieldId": fids.textFId,
+							"type":    "field",
+						},
+						"operator": "endsWith",
+						"value":    "updated",
+					},
+				},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
+
+	// region filters or
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"or": []map[string]any{
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"fieldId": fids.textFId,
+							"type":    "field",
+						},
+						"operator": "startsWith",
+						"value":    "test1",
+					},
+				},
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"fieldId": fids.textFId,
+							"type":    "field",
+						},
+						"operator": "startsWith",
+						"value":    "test2",
+					},
+				},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
+
+	// region filters date
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"time": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.dateFId,
+					"type":    "field",
+				},
+				"operator": "after",
+				"value":    "2023-01-01T00:00:00.000Z",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.dateFId,
+					"type":    "field",
+				},
+				"operator": "equals",
+				"value":    "2023-01-01T00:00:00.000Z",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"time": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationDate",
+				},
+				"operator": "after",
+				"value":    time.Now().Format(time.RFC3339),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"time": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationDate",
+				},
+				"operator": "after",
+				"value":    time.Now().AddDate(0, 0, -1).Format(time.RFC3339),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
+
+	// region filters Metadata tags
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": mfids.tagFId,
+					"type":    "metaField",
+				},
+				"operator": "equals",
+				"value":    tagIds[0],
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
 }
 
 // POST /models/{modelId}/items
@@ -565,6 +1290,42 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
+
+	obj2 := e.POST("/api/models/{modelId}/items", mId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey7.String(),
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+				map[string]string{
+					"key":   sfKey8.String(),
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	obj2.
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId7.String(),
+				"type":  "geometryObject",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey7.String(),
+			},
+			map[string]string{
+				"id":    fId8.String(),
+				"type":  "geometryEditor",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey8.String(),
+			},
+		})
+
 }
 
 func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
@@ -843,6 +1604,44 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"key":   sfKey6.String(),
 			},
 		})
+
+	e.PATCH("/api/items/{itemId}", itmId5).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"id":    fId7.String(),
+					"key":   sfKey7.String(),
+					"type":  "geometryObject",
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+				map[string]string{
+					"id":    fId8.String(),
+					"key":   sfKey8.String(),
+					"type":  "geometryEditor",
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId7.String(),
+				"key":   sfKey7.String(),
+				"type":  "geometryObject",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+			},
+			map[string]string{
+				"id":    fId8.String(),
+				"key":   sfKey8.String(),
+				"type":  "geometryEditor",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+			},
+		})
 }
 
 // GET /items/{itemId}
@@ -960,6 +1759,28 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
+	r3 := e.GET("/api/items/{itemId}", itmId5).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r3.Value("fields").
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId7.String(),
+				"type":  "geometryObject",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey7.String(),
+			},
+			map[string]any{
+				"id":    fId8.String(),
+				"type":  "geometryEditor",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey8.String(),
+			},
+		})
 }
 
 // DELETE /items/{itemId}

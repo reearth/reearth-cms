@@ -10,49 +10,42 @@ import {
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
-type Props = {
+interface Props {
   visible: boolean;
   onLinkAssetModalCancel: () => void;
   linkedAsset?: ItemAsset;
-  assetList: Asset[];
-  fileList: UploadFile<File>[];
-  loading: boolean;
-  uploading: boolean;
+  assetList?: Asset[];
+  fileList?: UploadFile<File>[];
+  loading?: boolean;
+  uploading?: boolean;
   uploadProps: UploadProps;
-  uploadModalVisibility: boolean;
+  uploadModalVisibility?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  uploadType?: UploadType;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
+  setUploadType?: (type: UploadType) => void;
   onChange?: (value: string) => void;
   onSelect: (selectedAsset: ItemAsset) => void;
-  onAssetsReload: () => void;
-  onSearchTerm: (term?: string) => void;
+  onAssetsReload?: () => void;
+  onSearchTerm?: (term?: string) => void;
   displayUploadModal: () => void;
-  onUploadModalCancel: () => void;
+  onUploadModalCancel?: () => void;
   onUploadAndLink: () => void;
-};
+}
 
 const LinkAssetModal: React.FC<Props> = ({
   visible,
@@ -98,7 +91,7 @@ const LinkAssetModal: React.FC<Props> = ({
         allowClear
         placeholder={t("input search text")}
         onSearch={(value: string) => {
-          onSearchTerm(value);
+          onSearchTerm?.(value);
         }}
         key={+resetFlag.current}
       />
@@ -194,6 +187,30 @@ const LinkAssetModal: React.FC<Props> = ({
     [hoveredAssetId, linkedAsset?.id, onLinkClick, t],
   );
 
+  const handleChange = useCallback(
+    (
+      pagination: TablePaginationConfig,
+      sorter: SorterResult<unknown> | SorterResult<unknown>[],
+    ) => {
+      const page = pagination.current ?? 1;
+      const pageSize = pagination.pageSize ?? 10;
+      let sort: SortType | undefined;
+      if (!Array.isArray(sorter)) {
+        if (
+          sorter.columnKey === "DATE" ||
+          sorter.columnKey === "NAME" ||
+          sorter.columnKey === "SIZE"
+        ) {
+          const direction = sorter.order === "ascend" ? "ASC" : "DESC";
+          const type = sorter.columnKey;
+          sort = { direction, type };
+        }
+      }
+      onAssetTableChange?.(page, pageSize, sort);
+    },
+    [onAssetTableChange],
+  );
+
   return (
     <StyledModal
       title={t("Link Asset")}
@@ -201,7 +218,7 @@ const LinkAssetModal: React.FC<Props> = ({
       open={visible}
       onCancel={onLinkAssetModalCancel}
       afterClose={() => {
-        onSearchTerm();
+        onSearchTerm?.();
         resetFlag.current = !resetFlag.current;
       }}
       footer={[
@@ -238,14 +255,8 @@ const LinkAssetModal: React.FC<Props> = ({
         pagination={pagination}
         toolbar={toolbar}
         loading={loading}
-        onChange={(pagination, _, sorter: any) => {
-          onAssetTableChange(
-            pagination.current ?? 1,
-            pagination.pageSize ?? 10,
-            sorter?.order
-              ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
-              : undefined,
-          );
+        onChange={(pagination, _, sorter) => {
+          handleChange(pagination, sorter);
         }}
         heightOffset={0}
       />

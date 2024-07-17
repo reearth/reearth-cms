@@ -5,7 +5,7 @@ import Collapse from "@reearth-cms/components/atoms/Collapse";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import {
   AssetField,
   ReferenceField,
@@ -14,53 +14,46 @@ import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fie
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
-type Props = {
+interface Props {
   value?: string;
   onChange?: (value: string) => void;
   order?: number;
   parentField: Field;
-  loadingReference: boolean;
+  loadingReference?: boolean;
   linkedItemsModalList?: FormItem[];
-  linkItemModalTitle: string;
-  formItemsData: FormItem[];
+  linkItemModalTitle?: string;
+  formItemsData?: FormItem[];
   itemAssets?: ItemAsset[];
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  linkItemModalTotalCount: number;
-  linkItemModalPage: number;
-  linkItemModalPageSize: number;
-  onSearchTerm: (term?: string) => void;
-  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
-  onLinkItemTableReload: () => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  assetList?: Asset[];
+  fileList?: UploadFile[];
+  loadingAssets?: boolean;
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
+  uploadUrl?: { url: string; autoUnzip: boolean };
+  uploadType?: UploadType;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
+  linkItemModalTotalCount?: number;
+  linkItemModalPage?: number;
+  linkItemModalPageSize?: number;
+  disabled?: boolean;
+  onSearchTerm?: (term?: string) => void;
+  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
+  onLinkItemTableReload?: () => void;
+  onLinkItemTableChange?: (page: number, pageSize: number) => void;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
+  onUploadModalCancel?: () => void;
+  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadType?: (type: UploadType) => void;
+  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet?: () => void;
+  onAssetsReload?: () => void;
+  onAssetSearchTerm?: (term?: string | undefined) => void;
+  setFileList?: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility?: (visible: boolean) => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   onDelete?: () => void;
@@ -68,8 +61,8 @@ type Props = {
   disableMoveDown?: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
-};
+  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
+}
 
 const GroupItem: React.FC<Props> = ({
   value,
@@ -94,6 +87,7 @@ const GroupItem: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  disabled,
   onReferenceModelUpdate,
   onLinkItemTableReload,
   onLinkItemTableChange,
@@ -162,6 +156,7 @@ const GroupItem: React.FC<Props> = ({
         header={parentField?.title + (order !== undefined ? ` (${order + 1})` : "")}
         key="1"
         extra={
+          !disabled &&
           order !== undefined && (
             <>
               <IconWrapper disabled={disableMoveUp} onClick={handleMoveUp}>
@@ -209,6 +204,7 @@ const GroupItem: React.FC<Props> = ({
                     totalCount={totalCount}
                     page={page}
                     pageSize={pageSize}
+                    disabled={disabled}
                     onAssetTableChange={onAssetTableChange}
                     onUploadModalCancel={onUploadModalCancel}
                     setUploadUrl={setUploadUrl}
@@ -237,6 +233,7 @@ const GroupItem: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
+                    disabled={disabled}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onSearchTerm={onSearchTerm}
                     onLinkItemTableReload={onLinkItemTableReload}
@@ -248,7 +245,7 @@ const GroupItem: React.FC<Props> = ({
             } else {
               return (
                 <StyledFormItemWrapper key={field.id}>
-                  <FieldComponent field={field} itemGroupId={itemGroupId} />
+                  <FieldComponent field={field} itemGroupId={itemGroupId} disabled={disabled} />
                 </StyledFormItemWrapper>
               );
             }
@@ -261,6 +258,7 @@ const GroupItem: React.FC<Props> = ({
 
 const StyledCollapse = styled(Collapse)`
   width: 500px;
+  max-width: 100%;
 `;
 
 const IconWrapper = styled.span<{ disabled?: boolean }>`
@@ -270,6 +268,7 @@ const IconWrapper = styled.span<{ disabled?: boolean }>`
 
 const StyledFormItemWrapper = styled.div`
   width: 468px;
+  max-width: 100%;
   word-wrap: break-word;
 `;
 

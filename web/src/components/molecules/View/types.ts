@@ -1,49 +1,52 @@
-export type View = {
+export interface View {
   id: string;
   name: string;
   modelId: string;
   projectId: string;
+  order: number;
   sort?: ItemSort;
   filter?: ConditionInput;
   columns?: Column[];
-};
+}
 
 export type CurrentView = Partial<View>;
 
-export type Column = {
+export interface Column {
   field: FieldSelector;
   visible: boolean;
   fixed?: "left" | "right";
-};
+}
 
-export type ColumnSelectionInput = {
+export interface ColumnSelectionInput {
   field: FieldSelector;
   visible: boolean;
-};
+}
 
-export type ItemSort = {
+export interface ItemSort {
   field: FieldSelector;
   direction: SortDirection;
-};
+}
 
-export type FieldSelector = {
+export interface FieldSelector {
   type: FieldType;
   id?: string;
-};
+}
 
-export type FieldType =
-  | "ID"
-  | "CREATION_DATE"
-  | "CREATION_USER"
-  | "MODIFICATION_DATE"
-  | "MODIFICATION_USER"
-  | "STATUS"
-  | "FIELD"
-  | "META_FIELD";
+export const metaColumn = [
+  "ID",
+  "STATUS",
+  "CREATION_DATE",
+  "CREATION_USER",
+  "MODIFICATION_DATE",
+  "MODIFICATION_USER",
+] as const;
+type MetaColumnType = (typeof metaColumn)[number];
+
+export type FieldType = MetaColumnType | "FIELD" | "META_FIELD";
 
 export type SortDirection = "ASC" | "DESC";
 
-export type ConditionInput = {
+export interface ConditionInput {
   and?: AndConditionInput;
   or?: OrConditionInput;
   basic?: BasicFieldConditionInput;
@@ -53,56 +56,56 @@ export type ConditionInput = {
   string?: StringFieldConditionInput;
   number?: NumberFieldConditionInput;
   time?: TimeFieldConditionInput;
-};
+}
 
-export type AndConditionInput = {
+export interface AndConditionInput {
   conditions: ConditionInput[];
-};
+}
 
-export type OrConditionInput = {
+export interface OrConditionInput {
   conditions: ConditionInput[];
-};
+}
 
-export type BasicFieldConditionInput = {
+export interface BasicFieldConditionInput {
   fieldId: FieldSelector;
   operator: BasicOperator;
-  value: any;
-};
+  value: unknown;
+}
 
-export type NullableFieldConditionInput = {
+export interface NullableFieldConditionInput {
   fieldId: FieldSelector;
   operator: NullableOperator;
-};
+}
 
-export type MultipleFieldConditionInput = {
+export interface MultipleFieldConditionInput {
   fieldId: FieldSelector;
   operator: MultipleOperator;
-  value: any[];
-};
+  value: unknown[];
+}
 
-export type BoolFieldConditionInput = {
+export interface BoolFieldConditionInput {
   fieldId: FieldSelector;
   operator: BoolOperator;
   value: boolean;
-};
+}
 
-export type StringFieldConditionInput = {
+export interface StringFieldConditionInput {
   fieldId: FieldSelector;
   operator: StringOperator;
   value: boolean;
-};
+}
 
-export type NumberFieldConditionInput = {
+export interface NumberFieldConditionInput {
   fieldId: FieldSelector;
   operator: StringOperator;
   value: boolean;
-};
+}
 
-export type TimeFieldConditionInput = {
+export interface TimeFieldConditionInput {
   fieldId: FieldSelector;
   operator: TimeOperator;
   value: boolean;
-};
+}
 
 export type Condition =
   | AndCondition
@@ -115,54 +118,54 @@ export type Condition =
   | NumberFieldCondition
   | TimeFieldCondition;
 
-export type AndCondition = {
+export interface AndCondition {
   conditions: Condition[];
-};
+}
 
-export type OrCondition = {
+export interface OrCondition {
   conditions: Condition[];
-};
+}
 
-export type BasicFieldCondition = {
+export interface BasicFieldCondition {
   fieldId: FieldSelector;
   operator: BasicOperator;
-  value: any;
-};
+  value: unknown;
+}
 
-export type NullableFieldCondition = {
+export interface NullableFieldCondition {
   fieldId: FieldSelector;
   operator: NullableOperator;
-};
+}
 
-export type MultipleFieldCondition = {
+export interface MultipleFieldCondition {
   fieldId: FieldSelector;
   operator: MultipleOperator;
-  value: any[];
-};
+  value: unknown[];
+}
 
-export type BoolFieldCondition = {
+export interface BoolFieldCondition {
   fieldId: FieldSelector;
   operator: BoolOperator;
   value: boolean;
-};
+}
 
-export type StringFieldCondition = {
+export interface StringFieldCondition {
   fieldId: FieldSelector;
   operator: StringOperator;
   value: boolean;
-};
+}
 
-export type NumberFieldCondition = {
+export interface NumberFieldCondition {
   fieldId: FieldSelector;
   operator: NumberOperator;
   value: boolean;
-};
+}
 
-export type TimeFieldCondition = {
+export interface TimeFieldCondition {
   fieldId: FieldSelector;
   operator: TimeOperator;
   value: boolean;
-};
+}
 
 export enum BasicOperator {
   Equals = "EQUALS",

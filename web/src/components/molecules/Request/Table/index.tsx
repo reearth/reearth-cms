@@ -11,6 +11,7 @@ import {
   StretchColumn,
   OptionConfig,
   TableRowSelection,
+  ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -19,18 +20,20 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-type Props = {
+interface Props {
   requests: Request[];
   loading: boolean;
-  selectedRequest: Request | undefined;
+  selectedRequest?: Request;
   onRequestSelect: (assetId: string) => void;
   onEdit: (requestId: string) => void;
+  searchTerm: string;
   onSearchTerm: (term?: string) => void;
   selection: {
     selectedRowKeys: Key[];
   };
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
+  deleteLoading: boolean;
   onRequestDelete: (requestIds: string[]) => void;
   onRequestTableChange: (
     page: number,
@@ -45,7 +48,9 @@ type Props = {
   requestState: RequestState[];
   page: number;
   pageSize: number;
-};
+  columns: Record<string, ColumnsState>;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
+}
 
 const RequestListTable: React.FC<Props> = ({
   requests,
@@ -53,10 +58,12 @@ const RequestListTable: React.FC<Props> = ({
   selectedRequest,
   onRequestSelect,
   onEdit,
+  searchTerm,
   onSearchTerm,
   selection,
   setSelection,
   onRequestsReload,
+  deleteLoading,
   onRequestDelete,
   onRequestTableChange,
   totalCount,
@@ -65,6 +72,8 @@ const RequestListTable: React.FC<Props> = ({
   requestState,
   page,
   pageSize,
+  columns: columnsState,
+  onColumnsChange,
 }) => {
   const t = useT();
 
@@ -76,6 +85,7 @@ const RequestListTable: React.FC<Props> = ({
         render: (_, request) => (
           <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
         ),
+        key: "EDIT_ICON",
         width: 48,
         minWidth: 48,
         align: "center",
@@ -140,8 +150,8 @@ const RequestListTable: React.FC<Props> = ({
           { text: t("DRAFT"), value: "DRAFT" },
         ],
         defaultFilteredValue: requestState,
-        width: 100,
-        minWidth: 100,
+        width: 130,
+        minWidth: 130,
       },
       {
         title: t("Created By"),
@@ -235,7 +245,7 @@ const RequestListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: any) => {
+      onChange: (selectedRowKeys: Key[]) => {
         setSelection({
           ...selection,
           selectedRowKeys: selectedRowKeys,
@@ -254,33 +264,50 @@ const RequestListTable: React.FC<Props> = ({
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
+          defaultValue={searchTerm}
         />
       ),
     }),
-    [onSearchTerm, t],
+    [onSearchTerm, searchTerm, t],
   );
 
-  const AlertOptions = useCallback(
+  const alertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={16}>
-          <DeselectButton onClick={props.onCleanSelected}>
-            <Icon icon="clear" /> {t("Deselect")}
-          </DeselectButton>
-          <DeleteButton onClick={() => onRequestDelete?.(props.selectedRowKeys)}>
-            <Icon icon="delete" /> {t("Close")}
-          </DeleteButton>
+        <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="clear" />}
+            onClick={props.onCleanSelected}>
+            {t("Deselect")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="delete" />}
+            onClick={() => onRequestDelete(props.selectedRowKeys)}
+            danger
+            loading={deleteLoading}>
+            {t("Close")}
+          </Button>
         </Space>
       );
     },
-    [onRequestDelete, t],
+    [deleteLoading, onRequestDelete, t],
   );
 
   return (
     <ResizableProTable
       dataSource={requests}
       columns={columns}
-      tableAlertOptionRender={AlertOptions}
+      columnsState={{
+        defaultValue: {},
+        value: columnsState,
+        onChange: onColumnsChange,
+      }}
+      tableAlertOptionRender={alertOptions}
       search={false}
       rowKey="id"
       options={options}
@@ -318,14 +345,4 @@ const StyledUserAvatar = styled(UserAvatar)`
   :nth-child(n + 2) {
     margin-left: -18px;
   }
-`;
-
-const DeselectButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
 `;

@@ -10,7 +10,9 @@ const RequestDetails: React.FC = () => {
     isCloseActionEnabled,
     isApproveActionEnabled,
     currentRequest,
-    loading: loadingRequest,
+    loading,
+    deleteLoading,
+    approveLoading,
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
@@ -19,32 +21,10 @@ const RequestDetails: React.FC = () => {
     handleNavigateToRequestsList,
   } = useHooks();
 
-  const {
-    assetList,
-    fileList,
-    loading,
-    uploading,
-    uploadModalVisibility,
-    uploadUrl,
-    uploadType,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    setFileList,
-    setUploadModalVisibility,
-    handleAssetsCreate,
-    handleAssetCreateFromUrl,
-    handleAssetsGet,
-    handleAssetsReload,
-    handleSearchTerm,
-    totalCount,
-    page,
-    pageSize,
-    handleAssetTableChange,
-    handleGetAsset,
-  } = useAssetHooks(false);
+  const { handleGetAsset } = useAssetHooks(false);
 
-  const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
+  const { workspaceUserMembers, updateRequestLoading, handleRequestUpdate, handleGroupGet } =
+    useContentHooks();
 
   return (
     <RequestDetailsMolecule
@@ -53,6 +33,9 @@ const RequestDetails: React.FC = () => {
       isApproveActionEnabled={isApproveActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
+      deleteLoading={deleteLoading}
+      approveLoading={approveLoading}
+      updateLoading={updateRequestLoading}
       onRequestApprove={handleRequestApprove}
       onRequestUpdate={handleRequestUpdate}
       onRequestDelete={handleRequestDelete}
@@ -60,29 +43,9 @@ const RequestDetails: React.FC = () => {
       onCommentUpdate={handleCommentUpdate}
       onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
-      assetList={assetList}
-      fileList={fileList}
-      loadingAssets={loading}
-      loading={loadingRequest}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
-      totalCount={totalCount}
-      page={page}
-      pageSize={pageSize}
-      onAssetTableChange={handleAssetTableChange}
-      onUploadModalCancel={handleUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
-      onAssetsCreate={handleAssetsCreate}
-      onAssetCreateFromUrl={handleAssetCreateFromUrl}
-      onAssetsGet={handleAssetsGet}
-      onAssetsReload={handleAssetsReload}
-      onAssetSearchTerm={handleSearchTerm}
-      setFileList={setFileList}
-      setUploadModalVisibility={setUploadModalVisibility}
+      loading={loading}
       onGetAsset={handleGetAsset}
+      onGroupGet={handleGroupGet}
     />
   );
 };

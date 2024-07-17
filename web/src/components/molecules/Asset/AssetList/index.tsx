@@ -3,20 +3,17 @@ import { Key, useCallback } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
 
-type Props = {
-  commentsPanel?: JSX.Element;
+interface Props {
+  commentsPanel: JSX.Element;
   assetList: Asset[];
   fileList: UploadFile[];
   selection: {
@@ -25,12 +22,17 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   loading: boolean;
+  deleteLoading: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
-  selectedAsset: Asset | undefined;
+  selectedAsset?: Asset;
   totalCount: number;
   page: number;
   pageSize: number;
+  sort?: SortType;
+  searchTerm: string;
+  columns: Record<string, ColumnsState>;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
@@ -45,12 +47,8 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-};
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+}
 
 const AssetList: React.FC<Props> = ({
   commentsPanel,
@@ -60,12 +58,17 @@ const AssetList: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   loading,
+  deleteLoading,
   uploadUrl,
   uploadType,
   selectedAsset,
   totalCount,
   page,
   pageSize,
+  sort,
+  searchTerm,
+  columns,
+  onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
   onUploadModalCancel,
@@ -142,10 +145,15 @@ const AssetList: React.FC<Props> = ({
             assetList={assetList}
             selection={selection}
             loading={loading}
+            deleteLoading={deleteLoading}
             selectedAsset={selectedAsset}
             totalCount={totalCount}
             page={page}
             pageSize={pageSize}
+            sort={sort}
+            searchTerm={searchTerm}
+            columns={columns}
+            onColumnsChange={onColumnsChange}
             onAssetItemSelect={onAssetItemSelect}
             onAssetSelect={onAssetSelect}
             onEdit={onEdit}

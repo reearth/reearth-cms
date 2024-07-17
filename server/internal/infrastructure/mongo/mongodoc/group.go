@@ -14,6 +14,7 @@ type GroupDocument struct {
 	Key         string
 	Project     string
 	Schema      string
+	Order       int
 }
 
 func NewGroup(group *group.Group) (*GroupDocument, string) {
@@ -25,7 +26,22 @@ func NewGroup(group *group.Group) (*GroupDocument, string) {
 		Key:         group.Key().String(),
 		Project:     group.Project().String(),
 		Schema:      group.Schema().String(),
+		Order:       group.Order(),
 	}, mId
+}
+
+func NewGroups(groups group.List) ([]*GroupDocument, []string) {
+	res := make([]*GroupDocument, 0, len(groups))
+	ids := make([]string, 0, len(groups))
+	for _, d := range groups {
+		if d == nil {
+			continue
+		}
+		r, rid := NewGroup(d)
+		res = append(res, r)
+		ids = append(ids, rid)
+	}
+	return res, ids
 }
 
 func (d *GroupDocument) Model() (*group.Group, error) {
@@ -49,6 +65,7 @@ func (d *GroupDocument) Model() (*group.Group, error) {
 		Key(key.New(d.Key)).
 		Project(pId).
 		Schema(sId).
+		Order(d.Order).
 		Build()
 }
 

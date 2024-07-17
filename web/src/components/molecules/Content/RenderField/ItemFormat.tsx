@@ -16,12 +16,12 @@ import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-type Props = {
+interface Props {
   item: string;
   field: Field;
   update?: (value: string | boolean, index?: number) => void;
   index?: number;
-};
+}
 
 export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
   const [isEditable, setIsEditable] = useState(false);
@@ -55,8 +55,8 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
         <ReactMarkdown
           components={{
             a(props) {
-              const { node: _, ...rest } = props;
-              return <a target="_blank" {...rest} />;
+              delete props.node;
+              return <a target="_blank" {...props} />;
             },
           }}
           remarkPlugins={[remarkGfm]}>
@@ -74,7 +74,7 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
           }}
         />
       ) : (
-        dateTimeFormat(item)
+        dateTimeFormat(item, "YYYY-MM-DD")
       );
     case "Bool":
       return update ? (

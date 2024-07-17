@@ -123,10 +123,6 @@ export default () => {
     t,
   ]);
 
-  const handleAliasChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setAlias(e.currentTarget.value);
-  }, []);
-
   const handleUpdatedAssetState = useCallback((state: boolean) => {
     setAssetState(state);
   }, []);
@@ -155,7 +151,6 @@ export default () => {
     assetState,
     isSaveDisabled,
     handlePublicUpdate,
-    handleAliasChange,
     handleUpdatedAssetState,
     handleUpdatedModels,
     handleSetScope,

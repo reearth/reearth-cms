@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -91,6 +92,25 @@ func (r *Group) FindByKey(ctx context.Context, pid id.ProjectID, key string) (*g
 	}
 
 	return g, nil
+}
+
+func (r *Group) SaveAll(ctx context.Context, groups group.List) error {
+	if r.err != nil {
+		return r.err
+	}
+	if len(groups) == 0 {
+		return nil
+	}
+
+	if !r.f.CanWrite(groups.Projects()...) {
+		return repo.ErrOperationDenied
+	}
+	inp := map[id.GroupID]*group.Group{}
+	for _, m := range groups {
+		inp[m.ID()] = m
+	}
+	r.data.StoreAll(inp)
+	return nil
 }
 
 func (r *Group) Save(ctx context.Context, g *group.Group) error {

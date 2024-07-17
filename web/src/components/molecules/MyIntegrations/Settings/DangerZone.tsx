@@ -7,9 +7,9 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+interface Props {
   onIntegrationDelete: () => Promise<void>;
-};
+}
 
 const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
   const t = useT();
@@ -26,8 +26,9 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
           {t("Once the integration is removed, it will disappear from all workspaces.")}
         </>
       ),
-      onOk() {
-        onIntegrationDelete();
+      cancelText: t("Cancel"),
+      async onOk() {
+        await onIntegrationDelete();
       },
     });
   }, [confirm, onIntegrationDelete, t]);
@@ -40,7 +41,6 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
           "Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.",
         )}
       </Text>
-
       <Button onClick={handleWorkspaceDeleteConfirmation} type="primary" danger>
         {t("Remove Integration")}
       </Button>

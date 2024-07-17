@@ -6,6 +6,7 @@ import {
   ItemAsset,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 import { initialValuesGet } from "@reearth-cms/components/organisms/Project/Request/RequestDetails/utils";
 import {
   Asset as GQLAsset,
@@ -83,29 +84,36 @@ export const fromGraphQLAsset = (asset: GQLAsset | undefined): Asset | undefined
   };
 };
 
-export const fromGraphQLRequest = (request: GQLRequest | undefined): Request | undefined => {
-  if (!request) return;
-  return {
-    id: request.id,
-    threadId: request.thread?.id ?? "",
-    title: request.title,
-    description: request.description ?? "",
-    comments: request.thread?.comments?.map(comment => fromGraphQLComment(comment)) ?? [],
-    createdAt: request.createdAt,
-    reviewers: request.reviewers,
-    state: request.state,
-    createdBy: request.createdBy ?? undefined,
-    updatedAt: request.updatedAt,
-    approvedAt: request.approvedAt ?? undefined,
-    closedAt: request.closedAt ?? undefined,
-    items: request.items?.map(item => ({
-      id: item.itemId,
-      modelName: item?.item?.value.model.name,
-      initialValues: initialValuesGet(item.item?.value.fields),
-      schema: item.item?.value.schema ? item.item?.value.schema : undefined,
-    })),
-  };
-};
+export const fromGraphQLRequest = (request: GQLRequest): Request => ({
+  id: request.id,
+  threadId: request.thread?.id ?? "",
+  title: request.title,
+  description: request.description ?? "",
+  comments: request.thread?.comments?.map(comment => fromGraphQLComment(comment)) ?? [],
+  createdAt: request.createdAt,
+  reviewers: request.reviewers,
+  state: request.state,
+  createdBy: request.createdBy ?? undefined,
+  updatedAt: request.updatedAt,
+  approvedAt: request.approvedAt ?? undefined,
+  closedAt: request.closedAt ?? undefined,
+  items: request.items?.map(item => ({
+    id: item.itemId,
+    modelName: item?.item?.value.model.name,
+    initialValues: initialValuesGet(item.item?.value.fields),
+    schema: item.item?.value.schema ? (item.item?.value.schema as Schema) : undefined,
+    referencedItems:
+      item.item?.value.referencedItems?.map(item => ({
+        id: item.id,
+        title: item.title ?? "",
+        schemaId: item.schemaId,
+        createdBy: item.createdBy?.name ?? "",
+        status: item.status,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      })) ?? [],
+  })),
+});
 
 export const fromGraphQLComment = (GQLComment: GQLComment): Comment => {
   return {

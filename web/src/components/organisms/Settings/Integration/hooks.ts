@@ -1,18 +1,19 @@
 import { Key, useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import {
-  Integration,
-  IntegrationMember,
-  Role,
-} from "@reearth-cms/components/molecules/Integration/types";
-import { fromGraphQLIntegration } from "@reearth-cms/components/organisms/DataConverters/setting";
+  fromGraphQLIntegration,
+  fromGraphQLWorkspace,
+} from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
   Role as GQLRole,
   useUpdateIntegrationOfWorkspaceMutation,
   useRemoveIntegrationFromWorkspaceMutation,
+  Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -24,37 +25,41 @@ export default (workspaceId?: string) => {
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
-  const { data, refetch } = useGetMeQuery();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const { data, refetch, loading } = useGetMeQuery({
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+  });
   const t = useT();
 
-  const workspaces = useMemo(() => data?.me?.workspaces, [data?.me?.workspaces]);
-  const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
+  const workspace = useMemo(() => {
+    const foundWorkspace = data?.me?.workspaces?.find(workspace => workspace.id === workspaceId);
+    return foundWorkspace && fromGraphQLWorkspace(foundWorkspace as GQLWorkspace);
+  }, [data?.me?.workspaces]);
 
-  const integrations = useMemo(() => {
-    return data?.me?.integrations
-      ?.map<Integration | undefined>(integration => fromGraphQLIntegration(integration))
-      .filter((integration): integration is Integration => !!integration);
-  }, [data?.me?.integrations]);
+  const workspaceIntegrationMembers = useMemo(
+    () =>
+      workspace?.members?.filter(
+        (member): member is IntegrationMember =>
+          "integration" in member &&
+          !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""),
+      ),
+    [workspace?.members, searchTerm],
+  );
 
-  const workspaceIntegrationMembers = useMemo(() => {
-    return workspace?.members
-      ?.map<IntegrationMember | undefined>(member =>
-        member && member.__typename === "WorkspaceIntegrationMember" && member.integration
-          ? {
-              id: member.integration.id,
-              active: member.active,
-              integration: fromGraphQLIntegration(member.integration),
-              integrationRole: member.integrationRole,
-              invitedById: member.invitedById,
-            }
-          : undefined,
-      )
-      .filter(
-        (integrationMember): integrationMember is IntegrationMember =>
-          !!integrationMember?.integration &&
-          integrationMember.integration.name.toLowerCase().includes(searchTerm ?? ""),
-      );
-  }, [workspace, searchTerm]);
+  const integrations = useMemo(
+    () =>
+      data?.me?.integrations
+        ?.map(integration => fromGraphQLIntegration(integration))
+        .filter(
+          integration =>
+            !workspaceIntegrationMembers?.some(
+              workspaceIntegration => workspaceIntegration.id === integration.id,
+            ),
+        ),
+    [data?.me?.integrations, workspaceIntegrationMembers],
+  );
 
   const handleIntegrationConnectModalClose = useCallback(() => {
     setIntegrationConnectModalShown(false);
@@ -73,7 +78,8 @@ export default (workspaceId?: string) => {
     setIntegrationSettingsModalShown(true);
   }, []);
 
-  const [addIntegrationToWorkspaceMutation] = useAddIntegrationToWorkspaceMutation();
+  const [addIntegrationToWorkspaceMutation, { loading: addLoading }] =
+    useAddIntegrationToWorkspaceMutation();
 
   const handleIntegrationConnect = useCallback(
     async (integration?: Integration) => {
@@ -96,7 +102,8 @@ export default (workspaceId?: string) => {
     [addIntegrationToWorkspaceMutation, workspaceId, refetch, t],
   );
 
-  const [updateIntegrationToWorkspaceMutation] = useUpdateIntegrationOfWorkspaceMutation();
+  const [updateIntegrationToWorkspaceMutation, { loading: updateLoading }] =
+    useUpdateIntegrationOfWorkspaceMutation();
 
   const handleUpdateIntegration = useCallback(
     async (role: Role) => {
@@ -120,35 +127,45 @@ export default (workspaceId?: string) => {
     [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch, t],
   );
 
-  const [removeIntegrationFromWorkspaceMutation] = useRemoveIntegrationFromWorkspaceMutation();
+  const [removeIntegrationFromWorkspaceMutation, { loading: deleteLoading }] =
+    useRemoveIntegrationFromWorkspaceMutation();
 
   const handleIntegrationRemove = useCallback(
-    (integrationIds: string[]) =>
-      (async () => {
-        if (!workspaceId) return;
-        const results = await Promise.all(
-          integrationIds.map(async integrationId => {
-            const result = await removeIntegrationFromWorkspaceMutation({
-              variables: { workspaceId, integrationId },
-              refetchQueries: ["GetMe"],
-            });
-            if (result.errors) {
-              Notification.error({ message: t("Failed to delete one or more intagrations.") });
-            }
-          }),
-        );
-        if (results) {
-          Notification.success({
-            message: t("One or more integrations were successfully deleted!"),
+    async (integrationIds: string[]) => {
+      if (!workspaceId) return;
+      const results = await Promise.all(
+        integrationIds.map(async integrationId => {
+          const result = await removeIntegrationFromWorkspaceMutation({
+            variables: { workspaceId, integrationId },
+            refetchQueries: ["GetMe"],
           });
-          setSelection({ selectedRowKeys: [] });
-        }
-      })(),
+          if (result.errors) {
+            Notification.error({ message: t("Failed to delete one or more intagrations.") });
+          }
+        }),
+      );
+      if (results) {
+        Notification.success({
+          message: t("One or more integrations were successfully deleted!"),
+        });
+        setSelection({ selectedRowKeys: [] });
+      }
+    },
     [t, removeIntegrationFromWorkspaceMutation, workspaceId],
   );
 
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
+    setPage(1);
+  }, []);
+
+  const handleReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleTableChange = useCallback((page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
   }, []);
 
   return {
@@ -156,10 +173,13 @@ export default (workspaceId?: string) => {
     workspaceIntegrationMembers,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
+    addLoading,
     handleIntegrationConnect,
+    deleteLoading,
     handleIntegrationRemove,
     integrationConnectModalShown,
     handleUpdateIntegration,
+    updateLoading,
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,
@@ -167,5 +187,10 @@ export default (workspaceId?: string) => {
     selection,
     handleSearchTerm,
     setSelection,
+    page,
+    pageSize,
+    handleTableChange,
+    loading,
+    handleReload,
   };
 };

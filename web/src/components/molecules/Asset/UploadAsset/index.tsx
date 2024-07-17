@@ -6,21 +6,21 @@ import { useT } from "@reearth-cms/i18n";
 
 import UploadModal from "../UploadModal/UploadModal";
 
-type Props = {
+interface Props {
   alsoLink?: boolean;
   uploadProps: UploadProps;
-  fileList: UploadFile<File>[];
-  uploading: boolean;
-  uploadModalVisibility: boolean;
+  fileList?: UploadFile<File>[];
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
+  uploadType?: UploadType;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
+  setUploadType?: (type: UploadType) => void;
   onUploadModalClose?: () => void;
   displayUploadModal: () => void;
-  onUploadModalCancel: () => void;
+  onUploadModalCancel?: () => void;
   onUpload: () => void;
-};
+}
 
 const UploadAsset: React.FC<Props> = ({
   alsoLink,

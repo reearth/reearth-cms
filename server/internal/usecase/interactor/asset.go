@@ -147,7 +147,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Project(inp.ProjectID).
 				FileName(path.Base(file.Name)).
 				Size(uint64(file.Size)).
-				Type(asset.PreviewTypeFromContentType(file.ContentType)).
+				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).
 				Thread(th.ID()).
 				ArchiveExtractionStatus(es)

@@ -16,20 +16,12 @@ test.afterEach(async ({ page }) => {
 
 test("Group field creating and updating has succeeded", async ({ page }) => {
   test.slow();
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeVisible();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeVisible();
 
   await createGroup(page);
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).not.toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).not.toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeHidden();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeHidden();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text1");
@@ -42,7 +34,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByText("text1#text1")).toBeVisible();
 
   await page.getByText("e2e model name").click();
-  await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
+  await page.locator("li").getByText("Group", { exact: true }).click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("group1");
   await page.getByLabel("Settings").locator("#key").click();
@@ -55,12 +47,12 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(
     page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "Set field as unique" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByLabel("Set default value")).not.toBeEnabled();
+  await expect(page.getByLabel("Set default value")).toBeDisabled();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1#group1");
@@ -76,7 +68,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
   // TO DO: check if the group field shows correctly
 
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByLabel("text1")).toHaveValue("text1");
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("new text1");
@@ -110,19 +102,18 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByText("e2e model name").click();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByRole("main")).toContainText("new text1(unique)");
   await expect(page.getByRole("main")).toContainText("new text1 description");
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("new text1");
   await expect(page.getByText("/ 5")).toBeVisible();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
   await page.getByLabel("new text1(unique)").click();
   await page.getByLabel("new text1(unique)").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("text1");
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
@@ -142,34 +133,26 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("text1");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text2");
   await page.getByRole("button", { name: "arrow-down" }).first().click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text1");
 });
 
 test("Group field editing has succeeded", async ({ page }) => {
   test.slow();
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeVisible();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeVisible();
 
   await createGroup(page);
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).not.toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).not.toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeHidden();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeHidden();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text1");
@@ -182,7 +165,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("text1#text1")).toBeVisible();
 
   await page.getByText("e2e model name").click();
-  await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
+  await page.locator("li").getByText("Group", { exact: true }).click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("group1");
   await page.getByLabel("Settings").locator("#key").click();
@@ -195,12 +178,12 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(
     page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "Set field as unique" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByLabel("Set default value")).not.toBeEnabled();
+  await expect(page.getByLabel("Set default value")).toBeDisabled();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1#group1");
@@ -228,7 +211,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new group1");
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByRole("main")).toContainText("new group1");
   await expect(page.getByRole("main")).toContainText("new group1 (1)");
   await expect(page.getByRole("main")).toContainText("new group1 description");
@@ -248,7 +231,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(
     page
       .locator("div")
@@ -269,7 +252,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByLabel("text1")).toHaveValue("text1");
 
   await page.locator("span").filter({ hasText: "Schema" }).click();
@@ -299,7 +282,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("text1");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("text2");

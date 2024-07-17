@@ -114,6 +114,11 @@ func TestConvertAsset_FromPreviewType(t *testing.T) {
 	want9 := asset.PreviewTypeImageSvg
 	got9 := FromPreviewType(&pt9)
 	assert.Equal(t, &want9, got9)
+
+	var pt10 = PreviewTypeCSV
+	want10 := asset.PreviewTypeCSV
+	got10 := FromPreviewType(&pt10)
+	assert.Equal(t, &want10, got10)
 }
 
 func TestConvertAsset_ToPreviewType(t *testing.T) {
@@ -161,6 +166,11 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	want9 := PreviewTypeImageSVG
 	got9 := ToPreviewType(&pt9)
 	assert.Equal(t, &want9, got9)
+
+	var pt10 = asset.PreviewTypeCSV
+	want10 := PreviewTypeCSV
+	got10 := ToPreviewType(&pt10)
+	assert.Equal(t, &want10, got10)
 }
 
 func TestConvertAsset_ToStatus(t *testing.T) {

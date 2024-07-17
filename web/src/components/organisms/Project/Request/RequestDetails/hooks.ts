@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useDeleteRequestMutation,
   useApproveRequestMutation,
@@ -13,11 +14,10 @@ import {
   useUpdateCommentMutation,
   useDeleteCommentMutation,
   useGetRequestQuery,
+  Request as GQLRequest,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
-
-import { initialValuesGet } from "./utils";
 
 export default () => {
   const t = useT();
@@ -25,9 +25,10 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const { requestId } = useParams();
+  const location = useLocation();
 
   const { data: userData } = useGetMeQuery();
-  const { data: rawRequest, loading: requestLoading } = useGetRequestQuery({
+  const { data: rawRequest, loading } = useGetRequestQuery({
     variables: { requestId: requestId ?? "" },
     skip: !requestId,
     fetchPolicy: "cache-and-network",
@@ -54,39 +55,8 @@ export default () => {
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const currentRequest: Request | undefined = useMemo(() => {
-    if (!rawRequest) return;
-    if (rawRequest.node?.__typename !== "Request") return;
-    const r = rawRequest.node;
-    return {
-      id: r.id,
-      threadId: r.thread?.id ?? "",
-      title: r.title,
-      description: r.description ?? "",
-      comments:
-        r.thread?.comments?.map(c => ({
-          id: c.id,
-          author: {
-            id: c.author?.id,
-            name: c.author?.name ?? "Anonymous",
-            type: c.author ? (c.author.__typename === "User" ? "User" : "Integration") : null,
-          },
-          content: c.content,
-          createdAt: c.createdAt.toString(),
-        })) ?? [],
-      createdAt: r.createdAt,
-      reviewers: r.reviewers,
-      state: r.state,
-      createdBy: r.createdBy ?? undefined,
-      updatedAt: r.updatedAt,
-      approvedAt: r.approvedAt ?? undefined,
-      closedAt: r.closedAt ?? undefined,
-      items: r.items.map(item => ({
-        id: item.itemId,
-        modelName: item?.item?.value.model.name,
-        initialValues: initialValuesGet(item.item?.value.fields),
-        schema: item.item?.value.schema ? item.item?.value.schema : undefined,
-      })),
-    };
+    if (!rawRequest?.node) return;
+    return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);
 
   const isCloseActionEnabled: boolean = useMemo(
@@ -108,7 +78,7 @@ export default () => {
     [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
   );
 
-  const [deleteRequestMutation] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(
     (requestsId: string[]) =>
       (async () => {
@@ -128,7 +98,7 @@ export default () => {
     [t, projectId, currentWorkspace?.id, navigate, deleteRequestMutation],
   );
 
-  const [approveRequestMutation] = useApproveRequestMutation();
+  const [approveRequestMutation, { loading: approveLoading }] = useApproveRequestMutation();
   const handleRequestApprove = useCallback(
     (requestId: string) =>
       (async () => {
@@ -170,8 +140,10 @@ export default () => {
   );
 
   const handleNavigateToRequestsList = useCallback(() => {
-    navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-  }, [currentWorkspace?.id, projectId, navigate]);
+    navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`, {
+      state: location.state,
+    });
+  }, [navigate, currentWorkspace?.id, projectId, location.state]);
 
   const handleNavigateToItemEditForm = useCallback(
     (itemId: string, modelId?: string) => {
@@ -231,7 +203,9 @@ export default () => {
   return {
     me,
     isCloseActionEnabled,
-    loading: requestLoading,
+    loading,
+    deleteLoading,
+    approveLoading,
     isApproveActionEnabled,
     currentRequest,
     handleRequestDelete,

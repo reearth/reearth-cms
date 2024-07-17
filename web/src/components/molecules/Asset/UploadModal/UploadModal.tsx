@@ -13,20 +13,20 @@ import UrlTab from "./UrlTab";
 
 const { TabPane } = Tabs;
 
-type Props = {
+interface Props {
   alsoLink?: boolean;
-  visible: boolean;
+  visible?: boolean;
   uploadProps: UploadProps;
-  fileList: UploadFile<File>[];
-  uploading: boolean;
+  fileList?: UploadFile<File>[];
+  uploading?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
+  uploadType?: UploadType;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
+  setUploadType?: (type: UploadType) => void;
   onUploadModalClose?: () => void;
   onUpload: () => void;
-  onCancel: () => void;
-};
+  onCancel?: () => void;
+}
 
 const UploadModal: React.FC<Props> = ({
   alsoLink,
@@ -46,7 +46,7 @@ const UploadModal: React.FC<Props> = ({
 
   const handleTabChange = useCallback(
     (key: string) => {
-      setUploadType(key as UploadType);
+      setUploadType?.(key as UploadType);
     },
     [setUploadType],
   );
@@ -56,14 +56,25 @@ const UploadModal: React.FC<Props> = ({
       centered
       open={visible}
       onCancel={onCancel}
-      footer={null}
+      footer={
+        <>
+          <Button type="default" disabled={uploading} onClick={onCancel}>
+            {t("Cancel")}
+          </Button>
+          <Button
+            type="primary"
+            onClick={onUpload}
+            disabled={fileList?.length === 0 && !uploadUrl.url}
+            loading={uploading}>
+            {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
+          </Button>
+        </>
+      }
       width="50vw"
       afterClose={onUploadModalClose}
       styles={{
         body: {
           minHeight: "50vh",
-          position: "relative",
-          paddingBottom: "80px",
         },
       }}>
       <div>
@@ -77,18 +88,6 @@ const UploadModal: React.FC<Props> = ({
           <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
         </TabPane>
       </Tabs>
-      <Footer>
-        <CancelButton type="default" disabled={uploading} onClick={onCancel}>
-          {t("Cancel")}
-        </CancelButton>
-        <Button
-          type="primary"
-          onClick={onUpload}
-          disabled={fileList?.length === 0 && !uploadUrl.url}
-          loading={uploading}>
-          {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
-        </Button>
-      </Footer>
     </StyledModal>
   );
 };
@@ -100,17 +99,6 @@ const StyledModal = styled(Modal)`
     align-items: center;
     width: 100%;
   }
-`;
-
-const Footer = styled.div`
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  padding: 10px;
-`;
-
-const CancelButton = styled(Button)`
-  margin-right: 8px;
 `;
 
 export default UploadModal;

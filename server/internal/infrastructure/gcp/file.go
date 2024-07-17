@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"net/url"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"cloud.google.com/go/storage"
@@ -225,6 +227,10 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 
 	writer := object.NewWriter(ctx)
 	writer.ObjectAttrs.CacheControl = f.cacheControl
+	ct := getContentType(filename)
+	if ct != "" {
+		writer.ObjectAttrs.ContentType = ct
+	}
 
 	if _, err := io.Copy(writer, content); err != nil {
 		log.Errorf("gcs: upload err: %+v\n", err)
@@ -242,6 +248,11 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	}
 
 	return attr.Size, nil
+}
+
+func getContentType(filename string) string {
+	ext := filepath.Ext(filename)
+	return mime.TypeByExtension(ext)
 }
 
 func (f *fileRepo) delete(ctx context.Context, filename string) error {

@@ -6,12 +6,12 @@ import ViewsMenuMolecule from "@reearth-cms/components/molecules/View/viewsMenu"
 
 import useHooks from "./hooks";
 
-type Props = {
+interface Props {
   views: View[];
   currentView: CurrentView;
   onViewSelect: (key: string) => void;
   onViewChange: () => void;
-};
+}
 
 const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewChange }) => {
   const {
@@ -25,6 +25,7 @@ const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewCh
     handleViewUpdate,
     handleViewRename,
     handleViewDelete,
+    handleUpdateViewsOrder,
   } = useHooks({ currentView, onViewChange });
 
   return (
@@ -37,6 +38,7 @@ const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewCh
         onDelete={handleViewDelete}
         onUpdate={handleViewUpdate}
         onViewSelect={onViewSelect}
+        onUpdateViewsOrder={handleUpdateViewsOrder}
       />
       <ViewFormModal
         modalState={modalState}

@@ -6,7 +6,7 @@ test.afterEach(async ({ page }) => {
   await page.getByRole("button", { name: "Delete Project" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByText("new project name", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("new project name", { exact: true })).toBeHidden();
 });
 
 test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
@@ -19,18 +19,14 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Project description").click();
   await page.getByLabel("Project description").fill("project description");
   await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page, false);
-  await page.getByLabel("Project alias").click();
-  await page.getByLabel("Project alias").fill("project-alias");
-  await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
   await expect(page.getByText("project name", { exact: true })).toBeVisible();
   await expect(page.getByText("project description", { exact: true })).toBeVisible();
-  await page.locator(".ant-input-affix-wrapper").click();
+  await page.getByPlaceholder("search projects").click();
   await page.getByPlaceholder("search projects").fill("no project");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByText("project name", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("project name", { exact: true })).toBeHidden();
   await page.getByRole("button", { name: "close-circle" }).click();
   await expect(page.getByText("project name", { exact: true })).toBeVisible();
   await page.getByText("project name", { exact: true }).click();
