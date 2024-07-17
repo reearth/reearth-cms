@@ -12,7 +12,7 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
@@ -27,10 +27,6 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 
@@ -80,11 +76,7 @@ interface Props {
   onRequestTableChange: (page: number, pageSize: number) => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;

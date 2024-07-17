@@ -11,6 +11,7 @@ import {
   StretchColumn,
   OptionConfig,
   TableRowSelection,
+  ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -47,6 +48,8 @@ interface Props {
   requestState: RequestState[];
   page: number;
   pageSize: number;
+  columns: Record<string, ColumnsState>;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
 }
 
 const RequestListTable: React.FC<Props> = ({
@@ -69,6 +72,8 @@ const RequestListTable: React.FC<Props> = ({
   requestState,
   page,
   pageSize,
+  columns: columnsState,
+  onColumnsChange,
 }) => {
   const t = useT();
 
@@ -80,6 +85,7 @@ const RequestListTable: React.FC<Props> = ({
         render: (_, request) => (
           <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
         ),
+        key: "EDIT_ICON",
         width: 48,
         minWidth: 48,
         align: "center",
@@ -296,6 +302,11 @@ const RequestListTable: React.FC<Props> = ({
     <ResizableProTable
       dataSource={requests}
       columns={columns}
+      columnsState={{
+        defaultValue: {},
+        value: columnsState,
+        onChange: onColumnsChange,
+      }}
       tableAlertOptionRender={alertOptions}
       search={false}
       rowKey="id"
