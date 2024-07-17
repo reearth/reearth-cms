@@ -56,13 +56,15 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
     steps:
+      - uses: actions/checkout@v4
+
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Configure docker
-        run: gcloud auth configure-docker --quiet
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
         run: |
           docker pull $IMAGE
@@ -81,13 +83,15 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'worker-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
     steps:
+      - uses: actions/checkout@v4
+      
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Configure docker
-        run: gcloud auth configure-docker --quiet
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
         run: |
           docker pull $WORKER_IMAGE
