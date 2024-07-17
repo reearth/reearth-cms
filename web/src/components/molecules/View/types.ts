@@ -32,15 +32,17 @@ export interface FieldSelector {
   id?: string;
 }
 
-export type FieldType =
-  | "ID"
-  | "CREATION_DATE"
-  | "CREATION_USER"
-  | "MODIFICATION_DATE"
-  | "MODIFICATION_USER"
-  | "STATUS"
-  | "FIELD"
-  | "META_FIELD";
+export const metaColumn = [
+  "ID",
+  "STATUS",
+  "CREATION_DATE",
+  "CREATION_USER",
+  "MODIFICATION_DATE",
+  "MODIFICATION_USER",
+] as const;
+type MetaColumnType = (typeof metaColumn)[number];
+
+export type FieldType = MetaColumnType | "FIELD" | "META_FIELD";
 
 export type SortDirection = "ASC" | "DESC";
 
