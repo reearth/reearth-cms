@@ -3,7 +3,7 @@ import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/co
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
@@ -11,10 +11,6 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 interface Props {
   loadingReference: boolean;
@@ -64,11 +60,7 @@ interface Props {
   onRequestTableChange: (page: number, pageSize: number) => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onCollapse: (collapse: boolean) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
