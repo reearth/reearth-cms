@@ -14,23 +14,32 @@ import {
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Marker from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  ObjectSupportedType,
+  EditorSupportedType,
+} from "@reearth-cms/components/molecules/Schema/types";
 import { config } from "@reearth-cms/config";
 
 type GeoType = "point" | "lineString" | "polygon";
-const geoTypeMap = { POINT: "Point", LINESTRING: "LineString", POLYGON: "Polygon", ANY: "Point" };
+const geoTypeMap = {
+  POINT: "Point",
+  MULTIPOINT: "MultiPoint",
+  LINESTRING: "LineString",
+  MULTILINESTRING: "MultiLineString",
+  POLYGON: "Polygon",
+  MULTIPOLYGON: "MultiPolygon",
+  GEOMETRYCOLLECTION: "GeometryCollection",
+  ANY: "Point",
+};
 
 interface Props {
-  field: Field;
   value?: string | null;
   onChange?: (value: string) => void;
+  supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
+  isEditor: boolean;
 }
 
-const GeometryItem: React.FC<Props> = ({ value, onChange, field }) => {
-  const editorSupportedTypes = useMemo(
-    () => field.typeProperty?.editorSupportedTypes?.[0],
-    [field.typeProperty?.editorSupportedTypes],
-  );
+const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEditor }) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
   const copyButtonClick = useCallback(() => {
@@ -56,17 +65,18 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, field }) => {
     [],
   );
 
-  const [isEmpty, setIsEmpty] = useState(false);
+  const handleEditorOnChange = useCallback(
+    (value?: string) => {
+      onChange?.(value ?? "");
+    },
+    [onChange],
+  );
 
-  const handleEditorOnChange = (value?: string) => {
-    setIsEmpty(!value);
-    onChange?.(value ?? "");
-  };
-
-  const handleEditorDidMount: OnMount = (editor, monaco) => {
+  const handleEditorDidMount: OnMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
-  };
-  const handleEditorWillMount: BeforeMount = monaco => {
+  }, []);
+
+  const handleEditorWillMount: BeforeMount = useCallback(monaco => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       schemaValidation: "error",
       schemas: [
@@ -93,7 +103,7 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, field }) => {
         },
       ],
     });
-  };
+  }, []);
 
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
@@ -270,10 +280,20 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, field }) => {
     };
   }, []);
 
-  const placeholderContent = useMemo(
-    () => format(geoTypeMap[editorSupportedTypes ?? "POINT"], []),
-    [editorSupportedTypes, format],
-  );
+  const placeholderContent = useMemo(() => {
+    let key: keyof typeof geoTypeMap = "POINT";
+    if (Array.isArray(supportedTypes)) {
+      key = "GEOMETRYCOLLECTION";
+    } else if (supportedTypes) {
+      key = supportedTypes;
+    }
+    return format(geoTypeMap[key], []);
+  }, [format, supportedTypes]);
+
+  const [currentValue, setCurrentValue] = useState<string>();
+  useEffect(() => {
+    setCurrentValue(value ?? undefined);
+  }, [value]);
 
   return (
     <GeometryField>
@@ -294,34 +314,33 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, field }) => {
           height="100%"
           language={"json"}
           options={options}
-          defaultValue={placeholderContent}
-          value={value ?? undefined}
+          value={currentValue}
           onChange={handleEditorOnChange}
           onMount={handleEditorDidMount}
           beforeMount={handleEditorWillMount}
         />
-        <Placeholder isEmpty={isEmpty}>{placeholderContent}</Placeholder>
+        <Placeholder isEmpty={!value}>{placeholderContent}</Placeholder>
       </EditorWrapper>
       {isReady && (
         <ViewerWrapper>
           <ViewerButtons>
-            {field.type === "GeometryEditor" && (
+            {isEditor && (
               <GeoButtons>
-                {(editorSupportedTypes === "POINT" || editorSupportedTypes === "ANY") && (
+                {(supportedTypes === "POINT" || supportedTypes === "ANY") && (
                   <GeoButton
                     icon={<Icon icon="mapPin" size={22} />}
                     onClick={pinButtonClick}
                     selected={isDrawing && geoType === "point"}
                   />
                 )}
-                {(editorSupportedTypes === "LINESTRING" || editorSupportedTypes === "ANY") && (
+                {(supportedTypes === "LINESTRING" || supportedTypes === "ANY") && (
                   <GeoButton
                     icon={<Icon icon="lineString" size={22} />}
                     onClick={lineStringButtonClick}
                     selected={isDrawing && geoType === "lineString"}
                   />
                 )}
-                {(editorSupportedTypes === "POLYGON" || editorSupportedTypes === "ANY") && (
+                {(supportedTypes === "POLYGON" || supportedTypes === "ANY") && (
                   <GeoButton
                     icon={<Icon icon="polygon" size={22} />}
                     onClick={polygonButtonClick}

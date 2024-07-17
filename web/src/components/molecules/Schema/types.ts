@@ -49,6 +49,17 @@ interface Tag {
   color: string;
 }
 
+export type ObjectSupportedType =
+  | "POINT"
+  | "MULTIPOINT"
+  | "LINESTRING"
+  | "MULTILINESTRING"
+  | "POLYGON"
+  | "MULTIPOLYGON"
+  | "GEOMETRYCOLLECTION";
+
+export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
+
 export interface TypeProperty {
   defaultValue?: string | boolean | string[] | boolean[];
   maxLength?: number;
@@ -73,16 +84,8 @@ export interface TypeProperty {
   tags?: Tag[];
   values?: string[];
   schema?: { titleFieldId: string | null };
-  objectSupportedTypes?: (
-    | "POINT"
-    | "MULTIPOINT"
-    | "LINESTRING"
-    | "MULTILINESTRING"
-    | "POLYGON"
-    | "MULTIPOLYGON"
-    | "GEOMETRYCOLLECTION"
-  )[];
-  editorSupportedTypes?: ("POINT" | "LINESTRING" | "POLYGON" | "ANY")[];
+  objectSupportedTypes?: ObjectSupportedType[];
+  editorSupportedTypes?: EditorSupportedType[];
 }
 
 export interface FieldTypePropertyInput {

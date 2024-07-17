@@ -4,19 +4,29 @@ import { useCallback, useEffect } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  ObjectSupportedType,
+  EditorSupportedType,
+} from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
 
 interface Props {
-  field: Field;
   value?: string[];
   onChange?: (value: string[]) => void;
+  supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
+  isEditor: boolean;
   disabled?: boolean;
 }
 
-const MultiValueGeometry: React.FC<Props> = ({ field, value = [], onChange, disabled }) => {
+const MultiValueGeometry: React.FC<Props> = ({
+  value = [],
+  onChange,
+  supportedTypes,
+  isEditor,
+  disabled,
+}) => {
   const t = useT();
   const handleInput = useCallback(
     (e: string, id: number) => {
@@ -62,9 +72,10 @@ const MultiValueGeometry: React.FC<Props> = ({ field, value = [], onChange, disa
               </>
             )}
             <GeometryItem
+              supportedTypes={supportedTypes}
+              isEditor={isEditor}
               value={valueItem}
               onChange={(value: string) => handleInput(value, key)}
-              field={field}
             />
             {!disabled && (
               <FieldButton

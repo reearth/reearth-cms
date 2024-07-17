@@ -10,6 +10,8 @@ import {
   FieldType,
   FormValues,
   FormTypes,
+  ObjectSupportedType,
+  EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
@@ -27,6 +29,10 @@ export default (
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const selectedValues = Form.useWatch("values", form);
   const selectedTags = Form.useWatch("tags", form);
+  const selectedSupportedTypes = Form.useWatch<ObjectSupportedType[] | EditorSupportedType>(
+    "supportedTypes",
+    form,
+  );
   const [multipleValue, setMultipleValue] = useState(false);
   const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
@@ -316,6 +322,7 @@ export default (
     activeTab,
     selectedValues,
     selectedTags,
+    selectedSupportedTypes,
     multipleValue,
     handleMultipleChange,
     handleTabChange,

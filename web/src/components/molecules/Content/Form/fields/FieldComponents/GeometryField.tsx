@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
@@ -15,6 +17,13 @@ interface DefaultFieldProps {
 const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
 
+  const supportedTypes = useMemo(
+    () => field.typeProperty?.objectSupportedTypes ?? field.typeProperty?.editorSupportedTypes?.[0],
+    [field.typeProperty?.editorSupportedTypes, field.typeProperty?.objectSupportedTypes],
+  );
+
+  const isEditor = useMemo(() => field.type === "GeometryEditor", [field.type]);
+
   return (
     <Form.Item
       extra={field.description}
@@ -27,9 +36,13 @@ const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueGeometry field={field} disabled={disabled} />
+        <MultiValueGeometry
+          supportedTypes={supportedTypes}
+          isEditor={isEditor}
+          disabled={disabled}
+        />
       ) : (
-        <GeometryItem field={field} />
+        <GeometryItem supportedTypes={supportedTypes} isEditor={isEditor} />
       )}
     </Form.Item>
   );

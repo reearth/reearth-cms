@@ -129,6 +129,7 @@ const FieldModal: React.FC<Props> = ({
     activeTab,
     selectedValues,
     selectedTags,
+    selectedSupportedTypes,
     multipleValue,
     handleMultipleChange,
     handleTabChange,
@@ -330,6 +331,7 @@ const FieldModal: React.FC<Props> = ({
               multiple={multipleValue}
               selectedValues={selectedValues}
               selectedTags={selectedTags}
+              selectedSupportedTypes={selectedSupportedTypes}
               selectedType={selectedType}
               assetList={assetList}
               fileList={fileList}

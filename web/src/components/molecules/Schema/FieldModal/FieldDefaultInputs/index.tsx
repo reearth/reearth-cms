@@ -2,6 +2,10 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import {
+  ObjectSupportedType,
+  EditorSupportedType,
+} from "@reearth-cms/components/molecules/Schema/types";
+import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
@@ -26,6 +30,7 @@ interface Props {
   multiple: boolean;
   selectedValues?: string[];
   selectedTags?: { id: string; name: string; color: string }[];
+  selectedSupportedTypes?: ObjectSupportedType[] | EditorSupportedType;
   selectedType: FieldType;
   assetList: Asset[];
   fileList: UploadFile[];
@@ -59,6 +64,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
   selectedTags,
+  selectedSupportedTypes,
   multiple,
   assetList,
   fileList,
@@ -132,12 +138,15 @@ const FieldDefaultInputs: React.FC<Props> = ({
       return <URLField multiple={multiple} />;
     case "Group":
       return <GroupField />;
-    case "Point":
-      return <GeometryField />;
-    case "Polyline":
-      return <GeometryField />;
-    case "Polygon":
-      return <GeometryField />;
+    case "GeometryObject":
+    case "GeometryEditor":
+      return (
+        <GeometryField
+          supportedTypes={selectedSupportedTypes}
+          isEditor={selectedType === "GeometryEditor"}
+          multiple={multiple}
+        />
+      );
     case "Text":
     default:
       return <TextField multiple={multiple} />;
