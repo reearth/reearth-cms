@@ -81,6 +81,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'worker-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
     steps:
+      - uses: actions/checkout@v4
+      
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
