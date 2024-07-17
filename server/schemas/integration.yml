@@ -401,6 +401,8 @@ paths:
         - Items
         - GeoJSON
       description: Returns a GeoJSON that has a list of items as features.
+      parameters:
+        - $ref: '#/components/parameters/refParam'
       responses:
         '200':
           description: A GeoJSON object
@@ -428,6 +430,8 @@ paths:
         - Items project
         - CSV
       description: Returns a CSV that has a list of items as features.
+      parameters:
+        - $ref: '#/components/parameters/refParam'
       responses:
         '200':
           description: A string in CSV format
@@ -728,6 +732,8 @@ paths:
         - Items project
         - GeoJSON
       description: Returns a GeoJSON that has a list of items as features.
+      parameters:
+        - $ref: '#/components/parameters/refParam'
       responses:
         '200':
           description: A GeoJSON object
@@ -756,6 +762,8 @@ paths:
         - Items project
         - CSV
       description: Returns a CSV that has a list of items as features.
+      parameters:
+        - $ref: '#/components/parameters/refParam'
       responses:
         '200':
           description: A string in CSV format

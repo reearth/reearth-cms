@@ -214,6 +214,18 @@ const (
 	ItemFilterParamsRefPublic ItemFilterParamsRef = "public"
 )
 
+// Defines values for ItemsAsCSVParamsRef.
+const (
+	ItemsAsCSVParamsRefLatest ItemsAsCSVParamsRef = "latest"
+	ItemsAsCSVParamsRefPublic ItemsAsCSVParamsRef = "public"
+)
+
+// Defines values for ItemsAsGeoJSONParamsRef.
+const (
+	ItemsAsGeoJSONParamsRefLatest ItemsAsGeoJSONParamsRef = "latest"
+	ItemsAsGeoJSONParamsRefPublic ItemsAsGeoJSONParamsRef = "public"
+)
+
 // Defines values for ItemFilterWithProjectParamsSort.
 const (
 	ItemFilterWithProjectParamsSortCreatedAt ItemFilterWithProjectParamsSort = "createdAt"
@@ -228,8 +240,20 @@ const (
 
 // Defines values for ItemFilterWithProjectParamsRef.
 const (
-	Latest ItemFilterWithProjectParamsRef = "latest"
-	Public ItemFilterWithProjectParamsRef = "public"
+	ItemFilterWithProjectParamsRefLatest ItemFilterWithProjectParamsRef = "latest"
+	ItemFilterWithProjectParamsRefPublic ItemFilterWithProjectParamsRef = "public"
+)
+
+// Defines values for ItemsWithProjectAsCSVParamsRef.
+const (
+	ItemsWithProjectAsCSVParamsRefLatest ItemsWithProjectAsCSVParamsRef = "latest"
+	ItemsWithProjectAsCSVParamsRefPublic ItemsWithProjectAsCSVParamsRef = "public"
+)
+
+// Defines values for ItemsWithProjectAsGeoJSONParamsRef.
+const (
+	Latest ItemsWithProjectAsGeoJSONParamsRef = "latest"
+	Public ItemsWithProjectAsGeoJSONParamsRef = "public"
 )
 
 // Defines values for AssetFilterParamsSort.
@@ -685,6 +709,24 @@ type ItemCreateJSONBody struct {
 	MetadataFields *[]Field `json:"metadataFields,omitempty"`
 }
 
+// ItemsAsCSVParams defines parameters for ItemsAsCSV.
+type ItemsAsCSVParams struct {
+	// Ref Used to select a ref or ver
+	Ref *ItemsAsCSVParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemsAsCSVParamsRef defines parameters for ItemsAsCSV.
+type ItemsAsCSVParamsRef string
+
+// ItemsAsGeoJSONParams defines parameters for ItemsAsGeoJSON.
+type ItemsAsGeoJSONParams struct {
+	// Ref Used to select a ref or ver
+	Ref *ItemsAsGeoJSONParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemsAsGeoJSONParamsRef defines parameters for ItemsAsGeoJSON.
+type ItemsAsGeoJSONParamsRef string
+
 // ModelFilterParams defines parameters for ModelFilter.
 type ModelFilterParams struct {
 	// Page Used to select the page
@@ -768,6 +810,24 @@ type ItemCreateWithProjectJSONBody struct {
 	Fields         *[]Field `json:"fields,omitempty"`
 	MetadataFields *[]Field `json:"metadataFields,omitempty"`
 }
+
+// ItemsWithProjectAsCSVParams defines parameters for ItemsWithProjectAsCSV.
+type ItemsWithProjectAsCSVParams struct {
+	// Ref Used to select a ref or ver
+	Ref *ItemsWithProjectAsCSVParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemsWithProjectAsCSVParamsRef defines parameters for ItemsWithProjectAsCSV.
+type ItemsWithProjectAsCSVParamsRef string
+
+// ItemsWithProjectAsGeoJSONParams defines parameters for ItemsWithProjectAsGeoJSON.
+type ItemsWithProjectAsGeoJSONParams struct {
+	// Ref Used to select a ref or ver
+	Ref *ItemsWithProjectAsGeoJSONParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemsWithProjectAsGeoJSONParamsRef defines parameters for ItemsWithProjectAsGeoJSON.
+type ItemsWithProjectAsGeoJSONParamsRef string
 
 // AssetFilterParams defines parameters for AssetFilter.
 type AssetFilterParams struct {
