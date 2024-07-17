@@ -1,16 +1,18 @@
 package schema
 
 import (
-	"encoding/json"
-	"strings"
-
-	geojson "github.com/paulmach/go.geojson"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
 type GeometryObjectSupportedTypeList []GeometryObjectSupportedType
+
+func (l GeometryObjectSupportedTypeList) Has(st GeometryObjectSupportedType) bool {
+	return slices.ContainsFunc(l, func(t GeometryObjectSupportedType) bool {
+		return t == st
+	})
+}
 
 type FieldGeometryObject struct {
 	st GeometryObjectSupportedTypeList
@@ -46,39 +48,16 @@ func (f *FieldGeometryObject) Clone() *FieldGeometryObject {
 	}
 }
 
-// IsValidGeometryObjectField uses the go.geojson library to validate the GeoJSON string inside the geometry object field
-func IsValidGeometryObjectField(data string) bool {
-	if len(strings.TrimSpace(data)) == 0 {
-		return false
-	}
-
-	var raw map[string]interface{}
-	if err := json.Unmarshal([]byte(data), &raw); err != nil {
-		return false
-	}
-
-	geoType, ok := raw["type"].(string)
-	if !ok {
-		return false
-	}
-
-	switch geoType {
-	case "Feature":
-		_, err := geojson.UnmarshalFeature([]byte(data))
-		return err == nil
-	case "Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon", "GeometryCollection":
-		_, err := geojson.UnmarshalGeometry([]byte(data))
-		return err == nil
-	default:
-		return false
-	}
-}
-
 func (f *FieldGeometryObject) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		GeometryObject: func(a value.String) {
-			if !IsValidGeometryObjectField(a) {
+			t, ok := isValidGeoJSON(a)
+			if !ok {
 				err = ErrInvalidValue
+			}
+			ok2 := f.SupportedTypes().Has(GeometryObjectSupportedTypeFrom(string(t)))
+			if !ok2 {
+				err = ErrUnsupportedType
 			}
 		},
 		Default: func() {
