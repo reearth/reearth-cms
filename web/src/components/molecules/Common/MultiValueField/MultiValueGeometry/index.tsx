@@ -11,19 +11,12 @@ import { moveItemInArray } from "../moveItemArray";
 
 interface Props {
   field: Field;
-  selectedValues?: string[];
   value?: string[];
   onChange?: (value: string[]) => void;
   disabled?: boolean;
 }
 
-const MultiValueSelect: React.FC<Props> = ({
-  field,
-  selectedValues,
-  value = [],
-  onChange,
-  disabled,
-}) => {
+const MultiValueGeometry: React.FC<Props> = ({ field, value = [], onChange, disabled }) => {
   const t = useT();
   const handleInput = useCallback(
     (e: string, id: number) => {
@@ -68,7 +61,11 @@ const MultiValueSelect: React.FC<Props> = ({
                 />
               </>
             )}
-            <GeometryItem field={field} />
+            <GeometryItem
+              value={valueItem}
+              onChange={(value: string) => handleInput(value, key)}
+              field={field}
+            />
             {!disabled && (
               <FieldButton
                 type="link"
@@ -93,7 +90,7 @@ const MultiValueSelect: React.FC<Props> = ({
   );
 };
 
-export default MultiValueSelect;
+export default MultiValueGeometry;
 
 const FieldWrapper = styled.div`
   display: flex;

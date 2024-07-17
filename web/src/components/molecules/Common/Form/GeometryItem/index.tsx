@@ -18,12 +18,15 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { config } from "@reearth-cms/config";
 
 type GeoType = "point" | "lineString" | "polygon";
+const geoTypeMap = { POINT: "Point", LINESTRING: "LineString", POLYGON: "Polygon", ANY: "Point" };
 
 interface Props {
   field: Field;
+  value?: string | null;
+  onChange?: (value: string) => void;
 }
 
-const GeometryItem: React.FC<Props> = ({ field }) => {
+const GeometryItem: React.FC<Props> = ({ value, onChange, field }) => {
   const editorSupportedTypes = useMemo(
     () => field.typeProperty?.editorSupportedTypes?.[0],
     [field.typeProperty?.editorSupportedTypes],
@@ -56,7 +59,8 @@ const GeometryItem: React.FC<Props> = ({ field }) => {
   const [isEmpty, setIsEmpty] = useState(false);
 
   const handleEditorOnChange = (value?: string) => {
-    value ? setIsEmpty(false) : setIsEmpty(true);
+    setIsEmpty(!value);
+    onChange?.(value ?? "");
   };
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
@@ -83,7 +87,7 @@ const GeometryItem: React.FC<Props> = ({ field }) => {
                   "GeometryCollection",
                 ],
               },
-              coodinates: {},
+              coordinates: {},
             },
           },
         },
@@ -136,88 +140,67 @@ const GeometryItem: React.FC<Props> = ({ field }) => {
     }
   }, []);
 
+  const format = useCallback(
+    (type: string, coordinates: number[] | number[][] | number[][][]) =>
+      JSON.stringify({ type, coordinates }, null, 2),
+    [],
+  );
+
   const positionsRef = useRef<number[][]>([]);
 
   const handleClick = useCallback(
     (_movement: CesiumMovementEvent) => {
-      if (!isDrawing) return;
-      if (_movement.position && viewer.current?.cesiumElement) {
-        const ellipsoid = viewer.current.cesiumElement.scene.globe.ellipsoid;
-        const cartesian = viewer.current.cesiumElement.camera.pickEllipsoid(
-          _movement.position,
-          ellipsoid,
-        );
-        if (cartesian) {
-          const cartographic = Cartographic.fromCartesian(cartesian);
-          const lon = Math.toDegrees(cartographic.longitude);
-          const lat = Math.toDegrees(cartographic.latitude);
-          if (geoType === "point") {
-            const entity = viewer.current.cesiumElement.entities.add({
-              position: cartesian,
-              billboard: {
-                image: Marker,
-                width: 30,
-                height: 30,
-              },
-            });
-            setIsDrawing(false);
-            setGeoValues(prev => {
-              prev.set(entity.id, [lon, lat]);
-              return new Map(prev);
-            });
-            editorRef.current?.setValue(
-              JSON.stringify(
-                {
-                  type: "Point",
-                  coodinates: [lon, lat],
-                },
-                null,
-                2,
-              ),
-            );
-          } else {
-            positionsRef.current?.push([lon, lat]);
-            if (geoType === "lineString") {
-              viewer.current.cesiumElement.entities.add({
-                position: cartesian,
-                polyline: {
-                  positions: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
-                },
-              });
-              editorRef.current?.setValue(
-                JSON.stringify(
-                  {
-                    type: "LineString",
-                    coodinates: positionsRef.current,
-                  },
-                  null,
-                  2,
-                ),
-              );
-            } else {
-              viewer.current.cesiumElement.entities.add({
-                position: cartesian,
-                polygon: {
-                  hierarchy: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
-                  extrudedHeight: 50000,
-                },
-              });
-              editorRef.current?.setValue(
-                JSON.stringify(
-                  {
-                    type: "Polygon",
-                    coodinates: [positionsRef.current],
-                  },
-                  null,
-                  2,
-                ),
-              );
-            }
-          }
+      if (!isDrawing || !_movement.position || !viewer.current?.cesiumElement) return;
+      const ellipsoid = viewer.current.cesiumElement.scene.globe.ellipsoid;
+      const cartesian = viewer.current.cesiumElement.camera.pickEllipsoid(
+        _movement.position,
+        ellipsoid,
+      );
+      if (!cartesian) return;
+      const cartographic = Cartographic.fromCartesian(cartesian);
+      const lon = Math.toDegrees(cartographic.longitude);
+      const lat = Math.toDegrees(cartographic.latitude);
+      if (geoType === "point") {
+        viewer.current.cesiumElement.entities.removeAll();
+        const entity = viewer.current.cesiumElement.entities.add({
+          position: cartesian,
+          billboard: {
+            image: Marker,
+            width: 30,
+            height: 30,
+          },
+        });
+        setIsDrawing(false);
+        setGeoValues(prev => {
+          prev.set(entity.id, [lon, lat]);
+          return new Map(prev);
+        });
+        editorRef.current?.setValue(format("Point", [lon, lat]));
+      } else {
+        positionsRef.current?.push([lon, lat]);
+        if (geoType === "lineString") {
+          viewer.current.cesiumElement.entities.add({
+            position: cartesian,
+            polyline: {
+              positions: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
+            },
+          });
+          editorRef.current?.setValue(format("LineString", positionsRef.current));
+        } else {
+          viewer.current.cesiumElement.entities.add({
+            position: cartesian,
+            polygon: {
+              hierarchy: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
+              extrudedHeight: 50000,
+            },
+          });
+          editorRef.current?.setValue(
+            format("Polygon", [[...positionsRef.current, positionsRef.current[0]]]),
+          );
         }
       }
     },
-    [geoType, isDrawing],
+    [format, geoType, isDrawing],
   );
 
   const timeout = useRef<NodeJS.Timeout>();
@@ -287,6 +270,11 @@ const GeometryItem: React.FC<Props> = ({ field }) => {
     };
   }, []);
 
+  const placeholderContent = useMemo(
+    () => format(geoTypeMap[editorSupportedTypes ?? "POINT"], []),
+    [editorSupportedTypes, format],
+  );
+
   return (
     <GeometryField>
       <EditorWrapper>
@@ -306,28 +294,13 @@ const GeometryItem: React.FC<Props> = ({ field }) => {
           height="100%"
           language={"json"}
           options={options}
-          value={JSON.stringify(
-            {
-              type: "Point",
-              coodinates: [],
-            },
-            null,
-            2,
-          )}
+          defaultValue={placeholderContent}
+          value={value ?? undefined}
           onChange={handleEditorOnChange}
           onMount={handleEditorDidMount}
           beforeMount={handleEditorWillMount}
         />
-        <Placeholder isEmpty={isEmpty}>
-          {JSON.stringify(
-            {
-              type: "Point",
-              coodinates: [],
-            },
-            null,
-            2,
-          )}
-        </Placeholder>
+        <Placeholder isEmpty={isEmpty}>{placeholderContent}</Placeholder>
       </EditorWrapper>
       {isReady && (
         <ViewerWrapper>
@@ -406,13 +379,13 @@ export default GeometryItem;
 
 const GeometryField = styled.div`
   display: flex;
-  max-height: 432px;
+  width: 100%;
   aspect-ratio: 1.86 / 1;
   box-shadow: 0px 2px 8px 0px #00000026;
 `;
 
 const EditorWrapper = styled.div`
-  width: 40%;
+  width: 45%;
   position: relative;
 `;
 
