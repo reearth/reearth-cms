@@ -42,7 +42,7 @@ const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
           disabled={disabled}
         />
       ) : (
-        <GeometryItem supportedTypes={supportedTypes} isEditor={isEditor} />
+        <GeometryItem supportedTypes={supportedTypes} isEditor={isEditor} disabled={disabled} />
       )}
     </Form.Item>
   );

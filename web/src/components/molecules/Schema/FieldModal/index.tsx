@@ -273,7 +273,7 @@ const FieldModal: React.FC<Props> = ({
                 name="supportedTypes"
                 label={t("Support Type")}
                 extra={t("Please select what type of Geometry this field will support")}
-                required>
+                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
                 <StyledCheckboxGroup>
                   {ObjectSupportType.map(item => (
                     <Checkbox value={item.value}>{item.label}</Checkbox>
@@ -286,8 +286,8 @@ const FieldModal: React.FC<Props> = ({
                 name="supportedTypes"
                 label={t("Support Type")}
                 extra={t("Please select what type of Geometry this field will support")}
-                required>
-                <Radio.Group defaultValue={EditorSupportType[0].value}>
+                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                <Radio.Group>
                   {EditorSupportType.map(item => (
                     <Radio value={item.value}>{item.label}</Radio>
                   ))}
@@ -409,8 +409,9 @@ const StyledGroupKey = styled.span`
 
 const StyledCheckboxGroup = styled(Checkbox.Group)`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 0;
+  overflow-x: auto;
 `;
 
 export default FieldModal;

@@ -132,6 +132,9 @@ export default (
       values: selectedField?.typeProperty?.values,
       tags: selectedField?.typeProperty?.tags,
       group: selectedField?.typeProperty?.groupId,
+      supportedTypes:
+        selectedField?.typeProperty?.objectSupportedTypes ||
+        selectedField?.typeProperty?.editorSupportedTypes?.[0],
     });
   }, [defaultValueGet, form, selectedField]);
 

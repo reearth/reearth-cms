@@ -600,14 +600,6 @@ const ContentForm: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
-            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
-              const FieldComponent = FIELD_TYPE_COMPONENT_MAP["Geometry"];
-
-              return (
-                <div key={field.id}>
-                  <FieldComponent field={field} />
-                </div>
-              );
             } else {
               const FieldComponent =
                 FIELD_TYPE_COMPONENT_MAP[
@@ -621,10 +613,14 @@ const ContentForm: React.FC<Props> = ({
                     | "TextArea"
                     | "MarkdownText"
                     | "Integer"
+                    | "GeometryObject"
+                    | "GeometryEditor"
                 ] || DefaultField;
 
               return (
-                <StyledFormItemWrapper key={field.id}>
+                <StyledFormItemWrapper
+                  key={field.id}
+                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
                   <FieldComponent field={field} />
                 </StyledFormItemWrapper>
               );
@@ -687,8 +683,8 @@ const ContentForm: React.FC<Props> = ({
   );
 };
 
-const StyledFormItemWrapper = styled.div`
-  width: 500px;
+const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
+  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
   word-wrap: break-word;
 `;
 

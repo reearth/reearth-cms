@@ -76,6 +76,7 @@ const MultiValueGeometry: React.FC<Props> = ({
               isEditor={isEditor}
               value={valueItem}
               onChange={(value: string) => handleInput(value, key)}
+              disabled={disabled}
             />
             {!disabled && (
               <FieldButton

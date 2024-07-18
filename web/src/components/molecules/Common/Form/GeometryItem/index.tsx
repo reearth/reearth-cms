@@ -19,6 +19,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { config } from "@reearth-cms/config";
+import { useT } from "@reearth-cms/i18n";
 
 type GeoType = "point" | "lineString" | "polygon";
 const geoTypeMap = {
@@ -37,9 +38,12 @@ interface Props {
   onChange?: (value: string) => void;
   supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
   isEditor: boolean;
+  disabled?: boolean;
 }
 
-const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEditor }) => {
+const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEditor, disabled }) => {
+  const t = useT();
+
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
   const copyButtonClick = useCallback(() => {
@@ -58,11 +62,12 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
       minimap: {
         enabled: false,
       },
-      readOnly: false,
+      readOnly: disabled || isEditor,
+      readOnlyMessage: { value: t("Cannot edit in read-only editor") },
       wordWrap: "on" as const,
       scrollBeyondLastLine: false,
     }),
-    [],
+    [disabled, isEditor, t],
   );
 
   const handleEditorOnChange = useCallback(
@@ -176,8 +181,8 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
           position: cartesian,
           billboard: {
             image: Marker,
-            width: 30,
-            height: 30,
+            width: 28,
+            height: 28,
           },
         });
         setIsDrawing(false);
@@ -304,11 +309,13 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
             size="small"
             onClick={copyButtonClick}
           />
-          <EditorButton
-            icon={<Icon icon="trash" size={12} />}
-            size="small"
-            onClick={editorDeleteButtonClick}
-          />
+          {!disabled && !isEditor && (
+            <EditorButton
+              icon={<Icon icon="trash" size={12} />}
+              size="small"
+              onClick={editorDeleteButtonClick}
+            />
+          )}
         </EditorButtons>
         <MonacoEditor
           height="100%"
