@@ -2,7 +2,6 @@ package integration
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"strings"
 
@@ -149,48 +148,46 @@ func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWi
 }
 
 func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWithProjectAsGeoJSONRequestObject) (ItemsWithProjectAsGeoJSONResponseObject, error) {
-	geoJSONMap := map[string]interface{}{
-		"type": "FeatureCollection",
-		"features": []interface{}{
-			map[string]interface{}{
-				"type": "Feature",
-				"id":   "xxxxxxxx",
-				"geometry": map[string]interface{}{
-					"type":        "Point",
-					"coordinates": []float64{139.7112596, 35.6424892},
-				},
-				"properties": map[string]interface{}{
-					"name": "Eukarya",
-					"desc": "hogehoge",
-				},
-			},
-			map[string]interface{}{
-				"type": "Feature",
-				"id":   "xxxxxxxx",
-				"geometry": map[string]interface{}{
-					"type":        "Point",
-					"coordinates": []float64{139.7476911, 35.6759842},
-				},
-				"properties": map[string]interface{}{
-					"name": "MLIT",
-					"desc": "foobar",
-				},
-			},
-		},
-	}
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
 
-	jsonData, err := json.Marshal(geoJSONMap)
+	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON400Response{}, err
+		}
 		return nil, err
 	}
 
-	var geoJSON integrationapi.GeoJSON
-	if err := json.Unmarshal(jsonData, &geoJSON.Body); err != nil {
-		return nil, err
+	m, err := uc.Model.FindByIDOrKey(ctx, prj.ID(), request.ModelIdOrKey, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON404Response{}, err
+		}
+		return ItemsWithProjectAsGeoJSON400Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return ItemsWithProjectAsGeoJSON400Response{}, err
+	}
+
+	p := fromPagination(request.Params.Page, request.Params.PerPage)
+	items, _, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON404Response{}, err
+		}
+		return ItemsWithProjectAsGeoJSON400Response{}, err
+	}
+
+	fc, err := integrationapi.NewFeatureCollection(items, sp, request.Params.GeoFieldIdOrKey)
+	if err != nil {
+		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
 	return ItemsWithProjectAsGeoJSON200JSONResponse{
-		Body: geoJSON.Body,
+		Body: fc,
 	}, nil
 }
 
