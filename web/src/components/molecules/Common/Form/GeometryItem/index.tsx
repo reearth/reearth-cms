@@ -176,39 +176,13 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
       const lon = Math.toDegrees(cartographic.longitude);
       const lat = Math.toDegrees(cartographic.latitude);
       if (geoType === "point") {
-        viewer.current.cesiumElement.entities.removeAll();
-        const entity = viewer.current.cesiumElement.entities.add({
-          position: cartesian,
-          billboard: {
-            image: Marker,
-            width: 28,
-            height: 28,
-          },
-        });
         setIsDrawing(false);
-        setGeoValues(prev => {
-          prev.set(entity.id, [lon, lat]);
-          return new Map(prev);
-        });
         editorRef.current?.setValue(format("Point", [lon, lat]));
       } else {
         positionsRef.current?.push([lon, lat]);
         if (geoType === "lineString") {
-          viewer.current.cesiumElement.entities.add({
-            position: cartesian,
-            polyline: {
-              positions: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
-            },
-          });
           editorRef.current?.setValue(format("LineString", positionsRef.current));
         } else {
-          viewer.current.cesiumElement.entities.add({
-            position: cartesian,
-            polygon: {
-              hierarchy: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
-              extrudedHeight: 50000,
-            },
-          });
           editorRef.current?.setValue(
             format("Polygon", [[...positionsRef.current, positionsRef.current[0]]]),
           );
@@ -298,6 +272,55 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
   const [currentValue, setCurrentValue] = useState<string>();
   useEffect(() => {
     setCurrentValue(value ?? undefined);
+    if (!viewer.current?.cesiumElement) return;
+    viewer.current.cesiumElement.entities.removeAll();
+    try {
+      const valueJson: {
+        type?: string;
+        coordinates?: number[] | number[][] | number[][][] | number[][][][];
+      } = JSON.parse(JSON.parse(JSON.stringify(value ?? "")));
+      if (!valueJson.type || !valueJson.coordinates) return;
+      const flatCoordinates = valueJson.coordinates.flat().flat().flat();
+      if (flatCoordinates.length === 0) return;
+      for (const coordinate of flatCoordinates) {
+        if (typeof coordinate !== "number") return;
+      }
+      switch (valueJson.type) {
+        case "Point":
+          viewer.current.cesiumElement.entities.add({
+            position: Cartesian3.fromDegreesArray(flatCoordinates)[0],
+            billboard: {
+              image: Marker,
+              width: 28,
+              height: 28,
+            },
+          });
+          return;
+        case "MultiPoint":
+          return;
+        case "LineString":
+          viewer.current.cesiumElement.entities.add({
+            polyline: {
+              positions: Cartesian3.fromDegreesArray(flatCoordinates),
+            },
+          });
+          return;
+        case "Polygon":
+          viewer.current.cesiumElement.entities.add({
+            polygon: {
+              hierarchy: Cartesian3.fromDegreesArray(flatCoordinates),
+              extrudedHeight: 50000,
+            },
+          });
+          return;
+        case "MultiLineString":
+        case "MultiPolygon":
+        default:
+          return;
+      }
+    } catch (_) {
+      return;
+    }
   }, [value]);
 
   return (
