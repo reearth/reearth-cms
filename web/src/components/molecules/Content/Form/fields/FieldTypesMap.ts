@@ -15,5 +15,6 @@ export const FIELD_TYPE_COMPONENT_MAP = {
   MarkdownText: MarkdownField,
   Integer: IntegerField,
   Select: SelectField,
-  Geometry: GeometryField,
+  GeometryObject: GeometryField,
+  GeometryEditor: GeometryField,
 };

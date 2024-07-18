@@ -68,6 +68,8 @@ const RequestItemForm: React.FC<Props> = ({
                   | "TextArea"
                   | "MarkdownText"
                   | "Integer"
+                  | "GeometryObject"
+                  | "GeometryEditor"
               ] || DefaultField;
             return (
               <div key={field.id}>
