@@ -61,6 +61,7 @@ metadata schema not found: メタデータのスキーマが見つかりませ�
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
 model should have at least one view: モデルには少なくとも 1 つのビューが必要です
 multiple reference is not supported: 複数参照はサポートされていません
+no geometry field in this model: ""
 not found: 見つかりませんでした。
 not implemented: 未実装です。
 not implemented yet: 未実装です。
