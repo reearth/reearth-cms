@@ -14,18 +14,18 @@ import (
 
 var noGeometryFieldError = rerror.NewE(i18n.T("no geometry field in this model"))
 
-func NewFeatureCollection(ver item.VersionedList, sp *schema.Package, idOrKey *schema.FieldIDOrKey) (*FeatureCollection, error) {
-	if !hasGeometryFields(sp) {
+func NewFeatureCollection(ver item.VersionedList, s *schema.Schema, idOrKey *schema.FieldIDOrKey) (*FeatureCollection, error) {
+	if !hasGeometryFields(s) {
 		return nil, noGeometryFieldError
 	}
 
-	geoField, err := getGeometryField(sp, idOrKey)
+	geoField, err := getGeometryField(s, idOrKey)
 	if err != nil {
 		return nil, err
 	}
 
 	fl := lo.Map(ver, func(v item.Versioned, _ int) Feature {
-		return NewFeature(v, sp, geoField)
+		return NewFeature(v, s, geoField)
 	})
 
 	return &FeatureCollection{
@@ -34,37 +34,7 @@ func NewFeatureCollection(ver item.VersionedList, sp *schema.Package, idOrKey *s
 	}, nil
 }
 
-func hasGeometryFields(sp *schema.Package) bool {
-	return sp.Schema().FieldsByType(value.TypeGeometryEditor) != nil && sp.Schema().FieldsByType(value.TypeGeometryObject) != nil
-}
-
-func getGeometryField(sp *schema.Package, idOrKey *schema.FieldIDOrKey) (*schema.Field, error) {
-	if idOrKey != nil {
-		return getFieldByIDOrKey(sp, idOrKey), nil
-	}
-
-	geoFields := append(sp.Schema().FieldsByType(value.TypeGeometryObject), sp.Schema().FieldsByType(value.TypeGeometryEditor)...)
-	if len(geoFields) == 0 {
-		return nil, noGeometryFieldError
-	}
-
-	return geoFields[0], nil
-}
-
-func getFieldByIDOrKey(sp *schema.Package, idOrKey *schema.FieldIDOrKey) *schema.Field {
-	sIdOrKey := string(*idOrKey)
-	idd, key := parseIDOrKey(sIdOrKey)
-	return sp.Schema().FieldByIDOrKey(idd, key)
-}
-
-func parseIDOrKey(sIdOrKey string) (*id.FieldID, *id.Key) {
-	if res, err := id.FieldIDFrom(sIdOrKey); err == nil {
-		return &res, nil
-	}
-	return nil, id.NewKey(sIdOrKey).Ref()
-}
-
-func NewFeature(ver item.Versioned, sp *schema.Package, geo *schema.Field) Feature {
+func NewFeature(ver item.Versioned, s *schema.Schema, geo *schema.Field) Feature {
 	itm := ver.Value()
 	geoField := itm.Field(geo.ID())
 	vv := *geoField.Value().First()
@@ -75,20 +45,52 @@ func NewFeature(ver item.Versioned, sp *schema.Package, geo *schema.Field) Featu
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         itm.ID().Ref(),
 		Geometry:   geometry,
-		Properties: getProperties(itm, sp),
+		Properties: getProperties(itm, s),
 	}
 }
 
-func getProperties(itm *item.Item, sp *schema.Package) *map[string]interface{} {
+func hasGeometryFields(s *schema.Schema) bool {
+	return s.FieldsByType(value.TypeGeometryEditor) != nil && s.FieldsByType(value.TypeGeometryObject) != nil
+}
+
+func getGeometryField(s *schema.Schema, idOrKey *schema.FieldIDOrKey) (*schema.Field, error) {
+	if idOrKey != nil {
+		return getFieldByIDOrKey(s, idOrKey), nil
+	}
+
+	geoFields := append(s.FieldsByType(value.TypeGeometryObject), s.FieldsByType(value.TypeGeometryEditor)...)
+	if len(geoFields) == 0 {
+		return nil, noGeometryFieldError
+	}
+
+	return geoFields[0], nil
+}
+
+func getFieldByIDOrKey(s *schema.Schema, idOrKey *schema.FieldIDOrKey) *schema.Field {
+	sIdOrKey := string(*idOrKey)
+	idd, key := parseIDOrKey(sIdOrKey)
+	return s.FieldByIDOrKey(idd, key)
+}
+
+func parseIDOrKey(sIdOrKey string) (*id.FieldID, *id.Key) {
+	if res, err := id.FieldIDFrom(sIdOrKey); err == nil {
+		return &res, nil
+	}
+	return nil, id.NewKey(sIdOrKey).Ref()
+}
+
+func getProperties(itm *item.Item, s *schema.Schema) *map[string]interface{} {
 	p := make(map[string]interface{})
-	otherFields := lo.Filter(sp.Schema().Fields(), func(f *schema.Field, _ int) bool {
+	otherFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
 		return f.Type() != value.TypeGeometryObject && f.Type() != value.TypeGeometryEditor
 	})
 
-	for _, f := range otherFields {
-		key := f.Name()
-		val := itm.Field(f.ID()).Value()
-		p[key] = val
+	if len(otherFields) > 0 {
+		for _, f := range otherFields {
+			key := f.Name()
+			val := itm.Field(f.ID()).Value()
+			p[key] = val
+		}
 	}
 
 	return &p

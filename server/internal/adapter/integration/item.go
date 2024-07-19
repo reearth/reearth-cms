@@ -181,7 +181,7 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
-	fc, err := integrationapi.NewFeatureCollection(items, sp, request.Params.GeoFieldIdOrKey)
+	fc, err := integrationapi.NewFeatureCollection(items, sp.Schema(), request.Params.GeoFieldIdOrKey)
 	if err != nil {
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
