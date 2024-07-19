@@ -18,6 +18,8 @@ interface Props {
   supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
   isEditor: boolean;
   disabled?: boolean;
+  errorAdd?: (index: number) => void;
+  errorDelete?: (index: number) => void;
 }
 
 const MultiValueGeometry: React.FC<Props> = ({
@@ -26,6 +28,8 @@ const MultiValueGeometry: React.FC<Props> = ({
   supportedTypes,
   isEditor,
   disabled,
+  errorAdd,
+  errorDelete,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -77,6 +81,8 @@ const MultiValueGeometry: React.FC<Props> = ({
               value={valueItem}
               onChange={(value: string) => handleInput(value, key)}
               disabled={disabled}
+              errorAdd={() => errorAdd?.(key)}
+              errorDelete={() => errorDelete?.(key)}
             />
             {!disabled && (
               <FieldButton

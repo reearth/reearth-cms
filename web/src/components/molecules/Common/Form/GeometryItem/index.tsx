@@ -14,6 +14,7 @@ import {
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Marker from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import {
   ObjectSupportedType,
   EditorSupportedType,
@@ -21,8 +22,12 @@ import {
 import { config } from "@reearth-cms/config";
 import { useT } from "@reearth-cms/i18n";
 
+import schema from "./schema";
+
+const { Text } = Typography;
+
 type GeoType = "point" | "lineString" | "polygon";
-const geoTypeMap = {
+const GEO_TYPE_MAP = {
   POINT: "Point",
   MULTIPOINT: "MultiPoint",
   LINESTRING: "LineString",
@@ -31,7 +36,7 @@ const geoTypeMap = {
   MULTIPOLYGON: "MultiPolygon",
   GEOMETRYCOLLECTION: "GeometryCollection",
   ANY: "Point",
-};
+} as const;
 
 interface Props {
   value?: string | null;
@@ -39,9 +44,19 @@ interface Props {
   supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
   isEditor: boolean;
   disabled?: boolean;
+  errorAdd?: () => void;
+  errorDelete?: () => void;
 }
 
-const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEditor, disabled }) => {
+const GeometryItem: React.FC<Props> = ({
+  value,
+  onChange,
+  supportedTypes,
+  isEditor,
+  disabled,
+  errorAdd,
+  errorDelete,
+}) => {
   const t = useT();
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
@@ -50,6 +65,7 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
     const value = editorRef.current?.getValue();
     if (value) navigator.clipboard.writeText(value);
   }, []);
+
   const editorDeleteButtonClick = useCallback(() => {
     editorRef.current?.setValue("");
   }, []);
@@ -70,17 +86,6 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
     [disabled, isEditor, t],
   );
 
-  const handleEditorOnChange = useCallback(
-    (value?: string) => {
-      onChange?.(value ?? "");
-    },
-    [onChange],
-  );
-
-  const handleEditorDidMount: OnMount = useCallback((editor, monaco) => {
-    editorRef.current = editor;
-  }, []);
-
   const handleEditorWillMount: BeforeMount = useCallback(monaco => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       schemaValidation: "error",
@@ -88,27 +93,121 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
         {
           uri: "",
           fileMatch: ["*"],
-          schema: {
-            type: "object",
-            properties: {
-              type: {
-                enum: [
-                  "Point",
-                  "LineString",
-                  "Polygon",
-                  "MultiPoint",
-                  "MultiLineString",
-                  "MultiPolygon",
-                  "GeometryCollection",
-                ],
-              },
-              coordinates: {},
-            },
-          },
+          schema,
         },
       ],
     });
   }, []);
+
+  const handleEditorDidMount: OnMount = useCallback(editor => {
+    editorRef.current = editor;
+  }, []);
+
+  const drawOnMap = useCallback(() => {
+    viewer.current?.cesiumElement?.entities.removeAll();
+    if (!value) return;
+    try {
+      const valueJson: {
+        type?: unknown;
+        coordinates?: unknown;
+      } = JSON.parse(value);
+      if (!valueJson.type || !Array.isArray(valueJson.coordinates)) return;
+      const flatCoordinates = valueJson.coordinates.flat().flat().flat();
+      if (flatCoordinates.length === 0) return;
+      for (const coordinate of flatCoordinates) {
+        if (typeof coordinate !== "number") return;
+      }
+      switch (valueJson.type) {
+        case "Point":
+          viewer.current?.cesiumElement?.entities.add({
+            position: Cartesian3.fromDegreesArray(flatCoordinates)[0],
+            billboard: {
+              image: Marker,
+              width: 28,
+              height: 28,
+            },
+          });
+          return;
+        case "MultiPoint":
+          return;
+        case "LineString":
+          viewer.current?.cesiumElement?.entities.add({
+            polyline: {
+              positions: Cartesian3.fromDegreesArray(flatCoordinates),
+            },
+          });
+          return;
+        case "Polygon":
+          viewer.current?.cesiumElement?.entities.add({
+            polygon: {
+              hierarchy: Cartesian3.fromDegreesArray(flatCoordinates),
+              extrudedHeight: 50000,
+            },
+          });
+          return;
+        case "MultiLineString":
+        case "MultiPolygon":
+        default:
+          return;
+      }
+    } catch (_) {
+      return;
+    }
+  }, [value]);
+
+  const [hasError, setHasError] = useState(false);
+
+  const handleErrorAdd = useCallback(() => {
+    setHasError(true);
+    errorAdd?.();
+  }, [errorAdd]);
+
+  const handleErrorDelete = useCallback(() => {
+    setHasError(false);
+    errorDelete?.();
+  }, [errorDelete]);
+
+  const handleEditorValidation = useCallback(
+    (markers: editor.IMarker[]) => {
+      if (markers.length > 0) {
+        viewer.current?.cesiumElement?.entities.removeAll();
+        handleErrorAdd();
+      } else {
+        handleErrorDelete();
+      }
+    },
+    [handleErrorAdd, handleErrorDelete],
+  );
+
+  const handleEditorOnChange = useCallback(
+    (value?: string) => {
+      onChange?.(value ?? "");
+      if (value && supportedTypes) {
+        try {
+          const valueJson: {
+            type?: (typeof GEO_TYPE_MAP)[keyof typeof GEO_TYPE_MAP];
+          } = JSON.parse(value);
+          if (valueJson.type) {
+            const convertedTypes = Array.isArray(supportedTypes)
+              ? supportedTypes.map(type => GEO_TYPE_MAP[type])
+              : supportedTypes === "ANY"
+                ? [GEO_TYPE_MAP.POINT, GEO_TYPE_MAP.LINESTRING, GEO_TYPE_MAP.POLYGON]
+                : [GEO_TYPE_MAP[supportedTypes]];
+            if (convertedTypes.includes(valueJson.type)) {
+              handleErrorDelete();
+            } else {
+              handleErrorAdd();
+            }
+          }
+        } catch (_) {
+          return;
+        }
+      } else {
+        handleErrorDelete();
+      }
+    },
+    [handleErrorAdd, handleErrorDelete, onChange, supportedTypes],
+  );
 
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
@@ -260,182 +359,142 @@ const GeometryItem: React.FC<Props> = ({ value, onChange, supportedTypes, isEdit
   }, []);
 
   const placeholderContent = useMemo(() => {
-    let key: keyof typeof geoTypeMap = "POINT";
+    let key: keyof typeof GEO_TYPE_MAP = "POINT";
     if (Array.isArray(supportedTypes)) {
       key = "GEOMETRYCOLLECTION";
     } else if (supportedTypes) {
       key = supportedTypes;
     }
-    return format(geoTypeMap[key], []);
+    return format(GEO_TYPE_MAP[key], []);
   }, [format, supportedTypes]);
 
   const [currentValue, setCurrentValue] = useState<string>();
   useEffect(() => {
     setCurrentValue(value ?? undefined);
-    if (!viewer.current?.cesiumElement) return;
-    viewer.current.cesiumElement.entities.removeAll();
-    try {
-      const valueJson: {
-        type?: string;
-        coordinates?: number[] | number[][] | number[][][] | number[][][][];
-      } = JSON.parse(JSON.parse(JSON.stringify(value ?? "")));
-      if (!valueJson.type || !valueJson.coordinates) return;
-      const flatCoordinates = valueJson.coordinates.flat().flat().flat();
-      if (flatCoordinates.length === 0) return;
-      for (const coordinate of flatCoordinates) {
-        if (typeof coordinate !== "number") return;
-      }
-      switch (valueJson.type) {
-        case "Point":
-          viewer.current.cesiumElement.entities.add({
-            position: Cartesian3.fromDegreesArray(flatCoordinates)[0],
-            billboard: {
-              image: Marker,
-              width: 28,
-              height: 28,
-            },
-          });
-          return;
-        case "MultiPoint":
-          return;
-        case "LineString":
-          viewer.current.cesiumElement.entities.add({
-            polyline: {
-              positions: Cartesian3.fromDegreesArray(flatCoordinates),
-            },
-          });
-          return;
-        case "Polygon":
-          viewer.current.cesiumElement.entities.add({
-            polygon: {
-              hierarchy: Cartesian3.fromDegreesArray(flatCoordinates),
-              extrudedHeight: 50000,
-            },
-          });
-          return;
-        case "MultiLineString":
-        case "MultiPolygon":
-        default:
-          return;
-      }
-    } catch (_) {
-      return;
-    }
-  }, [value]);
+    drawOnMap();
+  }, [drawOnMap, value]);
 
   return (
-    <GeometryField>
-      <EditorWrapper>
-        <EditorButtons>
-          <EditorButton
-            icon={<Icon icon="editorCopy" size={12} />}
-            size="small"
-            onClick={copyButtonClick}
-          />
-          {!disabled && !isEditor && (
+    <Container>
+      <GeometryField>
+        <EditorWrapper hasError={hasError}>
+          <EditorButtons>
             <EditorButton
-              icon={<Icon icon="trash" size={12} />}
+              icon={<Icon icon="editorCopy" size={12} />}
               size="small"
-              onClick={editorDeleteButtonClick}
+              onClick={copyButtonClick}
             />
-          )}
-        </EditorButtons>
-        <MonacoEditor
-          height="100%"
-          language={"json"}
-          options={options}
-          value={currentValue}
-          onChange={handleEditorOnChange}
-          onMount={handleEditorDidMount}
-          beforeMount={handleEditorWillMount}
-        />
-        <Placeholder isEmpty={!value}>{placeholderContent}</Placeholder>
-      </EditorWrapper>
-      {isReady && (
-        <ViewerWrapper>
-          <ViewerButtons>
-            {isEditor && (
-              <GeoButtons>
-                {(supportedTypes === "POINT" || supportedTypes === "ANY") && (
-                  <GeoButton
-                    icon={<Icon icon="mapPin" size={22} />}
-                    onClick={pinButtonClick}
-                    selected={isDrawing && geoType === "point"}
-                  />
-                )}
-                {(supportedTypes === "LINESTRING" || supportedTypes === "ANY") && (
-                  <GeoButton
-                    icon={<Icon icon="lineString" size={22} />}
-                    onClick={lineStringButtonClick}
-                    selected={isDrawing && geoType === "lineString"}
-                  />
-                )}
-                {(supportedTypes === "POLYGON" || supportedTypes === "ANY") && (
-                  <GeoButton
-                    icon={<Icon icon="polygon" size={22} />}
-                    onClick={polygonButtonClick}
-                    selected={isDrawing && geoType === "polygon"}
-                  />
-                )}
-              </GeoButtons>
+            {!disabled && !isEditor && (
+              <EditorButton
+                icon={<Icon icon="trash" size={12} />}
+                size="small"
+                onClick={editorDeleteButtonClick}
+              />
             )}
-            <ZoomButtons>
-              <Button
-                icon={<Icon icon="plus" />}
-                onClick={() => {
-                  handleZoom(true);
-                }}
-              />
-              <Button
-                icon={<Icon icon="minus" />}
-                onClick={() => {
-                  handleZoom(false);
-                }}
-              />
-            </ZoomButtons>
-          </ViewerButtons>
-          <StyledViewer
-            infoBox={false}
-            navigationHelpButton={false}
-            homeButton={false}
-            projectionPicker={false}
-            sceneModePicker={false}
-            sceneMode={SceneMode.SCENE2D}
-            baseLayerPicker={false}
-            fullscreenButton={false}
-            vrButton={false}
-            selectionIndicator={false}
-            timeline={false}
-            animation={false}
-            geocoder={false}
-            onClick={singleClick}
-            onDoubleClick={doubleClick}
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            ref={viewer}
-            isGrabbing={isGrabbing}
-            isDrawing={isDrawing}>
-            <ScreenSpaceCameraController enableTranslate={enableTranslate} />
-          </StyledViewer>
-        </ViewerWrapper>
-      )}
-    </GeometryField>
+          </EditorButtons>
+          <MonacoEditor
+            height="100%"
+            language={"json"}
+            options={options}
+            value={currentValue}
+            beforeMount={handleEditorWillMount}
+            onMount={handleEditorDidMount}
+            onChange={handleEditorOnChange}
+            onValidate={handleEditorValidation}
+          />
+          <Placeholder isEmpty={!value}>{placeholderContent}</Placeholder>
+        </EditorWrapper>
+        {isReady && (
+          <ViewerWrapper>
+            <ViewerButtons>
+              {isEditor && (
+                <GeoButtons>
+                  {(supportedTypes === "POINT" || supportedTypes === "ANY") && (
+                    <GeoButton
+                      icon={<Icon icon="mapPin" size={22} />}
+                      onClick={pinButtonClick}
+                      selected={isDrawing && geoType === "point"}
+                    />
+                  )}
+                  {(supportedTypes === "LINESTRING" || supportedTypes === "ANY") && (
+                    <GeoButton
+                      icon={<Icon icon="lineString" size={22} />}
+                      onClick={lineStringButtonClick}
+                      selected={isDrawing && geoType === "lineString"}
+                    />
+                  )}
+                  {(supportedTypes === "POLYGON" || supportedTypes === "ANY") && (
+                    <GeoButton
+                      icon={<Icon icon="polygon" size={22} />}
+                      onClick={polygonButtonClick}
+                      selected={isDrawing && geoType === "polygon"}
+                    />
+                  )}
+                </GeoButtons>
+              )}
+              <ZoomButtons>
+                <Button
+                  icon={<Icon icon="plus" />}
+                  onClick={() => {
+                    handleZoom(true);
+                  }}
+                />
+                <Button
+                  icon={<Icon icon="minus" />}
+                  onClick={() => {
+                    handleZoom(false);
+                  }}
+                />
+              </ZoomButtons>
+            </ViewerButtons>
+            <StyledViewer
+              infoBox={false}
+              navigationHelpButton={false}
+              homeButton={false}
+              projectionPicker={false}
+              sceneModePicker={false}
+              sceneMode={SceneMode.SCENE2D}
+              baseLayerPicker={false}
+              fullscreenButton={false}
+              vrButton={false}
+              selectionIndicator={false}
+              timeline={false}
+              animation={false}
+              geocoder={false}
+              onClick={singleClick}
+              onDoubleClick={doubleClick}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              ref={viewer}
+              isGrabbing={isGrabbing}
+              isDrawing={isDrawing}>
+              <ScreenSpaceCameraController enableTranslate={enableTranslate} />
+            </StyledViewer>
+          </ViewerWrapper>
+        )}
+      </GeometryField>
+      {hasError && <Text type="danger">{t("GeoJSON type mismatch, please check your input")}</Text>}
+    </Container>
   );
 };
 
 export default GeometryItem;
 
+const Container = styled.div`
+  flex: 1;
+`;
+
 const GeometryField = styled.div`
   display: flex;
-  width: 100%;
   aspect-ratio: 1.86 / 1;
   box-shadow: 0px 2px 8px 0px #00000026;
 `;
 
-const EditorWrapper = styled.div`
+const EditorWrapper = styled.div<{ hasError: boolean }>`
   width: 45%;
   position: relative;
+  border: 1px solid ${({ hasError }) => (hasError ? "#ff4d4f" : "transparent")};
 `;
 
 const EditorButtons = styled.div`

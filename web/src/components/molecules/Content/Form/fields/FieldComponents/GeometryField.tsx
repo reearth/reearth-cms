@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
@@ -16,6 +16,21 @@ interface DefaultFieldProps {
 
 const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
+  const [errorSet, setErrorSet] = useState(new Set<number>());
+
+  const errorAdd = useCallback((index: number) => {
+    setErrorSet?.(prev => {
+      prev.add(index);
+      return new Set(prev);
+    });
+  }, []);
+
+  const errorDelete = useCallback((index: number) => {
+    setErrorSet?.(prev => {
+      prev.delete(index);
+      return new Set(prev);
+    });
+  }, []);
 
   const supportedTypes = useMemo(
     () => field.typeProperty?.objectSupportedTypes ?? field.typeProperty?.editorSupportedTypes?.[0],
@@ -32,6 +47,11 @@ const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
           required: field.required,
           message: t("Please input field!"),
         },
+        {
+          validator: async () => {
+            return errorSet.size ? Promise.reject() : Promise.resolve();
+          },
+        },
       ]}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
@@ -40,9 +60,17 @@ const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
           supportedTypes={supportedTypes}
           isEditor={isEditor}
           disabled={disabled}
+          errorAdd={errorAdd}
+          errorDelete={errorDelete}
         />
       ) : (
-        <GeometryItem supportedTypes={supportedTypes} isEditor={isEditor} disabled={disabled} />
+        <GeometryItem
+          supportedTypes={supportedTypes}
+          isEditor={isEditor}
+          disabled={disabled}
+          errorAdd={() => errorAdd(0)}
+          errorDelete={() => errorDelete(0)}
+        />
       )}
     </Form.Item>
   );
