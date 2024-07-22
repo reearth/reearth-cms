@@ -71,11 +71,60 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 }
 
 func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONRequestObject) (ItemsAsGeoJSONResponseObject, error) {
-	panic("not implemented")
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	if err != nil {
+		return ItemsAsGeoJSON400Response{}, err
+	}
+
+	p := fromPagination(request.Params.Page, request.Params.PerPage)
+	items, _, err := uc.Item.Search(ctx, *sp, nil, p, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsGeoJSON404Response{}, err
+		}
+		return ItemsAsGeoJSON400Response{}, err
+	}
+
+	fc, err := integrationapi.FeatureCollectionFromItems(items, sp.Schema())
+	if err != nil {
+		return ItemsAsGeoJSON400Response{}, err
+	}
+
+	return ItemsAsGeoJSON200JSONResponse{
+		Body: fc,
+	}, nil
 }
 
 func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject) (ItemsAsCSVResponseObject, error) {
-	panic("not implemented")
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	if err != nil {
+		return ItemsAsCSV400Response{}, err
+	}
+
+	items, _, err := uc.Item.Search(ctx, *sp, nil, nil, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsCSV404Response{}, err
+		}
+		return ItemsAsCSV400Response{}, err
+	}
+
+	csvString, err := integrationapi.CSVFromItems(items, sp.Schema())
+	if err != nil {
+		return nil, err
+	}
+	reader := strings.NewReader(csvString)
+	contentLength := reader.Len()
+	return ItemsAsCSV200TextcsvResponse{
+		Body:          reader,
+		ContentLength: int64(contentLength),
+	}, nil
 }
 
 func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error) {
