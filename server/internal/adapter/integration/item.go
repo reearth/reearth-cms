@@ -181,7 +181,7 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
-	fc, err := integrationapi.NewFeatureCollection(items, sp.Schema(), request.Params.GeoFieldIdOrKey)
+	fc, err := integrationapi.FeatureCollectionFromItems(items, sp.Schema())
 	if err != nil {
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
@@ -192,12 +192,43 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 }
 
 func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithProjectAsCSVRequestObject) (ItemsWithProjectAsCSVResponseObject, error) {
-	text := `
-id,location_lat,location_lng,name,description
-xxxx,139.7112596,35.6424892,Euakrya,hogehoge
-xxxx,139.7476911,35.6759842,MLIT,foobar
-`
-	reader := strings.NewReader(text)
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV400Response{}, err
+		}
+		return nil, err
+	}
+
+	m, err := uc.Model.FindByIDOrKey(ctx, prj.ID(), request.ModelIdOrKey, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV404Response{}, err
+		}
+		return ItemsWithProjectAsCSV400Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return ItemsWithProjectAsCSV400Response{}, err
+	}
+
+	items, _, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, sp.Schema().ID(), nil, nil, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV404Response{}, err
+		}
+		return ItemsWithProjectAsCSV400Response{}, err
+	}
+
+	csvString, err := integrationapi.CSVFromItems(items, sp.Schema())
+	if err != nil {
+		return nil, err
+	}
+	reader := strings.NewReader(csvString)
 	contentLength := reader.Len()
 	return ItemsWithProjectAsCSV200TextcsvResponse{
 		Body:          reader,

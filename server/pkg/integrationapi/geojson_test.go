@@ -79,7 +79,7 @@ func TestNewFeatureCollection(t *testing.T) {
 		Features: &[]Feature{f},
 	}
 
-	fc1, err1 := NewFeatureCollection(ver1, s1, nil)
+	fc1, err1 := FeatureCollectionFromItems(ver1, s1)
 	assert.Nil(t, err1)
 	assert.Equal(t, expected1, fc1)
 
@@ -87,7 +87,7 @@ func TestNewFeatureCollection(t *testing.T) {
 	ver2 := item.VersionedList{vi2}
 	expectErr2 := noGeometryFieldError
 
-	fc, err := NewFeatureCollection(ver2, s2, nil)
+	fc, err := FeatureCollectionFromItems(ver2, s2)
 	assert.Equal(t, expectErr2, err)
 	assert.Nil(t, fc)
 }

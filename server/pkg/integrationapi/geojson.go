@@ -3,7 +3,6 @@ package integrationapi
 import (
 	"encoding/json"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -14,18 +13,18 @@ import (
 
 var noGeometryFieldError = rerror.NewE(i18n.T("no geometry field in this model"))
 
-func NewFeatureCollection(ver item.VersionedList, s *schema.Schema, idOrKey *schema.FieldIDOrKey) (*FeatureCollection, error) {
+func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
 	if !hasGeometryFields(s) {
 		return nil, noGeometryFieldError
 	}
 
-	geoField, err := getGeometryField(s, idOrKey)
+	geoField, err := getGeometryField(s)
 	if err != nil {
 		return nil, err
 	}
 
 	fl := lo.Map(ver, func(v item.Versioned, _ int) Feature {
-		return NewFeature(v, s, geoField)
+		return FeatureFromItem(v, s, geoField)
 	})
 
 	return &FeatureCollection{
@@ -34,7 +33,7 @@ func NewFeatureCollection(ver item.VersionedList, s *schema.Schema, idOrKey *sch
 	}, nil
 }
 
-func NewFeature(ver item.Versioned, s *schema.Schema, geo *schema.Field) Feature {
+func FeatureFromItem(ver item.Versioned, s *schema.Schema, geo *schema.Field) Feature {
 	itm := ver.Value()
 	geoField := itm.Field(geo.ID())
 	vv := *geoField.Value().First()
@@ -53,30 +52,13 @@ func hasGeometryFields(s *schema.Schema) bool {
 	return s.FieldsByType(value.TypeGeometryEditor) != nil && s.FieldsByType(value.TypeGeometryObject) != nil
 }
 
-func getGeometryField(s *schema.Schema, idOrKey *schema.FieldIDOrKey) (*schema.Field, error) {
-	if idOrKey != nil {
-		return getFieldByIDOrKey(s, idOrKey), nil
-	}
-
+func getGeometryField(s *schema.Schema) (*schema.Field, error) {
 	geoFields := append(s.FieldsByType(value.TypeGeometryObject), s.FieldsByType(value.TypeGeometryEditor)...)
 	if len(geoFields) == 0 {
 		return nil, noGeometryFieldError
 	}
 
 	return geoFields[0], nil
-}
-
-func getFieldByIDOrKey(s *schema.Schema, idOrKey *schema.FieldIDOrKey) *schema.Field {
-	sIdOrKey := string(*idOrKey)
-	idd, key := parseIDOrKey(sIdOrKey)
-	return s.FieldByIDOrKey(idd, key)
-}
-
-func parseIDOrKey(sIdOrKey string) (*id.FieldID, *id.Key) {
-	if res, err := id.FieldIDFrom(sIdOrKey); err == nil {
-		return &res, nil
-	}
-	return nil, id.NewKey(sIdOrKey).Ref()
 }
 
 func getProperties(itm *item.Item, s *schema.Schema) *map[string]interface{} {

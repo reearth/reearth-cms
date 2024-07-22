@@ -405,7 +405,6 @@ paths:
         - $ref: '#/components/parameters/pageParam'
         - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/refParam'
-        - $ref: '#/components/parameters/geoFieldIdOrKeyParam'
       responses:
         '200':
           description: A GeoJSON object
@@ -435,7 +434,6 @@ paths:
       description: Returns a CSV that has a list of items as features.
       parameters:
         - $ref: '#/components/parameters/refParam'
-        - $ref: '#/components/parameters/geoFieldIdOrKeyParam'
       responses:
         '200':
           description: A string in CSV format
@@ -740,7 +738,6 @@ paths:
         - $ref: '#/components/parameters/pageParam'
         - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/refParam'
-        - $ref: '#/components/parameters/geoFieldIdOrKeyParam'
       responses:
         '200':
           description: A GeoJSON object
@@ -771,7 +768,6 @@ paths:
       description: Returns a CSV that has a list of items as features.
       parameters:
         - $ref: '#/components/parameters/refParam'
-        - $ref: '#/components/parameters/geoFieldIdOrKeyParam'
       responses:
         '200':
           description: A string in CSV format
@@ -1419,14 +1415,6 @@ components:
       description: Specifies whether asset data are embedded in the results
       schema:
         $ref: '#/components/schemas/assetEmbedding'
-    geoFieldIdOrKeyParam:
-      name: geoFieldIdOrKey
-      in: query
-      description: ID or key of the geo field in the models schema
-      required: false
-      schema:
-        type: string
-        x-go-type: schema.FieldIDOrKey
   schemas:
     project:
       type: object

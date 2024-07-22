@@ -570,9 +570,6 @@ type FieldIdOrKeyParam = schema.FieldIDOrKey
 // FieldIdParam defines model for fieldIdParam.
 type FieldIdParam = id.FieldID
 
-// GeoFieldIdOrKeyParam defines model for geoFieldIdOrKeyParam.
-type GeoFieldIdOrKeyParam = schema.FieldIDOrKey
-
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
 
@@ -716,9 +713,6 @@ type ItemCreateJSONBody struct {
 type ItemsAsCSVParams struct {
 	// Ref Used to select a ref or ver
 	Ref *ItemsAsCSVParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
-
-	// GeoFieldIdOrKey ID or key of the geo field in the models schema
-	GeoFieldIdOrKey *GeoFieldIdOrKeyParam `form:"geoFieldIdOrKey,omitempty" json:"geoFieldIdOrKey,omitempty"`
 }
 
 // ItemsAsCSVParamsRef defines parameters for ItemsAsCSV.
@@ -734,9 +728,6 @@ type ItemsAsGeoJSONParams struct {
 
 	// Ref Used to select a ref or ver
 	Ref *ItemsAsGeoJSONParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
-
-	// GeoFieldIdOrKey ID or key of the geo field in the models schema
-	GeoFieldIdOrKey *GeoFieldIdOrKeyParam `form:"geoFieldIdOrKey,omitempty" json:"geoFieldIdOrKey,omitempty"`
 }
 
 // ItemsAsGeoJSONParamsRef defines parameters for ItemsAsGeoJSON.
@@ -830,9 +821,6 @@ type ItemCreateWithProjectJSONBody struct {
 type ItemsWithProjectAsCSVParams struct {
 	// Ref Used to select a ref or ver
 	Ref *ItemsWithProjectAsCSVParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
-
-	// GeoFieldIdOrKey ID or key of the geo field in the models schema
-	GeoFieldIdOrKey *GeoFieldIdOrKeyParam `form:"geoFieldIdOrKey,omitempty" json:"geoFieldIdOrKey,omitempty"`
 }
 
 // ItemsWithProjectAsCSVParamsRef defines parameters for ItemsWithProjectAsCSV.
@@ -848,9 +836,6 @@ type ItemsWithProjectAsGeoJSONParams struct {
 
 	// Ref Used to select a ref or ver
 	Ref *ItemsWithProjectAsGeoJSONParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
-
-	// GeoFieldIdOrKey ID or key of the geo field in the models schema
-	GeoFieldIdOrKey *GeoFieldIdOrKeyParam `form:"geoFieldIdOrKey,omitempty" json:"geoFieldIdOrKey,omitempty"`
 }
 
 // ItemsWithProjectAsGeoJSONParamsRef defines parameters for ItemsWithProjectAsGeoJSON.
