@@ -1,15 +1,10 @@
 import styled from "@emotion/styled";
 import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
-import { Ion, Cartesian3, Viewer as CesiumViewer, Cartographic, Math, SceneMode } from "cesium";
+import { CoreVisualizer, MapRef, Camera } from "@reearth/core";
+import { Cartesian3, Viewer as CesiumViewer } from "cesium";
 import { editor } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import {
-  CesiumComponentRef,
-  CesiumMovementEvent,
-  Viewer,
-  ScreenSpaceCameraController,
-  RootEventTarget,
-} from "resium";
+import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -19,7 +14,6 @@ import {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { config } from "@reearth-cms/config";
 import { useT } from "@reearth-cms/i18n";
 
 import schema from "./schema";
@@ -58,6 +52,12 @@ const GeometryItem: React.FC<Props> = ({
   errorDelete,
 }) => {
   const t = useT();
+
+  const ref = useRef<MapRef>();
+  const [isMounted, setIsMounted] = useState(false);
+  const handleMount = useCallback(() => {
+    setIsMounted(true);
+  }, []);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
@@ -211,7 +211,6 @@ const GeometryItem: React.FC<Props> = ({
 
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
-    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
     setIsReady(true);
   }, []);
 
@@ -225,33 +224,37 @@ const GeometryItem: React.FC<Props> = ({
 
   const pinButtonClick = useCallback(() => {
     geoTypeSet("point");
+    ref.current?.sketch?.setType("marker");
   }, [geoTypeSet]);
 
   const lineStringButtonClick = useCallback(() => {
     geoTypeSet("lineString");
+    ref.current?.sketch?.setType("polyline");
   }, [geoTypeSet]);
 
   const polygonButtonClick = useCallback(() => {
     geoTypeSet("polygon");
+    ref.current?.sketch?.setType("polygon");
   }, [geoTypeSet]);
 
-  const [geoValues, setGeoValues] = useState<Map<string, number[]>>(new Map());
-  const [enableTranslate, setEnableTranslate] = useState(true);
+  const [currentCamera, setCurrentCamera] = useState<Camera | undefined>();
 
-  const viewer = useRef<CesiumComponentRef<CesiumViewer>>(null);
+  const handleCameraChange = useCallback(
+    (camera: Camera) => {
+      setCurrentCamera(camera);
+    },
+    [setCurrentCamera],
+  );
+
+  const viewer = useRef<CesiumComponentRef<CesiumViewer>>();
 
   const handleZoom = useCallback((isZoomIn: boolean) => {
-    if (viewer.current?.cesiumElement) {
-      const ellipsoid = viewer.current.cesiumElement.scene.globe.ellipsoid;
-      const camera = viewer.current.cesiumElement.camera;
-      const cameraHeight = ellipsoid.cartesianToCartographic(camera.position).height;
-      const moveRate = cameraHeight / 10;
-      if (isZoomIn) {
-        camera.moveForward(moveRate);
-      } else {
-        camera.moveBackward(moveRate);
+    setCurrentCamera(prev => {
+      if (prev) {
+        const height = isZoomIn ? prev.height / 2 : prev.height * 2;
+        return { ...prev, height };
       }
-    }
+    });
   }, []);
 
   const format = useCallback(
@@ -259,92 +262,6 @@ const GeometryItem: React.FC<Props> = ({
       JSON.stringify({ type, coordinates }, null, 2),
     [],
   );
-
-  const positionsRef = useRef<number[][]>([]);
-
-  const handleClick = useCallback(
-    (_movement: CesiumMovementEvent) => {
-      if (!isDrawing || !_movement.position || !viewer.current?.cesiumElement) return;
-      const ellipsoid = viewer.current.cesiumElement.scene.globe.ellipsoid;
-      const cartesian = viewer.current.cesiumElement.camera.pickEllipsoid(
-        _movement.position,
-        ellipsoid,
-      );
-      if (!cartesian) return;
-      const cartographic = Cartographic.fromCartesian(cartesian);
-      const lon = Math.toDegrees(cartographic.longitude);
-      const lat = Math.toDegrees(cartographic.latitude);
-      if (geoType === "point") {
-        setIsDrawing(false);
-        editorRef.current?.setValue(format("Point", [lon, lat]));
-      } else {
-        positionsRef.current?.push([lon, lat]);
-        if (geoType === "lineString") {
-          editorRef.current?.setValue(format("LineString", positionsRef.current));
-        } else {
-          editorRef.current?.setValue(
-            format("Polygon", [[...positionsRef.current, positionsRef.current[0]]]),
-          );
-        }
-      }
-    },
-    [format, geoType, isDrawing],
-  );
-
-  const timeout = useRef<NodeJS.Timeout>();
-  const singleClick = useCallback(
-    (movement: CesiumMovementEvent) => {
-      if (timeout.current) {
-        clearTimeout(timeout.current);
-        timeout.current = undefined;
-      } else {
-        timeout.current = setTimeout(() => {
-          handleClick(movement);
-          timeout.current = undefined;
-        }, 250);
-      }
-    },
-    [handleClick],
-  );
-
-  const doubleClick = useCallback(() => {
-    setIsDrawing(false);
-  }, []);
-
-  const [isGrabbing, setIsGrabbing] = useState(false);
-  const [entityId, setEntityId] = useState("");
-
-  const onMouseDown = useCallback(() => {
-    setIsGrabbing(true);
-  }, []);
-
-  const onMouseMove = useCallback(
-    (movement: CesiumMovementEvent, _: RootEventTarget) => {
-      if (entityId && viewer.current?.cesiumElement && movement.endPosition) {
-        const cartesian = viewer.current.cesiumElement.camera.pickEllipsoid(
-          movement.endPosition,
-          viewer.current.cesiumElement.scene.globe.ellipsoid,
-        );
-        const point = viewer.current.cesiumElement.entities.getById(entityId);
-        if (point && cartesian) {
-          point.position = cartesian as any;
-          const cartographic = Cartographic.fromCartesian(cartesian);
-          const lon = Math.toDegrees(cartographic.longitude);
-          const lat = Math.toDegrees(cartographic.latitude);
-          setGeoValues(prev => {
-            prev.set(entityId, [lon, lat]);
-            return new Map(prev);
-          });
-        }
-      }
-    },
-    [entityId],
-  );
-
-  const onMouseUp = useCallback(() => {
-    setEntityId("");
-    setIsGrabbing(false);
-  }, []);
 
   useEffect(() => {
     const handleEnter = (event: KeyboardEvent) => {
@@ -373,6 +290,8 @@ const GeometryItem: React.FC<Props> = ({
     setCurrentValue(value ?? undefined);
     drawOnMap();
   }, [drawOnMap, value]);
+
+  const [engine, setEngine] = useState<"cesium">();
 
   return (
     <Container>
@@ -447,30 +366,31 @@ const GeometryItem: React.FC<Props> = ({
                 />
               </ZoomButtons>
             </ViewerButtons>
-            <StyledViewer
-              infoBox={false}
-              navigationHelpButton={false}
-              homeButton={false}
-              projectionPicker={false}
-              sceneModePicker={false}
-              sceneMode={SceneMode.SCENE2D}
-              baseLayerPicker={false}
-              fullscreenButton={false}
-              vrButton={false}
-              selectionIndicator={false}
-              timeline={false}
-              animation={false}
-              geocoder={false}
-              onClick={singleClick}
-              onDoubleClick={doubleClick}
-              onMouseDown={onMouseDown}
-              onMouseMove={onMouseMove}
-              onMouseUp={onMouseUp}
-              ref={viewer}
-              isGrabbing={isGrabbing}
-              isDrawing={isDrawing}>
-              <ScreenSpaceCameraController enableTranslate={enableTranslate} />
-            </StyledViewer>
+            <CoreVisualizer
+              ref={node => {
+                if (node !== null) {
+                  ref.current = node;
+                  setEngine("cesium");
+                }
+              }}
+              ready={isMounted}
+              onMount={handleMount}
+              engine={engine}
+              sceneProperty={
+                isMounted
+                  ? {
+                      tiles: [
+                        {
+                          id: "default",
+                          tile_type: "open_street_map",
+                        },
+                      ],
+                    }
+                  : undefined
+              }
+              camera={currentCamera}
+              onCameraChange={handleCameraChange}
+            />
           </ViewerWrapper>
         )}
       </GeometryField>
@@ -529,12 +449,6 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
 const ViewerWrapper = styled.div`
   position: relative;
   flex: 1;
-`;
-
-const StyledViewer = styled(Viewer)<{ isDrawing: boolean; isGrabbing: boolean }>`
-  height: 100%;
-  cursor: ${({ isDrawing, isGrabbing }) =>
-    isDrawing ? "crosshair" : isGrabbing ? "grabbing" : "grab"};
 `;
 
 const ViewerButtons = styled.div`
