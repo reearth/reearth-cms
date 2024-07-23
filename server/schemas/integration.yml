@@ -433,6 +433,8 @@ paths:
         - CSV
       description: Returns a CSV that has a list of items as features.
       parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/refParam'
       responses:
         '200':
@@ -767,6 +769,8 @@ paths:
         - CSV
       description: Returns a CSV that has a list of items as features.
       parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/refParam'
       responses:
         '200':

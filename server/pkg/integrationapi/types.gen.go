@@ -711,6 +711,12 @@ type ItemCreateJSONBody struct {
 
 // ItemsAsCSVParams defines parameters for ItemsAsCSV.
 type ItemsAsCSVParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
 	// Ref Used to select a ref or ver
 	Ref *ItemsAsCSVParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
 }
@@ -819,6 +825,12 @@ type ItemCreateWithProjectJSONBody struct {
 
 // ItemsWithProjectAsCSVParams defines parameters for ItemsWithProjectAsCSV.
 type ItemsWithProjectAsCSVParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
 	// Ref Used to select a ref or ver
 	Ref *ItemsWithProjectAsCSVParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
 }
