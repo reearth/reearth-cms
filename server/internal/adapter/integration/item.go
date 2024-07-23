@@ -80,7 +80,7 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, _, err := uc.Item.Search(ctx, *sp, nil, p, op)
+	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsGeoJSON404Response{}, err
@@ -107,7 +107,8 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 		return ItemsAsCSV400Response{}, err
 	}
 
-	items, _, err := uc.Item.Search(ctx, *sp, nil, nil, op)
+	p := fromPagination(request.Params.Page, request.Params.PerPage)
+	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsCSV404Response{}, err
@@ -222,7 +223,7 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, _, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsWithProjectAsGeoJSON404Response{}, err
@@ -265,7 +266,8 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 		return ItemsWithProjectAsCSV400Response{}, err
 	}
 
-	items, _, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, sp.Schema().ID(), nil, nil, op)
+	p := fromPagination(request.Params.Page, request.Params.PerPage)
+	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsWithProjectAsCSV404Response{}, err
