@@ -330,7 +330,7 @@ type MultiPoint = []Point
 type MultiPolygon = []Polygon
 
 // Point defines model for Point.
-type Point = []float32
+type Point = []float64
 
 // Polygon defines model for Polygon.
 type Polygon = [][]Point

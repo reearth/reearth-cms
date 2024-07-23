@@ -56,7 +56,7 @@ func TestNewFeatureCollection(t *testing.T) {
 
 	// with geometry fields
 	ver1 := item.VersionedList{vi1}
-	point := []float32{102.1, 0.5}
+	point := []float64{102.1, 0.5}
 	jsonBytes, err := json.Marshal(point)
 	assert.Nil(t, err)
 	c := Geometry_Coordinates{
@@ -102,7 +102,7 @@ func TestStringToGeometry(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, geo)
 	assert.Equal(t, GeometryTypePoint, *geo.Type)
-	expected := []float32{139.7112596, 35.6424892}
+	expected := []float64{139.7112596, 35.6424892}
 	actual, err := geo.Coordinates.AsPoint()
 	assert.NoError(t, err)
 	assert.Equal(t, expected, actual)
