@@ -11,20 +11,22 @@ import (
 	"github.com/samber/lo"
 )
 
-var noGeometryFieldError = rerror.NewE(i18n.T("no geometry field in this model"))
+var (
+	noGeometryFieldError = rerror.NewE(i18n.T("no geometry field in this model"))
+)
 
 func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
 	if !hasGeometryFields(s) {
 		return nil, noGeometryFieldError
 	}
 
-	fl := lo.FilterMap(ver, func(v item.Versioned, _ int) (Feature, bool) {
+	features := lo.FilterMap(ver, func(v item.Versioned, _ int) (Feature, bool) {
 		return FeatureFromItem(v, s)
 	})
 
 	return &FeatureCollection{
 		Type:     lo.ToPtr(FeatureCollectionTypeFeatureCollection),
-		Features: &fl,
+		Features: &features,
 	}, nil
 }
 
@@ -37,15 +39,16 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 	if !ok {
 		return Feature{}, false
 	}
-	vv := *geoField.Value().First()
-	ss, _ := vv.ValueString()
-	geometry, _ := StringToGeometry(ss)
+	geometry, ok := extractGeometry(geoField)
+	if !ok {
+		return Feature{}, false
+	}
 
 	return Feature{
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         itm.ID().Ref(),
 		Geometry:   geometry,
-		Properties: getProperties(itm, s),
+		Properties: extractProperties(itm, s),
 	}, true
 }
 
@@ -53,50 +56,78 @@ func hasGeometryFields(s *schema.Schema) bool {
 	if s == nil {
 		return false
 	}
-	hasObject := len(s.FieldsByType(value.TypeGeometryObject)) != 0
-	hasEditor := len(s.FieldsByType(value.TypeGeometryEditor)) != 0
+	hasObject := len(s.FieldsByType(value.TypeGeometryObject)) > 0
+	hasEditor := len(s.FieldsByType(value.TypeGeometryEditor)) > 0
 	return hasObject || hasEditor
 }
 
-func getGeometryField(i *item.Item) (*item.Field, bool) {
-	if i == nil {
+func getGeometryField(item *item.Item) (*item.Field, bool) {
+	if item == nil {
 		return nil, false
 	}
-	geoObjectFields := i.Fields().FieldsByType(value.TypeGeometryObject)
-	geoEditorFields := i.Fields().FieldsByType(value.TypeGeometryEditor)
-	geoFields := append(geoObjectFields, geoEditorFields...)
+	geoFields := append(item.Fields().FieldsByType(value.TypeGeometryObject), item.Fields().FieldsByType(value.TypeGeometryEditor)...)
 	if len(geoFields) == 0 {
 		return nil, false
 	}
-
 	return geoFields[0], true
 }
 
-func getProperties(itm *item.Item, s *schema.Schema) *map[string]interface{} {
+func extractGeometry(field *item.Field) (*Geometry, bool) {
+	v := field.Value().First()
+	if v == nil {
+		return nil, false
+	}
+	geoStr, ok := v.ValueString()
+	if !ok {
+		return nil, false
+	}
+	geometry, err := StringToGeometry(geoStr)
+	if err != nil {
+		return nil, false
+	}
+	return geometry, true
+}
+
+func extractProperties(itm *item.Item, s *schema.Schema) *map[string]interface{} {
 	if itm == nil || s == nil {
 		return nil
 	}
-	p := make(map[string]interface{})
-	otherFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
+	properties := make(map[string]interface{})
+	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
 		return f.Type() != value.TypeGeometryObject && f.Type() != value.TypeGeometryEditor
 	})
-
-	if len(otherFields) > 0 {
-		for _, f := range otherFields {
-			key := f.Name()
-			val := itm.Field(f.ID()).Value()
-			p[key] = val
+	for _, field := range nonGeoFields {
+		key := field.Name()
+		itmField := itm.Field(field.ID())
+		val, ok := toGeoJSONProp(itmField)
+		if ok {
+			properties[key] = val
 		}
 	}
-
-	return &p
+	return &properties
 }
 
 func StringToGeometry(geoString string) (*Geometry, error) {
-	var geo Geometry
-	if err := json.Unmarshal([]byte(geoString), &geo); err != nil {
+	var geometry Geometry
+	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
 		return nil, err
 	}
+	return &geometry, nil
+}
 
-	return &geo, nil
+func toMultipleValues(vv []*value.Value) ([]string, bool) {
+	if len(vv) == 0 {
+		return nil, false
+	}
+	return lo.FilterMap(vv, func(v *value.Value, _ int) (string, bool) {
+		return toSingleValue(v)
+	}), true
+}
+
+func toGeoJSONProp(f *item.Field) ([]string, bool) {
+	if f == nil {
+		return nil, false
+	}
+
+	return toMultipleValues(f.Value().Values())
 }
