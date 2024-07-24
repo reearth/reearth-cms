@@ -6429,10 +6429,10 @@
     pbf "3.2.1"
     threads "1.7.0"
 
-"@reearth/core@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@reearth/core/-/core-0.0.6.tgz#6f49a5eda06f169e9f7b76a8a42fb0359c33c0e4"
-  integrity sha512-D3roHQj7JEXEk7sNjMPewQQhcXGcufiCsVGRwhvconzhfYwmzyV73HyZEFJda1HK/NT6tRPATKxBLJ3P1ph3fg==
+"@reearth/core@0.0.7-alpha.3":
+  version "0.0.7-alpha.3"
+  resolved "https://registry.yarnpkg.com/@reearth/core/-/core-0.0.7-alpha.3.tgz#d752cca0257a823446490b13916b5c12d944a186"
+  integrity sha512-rGwEOHGqRTvBcg3JV14HlOynH6tApMd8vRfelw1sSdANp/PZ46xYrx4pyygLx/DTCPCXiKvaQxV4DPsg2F655g==
   dependencies:
     "@reearth/cesium-mvt-imagery-provider" "1.5.4"
     "@rot1024/use-transition" "1.0.0"
@@ -6463,7 +6463,7 @@
     react-error-boundary "4.0.11"
     react-nl2br "1.0.4"
     react-use "17.5.0"
-    resium "1.17.4"
+    resium "^1.18.0"
     suspend-react "0.1.3"
     tiny-invariant "1.3.3"
     use-callback-ref "1.3.2"
@@ -9642,6 +9642,16 @@ aggregate-error@^3.0.0:
   dependencies:
     clean-stack "^2.0.0"
     indent-string "^4.0.0"
+
+ajv@8.17.1:
+  version "8.17.1"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.17.1.tgz#37d9a5c776af6bc92d7f4f9510eba4c0a60d11a6"
+  integrity sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==
+  dependencies:
+    fast-deep-equal "^3.1.3"
+    fast-uri "^3.0.1"
+    json-schema-traverse "^1.0.0"
+    require-from-string "^2.0.2"
 
 ajv@^6.12.4:
   version "6.12.6"
@@ -12921,6 +12931,11 @@ fast-shallow-equal@^1.0.0:
   resolved "https://registry.yarnpkg.com/fast-shallow-equal/-/fast-shallow-equal-1.0.0.tgz#d4dcaf6472440dcefa6f88b98e3251e27f25628b"
   integrity sha512-HPtaa38cPgWvaCFmRNhlc6NG7pv6NUHqjPgVAkWGoB9mQMwYB27/K0CvOM5Czy+qpT3e8XJ6Q4aPAnzpNpzNaw==
 
+fast-uri@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/fast-uri/-/fast-uri-3.0.1.tgz#cddd2eecfc83a71c1be2cc2ef2061331be8a7134"
+  integrity sha512-MWipKbbYiYI0UC7cl8m/i/IWTqfC8YXsqjzybjddLsFjStroQzsHXkc73JutMvBiXmOvapk+axIl79ig5t55Bw==
+
 fast-url-parser@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/fast-url-parser/-/fast-url-parser-1.1.3.tgz#f4af3ea9f34d8a271cf58ad2b3759f431f0b318d"
@@ -15328,6 +15343,11 @@ json-schema-traverse@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/json-schema-traverse/-/json-schema-traverse-0.4.1.tgz#69f6a87d9513ab8bb8fe63bdb0979c448e684660"
   integrity sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==
+
+json-schema-traverse@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz#ae7bcb3656ab77a73ba5c49bf654f38e6b6860e2"
+  integrity sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==
 
 json-stable-stringify-without-jsonify@^1.0.1:
   version "1.0.1"
@@ -18818,6 +18838,11 @@ require-directory@^2.1.1:
   resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
   integrity sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==
 
+require-from-string@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/require-from-string/-/require-from-string-2.0.2.tgz#89a7fdd938261267318eafe14f9c32e598c36909"
+  integrity sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==
+
 require-main-filename@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-2.0.0.tgz#d0b329ecc7cc0f61649f62215be69af54aa8989b"
@@ -18837,6 +18862,11 @@ resium@1.17.4:
   version "1.17.4"
   resolved "https://registry.yarnpkg.com/resium/-/resium-1.17.4.tgz#9da878bb89418c9a9f8fda84171f755525371f1b"
   integrity sha512-+LYqwThrKMhFwE8ugwg323OxYHbR6dAjY6t9kfS6U5XEguHLXkIvTVxEfYkF1HSgHM0t2K/cgm7RtobO9+xdgw==
+
+resium@^1.18.0:
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/resium/-/resium-1.18.0.tgz#f1c075c1a7bdf0f378baafd6cbedd96503aecacb"
+  integrity sha512-NZzOlioWIZCdrz1BS7vzDiZryqBRAO/NA0EW+PCqwHl62G702IJIQV4qE3QTpWrc5Wj2DzOafCkz/oACJk5bXA==
 
 resize-observer-polyfill@^1.5.1:
   version "1.5.1"

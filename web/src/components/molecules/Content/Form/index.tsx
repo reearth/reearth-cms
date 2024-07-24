@@ -26,7 +26,7 @@ import {
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
   SortDirection,
@@ -123,6 +123,7 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  workspaceSettings: WorkspaceSettings;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -192,6 +193,7 @@ const ContentForm: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
+  workspaceSettings,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -600,6 +602,14 @@ const ContentForm: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
+            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+
+              return (
+                <StyledFormItemWrapper key={field.id} isFullWidth>
+                  <FieldComponent field={field} workspaceSettings={workspaceSettings} />
+                </StyledFormItemWrapper>
+              );
             } else {
               const FieldComponent =
                 FIELD_TYPE_COMPONENT_MAP[
@@ -613,14 +623,10 @@ const ContentForm: React.FC<Props> = ({
                     | "TextArea"
                     | "MarkdownText"
                     | "Integer"
-                    | "GeometryObject"
-                    | "GeometryEditor"
                 ] || DefaultField;
 
               return (
-                <StyledFormItemWrapper
-                  key={field.id}
-                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
+                <StyledFormItemWrapper key={field.id}>
                   <FieldComponent field={field} />
                 </StyledFormItemWrapper>
               );

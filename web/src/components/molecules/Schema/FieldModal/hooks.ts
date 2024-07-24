@@ -316,7 +316,7 @@ export default (
     { label: "Point", value: "POINT" },
     { label: "Linestring", value: "LINESTRING" },
     { label: "Polygon", value: "POLYGON" },
-    { label: "Any", value: "GEOMETRYCOLLECTION" },
+    { label: "Any", value: "ANY" },
   ];
 
   return {

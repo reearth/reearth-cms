@@ -57,6 +57,7 @@ import ArrowUpRight from "./Icons/arrowUpRight.svg";
 import Asset from "./Icons/asset.svg";
 import Boolean from "./Icons/boolean.svg";
 import CheckSquare from "./Icons/checkSquare.svg";
+import Circle from "./Icons/circle.svg";
 import ColorPalette from "./Icons/colorPalette.svg";
 import Control from "./Icons/control.svg";
 import CurlyBrackets from "./Icons/curlyBrackets.svg";
@@ -79,6 +80,7 @@ import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
 import Pencil from "./Icons/pencil.svg";
 import Polygon from "./Icons/polygon.svg";
+import Rectangle from "./Icons/rectangle.svg";
 import Tag from "./Icons/tag.svg";
 import TerminalWindow from "./Icons/terminalWindow.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
@@ -173,4 +175,6 @@ export default {
   curlyBrackets: CurlyBrackets,
   pencil: Pencil,
   editorCopy: EditorCopy,
+  circle: Circle,
+  rectangle: Rectangle,
 };
