@@ -2,13 +2,10 @@ package integrationapi
 
 import (
 	"encoding/csv"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -114,74 +111,6 @@ func toCSVProp(f *item.Field) (string, bool) {
 	return toSingleValue(vv)
 }
 
-func toSingleValue(vv *value.Value) (string, bool) {
-	if vv == nil {
-		return "", false
-	}
-
-	switch vv.Type() {
-	case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeSelect, value.TypeTag:
-		v, ok := vv.ValueString()
-		if !ok {
-			return "", false
-		}
-		return v, true
-	case value.TypeURL:
-		v, ok := vv.ValueURL()
-		if !ok {
-			return "", false
-		}
-		return v.String(), true
-	case value.TypeAsset:
-		v, ok := vv.ValueAsset()
-		if !ok {
-			return "", false
-		}
-		return v.String(), true
-	case value.TypeGroup:
-		v, ok := vv.ValueGroup()
-		if !ok {
-			return "", false
-		}
-		return v.String(), true
-	case value.TypeReference:
-		v, ok := vv.ValueReference()
-		if !ok {
-			return "", false
-		}
-		return v.String(), true
-	case value.TypeInteger:
-		v, ok := vv.ValueInteger()
-		if !ok {
-			return "", false
-		}
-		return strconv.FormatInt(v, 10), true
-	case value.TypeNumber:
-		v, ok := vv.ValueNumber()
-		if !ok {
-			return "", false
-		}
-		return floatToString(v), true
-	case value.TypeBool, value.TypeCheckbox:
-		v, ok := vv.ValueBool()
-		if !ok {
-			return "", false
-		}
-		if v {
-			return "true", true
-		}
-		return "false", true
-	case value.TypeDateTime:
-		v, ok := vv.ValueDateTime()
-		if !ok {
-			return "", false
-		}
-		return v.Format(time.RFC3339), true
-	default:
-		return "", false
-	}
-}
-
 func isPointFieldSupported(s *schema.Schema) bool {
 	if s == nil {
 		return false
@@ -208,14 +137,6 @@ func supportsPointField(f *schema.Field) bool {
 	return supported
 }
 
-func isGeometryField(f *schema.Field) bool {
-	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
-}
-
-func isGeometryFieldType(t value.Type) bool {
-	return t == value.TypeGeometryObject || t == value.TypeGeometryEditor
-}
-
 func convertToCSVString(data [][]string) (string, error) {
 	var sb strings.Builder
 	w := csv.NewWriter(&sb)
@@ -229,8 +150,4 @@ func convertToCSVString(data [][]string) (string, error) {
 		return "", err
 	}
 	return sb.String(), nil
-}
-
-func floatToString(inputNum float64) string {
-	return strconv.FormatFloat(inputNum, 'f', -1, 64)
 }

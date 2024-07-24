@@ -1,8 +1,6 @@
 package integrationapi
 
 import (
-	"encoding/json"
-
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -52,15 +50,6 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 	}, true
 }
 
-func hasGeometryFields(s *schema.Schema) bool {
-	if s == nil {
-		return false
-	}
-	hasObject := len(s.FieldsByType(value.TypeGeometryObject)) > 0
-	hasEditor := len(s.FieldsByType(value.TypeGeometryEditor)) > 0
-	return hasObject || hasEditor
-}
-
 func getGeometryField(item *item.Item) (*item.Field, bool) {
 	if item == nil {
 		return nil, false
@@ -105,23 +94,6 @@ func extractProperties(itm *item.Item, s *schema.Schema) *map[string]interface{}
 		}
 	}
 	return &properties
-}
-
-func StringToGeometry(geoString string) (*Geometry, error) {
-	var geometry Geometry
-	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
-		return nil, err
-	}
-	return &geometry, nil
-}
-
-func toMultipleValues(vv []*value.Value) ([]string, bool) {
-	if len(vv) == 0 {
-		return nil, false
-	}
-	return lo.FilterMap(vv, func(v *value.Value, _ int) (string, bool) {
-		return toSingleValue(v)
-	}), true
 }
 
 func toGeoJSONProp(f *item.Field) (any, bool) {

@@ -110,24 +110,21 @@ func TestNewFeatureCollection(t *testing.T) {
 	assert.Nil(t, fc)
 }
 
-func TestStringToGeometry(t *testing.T) {
-	validGeoStringPoint := `
-	{
-		"type": "Point",
-		"coordinates": [139.7112596, 35.6424892]
-	}`
-	geo, err := StringToGeometry(validGeoStringPoint)
-	assert.NoError(t, err)
-	assert.NotNil(t, geo)
-	assert.Equal(t, GeometryTypePoint, *geo.Type)
-	expected := []float64{139.7112596, 35.6424892}
-	actual, err := geo.Coordinates.AsPoint()
-	assert.NoError(t, err)
-	assert.Equal(t, expected, actual)
+func TestToGeoJSONProp(t *testing.T) {
+	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	if1 := item.NewField(sf1.ID(), value.TypeText.Value("Nour").AsMultiple(), nil)
+	s1, ok1 := toGeoJSONProp(if1)
+	assert.Equal(t, "Nour", s1)
+	assert.True(t, ok1)
+	
+	var if2 *item.Field
+	s2, ok2 := toGeoJSONProp(if2)
+	assert.Empty(t, s2)
+	assert.False(t, ok2)
 
-	// Invalid Geometry string
-	invalidGeometryString := "InvalidGeometry"
-	geo, err = StringToGeometry(invalidGeometryString)
-	assert.Error(t, err)
-	assert.Nil(t, geo)
+	sf3 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	if3 := item.NewField(sf3.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
+	s3, ok3 := toGeoJSONProp(if3)
+	assert.Equal(t, []string{"a","b", "c"}, s3)
+	assert.True(t, ok3)
 }
