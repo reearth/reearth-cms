@@ -113,6 +113,7 @@ func toCSVProp(f *item.Field) (string, bool) {
 
 	return toSingleValue(vv)
 }
+
 func toSingleValue(vv *value.Value) (string, bool) {
 	if vv == nil {
 		return "", false

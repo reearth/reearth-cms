@@ -24,16 +24,27 @@ func TestNewFeatureCollection(t *testing.T) {
 	nid := id.NewIntegrationID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
-	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
-	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	s1 := schema.New().ID(sid).Fields([]*schema.Field{sf1}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString, schema.GeometryObjectSupportedTypePolygon}
+	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString, schema.GeometryEditorSupportedTypePolygon}
+	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(key.Random()).MustBuild()
+	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(key.Random()).Multiple(true).MustBuild()
+	sf3 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("Polygon").Key(key.Random()).MustBuild()
+	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
+	tp4 := in4.TypeProperty()
+	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(key.Random()).MustBuild()
+	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(key.Random()).MustBuild()
+	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil)
+	fi2 := item.NewField(sf2.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
+	fi3 := item.NewField(sf3.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
+	fi4 := item.NewField(sf4.ID(), value.TypeInteger.Value(30).AsMultiple(), nil)
+	fi5 := item.NewField(sf5.ID(), value.TypeBool.Value(true).AsMultiple(), nil)
+	s1 := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4, sf5}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
 	s2 := schema.New().ID(sid).Fields([]*schema.Field{sf2}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf2.ID().Ref()).Project(pid).MustBuild()
 	i1 := item.New().
 		ID(iid).
 		Schema(sid).
 		Project(pid).
-		Fields([]*item.Field{item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.1,0.5]\n}").AsMultiple(), nil)}).
+		Fields([]*item.Field{fi1, fi2, fi3, fi4, fi5}).
 		Model(mid).
 		Thread(tid).
 		User(uid).
@@ -56,17 +67,24 @@ func TestNewFeatureCollection(t *testing.T) {
 
 	// with geometry fields
 	ver1 := item.VersionedList{vi1}
-	point := []float64{102.1, 0.5}
-	jsonBytes, err := json.Marshal(point)
+	lineString := [][]float64{
+		{139.65439725962517, 36.34793305387103},
+		{139.61688622815393, 35.910803456352724},
+	}
+	jsonBytes, err := json.Marshal(lineString)
 	assert.Nil(t, err)
 	c := Geometry_Coordinates{
 		union: jsonBytes,
 	}
 	g := Geometry{
-		Type:        lo.ToPtr(GeometryTypePoint),
+		Type:        lo.ToPtr(GeometryTypeLineString),
 		Coordinates: &c,
 	}
 	p := make(map[string]interface{})
+	p["Name"] = []string{"a", "b", "c"}
+	p["Age"] = "30"
+	p["IsMarried"] = "true"
+
 	f := Feature{
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Geometry:   &g,
@@ -113,78 +131,3 @@ func TestStringToGeometry(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, geo)
 }
-
-// GeoJSON example
-// {
-//   "type": "FeatureCollection",
-//   "features": [
-//     {
-//       "type": "Feature",
-//       "properties": {},
-//       "geometry": {
-//         "coordinates": [
-//           [
-//             [
-//               138.90306434425662,
-//               36.11737907906834
-//             ],
-//             [
-//               138.90306434425662,
-//               36.33622175736386
-//             ],
-//             [
-//               138.67187898370287,
-//               36.33622175736386
-//             ],
-//             [
-//               138.67187898370287,
-//               36.11737907906834
-//             ],
-//             [
-//               138.90306434425662,
-//               36.11737907906834
-//             ]
-//           ]
-//         ],
-//         "type": "Polygon"
-//       }
-//     },
-//     {
-//       "type": "Feature",
-//       "properties": {},
-//       "geometry": {
-//         "coordinates": [
-//           [
-//             139.65439725962517,
-//             36.34793305387103
-//           ],
-//           [
-//             139.61688622815393,
-//             35.910803456352724
-//           ]
-//         ],
-//         "type": "LineString"
-//       }
-//     },
-//     {
-//       "type": "Feature",
-//       "properties": {},
-//       "geometry": {
-//         "coordinates": [
-//           139.28179282584915,
-//           36.58570985749664
-//         ],
-//         "type": "Point"
-//       }
-//     }
-//   ]
-// }
-
-// point
-// "{\n  \"coordinates\": [\n    139.28179282584915,\n    36.58570985749664\n  ],\n  \"type\": \"Point\"\n}"
-
-// line string
-// "{\n  \"coordinates\": [\n    [\n      139.65439725962517,\n      36.34793305387103\n    ],\n    [\n      139.61688622815393,\n      35.910803456352724\n    ]\n  ],\n  \"type\": \"LineString\"\n}"
-
-// polygon
-// "{\n  \"coordinates\": [\n    [\n      [\n        138.90306434425662,\n        36.11737907906834\n      ],\n      [\n        138.90306434425662,\n        36.33622175736386\n      ],\n      [\n        138.67187898370287,\n        36.33622175736386\n      ],\n      [\n        138.67187898370287,\n        36.11737907906834\n      ],\n      [\n        138.90306434425662,\n        36.11737907906834\n      ]\n    ]\n  ],\n  \"type\": \"Polygon\"\n}"

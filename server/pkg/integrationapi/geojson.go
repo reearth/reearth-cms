@@ -124,10 +124,12 @@ func toMultipleValues(vv []*value.Value) ([]string, bool) {
 	}), true
 }
 
-func toGeoJSONProp(f *item.Field) ([]string, bool) {
+func toGeoJSONProp(f *item.Field) (any, bool) {
 	if f == nil {
 		return nil, false
 	}
-
+	if len(f.Value().Values()) == 1 {
+		return toSingleValue(f.Value().First())
+	}
 	return toMultipleValues(f.Value().Values())
 }
