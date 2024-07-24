@@ -281,7 +281,7 @@ type FeatureType string
 
 // FeatureCollection defines model for FeatureCollection.
 type FeatureCollection struct {
-	Features *[]Feature             `json:"Features,omitempty"`
+	Features *[]Feature             `json:"features,omitempty"`
 	Type     *FeatureCollectionType `json:"type,omitempty"`
 }
 

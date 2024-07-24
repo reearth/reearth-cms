@@ -1585,7 +1585,7 @@ components:
         type:
           type: string
           enum: [FeatureCollection]
-        Features:
+        features:
           type: array
           items:
             $ref: '#/components/schemas/Feature'
