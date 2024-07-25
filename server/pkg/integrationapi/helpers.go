@@ -51,22 +51,19 @@ func toSingleValue(vv *value.Value) (string, bool) {
 		if !ok {
 			return "", false
 		}
-		return strconv.FormatInt(v, 10), true
+		return int64ToString(v), true
 	case value.TypeNumber:
 		v, ok := vv.ValueNumber()
 		if !ok {
 			return "", false
 		}
-		return floatToString(v), true
+		return float64ToString(v), true
 	case value.TypeBool, value.TypeCheckbox:
 		v, ok := vv.ValueBool()
 		if !ok {
 			return "", false
 		}
-		if v {
-			return "true", true
-		}
-		return "false", true
+		return boolToString(v), true
 	case value.TypeDateTime:
 		v, ok := vv.ValueDateTime()
 		if !ok {
@@ -95,8 +92,16 @@ func isGeometryFieldType(t value.Type) bool {
 	return t == value.TypeGeometryObject || t == value.TypeGeometryEditor
 }
 
-func floatToString(inputNum float64) string {
-	return strconv.FormatFloat(inputNum, 'f', -1, 64)
+func float64ToString(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
+}
+
+func int64ToString(i int64) string {
+	return strconv.FormatInt(i, 10)
+}
+
+func boolToString(b bool) string {
+	return strconv.FormatBool(b)
 }
 
 func hasGeometryFields(s *schema.Schema) bool {
