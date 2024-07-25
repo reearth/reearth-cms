@@ -154,21 +154,10 @@ const GeometryItem: React.FC<Props> = ({
     [handleErrorAdd, handleErrorDelete, onChange, supportedTypes],
   );
 
-  const format = useCallback(
-    (type: string, coordinates: number[] | number[][] | number[][][]) =>
-      JSON.stringify({ type, coordinates }, null, 2),
-    [],
-  );
-
   const placeholderContent = useMemo(() => {
-    let key: keyof typeof GEO_TYPE_MAP = "POINT";
-    if (Array.isArray(supportedTypes)) {
-      key = "GEOMETRYCOLLECTION";
-    } else if (supportedTypes) {
-      key = supportedTypes;
-    }
-    return format(GEO_TYPE_MAP[key], []);
-  }, [format, supportedTypes]);
+    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
+    return JSON.stringify({ type: GEO_TYPE_MAP[key], coordinates: [] }, null, 2);
+  }, [supportedTypes]);
 
   const [currentValue, setCurrentValue] = useState<string>();
 
@@ -333,7 +322,7 @@ const GeometryItem: React.FC<Props> = ({
         </EditorWrapper>
         <ViewerWrapper>
           <ViewerButtons>
-            {isEditor && (
+            {isEditor && !disabled && (
               <GeoButtons>
                 {(supportedTypes === "POINT" || supportedTypes === "ANY") && (
                   <GeoButton
