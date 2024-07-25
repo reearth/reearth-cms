@@ -6,7 +6,10 @@ import { editor } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import MapPinFilled from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import {
   ObjectSupportedType,
@@ -21,6 +24,8 @@ const { Text } = Typography;
 
 const ajv = new Ajv();
 const validate = ajv.compile(schema);
+
+const LOCALSTORAGE_KEY = "disableGeometryWarning";
 
 const GEO_TYPE_MAP = {
   POINT: "Point",
@@ -156,7 +161,22 @@ const GeometryItem: React.FC<Props> = ({
 
   const placeholderContent = useMemo(() => {
     const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
-    return JSON.stringify({ type: GEO_TYPE_MAP[key], coordinates: [] }, null, 2);
+    const obj: {
+      type: string;
+      coordinates?: unknown;
+      geometries?: unknown;
+    } = { type: GEO_TYPE_MAP[key] };
+    if (key === "GEOMETRYCOLLECTION") {
+      obj.geometries = [
+        {
+          type: "Point",
+          coordinates: [],
+        },
+      ];
+    } else {
+      obj.coordinates = [];
+    }
+    return JSON.stringify(obj, null, 2);
   }, [supportedTypes]);
 
   const [currentValue, setCurrentValue] = useState<string>();
@@ -167,17 +187,56 @@ const GeometryItem: React.FC<Props> = ({
 
   const [sketchType, setSketchType] = useState<SketchType>();
 
+  const setType = useCallback((newSketchType?: SketchType) => {
+    setSketchType(newSketchType);
+    ref.current?.sketch?.setType(newSketchType);
+  }, []);
+
+  const confirm = useCallback(
+    (newSketchType: SketchType) => {
+      Modal.confirm({
+        title: t("You are entering a new value"),
+        icon: <Icon icon="exclamationCircle" />,
+        content: (
+          <div>
+            <p>
+              {t("This action will replace the previously entered value. Do you want to continue?")}
+            </p>
+            <Checkbox
+              onChange={e => {
+                if (e.target.checked) {
+                  localStorage.setItem(LOCALSTORAGE_KEY, "true");
+                } else {
+                  localStorage.removeItem(LOCALSTORAGE_KEY);
+                }
+              }}>
+              {t("Do not show this again")}
+            </Checkbox>
+          </div>
+        ),
+        okText: t("Continue"),
+        cancelText: t("Cancel"),
+        onOk() {
+          setType(newSketchType);
+        },
+      });
+    },
+    [setType, t],
+  );
+
   const sketchButtonClick = useCallback(
     (newSketchType: SketchType) => {
       if (sketchType) {
-        setSketchType(undefined);
-        ref.current?.sketch?.setType(undefined);
+        setType();
       } else {
-        setSketchType(newSketchType);
-        ref.current?.sketch?.setType(newSketchType);
+        if (isEditor && value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
+          confirm(newSketchType);
+        } else {
+          setType(newSketchType);
+        }
       }
     },
-    [sketchType],
+    [confirm, isEditor, setType, sketchType, value],
   );
 
   const handleZoomIn = useCallback(() => {
@@ -214,6 +273,7 @@ const GeometryItem: React.FC<Props> = ({
           },
           marker: {
             imageColor: "#000000D9",
+            image: MapPinFilled,
           },
           polyline: {
             strokeColor: "#000000D9",
