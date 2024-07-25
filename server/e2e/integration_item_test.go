@@ -1223,19 +1223,15 @@ func TestIntegrationSearchItem(t *testing.T) {
 func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
 
-	// region init
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	fids := createFieldOfEachType(t, e, mId)
 	sId, _, _ := getModel(e, mId)
-
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
-	// endregion
 
-	// region items as geojson
 	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10, i1Id, "", "", nil)
 	body := res.Object().Value("body")
 	body.Object().Value("type").String().IsEqual("FeatureCollection")
@@ -1248,26 +1244,23 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	g := f.Value("geometry").Object()
 	g.Value("type").String().IsEqual("Point")
 	g.Value("coordinates").Array().IsEqual([]float64{139.28179282584915, 36.58570985749664})
-	// endregion
 }
 
 // GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson
 func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
 
-	// region init
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	fids := createFieldOfEachType(t, e, mId)
 	sId, _, _ := getModel(e, mId)
-
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
-		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.integerFId, "value": 30, "type": "Integer"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}", "type": "GeometryEditor"},
 	})
-	// endregion
 
-	// region items as geojson
 	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10, i1Id, "", "", nil)
 	body := res.Object().Value("body")
 	body.Object().Value("type").String().IsEqual("FeatureCollection")
@@ -1277,56 +1270,48 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 	f.Value("id").String().IsEqual(i1Id)
 	f.Value("type").String().IsEqual("Feature")
 	f.Value("properties").Object().Value("text").String().IsEqual("test1")
+	f.Value("properties").Object().Value("integer").String().IsEqual("30")
 	g := f.Value("geometry").Object()
-	g.Value("type").String().IsEqual("Point")
-	g.Value("coordinates").Array().IsEqual([]float64{139.28179282584915, 36.58570985749664})
-	// endregion
+	g.Value("type").String().IsEqual("LineString")
+	g.Value("coordinates").Array().IsEqual([][]float64{{139.65439725962517, 36.34793305387103}, {139.61688622815393, 35.910803456352724}})
 }
 
 // GET /models/{modelId}/items.csv
 func TestIntegrationItemsAsCSV(t *testing.T) {
 	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
 
-	// region init
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	fids := createFieldOfEachType(t, e, mId)
 	sId, _, _ := getModel(e, mId)
-
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
-	// endregion
 
-	// region items as csv
 	res := IntegrationItemsAsCSV(e, mId, 1, 10, i1Id, "", "", nil)
 	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1\n", i1Id)
 	res.IsEqual(expected)
-	// endregion
 }
 
 // GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv
 func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
 
-	// region init
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	fids := createFieldOfEachType(t, e, mId)
 	sId, _, _ := getModel(e, mId)
-
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
-		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.integerFId, "value": 30, "type": "Integer"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryEditor"},
 	})
-	// endregion
 
-	// region items as csv
 	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10, i1Id, "", "", nil)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1\n", i1Id)
+	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,30\n", i1Id)
 	res.IsEqual(expected)
-	// endregion
 }
 
 // POST /models/{modelId}/items
