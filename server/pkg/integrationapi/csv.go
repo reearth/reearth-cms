@@ -11,11 +11,14 @@ import (
 	"github.com/samber/lo"
 )
 
-var noPointFieldError = rerror.NewE(i18n.T("no point field in this model"))
+var (
+	noPointFieldError             = rerror.NewE(i18n.T("no point field in this model"))
+	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point field is not supported"))
+)
 
 func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 	if !isPointFieldSupported(s) {
-		return "", noPointFieldError
+		return "", pointFieldIsNotSupportedError
 	}
 
 	keys, data := buildCSVHeaders(s), [][]string{}
@@ -78,21 +81,17 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 	})
 
 	for _, f := range geoFields {
-		vv := f.Value().First()
-		if vv == nil {
-			continue
-		}
-
-		ss, ok := vv.ValueString()
+		ss, ok := f.Value().First().ValueString()
 		if !ok {
 			continue
 		}
-
 		g, err := StringToGeometry(ss)
-		if err != nil || *g.Type != GeometryTypePoint {
+		if err != nil || g == nil {
 			continue
 		}
-
+		if *g.Type != GeometryTypePoint {
+			continue
+		}
 		return g.Coordinates.AsPoint()
 	}
 	return nil, noPointFieldError

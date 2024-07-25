@@ -71,7 +71,7 @@ func TestCSVFromItems(t *testing.T) {
 	v2 := version.New()
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
 	ver2 := item.VersionedList{vi2}
-	expectErr2 := noPointFieldError
+	expectErr2 := pointFieldIsNotSupportedError
 	csvString, err = CSVFromItems(ver2, s2)
 	assert.Equal(t, expectErr2, err)
 	assert.Empty(t, csvString)
@@ -95,7 +95,7 @@ func TestCSVFromItems(t *testing.T) {
 	v3 := version.New()
 	vi3 := version.MustBeValue(v3, nil, version.NewRefs(version.Latest), util.Now(), i3)
 	ver3 := item.VersionedList{vi3}
-	expectErr3 := noPointFieldError
+	expectErr3 := pointFieldIsNotSupportedError
 	csvString, err = CSVFromItems(ver3, s3)
 	assert.Equal(t, expectErr3, err)
 	assert.Empty(t, csvString)
