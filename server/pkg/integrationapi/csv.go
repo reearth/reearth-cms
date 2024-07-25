@@ -23,10 +23,9 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 
 	keys, data := buildCSVHeaders(s), [][]string{}
 	data = append(data, keys)
-
 	for _, ver := range items {
-		row, err := parseItem(ver.Value())
-		if err == nil {
+		row, ok := parseItem(ver.Value())
+		if ok {
 			data = append(data, row)
 		}
 	}
@@ -44,35 +43,31 @@ func buildCSVHeaders(s *schema.Schema) []string {
 	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
 		return !isGeometryField(f)
 	})
-
 	for _, f := range nonGeoFields {
 		keys = append(keys, f.Name())
 	}
 	return keys
 }
 
-func parseItem(itm *item.Item) ([]string, error) {
+func parseItem(itm *item.Item) ([]string, bool) {
 	geoField, err := extractFirstPointField(itm)
 	if err != nil {
-		return nil, err
+		return nil, false
 	}
 
 	id := itm.ID().String()
-	lat, lng := floatToString(geoField[0]), floatToString(geoField[1])
+	lat, lng := float64ToString(geoField[0]), float64ToString(geoField[1])
 	row := []string{id, lat, lng}
-
 	nonGeoFields := lo.Filter(itm.Fields(), func(f *item.Field, _ int) bool {
 		return !isGeometryFieldType(f.Type())
 	})
-
 	for _, f := range nonGeoFields {
 		v, ok := toCSVProp(f)
 		if ok {
 			row = append(row, v)
 		}
 	}
-
-	return row, nil
+	return row, true
 }
 
 func extractFirstPointField(itm *item.Item) ([]float64, error) {
