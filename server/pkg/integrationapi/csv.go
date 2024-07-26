@@ -13,7 +13,7 @@ import (
 
 var (
 	noPointFieldError             = rerror.NewE(i18n.T("no point field in this model"))
-	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point field is not supported"))
+	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
 )
 
 func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
