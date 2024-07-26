@@ -62,11 +62,7 @@ func getGeometryField(item *item.Item) (*item.Field, bool) {
 }
 
 func extractGeometry(field *item.Field) (*Geometry, bool) {
-	v := field.Value().First()
-	if v == nil {
-		return nil, false
-	}
-	geoStr, ok := v.ValueString()
+	geoStr, ok := field.Value().First().ValueString()
 	if !ok {
 		return nil, false
 	}
