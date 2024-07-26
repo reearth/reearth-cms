@@ -289,9 +289,7 @@ type FeatureCollection struct {
 type FeatureCollectionType string
 
 // GeoJSON defines model for GeoJSON.
-type GeoJSON struct {
-	Body *FeatureCollection `json:"body,omitempty"`
-}
+type GeoJSON = FeatureCollection
 
 // Geometry defines model for Geometry.
 type Geometry struct {

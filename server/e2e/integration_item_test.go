@@ -1233,9 +1233,8 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	})
 
 	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10, i1Id, "", "", nil)
-	body := res.Object().Value("body")
-	body.Object().Value("type").String().IsEqual("FeatureCollection")
-	features := body.Object().Value("features").Array()
+	res.Object().Value("type").String().IsEqual("FeatureCollection")
+	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
 	f := features.Value(0).Object()
 	f.Value("id").String().IsEqual(i1Id)
@@ -1262,9 +1261,8 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 	})
 
 	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10, i1Id, "", "", nil)
-	body := res.Object().Value("body")
-	body.Object().Value("type").String().IsEqual("FeatureCollection")
-	features := body.Object().Value("features").Array()
+	res.Object().Value("type").String().IsEqual("FeatureCollection")
+	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
 	f := features.Value(0).Object()
 	f.Value("id").String().IsEqual(i1Id)

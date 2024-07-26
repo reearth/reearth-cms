@@ -94,7 +94,8 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 	}
 
 	return ItemsAsGeoJSON200JSONResponse{
-		Body: fc,
+		Features: fc.Features,
+		Type:     fc.Type,
 	}, nil
 }
 
@@ -237,7 +238,8 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 	}
 
 	return ItemsWithProjectAsGeoJSON200JSONResponse{
-		Body: fc,
+		Features: fc.Features,
+		Type:     fc.Type,
 	}, nil
 }
 

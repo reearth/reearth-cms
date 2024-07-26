@@ -412,6 +412,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeoJSON'
+                format: binary
         '400':
           description: Invalid request parameter value
         '401':
@@ -443,6 +444,7 @@ paths:
             text/csv:
               schema:
                 type: string
+                format: binary
         '400':
           description: Invalid request parameter value
         '401':
@@ -747,6 +749,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeoJSON'
+                format: binary
         '400':
           description: Invalid request parameter value
         '401':
@@ -779,6 +782,7 @@ paths:
             text/csv:
               schema:
                 type: string
+                format: binary
         '400':
           description: Invalid request parameter value
         '401':
@@ -1575,10 +1579,7 @@ components:
           type: string
           format: date-time
     GeoJSON:
-      type: object
-      properties:
-        body:
-         $ref: '#/components/schemas/FeatureCollection'
+      $ref: '#/components/schemas/FeatureCollection'
     FeatureCollection:
       type: object
       properties:
