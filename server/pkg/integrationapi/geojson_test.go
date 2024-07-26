@@ -81,9 +81,9 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Coordinates: &c,
 	}
 	p := make(map[string]interface{})
-	p["Name"] = []string{"a", "b", "c"}
-	p["Age"] = "30"
-	p["IsMarried"] = "true"
+	p["Name"] = []any{"a", "b", "c"}
+	p["Age"] = int64(30)
+	p["IsMarried"] = true
 
 	f := Feature{
 		Type:       lo.ToPtr(FeatureTypeFeature),
@@ -250,9 +250,9 @@ func TestExtractProperties(t *testing.T) {
 	// Test with item containing geometry fields and non geometry fields
 	properties1 := extractProperties(i1, s1)
 	expectedProperties1 := map[string]interface{}{
-		"Name":      []string{"a", "b", "c"},
-		"Age":       "30",
-		"IsMarried": "true",
+		"Name":      []any{"a", "b", "c"},
+		"Age":       int64(30),
+		"IsMarried": true,
 	}
 	assert.NotNil(t, properties1)
 	assert.Equal(t, expectedProperties1, *properties1)
@@ -274,9 +274,9 @@ func TestExtractProperties(t *testing.T) {
 
 func TestToGeoJSONProp(t *testing.T) {
 	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	if1 := item.NewField(sf1.ID(), value.TypeText.Value("Nour").AsMultiple(), nil)
+	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
 	s1, ok1 := toGeoJSONProp(if1)
-	assert.Equal(t, "Nour", s1)
+	assert.Equal(t, "test", s1)
 	assert.True(t, ok1)
 
 	var if2 *item.Field
@@ -287,6 +287,6 @@ func TestToGeoJSONProp(t *testing.T) {
 	sf3 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	if3 := item.NewField(sf3.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
 	s3, ok3 := toGeoJSONProp(if3)
-	assert.Equal(t, []string{"a", "b", "c"}, s3)
+	assert.Equal(t, []any{"a", "b", "c"}, s3)
 	assert.True(t, ok3)
 }

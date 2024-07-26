@@ -97,7 +97,7 @@ func toGeoJSONProp(f *item.Field) (any, bool) {
 		return nil, false
 	}
 	if len(f.Value().Values()) == 1 {
-		return toSingleValue(f.Value().First())
+		return toGeoJsonSingleValue(f.Value().First())
 	}
-	return toMultipleValues(f.Value().Values())
+	return toGeoJSONMultipleValues(f.Value().Values())
 }

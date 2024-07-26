@@ -21,10 +21,11 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 		return "", pointFieldIsNotSupportedError
 	}
 
-	keys, data := buildCSVHeaders(s), [][]string{}
+	keys, nonGeoFields := buildCSVHeaders(s)
+	data := [][]string{}
 	data = append(data, keys)
 	for _, ver := range items {
-		row, ok := parseItem(ver.Value())
+		row, ok := parseItem(ver.Value(), nonGeoFields)
 		if ok {
 			data = append(data, row)
 		}
@@ -38,7 +39,7 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 	return csvString, nil
 }
 
-func buildCSVHeaders(s *schema.Schema) []string {
+func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
 	keys := []string{"id", "location_lat", "location_lng"}
 	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
 		return !isGeometryField(f)
@@ -46,10 +47,10 @@ func buildCSVHeaders(s *schema.Schema) []string {
 	for _, f := range nonGeoFields {
 		keys = append(keys, f.Name())
 	}
-	return keys
+	return keys, nonGeoFields
 }
 
-func parseItem(itm *item.Item) ([]string, bool) {
+func parseItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
 	geoField, err := extractFirstPointField(itm)
 	if err != nil {
 		return nil, false
@@ -58,15 +59,13 @@ func parseItem(itm *item.Item) ([]string, bool) {
 	id := itm.ID().String()
 	lat, lng := float64ToString(geoField[0]), float64ToString(geoField[1])
 	row := []string{id, lat, lng}
-	nonGeoFields := lo.Filter(itm.Fields(), func(f *item.Field, _ int) bool {
-		return !isGeometryFieldType(f.Type())
-	})
-	for _, f := range nonGeoFields {
-		v, ok := toCSVProp(f)
-		if ok {
-			row = append(row, v)
-		}
+
+	for _, sf := range nonGeoFields {
+		f := itm.Field(sf.ID())
+		v := toCSVProp(f)
+		row = append(row, v)
 	}
+
 	return row, true
 }
 
@@ -92,17 +91,17 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 	return nil, noPointFieldError
 }
 
-func toCSVProp(f *item.Field) (string, bool) {
+func toCSVProp(f *item.Field) string {
 	if f == nil {
-		return "", false
+		return ""
 	}
 
 	vv := f.Value().First()
 	if vv == nil {
-		return "", false
+		return ""
 	}
 
-	return toSingleValue(vv)
+	return toCSVValue(vv)
 }
 
 func isPointFieldSupported(s *schema.Schema) bool {

@@ -114,14 +114,16 @@ func TestBuildCSVHeaders(t *testing.T) {
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("isMarried").Key(key.Random()).MustBuild()
 	s1 := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf3, sf4}).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
 	s2 := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4}).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
-	
+
 	// Test with geometry fields
-	headers3 := buildCSVHeaders(s1)
-	assert.Equal(t, []string{"id", "location_lat", "location_lng", "age", "isMarried"}, headers3)
+	headers1, ff := buildCSVHeaders(s1)
+	assert.Equal(t, []string{"id", "location_lat", "location_lng", "age", "isMarried"}, headers1)
+	assert.Equal(t, []*schema.Field{sf3, sf4}, ff)
 
 	// Test with mixed fields
-	headers4 := buildCSVHeaders(s2)
-	assert.Equal(t, []string{"id", "location_lat", "location_lng", "age", "isMarried"}, headers4)
+	headers2, _ := buildCSVHeaders(s2)
+	assert.Equal(t, []string{"id", "location_lat", "location_lng", "age", "isMarried"}, headers2)
+	assert.Equal(t, []*schema.Field{sf3, sf4}, ff)
 }
 
 func TestParseItem(t *testing.T) {
@@ -143,16 +145,16 @@ func TestParseItem(t *testing.T) {
 	fi3 := item.NewField(sf3.ID(), value.TypeInteger.Value(30).AsMultiple(), nil)
 	fi4 := item.NewField(sf4.ID(), value.TypeBool.Value(true).AsMultiple(), nil)
 	i1 := item.New().
-	ID(iid).
-	Schema(sid).
-	Project(pid).
-	Fields([]*item.Field{}).
-	Model(mid).
-	Thread(tid).
-	MustBuild()
-	
+		ID(iid).
+		Schema(sid).
+		Project(pid).
+		Fields([]*item.Field{}).
+		Model(mid).
+		Thread(tid).
+		MustBuild()
+
 	// Test with no fields
-	row1, ok1 := parseItem(i1)
+	row1, ok1 := parseItem(i1, []*schema.Field{sf3, sf4})
 	assert.False(t, ok1)
 	assert.Nil(t, row1)
 
@@ -165,7 +167,7 @@ func TestParseItem(t *testing.T) {
 		Model(mid).
 		Thread(tid).
 		MustBuild()
-	row2, ok2 := parseItem(i2)
+	row2, ok2 := parseItem(i2, []*schema.Field{sf3, sf4})
 	assert.False(t, ok2)
 	assert.Nil(t, row2)
 
@@ -178,7 +180,7 @@ func TestParseItem(t *testing.T) {
 		Model(mid).
 		Thread(tid).
 		MustBuild()
-	row3, ok3 := parseItem(i3)
+	row3, ok3 := parseItem(i3, []*schema.Field{sf3, sf4})
 	assert.True(t, ok3)
 	assert.Equal(t, []string{i1.ID().String(), "139.28179282584915", "36.58570985749664", "30", "true"}, row3)
 }
@@ -229,7 +231,7 @@ func TestExtractFirstPointField(t *testing.T) {
 	// Test with valid geometry field
 	point1, err1 := extractFirstPointField(i1)
 	assert.NoError(t, err1)
-	assert.Equal(t, []float64{139.28179282584915,36.58570985749664}, point1)
+	assert.Equal(t, []float64{139.28179282584915, 36.58570985749664}, point1)
 
 	// Test with no geometry field
 	point2, err2 := extractFirstPointField(i2)
@@ -244,39 +246,36 @@ func TestExtractFirstPointField(t *testing.T) {
 	assert.Nil(t, point3)
 }
 
-
 func TestToCSVProp(t *testing.T) {
 	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	if1 := item.NewField(sf1.ID(), value.TypeText.Value("Nour").AsMultiple(), nil)
-	s1, ok1 := toCSVProp(if1)
-	assert.Equal(t, "Nour", s1)
-	assert.True(t, ok1)
+	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
+	s1 := toCSVProp(if1)
+	assert.Equal(t, "test", s1)
 
 	var if2 *item.Field
-	s2, ok2 := toCSVProp(if2)
+	s2 := toCSVProp(if2)
 	assert.Empty(t, s2)
-	assert.False(t, ok2)
 
 	v3 := int64(30)
 	in3, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
 	tp3 := in3.TypeProperty()
 	sf3 := schema.NewField(tp3).NewID().Name("age").Key(key.Random()).MustBuild()
 	if3 := item.NewField(sf3.ID(), value.TypeInteger.Value(v3).AsMultiple(), nil)
-	s3, ok3 := toSingleValue(if3.Value().First())
-	assert.Equal(t, "30", s3)
+	s3, ok3 := toGeoJsonSingleValue(if3.Value().First())
+	assert.Equal(t, int64(30), s3)
 	assert.True(t, ok3)
 
 	v4 := true
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
 	if4 := item.NewField(sf4.ID(), value.TypeBool.Value(v4).AsMultiple(), nil)
-	s4, ok4 := toSingleValue(if4.Value().First())
-	assert.Equal(t, "true", s4)
+	s4, ok4 := toGeoJsonSingleValue(if4.Value().First())
+	assert.Equal(t, true, s4)
 	assert.True(t, ok4)
 
 	v5 := false
 	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
 	if5 := item.NewField(sf5.ID(), value.TypeBool.Value(v5).AsMultiple(), nil)
-	s5, ok5 := toSingleValue(if5.Value().First())
-	assert.Equal(t, "false", s5)
+	s5, ok5 := toGeoJsonSingleValue(if5.Value().First())
+	assert.Equal(t, false, s5)
 	assert.True(t, ok5)
 }

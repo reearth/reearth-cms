@@ -10,7 +10,72 @@ import (
 	"github.com/samber/lo"
 )
 
-func toSingleValue(vv *value.Value) (string, bool) {
+func toCSVValue(vv *value.Value) string {
+	if vv == nil {
+		return ""
+	}
+
+	switch vv.Type() {
+	case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeSelect, value.TypeTag:
+		v, ok := vv.ValueString()
+		if !ok {
+			return ""
+		}
+		return v
+	case value.TypeURL:
+		v, ok := vv.ValueURL()
+		if !ok {
+			return ""
+		}
+		return v.String()
+	case value.TypeAsset:
+		v, ok := vv.ValueAsset()
+		if !ok {
+			return ""
+		}
+		return v.String()
+	case value.TypeGroup:
+		v, ok := vv.ValueGroup()
+		if !ok {
+			return ""
+		}
+		return v.String()
+	case value.TypeReference:
+		v, ok := vv.ValueReference()
+		if !ok {
+			return ""
+		}
+		return v.String()
+	case value.TypeInteger:
+		v, ok := vv.ValueInteger()
+		if !ok {
+			return ""
+		}
+		return int64ToString(v)
+	case value.TypeNumber:
+		v, ok := vv.ValueNumber()
+		if !ok {
+			return ""
+		}
+		return float64ToString(v)
+	case value.TypeBool, value.TypeCheckbox:
+		v, ok := vv.ValueBool()
+		if !ok {
+			return ""
+		}
+		return boolToString(v)
+	case value.TypeDateTime:
+		v, ok := vv.ValueDateTime()
+		if !ok {
+			return ""
+		}
+		return v.Format(time.RFC3339)
+	default:
+		return ""
+	}
+}
+
+func toGeoJsonSingleValue(vv *value.Value) (any, bool) {
 	if vv == nil {
 		return "", false
 	}
@@ -51,19 +116,19 @@ func toSingleValue(vv *value.Value) (string, bool) {
 		if !ok {
 			return "", false
 		}
-		return int64ToString(v), true
+		return v, true
 	case value.TypeNumber:
 		v, ok := vv.ValueNumber()
 		if !ok {
 			return "", false
 		}
-		return float64ToString(v), true
+		return v, true
 	case value.TypeBool, value.TypeCheckbox:
 		v, ok := vv.ValueBool()
 		if !ok {
 			return "", false
 		}
-		return boolToString(v), true
+		return v, true
 	case value.TypeDateTime:
 		v, ok := vv.ValueDateTime()
 		if !ok {
@@ -75,12 +140,12 @@ func toSingleValue(vv *value.Value) (string, bool) {
 	}
 }
 
-func toMultipleValues(vv []*value.Value) ([]string, bool) {
+func toGeoJSONMultipleValues(vv []*value.Value) ([]any, bool) {
 	if len(vv) == 0 {
 		return nil, false
 	}
-	return lo.FilterMap(vv, func(v *value.Value, _ int) (string, bool) {
-		return toSingleValue(v)
+	return lo.FilterMap(vv, func(v *value.Value, _ int) (any, bool) {
+		return toGeoJsonSingleValue(v)
 	}), true
 }
 
