@@ -581,6 +581,7 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
+                    workspaceSettings={workspaceSettings}
                     onSearchTerm={onSearchTerm}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onLinkItemTableReload={onLinkItemTableReload}

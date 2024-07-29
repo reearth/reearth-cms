@@ -25,6 +25,7 @@ import {
   Group,
   FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
   SortDirection,
@@ -70,6 +71,7 @@ interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  workspaceSettings: WorkspaceSettings;
 }
 
 const initialValues: FormValues = {
@@ -120,6 +122,7 @@ const FieldModal: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onGetAsset,
+  workspaceSettings,
 }) => {
   const t = useT();
 
@@ -343,6 +346,7 @@ const FieldModal: React.FC<Props> = ({
               totalCount={totalCount}
               page={page}
               pageSize={pageSize}
+              workspaceSettings={workspaceSettings}
               onAssetTableChange={onAssetTableChange}
               onUploadModalCancel={onUploadModalCancel}
               setUploadUrl={setUploadUrl}

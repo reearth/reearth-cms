@@ -181,12 +181,6 @@ const GeometryItem: React.FC<Props> = ({
     return JSON.stringify(obj, null, 2);
   }, [supportedTypes]);
 
-  const [currentValue, setCurrentValue] = useState<string>();
-
-  useEffect(() => {
-    setCurrentValue(value ?? undefined);
-  }, [value]);
-
   const handleSearch = useCallback(async (q: string) => {
     if (!q) return;
     setIsSearching(true);
@@ -394,7 +388,7 @@ const GeometryItem: React.FC<Props> = ({
             height="100%"
             language={"json"}
             options={options}
-            value={currentValue}
+            value={value ?? undefined}
             beforeMount={handleEditorWillMount}
             onMount={handleEditorDidMount}
             onChange={handleEditorOnChange}

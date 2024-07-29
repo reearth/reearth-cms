@@ -302,22 +302,28 @@ export default (
     [isMeta, selectedType],
   );
 
-  const ObjectSupportType = [
-    { label: "Point", value: "POINT" },
-    { label: "Linestring", value: "LINESTRING" },
-    { label: "Polygon", value: "POLYGON" },
-    { label: "GeometryCollection", value: "GEOMETRYCOLLECTION" },
-    { label: "MultiPoint", value: "MULTIPOINT" },
-    { label: "MultiLinestring", value: "MULTILINESTRING" },
-    { label: "MultiPolygon", value: "MULTIPOLYGON" },
-  ];
+  const ObjectSupportType = useMemo(
+    () => [
+      { label: "Point", value: "POINT" },
+      { label: "Linestring", value: "LINESTRING" },
+      { label: "Polygon", value: "POLYGON" },
+      { label: "GeometryCollection", value: "GEOMETRYCOLLECTION" },
+      { label: "MultiPoint", value: "MULTIPOINT" },
+      { label: "MultiLinestring", value: "MULTILINESTRING" },
+      { label: "MultiPolygon", value: "MULTIPOLYGON" },
+    ],
+    [],
+  );
 
-  const EditorSupportType = [
-    { label: "Point", value: "POINT" },
-    { label: "Linestring", value: "LINESTRING" },
-    { label: "Polygon", value: "POLYGON" },
-    { label: "Any", value: "ANY" },
-  ];
+  const EditorSupportType = useMemo(
+    () => [
+      { label: "Point", value: "POINT" },
+      { label: "Linestring", value: "LINESTRING" },
+      { label: "Polygon", value: "POLYGON" },
+      { label: "Any", value: "ANY" },
+    ],
+    [],
+  );
 
   return {
     form,
