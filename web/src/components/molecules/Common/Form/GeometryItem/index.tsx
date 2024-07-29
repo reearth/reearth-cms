@@ -61,7 +61,6 @@ const GeometryItem: React.FC<Props> = ({
   errorDelete,
   workspaceSettings,
 }) => {
-  console.log(workspaceSettings);
   const t = useT();
   const [isSearching, setIsSearching] = useState(false);
 
@@ -480,6 +479,7 @@ const GeometryItem: React.FC<Props> = ({
                   type: "open_street_map",
                 },
               ],
+              terrain: { enabled: workspaceSettings.terrains?.enabled },
               indicator: {
                 type: "custom",
               },
