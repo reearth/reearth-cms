@@ -63,6 +63,10 @@ const GeometryItem: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [isSearching, setIsSearching] = useState(false);
+  const [currentValue, setCurrentValue] = useState<string | undefined>();
+  useEffect(() => {
+    setCurrentValue(value ?? undefined);
+  }, [value]);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
@@ -131,9 +135,8 @@ const GeometryItem: React.FC<Props> = ({
     [handleErrorAdd, handleErrorDelete],
   );
 
-  const handleEditorOnChange = useCallback(
-    (value?: string) => {
-      onChange?.(value ?? "");
+  const typeCheck = useCallback(
+    (isTypeChange: boolean) => {
       if (value && supportedTypes) {
         try {
           const valueJson: {
@@ -146,20 +149,34 @@ const GeometryItem: React.FC<Props> = ({
                 ? [GEO_TYPE_MAP.POINT, GEO_TYPE_MAP.LINESTRING, GEO_TYPE_MAP.POLYGON]
                 : [GEO_TYPE_MAP[supportedTypes]];
             if (convertedTypes.includes(valueJson.type)) {
-              handleErrorDelete();
+              isTypeChange ? setHasError(false) : handleErrorDelete();
             } else {
-              handleErrorAdd();
+              isTypeChange ? setHasError(true) : handleErrorAdd();
             }
           }
         } catch (_) {
           return;
         }
       } else {
-        handleErrorDelete();
+        isTypeChange ? setHasError(false) : handleErrorDelete();
       }
     },
-    [handleErrorAdd, handleErrorDelete, onChange, supportedTypes],
+    [handleErrorAdd, handleErrorDelete, supportedTypes, value],
   );
+
+  const handleEditorOnChange = useCallback(
+    (value?: string) => {
+      onChange?.(value ?? "");
+      typeCheck(false);
+    },
+    [onChange, typeCheck],
+  );
+
+  useEffect(() => {
+    if (value === currentValue) {
+      typeCheck(true);
+    }
+  }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
     const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
@@ -388,7 +405,7 @@ const GeometryItem: React.FC<Props> = ({
             height="100%"
             language={"json"}
             options={options}
-            value={value ?? undefined}
+            value={currentValue}
             beforeMount={handleEditorWillMount}
             onMount={handleEditorDidMount}
             onChange={handleEditorOnChange}
