@@ -409,7 +409,7 @@ paths:
         '200':
           description: A GeoJSON object
           content:
-            application/geo+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/GeoJSON'
                 format: binary
@@ -746,7 +746,7 @@ paths:
         '200':
           description: A GeoJSON object
           content:
-            application/geo+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/GeoJSON'
                 format: binary
