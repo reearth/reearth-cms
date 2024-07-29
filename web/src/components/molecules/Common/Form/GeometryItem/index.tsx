@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
 import { CoreVisualizer, MapRef, SketchFeature, NaiveLayerSimple, SketchType } from "@reearth/core";
 import Ajv from "ajv";
+import axios from "axios";
 import { editor } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
@@ -9,6 +10,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import MapPinFilled from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
+import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import {
@@ -61,6 +63,7 @@ const GeometryItem: React.FC<Props> = ({
 }) => {
   console.log(workspaceSettings);
   const t = useT();
+  const [isSearching, setIsSearching] = useState(false);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
@@ -184,6 +187,26 @@ const GeometryItem: React.FC<Props> = ({
   useEffect(() => {
     setCurrentValue(value ?? undefined);
   }, [value]);
+
+  const handleSearch = useCallback(async (q: string) => {
+    if (!q) return;
+    setIsSearching(true);
+    try {
+      const { data } = await axios.get("https://nominatim.openstreetmap.org/search", {
+        params: { format: "json", q },
+      });
+      if (data.length) {
+        ref.current?.engine.flyTo({
+          lat: Number(data[0].lat),
+          lng: Number(data[0].lon),
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
 
   const [sketchType, setSketchType] = useState<SketchType>();
 
@@ -381,6 +404,15 @@ const GeometryItem: React.FC<Props> = ({
           <Placeholder isEmpty={!value}>{placeholderContent}</Placeholder>
         </EditorWrapper>
         <ViewerWrapper>
+          {!disabled && (
+            <StyledSearch
+              allowClear
+              size="small"
+              placeholder={t("Search Location")}
+              onSearch={handleSearch}
+              loading={isSearching}
+            />
+          )}
           <ViewerButtons>
             {isEditor && !disabled && (
               <GeoButtons>
@@ -511,6 +543,14 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
 const ViewerWrapper = styled.div`
   position: relative;
   flex: 1;
+`;
+
+const StyledSearch = styled(Input.Search)`
+  z-index: 1;
+  position: absolute;
+  left: 8px;
+  top: 15px;
+  max-width: 167px;
 `;
 
 const ViewerButtons = styled.div`
