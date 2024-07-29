@@ -13,14 +13,10 @@ import {
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -39,11 +35,7 @@ interface Props {
   totalCount?: number;
   page?: number;
   pageSize?: number;
-  onAssetTableChange?: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
   onChange?: (value: string) => void;
@@ -202,15 +194,16 @@ const LinkAssetModal: React.FC<Props> = ({
     ) => {
       const page = pagination.current ?? 1;
       const pageSize = pagination.pageSize ?? 10;
-      const sort: { type?: AssetSortType; direction?: SortDirection } = {};
+      let sort: SortType | undefined;
       if (!Array.isArray(sorter)) {
-        sort.direction = sorter.order === "ascend" ? "ASC" : "DESC";
         if (
           sorter.columnKey === "DATE" ||
           sorter.columnKey === "NAME" ||
           sorter.columnKey === "SIZE"
         ) {
-          sort.type = sorter.columnKey;
+          const direction = sorter.order === "ascend" ? "ASC" : "DESC";
+          const type = sorter.columnKey;
+          sort = { direction, type };
         }
       }
       onAssetTableChange?.(page, pageSize, sort);

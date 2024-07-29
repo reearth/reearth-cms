@@ -2,8 +2,9 @@ import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useGetAssetsLazyQuery,
@@ -18,8 +19,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
-export type AssetSortType = "DATE" | "NAME" | "SIZE";
-export type SortDirection = "ASC" | "DESC";
 type UploadType = "local" | "url";
 
 export default (isItemsRequired: boolean) => {
@@ -32,6 +31,8 @@ export default (isItemsRequired: boolean) => {
   const location: {
     state?: {
       searchTerm?: string;
+      sort: SortType;
+      columns: Record<string, ColumnsState>;
       page: number;
       pageSize: number;
     } | null;
@@ -50,16 +51,13 @@ export default (isItemsRequired: boolean) => {
   const [page, setPage] = useState(location.state?.page ?? 1);
   const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
   const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm ?? "");
+  const [sort, setSort] = useState(location.state?.sort);
+  const [columns, setColumns] = useState<Record<string, ColumnsState>>(
+    location.state?.columns ?? {},
+  );
 
   const [createAssetMutation, { loading: createLoading }] = useCreateAssetMutation();
   const [createAssetUploadMutation, { loading: uploadLoading }] = useCreateAssetUploadMutation();
-
-  const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection } | undefined>(
-    {
-      type: "DATE",
-      direction: "DESC",
-    },
-  );
 
   const [getAsset] = useGetAssetLazyQuery();
 
@@ -82,8 +80,11 @@ export default (isItemsRequired: boolean) => {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       sort: sort
-        ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
-        : undefined,
+        ? {
+            sortBy: sort.type as GQLSortType,
+            direction: sort.direction as GQLSortDirection,
+          }
+        : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
       keyword: searchTerm,
     },
     notifyOnNetworkStatusChange: true,
@@ -255,11 +256,14 @@ export default (isItemsRequired: boolean) => {
     refetch();
   }, [refetch]);
 
-  const handleNavigateToAsset = (assetId: string) => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${assetId}`, {
-      state: { searchTerm, page, pageSize },
-    });
-  };
+  const handleNavigateToAsset = useCallback(
+    (assetId: string) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${assetId}`, {
+        state: { searchTerm, sort, columns, page, pageSize },
+      });
+    },
+    [navigate, workspaceId, projectId, searchTerm, sort, columns, page, pageSize],
+  );
 
   const handleAssetSelect = useCallback(
     (id: string) => {
@@ -291,20 +295,19 @@ export default (isItemsRequired: boolean) => {
   );
 
   const handleAssetTableChange = useCallback(
-    (
-      page: number,
-      pageSize: number,
-      sorter?: { type?: AssetSortType; direction?: SortDirection },
-    ) => {
+    (page: number, pageSize: number, sorter?: SortType) => {
       setPage(page);
       setPageSize(pageSize);
-      setSort({
-        type: sorter?.type ? sorter.type : "DATE",
-        direction: sorter?.direction ? sorter.direction : "DESC",
-      });
+      setSort(sorter);
     },
     [],
   );
+
+  const handleColumnsChange = useCallback((cols: Record<string, ColumnsState>) => {
+    delete cols.EDIT_ICON;
+    delete cols.commentsCount;
+    setColumns(cols);
+  }, []);
 
   return {
     assetList,
@@ -323,6 +326,8 @@ export default (isItemsRequired: boolean) => {
     pageSize,
     sort,
     searchTerm,
+    columns,
+    handleColumnsChange,
     handleToggleCommentMenu,
     handleAssetItemSelect,
     handleAssetSelect,
