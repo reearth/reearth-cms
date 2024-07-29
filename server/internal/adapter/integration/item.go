@@ -93,7 +93,7 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 		return ItemsAsGeoJSON400Response{}, err
 	}
 
-	return ItemsAsGeoJSON200JSONResponse{
+	return ItemsAsGeoJSON200ApplicationGeoPlusJSONResponse{
 		Features: fc.Features,
 		Type:     fc.Type,
 	}, nil
@@ -237,7 +237,7 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
-	return ItemsWithProjectAsGeoJSON200JSONResponse{
+	return ItemsWithProjectAsGeoJSON200ApplicationGeoPlusJSONResponse{
 		Features: fc.Features,
 		Type:     fc.Type,
 	}, nil
