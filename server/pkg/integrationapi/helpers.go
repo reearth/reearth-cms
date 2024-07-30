@@ -34,18 +34,6 @@ func toCSVValue(vv *value.Value) string {
 			return ""
 		}
 		return v.String()
-	case value.TypeGroup:
-		v, ok := vv.ValueGroup()
-		if !ok {
-			return ""
-		}
-		return v.String()
-	case value.TypeReference:
-		v, ok := vv.ValueReference()
-		if !ok {
-			return ""
-		}
-		return v.String()
 	case value.TypeInteger:
 		v, ok := vv.ValueInteger()
 		if !ok {
@@ -95,18 +83,6 @@ func toGeoJsonSingleValue(vv *value.Value) (any, bool) {
 		return v.String(), true
 	case value.TypeAsset:
 		v, ok := vv.ValueAsset()
-		if !ok {
-			return "", false
-		}
-		return v.String(), true
-	case value.TypeGroup:
-		v, ok := vv.ValueGroup()
-		if !ok {
-			return "", false
-		}
-		return v.String(), true
-	case value.TypeReference:
-		v, ok := vv.ValueReference()
 		if !ok {
 			return "", false
 		}
