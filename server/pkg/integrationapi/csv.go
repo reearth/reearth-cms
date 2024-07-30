@@ -42,7 +42,7 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
 	keys := []string{"id", "location_lat", "location_lng"}
 	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return !isGeometryField(f)
+		return !IsGeometryField(f)
 	})
 	for _, f := range nonGeoFields {
 		keys = append(keys, f.Name())
@@ -57,7 +57,7 @@ func parseItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
 	}
 
 	id := itm.ID().String()
-	lat, lng := float64ToString(geoField[0]), float64ToString(geoField[1])
+	lat, lng := Float64ToString(geoField[0]), Float64ToString(geoField[1])
 	row := []string{id, lat, lng}
 
 	for _, sf := range nonGeoFields {
@@ -81,6 +81,9 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 		}
 		g, err := StringToGeometry(ss)
 		if err != nil || g == nil {
+			continue
+		}
+		if g == nil {
 			continue
 		}
 		if *g.Type != GeometryTypePoint {

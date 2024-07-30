@@ -14,7 +14,7 @@ var (
 )
 
 func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
-	if !hasGeometryFields(s) {
+	if !HasGeometryFields(s) {
 		return nil, noGeometryFieldError
 	}
 
