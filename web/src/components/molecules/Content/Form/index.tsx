@@ -226,9 +226,8 @@ const ContentForm: React.FC<Props> = ({
     (changedValues: any) => {
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
-        const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const changedFieldValue = (value as any)[groupFieldKey];
+        const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
+        const groupFieldValue = initialFormValues[key][groupFieldKey];
         if (
           JSON.stringify(emptyConvert(changedFieldValue)) ===
           JSON.stringify(emptyConvert(groupFieldValue))
