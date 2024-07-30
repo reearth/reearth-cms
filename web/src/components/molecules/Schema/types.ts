@@ -116,9 +116,6 @@ export interface FieldTypePropertyInput {
   group?: {
     groupId: string;
   };
-  point?: { defaultValue: string };
-  polyline?: { defaultValue: string };
-  polygon?: { defaultValue: string };
 }
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";

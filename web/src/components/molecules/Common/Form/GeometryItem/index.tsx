@@ -1,6 +1,13 @@
 import styled from "@emotion/styled";
 import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
-import { CoreVisualizer, MapRef, SketchFeature, NaiveLayerSimple, SketchType } from "@reearth/core";
+import {
+  CoreVisualizer,
+  MapRef,
+  SketchFeature,
+  NaiveLayerSimple,
+  SketchType,
+  ViewerProperty,
+} from "@reearth/core";
 import Ajv from "ajv";
 import axios from "axios";
 import { editor } from "monaco-editor";
@@ -62,11 +69,6 @@ const GeometryItem: React.FC<Props> = ({
   workspaceSettings,
 }) => {
   const t = useT();
-  const [isSearching, setIsSearching] = useState(false);
-  const [currentValue, setCurrentValue] = useState<string | undefined>();
-  useEffect(() => {
-    setCurrentValue(value ?? undefined);
-  }, [value]);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
@@ -75,7 +77,7 @@ const GeometryItem: React.FC<Props> = ({
     if (value) navigator.clipboard.writeText(value);
   }, []);
 
-  const editorDeleteButtonClick = useCallback(() => {
+  const deleteButtonClick = useCallback(() => {
     editorRef.current?.setValue("");
   }, []);
 
@@ -172,6 +174,11 @@ const GeometryItem: React.FC<Props> = ({
     [onChange, typeCheck],
   );
 
+  const [currentValue, setCurrentValue] = useState<string | undefined>();
+  useEffect(() => {
+    setCurrentValue(value ?? undefined);
+  }, [value]);
+
   useEffect(() => {
     if (value === currentValue) {
       typeCheck(true);
@@ -198,6 +205,9 @@ const GeometryItem: React.FC<Props> = ({
     return JSON.stringify(obj, null, 2);
   }, [supportedTypes]);
 
+  const mapRef = useRef<MapRef>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
   const handleSearch = useCallback(async (q: string) => {
     if (!q) return;
     setIsSearching(true);
@@ -206,7 +216,7 @@ const GeometryItem: React.FC<Props> = ({
         params: { format: "json", q },
       });
       if (data.length) {
-        ref.current?.engine.flyTo({
+        mapRef.current?.engine.flyTo({
           lat: Number(data[0].lat),
           lng: Number(data[0].lon),
         });
@@ -218,11 +228,27 @@ const GeometryItem: React.FC<Props> = ({
     }
   }, []);
 
+  const viewerProperty: ViewerProperty = useMemo(
+    () => ({
+      tiles: [
+        {
+          id: "default",
+          type: "open_street_map",
+        },
+      ],
+      terrain: { enabled: workspaceSettings.terrains?.enabled },
+      indicator: {
+        type: "custom",
+      },
+    }),
+    [workspaceSettings.terrains?.enabled],
+  );
+
   const [sketchType, setSketchType] = useState<SketchType>();
 
   const setType = useCallback((newSketchType?: SketchType) => {
     setSketchType(newSketchType);
-    ref.current?.sketch?.setType(newSketchType);
+    mapRef.current?.sketch?.setType(newSketchType);
   }, []);
 
   const confirm = useCallback(
@@ -261,23 +287,21 @@ const GeometryItem: React.FC<Props> = ({
     (newSketchType: SketchType) => {
       if (sketchType) {
         setType();
+      } else if (value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
+        confirm(newSketchType);
       } else {
-        if (isEditor && value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
-          confirm(newSketchType);
-        } else {
-          setType(newSketchType);
-        }
+        setType(newSketchType);
       }
     },
-    [confirm, isEditor, setType, sketchType, value],
+    [confirm, setType, sketchType, value],
   );
 
   const handleZoomIn = useCallback(() => {
-    ref.current?.engine.zoomIn(5);
+    mapRef.current?.engine.zoomIn(5);
   }, []);
 
   const handleZoomOut = useCallback(() => {
-    ref.current?.engine.zoomOut(5);
+    mapRef.current?.engine.zoomOut(5);
   }, []);
 
   const GeoJSONConvert = useCallback(
@@ -328,12 +352,14 @@ const GeometryItem: React.FC<Props> = ({
 
   const flyTo = useCallback(
     (geometry: { coordinates?: unknown[]; geometries?: { coordinates: unknown[] }[] }) => {
-      const coordinates = geometry.coordinates ?? geometry.geometries?.[0].coordinates;
-      const flatCoordinates = coordinates?.flat().flat().flat();
-      if (flatCoordinates) {
-        ref.current?.engine.flyTo({
-          lng: flatCoordinates[0] as number,
-          lat: flatCoordinates[1] as number,
+      let coordinates = geometry.coordinates ?? geometry.geometries?.[0].coordinates;
+      if (coordinates) {
+        while (Array.isArray(coordinates[0])) {
+          coordinates = coordinates.flat();
+        }
+        mapRef.current?.engine.flyTo({
+          lng: coordinates[0] as number,
+          lat: coordinates[1] as number,
           height: 100000,
         });
       }
@@ -343,14 +369,14 @@ const GeometryItem: React.FC<Props> = ({
 
   const sketch = useCallback(
     (value: string | SketchFeature) => {
-      const layers = ref.current?.layers.layers();
+      const layers = mapRef.current?.layers.layers();
       const ids = layers?.map(layer => layer.id);
       if (ids?.length) {
-        ref.current?.layers.deleteLayer(...ids);
+        mapRef.current?.layers.deleteLayer(...ids);
       }
       const layer = GeoJSONConvert(value);
       if (layer) {
-        ref.current?.layers.add(layer);
+        mapRef.current?.layers.add(layer);
         if (isInitRef.current || !isEditor) {
           flyTo(layer.data?.value.features[0].geometry);
         }
@@ -366,7 +392,6 @@ const GeometryItem: React.FC<Props> = ({
     }
   }, []);
 
-  const ref = useRef<MapRef>(null);
   const [isReady, setIsReady] = useState(false);
   const handleMount = useCallback(() => {
     setIsReady(true);
@@ -397,7 +422,7 @@ const GeometryItem: React.FC<Props> = ({
               <EditorButton
                 icon={<Icon icon="trash" size={12} />}
                 size="small"
-                onClick={editorDeleteButtonClick}
+                onClick={deleteButtonClick}
               />
             )}
           </EditorButtons>
@@ -479,22 +504,11 @@ const GeometryItem: React.FC<Props> = ({
             </ZoomButtons>
           </ViewerButtons>
           <CoreVisualizer
-            ref={ref}
+            ref={mapRef}
             ready={isReady}
             onMount={handleMount}
             engine={"cesium"}
-            viewerProperty={{
-              tiles: [
-                {
-                  id: "default",
-                  type: "open_street_map",
-                },
-              ],
-              terrain: { enabled: workspaceSettings.terrains?.enabled },
-              indicator: {
-                type: "custom",
-              },
-            }}
+            viewerProperty={viewerProperty}
             onSketchFeatureCreate={handleSketchFeatureCreate}
           />
         </ViewerWrapper>
