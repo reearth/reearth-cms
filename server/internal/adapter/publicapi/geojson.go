@@ -81,10 +81,23 @@ func generateGeoJSON(pw *io.PipeWriter, l ListResult[Item]) error {
 }
 
 func isGeometry(v any) (*Geometry, bool) {
-	geo, ok := v.(string)
-	if !ok {
+	var geo string
+	switch value := v.(type) {
+	case []interface{}:
+		if len(value) == 0 {
+			return nil, false
+		}
+		if geoStr, ok := value[0].(string); ok {
+			geo = geoStr
+		} else {
+			return nil, false
+		}
+	case string:
+		geo = value
+	default:
 		return nil, false
 	}
+
 	g, err := stringToGeometry(geo)
 	if err != nil || g == nil {
 		return nil, false
