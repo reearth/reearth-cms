@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/log"
@@ -19,7 +18,7 @@ func extractFirstPointField(itm Item) ([]float64, bool) {
 	for _, v := range itm.Fields {
 		geo, ok := isGeometry(v)
 		if ok && geo != nil {
-			if *geo.Type != integrationapi.GeometryTypePoint {
+			if *geo.Type != GeometryTypePoint {
 				continue
 			}
 			coordinates, err := geo.Coordinates.AsPoint()

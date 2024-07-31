@@ -6,13 +6,12 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/log"
 )
 
-func isGeometry(v any) (*integrationapi.Geometry, bool) {
+func isGeometry(v any) (*Geometry, bool) {
 	geo, ok := v.(string)
 	if !ok {
 		return nil, false
@@ -43,7 +42,7 @@ func toGeoJSON(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 
 		for _, itm := range l.Results {
 			properties := map[string]interface{}{}
-			geoFields := []*integrationapi.Geometry{}
+			geoFields := []*Geometry{}
 			for k, v := range itm.Fields {
 				f, ok := isGeometry(v)
 				if ok {
@@ -95,8 +94,8 @@ func hasGeometryFields(s *schema.Schema) bool {
 	return hasObject || hasEditor
 }
 
-func stringToGeometry(geoString string) (*integrationapi.Geometry, error) {
-	var geometry integrationapi.Geometry
+func stringToGeometry(geoString string) (*Geometry, error) {
+	var geometry Geometry
 	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
 		return nil, err
 	}
