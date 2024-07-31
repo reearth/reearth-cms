@@ -14,6 +14,56 @@ import (
 	"github.com/samber/lo"
 )
 
+func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
+	pr, pw := io.Pipe()
+
+	go handleCSVGeneration(pw, l, s)
+
+	return c.Stream(http.StatusOK, "text/csv", pr)
+}
+
+func handleCSVGeneration(pw *io.PipeWriter, l ListResult[Item], s *schema.Schema) {
+	err := generateCSV(pw, l, s)
+	if err != nil {
+		log.Printf("failed to generate CSV: %+v", err)
+	}
+	_ = pw.CloseWithError(err)
+}
+
+func generateCSV(pw *io.PipeWriter, l ListResult[Item], s *schema.Schema) error {
+	w := csv.NewWriter(pw)
+	defer w.Flush()
+
+	keys := lo.FilterMap(s.Fields(), func(f *schema.Field, _ int) (string, bool) {
+		return f.Key().String(), !isGeometryField(f)
+	})
+	err := w.Write(append([]string{"id", "location_lat", "location_lng"}, keys...))
+	if err != nil {
+		return err
+	}
+
+	for _, itm := range l.Results {
+		values := []string{itm.ID}
+
+		coordinates, ok := extractFirstPointField(itm)
+		if !ok {
+			continue
+		}
+		lat, lng := float64ToString(coordinates[0]), float64ToString(coordinates[1])
+		values = append(values, lat, lng)
+
+		for _, k := range keys {
+			values = append(values, toCSVValue(itm.Fields[k]))
+		}
+		err = w.Write(values)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func extractFirstPointField(itm Item) ([]float64, bool) {
 	for _, v := range itm.Fields {
 		geo, ok := isGeometry(v)
@@ -33,65 +83,22 @@ func extractFirstPointField(itm Item) ([]float64, bool) {
 	return nil, false
 }
 
-func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
-	pr, pw := io.Pipe()
-
-	go func() {
-		var err error
-		defer func() {
-			_ = pw.CloseWithError(err)
-		}()
-
-		w := csv.NewWriter(pw)
-		keys := lo.FilterMap(s.Fields(), func(f *schema.Field, _ int) (string, bool) {
-			return f.Key().String(), !isGeometryField(f)
-		})
-		err = w.Write(append([]string{"id", "location_lat", "location_lng"}, keys...))
-		if err != nil {
-			log.Errorf("filed to write csv headers, err: %+v", err)
-			return
-		}
-
-		for _, itm := range l.Results {
-			values := []string{itm.ID}
-
-			coordinates, ok := extractFirstPointField(itm)
-			if !ok {
-				continue
-			}
-			lat, lng := float64ToString(coordinates[0]), float64ToString(coordinates[1])
-			values = append(values, lat, lng)
-
-			for _, k := range keys {
-				values = append(values, toCSVValue(itm.Fields[k]))
-			}
-			err = w.Write(values)
-			if err != nil {
-				log.Errorf("filed to write csv value, err: %+v", err)
-				return
-			}
-		}
-		w.Flush()
-	}()
-
-	return c.Stream(http.StatusOK, "text/csv", pr)
-}
-
 func toCSVValue(i interface{}) string {
 	if i == nil {
 		return ""
 	}
-	if v, ok := i.(string); ok {
+	switch v := i.(type) {
+	case string:
 		return v
-	} else if v, ok := i.(float64); ok {
+	case float64:
 		return float64ToString(v)
-	} else if v, ok := i.(int64); ok {
+	case int64:
 		return strconv.FormatInt(v, 10)
-	} else if v, ok := i.(bool); ok {
+	case bool:
 		return strconv.FormatBool(v)
-	} else if v, ok := i.(time.Time); ok {
+	case time.Time:
 		return v.Format(time.RFC3339)
-	} else {
+	default:
 		return ""
 	}
 }
