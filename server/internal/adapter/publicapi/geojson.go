@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -16,7 +17,7 @@ func isGeometry(v any) (*integrationapi.Geometry, bool) {
 	if !ok {
 		return nil, false
 	}
-	g, err := integrationapi.StringToGeometry(geo)
+	g, err := stringToGeometry(geo)
 	if err != nil || g == nil {
 		return nil, false
 	}
@@ -24,7 +25,7 @@ func isGeometry(v any) (*integrationapi.Geometry, bool) {
 }
 
 func toGeoJSON(c echo.Context, l ListResult[Item], s *schema.Schema) error {
-	if !integrationapi.HasGeometryFields(s) {
+	if !hasGeometryFields(s) {
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
 			"error": "no geometry field in this model",
 		})
@@ -83,4 +84,21 @@ func toGeoJSON(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 	}()
 
 	return c.Stream(http.StatusOK, "application/json", pr)
+}
+
+func hasGeometryFields(s *schema.Schema) bool {
+	if s == nil {
+		return false
+	}
+	hasObject := len(s.FieldsByType(value.TypeGeometryObject)) > 0
+	hasEditor := len(s.FieldsByType(value.TypeGeometryEditor)) > 0
+	return hasObject || hasEditor
+}
+
+func stringToGeometry(geoString string) (*integrationapi.Geometry, error) {
+	var geometry integrationapi.Geometry
+	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
+		return nil, err
+	}
+	return &geometry, nil
 }

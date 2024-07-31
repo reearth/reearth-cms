@@ -45,7 +45,7 @@ func toCSVValue(vv *value.Value) string {
 		if !ok {
 			return ""
 		}
-		return Float64ToString(v)
+		return float64ToString(v)
 	case value.TypeBool, value.TypeCheckbox:
 		v, ok := vv.ValueBool()
 		if !ok {
@@ -125,7 +125,7 @@ func toGeoJSONMultipleValues(vv []*value.Value) ([]any, bool) {
 	}), true
 }
 
-func IsGeometryField(f *schema.Field) bool {
+func isGeometryField(f *schema.Field) bool {
 	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
 }
 
@@ -133,7 +133,7 @@ func isGeometryFieldType(t value.Type) bool {
 	return t == value.TypeGeometryObject || t == value.TypeGeometryEditor
 }
 
-func Float64ToString(f float64) string {
+func float64ToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
@@ -145,7 +145,7 @@ func boolToString(b bool) string {
 	return strconv.FormatBool(b)
 }
 
-func HasGeometryFields(s *schema.Schema) bool {
+func hasGeometryFields(s *schema.Schema) bool {
 	if s == nil {
 		return false
 	}

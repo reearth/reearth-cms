@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
@@ -44,7 +45,7 @@ func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 
 		w := csv.NewWriter(pw)
 		keys := lo.FilterMap(s.Fields(), func(f *schema.Field, _ int) (string, bool) {
-			return f.Key().String(), !integrationapi.IsGeometryField(f)
+			return f.Key().String(), !isGeometryField(f)
 		})
 		err = w.Write(append([]string{"id", "location_lat", "location_lng"}, keys...))
 		if err != nil {
@@ -59,7 +60,7 @@ func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 			if !ok {
 				continue
 			}
-			lat, lng := integrationapi.Float64ToString(coordinates[0]), integrationapi.Float64ToString(coordinates[1])
+			lat, lng := float64ToString(coordinates[0]), float64ToString(coordinates[1])
 			values = append(values, lat, lng)
 
 			for _, k := range keys {
@@ -84,7 +85,7 @@ func toCSVValue(i interface{}) string {
 	if v, ok := i.(string); ok {
 		return v
 	} else if v, ok := i.(float64); ok {
-		return strconv.FormatFloat(v, 'f', -1, 64)
+		return float64ToString(v)
 	} else if v, ok := i.(int64); ok {
 		return strconv.FormatInt(v, 10)
 	} else if v, ok := i.(bool); ok {
@@ -94,4 +95,12 @@ func toCSVValue(i interface{}) string {
 	} else {
 		return ""
 	}
+}
+
+func isGeometryField(f *schema.Field) bool {
+	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
+}
+
+func float64ToString(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
