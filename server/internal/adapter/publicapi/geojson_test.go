@@ -21,7 +21,7 @@ func TestIsGeometry(t *testing.T) {
 	assert.NotNil(t, g3)
 	assert.True(t, ok3)
 	var v4 interface{} = []interface{}{
-		"{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", 
+		"{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 		"{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
 	}
 	g4, ok4 := isGeometry(v4)

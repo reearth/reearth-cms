@@ -29,7 +29,7 @@ var (
 	publicAPIItem2ID      = id.NewItemID()
 	publicAPIItem3ID      = id.NewItemID()
 	publicAPIItem4ID      = id.NewItemID()
-	publicAPIItem5ID      = id.NewItemID()
+	publicAPIItem6ID      = id.NewItemID()
 	publicAPIAsset1ID     = id.NewAssetID()
 	publicAPIAsset2ID     = id.NewAssetID()
 	publicAPIAssetUUID    = uuid.NewString()
@@ -107,7 +107,7 @@ func TestPublicAPI(t *testing.T) {
 					},
 				},
 				{
-					"id":               publicAPIItem5ID.String(),
+					"id":               publicAPIItem6ID.String(),
 					publicAPIField1Key: "ccc",
 					publicAPIField3Key: []string{"aaa", "bbb", "ccc"},
 					publicAPIField4Key: []any{
@@ -239,7 +239,7 @@ func TestPublicAPI(t *testing.T) {
 					// publicAPIField4Key should be removed
 				},
 				{
-					"id":               publicAPIItem5ID.String(),
+					"id":               publicAPIItem6ID.String(),
 					publicAPIField1Key: "ccc",
 					publicAPIField3Key: []string{"aaa", "bbb", "ccc"},
 					publicAPIField5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
@@ -262,7 +262,7 @@ func TestPublicAPI(t *testing.T) {
 			"features": []map[string]interface{}{
 				{
 					"type": "Feature",
-					"id":   publicAPIItem5ID.String(),
+					"id":   publicAPIItem6ID.String(),
 					"geometry": map[string]interface{}{
 						"type": "Point",
 						"coordinates": []interface{}{
@@ -286,7 +286,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		Body().
-		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,102,0.5,ccc,,aaa,\n", publicAPIItem5ID.String()))
+		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,102,0.5,ccc,,aaa,\n", publicAPIItem6ID.String()))
 
 	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, publicAPIModelKey, publicAPIItem1ID).
 		Expect().
@@ -371,7 +371,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
-	i6 := item.New().ID(publicAPIItem5ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+	i6 := item.New().ID(publicAPIItem6ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
 		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple(), nil),
 		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
@@ -394,7 +394,6 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	lo.Must0(r.Item.UpdateRef(ctx, i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i2.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i3.ID(), version.Public, version.Latest.OrVersion().Ref()))
-	lo.Must0(r.Item.UpdateRef(ctx, i5.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i6.ID(), version.Public, version.Latest.OrVersion().Ref()))
 
 	return nil
