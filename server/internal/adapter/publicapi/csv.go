@@ -2,10 +2,10 @@ package publicapi
 
 import (
 	"encoding/csv"
-	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
@@ -63,15 +63,7 @@ func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 			values = append(values, lat, lng)
 
 			for _, k := range keys {
-				var v []byte
-				v, err = json.Marshal(itm.Fields[k])
-				if err != nil {
-					log.Errorf("filed to json marshal field value, err: %+v", err)
-					return
-				}
-				if k != "GeometryEditor" && k != "GeometryObject" {
-					values = append(values, fmt.Sprintf("%v", string(v)))
-				}
+				values = append(values, toCSVValue(itm.Fields[k]))
 			}
 			err = w.Write(values)
 			if err != nil {
@@ -83,4 +75,23 @@ func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 	}()
 
 	return c.Stream(http.StatusOK, "text/csv", pr)
+}
+
+func toCSVValue(i interface{}) string {
+	if i == nil {
+		return ""
+	}
+	if v, ok := i.(string); ok {
+		return v
+	} else if v, ok := i.(float64); ok {
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	} else if v, ok := i.(int64); ok {
+		return strconv.FormatInt(v, 10)
+	} else if v, ok := i.(bool); ok {
+		return strconv.FormatBool(v)
+	} else if v, ok := i.(time.Time); ok {
+		return v.Format(time.RFC3339)
+	} else {
+		return ""
+	}
 }
