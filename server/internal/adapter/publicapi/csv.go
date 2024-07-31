@@ -98,6 +98,11 @@ func toCSVValue(i interface{}) string {
 		return strconv.FormatBool(v)
 	case time.Time:
 		return v.Format(time.RFC3339)
+	case []interface{}:
+		if len(v) > 0 {
+			return toCSVValue(v[0])
+		}
+		return ""
 	default:
 		return ""
 	}

@@ -35,27 +35,35 @@ func TestExtractFirstPointField(t *testing.T) {
 }
 
 func TestToCSVValue(t *testing.T) {
-	v1 := "test"
+	var v1 interface{} = "test"
 	c1 := toCSVValue(v1)
 	assert.Equal(t, "test", c1)
 
-	var v2 int64 = 1
+	var v2 interface{} = int64(1)
 	c2 := toCSVValue(v2)
 	assert.Equal(t, "1", c2)
 
-	var v3 float64 = 1.1
+	var v3 interface{} = 1.1
 	c3 := toCSVValue(v3)
 	assert.Equal(t, "1.1", c3)
 
-	v4 := true
+	var v4 interface{} = true
 	c4 := toCSVValue(v4)
 	assert.Equal(t, "true", c4)
 
-	v5 := false
+	var v5 interface{} = false
 	c5 := toCSVValue(v5)
 	assert.Equal(t, "false", c5)
 
 	var v6 interface{}
 	c6 := toCSVValue(v6)
 	assert.Equal(t, "", c6)
+
+	var v7 interface{} = []interface{}{int64(36), int64(29)}
+	c7 := toCSVValue(v7)
+	assert.Equal(t, "36", c7)
+
+	var v8 interface{} = []interface{}{false, true}
+	c8 := toCSVValue(v8)
+	assert.Equal(t, "false", c8)
 }
