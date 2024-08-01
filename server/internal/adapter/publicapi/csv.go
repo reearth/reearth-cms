@@ -15,6 +15,12 @@ import (
 )
 
 func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
+	if !isPointFieldSupported(s) {
+		return c.JSON(http.StatusNotFound, map[string]interface{}{
+			"error": "point type is not supported in this model",
+		})
+	}
+
 	pr, pw := io.Pipe()
 
 	go handleCSVGeneration(pw, l, s)
@@ -25,7 +31,7 @@ func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 func handleCSVGeneration(pw *io.PipeWriter, l ListResult[Item], s *schema.Schema) {
 	err := generateCSV(pw, l, s)
 	if err != nil {
-		log.Printf("failed to generate CSV: %+v", err)
+		log.Errorf("failed to generate CSV: %+v", err)
 	}
 	_ = pw.CloseWithError(err)
 }
@@ -114,4 +120,30 @@ func isGeometryField(f *schema.Field) bool {
 
 func float64ToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
+}
+
+func isPointFieldSupported(s *schema.Schema) bool {
+	if s == nil {
+		return false
+	}
+
+	for _, f := range s.Fields() {
+		if supportsPointField(f) {
+			return true
+		}
+	}
+	return false
+}
+
+func supportsPointField(f *schema.Field) bool {
+	var supported bool
+	f.TypeProperty().Match(schema.TypePropertyMatch{
+		GeometryObject: func(f *schema.FieldGeometryObject) {
+			supported = f.SupportedTypes().Has(schema.GeometryObjectSupportedTypePoint)
+		},
+		GeometryEditor: func(f *schema.FieldGeometryEditor) {
+			supported = f.SupportedTypes().Has(schema.GeometryEditorSupportedTypePoint)
+		},
+	})
+	return supported
 }

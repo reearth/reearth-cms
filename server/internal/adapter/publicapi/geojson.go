@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"sort"
@@ -30,7 +31,7 @@ func toGeoJSON(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 func handleGeoJSONGeneration(pw *io.PipeWriter, l ListResult[Item]) {
 	err := generateGeoJSON(pw, l)
 	if err != nil {
-		log.Printf("failed to generate GeoJSON: %+v", err)
+		log.Errorf("failed to generate GeoJSON: %+v", err)
 	}
 	_ = pw.CloseWithError(err)
 }
@@ -43,9 +44,9 @@ func generateGeoJSON(pw *io.PipeWriter, l ListResult[Item]) error {
 		geoFields := []*Geometry{}
 
 		for k, v := range itm.Fields {
-			f, ok := isGeometry(v)
+			g, ok := isGeometry(v)
 			if ok {
-				geoFields = append(geoFields, f)
+				geoFields = append(geoFields, g)
 				continue
 			}
 			properties[k] = v
@@ -69,7 +70,7 @@ func generateGeoJSON(pw *io.PipeWriter, l ListResult[Item]) error {
 	}
 
 	if len(features) == 0 {
-		return nil
+		return errors.New("no valid geometry field in this model")
 	}
 
 	featureCollection := FeatureCollection{
