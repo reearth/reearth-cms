@@ -22,9 +22,10 @@ func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 	}
 
 	pr, pw := io.Pipe()
-
 	go handleCSVGeneration(pw, l, s)
 
+	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment;")
+	c.Response().Header().Set(echo.HeaderContentType, "text/csv")
 	return c.Stream(http.StatusOK, "text/csv", pr)
 }
 
