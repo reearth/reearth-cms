@@ -25,7 +25,7 @@ func toGeoJSON(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 	go handleGeoJSONGeneration(pw, l)
 
 	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment;")
-	c.Response().Header().Set(echo.HeaderContentType, "application/geo+json")
+	c.Response().Header().Set(echo.HeaderContentType, "application/json")
 	return c.Stream(http.StatusOK, "application/json", pr)
 }
 
