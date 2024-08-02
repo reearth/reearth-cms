@@ -1,8 +1,11 @@
 package value
 
 import (
+	"net/url"
 	"testing"
+	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -528,4 +531,93 @@ func TestValue_Cast(t *testing.T) {
 			assert.Equal(t, tt.want, tt.target.Cast(tt.args.t))
 		})
 	}
+}
+
+func TestToCSVValue(t *testing.T) {
+	v1 := &Value{t: TypeText, v: "test"}
+	s1 := v1.ToCSVValue()
+	assert.Equal(t, "test", s1)
+
+	v2 := &Value{t: TypeTextArea, v: "test"}
+	s2 := v2.ToCSVValue()
+	assert.Equal(t, "test", s2)
+
+	v3 := &Value{t: TypeURL, v: &url.URL{Scheme: "https", Host: "reearth.io"}}
+	s3 := v3.ToCSVValue()
+	assert.Equal(t, "https://reearth.io", s3)
+
+	aId := id.NewAssetID()
+	v4 := &Value{t: TypeAsset, v: aId}
+	s4 := v4.ToCSVValue()
+	assert.Equal(t, aId.String(), s4)
+
+	v5 := &Value{t: TypeInteger, v: int64(1)}
+	s5 := v5.ToCSVValue()
+	assert.Equal(t, "1", s5)
+
+	v6 := &Value{t: TypeNumber, v: float64(1.1)}
+	s6 := v6.ToCSVValue()
+	assert.Equal(t, "1.1", s6)
+
+	v7 := &Value{t: TypeBool, v: true}
+	s7 := v7.ToCSVValue()
+	assert.Equal(t, "true", s7)
+
+	t8 := time.Now()
+	v8 := &Value{t: TypeDateTime, v: t8}
+	s8 := v8.ToCSVValue()
+	assert.Equal(t, t8.Format(time.RFC3339), s8)
+
+	v9 := &Value{}
+	s9 := v9.ToCSVValue()
+	assert.Empty(t, s9)
+}
+
+func TestToGeoJsonSingleValue(t *testing.T) {
+	v1 := &Value{t: TypeText, v: "test"}
+	s1, ok := v1.ToGeoJsonSingleValue()
+	assert.True(t, ok)
+	assert.Equal(t, "test", s1)
+
+	v2 := &Value{t: TypeTextArea, v: "test"}
+	s2, ok := v2.ToGeoJsonSingleValue()
+	assert.True(t, ok)
+	assert.Equal(t, "test", s2)
+
+	v3 := &Value{t: TypeURL, v: &url.URL{Scheme: "https", Host: "reearth.io"}}
+	s3, ok := v3.ToGeoJsonSingleValue()
+	assert.True(t, ok)
+	assert.Equal(t, "https://reearth.io", s3)
+
+	aId := id.NewAssetID()
+	v4 := &Value{t: TypeAsset, v: aId}
+	s4, ok := v4.ToGeoJsonSingleValue()
+	assert.True(t, ok)
+	assert.Equal(t, aId.String(), s4)
+
+	v5 := &Value{t: TypeInteger, v: int64(1)}
+	s5, ok := v5.ToGeoJsonSingleValue()
+	assert.True(t, ok)
+	assert.Equal(t, int64(1), s5)
+
+	v6 := &Value{t: TypeNumber, v: float64(1.1)}
+	s6, ok := v6.ToGeoJsonSingleValue()
+	assert.True(t, ok)
+	assert.Equal(t, float64(1.1), s6)
+
+	v7 := &Value{t: TypeBool, v: true}
+	s7, ok := v7.ToGeoJsonSingleValue()
+	assert.True(t, ok)
+	assert.Equal(t, true, s7)
+
+	t8 := time.Now()
+	v8 := &Value{t: TypeDateTime, v: t8}
+	s8, ok := v8.ToGeoJsonSingleValue()
+	assert.True(t, ok)
+	assert.Equal(t, t8.Format(time.RFC3339), s8)
+
+	v9 := &Value{}
+	s9, ok := v9.ToGeoJsonSingleValue()
+	assert.False(t, ok)
+	assert.Empty(t, s9)
 }
