@@ -24,6 +24,10 @@ func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*Feat
 		return FeatureFromItem(v, s)
 	})
 
+	if len(features) == 0 {
+		return nil, noGeometryFieldError
+	}
+
 	return &FeatureCollection{
 		Type:     lo.ToPtr(FeatureCollectionTypeFeatureCollection),
 		Features: &features,

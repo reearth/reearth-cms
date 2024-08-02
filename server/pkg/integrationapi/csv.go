@@ -32,6 +32,10 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 		}
 	}
 
+	if len(data) == 1 {
+		return "", noPointFieldError
+	}
+
 	csvString, err := convertToCSVString(data)
 	if err != nil {
 		return "", err
