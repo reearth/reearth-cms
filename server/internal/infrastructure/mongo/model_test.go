@@ -141,6 +141,115 @@ func TestModelRepo_FindByID(t *testing.T) {
 	}
 }
 
+func TestModelRepo_FindBySchema(t *testing.T) {
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
+	pid1 := id.NewProjectID()
+	id1 := id.NewModelID()
+	sid1 := id.NewSchemaID()
+	k := key.New("T123456")
+	m1 := model.New().ID(id1).Project(pid1).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   model.List
+		arg     id.SchemaID
+		filter  *repo.ProjectFilter
+		want    *model.Model
+		wantErr error
+	}{
+		{
+			name:    "Not found in empty db",
+			seeds:   model.List{},
+			arg:     id.NewSchemaID(),
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: model.List{
+				model.New().NewID().Project(pid1).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
+			},
+			arg:     id.NewSchemaID(),
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: model.List{
+				m1,
+			},
+			arg:     sid1,
+			want:    m1,
+			wantErr: nil,
+		},
+		{
+			name: "Found 2",
+			seeds: model.List{
+				m1,
+				model.New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Key(k).UpdatedAt(mocknow).MustBuild(),
+				model.New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Key(k).UpdatedAt(mocknow).MustBuild(),
+			},
+			arg:     sid1,
+			want:    m1,
+			wantErr: nil,
+		},
+		{
+			name: "project filter operation success",
+			seeds: model.List{
+				m1,
+				model.New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Key(k).UpdatedAt(mocknow).MustBuild(),
+				model.New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Key(k).UpdatedAt(mocknow).MustBuild(),
+			},
+			arg:     sid1,
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
+			want:    m1,
+			wantErr: nil,
+		},
+		{
+			name: "project filter operation denied",
+			seeds: model.List{
+				m1,
+				model.New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Key(k).UpdatedAt(mocknow).MustBuild(),
+				model.New().NewID().Project(id.NewProjectID()).Schema(id.NewSchemaID()).Key(k).UpdatedAt(mocknow).MustBuild(),
+			},
+			arg:     sid1,
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
+			want:    nil,
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewModel(client)
+			ctx := context.Background()
+
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a.Clone())
+				assert.NoError(t, err)
+			}
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			got, err := r.FindBySchema(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestModelRepo_FindByIDs(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	pid1 := id.NewProjectID()
