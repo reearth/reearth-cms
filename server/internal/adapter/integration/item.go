@@ -2,8 +2,9 @@ package integration
 
 import (
 	"context"
+	"encoding/csv"
 	"errors"
-	"strings"
+	"io"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -117,15 +118,14 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 		return ItemsAsCSV400Response{}, err
 	}
 
-	csvString, err := integrationapi.CSVFromItems(items, sp.Schema())
+	pr, pw := io.Pipe()
+	w := csv.NewWriter(pw)
+	err = integrationapi.CSVFromItems(w, items, sp.Schema())
 	if err != nil {
 		return nil, err
 	}
-	reader := strings.NewReader(csvString)
-	contentLength := reader.Len()
 	return ItemsAsCSV200TextcsvResponse{
-		Body:          reader,
-		ContentLength: int64(contentLength),
+		Body: pr,
 	}, nil
 }
 
@@ -277,15 +277,14 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 		return ItemsWithProjectAsCSV400Response{}, err
 	}
 
-	csvString, err := integrationapi.CSVFromItems(items, sp.Schema())
+	pr, pw := io.Pipe()
+	w := csv.NewWriter(pw)
+	err = integrationapi.CSVFromItems(w, items, sp.Schema())
 	if err != nil {
 		return nil, err
 	}
-	reader := strings.NewReader(csvString)
-	contentLength := reader.Len()
 	return ItemsWithProjectAsCSV200TextcsvResponse{
-		Body:          reader,
-		ContentLength: int64(contentLength),
+		Body: pr,
 	}, nil
 }
 

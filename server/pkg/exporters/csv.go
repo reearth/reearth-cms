@@ -3,7 +3,6 @@ package exporters
 import (
 	"encoding/csv"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -19,9 +18,9 @@ var (
 	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
 )
 
-func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
+func CSVFromItems(w *csv.Writer, items item.VersionedList, s *schema.Schema) error {
 	if !s.IsPointFieldSupported() {
-		return "", pointFieldIsNotSupportedError
+		return pointFieldIsNotSupportedError
 	}
 
 	keys, nonGeoFields := buildCSVHeaders(s)
@@ -35,15 +34,15 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 	}
 
 	if len(data) == 1 {
-		return "", noPointFieldError
+		return noPointFieldError
 	}
 
-	csv, err := convertToCSV(data)
+	err := convertToCSV(w, data)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return csv, nil
+	return nil
 }
 
 func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
@@ -98,19 +97,17 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 	return nil, noPointFieldError
 }
 
-func convertToCSV(data [][]string) (string, error) {
-	var sb strings.Builder
-	w := csv.NewWriter(&sb)
+func convertToCSV(w *csv.Writer, data [][]string) error {
 	for _, row := range data {
 		if err := w.Write(row); err != nil {
-			return "", err
+			return err
 		}
 	}
 	w.Flush()
 	if err := w.Error(); err != nil {
-		return "", err
+		return err
 	}
-	return sb.String(), nil
+	return nil
 }
 
 func float64ToString(f float64) string {
