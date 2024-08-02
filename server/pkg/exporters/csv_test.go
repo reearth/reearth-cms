@@ -1,8 +1,10 @@
-package integrationapi
+package exporters
 
 import (
 	"fmt"
+	"net/url"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -126,7 +128,7 @@ func TestBuildCSVHeaders(t *testing.T) {
 	assert.Equal(t, []*schema.Field{sf3, sf4}, ff)
 }
 
-func TestParseItem(t *testing.T) {
+func TestRowFromItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
 	mid := id.NewModelID()
@@ -245,3 +247,107 @@ func TestExtractFirstPointField(t *testing.T) {
 	assert.Equal(t, noPointFieldError, err3)
 	assert.Nil(t, point3)
 }
+
+func TestToCSVProp(t *testing.T) {
+	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
+	s1 := ToCSVProp(if1)
+	assert.Equal(t, "test", s1)
+
+	var if2 *item.Field
+	s2 := ToCSVProp(if2)
+	assert.Empty(t, s2)
+
+	v3 := int64(30)
+	in3, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
+	tp3 := in3.TypeProperty()
+	sf3 := schema.NewField(tp3).NewID().Name("age").Key(key.Random()).MustBuild()
+	if3 := item.NewField(sf3.ID(), value.TypeInteger.Value(v3).AsMultiple(), nil)
+	s3, ok3 := ToGeoJsonSingleValue(if3.Value().First())
+	assert.Equal(t, int64(30), s3)
+	assert.True(t, ok3)
+
+	v4 := true
+	sf4 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
+	if4 := item.NewField(sf4.ID(), value.TypeBool.Value(v4).AsMultiple(), nil)
+	s4, ok4 := ToGeoJsonSingleValue(if4.Value().First())
+	assert.Equal(t, true, s4)
+	assert.True(t, ok4)
+
+	v5 := false
+	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
+	if5 := item.NewField(sf5.ID(), value.TypeBool.Value(v5).AsMultiple(), nil)
+	s5, ok5 := ToGeoJsonSingleValue(if5.Value().First())
+	assert.Equal(t, false, s5)
+	assert.True(t, ok5)
+}
+
+func TestToCSVValue(t *testing.T) {
+	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
+	s1 := ToCSVValue(if1.Value().First())
+	assert.Equal(t, "test", s1)
+
+	sf2 := schema.NewField(schema.NewTextArea(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	if2 := item.NewField(sf2.ID(), value.TypeTextArea.Value("test").AsMultiple(), nil)
+	s2 := ToCSVValue(if2.Value().First())
+	assert.Equal(t, "test", s2)
+
+	sf3 := schema.NewField(schema.NewURL().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	v3 := url.URL{Scheme: "https", Host: "reearth.io"}
+	if3 := item.NewField(sf3.ID(), value.TypeURL.Value(v3).AsMultiple(), nil)
+	s3 := ToCSVValue(if3.Value().First())
+	assert.Equal(t, "https://reearth.io", s3)
+
+	sf4 := schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	v4 := id.NewAssetID()
+	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(v4).AsMultiple(), nil)
+	s4 := ToCSVValue(if4.Value().First())
+	assert.Equal(t, v4.String(), s4)
+
+	gid := id.NewGroupID()
+	igid := id.NewItemGroupID()
+	sf5 := schema.NewField(schema.NewGroup(gid).TypeProperty()).NewID().Key(key.Random()).Multiple(true).MustBuild()
+	if5 := item.NewField(sf5.ID(), value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(igid)}), nil)
+	s5 := ToCSVValue(if5.Value().First())
+	assert.Empty(t, s5)
+
+	v6 := id.NewItemID()
+	sf6 := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	if6 := item.NewField(sf6.ID(), value.TypeReference.Value(v6).AsMultiple(), nil)
+	s6 := ToCSVValue(if6.Value().First())
+	assert.Empty(t, s6)
+
+	v7 := int64(30)
+	in7, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
+	tp7 := in7.TypeProperty()
+	sf7 := schema.NewField(tp7).NewID().Name("age").Key(key.Random()).MustBuild()
+	if7 := item.NewField(sf7.ID(), value.TypeInteger.Value(v7).AsMultiple(), nil)
+	s7 := ToCSVValue(if7.Value().First())
+	assert.Equal(t, "30", s7)
+
+	v8 := float64(30.123)
+	in8, _ := schema.NewNumber(lo.ToPtr(float64(1)), lo.ToPtr(float64(100)))
+	tp8 := in8.TypeProperty()
+	sf8 := schema.NewField(tp8).NewID().Name("age").Key(key.Random()).MustBuild()
+	if8 := item.NewField(sf8.ID(), value.TypeNumber.Value(v8).AsMultiple(), nil)
+	s8 := ToCSVValue(if8.Value().First())
+	assert.Equal(t, "30.123", s8)
+
+	v9 := true
+	sf9 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
+	if9 := item.NewField(sf9.ID(), value.TypeBool.Value(v9).AsMultiple(), nil)
+	s9 := ToCSVValue(if9.Value().First())
+	assert.Equal(t, "true", s9)
+
+	v10 := time.Now()
+	sf10 := schema.NewField(schema.NewDateTime().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
+	if10 := item.NewField(sf10.ID(), value.TypeDateTime.Value(v10).AsMultiple(), nil)
+	s10 := ToCSVValue(if10.Value().First())
+	assert.Equal(t, v10.Format(time.RFC3339), s10)
+
+	var if11 *item.Field
+	s11 := ToCSVValue(if11.Value().First())
+	assert.Empty(t, s11)
+}
+
