@@ -26,7 +26,7 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 	data := [][]string{}
 	data = append(data, keys)
 	for _, ver := range items {
-		row, ok := parseItem(ver.Value(), nonGeoFields)
+		row, ok := rowFromItem(ver.Value(), nonGeoFields)
 		if ok {
 			data = append(data, row)
 		}
@@ -36,12 +36,12 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 		return "", noPointFieldError
 	}
 
-	csvString, err := convertToCSVString(data)
+	csv, err := convertToCSV(data)
 	if err != nil {
 		return "", err
 	}
 
-	return csvString, nil
+	return csv, nil
 }
 
 func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
@@ -55,7 +55,7 @@ func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
 	return keys, nonGeoFields
 }
 
-func parseItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
+func rowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
 	geoField, err := extractFirstPointField(itm)
 	if err != nil {
 		return nil, false
@@ -96,7 +96,7 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 	return nil, noPointFieldError
 }
 
-func convertToCSVString(data [][]string) (string, error) {
+func convertToCSV(data [][]string) (string, error) {
 	var sb strings.Builder
 	w := csv.NewWriter(&sb)
 	for _, row := range data {

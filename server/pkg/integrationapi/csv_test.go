@@ -154,7 +154,7 @@ func TestParseItem(t *testing.T) {
 		MustBuild()
 
 	// Test with no fields
-	row1, ok1 := parseItem(i1, []*schema.Field{sf3, sf4})
+	row1, ok1 := rowFromItem(i1, []*schema.Field{sf3, sf4})
 	assert.False(t, ok1)
 	assert.Nil(t, row1)
 
@@ -167,7 +167,7 @@ func TestParseItem(t *testing.T) {
 		Model(mid).
 		Thread(tid).
 		MustBuild()
-	row2, ok2 := parseItem(i2, []*schema.Field{sf3, sf4})
+	row2, ok2 := rowFromItem(i2, []*schema.Field{sf3, sf4})
 	assert.False(t, ok2)
 	assert.Nil(t, row2)
 
@@ -180,7 +180,7 @@ func TestParseItem(t *testing.T) {
 		Model(mid).
 		Thread(tid).
 		MustBuild()
-	row3, ok3 := parseItem(i3, []*schema.Field{sf3, sf4})
+	row3, ok3 := rowFromItem(i3, []*schema.Field{sf3, sf4})
 	assert.True(t, ok3)
 	assert.Equal(t, []string{i1.ID().String(), "139.28179282584915", "36.58570985749664", "30", "true"}, row3)
 }
