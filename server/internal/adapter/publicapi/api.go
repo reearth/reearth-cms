@@ -76,6 +76,11 @@ func PublicApiItemList() echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
+		
+		// vi, s1, err1 := ctrl.GetVersionedItems(ctx, c.Param("project"), m, p)
+		// if err1 != nil {
+		// 	return err1
+		// }
 
 		switch resType {
 		case "csv":
