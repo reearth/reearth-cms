@@ -476,10 +476,12 @@ type Model struct {
 	Id               *id.ModelID   `json:"id,omitempty"`
 	Key              *string       `json:"key,omitempty"`
 	LastModified     *time.Time    `json:"lastModified,omitempty"`
+	MetadataSchema   *Schema       `json:"metadataSchema,omitempty"`
 	MetadataSchemaId *id.SchemaID  `json:"metadataSchemaId,omitempty"`
 	Name             *string       `json:"name,omitempty"`
 	ProjectId        *id.ProjectID `json:"projectId,omitempty"`
 	Public           *bool         `json:"public,omitempty"`
+	Schema           *Schema       `json:"schema,omitempty"`
 	SchemaId         *id.SchemaID  `json:"schemaId,omitempty"`
 	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`
 }
@@ -592,6 +594,9 @@ type ProjectIdParam = id.ProjectID
 // RefParam defines model for refParam.
 type RefParam string
 
+// SchemaIdParam defines model for schemaIdParam.
+type SchemaIdParam = id.SchemaID
+
 // SortDirParam defines model for sortDirParam.
 type SortDirParam string
 
@@ -645,22 +650,6 @@ type ModelUpdateJSONBody struct {
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
 	Name        *string `json:"name,omitempty"`
-}
-
-// FieldCreateJSONBody defines parameters for FieldCreate.
-type FieldCreateJSONBody struct {
-	Key      *string    `json:"key,omitempty"`
-	Multiple *bool      `json:"multiple,omitempty"`
-	Required *bool      `json:"required,omitempty"`
-	Type     *ValueType `json:"type,omitempty"`
-}
-
-// FieldUpdateJSONBody defines parameters for FieldUpdate.
-type FieldUpdateJSONBody struct {
-	Key      *string    `json:"key,omitempty"`
-	Multiple *bool      `json:"multiple,omitempty"`
-	Required *bool      `json:"required,omitempty"`
-	Type     *ValueType `json:"type,omitempty"`
 }
 
 // ItemFilterJSONBody defines parameters for ItemFilter.
@@ -892,6 +881,22 @@ type AssetUploadCreateJSONBody struct {
 	Name          *string `json:"name,omitempty"`
 }
 
+// FieldCreateJSONBody defines parameters for FieldCreate.
+type FieldCreateJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
+}
+
+// FieldUpdateJSONBody defines parameters for FieldUpdate.
+type FieldUpdateJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
+}
+
 // ProjectFilterParams defines parameters for ProjectFilter.
 type ProjectFilterParams struct {
 	// Page Used to select the page
@@ -918,12 +923,6 @@ type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
 type ModelUpdateJSONRequestBody ModelUpdateJSONBody
-
-// FieldCreateJSONRequestBody defines body for FieldCreate for application/json ContentType.
-type FieldCreateJSONRequestBody FieldCreateJSONBody
-
-// FieldUpdateJSONRequestBody defines body for FieldUpdate for application/json ContentType.
-type FieldUpdateJSONRequestBody FieldUpdateJSONBody
 
 // ItemFilterJSONRequestBody defines body for ItemFilter for application/json ContentType.
 type ItemFilterJSONRequestBody ItemFilterJSONBody
@@ -954,6 +953,12 @@ type AssetCreateMultipartRequestBody AssetCreateMultipartBody
 
 // AssetUploadCreateJSONRequestBody defines body for AssetUploadCreate for application/json ContentType.
 type AssetUploadCreateJSONRequestBody AssetUploadCreateJSONBody
+
+// FieldCreateJSONRequestBody defines body for FieldCreate for application/json ContentType.
+type FieldCreateJSONRequestBody FieldCreateJSONBody
+
+// FieldUpdateJSONRequestBody defines body for FieldUpdate for application/json ContentType.
+type FieldUpdateJSONRequestBody FieldUpdateJSONBody
 
 // AsPoint returns the union data inside the Geometry_Coordinates as a Point
 func (t Geometry_Coordinates) AsPoint() (Point, error) {
