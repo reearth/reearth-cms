@@ -2,6 +2,7 @@ package integrationapi
 
 import (
 	"encoding/csv"
+	"strconv"
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -17,7 +18,7 @@ var (
 )
 
 func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
-	if !isPointFieldSupported(s) {
+	if !s.IsPointFieldSupported() {
 		return "", pointFieldIsNotSupportedError
 	}
 
@@ -42,7 +43,7 @@ func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
 func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
 	keys := []string{"id", "location_lat", "location_lng"}
 	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return !isGeometryField(f)
+		return !f.IsGeometryField()
 	})
 	for _, f := range nonGeoFields {
 		keys = append(keys, f.Name())
@@ -62,7 +63,7 @@ func parseItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
 
 	for _, sf := range nonGeoFields {
 		f := itm.Field(sf.ID())
-		v := toCSVProp(f)
+		v := f.ToCSVProp()
 		row = append(row, v)
 	}
 
@@ -71,7 +72,7 @@ func parseItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
 
 func extractFirstPointField(itm *item.Item) ([]float64, error) {
 	geoFields := lo.Filter(itm.Fields(), func(f *item.Field, _ int) bool {
-		return isGeometryFieldType(f.Type())
+		return f.Type().IsGeometryFieldType()
 	})
 
 	for _, f := range geoFields {
@@ -91,45 +92,6 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 	return nil, noPointFieldError
 }
 
-func toCSVProp(f *item.Field) string {
-	if f == nil {
-		return ""
-	}
-
-	vv := f.Value().First()
-	if vv == nil {
-		return ""
-	}
-
-	return toCSVValue(vv)
-}
-
-func isPointFieldSupported(s *schema.Schema) bool {
-	if s == nil {
-		return false
-	}
-
-	for _, f := range s.Fields() {
-		if supportsPointField(f) {
-			return true
-		}
-	}
-	return false
-}
-
-func supportsPointField(f *schema.Field) bool {
-	var supported bool
-	f.TypeProperty().Match(schema.TypePropertyMatch{
-		GeometryObject: func(f *schema.FieldGeometryObject) {
-			supported = f.SupportedTypes().Has(schema.GeometryObjectSupportedTypePoint)
-		},
-		GeometryEditor: func(f *schema.FieldGeometryEditor) {
-			supported = f.SupportedTypes().Has(schema.GeometryEditorSupportedTypePoint)
-		},
-	})
-	return supported
-}
-
 func convertToCSVString(data [][]string) (string, error) {
 	var sb strings.Builder
 	w := csv.NewWriter(&sb)
@@ -143,4 +105,8 @@ func convertToCSVString(data [][]string) (string, error) {
 		return "", err
 	}
 	return sb.String(), nil
+}
+
+func float64ToString(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }

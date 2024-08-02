@@ -136,3 +136,12 @@ func (m *Multiple) Cast(t Type) *Multiple {
 		v: v,
 	}
 }
+
+func (m *Multiple) ToGeoJSONMultipleValues() ([]any, bool) {
+	if len(m.Values()) == 0 {
+		return nil, false
+	}
+	return lo.FilterMap(m.Values(), func(v *Value, _ int) (any, bool) {
+		return v.ToGeoJsonSingleValue()
+	}), true
+}

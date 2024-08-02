@@ -245,37 +245,3 @@ func TestExtractFirstPointField(t *testing.T) {
 	assert.Equal(t, noPointFieldError, err3)
 	assert.Nil(t, point3)
 }
-
-func TestToCSVProp(t *testing.T) {
-	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
-	s1 := toCSVProp(if1)
-	assert.Equal(t, "test", s1)
-
-	var if2 *item.Field
-	s2 := toCSVProp(if2)
-	assert.Empty(t, s2)
-
-	v3 := int64(30)
-	in3, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
-	tp3 := in3.TypeProperty()
-	sf3 := schema.NewField(tp3).NewID().Name("age").Key(key.Random()).MustBuild()
-	if3 := item.NewField(sf3.ID(), value.TypeInteger.Value(v3).AsMultiple(), nil)
-	s3, ok3 := toGeoJsonSingleValue(if3.Value().First())
-	assert.Equal(t, int64(30), s3)
-	assert.True(t, ok3)
-
-	v4 := true
-	sf4 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
-	if4 := item.NewField(sf4.ID(), value.TypeBool.Value(v4).AsMultiple(), nil)
-	s4, ok4 := toGeoJsonSingleValue(if4.Value().First())
-	assert.Equal(t, true, s4)
-	assert.True(t, ok4)
-
-	v5 := false
-	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
-	if5 := item.NewField(sf5.ID(), value.TypeBool.Value(v5).AsMultiple(), nil)
-	s5, ok5 := toGeoJsonSingleValue(if5.Value().First())
-	assert.Equal(t, false, s5)
-	assert.True(t, ok5)
-}

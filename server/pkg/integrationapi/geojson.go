@@ -1,6 +1,8 @@
 package integrationapi
 
 import (
+	"encoding/json"
+
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -14,7 +16,7 @@ var (
 )
 
 func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
-	if !hasGeometryFields(s) {
+	if !s.HasGeometryFields() {
 		return nil, noGeometryFieldError
 	}
 
@@ -33,7 +35,7 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 		return Feature{}, false
 	}
 	itm := ver.Value()
-	geoField, ok := getGeometryField(itm)
+	geoField, ok := itm.GetFirstGeometryField()
 	if !ok {
 		return Feature{}, false
 	}
@@ -48,17 +50,6 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 		Geometry:   geometry,
 		Properties: extractProperties(itm, s),
 	}, true
-}
-
-func getGeometryField(item *item.Item) (*item.Field, bool) {
-	if item == nil {
-		return nil, false
-	}
-	geoFields := append(item.Fields().FieldsByType(value.TypeGeometryObject), item.Fields().FieldsByType(value.TypeGeometryEditor)...)
-	if len(geoFields) == 0 {
-		return nil, false
-	}
-	return geoFields[0], true
 }
 
 func extractGeometry(field *item.Field) (*Geometry, bool) {
@@ -84,7 +75,7 @@ func extractProperties(itm *item.Item, s *schema.Schema) *map[string]interface{}
 	for _, field := range nonGeoFields {
 		key := field.Name()
 		itmField := itm.Field(field.ID())
-		val, ok := toGeoJSONProp(itmField)
+		val, ok := itmField.ToGeoJSONProp()
 		if ok {
 			properties[key] = val
 		}
@@ -92,12 +83,10 @@ func extractProperties(itm *item.Item, s *schema.Schema) *map[string]interface{}
 	return &properties
 }
 
-func toGeoJSONProp(f *item.Field) (any, bool) {
-	if f == nil {
-		return nil, false
+func StringToGeometry(geoString string) (*Geometry, error) {
+	var geometry Geometry
+	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
+		return nil, err
 	}
-	if len(f.Value().Values()) == 1 {
-		return toGeoJsonSingleValue(f.Value().First())
-	}
-	return toGeoJSONMultipleValues(f.Value().Values())
+	return &geometry, nil
 }
