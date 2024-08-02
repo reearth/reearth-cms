@@ -9,13 +9,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
 func toGeoJSON(c echo.Context, l ListResult[Item], s *schema.Schema) error {
-	if !hasGeometryFields(s) {
+	if !s.HasGeometryFields() {
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
 			"error": "no geometry field in this model",
 		})
@@ -105,13 +104,6 @@ func isGeometry(v any) (*Geometry, bool) {
 		return nil, false
 	}
 	return g, true
-}
-
-func hasGeometryFields(s *schema.Schema) bool {
-	if s == nil {
-		return false
-	}
-	return len(s.FieldsByType(value.TypeGeometryObject)) > 0 || len(s.FieldsByType(value.TypeGeometryEditor)) > 0
 }
 
 func stringToGeometry(geoString string) (*Geometry, error) {

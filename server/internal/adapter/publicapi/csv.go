@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"encoding/csv"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -9,13 +10,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
 func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
-	if !isPointFieldSupported(s) {
+	if !s.IsPointFieldSupported() {
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
 			"error": "point type is not supported in this model",
 		})
@@ -42,13 +42,14 @@ func generateCSV(pw *io.PipeWriter, l ListResult[Item], s *schema.Schema) error 
 	defer w.Flush()
 
 	keys := lo.FilterMap(s.Fields(), func(f *schema.Field, _ int) (string, bool) {
-		return f.Key().String(), !isGeometryField(f)
+		return f.Key().String(), !f.IsGeometryField()
 	})
 	err := w.Write(append([]string{"id", "location_lat", "location_lng"}, keys...))
 	if err != nil {
 		return err
 	}
 
+	hasPointField := false
 	for _, itm := range l.Results {
 		values := []string{itm.ID}
 
@@ -66,6 +67,11 @@ func generateCSV(pw *io.PipeWriter, l ListResult[Item], s *schema.Schema) error 
 		if err != nil {
 			return err
 		}
+		hasPointField = true
+	}
+
+	if !hasPointField {
+		return errors.New("no valid point field in this model")
 	}
 
 	return nil
@@ -115,36 +121,6 @@ func toCSVValue(i interface{}) string {
 	}
 }
 
-func isGeometryField(f *schema.Field) bool {
-	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
-}
-
 func float64ToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
-}
-
-func isPointFieldSupported(s *schema.Schema) bool {
-	if s == nil {
-		return false
-	}
-
-	for _, f := range s.Fields() {
-		if supportsPointField(f) {
-			return true
-		}
-	}
-	return false
-}
-
-func supportsPointField(f *schema.Field) bool {
-	var supported bool
-	f.TypeProperty().Match(schema.TypePropertyMatch{
-		GeometryObject: func(f *schema.FieldGeometryObject) {
-			supported = f.SupportedTypes().Has(schema.GeometryObjectSupportedTypePoint)
-		},
-		GeometryEditor: func(f *schema.FieldGeometryEditor) {
-			supported = f.SupportedTypes().Has(schema.GeometryEditorSupportedTypePoint)
-		},
-	})
-	return supported
 }
