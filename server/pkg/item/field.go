@@ -48,26 +48,3 @@ func (f *Field) ItemGroup() *ItemGroupID {
 func (f *Field) IsGeometryField() bool {
 	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
 }
-
-func (f *Field) ToGeoJSONProp() (any, bool) {
-	if f == nil {
-		return nil, false
-	}
-	if len(f.Value().Values()) == 1 {
-		return f.Value().First().ToGeoJsonSingleValue()
-	}
-	f.Type()
-	m := value.MultipleFrom(f.Type(), f.Value().Values())
-	return m.ToGeoJSONMultipleValues()
-}
-
-func (f *Field) ToCSVProp() string {
-	if f == nil {
-		return ""
-	}
-	vv := f.Value().First()
-	if vv == nil {
-		return ""
-	}
-	return vv.ToCSVValue()
-}
