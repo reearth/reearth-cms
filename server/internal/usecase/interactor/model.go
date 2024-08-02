@@ -34,6 +34,10 @@ func (i Model) FindByID(ctx context.Context, id id.ModelID, operator *usecase.Op
 	return i.repos.Model.FindByID(ctx, id)
 }
 
+func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, operator *usecase.Operator) (*model.Model, error) {
+	return i.repos.Model.FindBySchema(ctx, id)
+}
+
 func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecase.Operator) (model.List, error) {
 	return i.repos.Model.FindByIDs(ctx, ids)
 }

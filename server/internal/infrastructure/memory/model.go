@@ -134,6 +134,21 @@ func (r *Model) FindByID(_ context.Context, mid id.ModelID) (*model.Model, error
 	return nil, rerror.ErrNotFound
 }
 
+func (r *Model) FindBySchema(_ context.Context, sid id.SchemaID) (*model.Model, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
+		return (m.Schema() == sid || (m.Metadata() != nil && *m.Metadata() == sid)) && r.f.CanRead(m.Project())
+	})
+
+	if m != nil {
+		return m, nil
+	}
+	return nil, rerror.ErrNotFound
+}
+
 func (r *Model) FindByIDs(_ context.Context, ids id.ModelIDList) (model.List, error) {
 	if r.err != nil {
 		return nil, r.err

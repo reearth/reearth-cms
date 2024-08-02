@@ -199,9 +199,9 @@ paths:
             description: Invalid request parameter value
           '401':
             $ref: '#/components/responses/UnauthorizedError'
-  '/models/{modelId}/fields':
+  '/schemata/{schemaId}/fields':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/schemaIdParam'
     post:
       operationId: FieldCreate
       summary: create a field
@@ -235,9 +235,9 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/models/{modelId}/fields/{fieldIdOrKey}':
+  '/schemata/{schemaId}/fields/{fieldIdOrKey}':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/schemaIdParam'
       - $ref: '#/components/parameters/fieldIdOrKeyParam'
     patch:
       operationId: FieldUpdate
@@ -1187,6 +1187,14 @@ components:
       schema:
         type: string
         x-go-type: id.ModelID
+    schemaIdParam:
+      name: schemaId
+      in: path
+      description: ID of the schema in the model
+      required: true
+      schema:
+        type: string
+        x-go-type: id.SchemaID
     fieldIdParam:
       name: fieldId
       in: path
@@ -1324,9 +1332,13 @@ components:
         schemaId:
           x-go-type: id.SchemaID
           type: string
+        schema:
+          $ref: '#/components/schemas/schema'
         metadataSchemaId:
           x-go-type: id.SchemaID
           type: string
+        metadataSchema:
+            $ref: '#/components/schemas/schema'
         name:
           type: string
         description:

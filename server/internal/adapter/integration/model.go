@@ -31,11 +31,15 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 
 	models := make([]integrationapi.Model, 0, len(ms))
 	for _, m := range ms {
+		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+		if err != nil {
+			return nil, err
+		}
 		lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
 		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, err
 		}
-		models = append(models, integrationapi.NewModel(m, lastModified))
+		models = append(models, integrationapi.NewModel(m, sp, lastModified))
 	}
 
 	return ModelFilter200JSONResponse{
@@ -73,12 +77,17 @@ func (s *Server) ModelCreate(ctx context.Context, request ModelCreateRequestObje
 		return ModelCreate400Response{}, err
 	}
 
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return nil, err
+	}
+
 	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
 
-	return ModelCreate200JSONResponse(integrationapi.NewModel(m, lastModified)), nil
+	return ModelCreate200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
 func (s *Server) ModelGet(ctx context.Context, request ModelGetRequestObject) (ModelGetResponseObject, error) {
@@ -90,12 +99,17 @@ func (s *Server) ModelGet(ctx context.Context, request ModelGetRequestObject) (M
 		return nil, err
 	}
 
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return nil, err
+	}
+
 	lastModified, err := uc.Item.LastModifiedByModel(ctx, request.ModelId, op)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
 
-	return ModelGet200JSONResponse(integrationapi.NewModel(m, lastModified)), nil
+	return ModelGet200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
 func (s *Server) ModelGetWithProject(ctx context.Context, request ModelGetWithProjectRequestObject) (ModelGetWithProjectResponseObject, error) {
@@ -118,6 +132,11 @@ func (s *Server) ModelGetWithProject(ctx context.Context, request ModelGetWithPr
 		return ModelGetWithProject500Response{}, nil
 	}
 
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return nil, err
+	}
+
 	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -126,7 +145,7 @@ func (s *Server) ModelGetWithProject(ctx context.Context, request ModelGetWithPr
 		return ModelGetWithProject500Response{}, nil
 	}
 
-	return ModelGetWithProject200JSONResponse(integrationapi.NewModel(m, lastModified)), nil
+	return ModelGetWithProject200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
 func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error) {
@@ -148,12 +167,17 @@ func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObje
 		return ModelUpdate400Response{}, err
 	}
 
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return nil, err
+	}
+
 	lastModified, err := uc.Item.LastModifiedByModel(ctx, request.ModelId, op)
 	if err != nil {
 		return nil, err
 	}
 
-	return ModelUpdate200JSONResponse(integrationapi.NewModel(m, lastModified)), nil
+	return ModelUpdate200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
 func (s *Server) ModelUpdateWithProject(ctx context.Context, request ModelUpdateWithProjectRequestObject) (ModelUpdateWithProjectResponseObject, error) {
@@ -191,12 +215,17 @@ func (s *Server) ModelUpdateWithProject(ctx context.Context, request ModelUpdate
 		return ModelUpdateWithProject400Response{}, err
 	}
 
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return nil, err
+	}
+
 	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
 	if err != nil {
 		return nil, err
 	}
 
-	return ModelUpdateWithProject200JSONResponse(integrationapi.NewModel(m, lastModified)), nil
+	return ModelUpdateWithProject200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
 func (s *Server) ModelDelete(ctx context.Context, request ModelDeleteRequestObject) (ModelDeleteResponseObject, error) {

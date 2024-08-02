@@ -74,15 +74,6 @@ type ServerInterface interface {
 	// Update a model.
 	// (PATCH /models/{modelId})
 	ModelUpdate(ctx echo.Context, modelId ModelIdParam) error
-	// create a field
-	// (POST /models/{modelId}/fields)
-	FieldCreate(ctx echo.Context, modelId ModelIdParam) error
-	// delete a field
-	// (DELETE /models/{modelId}/fields/{fieldIdOrKey})
-	FieldDelete(ctx echo.Context, modelId ModelIdParam, fieldIdOrKey FieldIdOrKeyParam) error
-	// update a field
-	// (PATCH /models/{modelId}/fields/{fieldIdOrKey})
-	FieldUpdate(ctx echo.Context, modelId ModelIdParam, fieldIdOrKey FieldIdOrKeyParam) error
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error
@@ -128,6 +119,15 @@ type ServerInterface interface {
 	// Upload an asset.
 	// (POST /projects/{projectId}/assets/uploads)
 	AssetUploadCreate(ctx echo.Context, projectId ProjectIdParam) error
+	// create a field
+	// (POST /schemata/{schemaId}/fields)
+	FieldCreate(ctx echo.Context, schemaId SchemaIdParam) error
+	// delete a field
+	// (DELETE /schemata/{schemaId}/fields/{fieldIdOrKey})
+	FieldDelete(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error
+	// update a field
+	// (PATCH /schemata/{schemaId}/fields/{fieldIdOrKey})
+	FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error
@@ -467,76 +467,6 @@ func (w *ServerInterfaceWrapper) ModelUpdate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ModelUpdate(ctx, modelId)
-	return err
-}
-
-// FieldCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) FieldCreate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldCreate(ctx, modelId)
-	return err
-}
-
-// FieldDelete converts echo context to params.
-func (w *ServerInterfaceWrapper) FieldDelete(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
-	}
-
-	// ------------- Path parameter "fieldIdOrKey" -------------
-	var fieldIdOrKey FieldIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldDelete(ctx, modelId, fieldIdOrKey)
-	return err
-}
-
-// FieldUpdate converts echo context to params.
-func (w *ServerInterfaceWrapper) FieldUpdate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
-	}
-
-	// ------------- Path parameter "fieldIdOrKey" -------------
-	var fieldIdOrKey FieldIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldUpdate(ctx, modelId, fieldIdOrKey)
 	return err
 }
 
@@ -1047,6 +977,76 @@ func (w *ServerInterfaceWrapper) AssetUploadCreate(ctx echo.Context) error {
 	return err
 }
 
+// FieldCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "schemaId" -------------
+	var schemaId SchemaIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldCreate(ctx, schemaId)
+	return err
+}
+
+// FieldDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "schemaId" -------------
+	var schemaId SchemaIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
+	}
+
+	// ------------- Path parameter "fieldIdOrKey" -------------
+	var fieldIdOrKey FieldIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldDelete(ctx, schemaId, fieldIdOrKey)
+	return err
+}
+
+// FieldUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) FieldUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "schemaId" -------------
+	var schemaId SchemaIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
+	}
+
+	// ------------- Path parameter "fieldIdOrKey" -------------
+	var fieldIdOrKey FieldIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FieldUpdate(ctx, schemaId, fieldIdOrKey)
+	return err
+}
+
 // ProjectFilter converts echo context to params.
 func (w *ServerInterfaceWrapper) ProjectFilter(ctx echo.Context) error {
 	var err error
@@ -1125,9 +1125,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.DELETE(baseURL+"/models/:modelId", wrapper.ModelDelete)
 	router.GET(baseURL+"/models/:modelId", wrapper.ModelGet)
 	router.PATCH(baseURL+"/models/:modelId", wrapper.ModelUpdate)
-	router.POST(baseURL+"/models/:modelId/fields", wrapper.FieldCreate)
-	router.DELETE(baseURL+"/models/:modelId/fields/:fieldIdOrKey", wrapper.FieldDelete)
-	router.PATCH(baseURL+"/models/:modelId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
 	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
 	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelFilter)
@@ -1143,6 +1140,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
 	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
 	router.POST(baseURL+"/projects/:projectId/assets/uploads", wrapper.AssetUploadCreate)
+	router.POST(baseURL+"/schemata/:schemaId/fields", wrapper.FieldCreate)
+	router.DELETE(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldDelete)
+	router.PATCH(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
 	router.GET(baseURL+"/:workspaceId/projects", wrapper.ProjectFilter)
 
 }
@@ -1826,108 +1826,6 @@ func (response ModelUpdate401Response) VisitModelUpdateResponse(w http.ResponseW
 	return nil
 }
 
-type FieldCreateRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Body    *FieldCreateJSONRequestBody
-}
-
-type FieldCreateResponseObject interface {
-	VisitFieldCreateResponse(w http.ResponseWriter) error
-}
-
-type FieldCreate200JSONResponse SchemaField
-
-func (response FieldCreate200JSONResponse) VisitFieldCreateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type FieldCreate400Response struct {
-}
-
-func (response FieldCreate400Response) VisitFieldCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type FieldCreate401Response = UnauthorizedErrorResponse
-
-func (response FieldCreate401Response) VisitFieldCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type FieldDeleteRequestObject struct {
-	ModelId      ModelIdParam      `json:"modelId"`
-	FieldIdOrKey FieldIdOrKeyParam `json:"fieldIdOrKey"`
-}
-
-type FieldDeleteResponseObject interface {
-	VisitFieldDeleteResponse(w http.ResponseWriter) error
-}
-
-type FieldDelete200JSONResponse struct {
-	Id *id.FieldID `json:"id,omitempty"`
-}
-
-func (response FieldDelete200JSONResponse) VisitFieldDeleteResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type FieldDelete400Response struct {
-}
-
-func (response FieldDelete400Response) VisitFieldDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type FieldDelete401Response = UnauthorizedErrorResponse
-
-func (response FieldDelete401Response) VisitFieldDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type FieldUpdateRequestObject struct {
-	ModelId      ModelIdParam      `json:"modelId"`
-	FieldIdOrKey FieldIdOrKeyParam `json:"fieldIdOrKey"`
-	Body         *FieldUpdateJSONRequestBody
-}
-
-type FieldUpdateResponseObject interface {
-	VisitFieldUpdateResponse(w http.ResponseWriter) error
-}
-
-type FieldUpdate200JSONResponse SchemaField
-
-func (response FieldUpdate200JSONResponse) VisitFieldUpdateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type FieldUpdate400Response struct {
-}
-
-func (response FieldUpdate400Response) VisitFieldUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type FieldUpdate401Response = UnauthorizedErrorResponse
-
-func (response FieldUpdate401Response) VisitFieldUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
 type ItemFilterRequestObject struct {
 	ModelId ModelIdParam `json:"modelId"`
 	Params  ItemFilterParams
@@ -2599,6 +2497,108 @@ func (response AssetUploadCreate404Response) VisitAssetUploadCreateResponse(w ht
 	return nil
 }
 
+type FieldCreateRequestObject struct {
+	SchemaId SchemaIdParam `json:"schemaId"`
+	Body     *FieldCreateJSONRequestBody
+}
+
+type FieldCreateResponseObject interface {
+	VisitFieldCreateResponse(w http.ResponseWriter) error
+}
+
+type FieldCreate200JSONResponse SchemaField
+
+func (response FieldCreate200JSONResponse) VisitFieldCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldCreate400Response struct {
+}
+
+func (response FieldCreate400Response) VisitFieldCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldCreate401Response = UnauthorizedErrorResponse
+
+func (response FieldCreate401Response) VisitFieldCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type FieldDeleteRequestObject struct {
+	SchemaId     SchemaIdParam     `json:"schemaId"`
+	FieldIdOrKey FieldIdOrKeyParam `json:"fieldIdOrKey"`
+}
+
+type FieldDeleteResponseObject interface {
+	VisitFieldDeleteResponse(w http.ResponseWriter) error
+}
+
+type FieldDelete200JSONResponse struct {
+	Id *id.FieldID `json:"id,omitempty"`
+}
+
+func (response FieldDelete200JSONResponse) VisitFieldDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldDelete400Response struct {
+}
+
+func (response FieldDelete400Response) VisitFieldDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldDelete401Response = UnauthorizedErrorResponse
+
+func (response FieldDelete401Response) VisitFieldDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type FieldUpdateRequestObject struct {
+	SchemaId     SchemaIdParam     `json:"schemaId"`
+	FieldIdOrKey FieldIdOrKeyParam `json:"fieldIdOrKey"`
+	Body         *FieldUpdateJSONRequestBody
+}
+
+type FieldUpdateResponseObject interface {
+	VisitFieldUpdateResponse(w http.ResponseWriter) error
+}
+
+type FieldUpdate200JSONResponse SchemaField
+
+func (response FieldUpdate200JSONResponse) VisitFieldUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FieldUpdate400Response struct {
+}
+
+func (response FieldUpdate400Response) VisitFieldUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type FieldUpdate401Response = UnauthorizedErrorResponse
+
+func (response FieldUpdate401Response) VisitFieldUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
 type ProjectFilterRequestObject struct {
 	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
 	Params      ProjectFilterParams
@@ -2702,15 +2702,6 @@ type StrictServerInterface interface {
 	// Update a model.
 	// (PATCH /models/{modelId})
 	ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error)
-	// create a field
-	// (POST /models/{modelId}/fields)
-	FieldCreate(ctx context.Context, request FieldCreateRequestObject) (FieldCreateResponseObject, error)
-	// delete a field
-	// (DELETE /models/{modelId}/fields/{fieldIdOrKey})
-	FieldDelete(ctx context.Context, request FieldDeleteRequestObject) (FieldDeleteResponseObject, error)
-	// update a field
-	// (PATCH /models/{modelId}/fields/{fieldIdOrKey})
-	FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error)
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error)
@@ -2756,6 +2747,15 @@ type StrictServerInterface interface {
 	// Upload an asset.
 	// (POST /projects/{projectId}/assets/uploads)
 	AssetUploadCreate(ctx context.Context, request AssetUploadCreateRequestObject) (AssetUploadCreateResponseObject, error)
+	// create a field
+	// (POST /schemata/{schemaId}/fields)
+	FieldCreate(ctx context.Context, request FieldCreateRequestObject) (FieldCreateResponseObject, error)
+	// delete a field
+	// (DELETE /schemata/{schemaId}/fields/{fieldIdOrKey})
+	FieldDelete(ctx context.Context, request FieldDeleteRequestObject) (FieldDeleteResponseObject, error)
+	// update a field
+	// (PATCH /schemata/{schemaId}/fields/{fieldIdOrKey})
+	FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error)
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error)
@@ -3214,95 +3214,6 @@ func (sh *strictHandler) ModelUpdate(ctx echo.Context, modelId ModelIdParam) err
 	return nil
 }
 
-// FieldCreate operation middleware
-func (sh *strictHandler) FieldCreate(ctx echo.Context, modelId ModelIdParam) error {
-	var request FieldCreateRequestObject
-
-	request.ModelId = modelId
-
-	var body FieldCreateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.FieldCreate(ctx.Request().Context(), request.(FieldCreateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "FieldCreate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(FieldCreateResponseObject); ok {
-		return validResponse.VisitFieldCreateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// FieldDelete operation middleware
-func (sh *strictHandler) FieldDelete(ctx echo.Context, modelId ModelIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
-	var request FieldDeleteRequestObject
-
-	request.ModelId = modelId
-	request.FieldIdOrKey = fieldIdOrKey
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.FieldDelete(ctx.Request().Context(), request.(FieldDeleteRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "FieldDelete")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(FieldDeleteResponseObject); ok {
-		return validResponse.VisitFieldDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// FieldUpdate operation middleware
-func (sh *strictHandler) FieldUpdate(ctx echo.Context, modelId ModelIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
-	var request FieldUpdateRequestObject
-
-	request.ModelId = modelId
-	request.FieldIdOrKey = fieldIdOrKey
-
-	var body FieldUpdateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.FieldUpdate(ctx.Request().Context(), request.(FieldUpdateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "FieldUpdate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(FieldUpdateResponseObject); ok {
-		return validResponse.VisitFieldUpdateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
 // ItemFilter operation middleware
 func (sh *strictHandler) ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error {
 	var request ItemFilterRequestObject
@@ -3755,6 +3666,95 @@ func (sh *strictHandler) AssetUploadCreate(ctx echo.Context, projectId ProjectId
 	return nil
 }
 
+// FieldCreate operation middleware
+func (sh *strictHandler) FieldCreate(ctx echo.Context, schemaId SchemaIdParam) error {
+	var request FieldCreateRequestObject
+
+	request.SchemaId = schemaId
+
+	var body FieldCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldCreate(ctx.Request().Context(), request.(FieldCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldCreateResponseObject); ok {
+		return validResponse.VisitFieldCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// FieldDelete operation middleware
+func (sh *strictHandler) FieldDelete(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
+	var request FieldDeleteRequestObject
+
+	request.SchemaId = schemaId
+	request.FieldIdOrKey = fieldIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldDelete(ctx.Request().Context(), request.(FieldDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldDeleteResponseObject); ok {
+		return validResponse.VisitFieldDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// FieldUpdate operation middleware
+func (sh *strictHandler) FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
+	var request FieldUpdateRequestObject
+
+	request.SchemaId = schemaId
+	request.FieldIdOrKey = fieldIdOrKey
+
+	var body FieldUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FieldUpdate(ctx.Request().Context(), request.(FieldUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FieldUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(FieldUpdateResponseObject); ok {
+		return validResponse.VisitFieldUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ProjectFilter operation middleware
 func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error {
 	var request ProjectFilterRequestObject
@@ -3784,62 +3784,63 @@ func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceId
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"ywMnMavV6v8BAAD//8rqAEeyfAAA",
+	"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",
+	"2HhV3vhI6Z5Thuv1+v8BAAD//8KIn+ESfwAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

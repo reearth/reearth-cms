@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -40,6 +41,15 @@ func (r *Model) Init() error {
 func (r *Model) FindByID(ctx context.Context, modelID id.ModelID) (*model.Model, error) {
 	return r.findOne(ctx, bson.M{
 		"id": modelID.String(),
+	})
+}
+
+func (r *Model) FindBySchema(ctx context.Context, schemaID id.SchemaID) (*model.Model, error) {
+	return r.findOne(ctx, bson.M{
+		"$or": bson.A{
+			bson.M{"schema": schemaID.String()},
+			bson.M{"metadata": schemaID.String()},
+		},
 	})
 }
 

@@ -10,24 +10,24 @@ import (
 
 // POST /api/models/{modelId}/fields
 func TestIntegrationFieldCreateAPI(t *testing.T) {
-	endpoint := "/api/models/{modelId}/fields"
+	endpoint := "/api/schemata/{schemaId}/fields"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.POST(endpoint, id.NewModelID()).
+	e.POST(endpoint, id.NewSchemaID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(endpoint, id.NewModelID()).
+	e.POST(endpoint, id.NewSchemaID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(endpoint, id.NewModelID()).
+	e.POST(endpoint, id.NewSchemaID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(endpoint, id.NewModelID()).
+	e.POST(endpoint, id.NewSchemaID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
@@ -38,7 +38,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusBadRequest)
 
-	obj1 := e.POST(endpoint, mId1).
+	obj1 := e.POST(endpoint, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -72,10 +72,10 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 
 // PATCH /api/models/{modelId}/fields/{FieldIdOrKey}
 func TestIntegrationFieldUpdateAPI(t *testing.T) {
-	endpoint := "/api/models/{modelId}/fields/{fieldIdOrKey}"
+	endpoint := "/api/schemata/{schemaId}/fields/{fieldIdOrKey}"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	obj := e.POST("/api/models/{modelId}/fields", mId1).
+	obj := e.POST("/api/schemata/{schemaId}/fields", sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -91,22 +91,22 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH(endpoint, id.NewModelID(), id.NewFieldID()).
+	e.PATCH(endpoint, id.NewSchemaID(), id.NewFieldID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH(endpoint, id.NewModelID(), id.NewFieldID()).
+	e.PATCH(endpoint, id.NewSchemaID(), id.NewFieldID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH(endpoint, id.NewModelID(), id.NewFieldID()).
+	e.PATCH(endpoint, id.NewSchemaID(), id.NewFieldID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.PATCH(endpoint, id.NewModelID(), fId).
+	e.PATCH(endpoint, id.NewSchemaID(), fId).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
@@ -117,7 +117,7 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusBadRequest)
 
-	e.PATCH(endpoint, mId1, fId).
+	e.PATCH(endpoint, sid1, fId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1Updated",
@@ -135,7 +135,7 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 		HasValue("multiple", true).
 		HasValue("required", true)
 
-	e.PATCH(endpoint, mId1, "fKey1Updated").
+	e.PATCH(endpoint, sid1, "fKey1Updated").
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1Updated1",
@@ -174,10 +174,10 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 
 // DELETE /api/models/{modelId}/fields/{FieldIdOrKey}
 func TestIntegrationFieldDeleteAPI(t *testing.T) {
-	endpoint := "/api/models/{modelId}/fields/{fieldIdOrKey}"
+	endpoint := "/api/schemata/{schemaId}/fields/{fieldIdOrKey}"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	obj := e.POST("/api/models/{modelId}/fields", mId1).
+	obj := e.POST("/api/schemata/{schemaId}/fields", sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -189,26 +189,26 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 		Status(http.StatusOK)
 	fId := obj.JSON().Object().Value("id").String().Raw()
 
-	e.DELETE(endpoint, id.NewModelID(), id.NewFieldID()).
+	e.DELETE(endpoint, id.NewSchemaID(), id.NewFieldID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE(endpoint, id.NewModelID(), id.NewFieldID()).
+	e.DELETE(endpoint, id.NewSchemaID(), id.NewFieldID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE(endpoint, id.NewModelID(), id.NewFieldID()).
+	e.DELETE(endpoint, id.NewSchemaID(), id.NewFieldID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE(endpoint, id.NewModelID(), id.NewFieldID()).
+	e.DELETE(endpoint, id.NewSchemaID(), id.NewFieldID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.DELETE(endpoint, id.NewModelID(), fId).
+	e.DELETE(endpoint, id.NewSchemaID(), fId).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
@@ -219,7 +219,7 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusBadRequest)
 
-	e.DELETE(endpoint, mId1, fId).
+	e.DELETE(endpoint, sid1, fId).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -227,7 +227,7 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 		Object().
 		HasValue("id", fId)
 
-	obj = e.POST("/api/models/{modelId}/fields", mId1).
+	obj = e.POST("/api/schemata/{schemaId}/fields", sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -239,7 +239,7 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 		Status(http.StatusOK)
 	fId = obj.JSON().Object().Value("id").String().Raw()
 
-	e.DELETE(endpoint, mId1, "fKey1").
+	e.DELETE(endpoint, sid1, "fKey1").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -340,7 +340,7 @@ func TestIntegrationFieldUpdateWithProjectAPI(t *testing.T) {
 	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey}"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	obj := e.POST("/api/models/{modelId}/fields", mId1).
+	obj := e.POST("/api/schemata/{schemaId}/fields", sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -436,7 +436,7 @@ func TestIntegrationFieldDeleteWithProjectAPI(t *testing.T) {
 	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey}"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	obj := e.POST("/api/models/{modelId}/fields", mId1).
+	obj := e.POST("/api/schemata/{schemaId}/fields", sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -480,7 +480,7 @@ func TestIntegrationFieldDeleteWithProjectAPI(t *testing.T) {
 		Object().
 		HasValue("id", fId)
 
-	obj = e.POST("/api/models/{modelId}/fields", mId1).
+	obj = e.POST("/api/schemata/{schemaId}/fields", sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -500,7 +500,7 @@ func TestIntegrationFieldDeleteWithProjectAPI(t *testing.T) {
 		Object().
 		HasValue("id", fId)
 
-	obj = e.POST("/api/models/{modelId}/fields", mId1).
+	obj = e.POST("/api/schemata/{schemaId}/fields", sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",

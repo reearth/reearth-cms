@@ -24,11 +24,16 @@ func (s *Server) FieldCreate(ctx context.Context, request FieldCreateRequestObje
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	sch, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return FieldCreate400Response{}, err
 		}
+		return FieldCreate400Response{}, err
+	}
+
+	m, err := uc.Model.FindBySchema(ctx, sch.ID(), op)
+	if err != nil {
 		return FieldCreate400Response{}, err
 	}
 
@@ -38,8 +43,8 @@ func (s *Server) FieldCreate(ctx context.Context, request FieldCreateRequestObje
 	}
 
 	param := interfaces.CreateFieldParam{
-		ModelID:      &request.ModelId,
-		SchemaID:     sch.Schema().ID(),
+		ModelID:      m.ID().Ref(),
+		SchemaID:     sch.ID(),
 		Type:         integrationapi.FromValueType(request.Body.Type),
 		Name:         *request.Body.Key,
 		Description:  nil,
@@ -130,11 +135,16 @@ func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObje
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	sch, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return FieldUpdate400Response{}, err
 		}
+		return FieldUpdate400Response{}, err
+	}
+
+	m, err := uc.Model.FindBySchema(ctx, sch.ID(), op)
+	if err != nil {
 		return FieldUpdate400Response{}, err
 	}
 
@@ -146,8 +156,8 @@ func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObje
 
 	param := interfaces.UpdateFieldParam{
 		FieldID:      f.ID(),
-		ModelID:      &request.ModelId,
-		SchemaID:     sch.Schema().ID(),
+		ModelID:      m.ID().Ref(),
+		SchemaID:     sch.ID(),
 		Name:         request.Body.Key,
 		Description:  nil,
 		Key:          request.Body.Key,
@@ -243,7 +253,7 @@ func (s *Server) FieldDelete(ctx context.Context, request FieldDeleteRequestObje
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	sch, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return FieldDelete400Response{}, err
@@ -257,7 +267,7 @@ func (s *Server) FieldDelete(ctx context.Context, request FieldDeleteRequestObje
 		return FieldDelete400Response{}, rerror.ErrNotFound
 	}
 
-	err = uc.Schema.DeleteField(ctx, sch.Schema().ID(), f.ID(), op)
+	err = uc.Schema.DeleteField(ctx, sch.ID(), f.ID(), op)
 	if err != nil {
 		return FieldDelete400Response{}, err
 	}

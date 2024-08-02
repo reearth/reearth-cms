@@ -40,13 +40,13 @@ func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelS
 		ReferencedItems: lo.Map(i.ReferencedItems, func(itm *version.Value[*item.Item], _ int) *VersionedItem {
 			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil, nil, nil, nil))
 		}),
-		Model:   NewModel(i.Model, time.Time{}),
+		Model:   NewModel(i.Model, nil, time.Time{}),
 		Schema:  NewSchema(i.Schema),
 		Changes: NewItemFieldChanges(i.Changes),
 	}
 }
 
-func NewModel(m *model.Model, lastModified time.Time) Model {
+func NewModel(m *model.Model, sp *schema.Package, lastModified time.Time) Model {
 	var metadata *id.SchemaID
 	if m.Metadata() != nil {
 		metadata = m.Metadata().Ref()
@@ -59,7 +59,9 @@ func NewModel(m *model.Model, lastModified time.Time) Model {
 		Public:           util.ToPtrIfNotEmpty(m.Public()),
 		ProjectId:        m.Project().Ref(),
 		SchemaId:         m.Schema().Ref(),
+		Schema:           util.ToPtrIfNotEmpty(NewSchema(sp.Schema())),
 		MetadataSchemaId: metadata,
+		MetadataSchema:   util.ToPtrIfNotEmpty(NewSchema(sp.MetaSchema())),
 		CreatedAt:        lo.ToPtr(m.ID().Timestamp()),
 		UpdatedAt:        lo.ToPtr(m.UpdatedAt()),
 		LastModified:     util.ToPtrIfNotEmpty(lastModified),
@@ -67,6 +69,9 @@ func NewModel(m *model.Model, lastModified time.Time) Model {
 }
 
 func NewSchema(i *schema.Schema) Schema {
+	if i == nil {
+		return Schema{}
+	}
 	fs := lo.Map(i.Fields(), func(f *schema.Field, _ int) SchemaField {
 		return SchemaField{
 			Id:       f.ID().Ref(),
