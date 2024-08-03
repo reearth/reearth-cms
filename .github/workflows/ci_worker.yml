@@ -45,7 +45,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
           version: v1.54
           working-directory: worker
