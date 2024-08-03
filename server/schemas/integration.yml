@@ -1,3 +1,4 @@
+---
 openapi: 3.0.3
 info:
   title: ReEarth-CMS Integration API
@@ -181,24 +182,24 @@ paths:
       operationId: ModelDelete
       summary: delete a model
       tags:
-          - Models
+        - Models
       security:
-          - bearerAuth: []
+        - bearerAuth: []
       responses:
-          '200':
-            description: delete a model
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    id:
-                      x-go-type: id.ModelID
-                      type: string
-          '400':
-            description: Invalid request parameter value
-          '401':
-            $ref: '#/components/responses/UnauthorizedError'
+        '200':
+          description: delete a model
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.ModelID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
   '/schemata/{schemaId}/fields':
     parameters:
       - $ref: '#/components/parameters/schemaIdParam'
@@ -230,7 +231,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/schemaField'
+                $ref: '#/components/schemas/schemaField'
         '400':
           description: Invalid request parameter value
         '401':
@@ -245,7 +246,7 @@ paths:
       tags:
         - Fields
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -278,7 +279,7 @@ paths:
       tags:
         - Fields
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       responses:
         '200':
           description: A JSON object of field
@@ -483,24 +484,24 @@ paths:
     patch:
       operationId: ModelUpdateWithProject
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       summary: Update a model.
       tags:
         - Models
       description: Update a model.
       requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  description:
-                    type: string
-                  key:
-                    type: string
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
       responses:
         '200':
           description: A JSON object of model
@@ -519,7 +520,7 @@ paths:
     delete:
       operationId: ModelDeleteWithProject
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       summary: Delete a model.
       tags:
         - Models
@@ -553,7 +554,7 @@ paths:
       tags:
         - Fields
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -591,7 +592,7 @@ paths:
       tags:
         - Fields
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -621,7 +622,7 @@ paths:
     delete:
       operationId: FieldDeleteWithProject
       security:
-        - bearerAuth: [ ]
+        - bearerAuth: []
       summary: Delete a field.
       tags:
         - Fields
@@ -1387,7 +1388,9 @@ components:
     sortDirParam:
       name: dir
       in: query
-      description: 'Used to define the order direction of the response list, will be ignored if the order is not presented'
+      description: >
+        Used to define the order direction of the response list,
+        will be ignored if the order is not presented
       required: false
       schema:
         type: string
@@ -1468,7 +1471,7 @@ components:
           x-go-type: id.SchemaID
           type: string
         metadataSchema:
-            $ref: '#/components/schemas/schema'
+          $ref: '#/components/schemas/schema'
         name:
           type: string
         description:
@@ -1846,132 +1849,132 @@ components:
             - field
             - metaField
     condition:
-        type: object
-        properties:
-          and:
-            type: array
-            items:
-              $ref: '#/components/schemas/condition'
-          or:
-            type: array
-            items:
-              $ref: '#/components/schemas/condition'
-          basic:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - equals
-                  - notEquals
-              value: {}
-          nullable:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - empty
-                  - notEmpty
-          multiple:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - includesAny
-                  - notIncludesAny
-                  - includesAll
-                  - notIncludesAll
-              value:
-                type: array
-                items: {}
-            required:
-              - fieldId
-              - operator
-              - value
-          bool:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - equals
-                  - notEquals
-              value:
-                type: boolean
-            required:
-              - fieldId
-              - operator
-              - value
-          string:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - contains
-                  - notContains
-                  - startsWith
-                  - endsWith
-                  - notStartsWith
-                  - notEndsWith
-              value:
-                type: string
-            required:
-              - fieldId
-              - operator
-              - value
-          number:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - greaterThan
-                  - lessThan
-                  - greaterThanOrEqualTo
-                  - lessThanOrEqualTo
-              value:
-                type: number
-            required:
-              - fieldId
-              - operator
-              - value
-          time:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - before
-                  - after
-                  - beforeOrOn
-                  - afterOrOn
-                  - ofThisWeek
-                  - ofThisMonth
-                  - ofThisYear
-              value:
-                type: string
-                format: date-time
-            required:
-              - fieldId
-              - operator
-              - value
+      type: object
+      properties:
+        and:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        or:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        basic:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value: {}
+        nullable:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - empty
+                - notEmpty
+        multiple:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - includesAny
+                - notIncludesAny
+                - includesAll
+                - notIncludesAll
+            value:
+              type: array
+              items: {}
+          required:
+            - fieldId
+            - operator
+            - value
+        bool:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value:
+              type: boolean
+          required:
+            - fieldId
+            - operator
+            - value
+        string:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - contains
+                - notContains
+                - startsWith
+                - endsWith
+                - notStartsWith
+                - notEndsWith
+            value:
+              type: string
+          required:
+            - fieldId
+            - operator
+            - value
+        number:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - greaterThan
+                - lessThan
+                - greaterThanOrEqualTo
+                - lessThanOrEqualTo
+            value:
+              type: number
+          required:
+            - fieldId
+            - operator
+            - value
+        time:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - before
+                - after
+                - beforeOrOn
+                - afterOrOn
+                - ofThisWeek
+                - ofThisMonth
+                - ofThisYear
+            value:
+              type: string
+              format: date-time
+          required:
+            - fieldId
+            - operator
+            - value
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
