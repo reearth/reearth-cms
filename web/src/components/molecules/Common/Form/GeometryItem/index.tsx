@@ -319,13 +319,8 @@ const GeometryItem: React.FC<Props> = ({
           data: {
             type: "geojson",
             value: {
-              type: "FeatureCollection",
-              features: [
-                {
-                  type: "Feature",
-                  geometry,
-                },
-              ],
+              type: "Feature",
+              geometry,
             },
           },
           marker: {
@@ -378,7 +373,7 @@ const GeometryItem: React.FC<Props> = ({
       if (layer) {
         mapRef.current?.layers.add(layer);
         if (isInitRef.current || !isEditor) {
-          flyTo(layer.data?.value.features[0].geometry);
+          flyTo(layer.data?.value.geometry);
         }
       }
       setSketchType(undefined);
