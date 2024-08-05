@@ -25,3 +25,7 @@ func (t Type) ValueFrom(i any, p TypeRegistry) *Value {
 	}
 	return nil
 }
+
+func (t Type) IsGeometryFieldType() bool {
+	return t == TypeGeometryObject || t == TypeGeometryEditor
+}

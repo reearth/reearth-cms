@@ -190,3 +190,20 @@ func (f *Field) ValidateValue(m *value.Multiple) error {
 	}
 	return f.typeProperty.ValidateMultiple(m)
 }
+
+func (f *Field) IsGeometryField() bool {
+	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
+}
+
+func (f *Field) SupportsPointField() bool {
+	var supported bool
+	f.TypeProperty().Match(TypePropertyMatch{
+		GeometryObject: func(f *FieldGeometryObject) {
+			supported = f.SupportedTypes().Has(GeometryObjectSupportedTypePoint)
+		},
+		GeometryEditor: func(f *FieldGeometryEditor) {
+			supported = f.SupportedTypes().Has(GeometryEditorSupportedTypePoint)
+		},
+	})
+	return supported
+}

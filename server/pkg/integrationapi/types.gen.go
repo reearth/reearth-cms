@@ -4,8 +4,10 @@
 package integrationapi
 
 import (
+	"encoding/json"
 	"time"
 
+	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -16,6 +18,32 @@ import (
 
 const (
 	BearerAuthScopes = "bearerAuth.Scopes"
+)
+
+// Defines values for FeatureType.
+const (
+	FeatureTypeFeature FeatureType = "Feature"
+)
+
+// Defines values for FeatureCollectionType.
+const (
+	FeatureCollectionTypeFeatureCollection FeatureCollectionType = "FeatureCollection"
+)
+
+// Defines values for GeometryType.
+const (
+	GeometryTypeGeometryCollection GeometryType = "GeometryCollection"
+	GeometryTypeLineString         GeometryType = "LineString"
+	GeometryTypeMultiLineString    GeometryType = "MultiLineString"
+	GeometryTypeMultiPoint         GeometryType = "MultiPoint"
+	GeometryTypeMultiPolygon       GeometryType = "MultiPolygon"
+	GeometryTypePoint              GeometryType = "Point"
+	GeometryTypePolygon            GeometryType = "Polygon"
+)
+
+// Defines values for GeometryCollectionType.
+const (
+	GeometryCollectionTypeGeometryCollection GeometryCollectionType = "GeometryCollection"
 )
 
 // Defines values for AssetArchiveExtractionStatus.
@@ -186,6 +214,18 @@ const (
 	ItemFilterParamsRefPublic ItemFilterParamsRef = "public"
 )
 
+// Defines values for ItemsAsCSVParamsRef.
+const (
+	ItemsAsCSVParamsRefLatest ItemsAsCSVParamsRef = "latest"
+	ItemsAsCSVParamsRefPublic ItemsAsCSVParamsRef = "public"
+)
+
+// Defines values for ItemsAsGeoJSONParamsRef.
+const (
+	ItemsAsGeoJSONParamsRefLatest ItemsAsGeoJSONParamsRef = "latest"
+	ItemsAsGeoJSONParamsRefPublic ItemsAsGeoJSONParamsRef = "public"
+)
+
 // Defines values for ItemFilterWithProjectParamsSort.
 const (
 	ItemFilterWithProjectParamsSortCreatedAt ItemFilterWithProjectParamsSort = "createdAt"
@@ -200,8 +240,20 @@ const (
 
 // Defines values for ItemFilterWithProjectParamsRef.
 const (
-	Latest ItemFilterWithProjectParamsRef = "latest"
-	Public ItemFilterWithProjectParamsRef = "public"
+	ItemFilterWithProjectParamsRefLatest ItemFilterWithProjectParamsRef = "latest"
+	ItemFilterWithProjectParamsRefPublic ItemFilterWithProjectParamsRef = "public"
+)
+
+// Defines values for ItemsWithProjectAsCSVParamsRef.
+const (
+	ItemsWithProjectAsCSVParamsRefLatest ItemsWithProjectAsCSVParamsRef = "latest"
+	ItemsWithProjectAsCSVParamsRefPublic ItemsWithProjectAsCSVParamsRef = "public"
+)
+
+// Defines values for ItemsWithProjectAsGeoJSONParamsRef.
+const (
+	Latest ItemsWithProjectAsGeoJSONParamsRef = "latest"
+	Public ItemsWithProjectAsGeoJSONParamsRef = "public"
 )
 
 // Defines values for AssetFilterParamsSort.
@@ -215,6 +267,71 @@ const (
 	AssetFilterParamsDirAsc  AssetFilterParamsDir = "asc"
 	AssetFilterParamsDirDesc AssetFilterParamsDir = "desc"
 )
+
+// Feature defines model for Feature.
+type Feature struct {
+	Geometry   *Geometry               `json:"geometry,omitempty"`
+	Id         *id.ItemID              `json:"id,omitempty"`
+	Properties *map[string]interface{} `json:"properties,omitempty"`
+	Type       *FeatureType            `json:"type,omitempty"`
+}
+
+// FeatureType defines model for Feature.Type.
+type FeatureType string
+
+// FeatureCollection defines model for FeatureCollection.
+type FeatureCollection struct {
+	Features *[]Feature             `json:"features,omitempty"`
+	Type     *FeatureCollectionType `json:"type,omitempty"`
+}
+
+// FeatureCollectionType defines model for FeatureCollection.Type.
+type FeatureCollectionType string
+
+// GeoJSON defines model for GeoJSON.
+type GeoJSON = FeatureCollection
+
+// Geometry defines model for Geometry.
+type Geometry struct {
+	Coordinates *Geometry_Coordinates `json:"coordinates,omitempty"`
+	Geometries  *[]Geometry           `json:"geometries,omitempty"`
+	Type        *GeometryType         `json:"type,omitempty"`
+}
+
+// Geometry_Coordinates defines model for Geometry.Coordinates.
+type Geometry_Coordinates struct {
+	union json.RawMessage
+}
+
+// GeometryType defines model for Geometry.Type.
+type GeometryType string
+
+// GeometryCollection defines model for GeometryCollection.
+type GeometryCollection struct {
+	Geometries *[]Geometry             `json:"geometries,omitempty"`
+	Type       *GeometryCollectionType `json:"type,omitempty"`
+}
+
+// GeometryCollectionType defines model for GeometryCollection.Type.
+type GeometryCollectionType string
+
+// LineString defines model for LineString.
+type LineString = []Point
+
+// MultiLineString defines model for MultiLineString.
+type MultiLineString = []LineString
+
+// MultiPoint defines model for MultiPoint.
+type MultiPoint = []Point
+
+// MultiPolygon defines model for MultiPolygon.
+type MultiPolygon = []Polygon
+
+// Point defines model for Point.
+type Point = []float64
+
+// Polygon defines model for Polygon.
+type Polygon = [][]Point
 
 // Asset defines model for asset.
 type Asset struct {
@@ -579,6 +696,36 @@ type ItemCreateJSONBody struct {
 	MetadataFields *[]Field `json:"metadataFields,omitempty"`
 }
 
+// ItemsAsCSVParams defines parameters for ItemsAsCSV.
+type ItemsAsCSVParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Ref Used to select a ref or ver
+	Ref *ItemsAsCSVParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemsAsCSVParamsRef defines parameters for ItemsAsCSV.
+type ItemsAsCSVParamsRef string
+
+// ItemsAsGeoJSONParams defines parameters for ItemsAsGeoJSON.
+type ItemsAsGeoJSONParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Ref Used to select a ref or ver
+	Ref *ItemsAsGeoJSONParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemsAsGeoJSONParamsRef defines parameters for ItemsAsGeoJSON.
+type ItemsAsGeoJSONParamsRef string
+
 // ModelFilterParams defines parameters for ModelFilter.
 type ModelFilterParams struct {
 	// Page Used to select the page
@@ -662,6 +809,36 @@ type ItemCreateWithProjectJSONBody struct {
 	Fields         *[]Field `json:"fields,omitempty"`
 	MetadataFields *[]Field `json:"metadataFields,omitempty"`
 }
+
+// ItemsWithProjectAsCSVParams defines parameters for ItemsWithProjectAsCSV.
+type ItemsWithProjectAsCSVParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Ref Used to select a ref or ver
+	Ref *ItemsWithProjectAsCSVParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemsWithProjectAsCSVParamsRef defines parameters for ItemsWithProjectAsCSV.
+type ItemsWithProjectAsCSVParamsRef string
+
+// ItemsWithProjectAsGeoJSONParams defines parameters for ItemsWithProjectAsGeoJSON.
+type ItemsWithProjectAsGeoJSONParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Ref Used to select a ref or ver
+	Ref *ItemsWithProjectAsGeoJSONParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+}
+
+// ItemsWithProjectAsGeoJSONParamsRef defines parameters for ItemsWithProjectAsGeoJSON.
+type ItemsWithProjectAsGeoJSONParamsRef string
 
 // AssetFilterParams defines parameters for AssetFilter.
 type AssetFilterParams struct {
@@ -782,3 +959,169 @@ type FieldCreateJSONRequestBody FieldCreateJSONBody
 
 // FieldUpdateJSONRequestBody defines body for FieldUpdate for application/json ContentType.
 type FieldUpdateJSONRequestBody FieldUpdateJSONBody
+
+// AsPoint returns the union data inside the Geometry_Coordinates as a Point
+func (t Geometry_Coordinates) AsPoint() (Point, error) {
+	var body Point
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoint overwrites any union data inside the Geometry_Coordinates as the provided Point
+func (t *Geometry_Coordinates) FromPoint(v Point) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePoint performs a merge with any union data inside the Geometry_Coordinates, using the provided Point
+func (t *Geometry_Coordinates) MergePoint(v Point) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMultiPoint returns the union data inside the Geometry_Coordinates as a MultiPoint
+func (t Geometry_Coordinates) AsMultiPoint() (MultiPoint, error) {
+	var body MultiPoint
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMultiPoint overwrites any union data inside the Geometry_Coordinates as the provided MultiPoint
+func (t *Geometry_Coordinates) FromMultiPoint(v MultiPoint) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMultiPoint performs a merge with any union data inside the Geometry_Coordinates, using the provided MultiPoint
+func (t *Geometry_Coordinates) MergeMultiPoint(v MultiPoint) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsLineString returns the union data inside the Geometry_Coordinates as a LineString
+func (t Geometry_Coordinates) AsLineString() (LineString, error) {
+	var body LineString
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromLineString overwrites any union data inside the Geometry_Coordinates as the provided LineString
+func (t *Geometry_Coordinates) FromLineString(v LineString) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeLineString performs a merge with any union data inside the Geometry_Coordinates, using the provided LineString
+func (t *Geometry_Coordinates) MergeLineString(v LineString) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMultiLineString returns the union data inside the Geometry_Coordinates as a MultiLineString
+func (t Geometry_Coordinates) AsMultiLineString() (MultiLineString, error) {
+	var body MultiLineString
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMultiLineString overwrites any union data inside the Geometry_Coordinates as the provided MultiLineString
+func (t *Geometry_Coordinates) FromMultiLineString(v MultiLineString) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMultiLineString performs a merge with any union data inside the Geometry_Coordinates, using the provided MultiLineString
+func (t *Geometry_Coordinates) MergeMultiLineString(v MultiLineString) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPolygon returns the union data inside the Geometry_Coordinates as a Polygon
+func (t Geometry_Coordinates) AsPolygon() (Polygon, error) {
+	var body Polygon
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPolygon overwrites any union data inside the Geometry_Coordinates as the provided Polygon
+func (t *Geometry_Coordinates) FromPolygon(v Polygon) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePolygon performs a merge with any union data inside the Geometry_Coordinates, using the provided Polygon
+func (t *Geometry_Coordinates) MergePolygon(v Polygon) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMultiPolygon returns the union data inside the Geometry_Coordinates as a MultiPolygon
+func (t Geometry_Coordinates) AsMultiPolygon() (MultiPolygon, error) {
+	var body MultiPolygon
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMultiPolygon overwrites any union data inside the Geometry_Coordinates as the provided MultiPolygon
+func (t *Geometry_Coordinates) FromMultiPolygon(v MultiPolygon) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMultiPolygon performs a merge with any union data inside the Geometry_Coordinates, using the provided MultiPolygon
+func (t *Geometry_Coordinates) MergeMultiPolygon(v MultiPolygon) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t Geometry_Coordinates) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Geometry_Coordinates) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
