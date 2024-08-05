@@ -154,3 +154,22 @@ func (s *Schema) Clone() *Schema {
 		titleField: s.TitleField().CloneRef(),
 	}
 }
+
+func (s *Schema) HasGeometryFields() bool {
+	if s == nil {
+		return false
+	}
+	return len(s.FieldsByType(value.TypeGeometryObject)) > 0 || len(s.FieldsByType(value.TypeGeometryEditor)) > 0
+}
+
+func (s *Schema) IsPointFieldSupported() bool {
+	if s == nil {
+		return false
+	}
+	for _, f := range s.Fields() {
+		if f.SupportsPointField() {
+			return true
+		}
+	}
+	return false
+}

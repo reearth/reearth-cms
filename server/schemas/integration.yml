@@ -389,6 +389,70 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  '/models/{modelId}/items.geojson':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    get:
+      operationId: ItemsAsGeoJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a GeoJSON that has a list of items as features.
+      tags:
+        - Items
+        - GeoJSON
+      description: Returns a GeoJSON that has a list of items as features.
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+      responses:
+        '200':
+          description: A GeoJSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoJSON'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/models/{modelId}/items.csv':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    get:
+      operationId: ItemsAsCSV
+      security:
+        - bearerAuth: []
+      summary: Returns a CSV that has a list of items as features.
+      tags:
+        - Items project
+        - CSV
+      description: Returns a CSV that has a list of items as features.
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+      responses:
+        '200':
+          description: A string in CSV format
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/projects/{projectIdOrAlias}/models/{modelIdOrKey}':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
@@ -661,6 +725,72 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ItemsWithProjectAsGeoJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a GeoJSON that has a list of items as features.
+      tags:
+        - Items project
+        - GeoJSON
+      description: Returns a GeoJSON that has a list of items as features.
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+      responses:
+        '200':
+          description: A GeoJSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoJSON'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ItemsWithProjectAsCSV
+      security:
+        - bearerAuth: []
+      summary: Returns a CSV that has a list of items as features.
+      tags:
+        - Items project
+        - CSV
+      description: Returns a CSV that has a list of items as features.
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+      responses:
+        '200':
+          description: A string in CSV format
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/items/{itemId}':
     parameters:
       - $ref: '#/components/parameters/itemIdParam'
@@ -1460,6 +1590,90 @@ components:
         updatedAt:
           type: string
           format: date-time
+    GeoJSON:
+      $ref: '#/components/schemas/FeatureCollection'
+    FeatureCollection:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+    Feature:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ItemID
+          type: string
+        type:
+          type: string
+          enum: [Feature]
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        properties:
+          type: object
+    Geometry:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, GeometryCollection]
+        coordinates:
+          oneOf:
+            - $ref: '#/components/schemas/Point'
+            - $ref: '#/components/schemas/MultiPoint'
+            - $ref: '#/components/schemas/LineString'
+            - $ref: '#/components/schemas/MultiLineString'
+            - $ref: '#/components/schemas/Polygon'
+            - $ref: '#/components/schemas/MultiPolygon'
+        geometries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+    GeometryCollection:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [GeometryCollection]
+        geometries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+    Point:
+      type: array
+      items:
+        type: number
+        format: double
+      minItems: 2
+      maxItems: 3
+    MultiPoint:
+      type: array
+      items:
+        $ref: '#/components/schemas/Point'
+    LineString:
+      type: array
+      items:
+        $ref: '#/components/schemas/Point'
+      minItems: 2
+    MultiLineString:
+      type: array
+      items:
+        $ref: '#/components/schemas/LineString'
+    Polygon:
+      type: array
+      items:
+        type: array
+        items:
+          $ref: '#/components/schemas/Point'
+      minItems: 4
+    MultiPolygon:
+      type: array
+      items:
+        $ref: '#/components/schemas/Polygon'
     versionedItem:
       type: object
       properties:

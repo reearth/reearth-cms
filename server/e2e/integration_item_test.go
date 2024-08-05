@@ -409,6 +409,62 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
+func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+	res := e.GET("/api/models/{modelId}/items.geojson", mId).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithQuery("page", page).
+		WithQuery("perPage", perPage).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+	res := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson", pId, mId).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithQuery("page", page).
+		WithQuery("perPage", perPage).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.String {
+	res := e.GET("/api/models/{modelId}/items.csv", mId).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "text/csv").
+		WithQuery("page", page).
+		WithQuery("perPage", perPage).
+		Expect().
+		Status(http.StatusOK).
+		Body()
+
+	return res
+}
+
+func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.String {
+	res := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv", pId, mId).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "text/csv").
+		WithQuery("page", page).
+		WithQuery("perPage", perPage).
+		Expect().
+		Status(http.StatusOK).
+		Body()
+
+	return res
+}
+
 // GET /models/{modelId}/items
 func TestIntegrationItemListAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
@@ -1161,6 +1217,99 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 	// endregion
+}
+
+// GET /models/{modelId}/items.geojson
+func TestIntegrationItemsAsGeoJSON(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+	fids := createFieldOfEachType(t, e, mId)
+	sId, _, _ := getModel(e, mId)
+	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
+	})
+
+	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10, i1Id, "", "", nil)
+	res.Object().Value("type").String().IsEqual("FeatureCollection")
+	features := res.Object().Value("features").Array()
+	features.Length().IsEqual(1)
+	f := features.Value(0).Object()
+	f.Value("id").String().IsEqual(i1Id)
+	f.Value("type").String().IsEqual("Feature")
+	f.Value("properties").Object().Value("text").String().IsEqual("test1")
+	g := f.Value("geometry").Object()
+	g.Value("type").String().IsEqual("Point")
+	g.Value("coordinates").Array().IsEqual([]float64{139.28179282584915, 36.58570985749664})
+}
+
+// GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson
+func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+	fids := createFieldOfEachType(t, e, mId)
+	sId, _, _ := getModel(e, mId)
+	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": fids.integerFId, "value": 30, "type": "Integer"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}", "type": "GeometryEditor"},
+	})
+
+	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10, i1Id, "", "", nil)
+	res.Object().Value("type").String().IsEqual("FeatureCollection")
+	features := res.Object().Value("features").Array()
+	features.Length().IsEqual(1)
+	f := features.Value(0).Object()
+	f.Value("id").String().IsEqual(i1Id)
+	f.Value("type").String().IsEqual("Feature")
+	f.Value("properties").Object().Value("text").String().IsEqual("test1")
+	f.Value("properties").Object().Value("integer").Number().IsEqual(30)
+	g := f.Value("geometry").Object()
+	g.Value("type").String().IsEqual("LineString")
+	g.Value("coordinates").Array().IsEqual([][]float64{{139.65439725962517, 36.34793305387103}, {139.61688622815393, 35.910803456352724}})
+}
+
+// GET /models/{modelId}/items.csv
+func TestIntegrationItemsAsCSV(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+	fids := createFieldOfEachType(t, e, mId)
+	sId, _, _ := getModel(e, mId)
+	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
+	})
+
+	res := IntegrationItemsAsCSV(e, mId, 1, 10, i1Id, "", "", nil)
+	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,,,,,\n", i1Id)
+	res.IsEqual(expected)
+}
+
+// GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv
+func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+	fids := createFieldOfEachType(t, e, mId)
+	sId, _, _ := getModel(e, mId)
+	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": fids.integerFId, "value": 30, "type": "Integer"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryEditor"},
+	})
+
+	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10, i1Id, "", "", nil)
+	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,30,,,,\n", i1Id)
+	res.IsEqual(expected)
 }
 
 // POST /models/{modelId}/items
