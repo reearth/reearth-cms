@@ -25,6 +25,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import { config } from "@reearth-cms/config";
 import { useT } from "@reearth-cms/i18n";
 
 import schema from "./schema";
@@ -45,6 +46,17 @@ const GEO_TYPE_MAP = {
   MULTIPOLYGON: "MultiPolygon",
   GEOMETRYCOLLECTION: "GeometryCollection",
   ANY: "Point",
+} as const;
+
+const TILE_TYPE_MAP = {
+  DEFAULT: "default",
+  LABELLED: "default_label",
+  ROAD_MAP: "default_road",
+  OPEN_STREET_MAP: "open_street_map",
+  ESRI_TOPOGRAPHY: "esri_world_topo",
+  EARTH_AT_NIGHT: "black_marble",
+  JAPAN_GSI_STANDARD_MAP: "japan_gsi_standard",
+  URL: "url",
 } as const;
 
 interface Props {
@@ -233,7 +245,8 @@ const GeometryItem: React.FC<Props> = ({
       tiles: [
         {
           id: "default",
-          type: "open_street_map",
+          type: TILE_TYPE_MAP[workspaceSettings.tiles?.resources[0]?.type ?? "DEFAULT"],
+          url: workspaceSettings.tiles?.resources[0]?.props.url
         },
       ],
       terrain: { enabled: workspaceSettings.terrains?.enabled },
@@ -241,7 +254,7 @@ const GeometryItem: React.FC<Props> = ({
         type: "custom",
       },
     }),
-    [workspaceSettings.terrains?.enabled],
+    [workspaceSettings.terrains?.enabled, workspaceSettings.tiles?.resources],
   );
 
   const [sketchType, setSketchType] = useState<SketchType>();
@@ -503,6 +516,7 @@ const GeometryItem: React.FC<Props> = ({
             ready={isReady}
             onMount={handleMount}
             engine={"cesium"}
+            meta={{cesiumIonAccessToken: config()?.cesiumIonAccessToken}}
             viewerProperty={viewerProperty}
             onSketchFeatureCreate={handleSketchFeatureCreate}
           />
