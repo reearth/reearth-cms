@@ -2,18 +2,18 @@ package publicapi
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
-	"sort"
 
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearth-cms/server/pkg/exporters"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
-func toGeoJSON(c echo.Context, l ListResult[Item], s *schema.Schema) error {
+func toGeoJSON(c echo.Context, l item.VersionedList, s *schema.Schema) error {
 	if !s.HasGeometryFields() {
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
 			"error": "no geometry field in this model",
@@ -21,95 +21,98 @@ func toGeoJSON(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 	}
 
 	pr, pw := io.Pipe()
-	go handleGeoJSONGeneration(pw, l)
+	go handleGeoJSONGeneration(pw, l, s)
 
 	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment;")
 	c.Response().Header().Set(echo.HeaderContentType, "application/json")
 	return c.Stream(http.StatusOK, "application/json", pr)
 }
 
-func handleGeoJSONGeneration(pw *io.PipeWriter, l ListResult[Item]) {
-	err := generateGeoJSON(pw, l)
+func handleGeoJSONGeneration(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) {
+	err := generateGeoJSON(pw, l, s)
 	if err != nil {
 		log.Errorf("failed to generate GeoJSON: %+v", err)
 	}
 	_ = pw.CloseWithError(err)
 }
 
-func generateGeoJSON(pw *io.PipeWriter, l ListResult[Item]) error {
-	var features []Feature
+func generateGeoJSON(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
+	features, err := exporters.FeatureCollectionFromItems(l, s)
 
-	for _, itm := range l.Results {
-		properties := map[string]interface{}{}
-		geoFields := []*Geometry{}
-
-		for k, v := range itm.Fields {
-			g, ok := isGeometry(v)
-			if ok {
-				geoFields = append(geoFields, g)
-				continue
-			}
-			properties[k] = v
-		}
-
-		if len(geoFields) == 0 {
-			continue
-		}
-		sort.Slice(geoFields, func(i, j int) bool {
-			return *geoFields[i].Type > *geoFields[j].Type
-		})
-
-		feature := Feature{
-			Type:       lo.ToPtr(FeatureTypeFeature),
-			Id:         &itm.ID,
-			Geometry:   geoFields[0],
-			Properties: &properties,
-		}
-
-		features = append(features, feature)
+	if err != nil {
+		return err
 	}
 
-	if len(features) == 0 {
-		return errors.New("no valid geometry field in this model")
-	}
-
-	featureCollection := FeatureCollection{
-		Type:     lo.ToPtr(FeatureCollectionTypeFeatureCollection),
-		Features: &features,
-	}
-
+	featureCollection := ToFeatureCollection(features)
 	return json.NewEncoder(pw).Encode(featureCollection)
 }
 
-func isGeometry(v any) (*Geometry, bool) {
-	var geo string
-	switch value := v.(type) {
-	case []interface{}:
-		if len(value) == 0 {
-			return nil, false
-		}
-		if geoStr, ok := value[0].(string); ok {
-			geo = geoStr
-		} else {
-			return nil, false
-		}
-	case string:
-		geo = value
-	default:
-		return nil, false
+func ToFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
+	if fc == nil || fc.Features == nil {
+		return nil
 	}
 
-	g, err := stringToGeometry(geo)
-	if err != nil || g == nil {
-		return nil, false
+	features := lo.Map(*fc.Features, func(f exporters.Feature, _ int) Feature {
+		return *ToFeature(&f)
+	})
+
+	return &FeatureCollection{
+		Type:     lo.ToPtr(FeatureCollectionTypeFeatureCollection),
+		Features: &features,
 	}
-	return g, true
 }
 
-func stringToGeometry(geoString string) (*Geometry, error) {
-	var geometry Geometry
-	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
-		return nil, err
+func ToFeature(f *exporters.Feature) *Feature {
+	if f == nil {
+		return nil
 	}
-	return &geometry, nil
+
+	return &Feature{
+		Type:       lo.ToPtr(FeatureTypeFeature),
+		Id:         f.Id,
+		Geometry:   ToGeometry(f.Geometry),
+		Properties: f.Properties,
+	}
+}
+
+func ToGeometry(g *exporters.Geometry) *Geometry {
+	if g == nil {
+		return nil
+	}
+
+	return &Geometry{
+		Type:        toGeometryType(*g.Type),
+		Coordinates: toCoordinates(*g.Coordinates),
+	}
+}
+
+func toGeometryType(t exporters.GeometryType) *GeometryType {
+	switch t {
+	case exporters.GeometryTypePoint:
+		return lo.ToPtr(GeometryTypePoint)
+	case exporters.GeometryTypeMultiPoint:
+		return lo.ToPtr(GeometryTypeMultiPoint)
+	case exporters.GeometryTypeLineString:
+		return lo.ToPtr(GeometryTypeLineString)
+	case exporters.GeometryTypeMultiLineString:
+		return lo.ToPtr(GeometryTypeMultiLineString)
+	case exporters.GeometryTypePolygon:
+		return lo.ToPtr(GeometryTypePolygon)
+	case exporters.GeometryTypeMultiPolygon:
+		return lo.ToPtr(GeometryTypeMultiPolygon)
+	case exporters.GeometryTypeGeometryCollection:
+		return lo.ToPtr(GeometryTypeGeometryCollection)
+	default:
+		return nil
+	}
+}
+
+func toCoordinates(c exporters.Geometry_Coordinates) *Geometry_Coordinates {
+	union, err := c.MarshalJSON()
+	if err != nil {
+		return nil
+	}
+	return &Geometry_Coordinates{
+		union: union,
+	}
 }

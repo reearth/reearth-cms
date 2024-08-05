@@ -72,25 +72,25 @@ func PublicApiItemList() echo.HandlerFunc {
 			resType = "json"
 		}
 
-		res, s, err := ctrl.GetItems(ctx, c.Param("project"), m, p)
+		items, _, err := ctrl.GetItems(ctx, c.Param("project"), m, p)
 		if err != nil {
 			return err
 		}
-		
-		// vi, s1, err1 := ctrl.GetVersionedItems(ctx, c.Param("project"), m, p)
-		// if err1 != nil {
-		// 	return err1
-		// }
+
+		vi, s, err1 := ctrl.GetVersionedItems(ctx, c.Param("project"), m, p)
+		if err1 != nil {
+			return err1
+		}
 
 		switch resType {
 		case "csv":
-			return toCSV(c, res, s)
+			return toCSV(c, vi, s)
 		case "geojson":
-			return toGeoJSON(c, res, s)
+			return toGeoJSON(c, vi, s)
 		case "json":
-			return c.JSON(http.StatusOK, res)
+			return c.JSON(http.StatusOK, items)
 		default:
-			return c.JSON(http.StatusOK, res)
+			return c.JSON(http.StatusOK, items)
 		}
 	}
 }
