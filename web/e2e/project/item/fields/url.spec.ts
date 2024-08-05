@@ -38,6 +38,7 @@ test("URL field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByRole("cell", { name: "http://test1.com", exact: true })).toBeVisible();
 
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  await expect(page.getByLabel("url1")).toHaveValue("http://test1.com");
   await page.getByLabel("url1").click();
   await page.getByLabel("url1").fill("http://test2.com");
   await page.getByRole("button", { name: "Save" }).click();
