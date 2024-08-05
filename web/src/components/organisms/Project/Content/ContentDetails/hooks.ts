@@ -383,6 +383,7 @@ export default () => {
   const [initialFormValues, setInitialFormValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
+    if (itemLoading) return;
     const handleInitialValuesSet = async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const initialValues: Record<string, any> = {};
@@ -430,7 +431,7 @@ export default () => {
       setInitialFormValues(initialValues);
     };
     handleInitialValuesSet();
-  }, [currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
+  }, [itemLoading, currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
 
   const initialMetaFormValues: Record<string, unknown> = useMemo(() => {
     const initialValues: Record<string, unknown> = {};

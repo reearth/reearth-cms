@@ -30,16 +30,18 @@ test("Boolean field creating and updating has succeeded", async ({ page }) => {
   await expect(page.locator("label")).toContainText("boolean1");
   await expect(page.getByRole("main")).toContainText("boolean1 description");
 
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("boolean1").click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
+  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
+  await page.getByLabel("boolean1").click();
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
+  await page.getByLabel("Back").click();
+  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
 });
 
 test("Boolean field editing has succeeded", async ({ page }) => {
@@ -61,7 +63,7 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
+  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
   await page.getByText("Schema").click();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await page.getByLabel("Display name").click();

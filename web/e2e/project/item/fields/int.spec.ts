@@ -38,6 +38,7 @@ test("Int field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByRole("cell", { name: "1", exact: true })).toBeVisible();
 
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  await expect(page.getByLabel("int1")).toHaveValue("1");
   await page.getByLabel("int1").click();
   await page.getByLabel("int1").fill("2");
   await page.getByRole("button", { name: "Save" }).click();
