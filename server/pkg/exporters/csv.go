@@ -152,12 +152,6 @@ func ToCSVValue(vv *value.Value) string {
 			return ""
 		}
 		return v.String()
-	case value.TypeAsset:
-		v, ok := vv.ValueAsset()
-		if !ok {
-			return ""
-		}
-		return v.String()
 	case value.TypeInteger:
 		v, ok := vv.ValueInteger()
 		if !ok {

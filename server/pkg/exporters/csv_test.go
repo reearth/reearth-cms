@@ -299,10 +299,9 @@ func TestToCSVValue(t *testing.T) {
 	assert.Equal(t, "https://reearth.io", s3)
 
 	sf4 := schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	v4 := id.NewAssetID()
-	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(v4).AsMultiple(), nil)
+	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(id.NewAssetID()).AsMultiple(), nil)
 	s4 := ToCSVValue(if4.Value().First())
-	assert.Equal(t, v4.String(), s4)
+	assert.Empty(t, s4)
 
 	gid := id.NewGroupID()
 	igid := id.NewItemGroupID()

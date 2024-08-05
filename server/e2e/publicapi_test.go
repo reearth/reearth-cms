@@ -361,22 +361,22 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 	s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Key(key.New(publicAPIField1Key)).MustBuild(),
-		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField2Key)).MustBuild(),
-		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
-		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
-		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Key(key.New(publicAPIField5Key)).MustBuild(),
-		schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Key(key.New(publicAPIField6Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(key.New(publicAPIField1Key)).MustBuild(),
+		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(publicAPIField2Key).Key(key.New(publicAPIField2Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name(publicAPIField3Key).Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(publicAPIField4Key).Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name(publicAPIField5Key).Key(key.New(publicAPIField5Key)).MustBuild(),
+		schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name(publicAPIField6Key).Key(key.New(publicAPIField6Key)).MustBuild(),
 	}).TitleField(fid.Ref()).MustBuild()
 
 	s2 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Key(key.New(publicAPIField1Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(key.New(publicAPIField1Key)).MustBuild(),
 	}).MustBuild()
 
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
 	// m2 is not a public model
-	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
-	m3 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s2.ID()).Key(key.New(publicAPIModelKey3)).Public(true).MustBuild()
+	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Name(publicAPIModelKey2).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
+	m3 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s2.ID()).Name(publicAPIModelKey3).Key(key.New(publicAPIModelKey3)).Public(true).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
