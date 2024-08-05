@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
