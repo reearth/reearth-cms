@@ -1,6 +1,7 @@
 import RequestDetailsMolecule from "@reearth-cms/components/molecules/Request/Details";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/ContentDetails/hooks";
+import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
 
 import useHooks from "./hooks";
 
@@ -26,6 +27,8 @@ const RequestDetails: React.FC = () => {
   const { workspaceUserMembers, updateRequestLoading, handleRequestUpdate, handleGroupGet } =
     useContentHooks();
 
+  const { workspaceSettings } = useSettingsHooks();
+
   return (
     <RequestDetailsMolecule
       me={me}
@@ -36,6 +39,7 @@ const RequestDetails: React.FC = () => {
       deleteLoading={deleteLoading}
       approveLoading={approveLoading}
       updateLoading={updateRequestLoading}
+      workspaceSettings={workspaceSettings}
       onRequestApprove={handleRequestApprove}
       onRequestUpdate={handleRequestUpdate}
       onRequestDelete={handleRequestDelete}

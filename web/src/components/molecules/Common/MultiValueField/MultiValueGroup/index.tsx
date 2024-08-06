@@ -10,6 +10,7 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
@@ -42,6 +43,7 @@ interface Props {
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
   disabled?: boolean;
+  workspaceSettings: WorkspaceSettings;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -87,6 +89,7 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalPage,
   linkItemModalPageSize,
   disabled,
+  workspaceSettings,
   onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableReload,
@@ -204,6 +207,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 linkItemModalPage={linkItemModalPage}
                 linkItemModalPageSize={linkItemModalPageSize}
                 disabled={disabled}
+                workspaceSettings={workspaceSettings}
                 onReferenceModelUpdate={onReferenceModelUpdate}
                 onLinkItemTableReload={onLinkItemTableReload}
                 onLinkItemTableChange={onLinkItemTableChange}

@@ -88,6 +88,18 @@ export const fieldTypes: {
     description: "Customize a group of fields",
     color: "#36CFC9",
   },
+  GeometryObject: {
+    icon: "curlyBrackets",
+    title: "Geometry Object",
+    description: "Input GeoJSON and preview",
+    color: "#73D13D",
+  },
+  GeometryEditor: {
+    icon: "pencil",
+    title: "Geometry Editor",
+    description: "Draw the geometry on map",
+    color: "#73D13D",
+  },
 };
 
 t("Text");
@@ -128,3 +140,9 @@ t("Select from a list of checkboxes");
 
 t("Group");
 t("Customize a group of fields");
+
+t("Geometry Object");
+t("Input GeoJSON and preview");
+
+t("Geometry Editor");
+t("Draw the geometry on map");

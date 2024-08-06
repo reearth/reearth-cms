@@ -14,6 +14,7 @@ import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fie
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 interface Props {
   value?: string;
@@ -39,6 +40,7 @@ interface Props {
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
   disabled?: boolean;
+  workspaceSettings: WorkspaceSettings;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -88,6 +90,7 @@ const GroupItem: React.FC<Props> = ({
   linkItemModalPage,
   linkItemModalPageSize,
   disabled,
+  workspaceSettings,
   onReferenceModelUpdate,
   onLinkItemTableReload,
   onLinkItemTableChange,
@@ -173,20 +176,6 @@ const GroupItem: React.FC<Props> = ({
         }>
         <div>
           {fields?.map((field: Field) => {
-            const FieldComponent =
-              FIELD_TYPE_COMPONENT_MAP[
-                field.type as
-                  | "Select"
-                  | "Date"
-                  | "Tag"
-                  | "Bool"
-                  | "Checkbox"
-                  | "URL"
-                  | "TextArea"
-                  | "MarkdownText"
-                  | "Integer"
-              ] || DefaultField;
-
             if (field.type === "Asset") {
               return (
                 <StyledFormItemWrapper key={field.id}>
@@ -242,7 +231,34 @@ const GroupItem: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
+            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+
+              return (
+                <StyledFormItemWrapper key={field.id}>
+                  <FieldComponent
+                    field={field}
+                    itemGroupId={itemGroupId}
+                    disabled={disabled}
+                    workspaceSettings={workspaceSettings}
+                  />
+                </StyledFormItemWrapper>
+              );
             } else {
+              const FieldComponent =
+                FIELD_TYPE_COMPONENT_MAP[
+                  field.type as
+                    | "Select"
+                    | "Date"
+                    | "Tag"
+                    | "Bool"
+                    | "Checkbox"
+                    | "URL"
+                    | "TextArea"
+                    | "MarkdownText"
+                    | "Integer"
+                ] || DefaultField;
+
               return (
                 <StyledFormItemWrapper key={field.id}>
                   <FieldComponent field={field} itemGroupId={itemGroupId} disabled={disabled} />

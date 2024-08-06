@@ -1,4 +1,5 @@
 import { TagField, DateField, BoolField, CheckboxField, URLField } from "./FieldComponents";
+import GeometryField from "./FieldComponents/GeometryField";
 import IntegerField from "./FieldComponents/IntegerField";
 import MarkdownField from "./FieldComponents/MarkdownField";
 import SelectField from "./FieldComponents/SelectField";
@@ -14,4 +15,6 @@ export const FIELD_TYPE_COMPONENT_MAP = {
   MarkdownText: MarkdownField,
   Integer: IntegerField,
   Select: SelectField,
+  GeometryObject: GeometryField,
+  GeometryEditor: GeometryField,
 };

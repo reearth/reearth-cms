@@ -6,7 +6,7 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestThread from "@reearth-cms/components/molecules/Request/Details/Thread";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
@@ -20,6 +20,7 @@ interface Props {
   deleteLoading: boolean;
   approveLoading: boolean;
   updateLoading: boolean;
+  workspaceSettings: WorkspaceSettings;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -40,6 +41,7 @@ const RequestMolecule: React.FC<Props> = ({
   deleteLoading,
   approveLoading,
   updateLoading,
+  workspaceSettings,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
@@ -94,6 +96,7 @@ const RequestMolecule: React.FC<Props> = ({
           <RequestThread
             me={me}
             currentRequest={currentRequest}
+            workspaceSettings={workspaceSettings}
             onCommentCreate={onCommentCreate}
             onCommentUpdate={onCommentUpdate}
             onCommentDelete={onCommentDelete}
