@@ -5,6 +5,7 @@ import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schem
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -78,6 +79,8 @@ const ProjectSchema: React.FC = () => {
     modelModalShown,
     modelDeletionModalShown,
   } = useHooks();
+
+  const { workspaceSettings } = useSettingsHooks();
 
   return (
     <>
@@ -169,6 +172,7 @@ const ProjectSchema: React.FC = () => {
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
           onGetAsset={handleGetAsset}
+          workspaceSettings={workspaceSettings}
         />
       )}
     </>

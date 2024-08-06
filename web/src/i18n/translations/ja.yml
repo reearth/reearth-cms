@@ -83,6 +83,13 @@ Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
 Comment: コメント
 Comments: コメント
+Cannot edit in read-only editor: 読み取り専用エディタでは編集ができません
+You are entering a new value: 新しい値を入力しようとしています
+This action will replace the previously entered value. Do you want to continue?: この操作は以前に入力された値を置き換えます。続けますか？
+Do not show this again: 今後は表示しない
+Continue: 続ける
+Search Location: 場所を検索
+GeoJSON type mismatch, please check your input: GeoJSONの型が一致しません、入力を確認してください
 Personal Account: パーソナルアカウント
 Workspaces: ワークスペース
 Create Workspace: ワークスペースを作成
@@ -276,6 +283,7 @@ Time: 時間
 Boolean: ブーリアン
 Select: セレクト
 Number: 数値
+GeoJSON Geometry: GeoJSONジオメトリ
 Relation: 関係
 Group: グループ
 Meta Data: メタデータ
@@ -318,6 +326,9 @@ Set maximum value: 最大値
 Set Tags: タグを設定する
 Select Group: グループを選択
 Please select the group!: グループを選択してください！
+Support Type: サポートタイプ
+Please select what type of Geometry this field will support: このフィールドがサポートするジオメトリのタイプを選択してください
+Please select the Support Type!: サポートタイプを選択してください！
 options: オプション
 Ensures that multiple entries can't have the same value for this field: このフィールドには同じ値のエントリーを持つことができません。
 Default value: デフォルト値
@@ -341,6 +352,10 @@ Select from a list of tags: タグのリストから選択する
 Check Box: チェックボックス
 Select from a list of checkboxes: チェックボックスのリストから選択する
 Customize a group of fields: フィールドのグループをカスタマイズ
+Geometry Object: ジオメトリオブジェクト
+Input GeoJSON and preview: GeoJSONの入力とプレビュー
+Geometry Editor: ジオメトリエディタ
+Draw the geometry on map: 地図上にジオメトリを描く
 Update Model: モデルを更新
 Update Group: グループを更新
 New Group: 新規グループ

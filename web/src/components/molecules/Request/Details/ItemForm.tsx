@@ -10,11 +10,13 @@ import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fie
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 interface Props {
   schema?: Schema;
   initialFormValues: Record<string, unknown>;
   referencedItems?: FormItem[];
+  workspaceSettings: WorkspaceSettings;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
 }
@@ -23,6 +25,7 @@ const RequestItemForm: React.FC<Props> = ({
   schema,
   initialFormValues,
   referencedItems,
+  workspaceSettings,
   onGetAsset,
   onGroupGet,
 }) => {
@@ -52,7 +55,16 @@ const RequestItemForm: React.FC<Props> = ({
                   onGetAsset={onGetAsset}
                   formItemsData={referencedItems}
                   onGroupGet={onGroupGet}
+                  workspaceSettings={workspaceSettings}
                 />
+              </div>
+            );
+          } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
+            const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+
+            return (
+              <div key={field.id}>
+                <FieldComponent field={field} disabled workspaceSettings={workspaceSettings} />
               </div>
             );
           } else {
@@ -69,6 +81,7 @@ const RequestItemForm: React.FC<Props> = ({
                   | "MarkdownText"
                   | "Integer"
               ] || DefaultField;
+
             return (
               <div key={field.id}>
                 <FieldComponent field={field} disabled />
