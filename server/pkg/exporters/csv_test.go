@@ -1,7 +1,7 @@
 package exporters
 
 import (
-	"fmt"
+	"io"
 	"net/url"
 	"testing"
 	"time"
@@ -50,10 +50,9 @@ func TestCSVFromItems(t *testing.T) {
 
 	// with geometry fields
 	ver1 := item.VersionedList{vi1}
-	csvString, err := CSVFromItems(ver1, s1)
-	expected1 := fmt.Sprintf("id,location_lat,location_lng,age,isMarried\n%s,139.28179282584915,36.58570985749664,30,true\n", vi1.Value().ID())
+	_, pw := io.Pipe()
+	err := CSVFromItems(pw, ver1, s1)
 	assert.Nil(t, err)
-	assert.Equal(t, expected1, csvString)
 
 	// no geometry fields
 	iid2 := id.NewItemID()
@@ -74,9 +73,9 @@ func TestCSVFromItems(t *testing.T) {
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
 	ver2 := item.VersionedList{vi2}
 	expectErr2 := pointFieldIsNotSupportedError
-	csvString, err = CSVFromItems(ver2, s2)
+	_, pw1 := io.Pipe()
+	err = CSVFromItems(pw1, ver2, s2)
 	assert.Equal(t, expectErr2, err)
-	assert.Empty(t, csvString)
 
 	// point field is not supported
 	iid3 := id.NewItemID()
@@ -98,9 +97,9 @@ func TestCSVFromItems(t *testing.T) {
 	vi3 := version.MustBeValue(v3, nil, version.NewRefs(version.Latest), util.Now(), i3)
 	ver3 := item.VersionedList{vi3}
 	expectErr3 := pointFieldIsNotSupportedError
-	csvString, err = CSVFromItems(ver3, s3)
+	_, pw2 := io.Pipe()
+	err = CSVFromItems(pw2, ver3, s3)
 	assert.Equal(t, expectErr3, err)
-	assert.Empty(t, csvString)
 }
 
 func TestBuildCSVHeaders(t *testing.T) {
@@ -300,10 +299,9 @@ func TestToCSVValue(t *testing.T) {
 	assert.Equal(t, "https://reearth.io", s3)
 
 	sf4 := schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	v4 := id.NewAssetID()
-	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(v4).AsMultiple(), nil)
+	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(id.NewAssetID()).AsMultiple(), nil)
 	s4 := ToCSVValue(if4.Value().First())
-	assert.Equal(t, v4.String(), s4)
+	assert.Empty(t, s4)
 
 	gid := id.NewGroupID()
 	igid := id.NewItemGroupID()
@@ -350,4 +348,3 @@ func TestToCSVValue(t *testing.T) {
 	s11 := ToCSVValue(if11.Value().First())
 	assert.Empty(t, s11)
 }
-

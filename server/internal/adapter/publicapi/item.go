@@ -3,6 +3,7 @@ package publicapi
 import (
 	"context"
 	"errors"
+
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -111,6 +112,33 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 
 	res := NewListResult(itms, pi, p.Pagination)
 	return res, sp.Schema(), nil
+}
+
+func (c *Controller) GetVersionedItems(ctx context.Context, prj, model string, p ListParam) (item.VersionedList, *schema.Schema, error) {
+	pr, err := c.checkProject(ctx, prj)
+	if err != nil {
+		return item.VersionedList{}, nil, err
+	}
+
+	m, err := c.usecases.Model.FindByKey(ctx, pr.ID(), model, nil)
+	if err != nil {
+		return item.VersionedList{}, nil, err
+	}
+	if !m.Public() {
+		return item.VersionedList{}, nil, rerror.ErrNotFound
+	}
+
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
+	if err != nil {
+		return item.VersionedList{}, nil, err
+	}
+
+	items, _, err := c.usecases.Item.FindPublicByModel(ctx, m.ID(), p.Pagination, nil)
+	if err != nil {
+		return item.VersionedList{}, nil, err
+	}
+
+	return items, sp.Schema(), nil
 }
 
 func getReferencedItems(ctx context.Context, i *item.Item, prp bool, urlResolver asset.URLResolver) []Item {

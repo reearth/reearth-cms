@@ -262,11 +262,10 @@ func TestToGeoJsonSingleValue(t *testing.T) {
 	assert.True(t, ok3)
 
 	sf4 := schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	v4 := id.NewAssetID()
-	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(v4).AsMultiple(), nil)
+	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(id.NewAssetID()).AsMultiple(), nil)
 	s4, ok4 := ToGeoJsonSingleValue(if4.Value().First())
-	assert.Equal(t, v4.String(), s4)
-	assert.True(t, ok4)
+	assert.Empty(t, s4)
+	assert.False(t, ok4)
 
 	gid := id.NewGroupID()
 	igid := id.NewItemGroupID()

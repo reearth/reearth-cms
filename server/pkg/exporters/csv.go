@@ -2,8 +2,8 @@ package exporters
 
 import (
 	"encoding/csv"
+	"io"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -19,31 +19,36 @@ var (
 	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
 )
 
-func CSVFromItems(items item.VersionedList, s *schema.Schema) (string, error) {
+func CSVFromItems(pw *io.PipeWriter, items item.VersionedList, s *schema.Schema) error {
 	if !s.IsPointFieldSupported() {
-		return "", pointFieldIsNotSupportedError
+		return pointFieldIsNotSupportedError
 	}
 
-	keys, nonGeoFields := buildCSVHeaders(s)
-	data := [][]string{}
-	data = append(data, keys)
-	for _, ver := range items {
-		row, ok := rowFromItem(ver.Value(), nonGeoFields)
-		if ok {
-			data = append(data, row)
+	w := csv.NewWriter(pw)
+	go func() {
+		defer pw.Close()
+
+		keys, nonGeoFields := buildCSVHeaders(s)
+		if err := w.Write(keys); err != nil {
+			pw.CloseWithError(err)
+			return
 		}
-	}
+		for _, ver := range items {
+			row, ok := rowFromItem(ver.Value(), nonGeoFields)
+			if ok {
+				if err := w.Write(row); err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+			}
+		}
+		w.Flush()
+		if err := w.Error(); err != nil {
+			pw.CloseWithError(err)
+		}
+	}()
 
-	if len(data) == 1 {
-		return "", noPointFieldError
-	}
-
-	csv, err := convertToCSV(data)
-	if err != nil {
-		return "", err
-	}
-
-	return csv, nil
+	return nil
 }
 
 func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
@@ -98,21 +103,6 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 	return nil, noPointFieldError
 }
 
-func convertToCSV(data [][]string) (string, error) {
-	var sb strings.Builder
-	w := csv.NewWriter(&sb)
-	for _, row := range data {
-		if err := w.Write(row); err != nil {
-			return "", err
-		}
-	}
-	w.Flush()
-	if err := w.Error(); err != nil {
-		return "", err
-	}
-	return sb.String(), nil
-}
-
 func float64ToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
@@ -142,12 +132,6 @@ func ToCSVValue(vv *value.Value) string {
 		return v
 	case value.TypeURL:
 		v, ok := vv.ValueURL()
-		if !ok {
-			return ""
-		}
-		return v.String()
-	case value.TypeAsset:
-		v, ok := vv.ValueAsset()
 		if !ok {
 			return ""
 		}

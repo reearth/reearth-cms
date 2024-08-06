@@ -240,12 +240,6 @@ func ToGeoJsonSingleValue(vv *value.Value) (any, bool) {
 			return "", false
 		}
 		return v.String(), true
-	case value.TypeAsset:
-		v, ok := vv.ValueAsset()
-		if !ok {
-			return "", false
-		}
-		return v.String(), true
 	case value.TypeInteger:
 		v, ok := vv.ValueInteger()
 		if !ok {
