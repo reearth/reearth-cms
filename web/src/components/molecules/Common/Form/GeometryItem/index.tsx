@@ -12,6 +12,7 @@ import Ajv from "ajv";
 import axios from "axios";
 import { editor } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { Resizable, ResizeCallbackData } from "react-resizable";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -246,7 +247,7 @@ const GeometryItem: React.FC<Props> = ({
         {
           id: "default",
           type: TILE_TYPE_MAP[workspaceSettings.tiles?.resources[0]?.type ?? "DEFAULT"],
-          url: workspaceSettings.tiles?.resources[0]?.props.url
+          url: workspaceSettings.tiles?.resources[0]?.props.url,
         },
       ],
       terrain: { enabled: workspaceSettings.terrains?.enabled },
@@ -416,36 +417,62 @@ const GeometryItem: React.FC<Props> = ({
     }
   }, [sketch, isReady, value]);
 
+  const minWidth = useMemo(() => 280, []);
+  const [width, setWidth] = useState<number>(minWidth);
+  const [maxWidth, setMaxWidth] = useState<number>(Infinity);
+  const fieldRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const maxWidthUpdate = () => {
+      const width = fieldRef.current?.getBoundingClientRect().width;
+      if (width) setMaxWidth(width);
+    };
+    maxWidthUpdate();
+    window.addEventListener("resize", maxWidthUpdate);
+    return () => window.removeEventListener("resize", maxWidthUpdate);
+  }, []);
+
+  const onResize = (_: unknown, { size }: ResizeCallbackData) => {
+    setWidth(size.width);
+  };
+
   return (
     <Container>
-      <GeometryField>
-        <EditorWrapper hasError={hasError}>
-          <EditorButtons>
-            <EditorButton
-              icon={<Icon icon="editorCopy" size={12} />}
-              size="small"
-              onClick={copyButtonClick}
-            />
-            {!disabled && !isEditor && (
+      <GeometryField ref={fieldRef}>
+        <StyledResizable
+          width={width}
+          minConstraints={[minWidth, 0]}
+          maxConstraints={[maxWidth, 0]}
+          onResize={onResize}
+          handle={<span className="react-resizable-handle" />}>
+          <EditorWrapper hasError={hasError} width={width}>
+            <EditorButtons>
               <EditorButton
-                icon={<Icon icon="trash" size={12} />}
+                icon={<Icon icon="editorCopy" size={12} />}
                 size="small"
-                onClick={deleteButtonClick}
+                onClick={copyButtonClick}
               />
-            )}
-          </EditorButtons>
-          <MonacoEditor
-            height="100%"
-            language={"json"}
-            options={options}
-            value={currentValue}
-            beforeMount={handleEditorWillMount}
-            onMount={handleEditorDidMount}
-            onChange={handleEditorOnChange}
-            onValidate={handleEditorValidation}
-          />
-          <Placeholder isEmpty={!value}>{placeholderContent}</Placeholder>
-        </EditorWrapper>
+              {!disabled && !isEditor && (
+                <EditorButton
+                  icon={<Icon icon="trash" size={12} />}
+                  size="small"
+                  onClick={deleteButtonClick}
+                />
+              )}
+            </EditorButtons>
+            <MonacoEditor
+              height="100%"
+              language={"json"}
+              options={options}
+              value={currentValue}
+              beforeMount={handleEditorWillMount}
+              onMount={handleEditorDidMount}
+              onChange={handleEditorOnChange}
+              onValidate={handleEditorValidation}
+            />
+            <Placeholder isEmpty={!value}>{placeholderContent}</Placeholder>
+          </EditorWrapper>
+        </StyledResizable>
         <ViewerWrapper>
           {!disabled && (
             <StyledSearch
@@ -516,7 +543,7 @@ const GeometryItem: React.FC<Props> = ({
             ready={isReady}
             onMount={handleMount}
             engine={"cesium"}
-            meta={{cesiumIonAccessToken: config()?.cesiumIonAccessToken}}
+            meta={{ cesiumIonAccessToken: config()?.cesiumIonAccessToken }}
             viewerProperty={viewerProperty}
             onSketchFeatureCreate={handleSketchFeatureCreate}
           />
@@ -539,8 +566,21 @@ const GeometryField = styled.div`
   box-shadow: 0px 2px 8px 0px #00000026;
 `;
 
-const EditorWrapper = styled.div<{ hasError: boolean }>`
-  width: 45%;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const StyledResizable = styled(Resizable as any)`
+  .react-resizable-handle {
+    position: absolute;
+    right: -5px;
+    bottom: 0;
+    z-index: 1;
+    width: 10px;
+    height: 100%;
+    cursor: col-resize;
+  }
+`;
+
+const EditorWrapper = styled.div<{ hasError: boolean; width: number }>`
+  width: ${({ width }) => `${width}px`};
   position: relative;
   border: 1px solid ${({ hasError }) => (hasError ? "#ff4d4f" : "transparent")};
 `;
@@ -577,6 +617,7 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
 const ViewerWrapper = styled.div`
   position: relative;
   flex: 1;
+  overflow: hidden;
 `;
 
 const StyledSearch = styled(Input.Search)`
