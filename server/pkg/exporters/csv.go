@@ -24,24 +24,29 @@ func CSVFromItems(pw *io.PipeWriter, items item.VersionedList, s *schema.Schema)
 		return pointFieldIsNotSupportedError
 	}
 
-	keys, nonGeoFields := buildCSVHeaders(s)
-	data := [][]string{}
-	data = append(data, keys)
-	for _, ver := range items {
-		row, ok := rowFromItem(ver.Value(), nonGeoFields)
-		if ok {
-			data = append(data, row)
+	w := csv.NewWriter(pw)
+	go func() {
+		defer pw.Close()
+
+		keys, nonGeoFields := buildCSVHeaders(s)
+		if err := w.Write(keys); err != nil {
+			pw.CloseWithError(err)
+			return
 		}
-	}
-
-	if len(data) == 1 {
-		return noPointFieldError
-	}
-
-	err := convertToCSV(pw, data)
-	if err != nil {
-		return err
-	}
+		for _, ver := range items {
+			row, ok := rowFromItem(ver.Value(), nonGeoFields)
+			if ok {
+				if err := w.Write(row); err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+			}
+		}
+		w.Flush()
+		if err := w.Error(); err != nil {
+			pw.CloseWithError(err)
+		}
+	}()
 
 	return nil
 }
@@ -96,27 +101,6 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 		return g.Coordinates.AsPoint()
 	}
 	return nil, noPointFieldError
-}
-
-func convertToCSV(pw *io.PipeWriter, data [][]string) error {
-	w := csv.NewWriter(pw)
-
-	go func() {
-		defer pw.Close()
-
-		for _, row := range data {
-			if err := w.Write(row); err != nil {
-				pw.CloseWithError(err)
-				return
-			}
-		}
-		w.Flush()
-		if err := w.Error(); err != nil {
-			pw.CloseWithError(err)
-		}
-	}()
-
-	return nil
 }
 
 func float64ToString(f float64) string {
