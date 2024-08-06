@@ -17,7 +17,6 @@ import { Resizable, ResizeCallbackData } from "react-resizable";
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import MapPinFilled from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Typography from "@reearth-cms/components/atoms/Typography";
@@ -337,18 +336,9 @@ const GeometryItem: React.FC<Props> = ({
               geometry,
             },
           },
-          marker: {
-            imageColor: "#000000D9",
-            image: MapPinFilled,
-          },
-          polyline: {
-            strokeColor: "#000000D9",
-          },
-          polygon: {
-            fillColor: "#00000040",
-            stroke: true,
-            strokeColor: "#000000D9",
-          },
+          marker: {},
+          polyline: {},
+          polygon: {},
         };
       } catch (_) {
         return;
