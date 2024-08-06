@@ -255,3 +255,14 @@ func (i *Item) SetMetadataItem(iid id.ItemID) {
 func (i *Item) SetOriginalItem(iid id.ItemID) {
 	i.originalItem = &iid
 }
+
+func (i *Item) GetFirstGeometryField() (*Field, bool) {
+	if i == nil {
+		return nil, false
+	}
+	geoFields := append(i.Fields().FieldsByType(value.TypeGeometryObject), i.Fields().FieldsByType(value.TypeGeometryEditor)...)
+	if len(geoFields) == 0 {
+		return nil, false
+	}
+	return geoFields[0], true
+}
