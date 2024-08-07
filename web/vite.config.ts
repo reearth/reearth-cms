@@ -13,8 +13,9 @@ import { configDefaults } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig(() => {
-  const packageJson = JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf-8"));
-  const cesiumVersion = packageJson.dependencies?.["cesium"];
+  const cesiumPackageJson = JSON.parse(
+    readFileSync(resolve(__dirname, "node_modules", "cesium", "package.json"), "utf-8"),
+  );
 
   return {
     server: {
@@ -26,9 +27,7 @@ export default defineConfig(() => {
     plugins: [
       react(),
       yaml(),
-      cesium({
-        cesiumBaseUrl: `cesium-${cesiumVersion}/`,
-      }),
+      cesium({ cesiumBaseUrl: `cesium-${cesiumPackageJson.version}/` }),
       serverHeaders(),
       config(),
     ],
