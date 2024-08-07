@@ -649,6 +649,16 @@ const StyledSearch = styled(Input.Search)`
   left: 8px;
   top: 15px;
   max-width: 167px;
+  .ant-input-outlined {
+    height: 24px;
+    border-color: #d9d9d9 !important;
+    :hover {
+      border-color: #1677ff !important;
+    }
+    :focus-within {
+      box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1) !important;
+    }
+  }
 `;
 
 const ViewerButtons = styled.div`
