@@ -12,47 +12,60 @@ import cesium from "vite-plugin-cesium";
 import { configDefaults } from "vitest/config";
 
 // https://vitejs.dev/config/
-export default defineConfig(() => ({
-  server: {
-    port: 3000,
-    open: true,
-    host: "127.0.0.1",
-  },
-  envPrefix: "REEARTH_CMS_",
-  plugins: [react(), yaml(), cesium(), serverHeaders(), config()],
-  css: {
-    preprocessorOptions: {
-      less: {
-        javascriptEnabled: true,
-      },
+export default defineConfig(() => {
+  const packageJson = JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf-8"));
+  const cesiumVersion = packageJson.dependencies?.["cesium"];
+
+  return {
+    server: {
+      port: 3000,
+      open: true,
+      host: "127.0.0.1",
     },
-  },
-  resolve: {
-    alias: [
-      { find: "@reearth-cms", replacement: resolve(__dirname, "src") },
-      {
-        find: /^~/,
-        replacement: "",
-      },
+    envPrefix: "REEARTH_CMS_",
+    plugins: [
+      react(),
+      yaml(),
+      cesium({
+        cesiumBaseUrl: `cesium-${cesiumVersion}/`,
+      }),
+      serverHeaders(),
+      config(),
     ],
-  },
-  test: {
-    environment: "jsdom",
-    setupFiles: "./src/test/setup.ts",
-    exclude: [...configDefaults.exclude, "e2e/**/*"],
-    coverage: {
-      all: true,
-      include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: [
-        "src/**/*.d.ts",
-        "src/**/*.stories.tsx",
-        "src/gql/graphql-client-api.tsx",
-        "src/test/**/*",
-      ],
-      reporter: ["text", "json", "lcov"],
+    css: {
+      preprocessorOptions: {
+        less: {
+          javascriptEnabled: true,
+        },
+      },
     },
-  },
-}));
+    resolve: {
+      alias: [
+        { find: "@reearth-cms", replacement: resolve(__dirname, "src") },
+        {
+          find: /^~/,
+          replacement: "",
+        },
+      ],
+    },
+    test: {
+      environment: "jsdom",
+      setupFiles: "./src/test/setup.ts",
+      exclude: [...configDefaults.exclude, "e2e/**/*"],
+      coverage: {
+        all: true,
+        include: ["src/**/*.ts", "src/**/*.tsx"],
+        exclude: [
+          "src/**/*.d.ts",
+          "src/**/*.stories.tsx",
+          "src/gql/graphql-client-api.tsx",
+          "src/test/**/*",
+        ],
+        reporter: ["text", "json", "lcov"],
+      },
+    },
+  };
+});
 
 function serverHeaders(): Plugin {
   return {
