@@ -10,7 +10,7 @@ import {
 } from "@reearth/core";
 import Ajv from "ajv";
 import axios from "axios";
-import { editor } from "monaco-editor";
+import { editor, Range } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 
@@ -94,18 +94,23 @@ const GeometryItem: React.FC<Props> = ({
   }, []);
 
   const options = useMemo(
-    () => ({
-      bracketPairColorization: {
-        enabled: true,
-      },
-      minimap: {
-        enabled: false,
-      },
-      readOnly: disabled || isEditor,
-      readOnlyMessage: { value: t("Cannot edit in read-only editor") },
-      wordWrap: "on" as const,
-      scrollBeyondLastLine: false,
-    }),
+    () =>
+      ({
+        bracketPairColorization: {
+          enabled: true,
+        },
+        minimap: {
+          enabled: false,
+        },
+        readOnly: disabled || isEditor,
+        readOnlyMessage: { value: t("Cannot edit in read-only editor") },
+        wordWrap: "on",
+        scrollBeyondLastLine: false,
+        glyphMargin: true,
+        lineNumbersMinChars: 3,
+        folding: false,
+        tabSize: 2,
+      }) as const,
     [disabled, isEditor, t],
   );
 
@@ -138,15 +143,38 @@ const GeometryItem: React.FC<Props> = ({
     errorDelete?.();
   }, [errorDelete]);
 
+  const allErrorRemove = useCallback(() => {
+    if (!editorRef.current) return;
+    const model = editorRef.current.getModel();
+    const decorations = model?.getAllMarginDecorations();
+    if (decorations) {
+      editorRef.current.removeDecorations(decorations.map(decoration => decoration.id));
+    }
+  }, []);
+
+  const errorShow = useCallback((startLine: number, endLine: number) => {
+    if (!editorRef.current) return;
+    editorRef.current.createDecorationsCollection([
+      {
+        range: new Range(startLine, 1, endLine, 1),
+        options: {
+          glyphMarginClassName: "glyphMargin",
+        },
+      },
+    ]);
+  }, []);
+
   const handleEditorValidation = useCallback(
     (markers: editor.IMarker[]) => {
+      allErrorRemove();
       if (markers.length > 0) {
+        markers.forEach(marker => errorShow(marker.startLineNumber, marker.endLineNumber));
         handleErrorAdd();
       } else {
         handleErrorDelete();
       }
     },
-    [handleErrorAdd, handleErrorDelete],
+    [allErrorRemove, errorShow, handleErrorAdd, handleErrorDelete],
   );
 
   const typeCheck = useCallback(
@@ -156,7 +184,8 @@ const GeometryItem: React.FC<Props> = ({
           const valueJson: {
             type?: (typeof GEO_TYPE_MAP)[keyof typeof GEO_TYPE_MAP];
           } = JSON.parse(value);
-          if (valueJson.type) {
+          const isValid = validate(valueJson);
+          if (isValid && valueJson.type) {
             const convertedTypes = Array.isArray(supportedTypes)
               ? supportedTypes.map(type => GEO_TYPE_MAP[type])
               : supportedTypes === "ANY"
@@ -573,6 +602,10 @@ const EditorWrapper = styled.div<{ hasError: boolean; width: number }>`
   width: ${({ width }) => `${width}px`};
   position: relative;
   border: 1px solid ${({ hasError }) => (hasError ? "#ff4d4f" : "transparent")};
+  .glyphMargin {
+    background: #ecabbb;
+    width: 5px !important;
+  }
 `;
 
 const EditorButtons = styled.div`
