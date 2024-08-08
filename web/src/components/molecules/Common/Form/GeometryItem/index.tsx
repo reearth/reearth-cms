@@ -84,6 +84,13 @@ const GeometryItem: React.FC<Props> = ({
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
+  const [sketchType, setSketchType] = useState<SketchType>();
+
+  const setType = useCallback((newSketchType?: SketchType) => {
+    setSketchType(newSketchType);
+    mapRef.current?.sketch?.setType(newSketchType);
+  }, []);
+
   const copyButtonClick = useCallback(() => {
     const value = editorRef.current?.getValue();
     if (value) navigator.clipboard.writeText(value);
@@ -91,7 +98,8 @@ const GeometryItem: React.FC<Props> = ({
 
   const deleteButtonClick = useCallback(() => {
     editorRef.current?.setValue("");
-  }, []);
+    setType();
+  }, [setType]);
 
   const options = useMemo(
     () =>
@@ -286,13 +294,6 @@ const GeometryItem: React.FC<Props> = ({
     [workspaceSettings.terrains?.enabled, workspaceSettings.tiles?.resources],
   );
 
-  const [sketchType, setSketchType] = useState<SketchType>();
-
-  const setType = useCallback((newSketchType?: SketchType) => {
-    setSketchType(newSketchType);
-    mapRef.current?.sketch?.setType(newSketchType);
-  }, []);
-
   const confirm = useCallback(
     (newSketchType: SketchType) => {
       Modal.confirm({
@@ -327,7 +328,7 @@ const GeometryItem: React.FC<Props> = ({
 
   const sketchButtonClick = useCallback(
     (newSketchType: SketchType) => {
-      if (sketchType) {
+      if (sketchType === newSketchType) {
         setType();
       } else if (value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
         confirm(newSketchType);
@@ -471,7 +472,7 @@ const GeometryItem: React.FC<Props> = ({
                 size="small"
                 onClick={copyButtonClick}
               />
-              {!disabled && !isEditor && (
+              {!disabled && (
                 <EditorButton
                   icon={<Icon icon="trash" size={12} />}
                   size="small"
