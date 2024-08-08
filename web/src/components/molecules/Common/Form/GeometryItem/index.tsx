@@ -186,12 +186,12 @@ const GeometryItem: React.FC<Props> = ({
   );
 
   const typeCheck = useCallback(
-    (isTypeChange: boolean) => {
-      if (value && supportedTypes) {
+    (isTypeChange: boolean, newValue?: string) => {
+      if (newValue && supportedTypes) {
         try {
           const valueJson: {
             type?: (typeof GEO_TYPE_MAP)[keyof typeof GEO_TYPE_MAP];
-          } = JSON.parse(value);
+          } = JSON.parse(newValue);
           const isValid = validate(valueJson);
           if (isValid && valueJson.type) {
             const convertedTypes = Array.isArray(supportedTypes)
@@ -212,26 +212,23 @@ const GeometryItem: React.FC<Props> = ({
         isTypeChange ? setHasError(false) : handleErrorDelete();
       }
     },
-    [handleErrorAdd, handleErrorDelete, supportedTypes, value],
+    [handleErrorAdd, handleErrorDelete, supportedTypes],
   );
 
   const handleEditorOnChange = useCallback(
     (value?: string) => {
       onChange?.(value ?? "");
-      typeCheck(false);
+      typeCheck(false, value);
     },
     [onChange, typeCheck],
   );
 
   const [currentValue, setCurrentValue] = useState<string | undefined>();
   useEffect(() => {
-    setCurrentValue(value ?? undefined);
-  }, [value]);
-
-  useEffect(() => {
     if (value === currentValue) {
-      typeCheck(true);
+      typeCheck(true, value);
     }
+    setCurrentValue(value ?? undefined);
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
@@ -429,13 +426,13 @@ const GeometryItem: React.FC<Props> = ({
   useEffect(() => {
     if (isReady) {
       if (value !== undefined) {
-        if (typeof value === "string") {
+        if (typeof value === "string" && !hasError) {
           sketch(value);
         }
         isInitRef.current = false;
       }
     }
-  }, [sketch, isReady, value]);
+  }, [sketch, isReady, value, hasError]);
 
   const minWidth = useMemo(() => 280, []);
   const [width, setWidth] = useState<number>(minWidth);
