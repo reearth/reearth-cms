@@ -377,16 +377,59 @@ const GeometryItem: React.FC<Props> = ({
   const isInitRef = useRef(true);
 
   const flyTo = useCallback(
-    (geometry: { coordinates?: unknown[]; geometries?: { coordinates: unknown[] }[] }) => {
-      let coordinates = geometry.coordinates ?? geometry.geometries?.[0].coordinates;
-      if (coordinates) {
+    (geometry: { coordinates?: number[]; geometries?: { coordinates: number[] }[] }) => {
+      const coordinateGet = (
+        coordinatesInput: number[],
+        bboxInput?: [number, number, number, number],
+      ): [number, number, number, number] => {
+        let coordinates = coordinatesInput;
         while (Array.isArray(coordinates[0])) {
           coordinates = coordinates.flat();
         }
-        mapRef.current?.engine.flyTo({
-          lng: coordinates[0] as number,
-          lat: coordinates[1] as number,
-          height: 100000,
+
+        let [west, south, east, north] = bboxInput ?? [
+          coordinates[0],
+          coordinates[1],
+          coordinates[0],
+          coordinates[1],
+        ];
+
+        coordinates.forEach((coordinate, index) => {
+          if (index % 2 === 0) {
+            if (coordinate < west) {
+              west = coordinate;
+            } else if (coordinate > east) {
+              east = coordinate;
+            }
+          } else {
+            if (coordinate < south) {
+              south = coordinate;
+            } else if (coordinate > north) {
+              north = coordinate;
+            }
+          }
+        });
+
+        if (west === east && north === south) {
+          const padding = 0.1;
+          west -= padding;
+          east += padding;
+        }
+
+        return [west, south, east, north];
+      };
+
+      let bbox: [number, number, number, number] | undefined;
+      if (geometry.coordinates) {
+        bbox = coordinateGet(geometry.coordinates);
+      } else if (geometry.geometries) {
+        geometry.geometries.forEach(geo => {
+          bbox = coordinateGet(geo.coordinates, bbox);
+        });
+      }
+      if (bbox) {
+        mapRef.current?.engine.flyToBBox(bbox, {
+          duration: 0,
         });
       }
     },
