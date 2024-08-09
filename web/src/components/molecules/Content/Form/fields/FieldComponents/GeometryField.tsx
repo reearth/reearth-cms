@@ -12,6 +12,7 @@ import FieldTitle from "../../FieldTitle";
 interface DefaultFieldProps {
   field: Field;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   itemGroupId?: string;
   disabled?: boolean;
 }
@@ -19,6 +20,7 @@ interface DefaultFieldProps {
 const GeometryField: React.FC<DefaultFieldProps> = ({
   field,
   workspaceSettings,
+  settingsLoading,
   itemGroupId,
   disabled,
 }) => {
@@ -70,6 +72,7 @@ const GeometryField: React.FC<DefaultFieldProps> = ({
           errorAdd={errorAdd}
           errorDelete={errorDelete}
           workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
         />
       ) : (
         <GeometryItem
@@ -79,6 +82,7 @@ const GeometryField: React.FC<DefaultFieldProps> = ({
           errorAdd={() => errorAdd(0)}
           errorDelete={() => errorDelete(0)}
           workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
         />
       )}
     </Form.Item>

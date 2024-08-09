@@ -27,7 +27,7 @@ const RequestDetails: React.FC = () => {
   const { workspaceUserMembers, updateRequestLoading, handleRequestUpdate, handleGroupGet } =
     useContentHooks();
 
-  const { workspaceSettings } = useSettingsHooks();
+  const { workspaceSettings, loading: settingsLoading } = useSettingsHooks();
 
   return (
     <RequestDetailsMolecule
@@ -40,6 +40,7 @@ const RequestDetails: React.FC = () => {
       approveLoading={approveLoading}
       updateLoading={updateRequestLoading}
       workspaceSettings={workspaceSettings}
+      settingsLoading={settingsLoading}
       onRequestApprove={handleRequestApprove}
       onRequestUpdate={handleRequestUpdate}
       onRequestDelete={handleRequestDelete}

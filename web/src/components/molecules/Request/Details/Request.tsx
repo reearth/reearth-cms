@@ -21,6 +21,7 @@ interface Props {
   approveLoading: boolean;
   updateLoading: boolean;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -42,6 +43,7 @@ const RequestMolecule: React.FC<Props> = ({
   approveLoading,
   updateLoading,
   workspaceSettings,
+  settingsLoading,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
@@ -97,6 +99,7 @@ const RequestMolecule: React.FC<Props> = ({
             me={me}
             currentRequest={currentRequest}
             workspaceSettings={workspaceSettings}
+            settingsLoading={settingsLoading}
             onCommentCreate={onCommentCreate}
             onCommentUpdate={onCommentUpdate}
             onCommentDelete={onCommentDelete}

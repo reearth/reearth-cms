@@ -18,6 +18,7 @@ const { Panel } = Collapse;
 interface Props {
   currentRequest: Request;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
 }
@@ -25,6 +26,7 @@ interface Props {
 export const RequestDescription: React.FC<Props> = ({
   currentRequest,
   workspaceSettings,
+  settingsLoading,
   onGetAsset,
   onGroupGet,
 }) => {
@@ -55,6 +57,7 @@ export const RequestDescription: React.FC<Props> = ({
                       initialFormValues={item.initialValues}
                       referencedItems={item.referencedItems}
                       workspaceSettings={workspaceSettings}
+                      settingsLoading={settingsLoading}
                       onGetAsset={onGetAsset}
                       onGroupGet={onGroupGet}
                     />

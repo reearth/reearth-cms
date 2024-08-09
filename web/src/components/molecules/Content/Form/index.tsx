@@ -116,6 +116,7 @@ interface Props {
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -186,6 +187,7 @@ const ContentForm: React.FC<Props> = ({
   onGroupGet,
   onCheckItemReference,
   workspaceSettings,
+  settingsLoading,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -573,6 +575,7 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
                     workspaceSettings={workspaceSettings}
+                    settingsLoading={settingsLoading}
                     onSearchTerm={onSearchTerm}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onLinkItemTableReload={onLinkItemTableReload}
@@ -599,7 +602,11 @@ const ContentForm: React.FC<Props> = ({
 
               return (
                 <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <FieldComponent field={field} workspaceSettings={workspaceSettings} />
+                  <FieldComponent
+                    field={field}
+                    workspaceSettings={workspaceSettings}
+                    settingsLoading={settingsLoading}
+                  />
                 </StyledFormItemWrapper>
               );
             } else {

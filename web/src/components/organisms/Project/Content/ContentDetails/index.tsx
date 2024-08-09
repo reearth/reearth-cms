@@ -89,7 +89,7 @@ const ContentDetails: React.FC = () => {
     handleGetAsset,
   } = useAssetHooks(false);
 
-  const { workspaceSettings } = useSettingsHooks();
+  const { workspaceSettings, loading: settingsLoading } = useSettingsHooks();
 
   return (
     <ContentDetailsMolecule
@@ -183,6 +183,7 @@ const ContentDetails: React.FC = () => {
       onGroupGet={handleGroupGet}
       onCheckItemReference={handleCheckItemReference}
       workspaceSettings={workspaceSettings}
+      settingsLoading={settingsLoading}
     />
   );
 };
