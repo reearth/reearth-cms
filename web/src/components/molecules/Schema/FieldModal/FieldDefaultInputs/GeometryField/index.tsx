@@ -15,6 +15,7 @@ interface Props {
   isEditor: boolean;
   multiple: boolean;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const GeometryField: React.FC<Props> = ({
@@ -22,6 +23,7 @@ const GeometryField: React.FC<Props> = ({
   isEditor,
   multiple,
   workspaceSettings,
+  settingsLoading,
 }) => {
   const t = useT();
 
@@ -32,12 +34,14 @@ const GeometryField: React.FC<Props> = ({
           supportedTypes={supportedTypes}
           isEditor={isEditor}
           workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
         />
       ) : (
         <GeometryItem
           supportedTypes={supportedTypes}
           isEditor={isEditor}
           workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
         />
       )}
     </Form.Item>

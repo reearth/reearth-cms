@@ -41,6 +41,7 @@ interface Props {
   linkItemModalPageSize?: number;
   disabled?: boolean;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -91,6 +92,7 @@ const GroupItem: React.FC<Props> = ({
   linkItemModalPageSize,
   disabled,
   workspaceSettings,
+  settingsLoading,
   onReferenceModelUpdate,
   onLinkItemTableReload,
   onLinkItemTableChange,
@@ -241,6 +243,7 @@ const GroupItem: React.FC<Props> = ({
                     itemGroupId={itemGroupId}
                     disabled={disabled}
                     workspaceSettings={workspaceSettings}
+                    settingsLoading={settingsLoading}
                   />
                 </StyledFormItemWrapper>
               );

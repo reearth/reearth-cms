@@ -59,6 +59,12 @@ const TILE_TYPE_MAP = {
   URL: "url",
 } as const;
 
+const TERRAIN_TYPE_MAP = {
+  CESIUM_WORLD_TERRAIN: "cesium",
+  ARC_GIS_TERRAIN: "arcgis",
+  CESIUM_ION: "cesiumion",
+} as const;
+
 interface Props {
   value?: string | null;
   onChange?: (value: string) => void;
@@ -68,6 +74,7 @@ interface Props {
   errorAdd?: () => void;
   errorDelete?: () => void;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const GeometryItem: React.FC<Props> = ({
@@ -79,6 +86,7 @@ const GeometryItem: React.FC<Props> = ({
   errorAdd,
   errorDelete,
   workspaceSettings,
+  settingsLoading,
 }) => {
   const t = useT();
 
@@ -252,6 +260,13 @@ const GeometryItem: React.FC<Props> = ({
   }, [supportedTypes]);
 
   const mapRef = useRef<MapRef>(null);
+  const [isShow, setIsShow] = useState(false);
+  useEffect(() => {
+    if (!settingsLoading) {
+      setIsShow(true);
+    }
+  }, [settingsLoading]);
+
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = useCallback(async (q: string) => {
@@ -283,12 +298,26 @@ const GeometryItem: React.FC<Props> = ({
           url: workspaceSettings.tiles?.resources[0]?.props.url,
         },
       ],
-      terrain: { enabled: workspaceSettings.terrains?.enabled },
+      terrain: {
+        enabled: workspaceSettings.terrains?.enabled,
+        type: TERRAIN_TYPE_MAP[
+          workspaceSettings.terrains?.resources[0]?.type ?? "CESIUM_WORLD_TERRAIN"
+        ],
+      },
+      assets: {
+        cesium: {
+          terrain: {
+            ionAccessToken: workspaceSettings.terrains?.resources[0]?.props.cesiumIonAccessToken,
+            ionAsset: workspaceSettings.terrains?.resources[0]?.props.cesiumIonAssetId,
+            ionUrl: workspaceSettings.terrains?.resources[0]?.props.url,
+          },
+        },
+      },
       indicator: {
         type: "custom",
       },
     }),
-    [workspaceSettings.terrains?.enabled, workspaceSettings.tiles?.resources],
+    [workspaceSettings.terrains, workspaceSettings.tiles?.resources],
   );
 
   const confirm = useCallback(
@@ -598,15 +627,17 @@ const GeometryItem: React.FC<Props> = ({
               <Button icon={<Icon icon="minus" />} onClick={handleZoomOut} />
             </ZoomButtons>
           </ViewerButtons>
-          <CoreVisualizer
-            ref={mapRef}
-            ready={isReady}
-            onMount={handleMount}
-            engine={"cesium"}
-            meta={{ cesiumIonAccessToken: config()?.cesiumIonAccessToken }}
-            viewerProperty={viewerProperty}
-            onSketchFeatureCreate={handleSketchFeatureCreate}
-          />
+          {isShow && (
+            <CoreVisualizer
+              ref={mapRef}
+              ready={isReady}
+              onMount={handleMount}
+              engine={"cesium"}
+              meta={{ cesiumIonAccessToken: config()?.cesiumIonAccessToken }}
+              viewerProperty={viewerProperty}
+              onSketchFeatureCreate={handleSketchFeatureCreate}
+            />
+          )}
         </ViewerWrapper>
       </GeometryField>
       {hasError && <Text type="danger">{t("GeoJSON type mismatch, please check your input")}</Text>}

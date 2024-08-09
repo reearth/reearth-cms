@@ -22,6 +22,7 @@ interface Props {
   errorAdd?: (index: number) => void;
   errorDelete?: (index: number) => void;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const MultiValueGeometry: React.FC<Props> = ({
@@ -33,6 +34,7 @@ const MultiValueGeometry: React.FC<Props> = ({
   errorAdd,
   errorDelete,
   workspaceSettings,
+  settingsLoading,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -87,6 +89,7 @@ const MultiValueGeometry: React.FC<Props> = ({
               errorAdd={() => errorAdd?.(key)}
               errorDelete={() => errorDelete?.(key)}
               workspaceSettings={workspaceSettings}
+              settingsLoading={settingsLoading}
             />
             {!disabled && (
               <FieldButton
