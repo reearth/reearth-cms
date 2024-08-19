@@ -237,7 +237,7 @@ const GroupItem: React.FC<Props> = ({
               const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
 
               return (
-                <StyledFormItemWrapper key={field.id}>
+                <StyledFormItemWrapper key={field.id} isFullWidth>
                   <FieldComponent
                     field={field}
                     itemGroupId={itemGroupId}
@@ -276,8 +276,7 @@ const GroupItem: React.FC<Props> = ({
 };
 
 const StyledCollapse = styled(Collapse)`
-  width: 500px;
-  max-width: 100%;
+  width: 100%;
 `;
 
 const IconWrapper = styled.span<{ disabled?: boolean }>`
@@ -285,8 +284,8 @@ const IconWrapper = styled.span<{ disabled?: boolean }>`
   display: ${({ disabled }) => (disabled ? "none" : "inline-block")};
 `;
 
-const StyledFormItemWrapper = styled.div`
-  width: 468px;
+const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
+  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "468px")};
   max-width: 100%;
   word-wrap: break-word;
 `;

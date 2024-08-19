@@ -552,7 +552,7 @@ const ContentForm: React.FC<Props> = ({
               );
             } else if (field.type === "Group") {
               return (
-                <StyledFormItemWrapper key={field.id}>
+                <StyledFormItemWrapper key={field.id} isFullWidth>
                   <GroupField
                     field={field}
                     form={form}
