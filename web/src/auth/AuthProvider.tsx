@@ -6,6 +6,8 @@ import { getAuthInfo, getSignInCallbackUrl, logInToTenant } from "@reearth-cms/c
 import { useAuth0Auth } from "./Auth0Auth";
 import AuthHook from "./AuthHook";
 import { useCognitoAuth } from "./CognitoAuth";
+import { useFirebaseAuth } from "./FirebaseAuth";
+import FirebaseProvider from "./FirebaseProvider";
 
 export const AuthContext = createContext<AuthHook | null>(null);
 
@@ -16,6 +18,11 @@ const Auth0Wrapper = ({ children }: { children: ReactNode }) => {
 
 const CognitoWrapper = ({ children }: { children: ReactNode }) => {
   const auth = useCognitoAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+};
+
+const FirebaseWrapper = ({ children }: { children: ReactNode }) => {
+  const auth = useFirebaseAuth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
@@ -51,6 +58,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   if (authProvider === "cognito") {
     // No specific provider needed for Cognito/AWS Amplify
     return <CognitoWrapper>{children}</CognitoWrapper>;
+  }
+
+  if (authProvider === "firebase") {
+    return (
+      <FirebaseProvider redirectURL={getSignInCallbackUrl()}>
+        <FirebaseWrapper>{children}</FirebaseWrapper>
+      </FirebaseProvider>
+    );
   }
 
   return null;
