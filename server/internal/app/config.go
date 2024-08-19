@@ -44,15 +44,16 @@ type Config struct {
 	Web_Config   JSON              `pp:",omitempty"`
 	Web_Disabled bool              `pp:",omitempty"`
 	// auth
-	Auth          AuthConfigs   `pp:",omitempty"`
-	Auth0         Auth0Config   `pp:",omitempty"`
-	Cognito       CognitoConfig `pp:",omitempty"`
-	Auth_ISS      string        `pp:",omitempty"`
-	Auth_AUD      string        `pp:",omitempty"`
-	Auth_ALG      *string       `pp:",omitempty"`
-	Auth_TTL      *int          `pp:",omitempty"`
-	Auth_ClientID *string       `pp:",omitempty"`
-	Auth_JWKSURI  *string       `pp:",omitempty"`
+	Auth          AuthConfigs    `pp:",omitempty"`
+	Auth0         Auth0Config    `pp:",omitempty"`
+	Cognito       CognitoConfig  `pp:",omitempty"`
+	Firebase      FirebaseConfig `pp:",omitempty"`
+	Auth_ISS      string         `pp:",omitempty"`
+	Auth_AUD      string         `pp:",omitempty"`
+	Auth_ALG      *string        `pp:",omitempty"`
+	Auth_TTL      *int           `pp:",omitempty"`
+	Auth_ClientID *string        `pp:",omitempty"`
+	Auth_JWKSURI  *string        `pp:",omitempty"`
 	// auth for m2m
 	AuthM2M AuthM2MConfig `pp:",omitempty"`
 
@@ -89,6 +90,11 @@ type CognitoConfig struct {
 	ClientID   string `pp:",omitempty"`
 }
 
+type FirebaseConfig struct {
+	ProjectID string `pp:",omitempty"`
+	ClientID  string `pp:",omitempty"`
+}
+
 type SendGridConfig struct {
 	Email string `pp:",omitempty"`
 	Name  string `pp:",omitempty"`
@@ -123,10 +129,12 @@ type AuthM2MConfig struct {
 }
 
 func (c *Config) Auths() (res AuthConfigs) {
+	if cc := c.Firebase.Configs(); cc != nil {
+		return cc
+	}
 	if cc := c.Cognito.Configs(); cc != nil {
 		return cc
 	}
-
 	if ac := c.Auth0.AuthConfig(); ac != nil {
 		res = append(res, *ac)
 	}
@@ -251,6 +259,21 @@ func (c CognitoConfig) Configs() AuthConfigs {
 			AUD:      []string{c.ClientID},
 			ClientID: &c.ClientID,
 			JWKSURI:  lo.ToPtr(fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", c.Region, c.UserPoolID)),
+		},
+	}
+}
+
+// Firebase
+func (c FirebaseConfig) Configs() AuthConfigs {
+	if c.ProjectID == "" || c.ClientID == "" {
+		return nil
+	}
+	return AuthConfigs{
+		AuthConfig{
+			ISS:      fmt.Sprintf("https://securetoken.google.com/%s", c.ProjectID),
+			AUD:      []string{c.ProjectID},
+			ClientID: &c.ClientID,
+			JWKSURI:  lo.ToPtr("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
 		},
 	}
 }
