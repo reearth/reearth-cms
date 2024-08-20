@@ -51,17 +51,30 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		Object().
 		HasValue("page", 1).
 		HasValue("perPage", 5).
-		HasValue("totalCount", 1)
+		HasValue("totalCount", 2)
 
-	al := obj.Value("items").Array()
-	al.Length().IsEqual(1)
-	al.Value(0).Object().
+		al := obj.Value("items").Array()
+		al.Length().IsEqual(2)
+		al.Value(0).Object().
 		HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("totalSize", 1000).
 		HasValue("previewType", "unknown").
 		HasValue("createdAt", aid1.Timestamp().UTC().Format(time.RFC3339Nano)).
 		HasValue("updatedAt", time.Time{}.Format("2006-01-02T15:04:05Z"))
+
+		e.GET("/api/projects/{projectId}/assets", pid).
+			WithHeader("authorization", "Bearer "+secret).
+			WithQuery("page", 1).
+			WithQuery("perPage", 5).
+			WithQuery("keyword", "aaa").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Object().
+			HasValue("page", 1).
+			HasValue("perPage", 5).
+			HasValue("totalCount", 1)
 }
 
 // POST projects/{projectId}/assets

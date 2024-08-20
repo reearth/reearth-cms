@@ -85,7 +85,7 @@ func TestQuery_Schema(t *testing.T) {
 	assert.Equal(t, &sId, q.Schema())
 }
 
-func TestQuery_Q(t *testing.T) {
+func TestQuery_Keyword(t *testing.T) {
 	str := "foo"
 	q := &Query{
 		keyword: str,
