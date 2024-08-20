@@ -38,7 +38,6 @@ func (q *Query) WithFilter(filter *view.Condition) *Query {
 	return q
 }
 
-// Q returns keywords for search
 func (q *Query) Keyword() string {
 	return q.keyword
 }
