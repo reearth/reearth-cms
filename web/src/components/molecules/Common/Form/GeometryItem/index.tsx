@@ -700,7 +700,7 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
   position: absolute;
   white-space: pre-wrap;
   top: 0px;
-  left: 65px;
+  left: 52px;
   font-size: 14px;
   color: #bfbfbf;
   font-family: Consolas, "Courier New", monospace;
