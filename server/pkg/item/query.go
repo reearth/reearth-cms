@@ -11,7 +11,7 @@ type Query struct {
 	project id.ProjectID
 	schema  *id.SchemaID
 	model   id.ModelID
-	q       string
+	keyword string
 	ref     *version.Ref
 
 	sort   *view.Sort
@@ -23,7 +23,7 @@ func NewQuery(project id.ProjectID, model id.ModelID, schema *id.SchemaID, keywo
 		project: project,
 		schema:  schema,
 		model:   model,
-		q:       keyword,
+		keyword: keyword,
 		ref:     ref,
 	}
 }
@@ -39,8 +39,8 @@ func (q *Query) WithFilter(filter *view.Condition) *Query {
 }
 
 // Q returns keywords for search
-func (q *Query) Q() string {
-	return q.q
+func (q *Query) Keyword() string {
+	return q.keyword
 }
 
 func (q *Query) Project() id.ProjectID {
