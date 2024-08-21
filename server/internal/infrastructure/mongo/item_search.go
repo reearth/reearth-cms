@@ -65,8 +65,8 @@ func buildPipeline(query *item.Query, sp schema.Package) []any {
 	pipeline = append(pipeline, basicFieldsAliasStages(query, sp)...)
 
 	// apply text filter
-	if query.Q() != "" {
-		pipeline = append(pipeline, textFilterStage(query.Q(), sp))
+	if query.Keyword() != "" {
+		pipeline = append(pipeline, textFilterStage(query.Keyword(), sp))
 	}
 
 	// apply filters and sort to pipeline

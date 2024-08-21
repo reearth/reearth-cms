@@ -195,7 +195,7 @@ func fromQuery(sp schema.Package, req ItemFilterRequestObject) *item.Query {
 		c = fromCondition(sp, *req.Body.Filter)
 	}
 
-	return item.NewQuery(sp.Schema().Project(), req.ModelId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Query), nil).
+	return item.NewQuery(sp.Schema().Project(), req.ModelId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
 		WithSort(s).
 		WithFilter(c)
 }
