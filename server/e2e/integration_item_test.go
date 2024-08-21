@@ -45,7 +45,8 @@ var (
 	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
-	auuid  = uuid.NewString()
+	auuid1 = uuid.NewString()
+	auuid2 = uuid.NewString()
 	itmId1 = id.NewItemID()
 	itmId2 = id.NewItemID()
 	itmId3 = id.NewItemID()
@@ -325,20 +326,33 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	}
 
 	f := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
-	a := asset.New().ID(aid1).
+	a1 := asset.New().ID(aid1).
 		Project(p.ID()).
 		CreatedByUser(u.ID()).
 		FileName("aaa.jpg").
 		Size(1000).
-		UUID(auuid).
+		UUID(auuid1).
 		Thread(thId1).
 		MustBuild()
+	a2 := asset.New().ID(aid2).
+		Project(p.ID()).
+		CreatedByUser(u.ID()).
+		FileName("bbb.jpg").
+		Size(1000).
+		UUID(auuid2).
+		Thread(thId2).
+		MustBuild()
 
-	if err := r.Asset.Save(ctx, a); err != nil {
+	if err := r.Asset.Save(ctx, a1); err != nil {
 		return err
 	}
-
-	if err := r.AssetFile.Save(ctx, a.ID(), f); err != nil {
+	if err := r.Asset.Save(ctx, a2); err != nil {
+		return err
+	}
+	if err := r.AssetFile.Save(ctx, a1.ID(), f); err != nil {
+		return err
+	}
+	if err := r.AssetFile.Save(ctx, a2.ID(), f); err != nil {
 		return err
 	}
 	// endregion
@@ -389,7 +403,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	return nil
 }
 
-func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, keyword string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
 	res := e.GET("/api/models/{modelId}/items", mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -398,7 +412,7 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 		WithQuery("perPage", perPage).
 		WithQuery("sort", sort).
 		WithQuery("dir", sortDir).
-		WithQuery("query", query).
+		WithQuery("keyword", keyword).
 		WithJSON(map[string]any{
 			"filter": filter,
 		}).
@@ -1977,7 +1991,7 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 			HasValue("previewType", "unknown").
 			HasValue("projectId", pid.String()).
 			HasValue("totalSize", 1000).
-			HasValue("url", fmt.Sprintf("https://example.com/assets/%s/%s/aaa.jpg", auuid[0:2], auuid[2:]))
+			HasValue("url", fmt.Sprintf("https://example.com/assets/%s/%s/aaa.jpg", auuid1[0:2], auuid1[2:]))
 	} else {
 		o.Value("fields").IsEqual([]map[string]any{
 			{

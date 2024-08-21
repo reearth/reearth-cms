@@ -312,12 +312,7 @@ paths:
         - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/refParam'
         - $ref: '#/components/parameters/assetParam'
-        - name: query
-          in: query
-          description: query string
-          required: false
-          schema:
-            type: string
+        - $ref: '#/components/parameters/keywordParam'
       requestBody:
         required: false
         content:
@@ -1012,6 +1007,7 @@ paths:
         - $ref: '#/components/parameters/sortDirParam'
         - $ref: '#/components/parameters/pageParam'
         - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/keywordParam'
       responses:
         '200':
           description: assets list
@@ -1431,6 +1427,13 @@ components:
       description: Specifies whether asset data are embedded in the results
       schema:
         $ref: '#/components/schemas/assetEmbedding'
+    keywordParam:
+      name: keyword
+      in: query
+      description: keyword string
+      required: false
+      schema:
+        type: string
   schemas:
     project:
       type: object

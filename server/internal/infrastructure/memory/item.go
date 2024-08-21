@@ -230,7 +230,7 @@ func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagin
 	}
 
 	var res item.VersionedList
-	qq := q.Q()
+	qq := q.Keyword()
 
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
