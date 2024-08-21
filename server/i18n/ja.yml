@@ -30,8 +30,6 @@ file not found: ファイルが見つかりませんでした。
 file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
 file too large: ファイルサイズが大きすぎます。
-firebaseauth is not set up: ""
-"firebaseauth: API key is not set": ""
 internal: 内部
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
