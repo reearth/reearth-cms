@@ -488,12 +488,13 @@ type Model struct {
 
 // Project defines model for project.
 type Project struct {
-	Alias       *string       `json:"alias,omitempty"`
-	CreatedAt   *time.Time    `json:"createdAt,omitempty"`
-	Description *string       `json:"description,omitempty"`
-	Id          *id.ProjectID `json:"id,omitempty"`
-	Name        *string       `json:"name,omitempty"`
-	UpdatedAt   *time.Time    `json:"updatedAt,omitempty"`
+	Alias       *string                    `json:"alias,omitempty"`
+	CreatedAt   *time.Time                 `json:"createdAt,omitempty"`
+	Description *string                    `json:"description,omitempty"`
+	Id          *id.ProjectID              `json:"id,omitempty"`
+	Name        *string                    `json:"name,omitempty"`
+	UpdatedAt   *time.Time                 `json:"updatedAt,omitempty"`
+	WorkspaceId *accountdomain.WorkspaceID `json:"workspaceId,omitempty"`
 }
 
 // RefOrVersion defines model for refOrVersion.
