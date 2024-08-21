@@ -129,11 +129,11 @@ type AuthM2MConfig struct {
 }
 
 func (c *Config) Auths() (res AuthConfigs) {
-	if cc := c.Firebase.Configs(); cc != nil {
-		return cc
-	}
 	if cc := c.Cognito.Configs(); cc != nil {
 		return cc
+	}
+	if cc := c.Firebase.AuthConfig(); cc != nil {
+		res = append(res, *cc)
 	}
 	if ac := c.Auth0.AuthConfig(); ac != nil {
 		res = append(res, *ac)
@@ -264,17 +264,15 @@ func (c CognitoConfig) Configs() AuthConfigs {
 }
 
 // Firebase
-func (c FirebaseConfig) Configs() AuthConfigs {
+func (c FirebaseConfig) AuthConfig() *AuthConfig {
 	if c.ProjectID == "" || c.ClientID == "" {
 		return nil
 	}
-	return AuthConfigs{
-		AuthConfig{
-			ISS:      fmt.Sprintf("https://securetoken.google.com/%s", c.ProjectID),
-			AUD:      []string{c.ProjectID},
-			ClientID: &c.ClientID,
-			JWKSURI:  lo.ToPtr("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
-		},
+	return &AuthConfig{
+		ISS:      fmt.Sprintf("https://securetoken.google.com/%s", c.ProjectID),
+		AUD:      []string{c.ProjectID},
+		ClientID: &c.ClientID,
+		JWKSURI:  lo.ToPtr("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
 	}
 }
 
