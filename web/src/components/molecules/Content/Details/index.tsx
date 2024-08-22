@@ -99,6 +99,7 @@ interface Props {
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -174,6 +175,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onGroupGet,
   onCheckItemReference,
   workspaceSettings,
+  settingsLoading,
 }) => {
   return (
     <ComplexInnerContents
@@ -259,6 +261,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onGroupGet={onGroupGet}
             onCheckItemReference={onCheckItemReference}
             workspaceSettings={workspaceSettings}
+            settingsLoading={settingsLoading}
           />
         )
       }

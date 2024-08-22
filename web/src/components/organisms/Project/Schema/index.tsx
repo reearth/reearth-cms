@@ -80,7 +80,7 @@ const ProjectSchema: React.FC = () => {
     modelDeletionModalShown,
   } = useHooks();
 
-  const { workspaceSettings } = useSettingsHooks();
+  const { workspaceSettings, loading: settingsLoading } = useSettingsHooks();
 
   return (
     <>
@@ -173,6 +173,7 @@ const ProjectSchema: React.FC = () => {
           setUploadModalVisibility={setUploadModalVisibility}
           onGetAsset={handleGetAsset}
           workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
         />
       )}
     </>

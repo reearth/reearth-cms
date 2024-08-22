@@ -10,13 +10,13 @@ import {
 } from "@reearth/core";
 import Ajv from "ajv";
 import axios from "axios";
-import { editor } from "monaco-editor";
+import { editor, Range } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { Resizable, ResizeCallbackData } from "react-resizable";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import MapPinFilled from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Typography from "@reearth-cms/components/atoms/Typography";
@@ -59,6 +59,12 @@ const TILE_TYPE_MAP = {
   URL: "url",
 } as const;
 
+const TERRAIN_TYPE_MAP = {
+  CESIUM_WORLD_TERRAIN: "cesium",
+  ARC_GIS_TERRAIN: "arcgis",
+  CESIUM_ION: "cesiumion",
+} as const;
+
 interface Props {
   value?: string | null;
   onChange?: (value: string) => void;
@@ -68,6 +74,7 @@ interface Props {
   errorAdd?: () => void;
   errorDelete?: () => void;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const GeometryItem: React.FC<Props> = ({
@@ -79,10 +86,18 @@ const GeometryItem: React.FC<Props> = ({
   errorAdd,
   errorDelete,
   workspaceSettings,
+  settingsLoading,
 }) => {
   const t = useT();
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
+
+  const [sketchType, setSketchType] = useState<SketchType>();
+
+  const setType = useCallback((newSketchType?: SketchType) => {
+    setSketchType(newSketchType);
+    mapRef.current?.sketch?.setType(newSketchType);
+  }, []);
 
   const copyButtonClick = useCallback(() => {
     const value = editorRef.current?.getValue();
@@ -91,21 +106,27 @@ const GeometryItem: React.FC<Props> = ({
 
   const deleteButtonClick = useCallback(() => {
     editorRef.current?.setValue("");
-  }, []);
+    setType();
+  }, [setType]);
 
   const options = useMemo(
-    () => ({
-      bracketPairColorization: {
-        enabled: true,
-      },
-      minimap: {
-        enabled: false,
-      },
-      readOnly: disabled || isEditor,
-      readOnlyMessage: { value: t("Cannot edit in read-only editor") },
-      wordWrap: "on" as const,
-      scrollBeyondLastLine: false,
-    }),
+    () =>
+      ({
+        bracketPairColorization: {
+          enabled: true,
+        },
+        minimap: {
+          enabled: false,
+        },
+        readOnly: disabled || isEditor,
+        readOnlyMessage: { value: t("Cannot edit in read-only editor") },
+        wordWrap: "on",
+        scrollBeyondLastLine: false,
+        glyphMargin: true,
+        lineNumbersMinChars: 3,
+        folding: false,
+        tabSize: 2,
+      }) as const,
     [disabled, isEditor, t],
   );
 
@@ -138,25 +159,49 @@ const GeometryItem: React.FC<Props> = ({
     errorDelete?.();
   }, [errorDelete]);
 
+  const allErrorRemove = useCallback(() => {
+    if (!editorRef.current) return;
+    const model = editorRef.current.getModel();
+    const decorations = model?.getAllMarginDecorations();
+    if (decorations) {
+      editorRef.current.removeDecorations(decorations.map(decoration => decoration.id));
+    }
+  }, []);
+
+  const errorShow = useCallback((startLine: number, endLine: number) => {
+    if (!editorRef.current) return;
+    editorRef.current.createDecorationsCollection([
+      {
+        range: new Range(startLine, 1, endLine, 1),
+        options: {
+          glyphMarginClassName: "glyphMargin",
+        },
+      },
+    ]);
+  }, []);
+
   const handleEditorValidation = useCallback(
     (markers: editor.IMarker[]) => {
+      allErrorRemove();
       if (markers.length > 0) {
+        markers.forEach(marker => errorShow(marker.startLineNumber, marker.endLineNumber));
         handleErrorAdd();
       } else {
         handleErrorDelete();
       }
     },
-    [handleErrorAdd, handleErrorDelete],
+    [allErrorRemove, errorShow, handleErrorAdd, handleErrorDelete],
   );
 
   const typeCheck = useCallback(
-    (isTypeChange: boolean) => {
-      if (value && supportedTypes) {
+    (isTypeChange: boolean, newValue?: string) => {
+      if (newValue && supportedTypes) {
         try {
           const valueJson: {
             type?: (typeof GEO_TYPE_MAP)[keyof typeof GEO_TYPE_MAP];
-          } = JSON.parse(value);
-          if (valueJson.type) {
+          } = JSON.parse(newValue);
+          const isValid = validate(valueJson);
+          if (isValid && valueJson.type) {
             const convertedTypes = Array.isArray(supportedTypes)
               ? supportedTypes.map(type => GEO_TYPE_MAP[type])
               : supportedTypes === "ANY"
@@ -175,26 +220,23 @@ const GeometryItem: React.FC<Props> = ({
         isTypeChange ? setHasError(false) : handleErrorDelete();
       }
     },
-    [handleErrorAdd, handleErrorDelete, supportedTypes, value],
+    [handleErrorAdd, handleErrorDelete, supportedTypes],
   );
 
   const handleEditorOnChange = useCallback(
     (value?: string) => {
       onChange?.(value ?? "");
-      typeCheck(false);
+      typeCheck(false, value);
     },
     [onChange, typeCheck],
   );
 
   const [currentValue, setCurrentValue] = useState<string | undefined>();
   useEffect(() => {
-    setCurrentValue(value ?? undefined);
-  }, [value]);
-
-  useEffect(() => {
     if (value === currentValue) {
-      typeCheck(true);
+      typeCheck(true, value);
     }
+    setCurrentValue(value ?? undefined);
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
@@ -218,6 +260,13 @@ const GeometryItem: React.FC<Props> = ({
   }, [supportedTypes]);
 
   const mapRef = useRef<MapRef>(null);
+  const [isShow, setIsShow] = useState(false);
+  useEffect(() => {
+    if (!settingsLoading) {
+      setIsShow(true);
+    }
+  }, [settingsLoading]);
+
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = useCallback(async (q: string) => {
@@ -246,23 +295,30 @@ const GeometryItem: React.FC<Props> = ({
         {
           id: "default",
           type: TILE_TYPE_MAP[workspaceSettings.tiles?.resources[0]?.type ?? "DEFAULT"],
-          url: workspaceSettings.tiles?.resources[0]?.props.url
+          url: workspaceSettings.tiles?.resources[0]?.props.url,
         },
       ],
-      terrain: { enabled: workspaceSettings.terrains?.enabled },
+      terrain: {
+        enabled: workspaceSettings.terrains?.enabled,
+        type: TERRAIN_TYPE_MAP[
+          workspaceSettings.terrains?.resources[0]?.type ?? "CESIUM_WORLD_TERRAIN"
+        ],
+      },
+      assets: {
+        cesium: {
+          terrain: {
+            ionAccessToken: workspaceSettings.terrains?.resources[0]?.props.cesiumIonAccessToken,
+            ionAsset: workspaceSettings.terrains?.resources[0]?.props.cesiumIonAssetId,
+            ionUrl: workspaceSettings.terrains?.resources[0]?.props.url,
+          },
+        },
+      },
       indicator: {
         type: "custom",
       },
     }),
-    [workspaceSettings.terrains?.enabled, workspaceSettings.tiles?.resources],
+    [workspaceSettings.terrains, workspaceSettings.tiles?.resources],
   );
-
-  const [sketchType, setSketchType] = useState<SketchType>();
-
-  const setType = useCallback((newSketchType?: SketchType) => {
-    setSketchType(newSketchType);
-    mapRef.current?.sketch?.setType(newSketchType);
-  }, []);
 
   const confirm = useCallback(
     (newSketchType: SketchType) => {
@@ -298,7 +354,7 @@ const GeometryItem: React.FC<Props> = ({
 
   const sketchButtonClick = useCallback(
     (newSketchType: SketchType) => {
-      if (sketchType) {
+      if (sketchType === newSketchType) {
         setType();
       } else if (value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
         confirm(newSketchType);
@@ -336,18 +392,9 @@ const GeometryItem: React.FC<Props> = ({
               geometry,
             },
           },
-          marker: {
-            imageColor: "#000000D9",
-            image: MapPinFilled,
-          },
-          polyline: {
-            strokeColor: "#000000D9",
-          },
-          polygon: {
-            fillColor: "#00000040",
-            stroke: true,
-            strokeColor: "#000000D9",
-          },
+          marker: {},
+          polyline: {},
+          polygon: {},
         };
       } catch (_) {
         return;
@@ -359,16 +406,59 @@ const GeometryItem: React.FC<Props> = ({
   const isInitRef = useRef(true);
 
   const flyTo = useCallback(
-    (geometry: { coordinates?: unknown[]; geometries?: { coordinates: unknown[] }[] }) => {
-      let coordinates = geometry.coordinates ?? geometry.geometries?.[0].coordinates;
-      if (coordinates) {
+    (geometry: { coordinates?: number[]; geometries?: { coordinates: number[] }[] }) => {
+      const coordinateGet = (
+        coordinatesInput: number[],
+        bboxInput?: [number, number, number, number],
+      ): [number, number, number, number] => {
+        let coordinates = coordinatesInput;
         while (Array.isArray(coordinates[0])) {
           coordinates = coordinates.flat();
         }
-        mapRef.current?.engine.flyTo({
-          lng: coordinates[0] as number,
-          lat: coordinates[1] as number,
-          height: 100000,
+
+        let [west, south, east, north] = bboxInput ?? [
+          coordinates[0],
+          coordinates[1],
+          coordinates[0],
+          coordinates[1],
+        ];
+
+        coordinates.forEach((coordinate, index) => {
+          if (index % 2 === 0) {
+            if (coordinate < west) {
+              west = coordinate;
+            } else if (coordinate > east) {
+              east = coordinate;
+            }
+          } else {
+            if (coordinate < south) {
+              south = coordinate;
+            } else if (coordinate > north) {
+              north = coordinate;
+            }
+          }
+        });
+
+        if (west === east && north === south) {
+          const padding = 0.1;
+          west -= padding;
+          east += padding;
+        }
+
+        return [west, south, east, north];
+      };
+
+      let bbox: [number, number, number, number] | undefined;
+      if (geometry.coordinates) {
+        bbox = coordinateGet(geometry.coordinates);
+      } else if (geometry.geometries) {
+        geometry.geometries.forEach(geo => {
+          bbox = coordinateGet(geo.coordinates, bbox);
+        });
+      }
+      if (bbox) {
+        mapRef.current?.engine.flyToBBox(bbox, {
+          duration: 0,
         });
       }
     },
@@ -408,44 +498,70 @@ const GeometryItem: React.FC<Props> = ({
   useEffect(() => {
     if (isReady) {
       if (value !== undefined) {
-        if (typeof value === "string") {
+        if (typeof value === "string" && !hasError) {
           sketch(value);
         }
         isInitRef.current = false;
       }
     }
-  }, [sketch, isReady, value]);
+  }, [sketch, isReady, value, hasError]);
+
+  const minWidth = useMemo(() => 280, []);
+  const [width, setWidth] = useState<number>(minWidth);
+  const [maxWidth, setMaxWidth] = useState<number>(Infinity);
+  const fieldRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const maxWidthUpdate = () => {
+      const width = fieldRef.current?.getBoundingClientRect().width;
+      if (width) setMaxWidth(width);
+    };
+    maxWidthUpdate();
+    window.addEventListener("resize", maxWidthUpdate);
+    return () => window.removeEventListener("resize", maxWidthUpdate);
+  }, []);
+
+  const onResize = (_: unknown, { size }: ResizeCallbackData) => {
+    setWidth(size.width);
+  };
 
   return (
     <Container>
-      <GeometryField>
-        <EditorWrapper hasError={hasError}>
-          <EditorButtons>
-            <EditorButton
-              icon={<Icon icon="editorCopy" size={12} />}
-              size="small"
-              onClick={copyButtonClick}
-            />
-            {!disabled && !isEditor && (
+      <GeometryField ref={fieldRef}>
+        <StyledResizable
+          width={width}
+          minConstraints={[minWidth, 0]}
+          maxConstraints={[maxWidth, 0]}
+          onResize={onResize}
+          handle={<span className="react-resizable-handle" />}>
+          <EditorWrapper hasError={hasError} width={width}>
+            <EditorButtons>
               <EditorButton
-                icon={<Icon icon="trash" size={12} />}
+                icon={<Icon icon="editorCopy" size={12} />}
                 size="small"
-                onClick={deleteButtonClick}
+                onClick={copyButtonClick}
               />
-            )}
-          </EditorButtons>
-          <MonacoEditor
-            height="100%"
-            language={"json"}
-            options={options}
-            value={currentValue}
-            beforeMount={handleEditorWillMount}
-            onMount={handleEditorDidMount}
-            onChange={handleEditorOnChange}
-            onValidate={handleEditorValidation}
-          />
-          <Placeholder isEmpty={!value}>{placeholderContent}</Placeholder>
-        </EditorWrapper>
+              {!disabled && (
+                <EditorButton
+                  icon={<Icon icon="trash" size={12} />}
+                  size="small"
+                  onClick={deleteButtonClick}
+                />
+              )}
+            </EditorButtons>
+            <MonacoEditor
+              height="100%"
+              language={"json"}
+              options={options}
+              value={currentValue}
+              beforeMount={handleEditorWillMount}
+              onMount={handleEditorDidMount}
+              onChange={handleEditorOnChange}
+              onValidate={handleEditorValidation}
+            />
+            <Placeholder isEmpty={!value}>{placeholderContent}</Placeholder>
+          </EditorWrapper>
+        </StyledResizable>
         <ViewerWrapper>
           {!disabled && (
             <StyledSearch
@@ -511,15 +627,17 @@ const GeometryItem: React.FC<Props> = ({
               <Button icon={<Icon icon="minus" />} onClick={handleZoomOut} />
             </ZoomButtons>
           </ViewerButtons>
-          <CoreVisualizer
-            ref={mapRef}
-            ready={isReady}
-            onMount={handleMount}
-            engine={"cesium"}
-            meta={{cesiumIonAccessToken: config()?.cesiumIonAccessToken}}
-            viewerProperty={viewerProperty}
-            onSketchFeatureCreate={handleSketchFeatureCreate}
-          />
+          {isShow && (
+            <CoreVisualizer
+              ref={mapRef}
+              ready={isReady}
+              onMount={handleMount}
+              engine={"cesium"}
+              meta={{ cesiumIonAccessToken: config()?.cesiumIonAccessToken }}
+              viewerProperty={viewerProperty}
+              onSketchFeatureCreate={handleSketchFeatureCreate}
+            />
+          )}
         </ViewerWrapper>
       </GeometryField>
       {hasError && <Text type="danger">{t("GeoJSON type mismatch, please check your input")}</Text>}
@@ -539,10 +657,27 @@ const GeometryField = styled.div`
   box-shadow: 0px 2px 8px 0px #00000026;
 `;
 
-const EditorWrapper = styled.div<{ hasError: boolean }>`
-  width: 45%;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const StyledResizable = styled(Resizable as any)`
+  .react-resizable-handle {
+    position: absolute;
+    right: -5px;
+    bottom: 0;
+    z-index: 1;
+    width: 10px;
+    height: 100%;
+    cursor: col-resize;
+  }
+`;
+
+const EditorWrapper = styled.div<{ hasError: boolean; width: number }>`
+  width: ${({ width }) => `${width}px`};
   position: relative;
   border: 1px solid ${({ hasError }) => (hasError ? "#ff4d4f" : "transparent")};
+  .glyphMargin {
+    background: #ecabbb;
+    width: 5px !important;
+  }
 `;
 
 const EditorButtons = styled.div`
@@ -565,7 +700,7 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
   position: absolute;
   white-space: pre-wrap;
   top: 0px;
-  left: 65px;
+  left: 52px;
   font-size: 14px;
   color: #bfbfbf;
   font-family: Consolas, "Courier New", monospace;
@@ -577,6 +712,7 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
 const ViewerWrapper = styled.div`
   position: relative;
   flex: 1;
+  overflow: hidden;
 `;
 
 const StyledSearch = styled(Input.Search)`
@@ -585,6 +721,16 @@ const StyledSearch = styled(Input.Search)`
   left: 8px;
   top: 15px;
   max-width: 167px;
+  .ant-input-outlined {
+    height: 24px;
+    border-color: #d9d9d9 !important;
+    :hover {
+      border-color: #1677ff !important;
+    }
+    :focus-within {
+      box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1) !important;
+    }
+  }
 `;
 
 const ViewerButtons = styled.div`
