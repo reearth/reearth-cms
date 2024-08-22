@@ -40,6 +40,7 @@ interface Props {
   page: number;
   pageSize: number;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
@@ -71,6 +72,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
   page,
   pageSize,
   workspaceSettings,
+  settingsLoading,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -141,6 +143,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
           isEditor={selectedType === "GeometryEditor"}
           multiple={multiple}
           workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
         />
       );
     case "Text":

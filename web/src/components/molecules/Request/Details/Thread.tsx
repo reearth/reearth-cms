@@ -16,6 +16,7 @@ interface Props {
   me?: User;
   currentRequest: Request;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
@@ -27,6 +28,7 @@ const RequestThread: React.FC<Props> = ({
   me,
   currentRequest,
   workspaceSettings,
+  settingsLoading,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
@@ -40,6 +42,7 @@ const RequestThread: React.FC<Props> = ({
           <RequestDescription
             currentRequest={currentRequest}
             workspaceSettings={workspaceSettings}
+            settingsLoading={settingsLoading}
             onGetAsset={onGetAsset}
             onGroupGet={onGroupGet}
           />

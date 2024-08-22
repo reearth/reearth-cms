@@ -44,6 +44,7 @@ interface Props {
   linkItemModalPageSize?: number;
   disabled?: boolean;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -90,6 +91,7 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalPageSize,
   disabled,
   workspaceSettings,
+  settingsLoading,
   onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableReload,
@@ -208,6 +210,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 linkItemModalPageSize={linkItemModalPageSize}
                 disabled={disabled}
                 workspaceSettings={workspaceSettings}
+                settingsLoading={settingsLoading}
                 onReferenceModelUpdate={onReferenceModelUpdate}
                 onLinkItemTableReload={onLinkItemTableReload}
                 onLinkItemTableChange={onLinkItemTableChange}

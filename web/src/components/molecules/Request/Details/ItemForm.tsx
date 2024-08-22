@@ -17,6 +17,7 @@ interface Props {
   initialFormValues: Record<string, unknown>;
   referencedItems?: FormItem[];
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
 }
@@ -26,6 +27,7 @@ const RequestItemForm: React.FC<Props> = ({
   initialFormValues,
   referencedItems,
   workspaceSettings,
+  settingsLoading,
   onGetAsset,
   onGroupGet,
 }) => {
@@ -56,6 +58,7 @@ const RequestItemForm: React.FC<Props> = ({
                   formItemsData={referencedItems}
                   onGroupGet={onGroupGet}
                   workspaceSettings={workspaceSettings}
+                  settingsLoading={settingsLoading}
                 />
               </div>
             );
@@ -64,7 +67,12 @@ const RequestItemForm: React.FC<Props> = ({
 
             return (
               <div key={field.id}>
-                <FieldComponent field={field} disabled workspaceSettings={workspaceSettings} />
+                <FieldComponent
+                  field={field}
+                  disabled
+                  workspaceSettings={workspaceSettings}
+                  settingsLoading={settingsLoading}
+                />
               </div>
             );
           } else {

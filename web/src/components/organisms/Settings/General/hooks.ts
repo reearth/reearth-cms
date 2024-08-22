@@ -23,7 +23,7 @@ export default () => {
 
   const [currentWorkspace] = useWorkspace();
   const workspaceId = currentWorkspace?.id;
-  const { data, refetch } = useGetWorkspaceSettingsQuery({
+  const { data, refetch, loading } = useGetWorkspaceSettingsQuery({
     variables: { workspaceId: workspaceId ?? "" },
   });
 
@@ -47,7 +47,8 @@ export default () => {
       : defaultSettings;
   }, [data?.node, defaultSettings]);
 
-  const [updateWorkspaceMutation, { loading }] = useUpdateWorkspaceSettingsMutation();
+  const [updateWorkspaceMutation, { loading: updateLoading }] =
+    useUpdateWorkspaceSettingsMutation();
 
   const handleWorkspaceSettingsUpdate = useCallback(
     async (tiles: TileInput[], terrains: TerrainInput[], isEnable?: boolean) => {
@@ -87,8 +88,9 @@ export default () => {
 
   return {
     workspaceSettings,
-    hasPrivilege,
     loading,
+    hasPrivilege,
+    updateLoading,
     handleWorkspaceSettingsUpdate,
   };
 };

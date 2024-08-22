@@ -98,7 +98,7 @@
     "@emotion/react": "11.11.4",
     "@emotion/styled": "11.11.5",
     "@monaco-editor/react": "^4.6.0",
-    "@reearth/core": "0.0.7-alpha.7",
+    "@reearth/core": "0.0.7-alpha.8",
     "ajv": "8.17.1",
     "antd": "5.16.2",
     "apollo-upload-client": "18.0.1",

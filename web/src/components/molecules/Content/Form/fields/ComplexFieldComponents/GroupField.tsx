@@ -33,6 +33,7 @@ interface GroupFieldProps {
   linkItemModalPageSize?: number;
   disabled?: boolean;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -76,6 +77,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   linkItemModalPageSize,
   disabled,
   workspaceSettings,
+  settingsLoading,
   onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableReload,
@@ -125,6 +127,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalPageSize={linkItemModalPageSize}
           disabled={disabled}
           workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
           onReferenceModelUpdate={onReferenceModelUpdate}
           onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
@@ -167,6 +170,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalPageSize={linkItemModalPageSize}
           disabled={disabled}
           workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
           onReferenceModelUpdate={onReferenceModelUpdate}
           onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
