@@ -11,7 +11,7 @@ interface Props {
   children?: ReactNode;
 }
 
-const AuthComponent: React.FC<Props> = ({ children }) => {
+const FirebaseProvider: React.FC<Props> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -69,4 +69,4 @@ const Container = styled.div`
   height: 100vh;
 `;
 
-export default AuthComponent;
+export default FirebaseProvider;
