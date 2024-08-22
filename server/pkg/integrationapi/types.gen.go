@@ -573,6 +573,9 @@ type FieldIdParam = id.FieldID
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
 
+// KeywordParam defines model for keywordParam.
+type KeywordParam = string
+
 // ModelIdOrKeyParam defines model for modelIdOrKeyParam.
 type ModelIdOrKeyParam = model.IDOrKey
 
@@ -677,8 +680,8 @@ type ItemFilterParams struct {
 	// Asset Specifies whether asset data are embedded in the results
 	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
 
-	// Query query string
-	Query *string `form:"query,omitempty" json:"query,omitempty"`
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
 }
 
 // ItemFilterParamsSort defines parameters for ItemFilter.
@@ -853,6 +856,9 @@ type AssetFilterParams struct {
 
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
 }
 
 // AssetFilterParamsSort defines parameters for AssetFilter.
