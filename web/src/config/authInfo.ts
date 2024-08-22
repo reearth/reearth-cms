@@ -1,4 +1,5 @@
 import { type CognitoParams } from "./aws";
+import { type FirebaseParams } from "./firebase";
 
 import { config } from ".";
 
@@ -10,7 +11,9 @@ export type AuthInfo = {
   auth0Audience?: string;
   authProvider?: string;
   cognito?: CognitoParams;
-} & CognitoParams;
+  firebase?: FirebaseParams;
+} & CognitoParams &
+  FirebaseParams;
 
 export function getAuthInfo(conf = config()): AuthInfo | undefined {
   return getMultitenantAuthInfo(conf) || defaultAuthInfo(conf);
@@ -44,6 +47,7 @@ function defaultAuthInfo(conf = config()): AuthInfo | undefined {
     auth0Domain: conf.auth0Domain,
     authProvider: conf.authProvider || "auth0",
     cognito: conf.cognito,
+    firebase: conf.firebase,
   };
 }
 
