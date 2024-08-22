@@ -38,23 +38,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const clientId = authInfo?.auth0ClientId;
     const audience = authInfo?.auth0Audience;
 
-    if (domain && clientId) {
-      return (
-        <Auth0Provider
-          domain={domain}
-          clientId={clientId}
-          authorizationParams={{
-            audience: audience,
-            scope: "openid profile email offline_access",
-            redirect_uri: getSignInCallbackUrl(),
-          }}
-          useRefreshTokens
-          useRefreshTokensFallback
-          cacheLocation="localstorage">
-          <Auth0Wrapper>{children}</Auth0Wrapper>
-        </Auth0Provider>
-      );
-    }
+    return domain && clientId ? (
+      <Auth0Provider
+        domain={domain}
+        clientId={clientId}
+        authorizationParams={{
+          audience: audience,
+          scope: "openid profile email offline_access",
+          redirect_uri: getSignInCallbackUrl(),
+        }}
+        useRefreshTokens
+        useRefreshTokensFallback
+        cacheLocation="localstorage">
+        <Auth0Wrapper>{children}</Auth0Wrapper>
+      </Auth0Provider>
+    ) : null;
   }
 
   if (authProvider === "cognito") {
@@ -64,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   if (authProvider === "firebase") {
     return (
-      <FirebaseProvider redirectURL={getSignInCallbackUrl()}>
+      <FirebaseProvider>
         <FirebaseWrapper>{children}</FirebaseWrapper>
       </FirebaseProvider>
     );

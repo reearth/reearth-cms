@@ -2,7 +2,6 @@ import {
   getAuth,
   onAuthStateChanged,
   signInWithRedirect,
-  getRedirectResult,
   signOut,
   EmailAuthProvider,
   User,
@@ -28,23 +27,6 @@ export const useFirebaseAuth = (): AuthHook => {
       }
       setIsLoading(false);
     });
-
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          setUser(result.user);
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError(JSON.stringify(err));
-        }
-      }
-    };
-
-    handleRedirectResult();
 
     return () => unsubscribe();
   }, []);

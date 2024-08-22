@@ -8,11 +8,10 @@ import Loading from "@reearth-cms/components/atoms/Loading";
 import "firebaseui/dist/firebaseui.css";
 
 interface Props {
-  redirectURL?: string;
   children?: ReactNode;
 }
 
-const AuthComponent: React.FC<Props> = ({ children, redirectURL }) => {
+const AuthComponent: React.FC<Props> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -36,7 +35,6 @@ const AuthComponent: React.FC<Props> = ({ children, redirectURL }) => {
     const auth = getAuth();
     const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(auth);
     const uiConfig = {
-      signInSuccessUrl: redirectURL || "/",
       signInOptions: [
         {
           provider: EmailAuthProvider.PROVIDER_ID,
@@ -49,7 +47,7 @@ const AuthComponent: React.FC<Props> = ({ children, redirectURL }) => {
     } else {
       ui.reset();
     }
-  }, [isAuthenticated, isLoading, redirectURL]);
+  }, [isAuthenticated, isLoading]);
 
   return isLoading ? (
     <Container>
