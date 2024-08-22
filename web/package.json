@@ -135,5 +135,9 @@
     "remark-gfm": "4.0.0",
     "resium": "1.17.4",
     "ulid": "2.3.0"
+  },
+  "resolutions": {
+    "string-width": "4.2.3",
+    "strip-ansi": "^6.0.1"
   }
 }
