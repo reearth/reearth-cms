@@ -1,5 +1,5 @@
 import { type CognitoParams } from "./aws";
-import { FirebaseParams } from "./firebase";
+import { type FirebaseParams } from "./firebase";
 
 import { config } from ".";
 
@@ -47,14 +47,7 @@ function defaultAuthInfo(conf = config()): AuthInfo | undefined {
     auth0Domain: conf.auth0Domain,
     authProvider: conf.authProvider || "auth0",
     cognito: conf.cognito,
-    firebase: {
-      firebaseApiKey: conf.firebaseApiKey,
-      firebaseAuthDomain: conf.firebaseAuthDomain,
-      firebaseProjectId: conf.firebaseProjectId,
-      firebaseStorageBucket: conf.firebaseStorageBucket,
-      firebaseMessagingSenderId: conf.firebaseMessagingSenderId,
-      firebaseAppId: conf.firebaseAppId,
-    },
+    firebase: conf.firebase,
   };
 }
 

@@ -10,14 +10,21 @@ export interface FirebaseParams {
 }
 
 export function configureFirebase(firebase: FirebaseParams) {
-  const firebaseConfig = {
-    apiKey: firebase.firebaseApiKey,
-    authDomain: firebase.firebaseAuthDomain,
-    projectId: firebase.firebaseProjectId,
-    storageBucket: firebase.firebaseStorageBucket,
-    messagingSenderId: firebase.firebaseMessagingSenderId,
-    appId: firebase.firebaseAppId,
+  const firebaseApiKey = firebase.firebaseApiKey;
+  const firebaseAuthDomain = firebase.firebaseAuthDomain;
+  const firebaseProjectId = firebase.firebaseProjectId;
+  const firebaseStorageBucket = firebase.firebaseStorageBucket;
+  const firebaseMessagingSenderId = firebase.firebaseMessagingSenderId;
+  const firebaseAppId = firebase.firebaseAppId;
+
+  const config = {
+    apiKey: firebaseApiKey,
+    authDomain: firebaseAuthDomain,
+    projectId: firebaseProjectId,
+    storageBucket: firebaseStorageBucket,
+    messagingSenderId: firebaseMessagingSenderId,
+    appId: firebaseAppId,
   };
 
-  initializeApp(firebaseConfig);
+  initializeApp(config);
 }

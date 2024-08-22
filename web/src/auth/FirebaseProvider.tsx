@@ -18,9 +18,9 @@ const AuthComponent: React.FC<Props> = ({ children, redirectURL }) => {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, user => {
-      if (user) {
-        setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, currentUser => {
+      if (currentUser) {
+        setUser(currentUser);
       } else {
         setUser(null);
       }
@@ -46,6 +46,8 @@ const AuthComponent: React.FC<Props> = ({ children, redirectURL }) => {
 
     if (!isLoading && !isAuthenticated) {
       ui.start("#firebaseui-auth-container", uiConfig);
+    } else {
+      ui.reset();
     }
   }, [isAuthenticated, isLoading, redirectURL]);
 

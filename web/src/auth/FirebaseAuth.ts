@@ -20,9 +20,9 @@ export const useFirebaseAuth = (): AuthHook => {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, user => {
-      if (user) {
-        setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, currentUser => {
+      if (currentUser) {
+        setUser(currentUser);
       } else {
         setUser(null);
       }
@@ -53,7 +53,7 @@ export const useFirebaseAuth = (): AuthHook => {
     const auth = getAuth();
     const currentUser = auth.currentUser;
     if (currentUser) {
-      return currentUser.getIdToken();
+      return await currentUser.getIdToken();
     }
     throw new Error("No authenticated user");
   };

@@ -11,17 +11,17 @@ import FirebaseProvider from "./FirebaseProvider";
 
 export const AuthContext = createContext<AuthHook | null>(null);
 
-const Auth0Wrapper = ({ children }: { children: ReactNode }) => {
+const Auth0Wrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useAuth0Auth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
-const CognitoWrapper = ({ children }: { children: ReactNode }) => {
+const CognitoWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useCognitoAuth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
-const FirebaseWrapper = ({ children }: { children: ReactNode }) => {
+const FirebaseWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useFirebaseAuth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
@@ -38,21 +38,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const clientId = authInfo?.auth0ClientId;
     const audience = authInfo?.auth0Audience;
 
-    return domain && clientId ? (
-      <Auth0Provider
-        domain={domain}
-        clientId={clientId}
-        authorizationParams={{
-          audience: audience,
-          scope: "openid profile email offline_access",
-          redirect_uri: getSignInCallbackUrl(),
-        }}
-        useRefreshTokens
-        useRefreshTokensFallback
-        cacheLocation="localstorage">
-        <Auth0Wrapper>{children}</Auth0Wrapper>
-      </Auth0Provider>
-    ) : null;
+    if (domain && clientId) {
+      return (
+        <Auth0Provider
+          domain={domain}
+          clientId={clientId}
+          authorizationParams={{
+            audience: audience,
+            scope: "openid profile email offline_access",
+            redirect_uri: getSignInCallbackUrl(),
+          }}
+          useRefreshTokens
+          useRefreshTokensFallback
+          cacheLocation="localstorage">
+          <Auth0Wrapper>{children}</Auth0Wrapper>
+        </Auth0Provider>
+      );
+    }
   }
 
   if (authProvider === "cognito") {

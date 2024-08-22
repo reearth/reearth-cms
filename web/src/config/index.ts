@@ -1,6 +1,6 @@
 import { type AuthInfo, getAuthInfo } from "./authInfo";
 import { configureCognito } from "./aws";
-import { configureFirebase } from "./firebase"; // Import Firebase configuration
+import { configureFirebase } from "./firebase";
 
 export { getAuthInfo, getSignInCallbackUrl, logInToTenant, logOutFromTenant } from "./authInfo";
 
@@ -25,12 +25,14 @@ export const defaultConfig: Config = {
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
   cesiumIonAccessToken: env.REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN || "",
   editorUrl: env.REEARTH_CMS_EDITOR_URL,
-  firebaseApiKey: env.REEARTH_CMS_FIREBASE_API_KEY,
-  firebaseAuthDomain: env.REEARTH_CMS_FIREBASE_AUTH_DOMAIN,
-  firebaseProjectId: env.REEARTH_CMS_FIREBASE_PROJECT_ID,
-  firebaseStorageBucket: env.REEARTH_CMS_FIREBASE_STORAGE_BUCKET,
-  firebaseMessagingSenderId: env.REEARTH_CMS_FIREBASE_MESSAGING_SENDER_ID,
-  firebaseAppId: env.REEARTH_CMS_FIREBASE_APP_ID,
+  firebase: {
+    firebaseApiKey: env.REEARTH_CMS_FIREBASE_API_KEY,
+    firebaseAuthDomain: env.REEARTH_CMS_FIREBASE_AUTH_DOMAIN,
+    firebaseProjectId: env.REEARTH_CMS_FIREBASE_PROJECT_ID,
+    firebaseStorageBucket: env.REEARTH_CMS_FIREBASE_STORAGE_BUCKET,
+    firebaseMessagingSenderId: env.REEARTH_CMS_FIREBASE_MESSAGING_SENDER_ID,
+    firebaseAppId: env.REEARTH_CMS_FIREBASE_APP_ID,
+  },
 };
 
 export default async function loadConfig() {
