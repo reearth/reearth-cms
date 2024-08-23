@@ -4,7 +4,7 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestMolecule from "@reearth-cms/components/molecules/Request/Details/Request";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 interface Props {
   me?: User;
@@ -15,6 +15,8 @@ interface Props {
   deleteLoading: boolean;
   approveLoading: boolean;
   updateLoading: boolean;
+  workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -36,6 +38,8 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   deleteLoading,
   approveLoading,
   updateLoading,
+  workspaceSettings,
+  settingsLoading,
   onRequestApprove,
   onRequestUpdate,
   onRequestDelete,
@@ -59,6 +63,8 @@ const RequestDetailsMolecule: React.FC<Props> = ({
       deleteLoading={deleteLoading}
       approveLoading={approveLoading}
       updateLoading={updateLoading}
+      workspaceSettings={workspaceSettings}
+      settingsLoading={settingsLoading}
       onRequestApprove={onRequestApprove}
       onRequestUpdate={onRequestUpdate}
       onRequestDelete={onRequestDelete}

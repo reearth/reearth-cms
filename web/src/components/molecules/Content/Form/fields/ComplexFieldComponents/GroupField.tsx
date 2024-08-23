@@ -7,6 +7,7 @@ import MultiValueGroup from "@reearth-cms/components/molecules/Common/MultiValue
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 interface GroupFieldProps {
   field: Field;
@@ -31,6 +32,8 @@ interface GroupFieldProps {
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
   disabled?: boolean;
+  workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -73,6 +76,8 @@ const GroupField: React.FC<GroupFieldProps> = ({
   linkItemModalPage,
   linkItemModalPageSize,
   disabled,
+  workspaceSettings,
+  settingsLoading,
   onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableReload,
@@ -121,6 +126,8 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}
           disabled={disabled}
+          workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
           onReferenceModelUpdate={onReferenceModelUpdate}
           onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
@@ -162,6 +169,8 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}
           disabled={disabled}
+          workspaceSettings={workspaceSettings}
+          settingsLoading={settingsLoading}
           onReferenceModelUpdate={onReferenceModelUpdate}
           onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}

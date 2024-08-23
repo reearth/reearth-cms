@@ -26,7 +26,7 @@ import {
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 
@@ -115,6 +115,8 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -184,6 +186,8 @@ const ContentForm: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
+  workspaceSettings,
+  settingsLoading,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -226,9 +230,8 @@ const ContentForm: React.FC<Props> = ({
     (changedValues: any) => {
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
-        const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const changedFieldValue = (value as any)[groupFieldKey];
+        const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
+        const groupFieldValue = initialFormValues[key][groupFieldKey];
         if (
           JSON.stringify(emptyConvert(changedFieldValue)) ===
           JSON.stringify(emptyConvert(groupFieldValue))
@@ -496,20 +499,6 @@ const ContentForm: React.FC<Props> = ({
         />
         <FormItemsWrapper>
           {model?.schema.fields.map(field => {
-            const FieldComponent =
-              FIELD_TYPE_COMPONENT_MAP[
-                field.type as
-                  | "Select"
-                  | "Date"
-                  | "Tag"
-                  | "Bool"
-                  | "Checkbox"
-                  | "URL"
-                  | "TextArea"
-                  | "MarkdownText"
-                  | "Integer"
-              ] || DefaultField;
-
             if (field.type === "Asset") {
               return (
                 <StyledFormItemWrapper key={field.id}>
@@ -563,7 +552,7 @@ const ContentForm: React.FC<Props> = ({
               );
             } else if (field.type === "Group") {
               return (
-                <StyledFormItemWrapper key={field.id}>
+                <StyledFormItemWrapper key={field.id} isFullWidth>
                   <GroupField
                     field={field}
                     form={form}
@@ -585,6 +574,8 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
+                    workspaceSettings={workspaceSettings}
+                    settingsLoading={settingsLoading}
                     onSearchTerm={onSearchTerm}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onLinkItemTableReload={onLinkItemTableReload}
@@ -606,7 +597,33 @@ const ContentForm: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
+            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+
+              return (
+                <StyledFormItemWrapper key={field.id} isFullWidth>
+                  <FieldComponent
+                    field={field}
+                    workspaceSettings={workspaceSettings}
+                    settingsLoading={settingsLoading}
+                  />
+                </StyledFormItemWrapper>
+              );
             } else {
+              const FieldComponent =
+                FIELD_TYPE_COMPONENT_MAP[
+                  field.type as
+                    | "Select"
+                    | "Date"
+                    | "Tag"
+                    | "Bool"
+                    | "Checkbox"
+                    | "URL"
+                    | "TextArea"
+                    | "MarkdownText"
+                    | "Integer"
+                ] || DefaultField;
+
               return (
                 <StyledFormItemWrapper key={field.id}>
                   <FieldComponent field={field} />
@@ -671,8 +688,8 @@ const ContentForm: React.FC<Props> = ({
   );
 };
 
-const StyledFormItemWrapper = styled.div`
-  width: 500px;
+const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
+  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
   word-wrap: break-word;
 `;
 

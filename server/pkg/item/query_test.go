@@ -34,7 +34,7 @@ func TestNewQuery(t *testing.T) {
 			want: &Query{
 				project: pid,
 				model:   mid,
-				q:       "foo",
+				keyword: "foo",
 				ref:     version.Public.Ref(),
 			},
 		},
@@ -85,12 +85,12 @@ func TestQuery_Schema(t *testing.T) {
 	assert.Equal(t, &sId, q.Schema())
 }
 
-func TestQuery_Q(t *testing.T) {
+func TestQuery_Keyword(t *testing.T) {
 	str := "foo"
 	q := &Query{
-		q: str,
+		keyword: str,
 	}
-	assert.Equal(t, str, q.Q())
+	assert.Equal(t, str, q.Keyword())
 }
 
 func TestQuery_Ref(t *testing.T) {

@@ -33,7 +33,7 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	f := interfaces.AssetFilter{
-		Keyword:    nil,
+		Keyword:    request.Params.Keyword,
 		Sort:       sort,
 		Pagination: p,
 	}

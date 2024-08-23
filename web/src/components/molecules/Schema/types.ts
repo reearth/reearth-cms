@@ -39,13 +39,26 @@ export type FieldType =
   | "Reference"
   | "Checkbox"
   | "URL"
-  | "Group";
+  | "Group"
+  | "GeometryObject"
+  | "GeometryEditor";
 
 interface Tag {
   id: string;
   name: string;
   color: string;
 }
+
+export type ObjectSupportedType =
+  | "POINT"
+  | "MULTIPOINT"
+  | "LINESTRING"
+  | "MULTILINESTRING"
+  | "POLYGON"
+  | "MULTIPOLYGON"
+  | "GEOMETRYCOLLECTION";
+
+export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
 
 export interface TypeProperty {
   defaultValue?: string | boolean | string[] | boolean[];
@@ -71,6 +84,8 @@ export interface TypeProperty {
   tags?: Tag[];
   values?: string[];
   schema?: { titleFieldId: string | null };
+  objectSupportedTypes?: ObjectSupportedType[];
+  editorSupportedTypes?: EditorSupportedType[];
 }
 
 export interface FieldTypePropertyInput {
@@ -81,8 +96,12 @@ export interface FieldTypePropertyInput {
   date?: { defaultValue: string };
   bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
+  tag?: {
+    defaultValue?: string;
+    tags: { color: string; id?: string; name: string }[];
+  };
+  checkbox?: { defaultValue?: boolean };
   integer?: { defaultValue: number | ""; min: number | null; max: number | null };
-  url?: { defaultValue: string };
   reference?: {
     modelId: string;
     schemaId: string;
@@ -93,14 +112,10 @@ export interface FieldTypePropertyInput {
       required: boolean;
     } | null;
   };
+  url?: { defaultValue: string };
   group?: {
     groupId: string;
   };
-  tag?: {
-    defaultValue?: string;
-    tags: { color: string; id?: string; name: string }[];
-  };
-  checkbox?: { defaultValue?: boolean };
 }
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
@@ -147,6 +162,7 @@ export type FormTypes = FormValues & {
   max?: number;
   tags?: { color: string; id: string; name: string }[];
   group: string;
+  supportedTypes?: string[] | string;
 };
 
 export type Tab = "fields" | "meta-data";

@@ -10,7 +10,7 @@ import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Con
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 interface Props {
   loadingReference: boolean;
@@ -98,6 +98,8 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -172,6 +174,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
+  workspaceSettings,
+  settingsLoading,
 }) => {
   return (
     <ComplexInnerContents
@@ -256,6 +260,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onGetAsset={onGetAsset}
             onGroupGet={onGroupGet}
             onCheckItemReference={onCheckItemReference}
+            workspaceSettings={workspaceSettings}
+            settingsLoading={settingsLoading}
           />
         )
       }

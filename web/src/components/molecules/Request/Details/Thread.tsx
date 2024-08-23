@@ -7,6 +7,7 @@ import { RequestCommentList } from "@reearth-cms/components/molecules/Request/De
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
@@ -14,6 +15,8 @@ import RequestStatus from "./RequestStatus";
 interface Props {
   me?: User;
   currentRequest: Request;
+  workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
@@ -24,6 +27,8 @@ interface Props {
 const RequestThread: React.FC<Props> = ({
   me,
   currentRequest,
+  workspaceSettings,
+  settingsLoading,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
@@ -36,6 +41,8 @@ const RequestThread: React.FC<Props> = ({
         <CommentsContainer>
           <RequestDescription
             currentRequest={currentRequest}
+            workspaceSettings={workspaceSettings}
+            settingsLoading={settingsLoading}
             onGetAsset={onGetAsset}
             onGroupGet={onGroupGet}
           />

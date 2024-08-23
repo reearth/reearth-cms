@@ -7,6 +7,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Radio from "@reearth-cms/components/atoms/Radio";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -24,6 +25,7 @@ import {
   Group,
   FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
 
@@ -61,6 +63,8 @@ interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const initialValues: FormValues = {
@@ -111,6 +115,8 @@ const FieldModal: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onGetAsset,
+  workspaceSettings,
+  settingsLoading,
 }) => {
   const t = useT();
 
@@ -120,6 +126,7 @@ const FieldModal: React.FC<Props> = ({
     activeTab,
     selectedValues,
     selectedTags,
+    selectedSupportedTypes,
     multipleValue,
     handleMultipleChange,
     handleTabChange,
@@ -130,6 +137,9 @@ const FieldModal: React.FC<Props> = ({
     isRequiredDisabled,
     isUniqueDisabled,
     keyValidate,
+    isTitleDisabled,
+    ObjectSupportType,
+    EditorSupportType,
   } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit, handleFieldKeyUnique);
 
   const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
@@ -255,6 +265,32 @@ const FieldModal: React.FC<Props> = ({
                 </Select>
               </Form.Item>
             )}
+            {selectedType === "GeometryObject" && (
+              <Form.Item
+                name="supportedTypes"
+                label={t("Support Type")}
+                extra={t("Please select what type of Geometry this field will support")}
+                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                <StyledCheckboxGroup>
+                  {ObjectSupportType.map(item => (
+                    <Checkbox value={item.value}>{item.label}</Checkbox>
+                  ))}
+                </StyledCheckboxGroup>
+              </Form.Item>
+            )}
+            {selectedType === "GeometryEditor" && (
+              <Form.Item
+                name="supportedTypes"
+                label={t("Support Type")}
+                extra={t("Please select what type of Geometry this field will support")}
+                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                <Radio.Group>
+                  {EditorSupportType.map(item => (
+                    <Radio value={item.value}>{item.label}</Radio>
+                  ))}
+                </Radio.Group>
+              </Form.Item>
+            )}
             <OptionTitle>{t("options")}</OptionTitle>
             <Form.Item
               name="multiple"
@@ -266,7 +302,7 @@ const FieldModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
-              hidden={isMeta || selectedType === "Group"}
+              hidden={isTitleDisabled}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>
@@ -292,6 +328,7 @@ const FieldModal: React.FC<Props> = ({
               multiple={multipleValue}
               selectedValues={selectedValues}
               selectedTags={selectedTags}
+              selectedSupportedTypes={selectedSupportedTypes}
               selectedType={selectedType}
               assetList={assetList}
               fileList={fileList}
@@ -303,6 +340,8 @@ const FieldModal: React.FC<Props> = ({
               totalCount={totalCount}
               page={page}
               pageSize={pageSize}
+              workspaceSettings={workspaceSettings}
+              settingsLoading={settingsLoading}
               onAssetTableChange={onAssetTableChange}
               onUploadModalCancel={onUploadModalCancel}
               setUploadUrl={setUploadUrl}
@@ -365,6 +404,13 @@ const StyledIcon = styled(Icon)`
 const StyledGroupKey = styled.span`
   font-size: 12px;
   margin-left: 4px;
+`;
+
+const StyledCheckboxGroup = styled(Checkbox.Group)`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  overflow-x: auto;
 `;
 
 export default FieldModal;
