@@ -46,6 +46,7 @@ type Model interface {
 	FindBySchema(context.Context, id.SchemaID, *usecase.Operator) (*model.Model, error)
 	FindByIDs(context.Context, []id.ModelID, *usecase.Operator) (model.List, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
+	FindByProjectAndKeyword(context.Context, id.ProjectID, string, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*model.Model, error)
 	FindByIDOrKey(context.Context, id.ProjectID, model.IDOrKey, *usecase.Operator) (*model.Model, error)
 	FindOrCreateSchema(context.Context, FindOrCreateSchemaParam, *usecase.Operator) (*schema.Schema, error)

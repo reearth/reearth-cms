@@ -20,6 +20,45 @@ var (
 	ErrInvalidTypeProperty = errors.New("invalid type property")
 )
 
+func (s *Server) SchemaFilter(ctx context.Context, request SchemaFilterRequestObject) (SchemaFilterResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaFilter404Response{}, err
+		}
+		return nil, err
+	}
+
+	p := fromPagination(request.Params.Page, request.Params.PerPage)
+	ms, pi, err := uc.Model.FindByProjectAndKeyword(ctx, prj.ID(), lo.FromPtrOr(request.Params.Keyword, ""), p, op)
+	if err != nil {
+		return nil, err
+	}
+
+	models := make([]integrationapi.Model, 0, len(ms))
+	for _, m := range ms {
+		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+		if err != nil {
+			return nil, err
+		}
+		lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
+		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+			return nil, err
+		}
+		models = append(models, integrationapi.NewModel(m, sp, lastModified))
+	}
+
+	return SchemaFilter200JSONResponse{
+		Models:     &models,
+		Page:       lo.ToPtr(Page(*p.Offset)),
+		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
+		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+	}, nil
+}
+
 func (s *Server) FieldCreate(ctx context.Context, request FieldCreateRequestObject) (FieldCreateResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)

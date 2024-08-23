@@ -844,6 +844,18 @@ type ItemsWithProjectAsGeoJSONParams struct {
 // ItemsWithProjectAsGeoJSONParamsRef defines parameters for ItemsWithProjectAsGeoJSON.
 type ItemsWithProjectAsGeoJSONParamsRef string
 
+// SchemaFilterParams defines parameters for SchemaFilter.
+type SchemaFilterParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
+}
+
 // AssetFilterParams defines parameters for AssetFilter.
 type AssetFilterParams struct {
 	// Sort Used to define the order of the response list

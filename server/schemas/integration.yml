@@ -119,6 +119,49 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  '/projects/{projectIdOrAlias}/schemata':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/keywordParam'
+    get:
+      operationId: SchemaFilter
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a schema.
+      tags:
+        - Schemata
+      description: Returns a schema.
+      responses:
+        '200':
+          description: A JSON array of schema objects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/model'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/models/{modelId}':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
