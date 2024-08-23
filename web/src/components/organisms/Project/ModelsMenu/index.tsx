@@ -13,6 +13,7 @@ interface Props {
   collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
+  titleIcon: string;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
 }
@@ -22,6 +23,7 @@ const ModelsMenu: React.FC<Props> = ({
   collapsed,
   selectedSchemaType,
   displayGroups,
+  titleIcon,
   onModelSelect,
   onGroupSelect,
 }) => {
@@ -48,7 +50,7 @@ const ModelsMenu: React.FC<Props> = ({
 
   return (
     <>
-      <ModelListHeader title={title} collapsed={collapsed} />
+      <ModelListHeader title={title} collapsed={collapsed} titleIcon={titleIcon} />
       <ModelListBody>
         <Models
           title={title}
