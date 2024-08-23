@@ -51,7 +51,7 @@ const ModelsMenu: React.FC<Props> = ({
   return (
     <>
       <ModelListHeader title={title} collapsed={collapsed} titleIcon={titleIcon} />
-      <ModelListBody>
+      <ModelListBody collapsed={collapsed}>
         <Models
           title={title}
           collapsed={collapsed}

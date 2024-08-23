@@ -145,7 +145,8 @@ const MenuWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid #f0f0f0;
-  padding: 12px 20px;
+  padding: 12px 0;
+  justify-content: center;
 `;
 
 const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
