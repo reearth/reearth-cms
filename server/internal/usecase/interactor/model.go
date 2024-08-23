@@ -30,19 +30,19 @@ func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 	}
 }
 
-func (i Model) FindByID(ctx context.Context, id id.ModelID, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByID(ctx context.Context, id id.ModelID, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByID(ctx, id)
 }
 
-func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindBySchema(ctx, id)
 }
 
-func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecase.Operator) (model.List, error) {
+func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, _ *usecase.Operator) (model.List, error) {
 	return i.repos.Model.FindByIDs(ctx, ids)
 }
 
-func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
 	m, p, err := i.repos.Model.FindByProject(ctx, projectID, pagination)
 	if err != nil {
 		return nil, nil, err
@@ -50,11 +50,19 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	return m.Ordered(), p, nil
 }
 
-func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByProjectAndKeyword(ctx context.Context, projectID id.ProjectID, k string, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, projectID, k, pagination)
+	if err != nil {
+		return nil, nil, err
+	}
+	return m.Ordered(), p, nil
+}
+
+func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByKey(ctx, pid, model)
 }
 
-func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByIDOrKey(ctx, p, q)
 }
 
