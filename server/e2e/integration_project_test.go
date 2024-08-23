@@ -32,14 +32,17 @@ func TestIntegrationProjectGetAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET(endpoint, wId0).
+	res := e.GET(endpoint, wId0).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("page", 1).
+		Object()
+
+	res.HasValue("page", 1).
 		HasValue("perPage", 50).
 		HasValue("totalCount", 1).
 		Path("$.projects[:].id").Array().IsEqual([]string{pid.String()})
+
+	res.Path("$.projects[:].workspaceId").Array().IsEqual([]string{wId0.String()})
 }

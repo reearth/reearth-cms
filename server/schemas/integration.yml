@@ -1441,6 +1441,9 @@ components:
         id:
           x-go-type: id.ProjectID
           type: string
+        workspaceId:
+          x-go-type: accountdomain.WorkspaceID
+          type: string
         name:
           type: string
         description:
