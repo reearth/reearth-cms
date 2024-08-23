@@ -42,6 +42,7 @@ import {
   useGetViewsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useCollapsedModelMenu } from "@reearth-cms/state";
 
 import { fileName } from "./utils";
 
@@ -140,7 +141,7 @@ export default () => {
     refetch();
   }, [refetch]);
 
-  const [collapsedModelMenu, collapseModelMenu] = useState(false);
+  const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
   const [selection, setSelection] = useState<{ selectedRowKeys: string[] }>({
