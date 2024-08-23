@@ -5,6 +5,7 @@ import ReactDragListView from "react-drag-listview";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -43,7 +44,15 @@ const GroupsList: React.FC<Props> = ({
         .map(group => ({
           label: (
             <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
-              {collapsed ? <Icon icon="dot" /> : group.name}
+              {collapsed ? (
+                <Tooltip placement="right" title={group.name}>
+                  <span>
+                    <Icon icon="dot" />
+                  </span>
+                </Tooltip>
+              ) : (
+                group.name
+              )}
             </div>
           ),
           key: group.id,
