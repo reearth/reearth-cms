@@ -64,6 +64,7 @@ interface Props {
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   workspaceSettings: WorkspaceSettings;
+  settingsLoading: boolean;
 }
 
 const initialValues: FormValues = {
@@ -115,6 +116,7 @@ const FieldModal: React.FC<Props> = ({
   setUploadModalVisibility,
   onGetAsset,
   workspaceSettings,
+  settingsLoading,
 }) => {
   const t = useT();
 
@@ -339,6 +341,7 @@ const FieldModal: React.FC<Props> = ({
               page={page}
               pageSize={pageSize}
               workspaceSettings={workspaceSettings}
+              settingsLoading={settingsLoading}
               onAssetTableChange={onAssetTableChange}
               onUploadModalCancel={onUploadModalCancel}
               setUploadUrl={setUploadUrl}

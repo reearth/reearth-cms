@@ -74,7 +74,6 @@ import UnlinkSolid from "./Icons/linkSlashSolid.svg";
 import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
 import MapPin from "./Icons/mapPin.svg";
-import MapPinFilled from "./Icons/mapPinFilled.svg";
 import MarkDown from "./Icons/markDown.svg";
 import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
@@ -168,7 +167,6 @@ export default {
   filter: FilterOutlined,
   workspaceSettings: WorkspaceSettings,
   mapPin: MapPin,
-  mapPinFilled: MapPinFilled,
   lineString: LineString,
   polygon: Polygon,
   trash: Trash,

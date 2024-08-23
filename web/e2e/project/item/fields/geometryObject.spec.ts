@@ -99,7 +99,7 @@ test("GeometryObject field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Set field as unique").check();
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.locator(".view-lines").nth(0)).toContainText(
-    '{    "type":     "Point",    "coordinat es":     [0, 0]}',
+    '{  "type": "Point",  "coordinates": [0, 0]}',
   );
 
   await page.getByRole("button", { name: "plus New" }).click();
@@ -109,10 +109,10 @@ test("GeometryObject field editing has succeeded", async ({ page }) => {
     .fill('{\n"type": "Point",\n"coordinates": [1, 0]');
   await page.getByRole("button", { name: "arrow-down" }).first().click();
   await expect(page.locator(".view-lines").nth(0)).toContainText(
-    '{    "type":     "Point",    "coordinat es":     [1, 0]}',
+    '{  "type": "Point",  "coordinates": [1, 0]}',
   );
   await expect(page.locator(".view-lines").nth(1)).toContainText(
-    '{    "type":     "Point",    "coordinat es":     [0, 0]}',
+    '{  "type": "Point",  "coordinates": [0, 0]}',
   );
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
@@ -125,10 +125,10 @@ test("GeometryObject field editing has succeeded", async ({ page }) => {
   );
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator(".view-lines").nth(0)).toContainText(
-    '{    "type":         "Point"    ,    "coordi    nates":     [1, 0]}',
+    '{  "type": "Point",  "coordinates": [1, 0]}',
   );
   await expect(page.locator(".view-lines").nth(1)).toContainText(
-    '{    "type":         "Point"    ,    "coordi    nates":     [0, 0]}',
+    '{  "type": "Point",  "coordinates": [0, 0]}',
   );
   await page.getByRole("button", { name: "plus New" }).click();
   await page

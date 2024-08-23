@@ -98,7 +98,7 @@
     "@emotion/react": "11.11.4",
     "@emotion/styled": "11.11.5",
     "@monaco-editor/react": "^4.6.0",
-    "@reearth/core": "0.0.7-alpha.7",
+    "@reearth/core": "0.0.7-alpha.13",
     "ajv": "8.17.1",
     "antd": "5.16.2",
     "apollo-upload-client": "18.0.1",
@@ -106,6 +106,8 @@
     "cesium": "1.117.0",
     "cesium-mvt-imagery-provider": "1.4.1",
     "dayjs": "1.11.10",
+    "firebase": "10.12.5",
+    "firebaseui": "6.1.0",
     "formik": "2.4.5",
     "graphiql": "3.2.0",
     "graphql": "16.8.1",
@@ -133,5 +135,9 @@
     "remark-gfm": "4.0.0",
     "resium": "1.17.4",
     "ulid": "2.3.0"
+  },
+  "resolutions": {
+    "string-width": "4.2.3",
+    "strip-ansi": "6.0.1"
   }
 }
