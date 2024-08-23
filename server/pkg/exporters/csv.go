@@ -1,8 +1,6 @@
 package exporters
 
 import (
-	"encoding/csv"
-	"io"
 	"strconv"
 	"time"
 
@@ -16,42 +14,9 @@ import (
 
 var (
 	noPointFieldError             = rerror.NewE(i18n.T("no point field in this model"))
-	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
 )
 
-func CSVFromItems(pw *io.PipeWriter, items item.VersionedList, s *schema.Schema) error {
-	if !s.IsPointFieldSupported() {
-		return pointFieldIsNotSupportedError
-	}
-
-	w := csv.NewWriter(pw)
-	go func() {
-		defer pw.Close()
-
-		keys, nonGeoFields := buildCSVHeaders(s)
-		if err := w.Write(keys); err != nil {
-			pw.CloseWithError(err)
-			return
-		}
-		for _, ver := range items {
-			row, ok := rowFromItem(ver.Value(), nonGeoFields)
-			if ok {
-				if err := w.Write(row); err != nil {
-					pw.CloseWithError(err)
-					return
-				}
-			}
-		}
-		w.Flush()
-		if err := w.Error(); err != nil {
-			pw.CloseWithError(err)
-		}
-	}()
-
-	return nil
-}
-
-func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
+func BuildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
 	keys := []string{"id", "location_lat", "location_lng"}
 	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
 		return !f.IsGeometryField()
@@ -62,7 +27,7 @@ func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
 	return keys, nonGeoFields
 }
 
-func rowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
+func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
 	geoField, err := extractFirstPointField(itm)
 	if err != nil {
 		return nil, false
