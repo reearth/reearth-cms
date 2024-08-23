@@ -423,7 +423,7 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
-func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.Value {
 	res := e.GET("/api/models/{modelId}/items.geojson", mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -437,7 +437,7 @@ func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage i
 	return res
 }
 
-func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.Value {
 	res := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson", pId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -451,7 +451,7 @@ func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId 
 	return res
 }
 
-func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.String {
+func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.String {
 	res := e.GET("/api/models/{modelId}/items.csv", mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -465,7 +465,7 @@ func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
-func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.String {
+func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.String {
 	res := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv", pId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -1246,7 +1246,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10, i1Id, "", "", nil)
+	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1274,7 +1274,7 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}", "type": "GeometryEditor"},
 	})
 
-	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10, i1Id, "", "", nil)
+	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1301,7 +1301,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsCSV(e, mId, 1, 10, i1Id, "", "", nil)
+	res := IntegrationItemsAsCSV(e, mId, 1, 10)
 	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
@@ -1321,7 +1321,7 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryEditor"},
 	})
 
-	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10, i1Id, "", "", nil)
+	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10)
 	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,30,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
