@@ -1,4 +1,4 @@
-package integrationapi
+package integration
 
 import (
 	"encoding/csv"
@@ -16,7 +16,7 @@ var (
 	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
 )
 
-func CSVFromItems(pw *io.PipeWriter, items item.VersionedList, s *schema.Schema) error {
+func csvFromItems(pw *io.PipeWriter, items item.VersionedList, s *schema.Schema) error {
 	if !s.IsPointFieldSupported() {
 		return pointFieldIsNotSupportedError
 	}

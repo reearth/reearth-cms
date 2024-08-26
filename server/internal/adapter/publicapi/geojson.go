@@ -1,15 +1,12 @@
 package publicapi
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
@@ -20,31 +17,14 @@ func toGeoJSON(c echo.Context, l item.VersionedList, s *schema.Schema) error {
 		})
 	}
 
-	pr, pw := io.Pipe()
-	go handleGeoJSONGeneration(pw, l, s)
-
-	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment;")
-	c.Response().Header().Set(echo.HeaderContentType, "application/json")
-	return c.Stream(http.StatusOK, "application/json", pr)
-}
-
-func handleGeoJSONGeneration(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) {
-	err := generateGeoJSON(pw, l, s)
-	if err != nil {
-		log.Errorf("failed to generate GeoJSON: %+v", err)
-	}
-	_ = pw.CloseWithError(err)
-}
-
-func generateGeoJSON(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
-	features, err := exporters.FeatureCollectionFromItems(l, s)
-
+	fc, err := exporters.FeatureCollectionFromItems(l, s)
 	if err != nil {
 		return err
 	}
 
-	featureCollection := ToFeatureCollection(features)
-	return json.NewEncoder(pw).Encode(featureCollection)
+	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment;")
+	c.Response().Header().Set(echo.HeaderContentType, "application/json")
+	return c.JSON(http.StatusOK, ToFeatureCollection(fc))
 }
 
 func ToFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {

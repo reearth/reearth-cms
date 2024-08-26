@@ -88,7 +88,7 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 		return ItemsAsGeoJSON400Response{}, err
 	}
 
-	fc, err := integrationapi.FeatureCollectionFromItems(items, sp.Schema())
+	fc, err := featureCollectionFromItems(items, sp.Schema())
 	if err != nil {
 		return ItemsAsGeoJSON400Response{}, err
 	}
@@ -118,7 +118,7 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 	}
 
 	pr, pw := io.Pipe()
-	err = integrationapi.CSVFromItems(pw, items, sp.Schema())
+	err = csvFromItems(pw, items, sp.Schema())
 	if err != nil {
 		return ItemsAsCSV400Response{}, err
 	}
@@ -231,7 +231,7 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
-	fc, err := integrationapi.FeatureCollectionFromItems(items, sp.Schema())
+	fc, err := featureCollectionFromItems(items, sp.Schema())
 	if err != nil {
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
@@ -277,7 +277,7 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 	}
 
 	pr, pw := io.Pipe()
-	err = integrationapi.CSVFromItems(pw, items, sp.Schema())
+	err = csvFromItems(pw, items, sp.Schema())
 	if err != nil {
 		return ItemsWithProjectAsCSV400Response{}, err
 	}
