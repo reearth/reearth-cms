@@ -204,9 +204,9 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return ItemsWithProjectAsGeoJSON400Response{}, err
+			return ItemsWithProjectAsGeoJSON404Response{}, err
 		}
-		return nil, err
+		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
 	m, err := uc.Model.FindByIDOrKey(ctx, prj.ID(), request.ModelIdOrKey, op)
