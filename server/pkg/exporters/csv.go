@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	noPointFieldError             = rerror.NewE(i18n.T("no point field in this model"))
+	noPointFieldError = rerror.NewE(i18n.T("no point field in this model"))
 )
 
 func BuildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
@@ -47,20 +47,16 @@ func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) 
 }
 
 func extractFirstPointField(itm *item.Item) ([]float64, error) {
-	geoFields := lo.Filter(itm.Fields(), func(f *item.Field, _ int) bool {
-		return f.Type().IsGeometryFieldType()
-	})
-
-	for _, f := range geoFields {
+	for _, f := range itm.Fields() {
+		if !f.Type().IsGeometryFieldType() {
+			continue
+		}
 		ss, ok := f.Value().First().ValueString()
 		if !ok {
 			continue
 		}
 		g, err := StringToGeometry(ss)
-		if err != nil || g == nil {
-			continue
-		}
-		if *g.Type != GeometryTypePoint {
+		if err != nil || g == nil || g.Type == nil || *g.Type != GeometryTypePoint {
 			continue
 		}
 		return g.Coordinates.AsPoint()
@@ -77,9 +73,6 @@ func ToCSVProp(f *item.Field) string {
 		return ""
 	}
 	vv := f.Value().First()
-	if vv == nil {
-		return ""
-	}
 	return ToCSVValue(vv)
 }
 
@@ -90,42 +83,27 @@ func ToCSVValue(vv *value.Value) string {
 
 	switch vv.Type() {
 	case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeSelect, value.TypeTag:
-		v, ok := vv.ValueString()
-		if !ok {
-			return ""
-		}
+		v, _ := vv.ValueString()
 		return v
 	case value.TypeURL:
-		v, ok := vv.ValueURL()
-		if !ok {
-			return ""
+		v, _ := vv.ValueURL()
+		if v != nil {
+			return v.String()
 		}
-		return v.String()
 	case value.TypeInteger:
-		v, ok := vv.ValueInteger()
-		if !ok {
-			return ""
-		}
+		v, _ := vv.ValueInteger()
 		return strconv.FormatInt(v, 10)
 	case value.TypeNumber:
-		v, ok := vv.ValueNumber()
-		if !ok {
-			return ""
-		}
+		v, _ := vv.ValueNumber()
 		return strconv.FormatFloat(v, 'f', -1, 64)
 	case value.TypeBool, value.TypeCheckbox:
-		v, ok := vv.ValueBool()
-		if !ok {
-			return ""
-		}
+		v, _ := vv.ValueBool()
 		return strconv.FormatBool(v)
 	case value.TypeDateTime:
-		v, ok := vv.ValueDateTime()
-		if !ok {
-			return ""
+		v, _ := vv.ValueDateTime()
+		if !v.IsZero() {
+			return v.Format(time.RFC3339)
 		}
-		return v.Format(time.RFC3339)
-	default:
-		return ""
 	}
+	return ""
 }

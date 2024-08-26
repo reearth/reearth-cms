@@ -120,8 +120,9 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 	pr, pw := io.Pipe()
 	err = integrationapi.CSVFromItems(pw, items, sp.Schema())
 	if err != nil {
-		return nil, err
+		return ItemsAsCSV400Response{}, err
 	}
+
 	return ItemsAsCSV200TextcsvResponse{
 		Body: pr,
 	}, nil
@@ -248,9 +249,9 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return ItemsWithProjectAsCSV400Response{}, err
+			return ItemsWithProjectAsCSV404Response{}, err
 		}
-		return nil, err
+		return ItemsWithProjectAsCSV400Response{}, err
 	}
 
 	m, err := uc.Model.FindByIDOrKey(ctx, prj.ID(), request.ModelIdOrKey, op)
@@ -278,8 +279,9 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 	pr, pw := io.Pipe()
 	err = integrationapi.CSVFromItems(pw, items, sp.Schema())
 	if err != nil {
-		return nil, err
+		return ItemsWithProjectAsCSV400Response{}, err
 	}
+
 	return ItemsWithProjectAsCSV200TextcsvResponse{
 		Body: pr,
 	}, nil

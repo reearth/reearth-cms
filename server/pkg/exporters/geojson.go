@@ -167,15 +167,13 @@ func extractProperties(itm *item.Item, s *schema.Schema) *map[string]any {
 		return nil
 	}
 	properties := make(map[string]any)
-	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return f.Type() != value.TypeGeometryObject && f.Type() != value.TypeGeometryEditor
-	})
-	for _, field := range nonGeoFields {
-		key := field.Name()
-		itmField := itm.Field(field.ID())
-		val, ok := ToGeoJSONProp(itmField)
-		if ok {
-			properties[key] = val
+	for _, field := range s.Fields() {
+		if field.Type() != value.TypeGeometryObject && field.Type() != value.TypeGeometryEditor {
+			key := field.Name()
+			itmField := itm.Field(field.ID())
+			if val, ok := ToGeoJSONProp(itmField); ok {
+				properties[key] = val
+			}
 		}
 	}
 	return &properties
@@ -205,16 +203,15 @@ func ToGeoJSONProp(f *item.Field) (any, bool) {
 	if f == nil {
 		return nil, false
 	}
-	if len(f.Value().Values()) == 1 {
+	if f.Value().Len() == 1 {
 		return ToGeoJsonSingleValue(f.Value().First())
 	}
-	f.Type()
 	m := value.MultipleFrom(f.Type(), f.Value().Values())
 	return ToGeoJSONMultipleValues(m)
 }
 
 func ToGeoJSONMultipleValues(m *value.Multiple) ([]any, bool) {
-	if len(m.Values()) == 0 {
+	if m.Len() == 0 {
 		return nil, false
 	}
 	return lo.FilterMap(m.Values(), func(v *value.Value, _ int) (any, bool) {

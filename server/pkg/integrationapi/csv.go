@@ -1,17 +1,56 @@
 package integrationapi
 
 import (
+	"encoding/csv"
 	"io"
 
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/rerror"
+)
+
+var (
+	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
 )
 
 func CSVFromItems(pw *io.PipeWriter, items item.VersionedList, s *schema.Schema) error {
-	err := exporters.CSVFromItems(pw, items, s)
+	if !s.IsPointFieldSupported() {
+		return pointFieldIsNotSupportedError
+	}
+
+	go handleCSVGeneration(pw, items, s)
+
+	return nil
+}
+
+func handleCSVGeneration(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) {
+	err := generateCSV(pw, l, s)
 	if err != nil {
+		log.Errorf("failed to generate CSV: %v", err)
+	}
+	_ = pw.CloseWithError(err)
+}
+
+func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
+	w := csv.NewWriter(pw)
+	defer w.Flush()
+
+	keys, nonGeoFields := exporters.BuildCSVHeaders(s)
+	if err := w.Write(keys); err != nil {
 		return err
 	}
-	return nil
+
+	for _, ver := range l {
+		row, ok := exporters.RowFromItem(ver.Value(), nonGeoFields)
+		if ok {
+			if err := w.Write(row); err != nil {
+				return err
+			}
+		}
+	}
+
+	return w.Error()
 }
