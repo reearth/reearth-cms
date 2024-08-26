@@ -22,14 +22,23 @@ func NewPackage(s *Schema, meta *Schema, groupSchemas map[id.GroupID]*Schema, re
 }
 
 func (p *Package) Schema() *Schema {
+	if p == nil {
+		return nil
+	}
 	return p.schema
 }
 
 func (p *Package) MetaSchema() *Schema {
+	if p == nil {
+		return nil
+	}
 	return p.metaSchema
 }
 
 func (p *Package) GroupSchemas() List {
+	if p == nil {
+		return nil
+	}
 	return lo.FilterMap(lo.Values(p.groupSchemas), func(s *Schema, _ int) (*Schema, bool) {
 		if s == nil {
 			return nil, false
@@ -39,7 +48,7 @@ func (p *Package) GroupSchemas() List {
 }
 
 func (p *Package) GroupSchema(gid id.GroupID) *Schema {
-	if p.groupSchemas == nil {
+	if p == nil || p.groupSchemas == nil {
 		return nil
 	}
 	s, ok := p.groupSchemas[gid]
@@ -50,10 +59,16 @@ func (p *Package) GroupSchema(gid id.GroupID) *Schema {
 }
 
 func (p *Package) ReferencedSchemas() List {
+	if p == nil {
+		return nil
+	}
 	return p.referencedSchemas
 }
 
 func (p *Package) ReferencedSchema(fieldID id.FieldID) *Schema {
+	if p == nil {
+		return nil
+	}
 	f := p.schema.Field(fieldID)
 	if f == nil {
 		return nil
@@ -62,6 +77,9 @@ func (p *Package) ReferencedSchema(fieldID id.FieldID) *Schema {
 }
 
 func (p *Package) Field(fieldID id.FieldID) *Field {
+	if p == nil {
+		return nil
+	}
 	f := p.schema.Field(fieldID)
 	if f != nil {
 		return f
@@ -80,6 +98,9 @@ func (p *Package) Field(fieldID id.FieldID) *Field {
 }
 
 func (p *Package) FieldByIDOrKey(fID *id.FieldID, k *id.Key) *Field {
+	if p == nil {
+		return nil
+	}
 	f := p.schema.FieldByIDOrKey(fID, k)
 	if f != nil {
 		return f
