@@ -30,14 +30,12 @@ func TestBuildCSVHeaders(t *testing.T) {
 	s2 := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4}).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
 
 	// Test with geometry fields
-	headers1, ff := BuildCSVHeaders(s1)
+	headers1 := BuildCSVHeaders(s1)
 	assert.Equal(t, []string{"id", "location_lat", "location_lng", "age", "isMarried"}, headers1)
-	assert.Equal(t, []*schema.Field{sf3, sf4}, ff)
 
 	// Test with mixed fields
-	headers2, _ := BuildCSVHeaders(s2)
+	headers2 := BuildCSVHeaders(s2)
 	assert.Equal(t, []string{"id", "location_lat", "location_lng", "age", "isMarried"}, headers2)
-	assert.Equal(t, []*schema.Field{sf3, sf4}, ff)
 }
 
 func TestRowFromItem(t *testing.T) {

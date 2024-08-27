@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
 var (
@@ -38,10 +39,14 @@ func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) erro
 	w := csv.NewWriter(pw)
 	defer w.Flush()
 
-	keys, nonGeoFields := exporters.BuildCSVHeaders(s)
+	keys := exporters.BuildCSVHeaders(s)
 	if err := w.Write(keys); err != nil {
 		return err
 	}
+
+	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
+		return !f.IsGeometryField()
+	})
 
 	for _, ver := range l {
 		row, ok := exporters.RowFromItem(ver.Value(), nonGeoFields)

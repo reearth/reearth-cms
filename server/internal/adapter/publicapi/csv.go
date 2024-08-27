@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 func toCSV(c echo.Context, l item.VersionedList, s *schema.Schema) error {
@@ -39,10 +40,14 @@ func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) erro
 	w := csv.NewWriter(pw)
 	defer w.Flush()
 
-	keys, nonGeoFields := exporters.BuildCSVHeaders(s)
+	keys := exporters.BuildCSVHeaders(s)
 	if err := w.Write(keys); err != nil {
 		return err
 	}
+
+	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
+		return !f.IsGeometryField()
+	})
 
 	for _, ver := range l {
 		row, ok := exporters.RowFromItem(ver.Value(), nonGeoFields)

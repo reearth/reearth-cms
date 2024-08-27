@@ -9,22 +9,20 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 )
 
 var (
 	noPointFieldError = rerror.NewE(i18n.T("no point field in this model"))
 )
 
-func BuildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
+func BuildCSVHeaders(s *schema.Schema) []string {
 	keys := []string{"id", "location_lat", "location_lng"}
-	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return !f.IsGeometryField()
-	})
-	for _, f := range nonGeoFields {
-		keys = append(keys, f.Name())
+	for _, f := range s.Fields() {
+		if !f.IsGeometryField() {
+			keys = append(keys, f.Name())
+		}
 	}
-	return keys, nonGeoFields
+	return keys
 }
 
 func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
