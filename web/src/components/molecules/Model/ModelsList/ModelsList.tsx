@@ -5,6 +5,7 @@ import ReactDragListView from "react-drag-listview";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -66,7 +67,15 @@ const ModelsList: React.FC<Props> = ({
         .map(model => ({
           label: (
             <div ref={model.id === selectedKey ? scrollToSelected : undefined}>
-              {collapsed ? <Icon icon="dot" /> : model.name}
+              {collapsed ? (
+                <Tooltip placement="right" title={model.name}>
+                  <span>
+                    <Icon icon="dot" />
+                  </span>
+                </Tooltip>
+              ) : (
+                model.name
+              )}
             </div>
           ),
           key: model.id,
@@ -145,7 +154,8 @@ const MenuWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid #f0f0f0;
-  padding: 12px 20px;
+  padding: 12px 0;
+  justify-content: center;
 `;
 
 const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`

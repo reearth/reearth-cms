@@ -40,6 +40,7 @@ import {
   useIsItemReferencedLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useCollapsedModelMenu } from "@reearth-cms/state";
 import { newID } from "@reearth-cms/utils/id";
 
 import { dateConvert } from "./utils";
@@ -70,7 +71,7 @@ export default () => {
   const { data: userData } = useGetMeQuery();
 
   const { itemId } = useParams();
-  const [collapsedModelMenu, collapseModelMenu] = useState(false);
+  const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
