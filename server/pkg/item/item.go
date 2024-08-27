@@ -261,8 +261,11 @@ func (i *Item) GetFirstGeometryField() (*Field, bool) {
 		return nil, false
 	}
 	geoFields := append(i.Fields().FieldsByType(value.TypeGeometryObject), i.Fields().FieldsByType(value.TypeGeometryEditor)...)
-	if len(geoFields) == 0 {
-		return nil, false
+	for _, f := range geoFields {
+		if !f.Value().IsEmpty() {
+			return f, true
+		}
 	}
-	return geoFields[0], true
+	return nil, false
 }
+
