@@ -33,7 +33,7 @@ func toFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
 	}
 
 	features := lo.Map(*fc.Features, func(f exporters.Feature, _ int) Feature {
-		return *toFeature(&f)
+		return toFeature(f)
 	})
 
 	return &FeatureCollection{
@@ -42,12 +42,8 @@ func toFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
 	}
 }
 
-func toFeature(f *exporters.Feature) *Feature {
-	if f == nil {
-		return nil
-	}
-
-	return &Feature{
+func toFeature(f exporters.Feature) Feature {
+	return Feature{
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         f.Id,
 		Geometry:   toGeometry(f.Geometry),
@@ -61,13 +57,16 @@ func toGeometry(g *exporters.Geometry) *Geometry {
 	}
 
 	return &Geometry{
-		Type:        toGeometryType(*g.Type),
-		Coordinates: toCoordinates(*g.Coordinates),
+		Type:        toGeometryType(g.Type),
+		Coordinates: toCoordinates(g.Coordinates),
 	}
 }
 
-func toGeometryType(t exporters.GeometryType) *GeometryType {
-	switch t {
+func toGeometryType(t *exporters.GeometryType) *GeometryType {
+	if t == nil {
+		return nil
+	}
+	switch *t {
 	case exporters.GeometryTypePoint:
 		return lo.ToPtr(GeometryTypePoint)
 	case exporters.GeometryTypeMultiPoint:
@@ -87,7 +86,10 @@ func toGeometryType(t exporters.GeometryType) *GeometryType {
 	}
 }
 
-func toCoordinates(c exporters.Geometry_Coordinates) *Geometry_Coordinates {
+func toCoordinates(c *exporters.Geometry_Coordinates) *Geometry_Coordinates {
+	if c == nil {
+		return nil
+	}
 	union, err := c.MarshalJSON()
 	if err != nil {
 		return nil
