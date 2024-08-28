@@ -13,16 +13,16 @@ func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*Feat
 	if err != nil {
 		return nil, err
 	}
-	return NewFeatureCollection(fc), nil
+	return newFeatureCollection(fc), nil
 }
 
-func NewFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
+func newFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
 	if fc == nil || fc.Features == nil {
 		return nil
 	}
 
 	features := lo.Map(*fc.Features, func(f exporters.Feature, _ int) Feature {
-		return *NewFeature(&f)
+		return *newFeature(&f)
 	})
 
 	return &FeatureCollection{
@@ -31,7 +31,7 @@ func NewFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
 	}
 }
 
-func NewFeature(f *exporters.Feature) *Feature {
+func newFeature(f *exporters.Feature) *Feature {
 	if f == nil {
 		return nil
 	}
@@ -39,12 +39,12 @@ func NewFeature(f *exporters.Feature) *Feature {
 	return &Feature{
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         id.ItemIDFromRef(f.Id),
-		Geometry:   NewGeometry(f.Geometry),
+		Geometry:   newGeometry(f.Geometry),
 		Properties: f.Properties,
 	}
 }
 
-func NewGeometry(g *exporters.Geometry) *Geometry {
+func newGeometry(g *exporters.Geometry) *Geometry {
 	if g == nil {
 		return nil
 	}
