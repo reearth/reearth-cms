@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useState, useCallback, Dispatch, SetStateAction } from "react";
-
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
@@ -11,10 +9,11 @@ import {
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
+import { useState, useCallback, Dispatch, SetStateAction } from "react";
 
 import DropdownRender from "./DropdownRender";
 
-interface Props {
+type Props = {
   filter: DropdownFilterType;
   index: number;
   defaultValue: DefaultFilterValueType;
@@ -23,7 +22,7 @@ interface Props {
   currentView: CurrentView;
   setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   onFilterChange: (filter?: ConditionInput[]) => void;
-}
+};
 
 const FilterDropdown: React.FC<Props> = ({
   filter,

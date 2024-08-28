@@ -5,10 +5,10 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 
 import FieldTitle from "../../FieldTitle";
 
-interface CheckboxFieldProps {
+type CheckboxFieldProps = {
   field: Field;
   onMetaUpdate?: () => void;
-}
+};
 
 const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, onMetaUpdate }) => {
   return (

@@ -1,5 +1,3 @@
-import { Key, useCallback, useMemo, useState } from "react";
-
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
@@ -16,6 +14,7 @@ import {
   Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { Key, useCallback, useMemo, useState } from "react";
 
 export default (workspaceId?: string) => {
   const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
@@ -36,7 +35,7 @@ export default (workspaceId?: string) => {
   const workspace = useMemo(() => {
     const foundWorkspace = data?.me?.workspaces?.find(workspace => workspace.id === workspaceId);
     return foundWorkspace && fromGraphQLWorkspace(foundWorkspace as GQLWorkspace);
-  }, [data?.me?.workspaces]);
+  }, [data?.me?.workspaces, workspaceId]);
 
   const workspaceIntegrationMembers = useMemo(
     () =>

@@ -1,14 +1,13 @@
 import styled from "@emotion/styled";
-import { Key } from "react";
-
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
+import { Key } from "react";
 
-interface Props {
+type Props = {
   commentsPanel: JSX.Element;
   requests: Request[];
   loading: boolean;
@@ -39,7 +38,7 @@ interface Props {
   pageSize: number;
   columns: Record<string, ColumnsState>;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
-}
+};
 
 const RequestListMolecule: React.FC<Props> = ({
   commentsPanel,

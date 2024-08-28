@@ -7,13 +7,13 @@ import { useT } from "@reearth-cms/i18n";
 
 import { Project, Role } from "../Workspace/types";
 
-interface Props {
+type Props = {
   project: Project;
   onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
   onProjectDelete: () => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-}
+};
 
 const ProjectSettings: React.FC<Props> = ({
   project,

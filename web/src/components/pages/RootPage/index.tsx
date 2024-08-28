@@ -1,10 +1,9 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
 import { useAuth } from "@reearth-cms/auth";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import { useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 import { useUserId, useWorkspaceId } from "@reearth-cms/state";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const RootPage: React.FC = () => {
   const { isAuthenticated, isLoading, login } = useAuth();

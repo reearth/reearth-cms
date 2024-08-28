@@ -1,5 +1,4 @@
 import { gql } from "@apollo/client";
-
 import { workspaceFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_WORKSPACES = gql`

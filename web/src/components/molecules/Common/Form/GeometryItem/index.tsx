@@ -8,12 +8,6 @@ import {
   SketchType,
   ViewerProperty,
 } from "@reearth/core";
-import Ajv from "ajv";
-import axios from "axios";
-import { editor, Range } from "monaco-editor";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { Resizable, ResizeCallbackData } from "react-resizable";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -27,6 +21,11 @@ import {
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { config } from "@reearth-cms/config";
 import { useT } from "@reearth-cms/i18n";
+import Ajv from "ajv";
+import axios from "axios";
+import { editor, Range } from "monaco-editor";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { Resizable, ResizeCallbackData } from "react-resizable";
 
 import schema from "./schema";
 
@@ -65,7 +64,7 @@ const TERRAIN_TYPE_MAP = {
   CESIUM_ION: "cesiumion",
 } as const;
 
-interface Props {
+type Props = {
   value?: string | null;
   onChange?: (value: string) => void;
   supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
@@ -75,7 +74,7 @@ interface Props {
   errorDelete?: () => void;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
-}
+};
 
 const GeometryItem: React.FC<Props> = ({
   value,
@@ -208,16 +207,28 @@ const GeometryItem: React.FC<Props> = ({
                 ? [GEO_TYPE_MAP.POINT, GEO_TYPE_MAP.LINESTRING, GEO_TYPE_MAP.POLYGON]
                 : [GEO_TYPE_MAP[supportedTypes]];
             if (convertedTypes.includes(valueJson.type)) {
-              isTypeChange ? setHasError(false) : handleErrorDelete();
+              if (isTypeChange) {
+                setHasError(false);
+              } else {
+                handleErrorDelete();
+              }
             } else {
-              isTypeChange ? setHasError(true) : handleErrorAdd();
+              if (isTypeChange) {
+                setHasError(true);
+              } else {
+                handleErrorAdd();
+              }
             }
           }
         } catch (_) {
           return;
         }
       } else {
-        isTypeChange ? setHasError(false) : handleErrorDelete();
+        if (isTypeChange) {
+          setHasError(false);
+        } else {
+          handleErrorDelete();
+        }
       }
     },
     [handleErrorAdd, handleErrorDelete, supportedTypes],

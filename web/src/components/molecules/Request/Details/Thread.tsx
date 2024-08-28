@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
@@ -12,7 +11,7 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
 
-interface Props {
+type Props = {
   me?: User;
   currentRequest: Request;
   workspaceSettings: WorkspaceSettings;
@@ -22,7 +21,7 @@ interface Props {
   onCommentDelete: (commentId: string) => Promise<void>;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+};
 
 const RequestThread: React.FC<Props> = ({
   me,

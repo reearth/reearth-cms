@@ -1,20 +1,19 @@
 import styled from "@emotion/styled";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { useCallback, useEffect } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { useCallback, useEffect } from "react";
 
 import { moveItemInArray } from "../moveItemArray";
 
-interface Props {
+type Props = {
   checked?: boolean[];
   onChange?: (value: (string | number | boolean)[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
   disabled?: boolean;
-}
+};
 
 const MultiValueBooleanField: React.FC<Props> = ({
   checked = [],

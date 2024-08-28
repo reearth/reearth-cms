@@ -1,14 +1,13 @@
-import { useParams } from "react-router-dom";
-
 import Groups from "@reearth-cms/components/molecules/Model/ModelsList/Groups";
 import ModelListBody from "@reearth-cms/components/molecules/Model/ModelsList/ModelListBody";
 import ModelListHeader from "@reearth-cms/components/molecules/Model/ModelsList/ModelListHeader";
 import Models from "@reearth-cms/components/molecules/Model/ModelsList/Models";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema/types";
+import { useParams } from "react-router-dom";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   title: string;
   collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
@@ -16,7 +15,7 @@ interface Props {
   titleIcon: string;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
-}
+};
 
 const ModelsMenu: React.FC<Props> = ({
   title,

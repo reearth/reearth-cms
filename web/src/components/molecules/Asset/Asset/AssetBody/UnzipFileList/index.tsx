@@ -1,22 +1,21 @@
 import styled from "@emotion/styled";
-import { Key } from "rc-table/lib/interface";
-import { useCallback, useEffect, useState } from "react";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
 import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
+import { Key } from "rc-table/lib/interface";
+import { useCallback, useEffect, useState } from "react";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
 
-interface Props {
+type Props = {
   file: AssetFile;
   assetBaseUrl: string;
   archiveExtractionStatus: ArchiveExtractionStatus;
   setAssetUrl: (url: string) => void;
-}
+};
 
 const UnzipFileList: React.FC<Props> = ({
   file,

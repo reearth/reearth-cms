@@ -1,8 +1,7 @@
-import { atom, useAtom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
-
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Workspace, Project } from "@reearth-cms/components/molecules/Workspace/types";
+import { atom, useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 const workspace = atom<Workspace | undefined>(undefined);
 export const useWorkspace = () => useAtom(workspace);

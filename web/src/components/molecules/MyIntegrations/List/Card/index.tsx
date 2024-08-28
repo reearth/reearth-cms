@@ -1,13 +1,12 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { useCallback } from "react";
 
-interface Props {
+type Props = {
   integration: Integration;
   onIntegrationNavigate: (integration: Integration) => void;
-}
+};
 
 const MyIntegrationCard: React.FC<Props> = ({ integration, onIntegrationNavigate }) => {
   const onCardClick = useCallback(() => {

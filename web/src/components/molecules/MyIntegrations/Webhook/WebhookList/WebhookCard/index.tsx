@@ -1,14 +1,13 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { useCallback, useState } from "react";
 
-interface Props {
+type Props = {
   webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {
@@ -19,7 +18,7 @@ interface Props {
     trigger: WebhookTrigger;
   }) => Promise<void>;
   onWebhookSettings: (webhookId: string) => void;
-}
+};
 
 const WebhookCard: React.FC<Props> = ({
   webhook,

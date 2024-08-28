@@ -1,19 +1,18 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
-
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
+import { useMemo } from "react";
 
-interface Props {
+type Props = {
   model: Model;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
-}
+};
 
 const ModelCard: React.FC<Props> = ({
   model,

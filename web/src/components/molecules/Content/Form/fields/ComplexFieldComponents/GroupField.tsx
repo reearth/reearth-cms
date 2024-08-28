@@ -9,7 +9,7 @@ import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/t
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
-interface GroupFieldProps {
+type GroupFieldProps = {
   field: Field;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
@@ -52,7 +52,7 @@ interface GroupFieldProps {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-}
+};
 
 const GroupField: React.FC<GroupFieldProps> = ({
   field,

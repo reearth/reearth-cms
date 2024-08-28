@@ -1,22 +1,21 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo } from "react";
-import ReactDragListView from "react-drag-listview";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useMemo } from "react";
+import ReactDragListView from "react-drag-listview";
 
-interface Props {
+type Props = {
   selectedKey?: string;
   groups?: Group[];
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
   onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
-}
+};
 
 const GroupsList: React.FC<Props> = ({
   selectedKey,

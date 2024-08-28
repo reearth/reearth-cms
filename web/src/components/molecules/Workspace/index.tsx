@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import ProjectCreationModal, {
   FormValues as ProjectFormValues,
 } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
@@ -11,7 +10,7 @@ import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/WorkspaceHeader";
 
-interface Props {
+type Props = {
   coverImageUrl?: string;
   projects?: Project[];
   projectModal: boolean;
@@ -26,7 +25,7 @@ interface Props {
   onClose: () => void;
   onSubmit: (values: ProjectFormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-}
+};
 
 const WorkspaceWrapper: React.FC<Props> = ({
   coverImageUrl,

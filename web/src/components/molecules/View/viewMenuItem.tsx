@@ -1,17 +1,16 @@
 import styled from "@emotion/styled";
-
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   view: View;
   onViewRenameModalOpen: (view: View) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   onDelete: (viewId: string) => Promise<void>;
-}
+};
 
 const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate, onDelete }) => {
   const t = useT();

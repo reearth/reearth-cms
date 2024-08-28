@@ -1,7 +1,4 @@
 import styled from "@emotion/styled";
-import { MenuProps } from "antd";
-import { useMemo } from "react";
-
 import { useAuth } from "@reearth-cms/auth";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -9,10 +6,12 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { MenuProps } from "antd";
+import { useMemo } from "react";
 
 import HeaderDropdown from "./Dropdown";
 
-interface Props {
+type Props = {
   username: string;
   personalWorkspace?: Workspace;
   currentWorkspace?: Workspace;
@@ -23,7 +22,7 @@ interface Props {
   onWorkspaceNavigation: (id: string) => void;
   onHomeNavigation: () => void;
   logoUrl?: string;
-}
+};
 
 const HeaderMolecule: React.FC<Props> = ({
   username,

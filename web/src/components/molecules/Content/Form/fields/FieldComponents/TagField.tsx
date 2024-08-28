@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
@@ -8,10 +7,10 @@ import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-interface TagFieldProps {
+type TagFieldProps = {
   field: Field;
   onMetaUpdate?: () => void;
-}
+};
 
 const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
   const t = useT();

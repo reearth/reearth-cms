@@ -1,5 +1,3 @@
-import { useCallback, useEffect, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -7,8 +5,9 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { modalStateType } from "@reearth-cms/components/organisms/Project/Content/ViewsMenu/hooks";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useEffect, useState } from "react";
 
-interface Props {
+type Props = {
   currentView: CurrentView;
   open: boolean;
   modalState: modalStateType;
@@ -16,11 +15,11 @@ interface Props {
   onClose: () => void;
   onCreate: (name: string) => Promise<void>;
   OnUpdate: (viewId: string, name: string) => Promise<void>;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
-}
+};
 
 const ViewFormModal: React.FC<Props> = ({
   currentView,

@@ -1,15 +1,14 @@
-import { Viewer as CesiumViewer } from "cesium";
-
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import { Viewer as CesiumViewer } from "cesium";
 
 import { Imagery } from "./Imagery";
 
-interface Props {
+type Props = {
   url: string;
   onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 const GltfViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
   return (

@@ -1,7 +1,4 @@
 import styled from "@emotion/styled";
-import dayjs from "dayjs";
-import { useCallback, useEffect } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,11 +10,13 @@ import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
+import dayjs from "dayjs";
+import { useCallback, useEffect } from "react";
 
 import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 
-interface Props {
+type Props = {
   value?: string[];
   onChange?: (value: string[]) => void;
   parentField: Field;
@@ -63,7 +62,7 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-}
+};
 
 const MultiValueGroup: React.FC<Props> = ({
   parentField,

@@ -1,17 +1,16 @@
 import styled from "@emotion/styled";
-import { useCallback, useState, ChangeEvent } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useState, ChangeEvent } from "react";
 
 const { TextArea } = Input;
 
-interface EditorProps {
+type EditorProps = {
   isInputDisabled: boolean;
   onCommentCreate: (content: string) => Promise<void>;
-}
+};
 
 const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);

@@ -1,13 +1,12 @@
-import React from "react";
-
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import { useT } from "@reearth-cms/i18n";
+import React from "react";
 
-interface Props {
+type Props = {
   multiple: boolean;
-}
+};
 
 const CheckboxField: React.FC<Props> = ({ multiple }) => {
   const t = useT();

@@ -1,13 +1,12 @@
-import React from "react";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
+import React from "react";
 
-interface Props {
+type Props = {
   multiple: boolean;
-}
+};
 
 const MarkdownField: React.FC<Props> = ({ multiple }) => {
   const t = useT();

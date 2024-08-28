@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -28,10 +26,11 @@ import {
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   groups?: Group[];
   selectedType: FieldType;
   isMeta: boolean;
@@ -65,7 +64,7 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
-}
+};
 
 const initialValues: FormValues = {
   fieldId: "",

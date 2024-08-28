@@ -1,6 +1,3 @@
-import { useState, useCallback, Key, useMemo, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
-
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -18,6 +15,8 @@ import {
   useGetAssetLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useState, useCallback, Key, useMemo, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 type UploadType = "local" | "url";
 
@@ -96,7 +95,9 @@ export default (isItemsRequired: boolean) => {
     : useGetAssetsLazyQuery(params);
 
   useEffect(() => {
-    isItemsRequired && getAssets();
+    if (isItemsRequired) {
+      getAssets();
+    }
   }, [getAssets, isItemsRequired]);
 
   const assetList = useMemo(

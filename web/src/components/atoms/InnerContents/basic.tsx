@@ -1,14 +1,13 @@
 import styled from "@emotion/styled";
+import Content from "@reearth-cms/components/atoms/Content";
 import { Children, ReactNode } from "react";
 
-import Content from "@reearth-cms/components/atoms/Content";
-
-interface Props {
+type Props = {
   title?: string;
   subtitle?: string;
   flexChildren?: boolean;
   children?: ReactNode;
-}
+};
 
 const BasicInnerContents: React.FC<Props> = ({ title, subtitle, flexChildren, children }) => {
   const childrenArray = Children.toArray(children);

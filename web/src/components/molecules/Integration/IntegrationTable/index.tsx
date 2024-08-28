@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -15,8 +13,9 @@ import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
+import { Key, useMemo, useCallback } from "react";
 
-interface Props {
+type Props = {
   integrationMembers?: IntegrationMember[];
   selection: {
     selectedRowKeys: Key[];
@@ -32,7 +31,7 @@ interface Props {
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
   onReload: () => void;
-}
+};
 
 const IntegrationTable: React.FC<Props> = ({
   integrationMembers,

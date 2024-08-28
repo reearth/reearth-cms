@@ -1,5 +1,3 @@
-import { useCallback, useState } from "react";
-
 import {
   Integration,
   WebhookTrigger,
@@ -7,8 +5,9 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookList";
+import { useCallback, useState } from "react";
 
-interface Props {
+type Props = {
   integration: Integration;
   webhookInitialValues?: WebhookValues;
   createWebhookLoading: boolean;
@@ -30,7 +29,7 @@ interface Props {
     secret?: string;
   }) => Promise<void>;
   onWebhookSelect: (id: string) => void;
-}
+};
 
 const Webhook: React.FC<Props> = ({
   integration,

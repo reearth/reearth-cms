@@ -1,15 +1,14 @@
-import { ReactElement } from "react";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Upload, { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import FileItem from "@reearth-cms/components/molecules/Asset/UploadModal/FileItem";
 import { useT } from "@reearth-cms/i18n";
+import { ReactElement } from "react";
 
 const { Dragger } = Upload;
 
-interface Props {
+type Props = {
   uploadProps: UploadProps;
-}
+};
 
 const LocalTab: React.FC<Props> = ({ uploadProps }) => {
   const t = useT();

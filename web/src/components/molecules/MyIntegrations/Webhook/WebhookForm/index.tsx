@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox, { CheckboxOptionType } from "@reearth-cms/components/atoms/Checkbox";
 import Col from "@reearth-cms/components/atoms/Col";
@@ -15,8 +13,9 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
+import { useCallback, useState } from "react";
 
-interface Props {
+type Props = {
   webhookInitialValues?: WebhookValues;
   loading: boolean;
   onBack: () => void;
@@ -35,14 +34,14 @@ interface Props {
     trigger: WebhookTrigger;
     secret?: string;
   }) => Promise<void>;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
   url: string;
   secret: string;
   trigger: string[];
-}
+};
 
 const WebhookForm: React.FC<Props> = ({
   webhookInitialValues,

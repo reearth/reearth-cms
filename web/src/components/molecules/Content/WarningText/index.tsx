@@ -1,14 +1,13 @@
 import styled from "@emotion/styled";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 
-export interface FormValues {
+export type FormValues = {
   items: string[];
-}
+};
 
-export interface Props {
+export type Props = {
   text: string;
-}
+};
 
 const WarningText: React.FC<Props> = ({ text }) => {
   return (

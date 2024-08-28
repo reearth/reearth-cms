@@ -1,5 +1,3 @@
-import { useCallback, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -7,20 +5,21 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useState } from "react";
 
-interface Props {
+type Props = {
   open: boolean;
   loading: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
-}
+};
 
-interface FormValues {
+type FormValues = {
   name: string;
   description: string;
   logoUrl: string;
   type: IntegrationType;
-}
+};
 
 const initialValues: FormValues = {
   name: "",

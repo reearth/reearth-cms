@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useCallback, useMemo } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -19,8 +17,9 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { useState, useRef, useCallback, useMemo } from "react";
 
-interface Props {
+type Props = {
   visible: boolean;
   onLinkAssetModalCancel: () => void;
   linkedAsset?: ItemAsset;
@@ -45,7 +44,7 @@ interface Props {
   displayUploadModal: () => void;
   onUploadModalCancel?: () => void;
   onUploadAndLink: () => void;
-}
+};
 
 const LinkAssetModal: React.FC<Props> = ({
   visible,

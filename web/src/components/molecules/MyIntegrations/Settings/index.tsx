@@ -1,11 +1,10 @@
 import styled from "@emotion/styled";
-
 import Content from "@reearth-cms/components/atoms/Content";
 import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Settings/DangerZone";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-interface Props {
+type Props = {
   integration: Integration;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
@@ -16,7 +15,7 @@ interface Props {
   }) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
   onRegenerateToken: () => Promise<void>;
-}
+};
 
 const MyIntegrationSettings: React.FC<Props> = ({
   integration,

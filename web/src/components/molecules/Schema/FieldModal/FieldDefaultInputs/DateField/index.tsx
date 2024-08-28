@@ -1,14 +1,13 @@
 import styled from "@emotion/styled";
-import React from "react";
-
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Form from "@reearth-cms/components/atoms/Form";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
+import React from "react";
 
-interface Props {
+type Props = {
   multiple: boolean;
-}
+};
 
 const DateField: React.FC<Props> = ({ multiple }) => {
   const t = useT();

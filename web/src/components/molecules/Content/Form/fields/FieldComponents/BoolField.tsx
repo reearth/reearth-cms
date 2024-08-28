@@ -5,12 +5,12 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 
 import FieldTitle from "../../FieldTitle";
 
-interface BoolFieldProps {
+type BoolFieldProps = {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => void;
   disabled?: boolean;
-}
+};
 
 const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
   return (

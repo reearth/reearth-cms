@@ -1,6 +1,3 @@
-import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Role } from "@reearth-cms/components/molecules/Workspace/types";
 import {
@@ -12,10 +9,12 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-interface Params {
+type Params = {
   projectId?: string;
-}
+};
 
 export default ({ projectId }: Params) => {
   const navigate = useNavigate();

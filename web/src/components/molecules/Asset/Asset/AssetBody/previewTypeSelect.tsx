@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
@@ -13,15 +12,15 @@ export type PreviewType =
   | "CSV"
   | "UNKNOWN";
 
-interface Props {
+type Props = {
   onTypeChange: (value: PreviewType) => void;
   value?: PreviewType;
-}
+};
 
-interface PreviewTypeListItem {
+type PreviewTypeListItem = {
   name: string;
   value: PreviewType;
-}
+};
 
 export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value }) => {
   const t = useT();

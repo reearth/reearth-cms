@@ -1,18 +1,17 @@
-import { useEffect, useMemo } from "react";
-
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
+import { useEffect, useMemo } from "react";
 
-interface Props {
+type Props = {
   uploadUrl: { url: string; autoUnzip: boolean };
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-}
+};
 
-export interface FormValues {
+export type FormValues = {
   url: string;
-}
+};
 
 const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
   const isCompressedFile = useMemo(() => uploadUrl.url.match(/\.zip|\.7z$/), [uploadUrl]);

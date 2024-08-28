@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -8,9 +7,9 @@ import SidebarCard from "@reearth-cms/components/molecules/Request/Details/Sideb
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-interface Props {
+type Props = {
   item?: Item;
-}
+};
 
 const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
   const t = useT();

@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
-
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -19,8 +17,9 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { Key, useMemo, useCallback } from "react";
 
-interface Props {
+type Props = {
   requests: Request[];
   loading: boolean;
   selectedRequest?: Request;
@@ -50,7 +49,7 @@ interface Props {
   pageSize: number;
   columns: Record<string, ColumnsState>;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
-}
+};
 
 const RequestListTable: React.FC<Props> = ({
   requests,

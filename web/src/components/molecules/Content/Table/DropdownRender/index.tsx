@@ -1,7 +1,4 @@
 import styled from "@emotion/styled";
-import dayjs from "dayjs";
-import { Dispatch, SetStateAction } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -17,12 +14,14 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import dayjs from "dayjs";
+import { Dispatch, SetStateAction } from "react";
 
 import useHooks from "./hooks";
 
 const { Option } = Select;
 
-interface Props {
+type Props = {
   filter: DropdownFilterType;
   close: () => void;
   defaultValue?: DefaultFilterValueType;
@@ -32,7 +31,7 @@ interface Props {
   currentView: CurrentView;
   setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   onFilterChange: (filter?: ConditionInput[]) => void;
-}
+};
 
 const DropdownRender: React.FC<Props> = ({
   filter,

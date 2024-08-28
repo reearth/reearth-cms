@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
@@ -11,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
-interface Props {
+type Props = {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;
@@ -31,7 +30,7 @@ interface Props {
   onBack: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+};
 
 const RequestMolecule: React.FC<Props> = ({
   me,

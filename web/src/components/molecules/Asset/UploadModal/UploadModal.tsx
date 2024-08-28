@@ -1,19 +1,18 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback } from "react";
 
 import LocalTab from "./localTab";
 import UrlTab from "./UrlTab";
 
 const { TabPane } = Tabs;
 
-interface Props {
+type Props = {
   alsoLink?: boolean;
   visible?: boolean;
   uploadProps: UploadProps;
@@ -26,7 +25,7 @@ interface Props {
   onUploadModalClose?: () => void;
   onUpload: () => void;
   onCancel?: () => void;
-}
+};
 
 const UploadModal: React.FC<Props> = ({
   alsoLink,

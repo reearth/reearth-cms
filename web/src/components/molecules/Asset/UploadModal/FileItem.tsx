@@ -1,18 +1,17 @@
-import { Button } from "antd";
-import { useMemo, useState } from "react";
-
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { useT } from "@reearth-cms/i18n";
+import { Button } from "antd";
+import { useMemo, useState } from "react";
 
 import { isImageUrl } from "./util";
 
-interface Props {
+type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   file: UploadFile<any>;
   remove: () => void;
-}
+};
 
 const FileItem: React.FC<Props> = ({ file, remove }) => {
   const t = useT();

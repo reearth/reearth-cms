@@ -1,14 +1,13 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
-import { Link } from "react-router-dom";
-
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 import { ItemStatus } from "../types";
 
-interface Props {
+type Props = {
   value: string;
   title: string;
   modelId?: string;
@@ -16,7 +15,7 @@ interface Props {
   workspaceId?: string;
   projectId?: string;
   disabled?: boolean;
-}
+};
 
 const ReferenceItem: React.FC<Props> = ({
   value,

@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Sider, { SiderProps } from "@reearth-cms/components/atoms/Sider";
 
 const Sidebar: React.FC<SiderProps> = ({ collapsible = true, ...siderProps }) => {

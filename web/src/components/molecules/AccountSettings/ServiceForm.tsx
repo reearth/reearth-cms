@@ -1,20 +1,19 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { localesWithLabel, useT } from "@reearth-cms/i18n";
+import { useCallback, useMemo, useState } from "react";
 
-interface Props {
+type Props = {
   user: User;
   onLanguageUpdate: (lang: string) => Promise<void>;
-}
+};
 
-interface FormType {
+type FormType = {
   lang: string;
-}
+};
 
 const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   const [form] = Form.useForm<FormType>();

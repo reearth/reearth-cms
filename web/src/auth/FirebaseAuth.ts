@@ -1,3 +1,4 @@
+import { logOutFromTenant } from "@reearth-cms/config";
 import {
   getAuth,
   onAuthStateChanged,
@@ -7,8 +8,6 @@ import {
   User,
 } from "firebase/auth";
 import { useState, useEffect } from "react";
-
-import { logOutFromTenant } from "@reearth-cms/config";
 
 import AuthHook from "./AuthHook";
 

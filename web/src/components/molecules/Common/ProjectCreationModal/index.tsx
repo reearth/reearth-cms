@@ -1,5 +1,3 @@
-import React, { useCallback, useState, useEffect, useRef } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -8,19 +6,20 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 
-export interface FormValues {
+export type FormValues = {
   name: string;
   alias: string;
   description: string;
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-}
+};
 
 const initialValues: FormValues = {
   name: "",

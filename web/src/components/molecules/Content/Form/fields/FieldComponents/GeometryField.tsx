@@ -1,21 +1,20 @@
-import { useMemo, useState, useCallback } from "react";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { useMemo, useState, useCallback } from "react";
 
 import FieldTitle from "../../FieldTitle";
 
-interface DefaultFieldProps {
+type DefaultFieldProps = {
   field: Field;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
   itemGroupId?: string;
   disabled?: boolean;
-}
+};
 
 const GeometryField: React.FC<DefaultFieldProps> = ({
   field,

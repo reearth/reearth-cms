@@ -1,16 +1,15 @@
 import styled from "@emotion/styled";
-
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegrations/List/Card";
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   integrations?: Integration[];
   onIntegrationModalOpen: () => void;
   onIntegrationNavigate: (integration: Integration) => void;
-}
+};
 
 const MyIntegrationList: React.FC<Props> = ({
   integrations,

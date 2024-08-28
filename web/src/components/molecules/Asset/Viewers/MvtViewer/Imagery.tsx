@@ -1,30 +1,29 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
+import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
 import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCesium } from "resium";
 
-import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
-
 const defaultCameraPosition: [number, number, number] = [139.767052, 35.681167, 100];
 const defaultOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 3000000);
 const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
-interface Props {
+type Props = {
   url: string;
   handleProperties: (prop: Property) => void;
-}
+};
 
 export type Property = Record<string, string | number | boolean>;
 
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
-interface TileCoordinates {
+type TileCoordinates = {
   x: number;
   y: number;
   level: number;
-}
+};
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const { viewer } = useCesium();
@@ -154,11 +153,11 @@ const fetchLayers = async (url: string) => {
   return { ...parseMetadata(await res.json()), base };
 };
 
-interface TileCoords {
+type TileCoords = {
   x: number;
   y: number;
   level: number;
-}
+};
 
 const idFromGeometry = (
   geometry: ReturnType<VectorTileFeature["loadGeometry"]>,

@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
-import { Key } from "rc-table/lib/interface";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
+import { Key } from "rc-table/lib/interface";
 
 import { FileNode } from "./types";
 

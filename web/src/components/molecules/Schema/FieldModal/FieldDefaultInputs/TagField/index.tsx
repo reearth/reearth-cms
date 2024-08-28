@@ -1,15 +1,14 @@
 import styled from "@emotion/styled";
-import React from "react";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
+import React from "react";
 
-interface Props {
+type Props = {
   selectedTags?: { id: string; name: string; color: string }[];
   multiple: boolean;
-}
+};
 
 const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
   const t = useT();

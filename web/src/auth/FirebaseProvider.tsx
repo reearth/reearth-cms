@@ -1,15 +1,13 @@
 import styled from "@emotion/styled";
+import Loading from "@reearth-cms/components/atoms/Loading";
 import { getAuth, onAuthStateChanged, User, EmailAuthProvider } from "firebase/auth";
 import * as firebaseui from "firebaseui";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
-
-import Loading from "@reearth-cms/components/atoms/Loading";
-
 import "firebaseui/dist/firebaseui.css";
 
-interface Props {
+type Props = {
   children?: ReactNode;
-}
+};
 
 const FirebaseProvider: React.FC<Props> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);

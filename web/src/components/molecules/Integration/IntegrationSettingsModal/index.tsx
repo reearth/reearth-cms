@@ -1,23 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useEffect, useState } from "react";
 
-interface FormValues {
+type FormValues = {
   role: Role;
-}
+};
 
-interface Props {
+type Props = {
   selectedIntegrationMember?: IntegrationMember;
   open: boolean;
   loading: boolean;
   onClose: () => void;
   onSubmit: (role: Role) => Promise<void>;
-}
+};
 
 const IntegrationSettingsModal: React.FC<Props> = ({
   selectedIntegrationMember,

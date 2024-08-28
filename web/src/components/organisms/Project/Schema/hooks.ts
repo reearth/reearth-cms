@@ -1,7 +1,3 @@
-import { Modal } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
@@ -37,6 +33,9 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu } from "@reearth-cms/state";
+import { Modal } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default () => {
   const t = useT();
@@ -137,13 +136,13 @@ export default () => {
 
   const handleFieldKeyUnique = useCallback(
     (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),
-    [selectedField?.id, currentModel],
+    [keyUniqueCheck, selectedField?.id, currentModel],
   );
 
   const handleCorrespondingFieldKeyUnique = useCallback(
     (key: string) =>
       keyUniqueCheck(key, selectedField?.typeProperty?.correspondingField?.id, referencedModel),
-    [selectedField?.typeProperty?.correspondingField?.id, referencedModel],
+    [keyUniqueCheck, selectedField?.typeProperty?.correspondingField?.id, referencedModel],
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({

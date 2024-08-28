@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import {
   AssetField,
@@ -12,7 +11,7 @@ import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
-interface Props {
+type Props = {
   schema?: Schema;
   initialFormValues: Record<string, unknown>;
   referencedItems?: FormItem[];
@@ -20,7 +19,7 @@ interface Props {
   settingsLoading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+};
 
 const RequestItemForm: React.FC<Props> = ({
   schema,

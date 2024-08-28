@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
@@ -9,7 +8,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import ModelCard from "./ModelCard";
 
-interface Props {
+type Props = {
   projectName?: string;
   projectDescription?: string;
   models?: Model[];
@@ -18,7 +17,7 @@ interface Props {
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
-}
+};
 
 const ProjectOverview: React.FC<Props> = ({
   projectName,

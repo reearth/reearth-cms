@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { Key, useCallback } from "react";
-
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
@@ -9,10 +7,11 @@ import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTab
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { useT } from "@reearth-cms/i18n";
+import { Key, useCallback } from "react";
 
 export type UploadType = "local" | "url";
 
-interface Props {
+type Props = {
   commentsPanel: JSX.Element;
   assetList: Asset[];
   fileList: UploadFile[];
@@ -48,7 +47,7 @@ interface Props {
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-}
+};
 
 const AssetList: React.FC<Props> = ({
   commentsPanel,

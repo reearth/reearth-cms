@@ -1,14 +1,13 @@
-import React from "react";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
+import React from "react";
 
-interface Props {
+type Props = {
   multiple: boolean;
-}
+};
 
 const URLField: React.FC<Props> = ({ multiple }) => {
   const t = useT();

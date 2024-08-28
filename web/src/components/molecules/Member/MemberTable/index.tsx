@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { Key, useCallback, useMemo } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,8 +11,9 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { Key, useCallback, useMemo } from "react";
 
-interface Props {
+type Props = {
   me: {
     id?: string;
     myWorkspace?: string;
@@ -34,7 +33,7 @@ interface Props {
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
   onReload: () => void;
-}
+};
 
 const MemberTable: React.FC<Props> = ({
   me,

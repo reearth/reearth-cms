@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -10,13 +8,14 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import React, { useCallback } from "react";
 
-interface FormValues {
+type FormValues = {
   name: string;
   names: User[];
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   searchedUser?: User & { isMember: boolean };
   searchedUserList: User[];
@@ -27,7 +26,7 @@ interface Props {
   onSubmit: (users: MemberInput[]) => Promise<void>;
   changeSearchedUser: (user?: User & { isMember: boolean }) => void;
   changeSearchedUserList: React.Dispatch<React.SetStateAction<User[]>>;
-}
+};
 
 const initialValues: FormValues = {
   name: "",

@@ -1,16 +1,15 @@
 import styled from "@emotion/styled";
-import { useCallback, useState, ChangeEvent } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useState, ChangeEvent } from "react";
 
 const { TextArea } = Input;
 
-interface Props {
+type Props = {
   onCommentCreate: (content: string) => Promise<void>;
-}
+};
 
 const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);

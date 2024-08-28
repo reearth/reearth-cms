@@ -1,11 +1,10 @@
 import styled from "@emotion/styled";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+export type Props = {
   onIntegrationModalOpen: () => void;
-}
+};
 
 const IntegrationCreationAction: React.FC<Props> = ({ onIntegrationModalOpen }) => {
   const t = useT();

@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
@@ -17,8 +15,9 @@ import {
   CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { Dispatch, SetStateAction } from "react";
 
-interface Props {
+type Props = {
   commentsPanel: JSX.Element;
   viewsMenu: JSX.Element;
   collapsed: boolean;
@@ -62,7 +61,7 @@ interface Props {
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-}
+};
 
 const ContentListMolecule: React.FC<Props> = ({
   commentsPanel,

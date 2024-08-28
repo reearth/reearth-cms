@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
+import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { useRef, useState, FocusEvent, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
-
-import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 
 type Props = {
   value?: string;

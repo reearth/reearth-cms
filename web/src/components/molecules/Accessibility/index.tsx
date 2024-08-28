@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useMemo } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,16 +11,17 @@ import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
+import React, { useCallback, useMemo } from "react";
 
-interface ModelDataType {
+type ModelDataType = {
   id: string;
   name: string;
   public: JSX.Element;
   publicState: boolean;
   key?: string;
-}
+};
 
-interface Props {
+type Props = {
   models?: Model[];
   scope?: PublicScope;
   alias?: string;
@@ -33,7 +32,7 @@ interface Props {
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
   handleSetScope: (projectScope: PublicScope) => void;
-}
+};
 
 const Accessibility: React.FC<Props> = ({
   models,

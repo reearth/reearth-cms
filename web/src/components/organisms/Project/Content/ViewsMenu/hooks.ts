@@ -1,5 +1,3 @@
-import { useCallback, useState } from "react";
-
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import {
@@ -15,11 +13,12 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useModel } from "@reearth-cms/state";
+import { useCallback, useState } from "react";
 
-interface Params {
+type Params = {
   currentView: CurrentView;
   onViewChange: () => void;
-}
+};
 
 export type modalStateType = "rename" | "create";
 

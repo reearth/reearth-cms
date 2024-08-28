@@ -1,7 +1,3 @@
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import {
@@ -15,6 +11,9 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import dayjs from "dayjs";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 export default (
   selectedType: FieldType,
@@ -266,7 +265,7 @@ export default (
     } catch (error) {
       console.error(error);
     }
-  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
+  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, handleModalReset]);
 
   const isRequiredDisabled = useMemo(
     () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
@@ -290,7 +289,7 @@ export default (
         return Promise.reject();
       }
     },
-    [selectedField?.id],
+    [handleFieldKeyUnique, selectedField?.id],
   );
 
   const isTitleDisabled = useMemo(

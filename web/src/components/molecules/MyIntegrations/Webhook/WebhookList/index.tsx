@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
@@ -7,7 +6,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
-interface Props {
+type Props = {
   webhooks?: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {
@@ -19,7 +18,7 @@ interface Props {
   }) => Promise<void>;
   onShowForm: () => void;
   onWebhookSelect: (id: string) => void;
-}
+};
 
 const WebhookList: React.FC<Props> = ({
   webhooks,

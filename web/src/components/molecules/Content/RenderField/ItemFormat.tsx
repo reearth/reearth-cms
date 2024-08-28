@@ -1,9 +1,4 @@
 import styled from "@emotion/styled";
-import dayjs from "dayjs";
-import { useCallback, useState, FocusEvent } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -15,13 +10,17 @@ import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes"
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
+import dayjs from "dayjs";
+import { useCallback, useState, FocusEvent } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
-interface Props {
+type Props = {
   item: string;
   field: Field;
   update?: (value: string | boolean, index?: number) => void;
   index?: number;
-}
+};
 
 export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
   const [isEditable, setIsEditable] = useState(false);

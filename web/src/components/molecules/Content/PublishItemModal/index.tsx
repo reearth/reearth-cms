@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -9,21 +7,22 @@ import Row from "@reearth-cms/components/atoms/Row";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import WarningText from "@reearth-cms/components/molecules/Content/WarningText";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useEffect, useState } from "react";
 
 import { FormItem } from "../types";
 
-interface FormValues {
+type FormValues = {
   items: string[];
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   loading: boolean;
   itemId: string;
   unpublishedItems: FormItem[];
   onClose: () => void;
   onSubmit: (data: string[]) => Promise<void>;
-}
+};
 
 const initialValues: FormValues = {
   items: [],

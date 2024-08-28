@@ -1,13 +1,12 @@
 import styled from "@emotion/styled";
-import React from "react";
-
 import Card from "@reearth-cms/components/atoms/Card";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import React from "react";
 
-interface Props {
+type Props = {
   project: Project;
   onProjectNavigation: (project: Project) => void;
-}
+};
 
 const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
   const { Meta } = Card;

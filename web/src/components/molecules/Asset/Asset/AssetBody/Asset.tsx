@@ -1,7 +1,4 @@
 import styled from "@emotion/styled";
-import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -30,10 +27,12 @@ import {
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { Viewer as CesiumViewer } from "cesium";
+import { useCallback, useState } from "react";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   asset: Asset;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
@@ -47,7 +46,7 @@ interface Props {
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 export let viewerRef: CesiumViewer | undefined;
 

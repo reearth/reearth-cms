@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -15,8 +13,9 @@ import {
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
-interface Props {
+type Props = {
   workspaceSettings: WorkspaceSettings;
   hasPrivilege: boolean;
   loading: boolean;
@@ -25,7 +24,7 @@ interface Props {
     terrains: TerrainInput[],
     isEnable?: boolean,
   ) => Promise<void>;
-}
+};
 
 const Settings: React.FC<Props> = ({
   workspaceSettings,

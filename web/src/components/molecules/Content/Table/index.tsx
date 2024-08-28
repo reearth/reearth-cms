@@ -1,15 +1,4 @@
 import styled from "@emotion/styled";
-import React, {
-  Key,
-  useMemo,
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-} from "react";
-
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -46,11 +35,21 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import React, {
+  Key,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-interface Props {
+type Props = {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
@@ -88,7 +87,7 @@ interface Props {
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-}
+};
 
 const ContentTable: React.FC<Props> = ({
   contentTableFields,

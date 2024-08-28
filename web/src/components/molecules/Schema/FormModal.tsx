@@ -1,5 +1,3 @@
-import { useCallback, useState, useEffect, useMemo, useRef } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -10,8 +8,9 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 
-interface Props {
+type Props = {
   data?: Model | Group;
   open: boolean;
   onClose: () => void;
@@ -19,13 +18,13 @@ interface Props {
   onUpdate?: (values: ModelFormValues) => Promise<void>;
   onKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   isModel: boolean;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
   description: string;
   key: string;
-}
+};
 
 const FormModal: React.FC<Props> = ({
   data,

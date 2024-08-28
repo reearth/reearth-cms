@@ -1,23 +1,22 @@
 import styled from "@emotion/styled";
-import React, { useMemo } from "react";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
+import React, { useMemo } from "react";
 
 import { fieldTypes } from "./fieldTypes";
 import { FieldType, Tab, SelectedSchemaType } from "./types";
 
-interface Props {
+type Props = {
   currentTab: Tab;
   selectedSchemaType: SelectedSchemaType;
   addField: (fieldType: FieldType) => void;
-}
+};
 
-interface FieldListItem {
+type FieldListItem = {
   title: string;
   fields: FieldType[];
-}
+};
 
 const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();

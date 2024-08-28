@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-interface Props {
+type Props = {
   title?: string;
   danger?: boolean;
   headerActions?: ReactNode;
   children?: ReactNode;
   description?: string;
-}
+};
 
 const ContentSection: React.FC<Props> = ({
   title,

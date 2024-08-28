@@ -1,13 +1,12 @@
 import styled from "@emotion/styled";
-import { Steps } from "antd";
-
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { RequestState } from "@reearth-cms/components/organisms/Project/Request/RequestList/hooks";
 import { useT } from "@reearth-cms/i18n";
+import { Steps } from "antd";
 
-interface Props {
+type Props = {
   requestState: RequestState;
-}
+};
 
 const RequestStatus: React.FC<Props> = ({ requestState }) => {
   const t = useT();

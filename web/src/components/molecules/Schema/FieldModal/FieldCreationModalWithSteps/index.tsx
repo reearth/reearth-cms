@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
@@ -26,11 +24,12 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 const { Step } = Steps;
 const { TabPane } = Tabs;
 
-interface Props {
+type Props = {
   models?: Model[];
   selectedType: FieldType;
   selectedField: Field | null;
@@ -42,7 +41,7 @@ interface Props {
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   onUpdate: (values: FormValues) => Promise<void>;
-}
+};
 
 const FieldCreationModalWithSteps: React.FC<Props> = ({
   models,

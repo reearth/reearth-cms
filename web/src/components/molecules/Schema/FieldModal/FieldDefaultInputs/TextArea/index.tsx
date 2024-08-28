@@ -1,13 +1,12 @@
-import React from "react";
-
 import Form from "@reearth-cms/components/atoms/Form";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
+import React from "react";
 
-interface Props {
+type Props = {
   multiple: boolean;
-}
+};
 
 const TextAreaField: React.FC<Props> = ({ multiple }) => {
   const t = useT();

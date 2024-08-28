@@ -1,6 +1,3 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
@@ -21,10 +18,12 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useWorkspace, useProject } from "@reearth-cms/state";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-interface Params {
+type Params = {
   modelId?: string;
-}
+};
 
 export default ({ modelId }: Params) => {
   const t = useT();

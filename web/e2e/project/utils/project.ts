@@ -1,5 +1,4 @@
 import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 
 export async function createProject(page: Page) {

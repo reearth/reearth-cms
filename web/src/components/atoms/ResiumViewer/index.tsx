@@ -1,23 +1,22 @@
 import styled from "@emotion/styled";
+import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
+import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
-import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
-import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
-
 import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
-interface Props {
+type Props = {
   onGetViewer: (viewer?: CesiumViewer) => void;
   children: React.ReactNode;
   properties?: Property;
   showDescription?: boolean;
   onSelect?: (id?: string) => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 const ResiumViewer: React.FC<Props> = ({
   onGetViewer,

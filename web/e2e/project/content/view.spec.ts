@@ -1,5 +1,4 @@
 import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
 import { createModel } from "@reearth-cms/e2e/project/utils/model";

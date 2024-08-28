@@ -1,7 +1,6 @@
+import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { Key } from "rc-table/lib/interface";
 import { expect, test } from "vitest";
-
-import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 

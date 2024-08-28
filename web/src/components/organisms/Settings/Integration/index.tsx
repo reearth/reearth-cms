@@ -1,8 +1,7 @@
-import { useParams } from "react-router-dom";
-
 import IntegrationConnectModal from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal";
 import IntegrationSettingsModal from "@reearth-cms/components/molecules/Integration/IntegrationSettingsModal";
 import IntegrationTable from "@reearth-cms/components/molecules/Integration/IntegrationTable";
+import { useParams } from "react-router-dom";
 
 import useHooks from "./hooks";
 

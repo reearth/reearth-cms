@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrations/Settings";
@@ -11,7 +10,7 @@ import {
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   integration: Integration;
   webhookInitialValues?: WebhookValues;
   updateIntegrationLoading: boolean;
@@ -43,7 +42,7 @@ interface Props {
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
   onWebhookSelect: (id: string) => void;
-}
+};
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,

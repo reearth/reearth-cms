@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
@@ -10,7 +9,7 @@ import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   commentsPanel: JSX.Element;
   asset?: Asset;
   assetFileExt?: string;
@@ -29,7 +28,7 @@ interface Props {
   onBack: () => void;
   onSave: () => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 const AssetWrapper: React.FC<Props> = ({
   asset,

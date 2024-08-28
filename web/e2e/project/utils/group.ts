@@ -1,5 +1,4 @@
 import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect } from "@reearth-cms/e2e/utils";
 

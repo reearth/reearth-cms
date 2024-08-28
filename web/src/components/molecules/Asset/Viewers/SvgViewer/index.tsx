@@ -1,12 +1,11 @@
 import styled from "@emotion/styled";
+import { useT } from "@reearth-cms/i18n";
 import { useCallback, useEffect, useState } from "react";
 
-import { useT } from "@reearth-cms/i18n";
-
-interface Props {
+type Props = {
   url: string;
   svgRender: boolean;
-}
+};
 
 const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const t = useT();

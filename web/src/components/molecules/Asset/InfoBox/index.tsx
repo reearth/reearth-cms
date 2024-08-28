@@ -1,18 +1,17 @@
 import styled from "@emotion/styled";
+import Button from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import parse from "html-react-parser";
 import { JSONTree } from "react-json-tree";
 
-import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
-
-interface Props {
+type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   infoBoxProps: any;
   infoBoxVisibility: boolean;
   title?: string;
   description?: string;
   onClose: () => void;
-}
+};
 
 const InfoBox: React.FC<Props> = ({
   infoBoxProps,

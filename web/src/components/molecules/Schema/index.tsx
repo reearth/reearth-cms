@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -19,8 +17,9 @@ import {
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useMemo, useState } from "react";
 
-interface Props {
+type Props = {
   data?: Model | Group;
   collapsed: boolean;
   onModalOpen: () => void;
@@ -33,7 +32,7 @@ interface Props {
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
-}
+};
 
 const Schema: React.FC<Props> = ({
   data,

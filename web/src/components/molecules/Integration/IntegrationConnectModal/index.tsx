@@ -1,19 +1,18 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/IntegrationCard";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { useCallback, useState } from "react";
 
-interface Props {
+type Props = {
   integrations?: Integration[];
   open: boolean;
   loading: boolean;
   onClose: () => void;
   onSubmit: (integration?: Integration) => Promise<void>;
-}
+};
 
 const IntegrationConnectModal: React.FC<Props> = ({
   integrations,
