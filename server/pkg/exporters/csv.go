@@ -81,27 +81,42 @@ func toCSVValue(vv *value.Value) string {
 
 	switch vv.Type() {
 	case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeSelect, value.TypeTag:
-		v, _ := vv.ValueString()
+		v, ok := vv.ValueString()
+		if !ok {
+			return ""
+		}
 		return v
 	case value.TypeURL:
-		v, _ := vv.ValueURL()
-		if v != nil {
-			return v.String()
+		v, ok := vv.ValueURL()
+		if !ok {
+			return ""
 		}
+		return v.String()
 	case value.TypeInteger:
-		v, _ := vv.ValueInteger()
+		v, ok := vv.ValueInteger()
+		if !ok {
+			return ""
+		}
 		return strconv.FormatInt(v, 10)
 	case value.TypeNumber:
-		v, _ := vv.ValueNumber()
+		v, ok := vv.ValueNumber()
+		if !ok {
+			return ""
+		}
 		return strconv.FormatFloat(v, 'f', -1, 64)
 	case value.TypeBool, value.TypeCheckbox:
-		v, _ := vv.ValueBool()
+		v, ok := vv.ValueBool()
+		if !ok {
+			return ""
+		}
 		return strconv.FormatBool(v)
 	case value.TypeDateTime:
-		v, _ := vv.ValueDateTime()
-		if !v.IsZero() {
-			return v.Format(time.RFC3339)
+		v, ok := vv.ValueDateTime()
+		if !ok {
+			return ""
 		}
+		return v.Format(time.RFC3339)
+	default:
+		return ""
 	}
-	return ""
 }
