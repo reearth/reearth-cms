@@ -12,28 +12,28 @@ import (
 
 func toGeoJSON(c echo.Context, l item.VersionedList, s *schema.Schema) error {
 	if !s.HasGeometryFields() {
-		return c.JSON(http.StatusNotFound, map[string]interface{}{
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": "no geometry field in this model",
 		})
 	}
 
 	fc, err := exporters.FeatureCollectionFromItems(l, s)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate GeoJSON").SetInternal(err)
 	}
 
 	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment;")
 	c.Response().Header().Set(echo.HeaderContentType, "application/json")
-	return c.JSON(http.StatusOK, ToFeatureCollection(fc))
+	return c.JSON(http.StatusOK, toFeatureCollection(fc))
 }
 
-func ToFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
+func toFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
 	if fc == nil || fc.Features == nil {
 		return nil
 	}
 
 	features := lo.Map(*fc.Features, func(f exporters.Feature, _ int) Feature {
-		return *ToFeature(&f)
+		return *toFeature(&f)
 	})
 
 	return &FeatureCollection{
@@ -42,7 +42,7 @@ func ToFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
 	}
 }
 
-func ToFeature(f *exporters.Feature) *Feature {
+func toFeature(f *exporters.Feature) *Feature {
 	if f == nil {
 		return nil
 	}
@@ -50,12 +50,12 @@ func ToFeature(f *exporters.Feature) *Feature {
 	return &Feature{
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         f.Id,
-		Geometry:   ToGeometry(f.Geometry),
+		Geometry:   toGeometry(f.Geometry),
 		Properties: f.Properties,
 	}
 }
 
-func ToGeometry(g *exporters.Geometry) *Geometry {
+func toGeometry(g *exporters.Geometry) *Geometry {
 	if g == nil {
 		return nil
 	}

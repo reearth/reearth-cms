@@ -17,12 +17,12 @@ var (
 	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
 )
 
-func csvFromItems(pw *io.PipeWriter, items item.VersionedList, s *schema.Schema) error {
+func csvFromItems(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
 	if !s.IsPointFieldSupported() {
 		return pointFieldIsNotSupportedError
 	}
 
-	go handleCSVGeneration(pw, items, s)
+	go handleCSVGeneration(pw, l, s)
 
 	return nil
 }
@@ -31,16 +31,18 @@ func handleCSVGeneration(pw *io.PipeWriter, l item.VersionedList, s *schema.Sche
 	err := generateCSV(pw, l, s)
 	if err != nil {
 		log.Errorf("failed to generate CSV: %v", err)
+		_ = pw.CloseWithError(err)
+	} else {
+		_ = pw.Close()
 	}
-	_ = pw.CloseWithError(err)
 }
 
 func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
 	w := csv.NewWriter(pw)
 	defer w.Flush()
 
-	keys := exporters.BuildCSVHeaders(s)
-	if err := w.Write(keys); err != nil {
+	headers := exporters.BuildCSVHeaders(s)
+	if err := w.Write(headers); err != nil {
 		return err
 	}
 

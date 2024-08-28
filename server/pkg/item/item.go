@@ -267,4 +267,3 @@ func (i *Item) GetFirstGeometryField() (*Field, bool) {
 	}
 	return nil, false
 }
-
