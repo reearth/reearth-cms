@@ -37,7 +37,7 @@ func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) 
 
 	for _, sf := range nonGeoFields {
 		f := itm.Field(sf.ID())
-		v := ToCSVProp(f)
+		v := toCSVProp(f)
 		row = append(row, v)
 	}
 
@@ -53,7 +53,7 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 		if !ok {
 			continue
 		}
-		g, err := StringToGeometry(ss)
+		g, err := stringToGeometry(ss)
 		if err != nil || g == nil || g.Type == nil || *g.Type != GeometryTypePoint {
 			continue
 		}
@@ -66,15 +66,15 @@ func float64ToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
-func ToCSVProp(f *item.Field) string {
+func toCSVProp(f *item.Field) string {
 	if f == nil {
 		return ""
 	}
 	vv := f.Value().First()
-	return ToCSVValue(vv)
+	return toCSVValue(vv)
 }
 
-func ToCSVValue(vv *value.Value) string {
+func toCSVValue(vv *value.Value) string {
 	if vv == nil {
 		return ""
 	}

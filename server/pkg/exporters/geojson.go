@@ -149,7 +149,7 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 	if !ok {
 		return Feature{}, false
 	}
-	geometry, ok := ExtractGeometry(geoField)
+	geometry, ok := extractGeometry(geoField)
 	if !ok {
 		return Feature{}, false
 	}
@@ -171,7 +171,7 @@ func extractProperties(itm *item.Item, s *schema.Schema) *map[string]any {
 		if field.Type() != value.TypeGeometryObject && field.Type() != value.TypeGeometryEditor {
 			key := field.Name()
 			itmField := itm.Field(field.ID())
-			if val, ok := ToGeoJSONProp(itmField); ok {
+			if val, ok := toGeoJSONProp(itmField); ok {
 				properties[key] = val
 			}
 		}
@@ -179,19 +179,19 @@ func extractProperties(itm *item.Item, s *schema.Schema) *map[string]any {
 	return &properties
 }
 
-func ExtractGeometry(field *item.Field) (*Geometry, bool) {
+func extractGeometry(field *item.Field) (*Geometry, bool) {
 	geoStr, ok := field.Value().First().ValueString()
 	if !ok {
 		return nil, false
 	}
-	geometry, err := StringToGeometry(geoStr)
+	geometry, err := stringToGeometry(geoStr)
 	if err != nil {
 		return nil, false
 	}
 	return geometry, true
 }
 
-func StringToGeometry(geoString string) (*Geometry, error) {
+func stringToGeometry(geoString string) (*Geometry, error) {
 	var geometry Geometry
 	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
 		return nil, err
@@ -199,27 +199,27 @@ func StringToGeometry(geoString string) (*Geometry, error) {
 	return &geometry, nil
 }
 
-func ToGeoJSONProp(f *item.Field) (any, bool) {
+func toGeoJSONProp(f *item.Field) (any, bool) {
 	if f == nil {
 		return nil, false
 	}
 	if f.Value().Len() == 1 {
-		return ToGeoJsonSingleValue(f.Value().First())
+		return toGeoJsonSingleValue(f.Value().First())
 	}
 	m := value.MultipleFrom(f.Type(), f.Value().Values())
-	return ToGeoJSONMultipleValues(m)
+	return toGeoJSONMultipleValues(m)
 }
 
-func ToGeoJSONMultipleValues(m *value.Multiple) ([]any, bool) {
+func toGeoJSONMultipleValues(m *value.Multiple) ([]any, bool) {
 	if m.Len() == 0 {
 		return nil, false
 	}
 	return lo.FilterMap(m.Values(), func(v *value.Value, _ int) (any, bool) {
-		return ToGeoJsonSingleValue(v)
+		return toGeoJsonSingleValue(v)
 	}), true
 }
 
-func ToGeoJsonSingleValue(vv *value.Value) (any, bool) {
+func toGeoJsonSingleValue(vv *value.Value) (any, bool) {
 	if vv == nil {
 		return "", false
 	}
