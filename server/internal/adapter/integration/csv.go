@@ -4,7 +4,7 @@ import (
 	"encoding/csv"
 	"io"
 
-	"github.com/reearth/reearth-cms/server/pkg/exporters"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/i18n"
@@ -41,7 +41,7 @@ func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) erro
 	w := csv.NewWriter(pw)
 	defer w.Flush()
 
-	headers := exporters.BuildCSVHeaders(s)
+	headers := integrationapi.BuildCSVHeaders(s)
 	if err := w.Write(headers); err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) erro
 	})
 
 	for _, ver := range l {
-		row, ok := exporters.RowFromItem(ver.Value(), nonGeoFields)
+		row, ok := integrationapi.RowFromItem(ver.Value(), nonGeoFields)
 		if ok {
 			if err := w.Write(row); err != nil {
 				return err
