@@ -1,7 +1,8 @@
+import React from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import { useT } from "@reearth-cms/i18n";
-import React from "react";
 
 import { FieldType } from "../../types";
 

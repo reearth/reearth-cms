@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
+import { Key } from "react";
+
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
-import { Key } from "react";
 
 type Props = {
   commentsPanel: JSX.Element;

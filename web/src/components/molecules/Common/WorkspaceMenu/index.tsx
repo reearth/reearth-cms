@@ -1,8 +1,9 @@
+import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { useCallback, useEffect, useState } from "react";
+
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
-import { ItemType } from "antd/lib/menu/hooks/useItems";
-import { useCallback, useEffect, useState } from "react";
 
 type Props = {
   inlineCollapsed: boolean;

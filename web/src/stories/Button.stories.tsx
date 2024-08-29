@@ -1,6 +1,7 @@
+import type { Meta, StoryObj } from "@storybook/react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "reearth-cms/Button",

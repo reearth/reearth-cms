@@ -1,3 +1,5 @@
+import { useCallback, useMemo } from "react";
+
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
@@ -7,7 +9,6 @@ import {
   useUpdateMeMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useCallback, useMemo } from "react";
 
 export default () => {
   const { data, loading } = useGetMeQuery();

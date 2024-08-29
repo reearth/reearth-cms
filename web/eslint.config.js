@@ -23,7 +23,7 @@ const playwrightConfig = {
 };
 
 export default [
-  ...config(),
+  ...config("reearth-cms"),
   storyBookConfig,
   playwrightConfig,
   {

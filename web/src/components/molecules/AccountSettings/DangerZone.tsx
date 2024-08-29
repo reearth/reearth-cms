@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
-import { useCallback } from "react";
 
 type Props = {
   onUserDelete: () => Promise<void>;

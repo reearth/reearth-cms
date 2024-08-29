@@ -1,7 +1,8 @@
+import React from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
-import React from "react";
 
 const GroupField: React.FC = () => {
   const t = useT();

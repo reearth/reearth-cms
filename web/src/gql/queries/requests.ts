@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+
 import { requestFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_REQUESTS = gql`

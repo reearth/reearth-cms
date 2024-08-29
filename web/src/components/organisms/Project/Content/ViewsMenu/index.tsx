@@ -1,7 +1,8 @@
+import React from "react";
+
 import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import ViewFormModal from "@reearth-cms/components/molecules/View/ViewFormModal";
 import ViewsMenuMolecule from "@reearth-cms/components/molecules/View/viewsMenu";
-import React from "react";
 
 import useHooks from "./hooks";
 

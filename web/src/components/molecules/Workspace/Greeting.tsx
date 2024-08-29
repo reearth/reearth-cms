@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
-import { useT } from "@reearth-cms/i18n";
 import React from "react";
+
+import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   coverImageUrl?: string;

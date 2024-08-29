@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
+import { useCallback, useState } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/IntegrationCard";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
-import { useCallback, useState } from "react";
 
 type Props = {
   integrations?: Integration[];

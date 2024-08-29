@@ -1,6 +1,7 @@
-import { logOutFromTenant } from "@reearth-cms/config";
 import { Auth } from "aws-amplify";
 import { useState, useEffect } from "react";
+
+import { logOutFromTenant } from "@reearth-cms/config";
 
 import AuthHook from "./AuthHook";
 

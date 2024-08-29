@@ -1,8 +1,9 @@
+import React from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import { useT } from "@reearth-cms/i18n";
-import React from "react";
 
 type Props = {
   multiple: boolean;

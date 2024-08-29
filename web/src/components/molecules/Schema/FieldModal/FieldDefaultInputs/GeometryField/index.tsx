@@ -1,3 +1,5 @@
+import React from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
@@ -7,7 +9,6 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import React from "react";
 
 type Props = {
   supportedTypes?: ObjectSupportedType[] | EditorSupportedType;

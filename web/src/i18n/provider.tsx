@@ -1,7 +1,8 @@
-import { useAuth } from "@reearth-cms/auth";
-import { useGetLanguageQuery } from "@reearth-cms/gql/graphql-client-api";
 import { ReactNode, useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
+
+import { useAuth } from "@reearth-cms/auth";
+import { useGetLanguageQuery } from "@reearth-cms/gql/graphql-client-api";
 
 import i18n from "./i18n";
 

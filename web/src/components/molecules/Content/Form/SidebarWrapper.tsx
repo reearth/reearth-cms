@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";

@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
+import React from "react";
+
 import Card from "@reearth-cms/components/atoms/Card";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
-import React from "react";
 
 type Props = {
   project: Project;

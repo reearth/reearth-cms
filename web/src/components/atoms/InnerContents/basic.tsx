@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
-import Content from "@reearth-cms/components/atoms/Content";
 import { Children, ReactNode } from "react";
+
+import Content from "@reearth-cms/components/atoms/Content";
 
 type Props = {
   title?: string;

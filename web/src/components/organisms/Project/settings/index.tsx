@@ -1,6 +1,7 @@
+import { useParams } from "react-router-dom";
+
 import Loading from "@reearth-cms/components/atoms/Loading";
 import ProjectSettingsMolecule from "@reearth-cms/components/molecules/ProjectSettings";
-import { useParams } from "react-router-dom";
 
 import useHooks from "./hooks";
 

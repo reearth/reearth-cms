@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { useCallback, useMemo, useState } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -10,7 +12,6 @@ import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
-import { useCallback, useMemo, useState } from "react";
 
 type Props = {
   integration: Integration;

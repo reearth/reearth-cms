@@ -1,10 +1,4 @@
 import {
-  TileResource,
-  TerrainResource,
-  UrlResourceProps,
-  CesiumResourceProps,
-} from "@reearth-cms/components/molecules/Workspace/types";
-import {
   ProviderViewModel,
   ArcGisMapServerImageryProvider,
   OpenStreetMapImageryProvider,
@@ -19,6 +13,13 @@ import {
   IonWorldImageryStyle,
   IonImageryProvider,
 } from "cesium";
+
+import {
+  TileResource,
+  TerrainResource,
+  UrlResourceProps,
+  CesiumResourceProps,
+} from "@reearth-cms/components/molecules/Workspace/types";
 
 import ArcgisThumbnail from "./arcgisThumbnail.png";
 import NoImage from "./noImage.jpg";

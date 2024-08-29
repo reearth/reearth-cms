@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+
 import { assetFileFragment, threadFragment, integrationFragment } from "@reearth-cms/gql/fragments";
 
 export const assetFragment = gql`

@@ -1,6 +1,7 @@
+import { Viewer as CesiumViewer } from "cesium";
+
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
-import { Viewer as CesiumViewer } from "cesium";
 
 import { Imagery } from "./Imagery";
 

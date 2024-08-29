@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_ITEMS = gql`
