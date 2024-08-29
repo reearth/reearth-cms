@@ -252,7 +252,7 @@ const GeometryItem: React.FC<Props> = ({
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
-    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
+    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : (supportedTypes ?? "POINT");
     const obj: {
       type: string;
       coordinates?: unknown;
