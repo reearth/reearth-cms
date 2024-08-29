@@ -4,17 +4,17 @@ import Content from "@reearth-cms/components/atoms/Content";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 
-export interface InnerProps {
+export type InnerProps = {
   onWorkspaceModalOpen?: () => void;
-}
+};
 
-export interface Props {
+export type Props = {
   headerComponent: React.ReactNode;
   contentComponent: React.ReactNode;
   sidebarComponent: React.ReactNode;
   collapsed: boolean;
   onCollapse: (collapse: boolean) => void;
-}
+};
 
 const CMSWrapper: React.FC<Props> = ({
   contentComponent,

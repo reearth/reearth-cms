@@ -34,7 +34,7 @@ import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldCom
 import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
-interface Props {
+type Props = {
   item?: Item;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
@@ -117,7 +117,7 @@ interface Props {
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
-}
+};
 
 const ContentForm: React.FC<Props> = ({
   item,

@@ -8,7 +8,7 @@ import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   commentsPanel: JSX.Element;
   requests: Request[];
   loading: boolean;
@@ -39,7 +39,7 @@ interface Props {
   pageSize: number;
   columns: Record<string, ColumnsState>;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
-}
+};
 
 const RequestListMolecule: React.FC<Props> = ({
   commentsPanel,

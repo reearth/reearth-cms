@@ -12,18 +12,18 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../types";
 
-interface FormValues {
+type FormValues = {
   items: string[];
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   loading: boolean;
   itemId: string;
   unpublishedItems: FormItem[];
   onClose: () => void;
   onSubmit: (data: string[]) => Promise<void>;
-}
+};
 
 const initialValues: FormValues = {
   items: [],

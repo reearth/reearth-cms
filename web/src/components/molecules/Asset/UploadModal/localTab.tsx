@@ -7,9 +7,9 @@ import { useT } from "@reearth-cms/i18n";
 
 const { Dragger } = Upload;
 
-interface Props {
+type Props = {
   uploadProps: UploadProps;
-}
+};
 
 const LocalTab: React.FC<Props> = ({ uploadProps }) => {
   const t = useT();

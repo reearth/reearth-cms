@@ -3,7 +3,7 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 
-interface Props {
+type Props = {
   title: string;
   collapsed: boolean;
   selectedKey?: string;
@@ -15,7 +15,7 @@ interface Props {
   onCreate: (data: ModelFormValues) => Promise<void>;
   onModelSelect: (modelId: string) => void;
   onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
-}
+};
 
 const Models: React.FC<Props> = ({
   collapsed,

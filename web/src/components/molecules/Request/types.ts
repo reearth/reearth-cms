@@ -4,7 +4,7 @@ import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
 
-export interface Request {
+export type Request = {
   id: string;
   threadId: string;
   title: string;
@@ -24,9 +24,9 @@ export interface Request {
     initialValues: Record<string, unknown>;
     referencedItems: FormItem[];
   }[];
-}
+};
 
-export interface RequestUpdatePayload {
+export type RequestUpdatePayload = {
   requestId: string;
   title?: string;
   description?: string;
@@ -35,4 +35,4 @@ export interface RequestUpdatePayload {
   items?: {
     itemId: string;
   }[];
-}
+};

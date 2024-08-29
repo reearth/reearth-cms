@@ -16,7 +16,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-interface Props {
+type Props = {
   webhookInitialValues?: WebhookValues;
   loading: boolean;
   onBack: () => void;
@@ -35,14 +35,14 @@ interface Props {
     trigger: WebhookTrigger;
     secret?: string;
   }) => Promise<void>;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
   url: string;
   secret: string;
   trigger: string[];
-}
+};
 
 const WebhookForm: React.FC<Props> = ({
   webhookInitialValues,

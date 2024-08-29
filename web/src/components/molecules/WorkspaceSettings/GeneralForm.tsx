@@ -6,15 +6,15 @@ import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   workspaceName?: string;
   updateWorkspaceLoading: boolean;
   onWorkspaceUpdate: (name: string) => Promise<void>;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
-}
+};
 
 const WorkspaceGeneralForm: React.FC<Props> = ({
   workspaceName,

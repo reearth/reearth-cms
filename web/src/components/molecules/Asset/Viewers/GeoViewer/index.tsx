@@ -9,12 +9,12 @@ import CzmlComponent from "./CzmlComponent";
 import GeoJsonComponent from "./GeoJsonComponent";
 import KmlComponent from "./KmlComponent";
 
-interface Props {
+type Props = {
   url: string;
   assetFileExt?: string;
   onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 const GeoViewer: React.FC<Props> = ({ url, assetFileExt, onGetViewer, workspaceSettings }) => {
   const ext = getExtension(url) ?? assetFileExt;

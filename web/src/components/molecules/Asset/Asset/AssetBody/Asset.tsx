@@ -33,7 +33,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   asset: Asset;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
@@ -47,7 +47,7 @@ interface Props {
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 export let viewerRef: CesiumViewer | undefined;
 

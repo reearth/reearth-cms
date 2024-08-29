@@ -8,10 +8,10 @@ import { useT } from "@reearth-cms/i18n";
 
 const { TextArea } = Input;
 
-interface EditorProps {
+type EditorProps = {
   isInputDisabled: boolean;
   onCommentCreate: (content: string) => Promise<void>;
-}
+};
 
 const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);

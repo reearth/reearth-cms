@@ -9,14 +9,14 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   selectedKey?: string;
   groups?: Group[];
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
   onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
-}
+};
 
 const GroupsList: React.FC<Props> = ({
   selectedKey,

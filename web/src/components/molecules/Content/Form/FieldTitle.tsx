@@ -3,11 +3,11 @@ import styled from "@emotion/styled";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   title: string;
   isUnique: boolean;
   isTitle: boolean;
-}
+};
 
 const FieldTitle: React.FC<Props> = ({ title, isUnique, isTitle }) => {
   const t = useT();

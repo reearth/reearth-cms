@@ -137,13 +137,13 @@ export default () => {
 
   const handleFieldKeyUnique = useCallback(
     (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),
-    [selectedField?.id, currentModel],
+    [keyUniqueCheck, selectedField?.id, currentModel],
   );
 
   const handleCorrespondingFieldKeyUnique = useCallback(
     (key: string) =>
       keyUniqueCheck(key, selectedField?.typeProperty?.correspondingField?.id, referencedModel),
-    [selectedField?.typeProperty?.correspondingField?.id, referencedModel],
+    [keyUniqueCheck, selectedField?.typeProperty?.correspondingField?.id, referencedModel],
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({

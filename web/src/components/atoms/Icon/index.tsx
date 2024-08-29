@@ -7,7 +7,7 @@ import Icons from "./icons";
 
 type Icons = keyof typeof Icons;
 
-interface Props {
+type Props = {
   className?: string;
   icon?: string;
   size?: string | number;
@@ -15,7 +15,7 @@ interface Props {
   color?: string;
   style?: CSSProperties;
   onClick?: () => void;
-}
+};
 
 const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onClick }) => {
   const src = useMemo(

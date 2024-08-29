@@ -11,10 +11,10 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
-interface Params {
+type Params = {
   threadId?: string;
   refetchQueries: RefetchQueries;
-}
+};
 
 export default ({ threadId, refetchQueries }: Params) => {
   const t = useT();

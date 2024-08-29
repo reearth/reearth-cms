@@ -15,13 +15,13 @@ import RequestItemForm from "./ItemForm";
 
 const { Panel } = Collapse;
 
-interface Props {
+type Props = {
   currentRequest: Request;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+};
 
 export const RequestDescription: React.FC<Props> = ({
   currentRequest,

@@ -8,13 +8,13 @@ import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
 
-interface Props {
+type Props = {
   checked?: boolean[];
   onChange?: (value: (string | number | boolean)[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
   disabled?: boolean;
-}
+};
 
 const MultiValueBooleanField: React.FC<Props> = ({
   checked = [],

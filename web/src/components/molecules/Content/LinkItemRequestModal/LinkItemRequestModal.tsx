@@ -15,7 +15,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   itemIds: string[];
   visible: boolean;
   onLinkItemRequestModalCancel: () => void;
@@ -28,7 +28,7 @@ interface Props {
   onChange: (value: Request, itemIds: string[]) => Promise<void>;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-}
+};
 
 const LinkItemRequestModal: React.FC<Props> = ({
   itemIds,

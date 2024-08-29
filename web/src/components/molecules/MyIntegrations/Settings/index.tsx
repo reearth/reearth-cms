@@ -5,7 +5,7 @@ import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Setting
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-interface Props {
+type Props = {
   integration: Integration;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
@@ -16,7 +16,7 @@ interface Props {
   }) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
   onRegenerateToken: () => Promise<void>;
-}
+};
 
 const MyIntegrationSettings: React.FC<Props> = ({
   integration,

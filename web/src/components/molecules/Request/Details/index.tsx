@@ -6,7 +6,7 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
-interface Props {
+type Props = {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;
@@ -27,7 +27,7 @@ interface Props {
   loading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+};
 
 const RequestDetailsMolecule: React.FC<Props> = ({
   me,

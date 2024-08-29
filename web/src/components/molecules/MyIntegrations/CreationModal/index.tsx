@@ -8,19 +8,19 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   open: boolean;
   loading: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
-}
+};
 
-interface FormValues {
+type FormValues = {
   name: string;
   description: string;
   logoUrl: string;
   type: IntegrationType;
-}
+};
 
 const initialValues: FormValues = {
   name: "",

@@ -16,12 +16,12 @@ import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-interface Props {
+type Props = {
   item: string;
   field: Field;
   update?: (value: string | boolean, index?: number) => void;
   index?: number;
-}
+};
 
 export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
   const [isEditable, setIsEditable] = useState(false);

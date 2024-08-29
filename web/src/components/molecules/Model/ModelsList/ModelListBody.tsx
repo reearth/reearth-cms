@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-interface Props {
+type Props = {
   children: ReactNode;
   collapsed: boolean;
-}
+};
 
 const ModelListBody: React.FC<Props> = ({ children, collapsed }) => {
   return <Container collapsed={collapsed}>{children}</Container>;

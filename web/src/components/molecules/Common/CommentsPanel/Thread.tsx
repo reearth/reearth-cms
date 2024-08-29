@@ -3,12 +3,12 @@ import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/
 
 import { CommentList } from "./CommentList";
 
-interface Props {
+type Props = {
   me?: User;
   comments?: Comment[];
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-}
+};
 
 export const Thread: React.FC<Props> = ({ me, comments, onCommentUpdate, onCommentDelete }) => {
   return (

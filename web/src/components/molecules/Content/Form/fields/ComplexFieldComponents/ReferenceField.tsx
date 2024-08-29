@@ -4,7 +4,7 @@ import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/Re
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 
-interface ReferenceFieldProps {
+type ReferenceFieldProps = {
   field: Field;
   itemGroupId?: string;
   loading?: boolean;
@@ -20,7 +20,7 @@ interface ReferenceFieldProps {
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-}
+};
 
 const ReferenceField: React.FC<ReferenceFieldProps> = ({
   field,

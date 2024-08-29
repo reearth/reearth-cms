@@ -14,7 +14,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   me: {
     id?: string;
     myWorkspace?: string;
@@ -34,7 +34,7 @@ interface Props {
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
   onReload: () => void;
-}
+};
 
 const MemberTable: React.FC<Props> = ({
   me,

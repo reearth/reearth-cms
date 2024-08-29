@@ -6,12 +6,12 @@ import AccountServiceForm from "@reearth-cms/components/molecules/AccountSetting
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   user: User;
   onUserUpdate: (name: string, email: string) => Promise<void>;
   onLanguageUpdate: (lang: string) => Promise<void>;
   onUserDelete: () => Promise<void>;
-}
+};
 
 const AccountSettings: React.FC<Props> = ({
   user,

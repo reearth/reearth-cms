@@ -12,7 +12,7 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
-interface Props {
+type Props = {
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction: boolean;
@@ -100,7 +100,7 @@ interface Props {
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
-}
+};
 
 const ContentDetailsMolecule: React.FC<Props> = ({
   loadingReference,

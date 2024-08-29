@@ -9,7 +9,7 @@ import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface AssetFieldProps {
+type AssetFieldProps = {
   field: Field;
   itemGroupId?: string;
   assetList?: Asset[];
@@ -36,7 +36,7 @@ interface AssetFieldProps {
   setFileList?: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility?: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-}
+};
 
 const AssetField: React.FC<AssetFieldProps> = ({
   field,

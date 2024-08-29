@@ -20,15 +20,15 @@ t("DRAFT");
 t("PUBLIC");
 t("REVIEW");
 
-export interface DefaultFilterValueType {
+export type DefaultFilterValueType = {
   operatorType: string;
   operator: Operator;
   value?: string;
-}
+};
 
 export type FilterType = FieldType | "Person";
 
-export interface DropdownFilterType {
+export type DropdownFilterType = {
   dataIndex: string | string[];
   title: string;
   type: FilterType;
@@ -37,7 +37,7 @@ export interface DropdownFilterType {
   id: string;
   multiple: boolean;
   required: boolean;
-}
+};
 
 export type Operator =
   | BasicOperator

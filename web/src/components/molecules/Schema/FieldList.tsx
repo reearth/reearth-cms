@@ -8,16 +8,16 @@ import { useT } from "@reearth-cms/i18n";
 import { fieldTypes } from "./fieldTypes";
 import { FieldType, Tab, SelectedSchemaType } from "./types";
 
-interface Props {
+type Props = {
   currentTab: Tab;
   selectedSchemaType: SelectedSchemaType;
   addField: (fieldType: FieldType) => void;
-}
+};
 
-interface FieldListItem {
+type FieldListItem = {
   title: string;
   fields: FieldType[];
-}
+};
 
 const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();

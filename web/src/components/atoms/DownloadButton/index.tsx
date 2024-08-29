@@ -5,11 +5,11 @@ import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-interface Asset {
+type Asset = {
   id: string;
   fileName: string;
   url: string;
-}
+};
 
 type DownloadButtonProps = {
   title?: string;

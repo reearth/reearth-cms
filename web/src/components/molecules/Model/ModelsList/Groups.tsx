@@ -2,7 +2,7 @@ import GroupsList from "@reearth-cms/components/molecules/Model/ModelsList/Group
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 
-interface Props {
+type Props = {
   title: string;
   collapsed?: boolean;
   selectedKey?: string;
@@ -14,7 +14,7 @@ interface Props {
   onCreate: (data: { name: string; description: string; key: string }) => Promise<void>;
   onGroupSelect?: (groupId: string) => void;
   onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
-}
+};
 
 const Groups: React.FC<Props> = ({
   collapsed,

@@ -50,7 +50,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-interface Props {
+type Props = {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
@@ -88,7 +88,7 @@ interface Props {
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-}
+};
 
 const ContentTable: React.FC<Props> = ({
   contentTableFields,
@@ -354,12 +354,12 @@ const ContentTable: React.FC<Props> = ({
   useEffect(() => {
     if (currentView.filter && currentView.filter.and && contentTableColumns) {
       const newFilters: DropdownFilterType[] = [];
-      const newDefaultValues = [];
+      const newDefaultValues: DefaultFilterValueType[] = [];
       for (const c of currentView.filter.and.conditions) {
         const condition = Object.values(c)[0];
         if (!condition || !("operator" in condition)) break;
         const { operator, fieldId } = condition;
-        const value = "value" in condition ? condition?.value : "";
+        const value = "value" in condition ? (condition.value as string) : "";
         const operatorType = Object.keys(c)[0];
         const columns =
           fieldId.type === "FIELD" || fieldId.type === "META_FIELD"

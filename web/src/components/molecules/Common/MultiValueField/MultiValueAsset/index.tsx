@@ -12,7 +12,7 @@ import { useT } from "@reearth-cms/i18n";
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
-interface Props {
+type Props = {
   itemAssets?: ItemAsset[];
   value?: string[];
   onChange?: (value: string[]) => void;
@@ -39,7 +39,7 @@ interface Props {
   setFileList?: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility?: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-}
+};
 
 const MultiValueAsset: React.FC<Props> = ({
   itemAssets,

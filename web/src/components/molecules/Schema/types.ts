@@ -1,16 +1,16 @@
 import { Key } from "react";
 
-export interface MetaDataSchema {
+export type MetaDataSchema = {
   id?: string;
   fields?: Field[];
-}
+};
 
-export interface Schema {
+export type Schema = {
   id: string;
   fields: Field[];
-}
+};
 
-export interface Field {
+export type Field = {
   id: string;
   type: FieldType;
   title: string;
@@ -22,7 +22,7 @@ export interface Field {
   isTitle: boolean;
   metadata?: boolean;
   typeProperty?: TypeProperty;
-}
+};
 
 export type FieldType =
   | "Text"
@@ -43,11 +43,11 @@ export type FieldType =
   | "GeometryObject"
   | "GeometryEditor";
 
-interface Tag {
+type Tag = {
   id: string;
   name: string;
   color: string;
-}
+};
 
 export type ObjectSupportedType =
   | "POINT"
@@ -60,7 +60,7 @@ export type ObjectSupportedType =
 
 export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
 
-export interface TypeProperty {
+export type TypeProperty = {
   defaultValue?: string | boolean | string[] | boolean[];
   maxLength?: number;
   assetDefaultValue?: string;
@@ -86,9 +86,9 @@ export interface TypeProperty {
   schema?: { titleFieldId: string | null };
   objectSupportedTypes?: ObjectSupportedType[];
   editorSupportedTypes?: EditorSupportedType[];
-}
+};
 
-export interface FieldTypePropertyInput {
+export type FieldTypePropertyInput = {
   text?: { defaultValue?: string; maxLength?: number };
   textArea?: { defaultValue?: string; maxLength?: number };
   markdownText?: { defaultValue?: string; maxLength?: number };
@@ -116,11 +116,11 @@ export interface FieldTypePropertyInput {
   group?: {
     groupId: string;
   };
-}
+};
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
 
-export interface Group {
+export type Group = {
   id: string;
   schemaId: string;
   projectId: string;
@@ -129,16 +129,16 @@ export interface Group {
   key: string;
   schema: Schema;
   order: number;
-}
+};
 
-export interface ModelFormValues {
+export type ModelFormValues = {
   id?: string;
   name: string;
   description: string;
   key: string;
-}
+};
 
-export interface FormValues {
+export type FormValues = {
   fieldId?: string;
   groupId?: string;
   title: string;
@@ -151,7 +151,7 @@ export interface FormValues {
   required: boolean;
   type?: FieldType;
   typeProperty: FieldTypePropertyInput;
-}
+};
 
 export type FormTypes = FormValues & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

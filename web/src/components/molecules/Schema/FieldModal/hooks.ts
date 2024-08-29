@@ -266,7 +266,7 @@ export default (
     } catch (error) {
       console.error(error);
     }
-  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
+  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, handleModalReset]);
 
   const isRequiredDisabled = useMemo(
     () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
@@ -290,7 +290,7 @@ export default (
         return Promise.reject();
       }
     },
-    [selectedField?.id],
+    [handleFieldKeyUnique, selectedField?.id],
   );
 
   const isTitleDisabled = useMemo(

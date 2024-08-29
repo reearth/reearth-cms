@@ -22,7 +22,7 @@ export type ViewerType =
   | "csv"
   | "unknown";
 
-export interface Asset {
+export type Asset = {
   id: string;
   createdAt: string;
   createdBy: string;
@@ -37,22 +37,22 @@ export interface Asset {
   comments: Comment[];
   archiveExtractionStatus?: ArchiveExtractionStatus;
   items: AssetItem[];
-}
+};
 
-export interface AssetItem {
+export type AssetItem = {
   itemId: string;
   modelId: string;
-}
+};
 
-export interface AssetFile {
+export type AssetFile = {
   filePaths?: string[];
   name: string;
   path: string;
-}
+};
 
 export type AssetSortType = "DATE" | "NAME" | "SIZE";
 
-export interface SortType {
+export type SortType = {
   type: AssetSortType;
   direction: SortDirection;
-}
+};

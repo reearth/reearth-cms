@@ -7,13 +7,13 @@ import IntegrationCard from "@reearth-cms/components/molecules/Integration/Integ
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   integrations?: Integration[];
   open: boolean;
   loading: boolean;
   onClose: () => void;
   onSubmit: (integration?: Integration) => Promise<void>;
-}
+};
 
 const IntegrationConnectModal: React.FC<Props> = ({
   integrations,

@@ -7,15 +7,15 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   user: User;
   onUserUpdate: (name: string, email: string) => Promise<void>;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
   email: string;
-}
+};
 
 const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
   const [form] = Form.useForm<FormType>();

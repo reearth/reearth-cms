@@ -34,7 +34,7 @@ export default (
   useEffect(() => {
     setIsDisabled(!selectedRequestId);
     selectedRequest.current = requestList.find(request => request.id === selectedRequestId);
-  }, [selectedRequestId]);
+  }, [requestList, selectedRequestId]);
 
   const submit = useCallback(async () => {
     if (selectedRequest.current) {
@@ -50,7 +50,7 @@ export default (
         setIsLoading(false);
       }
     }
-  }, [itemIds, onChange, onLinkItemRequestModalCancel, requestList, selectedRequestId]);
+  }, [itemIds, onChange, onLinkItemRequestModalCancel]);
 
   return { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading };
 };

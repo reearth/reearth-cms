@@ -5,13 +5,13 @@ import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
 
-export interface Props {
+export type Props = {
   resources: Resource[];
   onModalOpen: (index: number) => void;
   isTile: boolean;
   onDelete: (isTile: boolean, index: number) => void;
   onDragEnd: (fromIndex: number, toIndex: number, isTile: boolean) => void;
-}
+};
 
 const { DragColumn } = ReactDragListView;
 const { Meta } = Card;

@@ -5,14 +5,14 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   uploadUrl: { url: string; autoUnzip: boolean };
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-}
+};
 
-export interface FormValues {
+export type FormValues = {
   url: string;
-}
+};
 
 const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
   const isCompressedFile = useMemo(() => uploadUrl.url.match(/\.zip|\.7z$/), [uploadUrl]);

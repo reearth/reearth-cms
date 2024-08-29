@@ -9,14 +9,14 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   selectedKey?: string;
   models?: Model[];
   collapsed: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
   onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
-}
+};
 
 const ModelsList: React.FC<Props> = ({
   selectedKey,

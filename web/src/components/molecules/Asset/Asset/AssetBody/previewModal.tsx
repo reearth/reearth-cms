@@ -2,11 +2,11 @@ import styled from "@emotion/styled";
 
 import Modal from "@reearth-cms/components/atoms/Modal";
 
-interface Props {
+type Props = {
   url: string;
   visible: boolean;
   handleCancel: () => void;
-}
+};
 
 const PreviewModal: React.FC<Props> = ({ url, visible, handleCancel }) => {
   return (

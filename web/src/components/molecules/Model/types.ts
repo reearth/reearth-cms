@@ -1,6 +1,6 @@
 import { Schema, MetaDataSchema } from "@reearth-cms/components/molecules/Schema/types";
 
-export interface Model {
+export type Model = {
   id: string;
   name: string;
   description: string;
@@ -10,4 +10,4 @@ export interface Model {
   metadataSchema: MetaDataSchema;
   public: boolean;
   order?: number;
-}
+};

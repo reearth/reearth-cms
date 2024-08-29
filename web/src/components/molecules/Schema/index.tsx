@@ -20,7 +20,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   data?: Model | Group;
   collapsed: boolean;
   onModalOpen: () => void;
@@ -33,7 +33,7 @@ interface Props {
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
-}
+};
 
 const Schema: React.FC<Props> = ({
   data,

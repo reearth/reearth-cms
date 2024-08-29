@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 
 const { DragColumn } = ReactDragListView;
 
-interface Props {
+type Props = {
   views: View[];
   onViewRenameModalOpen: (view: View) => void;
   onDelete: (viewId: string) => Promise<void>;
@@ -19,7 +19,7 @@ interface Props {
   onViewCreateModalOpen: () => void;
   onViewSelect: (key: string) => void;
   onUpdateViewsOrder: (viewIds: string[]) => Promise<void>;
-}
+};
 
 const ViewsMenuMolecule: React.FC<Props> = ({
   views,
