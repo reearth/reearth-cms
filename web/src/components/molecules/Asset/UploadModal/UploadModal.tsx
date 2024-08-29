@@ -13,7 +13,7 @@ import UrlTab from "./UrlTab";
 
 const { TabPane } = Tabs;
 
-interface Props {
+type Props = {
   alsoLink?: boolean;
   visible?: boolean;
   uploadProps: UploadProps;
@@ -26,7 +26,7 @@ interface Props {
   onUploadModalClose?: () => void;
   onUpload: () => void;
   onCancel?: () => void;
-}
+};
 
 const UploadModal: React.FC<Props> = ({
   alsoLink,

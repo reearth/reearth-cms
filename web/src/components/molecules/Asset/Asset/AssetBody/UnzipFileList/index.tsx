@@ -11,12 +11,12 @@ import { useT } from "@reearth-cms/i18n";
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
 
-interface Props {
+type Props = {
   file: AssetFile;
   assetBaseUrl: string;
   archiveExtractionStatus: ArchiveExtractionStatus;
   setAssetUrl: (url: string) => void;
-}
+};
 
 const UnzipFileList: React.FC<Props> = ({
   file,

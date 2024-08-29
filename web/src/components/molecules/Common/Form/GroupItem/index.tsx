@@ -16,7 +16,7 @@ import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/t
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
-interface Props {
+type Props = {
   value?: string;
   onChange?: (value: string) => void;
   order?: number;
@@ -65,7 +65,7 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-}
+};
 
 const GroupItem: React.FC<Props> = ({
   value,

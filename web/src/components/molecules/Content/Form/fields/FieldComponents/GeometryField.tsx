@@ -9,13 +9,13 @@ import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-interface DefaultFieldProps {
+type DefaultFieldProps = {
   field: Field;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
   itemGroupId?: string;
   disabled?: boolean;
-}
+};
 
 const GeometryField: React.FC<DefaultFieldProps> = ({
   field,

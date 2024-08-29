@@ -9,18 +9,18 @@ import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Commo
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 
-export interface FormValues {
+export type FormValues = {
   name: string;
   alias: string;
   description: string;
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-}
+};
 
 const initialValues: FormValues = {
   name: "",

@@ -5,11 +5,11 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 
 import { Imagery } from "./Imagery";
 
-interface Props {
+type Props = {
   url: string;
   onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 const GltfViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
   return (

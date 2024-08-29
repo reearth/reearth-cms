@@ -16,14 +16,14 @@ import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-interface FormValues {
+type FormValues = {
   type: TileType | TerrainType;
   name?: string;
   url?: string;
   image?: string;
   cesiumIonAssetId?: string;
   cesiumIonAccessToken?: string;
-}
+};
 
 const TileTypeFormat: { [key in TileType]: string } = {
   DEFAULT: "Default",
@@ -42,7 +42,7 @@ const TerrainTypeFormat: { [key in TerrainType]: string } = {
   CESIUM_ION: "Cesium Ion",
 };
 
-interface Props {
+type Props = {
   open: boolean;
   onClose: () => void;
   tiles: TileInput[];
@@ -50,7 +50,7 @@ interface Props {
   setSettings: React.Dispatch<React.SetStateAction<WorkspaceSettings | undefined>>;
   isTile: boolean;
   index?: number;
-}
+};
 
 const FormModal: React.FC<Props> = ({
   open,

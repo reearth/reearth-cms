@@ -23,7 +23,7 @@ import TextAreaField from "./TextArea";
 import TextField from "./TextField";
 import URLField from "./URLField";
 
-interface Props {
+type Props = {
   multiple: boolean;
   selectedValues?: string[];
   selectedTags?: { id: string; name: string; color: string }[];
@@ -53,7 +53,7 @@ interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-}
+};
 
 const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,

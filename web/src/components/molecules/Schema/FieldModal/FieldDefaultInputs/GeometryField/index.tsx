@@ -10,13 +10,13 @@ import {
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
   isEditor: boolean;
   multiple: boolean;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
-}
+};
 
 const GeometryField: React.FC<Props> = ({
   supportedTypes,

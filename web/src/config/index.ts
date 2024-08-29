@@ -57,6 +57,7 @@ export function e2eAccessToken(): string | undefined {
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     REEARTH_CONFIG?: Config;
     REEARTH_E2E_ACCESS_TOKEN?: string;

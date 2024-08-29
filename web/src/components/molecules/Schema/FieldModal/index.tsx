@@ -31,7 +31,7 @@ import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   groups?: Group[];
   selectedType: FieldType;
   isMeta: boolean;
@@ -65,7 +65,7 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
-}
+};
 
 const initialValues: FormValues = {
   fieldId: "",

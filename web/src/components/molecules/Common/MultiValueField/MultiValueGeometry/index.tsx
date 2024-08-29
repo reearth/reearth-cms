@@ -13,7 +13,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
 
-interface Props {
+type Props = {
   value?: string[];
   onChange?: (value: string[]) => void;
   supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
@@ -23,7 +23,7 @@ interface Props {
   errorDelete?: (index: number) => void;
   workspaceSettings: WorkspaceSettings;
   settingsLoading: boolean;
-}
+};
 
 const MultiValueGeometry: React.FC<Props> = ({
   value = [],

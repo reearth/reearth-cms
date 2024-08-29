@@ -96,7 +96,9 @@ export default (isItemsRequired: boolean) => {
     : useGetAssetsLazyQuery(params);
 
   useEffect(() => {
-    isItemsRequired && getAssets();
+    if (isItemsRequired) {
+      getAssets();
+    }
   }, [getAssets, isItemsRequired]);
 
   const assetList = useMemo(

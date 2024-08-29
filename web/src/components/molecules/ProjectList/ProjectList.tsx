@@ -7,12 +7,12 @@ import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCa
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   projects?: Project[];
   loading: boolean;
   onProjectModalOpen: () => void;
   onProjectNavigation: (project: Project) => void;
-}
+};
 
 const ProjectList: React.FC<Props> = ({
   projects,
