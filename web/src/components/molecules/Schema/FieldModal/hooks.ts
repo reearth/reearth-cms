@@ -155,7 +155,7 @@ export default (
       case "Select": {
         const defaultValue = Array.isArray(values.defaultValue)
           ? values.defaultValue.filter((value: string) => value)
-          : values.defaultValue ?? "";
+          : (values.defaultValue ?? "");
         return {
           select: { defaultValue, values: values.values ?? [] },
         };
@@ -163,7 +163,7 @@ export default (
       case "Integer": {
         const defaultValue = Array.isArray(values.defaultValue)
           ? values.defaultValue.filter((value: number | string) => typeof value === "number")
-          : values.defaultValue ?? "";
+          : (values.defaultValue ?? "");
         return {
           integer: {
             defaultValue,

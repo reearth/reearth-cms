@@ -323,7 +323,7 @@ const ContentForm: React.FC<Props> = ({
         return [];
       }
     } else {
-      return dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "";
+      return dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? "");
     }
   }, []);
 
@@ -374,7 +374,7 @@ const ContentForm: React.FC<Props> = ({
         const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
         if (type) {
           metaFields.push({
-            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "",
+            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? ""),
             schemaFieldId: key,
             type,
           });
@@ -408,7 +408,7 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? "")) as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
