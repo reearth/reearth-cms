@@ -102,7 +102,7 @@
     "ajv": "8.17.1",
     "antd": "5.20.3",
     "apollo-upload-client": "18.0.1",
-    "aws-amplify": "5.3.21",
+    "aws-amplify": "6.5.3",
     "cesium": "1.120.0",
     "cesium-mvt-imagery-provider": "1.4.1",
     "dayjs": "1.11.13",
