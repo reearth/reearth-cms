@@ -75,7 +75,7 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   );
 };
 
-const StyledForm = styled(Form)`
+const StyledForm = styled(Form<FormType>)`
   max-width: 400px;
 `;
 

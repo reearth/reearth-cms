@@ -17,7 +17,7 @@ type Props = {
   handleProperties: (prop: Property) => void;
 };
 
-export type Property = Record<string, string | number | boolean>;
+export type Property = Record<string, unknown>;
 
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
 type TileCoordinates = {

@@ -1,4 +1,4 @@
-import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { ItemType } from "antd/lib/menu/interface";
 import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
