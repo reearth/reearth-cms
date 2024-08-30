@@ -128,7 +128,7 @@ type AssetSort struct {
 type BasicFieldCondition struct {
 	FieldID  *FieldSelector `json:"fieldId"`
 	Operator BasicOperator  `json:"operator"`
-	Value    interface{}    `json:"value"`
+	Value    any            `json:"value"`
 }
 
 func (BasicFieldCondition) IsCondition() {}
@@ -136,7 +136,7 @@ func (BasicFieldCondition) IsCondition() {}
 type BasicFieldConditionInput struct {
 	FieldID  *FieldSelectorInput `json:"fieldId"`
 	Operator BasicOperator       `json:"operator"`
-	Value    interface{}         `json:"value"`
+	Value    any                 `json:"value"`
 }
 
 type BoolFieldCondition struct {
@@ -571,14 +571,14 @@ type ItemField struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
 	ItemGroupID   *ID             `json:"itemGroupId,omitempty"`
 	Type          SchemaFieldType `json:"type"`
-	Value         interface{}     `json:"value,omitempty"`
+	Value         any             `json:"value,omitempty"`
 }
 
 type ItemFieldInput struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
 	ItemGroupID   *ID             `json:"itemGroupId,omitempty"`
 	Type          SchemaFieldType `json:"type"`
-	Value         interface{}     `json:"value"`
+	Value         any             `json:"value"`
 }
 
 type ItemPayload struct {
@@ -669,7 +669,7 @@ type ModelsPayload struct {
 type MultipleFieldCondition struct {
 	FieldID  *FieldSelector   `json:"fieldId"`
 	Operator MultipleOperator `json:"operator"`
-	Value    []interface{}    `json:"value"`
+	Value    []any            `json:"value"`
 }
 
 func (MultipleFieldCondition) IsCondition() {}
@@ -677,7 +677,7 @@ func (MultipleFieldCondition) IsCondition() {}
 type MultipleFieldConditionInput struct {
 	FieldID  *FieldSelectorInput `json:"fieldId"`
 	Operator MultipleOperator    `json:"operator"`
-	Value    []interface{}       `json:"value"`
+	Value    []any               `json:"value"`
 }
 
 type Mutation struct {
@@ -930,66 +930,66 @@ type SchemaField struct {
 }
 
 type SchemaFieldAsset struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldAsset) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldAssetInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldBool struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldBool) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldBoolInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldCheckbox struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldCheckbox) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldCheckboxInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldDate struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldDate) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldDateInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldGeometryEditor struct {
-	DefaultValue   interface{}                   `json:"defaultValue,omitempty"`
+	DefaultValue   any                           `json:"defaultValue,omitempty"`
 	SupportedTypes []GeometryEditorSupportedType `json:"supportedTypes"`
 }
 
 func (SchemaFieldGeometryEditor) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldGeometryEditorInput struct {
-	DefaultValue   interface{}                   `json:"defaultValue,omitempty"`
+	DefaultValue   any                           `json:"defaultValue,omitempty"`
 	SupportedTypes []GeometryEditorSupportedType `json:"supportedTypes"`
 }
 
 type SchemaFieldGeometryObject struct {
-	DefaultValue   interface{}                   `json:"defaultValue,omitempty"`
+	DefaultValue   any                           `json:"defaultValue,omitempty"`
 	SupportedTypes []GeometryObjectSupportedType `json:"supportedTypes"`
 }
 
 func (SchemaFieldGeometryObject) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldGeometryObjectInput struct {
-	DefaultValue   interface{}                   `json:"defaultValue,omitempty"`
+	DefaultValue   any                           `json:"defaultValue,omitempty"`
 	SupportedTypes []GeometryObjectSupportedType `json:"supportedTypes"`
 }
 
@@ -1004,26 +1004,26 @@ type SchemaFieldGroupInput struct {
 }
 
 type SchemaFieldInteger struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	Min          *int        `json:"min,omitempty"`
-	Max          *int        `json:"max,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	Min          *int `json:"min,omitempty"`
+	Max          *int `json:"max,omitempty"`
 }
 
 func (SchemaFieldInteger) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldIntegerInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	Min          *int        `json:"min,omitempty"`
-	Max          *int        `json:"max,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	Min          *int `json:"min,omitempty"`
+	Max          *int `json:"max,omitempty"`
 }
 
 type SchemaFieldLineStringInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldMarkdown struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	MaxLength    *int        `json:"maxLength,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
@@ -1045,39 +1045,39 @@ type SchemaFieldReferenceInput struct {
 }
 
 type SchemaFieldRichText struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	MaxLength    *int        `json:"maxLength,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
 func (SchemaFieldRichText) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldRichTextInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	MaxLength    *int        `json:"maxLength,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
 type SchemaFieldSelect struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Values       []string `json:"values"`
+	DefaultValue any      `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldSelect) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldSelectInput struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Values       []string `json:"values"`
+	DefaultValue any      `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldTag struct {
 	Tags         []*SchemaFieldTagValue `json:"tags"`
-	DefaultValue interface{}            `json:"defaultValue,omitempty"`
+	DefaultValue any                    `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTagInput struct {
 	Tags         []*SchemaFieldTagValueInput `json:"tags"`
-	DefaultValue interface{}                 `json:"defaultValue,omitempty"`
+	DefaultValue any                         `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldTagValue struct {
@@ -1093,27 +1093,27 @@ type SchemaFieldTagValueInput struct {
 }
 
 type SchemaFieldText struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	MaxLength    *int        `json:"maxLength,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
 func (SchemaFieldText) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTextArea struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	MaxLength    *int        `json:"maxLength,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
 func (SchemaFieldTextArea) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTextAreaInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	MaxLength    *int        `json:"maxLength,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
 type SchemaFieldTextInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	MaxLength    *int        `json:"maxLength,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
 type SchemaFieldTypePropertyInput struct {
@@ -1136,18 +1136,18 @@ type SchemaFieldTypePropertyInput struct {
 }
 
 type SchemaFieldURL struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldURL) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldURLInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	DefaultValue any `json:"defaultValue,omitempty"`
 }
 
 type SchemaMarkdownTextInput struct {
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	MaxLength    *int        `json:"maxLength,omitempty"`
+	DefaultValue any  `json:"defaultValue,omitempty"`
+	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
 type SearchItemInput struct {
