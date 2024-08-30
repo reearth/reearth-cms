@@ -1,4 +1,4 @@
-import { Auth } from "aws-amplify";
+import { fetchAuthSession, getCurrentUser, signInWithRedirect, signOut } from "aws-amplify/auth";
 import { useState, useEffect } from "react";
 
 import { logOutFromTenant } from "@reearth-cms/config";
@@ -9,11 +9,16 @@ export const useCognitoAuth = (): AuthHook => {
   const [user, setUser] = useState<unknown>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const cognitoUser = await Auth.currentAuthenticatedUser();
+        const { username, signInDetails } = await getCurrentUser();
+        const { tokens: session } = await fetchAuthSession();
+        const cognitoUser = {
+          username,
+          session,
+          authenticationFlowType: signInDetails?.authFlowType,
+        };
         setUser(cognitoUser);
       } catch (err) {
         if (err instanceof Error) {
@@ -24,24 +29,20 @@ export const useCognitoAuth = (): AuthHook => {
       }
       setIsLoading(false);
     };
-
     checkUser();
   }, []);
-
   const getAccessToken = async () => {
-    const session = await Auth.currentSession();
-    return session.getIdToken().getJwtToken();
+    const session = await fetchAuthSession();
+    return session.tokens?.idToken?.toString() ?? "";
   };
-
   const login = () => {
     logOutFromTenant();
-    Auth.federatedSignIn();
+    signInWithRedirect();
   };
-
   const logout = async () => {
     logOutFromTenant();
     try {
-      await Auth.signOut();
+      await signOut();
       setUser(null);
     } catch (err) {
       if (err instanceof Error) {
@@ -51,6 +52,5 @@ export const useCognitoAuth = (): AuthHook => {
       }
     }
   };
-
   return { user, isAuthenticated: !!user, isLoading, error, getAccessToken, login, logout };
 };
