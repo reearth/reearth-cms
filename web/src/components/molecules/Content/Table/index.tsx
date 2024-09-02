@@ -711,7 +711,7 @@ const ContentTable: React.FC<Props> = ({
     currentView.columns?.forEach((col, index) => {
       const colKey = (metaColumn as readonly string[]).includes(col.field.type)
         ? col.field.type
-        : col.field.id ?? "";
+        : (col.field.id ?? "");
       cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
     });
     return cols;
