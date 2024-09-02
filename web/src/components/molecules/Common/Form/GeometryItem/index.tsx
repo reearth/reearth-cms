@@ -32,7 +32,6 @@ import {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import schema from "./schema";
@@ -65,8 +64,6 @@ type Props = {
   disabled?: boolean;
   errorAdd?: () => void;
   errorDelete?: () => void;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
 };
 
 const GeometryItem: React.FC<Props> = ({
@@ -77,8 +74,6 @@ const GeometryItem: React.FC<Props> = ({
   disabled,
   errorAdd,
   errorDelete,
-  workspaceSettings,
-  settingsLoading,
 }) => {
   const t = useT();
 

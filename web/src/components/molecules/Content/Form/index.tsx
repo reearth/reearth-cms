@@ -26,7 +26,7 @@ import {
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 
@@ -115,8 +115,6 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
 };
 
 const ContentForm: React.FC<Props> = ({
@@ -186,8 +184,6 @@ const ContentForm: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
-  workspaceSettings,
-  settingsLoading,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -574,8 +570,6 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
-                    workspaceSettings={workspaceSettings}
-                    settingsLoading={settingsLoading}
                     onSearchTerm={onSearchTerm}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onLinkItemTableReload={onLinkItemTableReload}
@@ -602,11 +596,7 @@ const ContentForm: React.FC<Props> = ({
 
               return (
                 <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <FieldComponent
-                    field={field}
-                    workspaceSettings={workspaceSettings}
-                    settingsLoading={settingsLoading}
-                  />
+                  <FieldComponent field={field} />
                 </StyledFormItemWrapper>
               );
             } else {

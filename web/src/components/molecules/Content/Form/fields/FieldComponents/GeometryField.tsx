@@ -4,26 +4,17 @@ import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
 type DefaultFieldProps = {
   field: Field;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
   itemGroupId?: string;
   disabled?: boolean;
 };
 
-const GeometryField: React.FC<DefaultFieldProps> = ({
-  field,
-  workspaceSettings,
-  settingsLoading,
-  itemGroupId,
-  disabled,
-}) => {
+const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
   const [errorSet, setErrorSet] = useState(new Set<number>());
 
@@ -71,8 +62,6 @@ const GeometryField: React.FC<DefaultFieldProps> = ({
           disabled={disabled}
           errorAdd={errorAdd}
           errorDelete={errorDelete}
-          workspaceSettings={workspaceSettings}
-          settingsLoading={settingsLoading}
         />
       ) : (
         <GeometryItem
@@ -81,8 +70,6 @@ const GeometryField: React.FC<DefaultFieldProps> = ({
           disabled={disabled}
           errorAdd={() => errorAdd(0)}
           errorDelete={() => errorDelete(0)}
-          workspaceSettings={workspaceSettings}
-          settingsLoading={settingsLoading}
         />
       )}
     </Form.Item>
