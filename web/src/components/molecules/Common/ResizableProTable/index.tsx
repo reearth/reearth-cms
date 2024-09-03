@@ -137,6 +137,7 @@ const StyledProTable = styled(ProTable)<{
     height: calc(100% - 47px);
   }
   .ant-pro-table-list-toolbar-left {
+    flex: 1;
     max-width: calc(100% - 150px);
     .ant-pro-table-list-toolbar-search {
       width: 100%;
