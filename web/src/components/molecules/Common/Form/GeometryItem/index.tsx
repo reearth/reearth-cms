@@ -271,7 +271,7 @@ const GeometryItem: React.FC<Props> = ({
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
-    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : (supportedTypes ?? "POINT");
+    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
     const obj: {
       type: string;
       coordinates?: unknown;
@@ -318,6 +318,7 @@ const GeometryItem: React.FC<Props> = ({
       return () => {
         map.setTarget(undefined);
         mapRef.current = undefined;
+        isInitRef.current = true;
       };
     }
   }, []);
@@ -452,9 +453,13 @@ const GeometryItem: React.FC<Props> = ({
         mapRef.current?.addLayer(vectorLayer);
         if (isInitRef.current || !isEditor) {
           const feature = source.getExtent();
-          mapRef.current
-            ?.getView()
-            .fit(feature, { padding: [100, 100, 100, 100], minResolution: 5 });
+          try {
+            mapRef.current
+              ?.getView()
+              .fit(feature, { padding: [100, 100, 100, 100], minResolution: 5 });
+          } catch (e) {
+            console.error(e);
+          }
         }
       }
     },
