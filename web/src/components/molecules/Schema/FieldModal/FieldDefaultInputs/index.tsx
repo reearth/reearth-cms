@@ -24,11 +24,14 @@ import TextField from "./TextField";
 import URLField from "./URLField";
 
 type Props = {
-  multiple: boolean;
+  selectedType: FieldType;
   selectedValues?: string[];
   selectedTags?: { id: string; name: string; color: string }[];
   selectedSupportedTypes?: ObjectSupportedType[] | EditorSupportedType;
-  selectedType: FieldType;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+  multiple: boolean;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -60,6 +63,9 @@ const FieldDefaultInputs: React.FC<Props> = ({
   selectedValues,
   selectedTags,
   selectedSupportedTypes,
+  maxLength,
+  min,
+  max,
   multiple,
   assetList,
   fileList,
@@ -88,11 +94,11 @@ const FieldDefaultInputs: React.FC<Props> = ({
 }) => {
   switch (selectedType) {
     case "TextArea":
-      return <TextAreaField multiple={multiple} />;
+      return <TextAreaField multiple={multiple} maxLength={maxLength} />;
     case "MarkdownText":
-      return <MarkdownField multiple={multiple} />;
+      return <MarkdownField multiple={multiple} maxLength={maxLength} />;
     case "Integer":
-      return <IntegerField multiple={multiple} />;
+      return <IntegerField multiple={multiple} min={min} max={max} />;
     case "Bool":
       return <BooleanField multiple={multiple} />;
     case "Date":
@@ -148,7 +154,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
       );
     case "Text":
     default:
-      return <TextField multiple={multiple} />;
+      return <TextField multiple={multiple} maxLength={maxLength} />;
   }
 };
 

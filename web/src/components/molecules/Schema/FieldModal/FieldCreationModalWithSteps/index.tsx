@@ -16,7 +16,6 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
@@ -497,7 +496,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               </Form.Item>
             </TabPane>
             <TabPane tab={t("Validation")} key="validation" forceRender>
-              <FieldValidationProps selectedType={selectedType} />
               <Form.Item
                 name="required"
                 valuePropName="checked"
@@ -585,7 +583,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               )}
             </TabPane>
             <TabPane tab={t("Validation")} key="validation" forceRender>
-              <FieldValidationProps selectedType={selectedType} />
               <Form.Item
                 name="required"
                 valuePropName="checked"

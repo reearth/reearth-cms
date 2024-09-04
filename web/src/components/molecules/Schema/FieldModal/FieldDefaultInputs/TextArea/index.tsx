@@ -7,17 +7,18 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   multiple: boolean;
+  maxLength?: number;
 };
 
-const TextAreaField: React.FC<Props> = ({ multiple }) => {
+const TextAreaField: React.FC<Props> = ({ multiple, maxLength }) => {
   const t = useT();
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
+    <Form.Item name="defaultValue" label={t("Set default value")} rules={[{ max: maxLength }]}>
       {multiple ? (
-        <MultiValueField rows={1} showCount FieldInput={TextArea} />
+        <MultiValueField rows={1} showCount maxLength={maxLength} FieldInput={TextArea} />
       ) : (
-        <TextArea rows={3} showCount />
+        <TextArea rows={3} showCount maxLength={maxLength} />
       )}
     </Form.Item>
   );

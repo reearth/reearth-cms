@@ -127,6 +127,9 @@ const FieldModal: React.FC<Props> = ({
     selectedValues,
     selectedTags,
     selectedSupportedTypes,
+    maxLength,
+    min,
+    max,
     multipleValue,
     handleMultipleChange,
     handleTabChange,
@@ -309,7 +312,7 @@ const FieldModal: React.FC<Props> = ({
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
-            <FieldValidationInputs selectedType={selectedType} />
+            <FieldValidationInputs selectedType={selectedType} min={min} max={max} />
             <Form.Item
               name="required"
               valuePropName="checked"
@@ -329,6 +332,9 @@ const FieldModal: React.FC<Props> = ({
               selectedValues={selectedValues}
               selectedTags={selectedTags}
               selectedSupportedTypes={selectedSupportedTypes}
+              maxLength={maxLength}
+              min={min}
+              max={max}
               selectedType={selectedType}
               assetList={assetList}
               fileList={fileList}

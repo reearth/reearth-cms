@@ -7,14 +7,19 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   multiple: boolean;
+  maxLength?: number;
 };
 
-const MarkdownField: React.FC<Props> = ({ multiple }) => {
+const MarkdownField: React.FC<Props> = ({ multiple, maxLength }) => {
   const t = useT();
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
-      {multiple ? <MultiValueField FieldInput={MarkdownInput} /> : <MarkdownInput />}
+    <Form.Item name="defaultValue" label={t("Set default value")} rules={[{ max: maxLength }]}>
+      {multiple ? (
+        <MultiValueField maxLength={maxLength} FieldInput={MarkdownInput} />
+      ) : (
+        <MarkdownInput maxLength={maxLength} />
+      )}
     </Form.Item>
   );
 };
