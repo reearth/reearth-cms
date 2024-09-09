@@ -5,7 +5,6 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import {
   ListToolBarProps,
   StretchColumn,
@@ -13,6 +12,7 @@ import {
   TableRowSelection,
   ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
@@ -258,7 +258,7 @@ const RequestListTable: React.FC<Props> = ({
   const handleToolbarEvents: ListToolBarProps = useMemo(
     () => ({
       search: (
-        <Input.Search
+        <Search
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {

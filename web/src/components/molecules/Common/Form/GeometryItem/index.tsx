@@ -17,8 +17,8 @@ import { Resizable, ResizeCallbackData } from "react-resizable";
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Search from "@reearth-cms/components/atoms/Search";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import {
   ObjectSupportedType,
@@ -252,7 +252,7 @@ const GeometryItem: React.FC<Props> = ({
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
-    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : (supportedTypes ?? "POINT");
+    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
     const obj: {
       type: string;
       coordinates?: unknown;
@@ -727,7 +727,7 @@ const ViewerWrapper = styled.div`
   overflow: hidden;
 `;
 
-const StyledSearch = styled(Input.Search)`
+const StyledSearch = styled(Search)`
   z-index: 1;
   position: absolute;
   left: 8px;

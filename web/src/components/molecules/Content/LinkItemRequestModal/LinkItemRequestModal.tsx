@@ -2,10 +2,10 @@ import styled from "@emotion/styled";
 import { useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
-import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
@@ -164,7 +164,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
 
   const toolbar = {
     search: (
-      <Input.Search
+      <Search
         allowClear
         placeholder={t("input search text")}
         onSearch={onRequestSearchTerm}

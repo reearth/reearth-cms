@@ -3,13 +3,13 @@ import { useState, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import {
   StretchColumn,
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -164,7 +164,7 @@ const LinkItemModal: React.FC<Props> = ({
   const toolbar: ListToolBarProps = useMemo(
     () => ({
       search: (
-        <Input.Search
+        <Search
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {

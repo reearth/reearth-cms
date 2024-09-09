@@ -128,7 +128,7 @@ export default MultiValueField;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0;
+  margin: 8px 0 24px;
 `;
 
 const FieldButton = styled(Button)`

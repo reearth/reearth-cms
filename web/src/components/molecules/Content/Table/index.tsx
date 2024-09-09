@@ -21,6 +21,7 @@ import {
   ListToolBarProps,
   ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -548,7 +549,7 @@ const ContentTable: React.FC<Props> = ({
     () => ({
       search: (
         <StyledSearchContainer>
-          <Input.Search
+          <Search
             allowClear
             placeholder={t("input search text")}
             onSearch={(value: string) => {
@@ -711,7 +712,7 @@ const ContentTable: React.FC<Props> = ({
     currentView.columns?.forEach((col, index) => {
       const colKey = (metaColumn as readonly string[]).includes(col.field.type)
         ? col.field.type
-        : (col.field.id ?? "");
+        : col.field.id ?? "";
       cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
     });
     return cols;

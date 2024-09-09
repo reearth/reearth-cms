@@ -5,7 +5,6 @@ import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import {
   ListToolBarProps,
@@ -14,6 +13,7 @@ import {
   TableRowSelection,
   ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -266,7 +266,7 @@ const AssetListTable: React.FC<Props> = ({
   const toolbar: ListToolBarProps = useMemo(
     () => ({
       search: (
-        <Input.Search
+        <Search
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {

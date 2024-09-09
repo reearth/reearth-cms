@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
@@ -14,11 +14,42 @@ type Props = {
 const IntegerField: React.FC<Props> = ({ multiple, min, max }) => {
   const t = useT();
 
+  const validate = useCallback(
+    (value: unknown) => {
+      if (typeof value === "number") {
+        if (min) {
+          if (value < min) {
+            return true;
+          }
+        }
+        if (max) {
+          if (max < value) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    [max, min],
+  );
+
   return (
     <Form.Item
       name="defaultValue"
       label={t("Set default value")}
-      rules={[{ type: "number", min, max }]}>
+      validateStatus="success"
+      rules={[
+        {
+          validator: (_, value) => {
+            const isError = Array.isArray(value) ? value.some(v => validate(v)) : validate(value);
+            if (isError) {
+              return Promise.reject();
+            }
+            return Promise.resolve();
+          },
+          message: "",
+        },
+      ]}>
       {multiple ? (
         <MultiValueField type="number" FieldInput={InputNumber} min={min} max={max} />
       ) : (

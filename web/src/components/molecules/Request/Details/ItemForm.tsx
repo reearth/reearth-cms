@@ -114,4 +114,8 @@ const StyledForm = styled(Form)`
     width: 100%;
     display: flex;
   }
+  .ant-input-out-of-range input,
+  .ant-input-out-of-range textarea {
+    color: #ff4d4f !important;
+  }
 `;

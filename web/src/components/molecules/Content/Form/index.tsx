@@ -5,7 +5,7 @@ import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -227,7 +227,16 @@ const ContentForm: React.FC<Props> = ({
 
   const handleValuesChange = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (changedValues: any) => {
+    async (changedValues: any) => {
+      try {
+        await form.validateFields();
+      } catch (e) {
+        if ((e as ValidateErrorEntity).errorFields.length > 0) {
+          setIsDisabled(true);
+          return;
+        }
+      }
+
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
         const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
@@ -249,7 +258,7 @@ const ContentForm: React.FC<Props> = ({
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
-    [checkIfSingleGroupField, emptyConvert, initialFormValues],
+    [checkIfSingleGroupField, emptyConvert, form, initialFormValues],
   );
 
   useEffect(() => {
