@@ -226,11 +226,13 @@ const GeometryItem: React.FC<Props> = ({
             if (convertedTypes.includes(valueJson.type)) {
               handleErrorDelete();
             } else {
-              handleErrorAdd();
+              throw new Error();
             }
+          } else {
+            throw new Error();
           }
         } catch (_) {
-          return;
+          handleErrorAdd();
         }
       } else {
         handleErrorDelete();
