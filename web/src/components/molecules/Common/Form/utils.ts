@@ -23,3 +23,12 @@ export const keyReplace = (
   const { form, key } = formData;
   form.setFieldValue(key, e.currentTarget.value.replaceAll(" ", "-"));
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const emptyConvert = (value: any) => {
+  if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
+    return undefined;
+  } else {
+    return value;
+  }
+};
