@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useRef, useCallback } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
@@ -16,20 +16,14 @@ type DefaultFieldProps = {
 
 const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
-  const [errorSet, setErrorSet] = useState(new Set<number>());
+  const errorSet = useRef(new Set<number>());
 
   const errorAdd = useCallback((index: number) => {
-    setErrorSet?.(prev => {
-      prev.add(index);
-      return new Set(prev);
-    });
+    errorSet.current.add(index);
   }, []);
 
   const errorDelete = useCallback((index: number) => {
-    setErrorSet?.(prev => {
-      prev.delete(index);
-      return new Set(prev);
-    });
+    errorSet.current.delete(index);
   }, []);
 
   const supportedTypes = useMemo(
@@ -49,7 +43,7 @@ const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
         },
         {
           validator: async () => {
-            return errorSet.size ? Promise.reject() : Promise.resolve();
+            return errorSet.current.size ? Promise.reject() : Promise.resolve();
           },
         },
       ]}

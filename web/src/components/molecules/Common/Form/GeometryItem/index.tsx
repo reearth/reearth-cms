@@ -209,7 +209,7 @@ const GeometryItem: React.FC<Props> = ({
   );
 
   const typeCheck = useCallback(
-    (isTypeChange: boolean, newValue?: string) => {
+    (newValue?: string) => {
       if (newValue && supportedTypes) {
         try {
           const valueJson: {
@@ -223,28 +223,16 @@ const GeometryItem: React.FC<Props> = ({
                 ? [GEO_TYPE_MAP.POINT, GEO_TYPE_MAP.LINESTRING, GEO_TYPE_MAP.POLYGON]
                 : [GEO_TYPE_MAP[supportedTypes]];
             if (convertedTypes.includes(valueJson.type)) {
-              if (isTypeChange) {
-                setHasError(false);
-              } else {
-                handleErrorDelete();
-              }
+              handleErrorDelete();
             } else {
-              if (isTypeChange) {
-                setHasError(true);
-              } else {
-                handleErrorAdd();
-              }
+              handleErrorAdd();
             }
           }
         } catch (_) {
           return;
         }
       } else {
-        if (isTypeChange) {
-          setHasError(false);
-        } else {
-          handleErrorDelete();
-        }
+        handleErrorDelete();
       }
     },
     [handleErrorAdd, handleErrorDelete, supportedTypes],
@@ -253,7 +241,7 @@ const GeometryItem: React.FC<Props> = ({
   const handleEditorOnChange = useCallback(
     (value?: string) => {
       onChange?.(value ?? "");
-      typeCheck(false, value);
+      typeCheck(value);
     },
     [onChange, typeCheck],
   );
@@ -261,13 +249,13 @@ const GeometryItem: React.FC<Props> = ({
   const [currentValue, setCurrentValue] = useState<string | undefined>();
   useEffect(() => {
     if (value === currentValue) {
-      typeCheck(true, value);
+      typeCheck(value);
     }
     setCurrentValue(value ?? undefined);
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
-    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
+    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : (supportedTypes ?? "POINT");
     const obj: {
       type: string;
       coordinates?: unknown;
