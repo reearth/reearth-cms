@@ -8,7 +8,6 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
@@ -17,19 +16,11 @@ const { Panel } = Collapse;
 
 type Props = {
   currentRequest: Request;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
-export const RequestDescription: React.FC<Props> = ({
-  currentRequest,
-  workspaceSettings,
-  settingsLoading,
-  onGetAsset,
-  onGroupGet,
-}) => {
+export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset, onGroupGet }) => {
   const fromNow = useMemo(
     () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
@@ -56,8 +47,6 @@ export const RequestDescription: React.FC<Props> = ({
                       schema={item.schema}
                       initialFormValues={item.initialValues}
                       referencedItems={item.referencedItems}
-                      workspaceSettings={workspaceSettings}
-                      settingsLoading={settingsLoading}
                       onGetAsset={onGetAsset}
                       onGroupGet={onGroupGet}
                     />

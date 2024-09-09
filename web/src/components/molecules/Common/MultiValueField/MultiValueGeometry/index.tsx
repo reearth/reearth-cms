@@ -8,7 +8,6 @@ import {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
@@ -21,8 +20,6 @@ type Props = {
   disabled?: boolean;
   errorAdd?: (index: number) => void;
   errorDelete?: (index: number) => void;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
 };
 
 const MultiValueGeometry: React.FC<Props> = ({
@@ -33,8 +30,6 @@ const MultiValueGeometry: React.FC<Props> = ({
   disabled,
   errorAdd,
   errorDelete,
-  workspaceSettings,
-  settingsLoading,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -88,8 +83,6 @@ const MultiValueGeometry: React.FC<Props> = ({
               disabled={disabled}
               errorAdd={() => errorAdd?.(key)}
               errorDelete={() => errorDelete?.(key)}
-              workspaceSettings={workspaceSettings}
-              settingsLoading={settingsLoading}
             />
             {!disabled && (
               <FieldButton
