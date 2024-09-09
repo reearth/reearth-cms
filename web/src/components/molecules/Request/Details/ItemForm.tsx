@@ -10,14 +10,11 @@ import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fie
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
   schema?: Schema;
   initialFormValues: Record<string, unknown>;
   referencedItems?: FormItem[];
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
 };
@@ -26,8 +23,6 @@ const RequestItemForm: React.FC<Props> = ({
   schema,
   initialFormValues,
   referencedItems,
-  workspaceSettings,
-  settingsLoading,
   onGetAsset,
   onGroupGet,
 }) => {
@@ -57,8 +52,6 @@ const RequestItemForm: React.FC<Props> = ({
                   onGetAsset={onGetAsset}
                   formItemsData={referencedItems}
                   onGroupGet={onGroupGet}
-                  workspaceSettings={workspaceSettings}
-                  settingsLoading={settingsLoading}
                 />
               </div>
             );
@@ -67,12 +60,7 @@ const RequestItemForm: React.FC<Props> = ({
 
             return (
               <div key={field.id}>
-                <FieldComponent
-                  field={field}
-                  disabled
-                  workspaceSettings={workspaceSettings}
-                  settingsLoading={settingsLoading}
-                />
+                <FieldComponent field={field} disabled />
               </div>
             );
           } else {

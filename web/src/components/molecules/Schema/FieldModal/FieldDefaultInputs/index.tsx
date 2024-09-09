@@ -5,7 +5,6 @@ import {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 import { FieldType } from "../../types";
 
@@ -42,8 +41,6 @@ type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
@@ -77,8 +74,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
-  workspaceSettings,
-  settingsLoading,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -148,8 +143,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
           supportedTypes={selectedSupportedTypes}
           isEditor={selectedType === "GeometryEditor"}
           multiple={multiple}
-          workspaceSettings={workspaceSettings}
-          settingsLoading={settingsLoading}
         />
       );
     case "Text":
