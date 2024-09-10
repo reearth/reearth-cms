@@ -477,13 +477,13 @@ func IntegrationModelImportJSON(e *httpexpect.Expect, mId string, assetId string
 
 func UploadAsset(e *httpexpect.Expect, path string, pId string, content string) *httpexpect.Value {
 	res := e.POST("/api/projects/{projectId}/assets", pId).
-	WithHeader("X-Reearth-Debug-User", uId1.String()).
-	WithMultipart().
-	WithFile("file", path, strings.NewReader(content)).
-	WithForm(map[string]any{"skipDecompression": true}).
-	Expect().
-	Status(http.StatusOK).
-	JSON()
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithMultipart().
+		WithFile("file", path, strings.NewReader(content)).
+		WithForm(map[string]any{"skipDecompression": true}).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
 
 	return res
 }
@@ -645,7 +645,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 
 // GET /models/{modelId}/items
 func TestIntegrationSearchItem(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	// region init
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
@@ -1286,7 +1286,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 
 // GET /models/{modelId}/items.geojson
 func TestIntegrationItemsAsGeoJSON(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
@@ -1312,7 +1312,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 
 // POST /models/{modelId}/import //multipart
 func TestIntegrationModelImportMultiPart(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
@@ -1336,19 +1336,19 @@ func TestIntegrationModelImportMultiPart(t *testing.T) {
 	// 	// strategy="insert" and mutateSchema=true
 	// fileContent2 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// res2 := IntegrationModelImport(e, mId, "geoJson", "insert", true, fids.geometryObjectFid, fileContent2)
-	
+
 	// // strategy="update" and mutateSchema=false
 	// fileContent3 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// res3 := IntegrationModelImport(e, mId, "geoJson", "update", false, fids.geometryObjectFid, fileContent3)
-	
+
 	// // strategy="update" and mutateSchema=true
 	// fileContent4 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// res4 := IntegrationModelImport(e, mId, "geoJson", "update", true, fids.geometryObjectFid, fileContent4)
-	
+
 	// // strategy="upsert" and mutateSchema=false
 	// fileContent5 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// res5 := IntegrationModelImport(e, mId, "geoJson", "upsert", false, fids.geometryObjectFid, fileContent5)
-	
+
 	// // strategy="upsert" and mutateSchema=true
 	// fileContent6 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// res6 := IntegrationModelImport(e, mId, "geoJson", "upsert", true, fids.geometryObjectFid, fileContent6)
@@ -1356,7 +1356,7 @@ func TestIntegrationModelImportMultiPart(t *testing.T) {
 
 // POST /models/{modelId}/import //json
 func TestIntegrationModelImportJSON(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
@@ -1380,22 +1380,22 @@ func TestIntegrationModelImportJSON(t *testing.T) {
 	// fileContent2 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [239.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// id2 := UploadAsset(e, pId, "./test2.geojson", fileContent2).Object().Value("id").String().Raw()
 	// res2 := IntegrationModelImportJSON(e, mId, id2, "geoJson", "insert", true, fids.geometryObjectFid)
-	
+
 	// // strategy="update" and mutateSchema=false
 	// fileContent3 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// id3 := UploadAsset(e, pId, "./test3.geojson", fileContent3).Object().Value("id").String().Raw()
 	// res3 := IntegrationModelImportJSON(e, mId, id3, "geoJson", "update", false, fids.geometryObjectFid)
-	
+
 	// // strategy="update" and mutateSchema=true
 	// fileContent4 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// id4 := UploadAsset(e, pId, "./test4.geojson", fileContent4).Object().Value("id").String().Raw()
 	// res4 := IntegrationModelImportJSON(e, mId, id4, "geoJson", "update", true, fids.geometryObjectFid)
-	
+
 	// // strategy="upsert" and mutateSchema=false
 	// fileContent5 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// id5 := UploadAsset(e, pId, "./test5.geojson", fileContent5).Object().Value("id").String().Raw()
 	// res5 := IntegrationModelImportJSON(e, mId, id5, "geoJson", "upsert", false, fids.geometryObjectFid)
-	
+
 	// // strategy="upsert" and mutateSchema=true
 	// fileContent6 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// id6 := UploadAsset(e, pId, "./test6.geojson", fileContent6).Object().Value("id").String().Raw()
@@ -1404,7 +1404,7 @@ func TestIntegrationModelImportJSON(t *testing.T) {
 
 // GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson
 func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
@@ -1433,7 +1433,7 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 
 // GET /models/{modelId}/items.csv
 func TestIntegrationItemsAsCSV(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
@@ -1451,7 +1451,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 
 // GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv
 func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
