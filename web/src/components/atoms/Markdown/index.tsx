@@ -10,11 +10,11 @@ type Props = {
   onChange?: (value: string) => void;
 } & TextAreaProps;
 
-const MarkdownInput: React.FC<Props> = ({ value = "", onChange, ...props }) => {
+const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
   const isError = useMemo(
-    () => (props.maxLength ? runes(value).length > props.maxLength : false),
+    () => (props.maxLength && value ? runes(value).length > props.maxLength : false),
     [props.maxLength, value],
   );
 

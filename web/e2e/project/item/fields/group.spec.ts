@@ -94,8 +94,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus New" }).click();
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("text12");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("text1");
   await page.getByRole("button", { name: "OK" }).click();
@@ -220,12 +219,12 @@ test("Group field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("new group1 (2)");
   await page
     .locator("div")
-    .filter({ hasText: /^0 \/ 500text1 description$/ })
+    .filter({ hasText: /^0text1 description$/ })
     .getByLabel("text1")
     .click();
   await page
     .locator("div")
-    .filter({ hasText: /^0 \/ 500text1 description$/ })
+    .filter({ hasText: /^0text1 description$/ })
     .getByLabel("text1")
     .fill("text1-2");
   await page.getByRole("button", { name: "Save" }).click();
@@ -235,13 +234,13 @@ test("Group field editing has succeeded", async ({ page }) => {
   await expect(
     page
       .locator("div")
-      .filter({ hasText: /^5 \/ 500text1 description$/ })
+      .filter({ hasText: /^5text1 description$/ })
       .getByLabel("text1"),
   ).toHaveValue("text1");
   await expect(
     page
       .locator("div")
-      .filter({ hasText: /^7 \/ 500text1 description$/ })
+      .filter({ hasText: /^7text1 description$/ })
       .getByLabel("text1"),
   ).toHaveValue("text1-2");
   await page.getByLabel("Back").click();

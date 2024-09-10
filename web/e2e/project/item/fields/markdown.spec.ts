@@ -73,14 +73,12 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Set default value")).toHaveValue("text1 default value");
   await page.getByRole("button", { name: "plus New" }).click();
-  await page.locator("div:nth-child(2) > .css-1ago99h > .css-7olgor").click();
+  await page.locator("div:nth-child(2) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text2");
-  await page.locator("div:nth-child(1) > .css-1ago99h > .css-7olgor").click();
+  await page.locator("div:nth-child(1) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text1");
   await page.getByRole("button", { name: "arrow-down" }).first().click();
-  await expect(page.locator("div:nth-child(2) > .css-1ago99h > .css-7olgor")).toContainText(
-    "text1",
-  );
+  await expect(page.locator("div:nth-child(2) > .css-1ago99h")).toContainText("text1");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByText("new text1 *#new-text1(unique)")).toBeVisible();
@@ -92,12 +90,8 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("new text1(unique)")).toBeVisible();
   await page.getByText("new text1 description").click();
   await expect(page.getByText("new text1 description")).toBeVisible();
-  await expect(page.locator("div:nth-child(1) > .css-1ago99h > .css-7olgor")).toContainText(
-    "text2",
-  );
-  await expect(page.locator("div:nth-child(2) > .css-1ago99h > .css-7olgor")).toContainText(
-    "text1",
-  );
+  await expect(page.locator("div:nth-child(1) > .css-1ago99h")).toContainText("text2");
+  await expect(page.locator("div:nth-child(2) > .css-1ago99h")).toContainText("text1");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
@@ -110,17 +104,15 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus New" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page, false);
-  await page.locator("div:nth-child(1) > .css-1ago99h > .css-7olgor").click();
+  await page.locator("div:nth-child(1) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text");
   await page.getByRole("button", { name: "plus New" }).click();
   await page.getByRole("button", { name: "plus New" }).click();
-  await page.locator("div:nth-child(2) > .css-1ago99h > .css-7olgor").click();
+  await page.locator("div:nth-child(2) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text2");
   await page.getByRole("button", { name: "arrow-up" }).nth(1).click();
-  await expect(page.locator("div:nth-child(1) > .css-1ago99h > .css-7olgor")).toContainText(
-    "text2",
-  );
-  await expect(page.locator("div:nth-child(2) > .css-1ago99h > .css-7olgor")).toContainText("text");
+  await expect(page.locator("div:nth-child(1) > .css-1ago99h")).toContainText("text2");
+  await expect(page.locator("div:nth-child(2) > .css-1ago99h")).toContainText("text");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
