@@ -1,13 +1,13 @@
 import { initializeApp } from "firebase/app";
 
-export interface FirebaseParams {
+export type FirebaseParams = {
   firebaseApiKey?: string;
   firebaseAuthDomain?: string;
   firebaseProjectId?: string;
   firebaseStorageBucket?: string;
   firebaseMessagingSenderId?: string;
   firebaseAppId?: string;
-}
+};
 
 export function configureFirebase(firebase: FirebaseParams) {
   const firebaseApiKey = firebase.firebaseApiKey;

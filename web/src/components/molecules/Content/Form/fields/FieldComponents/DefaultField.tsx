@@ -6,12 +6,12 @@ import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-interface DefaultFieldProps {
+type DefaultFieldProps = {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => Promise<void>;
   disabled?: boolean;
-}
+};
 
 const DefaultField: React.FC<DefaultFieldProps> = ({
   field,

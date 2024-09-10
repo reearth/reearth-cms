@@ -16,7 +16,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   integrationMembers?: IntegrationMember[];
   selection: {
     selectedRowKeys: Key[];
@@ -32,7 +32,7 @@ interface Props {
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
   onReload: () => void;
-}
+};
 
 const IntegrationTable: React.FC<Props> = ({
   integrationMembers,

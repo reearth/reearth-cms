@@ -5,11 +5,11 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 
-interface Props {
+type Props = {
   items: MenuProps["items"];
   name?: string;
   personal: boolean;
-}
+};
 
 const Dropdown: React.FC<Props> = ({ items, name, personal, ...props }) => {
   return (

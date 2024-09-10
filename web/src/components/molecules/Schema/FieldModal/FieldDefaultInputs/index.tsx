@@ -5,7 +5,6 @@ import {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 import { FieldType } from "../../types";
 
@@ -23,7 +22,7 @@ import TextAreaField from "./TextArea";
 import TextField from "./TextField";
 import URLField from "./URLField";
 
-interface Props {
+type Props = {
   multiple: boolean;
   selectedValues?: string[];
   selectedTags?: { id: string; name: string; color: string }[];
@@ -39,8 +38,6 @@ interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
@@ -53,7 +50,7 @@ interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-}
+};
 
 const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
@@ -71,8 +68,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
-  workspaceSettings,
-  settingsLoading,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -142,8 +137,6 @@ const FieldDefaultInputs: React.FC<Props> = ({
           supportedTypes={selectedSupportedTypes}
           isEditor={selectedType === "GeometryEditor"}
           multiple={multiple}
-          workspaceSettings={workspaceSettings}
-          settingsLoading={settingsLoading}
         />
       );
     case "Text":

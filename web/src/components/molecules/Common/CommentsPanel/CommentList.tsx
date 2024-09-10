@@ -4,12 +4,12 @@ import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/
 
 import CommentMolecule from "./Comment";
 
-interface Props {
+type Props = {
   me?: User;
   comments: Comment[];
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-}
+};
 
 export const CommentList: React.FC<Props> = ({
   me,

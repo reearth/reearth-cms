@@ -17,12 +17,12 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { TextArea } = Input;
 
-interface Props {
+type Props = {
   me?: User;
   comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-}
+};
 
 const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onCommentDelete }) => {
   const [showEditor, setShowEditor] = useState(false);
@@ -90,7 +90,6 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
             <ReactMarkdown
               components={{
                 a(props) {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   const { node, ...rest } = props;
                   return <a target="_blank" {...rest} />;
                 },

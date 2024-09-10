@@ -4,19 +4,19 @@ export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBL
 
 export type ItemValue = string | string[] | number | number[] | boolean | boolean[];
 
-export interface ItemField {
+export type ItemField = {
   schemaFieldId: string;
   itemGroupId?: string;
   type: FieldType;
   value: ItemValue;
-}
+};
 
-export interface ItemAsset {
+export type ItemAsset = {
   id: string;
   fileName: string;
-}
+};
 
-export interface Item {
+export type Item = {
   id: string;
   version: string;
   schemaId: string;
@@ -35,9 +35,9 @@ export interface Item {
   threadId: string;
   comments: Comment[];
   assets: ItemAsset[];
-}
+};
 
-export interface FormItem {
+export type FormItem = {
   id: string;
   title: string;
   schemaId: string;
@@ -45,9 +45,9 @@ export interface FormItem {
   status: ItemStatus;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
-export interface ContentTableField {
+export type ContentTableField = {
   id: string;
   createdBy: string;
   updatedBy: string;
@@ -61,11 +61,11 @@ export interface ContentTableField {
   metadata: Record<string, unknown>;
   metadataId: string;
   version: string;
-}
+};
 
-export interface Comment {
+export type Comment = {
   id: string;
   author: { id?: string; name: string; type: "User" | "Integration" | null };
   content: string;
   createdAt: string;
-}
+};

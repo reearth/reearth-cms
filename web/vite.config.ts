@@ -124,7 +124,7 @@ function config(): Plugin {
 function loadJSON(path: string): object {
   try {
     return JSON.parse(readFileSync(path, "utf8")) || {};
-  } catch (err) {
+  } catch (_) {
     return {};
   }
 }

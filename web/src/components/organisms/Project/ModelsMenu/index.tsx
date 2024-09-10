@@ -8,7 +8,7 @@ import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema/typ
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   title: string;
   collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
@@ -16,7 +16,7 @@ interface Props {
   titleIcon: string;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
-}
+};
 
 const ModelsMenu: React.FC<Props> = ({
   title,

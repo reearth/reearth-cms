@@ -12,7 +12,7 @@ import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
 
-interface Props {
+type Props = {
   commentsPanel: JSX.Element;
   assetList: Asset[];
   fileList: UploadFile[];
@@ -48,7 +48,7 @@ interface Props {
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-}
+};
 
 const AssetList: React.FC<Props> = ({
   commentsPanel,

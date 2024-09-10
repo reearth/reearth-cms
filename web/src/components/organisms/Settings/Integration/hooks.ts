@@ -36,7 +36,7 @@ export default (workspaceId?: string) => {
   const workspace = useMemo(() => {
     const foundWorkspace = data?.me?.workspaces?.find(workspace => workspace.id === workspaceId);
     return foundWorkspace && fromGraphQLWorkspace(foundWorkspace as GQLWorkspace);
-  }, [data?.me?.workspaces]);
+  }, [data?.me?.workspaces, workspaceId]);
 
   const workspaceIntegrationMembers = useMemo(
     () =>

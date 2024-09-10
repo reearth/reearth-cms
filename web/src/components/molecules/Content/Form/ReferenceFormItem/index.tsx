@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../../types";
 
-interface Props {
+type Props = {
   linkedItemsModalList?: FormItem[];
   value?: string;
   disabled?: boolean;
@@ -29,7 +29,7 @@ interface Props {
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
   onChange?: (value?: string) => void;
-}
+};
 
 const ReferenceFormItem: React.FC<Props> = ({
   linkedItemsModalList,

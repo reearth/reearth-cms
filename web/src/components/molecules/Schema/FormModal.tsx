@@ -11,7 +11,7 @@ import { ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 
-interface Props {
+type Props = {
   data?: Model | Group;
   open: boolean;
   onClose: () => void;
@@ -19,13 +19,13 @@ interface Props {
   onUpdate?: (values: ModelFormValues) => Promise<void>;
   onKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   isModel: boolean;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
   description: string;
   key: string;
-}
+};
 
 const FormModal: React.FC<Props> = ({
   data,

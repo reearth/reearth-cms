@@ -12,7 +12,7 @@ declare module "*.yaml" {
   export default yml;
 }
 
-interface ImportMetaEnv {
+type ImportMetaEnv = {
   readonly REEARTH_CMS_API: string;
   readonly REEARTH_CMS_AUTH0_DOMAIN: string;
   readonly REEARTH_CMS_AUTH0_AUDIENCE: string;
@@ -26,8 +26,8 @@ interface ImportMetaEnv {
   readonly REEARTH_CMS_COGNITO_OAUTH_REDIRECT_SIGN_IN: string;
   readonly REEARTH_CMS_COGNITO_OAUTH_REDIRECT_SIGN_OUT: string;
   readonly REEARTH_CMS_COGNITO_OAUTH_RESPONSE_TYPE: string;
-}
+};
 
-interface ImportMeta {
+type ImportMeta = {
   readonly env: ImportMetaEnv;
-}
+};

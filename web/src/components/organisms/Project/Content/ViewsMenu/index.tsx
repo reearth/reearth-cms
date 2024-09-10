@@ -6,12 +6,12 @@ import ViewsMenuMolecule from "@reearth-cms/components/molecules/View/viewsMenu"
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   views: View[];
   currentView: CurrentView;
   onViewSelect: (key: string) => void;
   onViewChange: () => void;
-}
+};
 
 const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewChange }) => {
   const {
