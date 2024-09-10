@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -309,6 +310,43 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
+type ImportRes interfaces.ImportItemsResponse
+
+func NewImportRes() ImportRes {
+	return ImportRes{
+		Total:     0,
+		Inserted:  0,
+		Updated:   0,
+		Ignored:   0,
+		NewFields: nil,
+	}
+}
+
+func (ir ImportRes) ItemInserted() {
+	ir.Inserted++
+	ir.Total++
+}
+
+func (ir ImportRes) ItemUpdated() {
+	ir.Updated++
+	ir.Total++
+}
+
+func (ir ImportRes) ItemSkipped() {
+	ir.Ignored++
+	ir.Total++
+}
+
+func (ir ImportRes) Into() interfaces.ImportItemsResponse {
+	return interfaces.ImportItemsResponse{
+		Total:     ir.Total,
+		Inserted:  ir.Inserted,
+		Updated:   ir.Updated,
+		Ignored:   ir.Ignored,
+		NewFields: ir.NewFields,
+	}
+}
+
 func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return interfaces.ImportItemsResponse{}, interfaces.ErrInvalidOperator
@@ -330,9 +368,36 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			isMetadata = true
 		}
 
-		// TODO: update result object in each iteration
-		var res interfaces.ImportItemsResponse
+		// update schema if needed
+		if param.MutateSchema && len(param.Fields) > 0 {
+			for _, fieldParam := range param.Fields {
+				if fieldParam.Key == "" || s.HasFieldByKey(fieldParam.Key) {
+					return interfaces.ImportItemsResponse{}, schema.ErrInvalidKey
+				}
 
+				f, err := schema.NewField(fieldParam.TypeProperty).
+					NewID().
+					Unique(fieldParam.Unique).
+					Multiple(fieldParam.Multiple).
+					Required(fieldParam.Required).
+					Name(fieldParam.Name).
+					Description(lo.FromPtr(fieldParam.Description)).
+					Key(key.New(fieldParam.Key)).
+					DefaultValue(fieldParam.DefaultValue).
+					Build()
+				if err != nil {
+					return interfaces.ImportItemsResponse{}, err
+				}
+
+				s.AddField(f)
+			}
+			err = i.repos.Schema.Save(ctx, s)
+			if err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+		}
+
+		res := NewImportRes()
 		for _, itemParam := range param.Items {
 
 			var oldItem *item.Item
@@ -346,11 +411,13 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 
 			// strategy: insert. 	item: exists  				=> ignore
 			if param.Strategy == interfaces.ImportStrategyTypeInsert && oldItem != nil {
+				res.ItemSkipped()
 				continue
 			}
 
 			// strategy: update. 	item: not exists 			=> ignore
 			if param.Strategy == interfaces.ImportStrategyTypeUpdate && oldItem == nil {
+				res.ItemSkipped()
 				continue
 			}
 
@@ -366,8 +433,6 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			if action == interfaces.ImportStrategyTypeUpdate && !operator.CanUpdate(oldItem) {
 				return interfaces.ImportItemsResponse{}, interfaces.ErrOperationDenied
 			}
-
-			// TODO: update schema if needed
 
 			// TODO: more validation
 			// 	schema: immutable. 	field: not exists 			=> ignore
@@ -492,8 +557,10 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			var eType event.Type
 			if action == interfaces.ImportStrategyTypeInsert {
 				eType = event.ItemCreate
+				res.ItemInserted()
 			} else {
 				eType = event.ItemUpdate
+				res.ItemUpdated()
 			}
 			if err := i.event(ctx, Event{
 				Project:   prj,
@@ -514,7 +581,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			}
 		}
 
-		return res, nil
+		return res.Into(), nil
 	})
 }
 

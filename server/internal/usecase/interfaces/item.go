@@ -69,7 +69,8 @@ type ImportItemsParam struct {
 	Strategy     ImportStrategyType
 	MutateSchema bool
 	// GeoField     *string // field key or id
-	Items []ImportItemParam
+	Items  []ImportItemParam
+	Fields []CreateFieldParam
 }
 
 type ImportItemsResponse struct {
