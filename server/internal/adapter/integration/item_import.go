@@ -132,9 +132,22 @@ func fromMultiPartBody(inp *multipart.Reader, sp schema.Package) (interfaces.Imp
 
 func itemsFromJson(r io.Reader, isGeoJson bool, sp schema.Package) ([]interfaces.ImportItemParam, []interfaces.CreateFieldParam, error) {
 	var jsonObjects []map[string]any
-	err := json.NewDecoder(r).Decode(&jsonObjects)
-	if err != nil {
-		return nil, nil, err
+	if isGeoJson {
+		var geoJson map[string]any
+		err := json.NewDecoder(r).Decode(&geoJson)
+		if err != nil {
+			return nil, nil, err
+		}
+		features, ok := geoJson["features"].([]map[string]any)
+		if !ok {
+			return nil, nil, rerror.ErrInvalidParams
+		}
+		jsonObjects = features
+	} else {
+		err := json.NewDecoder(r).Decode(&jsonObjects)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	items := make([]interfaces.ImportItemParam, 0)
