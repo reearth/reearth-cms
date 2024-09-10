@@ -20,6 +20,7 @@ export default (
   selectedType: FieldType,
   isMeta: boolean,
   selectedField: Field | null,
+  open: boolean,
   onClose: () => void,
   onSubmit: (values: FormValues) => Promise<void>,
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean,
@@ -324,6 +325,12 @@ export default (
     ],
     [],
   );
+
+  useEffect(() => {
+    if (open && !selectedField && selectedType === "GeometryEditor") {
+      form.setFieldValue("supportedTypes", EditorSupportType[0].value);
+    }
+  }, [EditorSupportType, form, open, selectedField, selectedType]);
 
   return {
     form,
