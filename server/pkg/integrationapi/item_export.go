@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 )
 
+// GeoJSON
 func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
 	fc, err := exporters.FeatureCollectionFromItems(ver, s)
 	if err != nil {
@@ -86,4 +87,13 @@ func toCoordinates(c *exporters.Geometry_Coordinates) *Geometry_Coordinates {
 	return &Geometry_Coordinates{
 		union: union,
 	}
+}
+
+// CSV
+func BuildCSVHeaders(s *schema.Schema) []string {
+	return exporters.BuildCSVHeaders(s)
+}
+
+func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
+	return exporters.RowFromItem(itm, nonGeoFields)
 }
