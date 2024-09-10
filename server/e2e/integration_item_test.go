@@ -325,7 +325,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	f := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
+	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
+	f2 := asset.NewFile().Name("bbb.jpg").Size(1000).ContentType("image/jpg").Build()
 	a1 := asset.New().ID(aid1).
 		Project(p.ID()).
 		CreatedByUser(u.ID()).
@@ -349,10 +350,10 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Asset.Save(ctx, a2); err != nil {
 		return err
 	}
-	if err := r.AssetFile.Save(ctx, a1.ID(), f); err != nil {
+	if err := r.AssetFile.Save(ctx, a1.ID(), f1); err != nil {
 		return err
 	}
-	if err := r.AssetFile.Save(ctx, a2.ID(), f); err != nil {
+	if err := r.AssetFile.Save(ctx, a2.ID(), f2); err != nil {
 		return err
 	}
 	// endregion
