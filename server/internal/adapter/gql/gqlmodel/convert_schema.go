@@ -636,9 +636,17 @@ func unpackArray(s any) []any {
 		return nil
 	}
 	v := reflect.ValueOf(s)
+	if v.Kind() != reflect.Slice {
+		return nil
+	}
 	r := make([]any, v.Len())
 	for i := 0; i < v.Len(); i++ {
-		r[i] = v.Index(i).Interface()
+		elem := v.Index(i).Interface()
+		if str, ok := elem.(string); ok && str == "" {
+			r[i] = nil
+		} else {
+			r[i] = elem
+		}
 	}
 	return r
 }
