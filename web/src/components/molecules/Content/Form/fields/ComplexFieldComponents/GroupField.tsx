@@ -7,9 +7,8 @@ import MultiValueGroup from "@reearth-cms/components/molecules/Common/MultiValue
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
-interface GroupFieldProps {
+type GroupFieldProps = {
   field: Field;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
@@ -32,8 +31,6 @@ interface GroupFieldProps {
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
   disabled?: boolean;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -52,7 +49,7 @@ interface GroupFieldProps {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-}
+};
 
 const GroupField: React.FC<GroupFieldProps> = ({
   field,
@@ -76,8 +73,6 @@ const GroupField: React.FC<GroupFieldProps> = ({
   linkItemModalPage,
   linkItemModalPageSize,
   disabled,
-  workspaceSettings,
-  settingsLoading,
   onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableReload,
@@ -126,8 +121,6 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}
           disabled={disabled}
-          workspaceSettings={workspaceSettings}
-          settingsLoading={settingsLoading}
           onReferenceModelUpdate={onReferenceModelUpdate}
           onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
@@ -169,8 +162,6 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}
           disabled={disabled}
-          workspaceSettings={workspaceSettings}
-          settingsLoading={settingsLoading}
           onReferenceModelUpdate={onReferenceModelUpdate}
           onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}

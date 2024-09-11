@@ -25,13 +25,12 @@ import {
   Group,
   FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   groups?: Group[];
   selectedType: FieldType;
   isMeta: boolean;
@@ -63,9 +62,7 @@ interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
-}
+};
 
 const initialValues: FormValues = {
   fieldId: "",
@@ -115,8 +112,6 @@ const FieldModal: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onGetAsset,
-  workspaceSettings,
-  settingsLoading,
 }) => {
   const t = useT();
 
@@ -340,8 +335,6 @@ const FieldModal: React.FC<Props> = ({
               totalCount={totalCount}
               page={page}
               pageSize={pageSize}
-              workspaceSettings={workspaceSettings}
-              settingsLoading={settingsLoading}
               onAssetTableChange={onAssetTableChange}
               onUploadModalCancel={onUploadModalCancel}
               setUploadUrl={setUploadUrl}

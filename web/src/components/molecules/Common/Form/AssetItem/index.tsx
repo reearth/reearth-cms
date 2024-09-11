@@ -14,7 +14,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   itemAssets?: ItemAsset[];
   assetList?: Asset[];
   fileList?: UploadFile[];
@@ -41,7 +41,7 @@ interface Props {
   onChange?: (value: string) => void;
   disabled?: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-}
+};
 
 const AssetItem: React.FC<Props> = ({
   itemAssets,

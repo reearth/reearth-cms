@@ -5,12 +5,12 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import ThreadCommentMolecule from "@reearth-cms/components/molecules/Request/Details/Comment";
 
-interface Props {
+type Props = {
   me?: User;
   comments: Comment[];
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-}
+};
 
 export const RequestCommentList: React.FC<Props> = ({
   me,

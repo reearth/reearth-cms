@@ -16,7 +16,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../types";
 
-interface FormValues {
+type FormValues = {
   title: string;
   description: string;
   state: RequestState;
@@ -24,9 +24,9 @@ interface FormValues {
   items: {
     itemId: string;
   }[];
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   requestCreationLoading: boolean;
   itemId: string;
@@ -34,7 +34,7 @@ interface Props {
   workspaceUserMembers: UserMember[];
   onClose: () => void;
   onSubmit: (data: FormValues) => Promise<void>;
-}
+};
 
 const initialValues: FormValues = {
   title: "",

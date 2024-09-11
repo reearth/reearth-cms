@@ -12,19 +12,19 @@ const defaultCameraPosition: [number, number, number] = [139.767052, 35.681167, 
 const defaultOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 3000000);
 const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
-interface Props {
+type Props = {
   url: string;
   handleProperties: (prop: Property) => void;
-}
+};
 
-export type Property = Record<string, string | number | boolean>;
+export type Property = Record<string, unknown>;
 
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
-interface TileCoordinates {
+type TileCoordinates = {
   x: number;
   y: number;
   level: number;
-}
+};
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const { viewer } = useCesium();
@@ -154,11 +154,11 @@ const fetchLayers = async (url: string) => {
   return { ...parseMetadata(await res.json()), base };
 };
 
-interface TileCoords {
+type TileCoords = {
   x: number;
   y: number;
   level: number;
-}
+};
 
 const idFromGeometry = (
   geometry: ReturnType<VectorTileFeature["loadGeometry"]>,

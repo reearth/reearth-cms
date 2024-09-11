@@ -13,7 +13,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   integration: Integration;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
@@ -23,13 +23,13 @@ interface Props {
     logoUrl: string;
   }) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
   description: string;
   logoUrl: string;
-}
+};
 
 const MyIntegrationForm: React.FC<Props> = ({
   integration,

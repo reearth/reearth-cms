@@ -30,7 +30,7 @@ import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 const { Step } = Steps;
 const { TabPane } = Tabs;
 
-interface Props {
+type Props = {
   models?: Model[];
   selectedType: FieldType;
   selectedField: Field | null;
@@ -42,7 +42,7 @@ interface Props {
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   onUpdate: (values: FormValues) => Promise<void>;
-}
+};
 
 const FieldCreationModalWithSteps: React.FC<Props> = ({
   models,

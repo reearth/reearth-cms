@@ -1,16 +1,16 @@
-import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { ItemType } from "antd/lib/menu/interface";
 import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   inlineCollapsed: boolean;
   isPersonalWorkspace: boolean;
   defaultSelectedKey?: string;
   onNavigate: (info: MenuInfo) => void;
-}
+};
 
 type MenuShowType = "personal" | "notPersonal" | "both";
 

@@ -8,10 +8,10 @@ import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-interface TagFieldProps {
+type TagFieldProps = {
   field: Field;
   onMetaUpdate?: () => void;
-}
+};
 
 const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
   const t = useT();

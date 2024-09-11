@@ -6,12 +6,12 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestThread from "@reearth-cms/components/molecules/Request/Details/Thread";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { UserMember, WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
-interface Props {
+type Props = {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;
@@ -20,8 +20,6 @@ interface Props {
   deleteLoading: boolean;
   approveLoading: boolean;
   updateLoading: boolean;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -31,7 +29,7 @@ interface Props {
   onBack: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+};
 
 const RequestMolecule: React.FC<Props> = ({
   me,
@@ -42,8 +40,6 @@ const RequestMolecule: React.FC<Props> = ({
   deleteLoading,
   approveLoading,
   updateLoading,
-  workspaceSettings,
-  settingsLoading,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
@@ -98,8 +94,6 @@ const RequestMolecule: React.FC<Props> = ({
           <RequestThread
             me={me}
             currentRequest={currentRequest}
-            workspaceSettings={workspaceSettings}
-            settingsLoading={settingsLoading}
             onCommentCreate={onCommentCreate}
             onCommentUpdate={onCommentUpdate}
             onCommentDelete={onCommentDelete}

@@ -8,20 +8,22 @@ import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema/typ
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   title: string;
   collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
+  titleIcon: string;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
-}
+};
 
 const ModelsMenu: React.FC<Props> = ({
   title,
   collapsed,
   selectedSchemaType,
   displayGroups,
+  titleIcon,
   onModelSelect,
   onGroupSelect,
 }) => {
@@ -48,8 +50,8 @@ const ModelsMenu: React.FC<Props> = ({
 
   return (
     <>
-      <ModelListHeader title={title} collapsed={collapsed} />
-      <ModelListBody>
+      <ModelListHeader title={title} collapsed={collapsed} titleIcon={titleIcon} />
+      <ModelListBody collapsed={collapsed}>
         <Models
           title={title}
           collapsed={collapsed}

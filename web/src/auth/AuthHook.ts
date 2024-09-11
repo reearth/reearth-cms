@@ -1,4 +1,4 @@
-export default interface AuthHook {
+type AuthHook = {
   user: unknown; // TODO: Replace 'unknown' with your user type
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -6,4 +6,6 @@ export default interface AuthHook {
   getAccessToken: () => Promise<string>;
   login: () => void;
   logout: () => void;
-}
+};
+
+export default AuthHook;

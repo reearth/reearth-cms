@@ -7,12 +7,12 @@ import { validateURL } from "@reearth-cms/utils/regex";
 
 import FieldTitle from "../../FieldTitle";
 
-interface URLFieldProps {
+type URLFieldProps = {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => Promise<void>;
   disabled?: boolean;
-}
+};
 
 const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
   const t = useT();

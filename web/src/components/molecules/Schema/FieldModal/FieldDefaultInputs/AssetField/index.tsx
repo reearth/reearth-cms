@@ -6,7 +6,7 @@ import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   multiple: boolean;
   assetList: Asset[];
   fileList: UploadFile[];
@@ -30,7 +30,7 @@ interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-}
+};
 const AssetField: React.FC<Props> = ({
   multiple,
   assetList,

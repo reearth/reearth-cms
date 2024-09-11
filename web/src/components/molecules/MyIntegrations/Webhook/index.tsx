@@ -8,7 +8,7 @@ import {
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookList";
 
-interface Props {
+type Props = {
   integration: Integration;
   webhookInitialValues?: WebhookValues;
   createWebhookLoading: boolean;
@@ -30,7 +30,7 @@ interface Props {
     secret?: string;
   }) => Promise<void>;
   onWebhookSelect: (id: string) => void;
-}
+};
 
 const Webhook: React.FC<Props> = ({
   integration,

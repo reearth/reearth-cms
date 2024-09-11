@@ -2,7 +2,6 @@ import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/De
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
-import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -89,8 +88,6 @@ const ContentDetails: React.FC = () => {
     handleGetAsset,
   } = useAssetHooks(false);
 
-  const { workspaceSettings, loading: settingsLoading } = useSettingsHooks();
-
   return (
     <ContentDetailsMolecule
       linkItemModalTitle={linkItemModalTitle}
@@ -143,8 +140,8 @@ const ContentDetails: React.FC = () => {
           collapsed={collapsedModelMenu}
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
-          displayGroups={false}
           selectedSchemaType="model"
+          titleIcon={"table"}
         />
       }
       onChange={handleAddItemToRequest}
@@ -182,8 +179,6 @@ const ContentDetails: React.FC = () => {
       onGetAsset={handleGetAsset}
       onGroupGet={handleGroupGet}
       onCheckItemReference={handleCheckItemReference}
-      workspaceSettings={workspaceSettings}
-      settingsLoading={settingsLoading}
     />
   );
 };

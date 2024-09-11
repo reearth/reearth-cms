@@ -3,11 +3,11 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-interface Props {
+type Props = {
   integration: Integration;
   integrationSelected: boolean;
   onClick: () => void;
-}
+};
 
 const IntegrationCard: React.FC<Props> = ({ integration, integrationSelected, onClick }) => (
   <CardWrapper onClick={onClick} isSelected={integrationSelected}>

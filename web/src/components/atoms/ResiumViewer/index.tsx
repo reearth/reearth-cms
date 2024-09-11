@@ -10,14 +10,14 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
-interface Props {
+type Props = {
   onGetViewer: (viewer?: CesiumViewer) => void;
   children: React.ReactNode;
   properties?: Property;
   showDescription?: boolean;
   onSelect?: (id?: string) => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 const ResiumViewer: React.FC<Props> = ({
   onGetViewer,
