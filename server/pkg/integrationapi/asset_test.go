@@ -10,8 +10,8 @@ import (
 
 func TestToAssetFile(t *testing.T) {
 	f3 := asset.NewFile().Name("aaa").Path("/a/aaa").Build()
-	f2 := asset.NewFile().Name("a").Path("/a").Size(10).Children([]*asset.File{f3}).Build()
-	f1 := asset.NewFile().Name("").Path("/").Size(11).Children([]*asset.File{f2}).Build()
+	f2 := asset.NewFile().Name("a").Path("/a").Size(10).Files([]*asset.File{f3}).Build()
+	f1 := asset.NewFile().Name("").Path("/").Size(11).Files([]*asset.File{f2}).Build()
 
 	a := ToAssetFile(f1, true)
 	e := &File{
