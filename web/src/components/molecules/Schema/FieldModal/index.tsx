@@ -135,7 +135,7 @@ const FieldModal: React.FC<Props> = ({
     isTitleDisabled,
     ObjectSupportType,
     EditorSupportType,
-  } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit, handleFieldKeyUnique);
+  } = useHooks(selectedType, isMeta, selectedField, open, onClose, onSubmit, handleFieldKeyUnique);
 
   const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
     <>
