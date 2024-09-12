@@ -20,6 +20,7 @@ export default (
   selectedType: FieldType,
   isMeta: boolean,
   selectedField: Field | null,
+  open: boolean,
   onClose: () => void,
   onSubmit: (values: FormValues) => Promise<void>,
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean,
@@ -221,10 +222,14 @@ export default (
   const values = Form.useWatch([], form);
   useEffect(() => {
     if (form.getFieldValue("title") && form.getFieldValue("key")) {
-      form
-        .validateFields()
-        .then(() => setButtonDisabled(false))
-        .catch(() => setButtonDisabled(true));
+      if (form.getFieldValue("supportedTypes")?.length === 0) {
+        setButtonDisabled(true);
+      } else {
+        form
+          .validateFields()
+          .then(() => setButtonDisabled(false))
+          .catch(() => setButtonDisabled(true));
+      }
     } else {
       setButtonDisabled(true);
     }
@@ -324,6 +329,16 @@ export default (
     ],
     [],
   );
+
+  useEffect(() => {
+    if (open && !selectedField) {
+      if (selectedType === "GeometryObject") {
+        form.setFieldValue("supportedTypes", []);
+      } else if (selectedType === "GeometryEditor") {
+        form.setFieldValue("supportedTypes", EditorSupportType[0].value);
+      }
+    }
+  }, [EditorSupportType, form, open, selectedField, selectedType]);
 
   return {
     form,
