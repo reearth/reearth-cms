@@ -2,9 +2,9 @@ package schema
 
 import (
 	"encoding/json"
+
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
-	"strings"
 
 	geojson "github.com/paulmach/go.geojson"
 	"golang.org/x/exp/slices"
@@ -14,10 +14,6 @@ var ErrUnsupportedType = rerror.NewE(i18n.T("unsupported geometry type"))
 
 // isValidGeoJSON uses the go.geojson library to validate a GeoJSON string
 func isValidGeoJSON(data string) (geojson.GeometryType, bool) {
-	if len(strings.TrimSpace(data)) == 0 {
-		return "", false
-	}
-
 	var raw map[string]interface{}
 	if err := json.Unmarshal([]byte(data), &raw); err != nil {
 		return "", false

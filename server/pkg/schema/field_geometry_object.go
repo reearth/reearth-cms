@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"strings"
+
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -51,6 +53,9 @@ func (f *FieldGeometryObject) Clone() *FieldGeometryObject {
 func (f *FieldGeometryObject) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		GeometryObject: func(a value.String) {
+			if len(strings.TrimSpace(a)) == 0 {
+				return
+			}
 			t, ok := isValidGeoJSON(a)
 			if !ok {
 				err = ErrInvalidValue
