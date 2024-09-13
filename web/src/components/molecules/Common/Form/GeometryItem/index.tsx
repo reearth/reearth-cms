@@ -1,22 +1,26 @@
 import styled from "@emotion/styled";
 import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
-import {
-  CoreVisualizer,
-  MapRef,
-  SketchFeature,
-  NaiveLayerSimple,
-  SketchType,
-  ViewerProperty,
-} from "@reearth/core";
 import Ajv from "ajv";
 import axios from "axios";
 import { editor, Range } from "monaco-editor";
+import "ol/ol.css";
+import { Map, View } from "ol";
+import { GeoJSON } from "ol/format";
+import { Circle, LineString, Point, Polygon } from "ol/geom";
+import { fromCircle } from "ol/geom/Polygon";
+import { defaults, Draw } from "ol/interaction";
+import { createBox } from "ol/interaction/Draw";
+import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
+import { fromLonLat } from "ol/proj";
+import { Vector as VectorSource, OSM } from "ol/source";
+import { Icon as IconStyle, Fill, Stroke, Style } from "ol/style";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import mapPinFilled from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Typography from "@reearth-cms/components/atoms/Typography";
@@ -24,8 +28,6 @@ import {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
-import { config } from "@reearth-cms/config";
 import { useT } from "@reearth-cms/i18n";
 
 import schema from "./schema";
@@ -48,22 +50,7 @@ const GEO_TYPE_MAP = {
   ANY: "Point",
 } as const;
 
-const TILE_TYPE_MAP = {
-  DEFAULT: "default",
-  LABELLED: "default_label",
-  ROAD_MAP: "default_road",
-  OPEN_STREET_MAP: "open_street_map",
-  ESRI_TOPOGRAPHY: "esri_world_topo",
-  EARTH_AT_NIGHT: "black_marble",
-  JAPAN_GSI_STANDARD_MAP: "japan_gsi_standard",
-  URL: "url",
-} as const;
-
-const TERRAIN_TYPE_MAP = {
-  CESIUM_WORLD_TERRAIN: "cesium",
-  ARC_GIS_TERRAIN: "arcgis",
-  CESIUM_ION: "cesiumion",
-} as const;
+type DrawType = "Point" | "LineString" | "Polygon" | "Circle" | "Rectangle";
 
 type Props = {
   value?: string | null;
@@ -73,8 +60,6 @@ type Props = {
   disabled?: boolean;
   errorAdd?: () => void;
   errorDelete?: () => void;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
 };
 
 const GeometryItem: React.FC<Props> = ({
@@ -85,18 +70,48 @@ const GeometryItem: React.FC<Props> = ({
   disabled,
   errorAdd,
   errorDelete,
-  workspaceSettings,
-  settingsLoading,
 }) => {
   const t = useT();
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
-  const [sketchType, setSketchType] = useState<SketchType>();
+  const [sketchType, setSketchType] = useState<DrawType>();
+  const drawRef = useRef<Draw>();
 
-  const setType = useCallback((newSketchType?: SketchType) => {
-    setSketchType(newSketchType);
-    mapRef.current?.sketch?.setType(newSketchType);
+  const setType = useCallback((drawType?: DrawType) => {
+    setSketchType(drawType);
+    if (drawRef.current) mapRef.current?.removeInteraction(drawRef.current);
+    if (drawType) {
+      const isRectangle = drawType === "Rectangle";
+      const draw = new Draw({
+        source: new VectorSource(),
+        type: isRectangle ? "Circle" : drawType,
+        style: {
+          "stroke-width": 3,
+          "stroke-color": "#1677FF",
+          "stroke-line-dash": [5, 10],
+          "fill-color": "#1677FF40",
+        },
+        geometryFunction: isRectangle ? createBox() : undefined,
+      });
+      drawRef.current = draw;
+      mapRef.current?.addInteraction(draw);
+      draw.on("drawend", event => {
+        let geometry = event.feature.getGeometry();
+        if (!geometry) return;
+        let type = event.feature.getGeometry()?.getType();
+        if (type === "Circle") {
+          geometry = fromCircle(event.feature.getGeometry() as Circle);
+          type = "Polygon";
+        }
+        const coordinates = (geometry as Point | LineString | Polygon)
+          .transform("EPSG:3857", "EPSG:4326")
+          .getCoordinates();
+        const value = JSON.stringify({ type, coordinates }, null, 2);
+        editorRef.current?.setValue(value);
+        setType();
+      });
+    }
   }, []);
 
   const copyButtonClick = useCallback(() => {
@@ -252,7 +267,7 @@ const GeometryItem: React.FC<Props> = ({
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
-    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : (supportedTypes ?? "POINT");
+    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
     const obj: {
       type: string;
       coordinates?: unknown;
@@ -271,13 +286,40 @@ const GeometryItem: React.FC<Props> = ({
     return JSON.stringify(obj, null, 2);
   }, [supportedTypes]);
 
-  const mapRef = useRef<MapRef>(null);
-  const [isShow, setIsShow] = useState(false);
+  const mapRef = useRef<Map>();
+
   useEffect(() => {
-    if (!settingsLoading) {
-      setIsShow(true);
+    if (mapContainerRef.current) {
+      const osmLayer = new TileLayer({
+        preload: Infinity,
+        source: new OSM(),
+      });
+
+      const view = new View({
+        center: [15558259.273856968, 4256979.356855129],
+        zoom: 3,
+      });
+
+      const map = new Map({
+        target: mapContainerRef.current,
+        layers: [osmLayer],
+        view,
+        controls: [],
+        interactions: defaults({
+          doubleClickZoom: false,
+        }),
+      });
+      mapRef.current = map;
+
+      return () => {
+        map.setTarget(undefined);
+        mapRef.current = undefined;
+        isInitRef.current = true;
+      };
     }
-  }, [settingsLoading]);
+  }, []);
+
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const [isSearching, setIsSearching] = useState(false);
 
@@ -289,9 +331,10 @@ const GeometryItem: React.FC<Props> = ({
         params: { format: "json", q },
       });
       if (data.length) {
-        mapRef.current?.engine.flyTo({
-          lat: Number(data[0].lat),
-          lng: Number(data[0].lon),
+        mapRef.current?.getView().animate({
+          zoom: Math.min(data[0].place_rank, 17),
+          center: fromLonLat([Number(data[0].lon), Number(data[0].lat)]),
+          duration: 0,
         });
       }
     } catch (e) {
@@ -301,39 +344,8 @@ const GeometryItem: React.FC<Props> = ({
     }
   }, []);
 
-  const viewerProperty: ViewerProperty = useMemo(
-    () => ({
-      tiles: [
-        {
-          id: "default",
-          type: TILE_TYPE_MAP[workspaceSettings.tiles?.resources[0]?.type ?? "DEFAULT"],
-          url: workspaceSettings.tiles?.resources[0]?.props.url,
-        },
-      ],
-      terrain: {
-        enabled: workspaceSettings.terrains?.enabled,
-        type: TERRAIN_TYPE_MAP[
-          workspaceSettings.terrains?.resources[0]?.type ?? "CESIUM_WORLD_TERRAIN"
-        ],
-      },
-      assets: {
-        cesium: {
-          terrain: {
-            ionAccessToken: workspaceSettings.terrains?.resources[0]?.props.cesiumIonAccessToken,
-            ionAsset: workspaceSettings.terrains?.resources[0]?.props.cesiumIonAssetId,
-            ionUrl: workspaceSettings.terrains?.resources[0]?.props.url,
-          },
-        },
-      },
-      indicator: {
-        type: "custom",
-      },
-    }),
-    [workspaceSettings.terrains, workspaceSettings.tiles?.resources],
-  );
-
   const confirm = useCallback(
-    (newSketchType: SketchType) => {
+    (newSketchType: DrawType) => {
       Modal.confirm({
         title: t("You are entering a new value"),
         icon: <Icon icon="exclamationCircle" />,
@@ -365,7 +377,7 @@ const GeometryItem: React.FC<Props> = ({
   );
 
   const sketchButtonClick = useCallback(
-    (newSketchType: SketchType) => {
+    (newSketchType: DrawType) => {
       if (sketchType === newSketchType) {
         setType();
       } else if (value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
@@ -377,146 +389,91 @@ const GeometryItem: React.FC<Props> = ({
     [confirm, setType, sketchType, value],
   );
 
-  const handleZoomIn = useCallback(() => {
-    mapRef.current?.engine.zoomIn(5);
+  const handleZoom = useCallback((delta: number) => {
+    const zoom = mapRef.current?.getView().getZoom();
+    if (zoom) {
+      mapRef.current?.getView().animate({
+        zoom: zoom + delta,
+        duration: 200,
+      });
+    }
   }, []);
+
+  const handleZoomIn = useCallback(() => {
+    handleZoom(1);
+  }, [handleZoom]);
 
   const handleZoomOut = useCallback(() => {
-    mapRef.current?.engine.zoomOut(5);
-  }, []);
+    handleZoom(-1);
+  }, [handleZoom]);
 
-  const GeoJSONConvert = useCallback(
-    (value: string | SketchFeature): NaiveLayerSimple | undefined => {
-      try {
-        const geometry: {
-          type?: unknown;
-          coordinates?: unknown;
-          geometries?: unknown;
-        } = typeof value === "string" ? JSON.parse(value) : value?.geometry;
-        const isValid = validate(geometry);
-        if (!isValid) return;
-        return {
-          type: "simple",
-          data: {
-            type: "geojson",
-            value: {
-              type: "Feature",
-              geometry,
-            },
-          },
-          marker: {},
-          polyline: {},
-          polygon: {},
-        };
-      } catch (_) {
-        return;
-      }
-    },
-    [],
-  );
+  const GeoJSONConvert = useCallback((value: string) => {
+    try {
+      const geometry = JSON.parse(value);
+      const isValid = validate(geometry);
+      if (!isValid) return;
+      return {
+        type: "Feature",
+        geometry,
+      };
+    } catch (_) {
+      return;
+    }
+  }, []);
 
   const isInitRef = useRef(true);
 
-  const flyTo = useCallback(
-    (geometry: { coordinates?: number[]; geometries?: { coordinates: number[] }[] }) => {
-      const coordinateGet = (
-        coordinatesInput: number[],
-        bboxInput?: [number, number, number, number],
-      ): [number, number, number, number] => {
-        let coordinates = coordinatesInput;
-        while (Array.isArray(coordinates[0])) {
-          coordinates = coordinates.flat();
-        }
-
-        let [west, south, east, north] = bboxInput ?? [
-          coordinates[0],
-          coordinates[1],
-          coordinates[0],
-          coordinates[1],
-        ];
-
-        coordinates.forEach((coordinate, index) => {
-          if (index % 2 === 0) {
-            if (coordinate < west) {
-              west = coordinate;
-            } else if (coordinate > east) {
-              east = coordinate;
-            }
-          } else {
-            if (coordinate < south) {
-              south = coordinate;
-            } else if (coordinate > north) {
-              north = coordinate;
-            }
-          }
-        });
-
-        if (west === east && north === south) {
-          const padding = 0.1;
-          west -= padding;
-          east += padding;
-        }
-
-        return [west, south, east, north];
-      };
-
-      let bbox: [number, number, number, number] | undefined;
-      if (geometry.coordinates) {
-        bbox = coordinateGet(geometry.coordinates);
-      } else if (geometry.geometries) {
-        geometry.geometries.forEach(geo => {
-          bbox = coordinateGet(geo.coordinates, bbox);
-        });
-      }
-      if (bbox) {
-        mapRef.current?.engine.flyToBBox(bbox, {
-          duration: 0,
-        });
-      }
-    },
-    [],
-  );
-
   const sketch = useCallback(
-    (value: string | SketchFeature) => {
-      const layers = mapRef.current?.layers.layers();
-      const ids = layers?.map(layer => layer.id);
-      if (ids?.length) {
-        mapRef.current?.layers.deleteLayer(...ids);
-      }
-      const layer = GeoJSONConvert(value);
-      if (layer) {
-        mapRef.current?.layers.add(layer);
+    (value: string) => {
+      const layers = mapRef.current?.getLayers();
+      layers?.forEach((layer, index) => {
+        if (index > 0) {
+          mapRef.current?.removeLayer(layer);
+        }
+      });
+
+      const newLayer = GeoJSONConvert(value);
+
+      if (newLayer) {
+        const features = new GeoJSON({ featureProjection: "EPSG:3857" }).readFeatures(newLayer);
+        const source = new VectorSource({ features });
+        const vectorLayer = new VectorLayer({
+          source,
+          style: new Style({
+            image: new IconStyle({ src: mapPinFilled, color: "#000000D9" }),
+            stroke: new Stroke({
+              color: "#000000D9",
+              width: 2,
+            }),
+            fill: new Fill({
+              color: "#00000040",
+            }),
+          }),
+        });
+        mapRef.current?.addLayer(vectorLayer);
         if (isInitRef.current || !isEditor) {
-          flyTo(layer.data?.value.geometry);
+          const feature = source.getExtent();
+          try {
+            mapRef.current
+              ?.getView()
+              .fit(feature, { padding: [100, 100, 100, 100], minResolution: 5 });
+          } catch (e) {
+            console.error(e);
+          }
         }
       }
-      setSketchType(undefined);
     },
-    [GeoJSONConvert, flyTo, isEditor],
+    [GeoJSONConvert, isEditor],
   );
-
-  const handleSketchFeatureCreate = useCallback((feature: SketchFeature | null) => {
-    if (feature) {
-      editorRef.current?.setValue(JSON.stringify(feature.geometry, null, 2));
-    }
-  }, []);
-
-  const [isReady, setIsReady] = useState(false);
-  const handleMount = useCallback(() => {
-    setIsReady(true);
-  }, []);
 
   useEffect(() => {
-    if (isReady) {
-      if (value !== undefined) {
-        if (typeof value === "string" && !hasError) {
-          sketch(value);
-        }
-        isInitRef.current = false;
+    if (value !== undefined) {
+      if (typeof value === "string" && !hasError) {
+        sketch(value);
       }
+      isInitRef.current = false;
     }
-  }, [sketch, isReady, value, hasError]);
+  }, [sketch, value, hasError]);
 
   const minWidth = useMemo(() => 280, []);
   const [width, setWidth] = useState<number>(minWidth);
@@ -591,45 +548,45 @@ const GeometryItem: React.FC<Props> = ({
                   <GeoButton
                     icon={<Icon icon="mapPin" size={22} />}
                     onClick={() => {
-                      sketchButtonClick("marker");
+                      sketchButtonClick("Point");
                     }}
-                    selected={sketchType === "marker"}
+                    selected={sketchType === "Point"}
                   />
                 )}
                 {(supportedTypes === "LINESTRING" || supportedTypes === "ANY") && (
                   <GeoButton
                     icon={<Icon icon="lineString" size={26} />}
                     onClick={() => {
-                      sketchButtonClick("polyline");
+                      sketchButtonClick("LineString");
                     }}
-                    selected={sketchType === "polyline"}
+                    selected={sketchType === "LineString"}
                   />
                 )}
                 {(supportedTypes === "POLYGON" || supportedTypes === "ANY") && (
                   <GeoButton
                     icon={<Icon icon="polygon" size={25} />}
                     onClick={() => {
-                      sketchButtonClick("polygon");
+                      sketchButtonClick("Polygon");
                     }}
-                    selected={sketchType === "polygon"}
+                    selected={sketchType === "Polygon"}
                   />
                 )}
                 {supportedTypes === "ANY" && (
                   <GeoButton
                     icon={<Icon icon="circle" size={22} />}
                     onClick={() => {
-                      sketchButtonClick("circle");
+                      sketchButtonClick("Circle");
                     }}
-                    selected={sketchType === "circle"}
+                    selected={sketchType === "Circle"}
                   />
                 )}
                 {supportedTypes === "ANY" && (
                   <GeoButton
                     icon={<Icon icon="rectangle" size={18} />}
                     onClick={() => {
-                      sketchButtonClick("rectangle");
+                      sketchButtonClick("Rectangle");
                     }}
-                    selected={sketchType === "rectangle"}
+                    selected={sketchType === "Rectangle"}
                   />
                 )}
               </GeoButtons>
@@ -639,17 +596,7 @@ const GeometryItem: React.FC<Props> = ({
               <Button icon={<Icon icon="minus" />} onClick={handleZoomOut} />
             </ZoomButtons>
           </ViewerButtons>
-          {isShow && (
-            <CoreVisualizer
-              ref={mapRef}
-              ready={isReady}
-              onMount={handleMount}
-              engine={"cesium"}
-              meta={{ cesiumIonAccessToken: config()?.cesiumIonAccessToken }}
-              viewerProperty={viewerProperty}
-              onSketchFeatureCreate={handleSketchFeatureCreate}
-            />
-          )}
+          <MapContainer ref={mapContainerRef} className="map-container" isDrawing={!!sketchType} />
         </ViewerWrapper>
       </GeometryField>
       {hasError && <Text type="danger">{t("GeoJSON type mismatch, please check your input")}</Text>}
@@ -725,6 +672,12 @@ const ViewerWrapper = styled.div`
   position: relative;
   flex: 1;
   overflow: hidden;
+`;
+
+const MapContainer = styled.div<{ isDrawing: boolean }>`
+  width: 100%;
+  height: 100%;
+  cursor: ${({ isDrawing }) => (isDrawing ? "crosshair" : undefined)};
 `;
 
 const StyledSearch = styled(Input.Search)`

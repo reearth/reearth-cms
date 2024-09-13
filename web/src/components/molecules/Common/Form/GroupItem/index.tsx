@@ -14,7 +14,6 @@ import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fie
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
-import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
   value?: string;
@@ -40,8 +39,6 @@ type Props = {
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
   disabled?: boolean;
-  workspaceSettings: WorkspaceSettings;
-  settingsLoading: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -91,8 +88,6 @@ const GroupItem: React.FC<Props> = ({
   linkItemModalPage,
   linkItemModalPageSize,
   disabled,
-  workspaceSettings,
-  settingsLoading,
   onReferenceModelUpdate,
   onLinkItemTableReload,
   onLinkItemTableChange,
@@ -238,13 +233,7 @@ const GroupItem: React.FC<Props> = ({
 
               return (
                 <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <FieldComponent
-                    field={field}
-                    itemGroupId={itemGroupId}
-                    disabled={disabled}
-                    workspaceSettings={workspaceSettings}
-                    settingsLoading={settingsLoading}
-                  />
+                  <FieldComponent field={field} itemGroupId={itemGroupId} disabled={disabled} />
                 </StyledFormItemWrapper>
               );
             } else {

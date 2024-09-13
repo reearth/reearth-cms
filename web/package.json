@@ -83,6 +83,7 @@
     "typescript": "5.5.4",
     "vite": "5.4.2",
     "vite-plugin-cesium": "1.2.23",
+    "vite-tsconfig-paths": "^5.0.1",
     "vitest": "2.0.5"
   },
   "dependencies": {
@@ -98,7 +99,6 @@
     "@emotion/react": "11.13.3",
     "@emotion/styled": "11.13.0",
     "@monaco-editor/react": "4.6.0",
-    "@reearth/core": "0.0.7-alpha.13",
     "ajv": "8.17.1",
     "antd": "5.20.3",
     "apollo-upload-client": "18.0.1",
@@ -121,6 +121,7 @@
     "mini-svg-data-uri": "1.4.4",
     "monaco-editor": "0.51.0",
     "object-hash": "3.0.0",
+    "ol": "10.1.0",
     "rc-field-form": "2.4.0",
     "rc-menu": "9.15.1",
     "rc-table": "7.47.5",
@@ -136,9 +137,5 @@
     "remark-gfm": "4.0.0",
     "resium": "1.18.2",
     "ulid": "2.3.0"
-  },
-  "resolutions": {
-    "string-width": "4.2.3",
-    "strip-ansi": "6.0.1"
   }
 }
