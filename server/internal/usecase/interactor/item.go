@@ -322,22 +322,22 @@ func NewImportRes() ImportRes {
 	}
 }
 
-func (ir ImportRes) ItemInserted() {
+func (ir *ImportRes) ItemInserted() {
 	ir.Inserted++
 	ir.Total++
 }
 
-func (ir ImportRes) ItemUpdated() {
+func (ir *ImportRes) ItemUpdated() {
 	ir.Updated++
 	ir.Total++
 }
 
-func (ir ImportRes) ItemSkipped() {
+func (ir *ImportRes) ItemSkipped() {
 	ir.Ignored++
 	ir.Total++
 }
 
-func (ir ImportRes) Into() interfaces.ImportItemsResponse {
+func (ir *ImportRes) Into() interfaces.ImportItemsResponse {
 	return interfaces.ImportItemsResponse{
 		Total:     ir.Total,
 		Inserted:  ir.Inserted,

@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"reflect"
 
+	"github.com/fatih/structs"
 	"github.com/oapi-codegen/runtime"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -80,7 +81,8 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 
 func fromJsonBody(inp integrationapi.ModelImportJSONRequestBody, frc io.ReadCloser, sp schema.Package) (interfaces.ImportItemsParam, error) {
 	defer func() { _ = frc.Close() }()
-	items, fields, err := itemsFromJson(frc, inp.Format == integrationapi.ModelImportJSONBodyFormatGeoJson, sp)
+	isGeoJson := inp.Format == integrationapi.ModelImportJSONBodyFormatGeoJson
+	items, fields, err := itemsFromJson(frc, isGeoJson, inp.GeometryFieldKey, sp)
 	if err != nil {
 		return interfaces.ImportItemsParam{}, err
 	}
@@ -116,7 +118,8 @@ func fromMultiPartBody(inp *multipart.Reader, sp schema.Package) (interfaces.Imp
 	}
 	defer func() { _ = fc.Close() }()
 
-	items, fields, err := itemsFromJson(fc, body.Format == integrationapi.ModelImportMultipartBodyFormatGeoJson, sp)
+	isGeoJson := body.Format == integrationapi.ModelImportMultipartBodyFormatGeoJson
+	items, fields, err := itemsFromJson(fc, isGeoJson, body.GeometryFieldKey, sp)
 	if err != nil {
 		return interfaces.ImportItemsParam{}, err
 	}
@@ -130,19 +133,20 @@ func fromMultiPartBody(inp *multipart.Reader, sp schema.Package) (interfaces.Imp
 	}, nil
 }
 
-func itemsFromJson(r io.Reader, isGeoJson bool, sp schema.Package) ([]interfaces.ImportItemParam, []interfaces.CreateFieldParam, error) {
+func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Package) ([]interfaces.ImportItemParam, []interfaces.CreateFieldParam, error) {
 	var jsonObjects []map[string]any
 	if isGeoJson {
-		var geoJson map[string]any
+		var geoJson integrationapi.GeoJSON
 		err := json.NewDecoder(r).Decode(&geoJson)
 		if err != nil {
 			return nil, nil, err
 		}
-		features, ok := geoJson["features"].([]map[string]any)
-		if !ok {
+		if geoJson.Features == nil {
 			return nil, nil, rerror.ErrInvalidParams
 		}
-		jsonObjects = features
+		for _, feature := range *geoJson.Features {
+			jsonObjects = append(jsonObjects, structs.Map(feature))
+		}
 	} else {
 		err := json.NewDecoder(r).Decode(&jsonObjects)
 		if err != nil {
@@ -153,24 +157,43 @@ func itemsFromJson(r io.Reader, isGeoJson bool, sp schema.Package) ([]interfaces
 	items := make([]interfaces.ImportItemParam, 0)
 	fields := make([]interfaces.CreateFieldParam, 0)
 	for _, o := range jsonObjects {
-		idStr := o["id"].(string)
-		iId, err := id.ItemIDFrom(idStr)
-		if err != nil {
-			return nil, nil, err
-		}
+		var iId *id.ItemID = nil
+		idStr, _ := o["Id"].(*string)
+		iId = id.ItemIDFromRef(idStr)
 		item := interfaces.ImportItemParam{
-			ItemId:     iId.Ref(),
+			ItemId:     iId,
 			MetadataID: nil,
 			Fields:     nil,
 		}
 		if isGeoJson {
-			// TODO: handle geo fields
+			if geoField == nil {
+				return nil, nil, rerror.ErrInvalidParams
+			}
 
-			props, ok := o["properties"].(map[string]any)
-			if !ok {
+			geoFieldKey := key2.New(*geoField)
+			if !geoFieldKey.IsValid() {
+				return nil, nil, rerror.ErrInvalidParams
+			}
+			geoFieldId := id.FieldIDFromRef(geoField)
+			f := sp.FieldByIDOrKey(geoFieldId, &geoFieldKey)
+			if f == nil { // TODO: check GeoField type
+				return nil, nil, rerror.ErrInvalidParams
+			}
+
+			v, _ := json.Marshal(o["geometry"])
+			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
+				Field: nil,
+				Key:   geoFieldKey.Ref(),
+				Value: string(v),
+				// Group is not supported
+				Group: nil,
+			})
+
+			props, ok := o["Properties"].(*map[string]any)
+			if !ok || props == nil {
 				continue
 			}
-			o = props
+			o = *props
 		}
 		for k, v := range o {
 			key := key2.New(k)
