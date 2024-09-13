@@ -425,8 +425,9 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			if action == interfaces.ImportStrategyTypeUpsert {
 				if oldItem != nil {
 					action = interfaces.ImportStrategyTypeUpdate
+				} else {
+					action = interfaces.ImportStrategyTypeInsert
 				}
-				action = interfaces.ImportStrategyTypeInsert
 			}
 
 			// strategy: update. 	item: exists & !permission 	=> error

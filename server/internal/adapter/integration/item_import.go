@@ -157,7 +157,7 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 	items := make([]interfaces.ImportItemParam, 0)
 	fields := make([]interfaces.CreateFieldParam, 0)
 	for _, o := range jsonObjects {
-		var iId *id.ItemID = nil
+		var iId *id.ItemID
 		idStr, _ := o["Id"].(*string)
 		iId = id.ItemIDFromRef(idStr)
 		item := interfaces.ImportItemParam{
@@ -237,7 +237,6 @@ func FieldFrom(k string, v any, sp schema.Package) interfaces.CreateFieldParam {
 	switch reflect.TypeOf(v).String() {
 	case "Bool":
 		t = value.TypeBool
-		break
 	case "Int":
 	case "Int8":
 	case "Int16":
@@ -251,10 +250,8 @@ func FieldFrom(k string, v any, sp schema.Package) interfaces.CreateFieldParam {
 	case "Float32":
 	case "Float64":
 		t = value.TypeNumber
-		break
 	case "String":
 		t = value.TypeText
-		break
 	default:
 
 	}
