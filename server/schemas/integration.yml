@@ -242,6 +242,100 @@ paths:
             description: Invalid request parameter value
           '401':
             $ref: '#/components/responses/UnauthorizedError'
+  '/models/{modelId}/import':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    put:
+      operationId: ModelImport
+      summary: Import data under the selected model
+      tags:
+        - Models
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetId:
+                  x-go-type: id.AssetID
+                  type: string
+                format:
+                  type: string
+                  enum:
+                    - geoJson
+                    - json
+                strategy:
+                  type: string
+                  enum:
+                    - insert
+                    - update
+                    - upsert
+                mutateSchema:
+                  type: boolean
+                geometryFieldKey:
+                  type: string
+              required:
+                - assetId
+                - format
+                - strategy
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                format:
+                  type: string
+                  enum:
+                    - geoJson
+                    - json
+                strategy:
+                  type: string
+                  enum:
+                    - insert
+                    - update
+                    - upsert
+                mutateSchema:
+                  type: boolean
+                geometryFieldKey:
+                  type: string
+              required:
+                - assetId
+                - format
+                - strategy
+      responses:
+        '200':
+          description: A JSON object of import status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modelId:
+                    x-go-type: id.ModelID
+                    type: string
+                  itemsCount:
+                    type: integer
+                  insertedCount:
+                    type: integer
+                  updatedCount:
+                    type: integer
+                  ignoredCount:
+                    type: integer
+                  newFields:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/schemaField'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: Internal server error
   '/schemata/{schemaId}/fields':
     parameters:
       - $ref: '#/components/parameters/schemaIdParam'
