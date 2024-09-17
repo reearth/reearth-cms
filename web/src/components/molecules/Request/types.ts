@@ -19,6 +19,7 @@ export type Request = {
   closedAt?: Date;
   items: {
     id: string;
+    modelId?: string;
     modelName?: string;
     schema?: Schema;
     initialValues: Record<string, unknown>;

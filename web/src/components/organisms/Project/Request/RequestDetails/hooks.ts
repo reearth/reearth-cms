@@ -145,14 +145,13 @@ export default () => {
     });
   }, [navigate, currentWorkspace?.id, projectId, location.state]);
 
-  const handleNavigateToItemEditForm = useCallback(
-    (itemId: string, modelId?: string) => {
-      if (!modelId) return;
-      window.open(
+  const handleNavigateToItemEdit = useCallback(
+    (modelId: string, itemId: string) => {
+      navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}/details/${itemId}`,
       );
     },
-    [currentWorkspace?.id, currentProject?.id],
+    [currentProject?.id, currentWorkspace?.id, navigate],
   );
 
   const [updateComment] = useUpdateCommentMutation({
@@ -214,6 +213,6 @@ export default () => {
     handleCommentUpdate,
     handleCommentDelete,
     handleNavigateToRequestsList,
-    handleNavigateToItemEditForm,
+    handleNavigateToItemEdit,
   };
 };
