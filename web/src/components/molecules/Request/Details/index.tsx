@@ -22,6 +22,7 @@ type Props = {
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
   onBack: () => void;
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
   loading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
@@ -43,6 +44,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onCommentUpdate,
   onCommentDelete,
   onBack,
+  onNavigateToItemEdit,
   loading,
   onGetAsset,
   onGroupGet,
@@ -66,6 +68,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
       onCommentUpdate={onCommentUpdate}
       onCommentDelete={onCommentDelete}
       onBack={onBack}
+      onNavigateToItemEdit={onNavigateToItemEdit}
       onGetAsset={onGetAsset}
       onGroupGet={onGroupGet}
     />
