@@ -368,7 +368,7 @@ func createMetaFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) m
 }
 
 func TestCreateField(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -437,7 +437,7 @@ func TestCreateField(t *testing.T) {
 }
 
 func TestClearFieldDefaultValue(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 

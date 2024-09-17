@@ -267,7 +267,7 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 		if it.Model() == modelID {
 			for _, f := range fields {
 				for _, ff := range it.Fields() {
-					if f.Field == ff.FieldID() && f.Value.Equal(f.Value) {
+					if f.Field == ff.FieldID() && f.Value.Equal(ff.Value()) {
 						res = append(res, itv)
 					}
 				}

@@ -43,7 +43,7 @@ func createGroup(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 }
 
 func TestCreateGroup(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -92,7 +92,7 @@ func updateGroupsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 }
 
 func TestUpdateGroupsOrder(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
 

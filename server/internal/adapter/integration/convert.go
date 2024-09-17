@@ -61,7 +61,7 @@ func fromItemFieldParam(f integrationapi.Field, sf *schema.Field) interfaces.Ite
 	return interfaces.ItemFieldParam{
 		Field: f.Id,
 		Key:   k,
-		Type:  sf.Type(),
+		// Type:  sf.Type(),
 		Value: v,
 		Group: f.Group,
 	}
@@ -122,7 +122,7 @@ func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFiel
 		res = append(res, interfaces.ItemFieldParam{
 			Field: gsf.ID().Ref(),
 			Key:   gsf.Key().Ref(),
-			Type:  gsf.Type(),
+			// Type:  gsf.Type(),
 			Value: v,
 			Group: nil,
 		})
@@ -151,7 +151,7 @@ func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam, igID
 		res = append(res, interfaces.ItemFieldParam{
 			Field: sf.ID().Ref(),
 			Key:   sf.Key().Ref(),
-			Type:  sf.Type(),
+			// Type:  sf.Type(),
 			Value: v,
 			Group: igID,
 		})

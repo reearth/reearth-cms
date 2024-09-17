@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -50,7 +49,7 @@ func Test_convertMetaFields(t *testing.T) {
 				{
 					Field: sf1.ID().Ref(),
 					Key:   sf1.Key().Ref(),
-					Type:  value.TypeTag,
+					// Type:  value.TypeTag,
 					Value: tag2.ID(),
 				},
 			},
@@ -72,13 +71,13 @@ func Test_convertMetaFields(t *testing.T) {
 			},
 			want: []interfaces.ItemFieldParam{
 				{
-					Key:   sf1.Key().Ref(),
-					Type:  value.TypeTag,
+					Key: sf1.Key().Ref(),
+					// Type:  value.TypeTag,
 					Value: tag1.ID(),
 				},
 				{
-					Key:   sf2.Key().Ref(),
-					Type:  value.TypeTag,
+					Key: sf2.Key().Ref(),
+					// Type:  value.TypeTag,
 					Value: "xxx",
 				},
 			},

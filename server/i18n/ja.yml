@@ -14,6 +14,7 @@ comment already exist in this thread: コメントは既にこのスレッドに
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
 comment not found: コメントが見つかりませんでした。
 createdBy is required: createdByは必須です。
+data type mismatch: データ型の不一致
 duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
 duplicated value: 値が重複しています。

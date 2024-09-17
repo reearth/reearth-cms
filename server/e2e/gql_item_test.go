@@ -355,7 +355,7 @@ func deleteItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 }
 
 func TestCreateItem(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -381,7 +381,7 @@ func TestCreateItem(t *testing.T) {
 }
 
 func TestClearItemValues(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -458,7 +458,7 @@ func TestClearItemValues(t *testing.T) {
 }
 
 func TestOneWayReferenceFields(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -511,7 +511,7 @@ func TestOneWayReferenceFields(t *testing.T) {
 }
 
 func TestTwoWayReferenceFields(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -643,7 +643,7 @@ func TestTwoWayReferenceFields(t *testing.T) {
 }
 
 func TestSearchItem(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	// region init
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")

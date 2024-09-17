@@ -196,6 +196,32 @@ const (
 	ItemGetParamsRefPublic ItemGetParamsRef = "public"
 )
 
+// Defines values for ModelImportJSONBodyFormat.
+const (
+	ModelImportJSONBodyFormatGeoJson ModelImportJSONBodyFormat = "geoJson"
+	ModelImportJSONBodyFormatJson    ModelImportJSONBodyFormat = "json"
+)
+
+// Defines values for ModelImportJSONBodyStrategy.
+const (
+	ModelImportJSONBodyStrategyInsert ModelImportJSONBodyStrategy = "insert"
+	ModelImportJSONBodyStrategyUpdate ModelImportJSONBodyStrategy = "update"
+	ModelImportJSONBodyStrategyUpsert ModelImportJSONBodyStrategy = "upsert"
+)
+
+// Defines values for ModelImportMultipartBodyFormat.
+const (
+	ModelImportMultipartBodyFormatGeoJson ModelImportMultipartBodyFormat = "geoJson"
+	ModelImportMultipartBodyFormatJson    ModelImportMultipartBodyFormat = "json"
+)
+
+// Defines values for ModelImportMultipartBodyStrategy.
+const (
+	ModelImportMultipartBodyStrategyInsert ModelImportMultipartBodyStrategy = "insert"
+	ModelImportMultipartBodyStrategyUpdate ModelImportMultipartBodyStrategy = "update"
+	ModelImportMultipartBodyStrategyUpsert ModelImportMultipartBodyStrategy = "upsert"
+)
+
 // Defines values for ItemFilterParamsSort.
 const (
 	ItemFilterParamsSortCreatedAt ItemFilterParamsSort = "createdAt"
@@ -656,6 +682,36 @@ type ModelUpdateJSONBody struct {
 	Name        *string `json:"name,omitempty"`
 }
 
+// ModelImportJSONBody defines parameters for ModelImport.
+type ModelImportJSONBody struct {
+	AssetId          id.AssetID                  `json:"assetId"`
+	Format           ModelImportJSONBodyFormat   `json:"format"`
+	GeometryFieldKey *string                     `json:"geometryFieldKey,omitempty"`
+	MutateSchema     *bool                       `json:"mutateSchema,omitempty"`
+	Strategy         ModelImportJSONBodyStrategy `json:"strategy"`
+}
+
+// ModelImportMultipartBody defines parameters for ModelImport.
+type ModelImportMultipartBody struct {
+	File             *openapi_types.File              `json:"file,omitempty"`
+	Format           ModelImportMultipartBodyFormat   `json:"format"`
+	GeometryFieldKey *string                          `json:"geometryFieldKey,omitempty"`
+	MutateSchema     *bool                            `json:"mutateSchema,omitempty"`
+	Strategy         ModelImportMultipartBodyStrategy `json:"strategy"`
+}
+
+// ModelImportJSONBodyFormat defines parameters for ModelImport.
+type ModelImportJSONBodyFormat string
+
+// ModelImportJSONBodyStrategy defines parameters for ModelImport.
+type ModelImportJSONBodyStrategy string
+
+// ModelImportMultipartBodyFormat defines parameters for ModelImport.
+type ModelImportMultipartBodyFormat string
+
+// ModelImportMultipartBodyStrategy defines parameters for ModelImport.
+type ModelImportMultipartBodyStrategy string
+
 // ItemFilterJSONBody defines parameters for ItemFilter.
 type ItemFilterJSONBody struct {
 	Filter *Condition `json:"filter,omitempty"`
@@ -942,6 +998,12 @@ type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
 type ModelUpdateJSONRequestBody ModelUpdateJSONBody
+
+// ModelImportJSONRequestBody defines body for ModelImport for application/json ContentType.
+type ModelImportJSONRequestBody ModelImportJSONBody
+
+// ModelImportMultipartRequestBody defines body for ModelImport for multipart/form-data ContentType.
+type ModelImportMultipartRequestBody ModelImportMultipartBody
 
 // ItemFilterJSONRequestBody defines body for ItemFilter for application/json ContentType.
 type ItemFilterJSONRequestBody ItemFilterJSONBody
