@@ -19,6 +19,7 @@ const RequestDetails: React.FC = () => {
     handleCommentUpdate,
     handleCommentDelete,
     handleNavigateToRequestsList,
+    handleNavigateToItemEdit,
   } = useHooks();
 
   const { handleGetAsset } = useAssetHooks(false);
@@ -43,6 +44,7 @@ const RequestDetails: React.FC = () => {
       onCommentUpdate={handleCommentUpdate}
       onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
+      onNavigateToItemEdit={handleNavigateToItemEdit}
       loading={loading}
       onGetAsset={handleGetAsset}
       onGroupGet={handleGroupGet}

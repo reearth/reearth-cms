@@ -319,7 +319,11 @@ const GeometryItem: React.FC<Props> = ({
         params: { format: "json", q },
       });
       if (data.length) {
-        mapRef.current?.getView().setCenter(fromLonLat([Number(data[0].lon), Number(data[0].lat)]));
+        mapRef.current?.getView().animate({
+          zoom: Math.min(data[0].place_rank, 17),
+          center: fromLonLat([Number(data[0].lon), Number(data[0].lat)]),
+          duration: 0,
+        });
       }
     } catch (e) {
       console.error(e);

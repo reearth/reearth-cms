@@ -47,7 +47,7 @@ var (
 )
 
 func TestPublicAPI(t *testing.T) {
-	e, repos := StartServerAndRepos(t, &app.Config{
+	e, repos, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
