@@ -14,6 +14,7 @@ Accessibility: 公開設定
 Public Scope: 公開範囲
 Choose the scope of your project. This affects all the models shown below that are switched on.: プロジェクトの公開範囲を選択してください。この操作は以下のすべてのモデルに影響します。
 Project Alias: プロジェクトエイリアス
+Alias copied!!: エイリアスをコピーしました！
 Save changes: 変更を保存
 Are you sure you want to delete your account?: 本当にアカウントを削除してよろしいですか？
 Cancel: キャンセル
@@ -34,6 +35,7 @@ Auto: 自動
 Service Language: 利用言語
 This will change the UI language: UIの言語設定を変更します。
 Language: 言語
+URL copied!!: URLをコピーしました！
 Unzip: ''
 Asset Type: アセットの種類
 Created Time: 作成日時
@@ -88,6 +90,7 @@ You are entering a new value: 新しい値を入力しようとしています
 This action will replace the previously entered value. Do you want to continue?: この操作は以前に入力された値を置き換えます。続けますか？
 Do not show this again: 今後は表示しない
 Continue: 続ける
+Value copied!!: 値をコピーしました！
 Search Location: 場所を検索
 GeoJSON type mismatch, please check your input: GeoJSONの型が一致しません、入力を確認してください
 Personal Account: パーソナルアカウント
@@ -228,6 +231,7 @@ Regenerate The Integration Token?: インテグレーショントークンを再
 If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?: インテグレーショントークンを再生成すると、以前のトークンは無効になり、この操作は元に戻せません。本当に続行しますか？
 Reset: リセット
 Integration Token: インテグレーショントークン
+Token copied!!: トークンをコピーしました！
 Regenerate: 再生成
 Code Example: コード例
 your model id here: モデルIDをここに入力してください
