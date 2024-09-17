@@ -1,0 +1,13 @@
+name: reviewdog
+on: [pull_request]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  yamllint:
+    name: runner / yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: yamllint
+        uses: reviewdog/action-yamllint@v1
