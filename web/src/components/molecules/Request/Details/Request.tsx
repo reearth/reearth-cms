@@ -57,7 +57,7 @@ const RequestMolecule: React.FC<Props> = ({
   return (
     <Content>
       <PageHeader
-        title={currentRequest.title}
+        title={`${t("Request")} / ${currentRequest.title}`}
         onBack={onBack}
         extra={
           <>

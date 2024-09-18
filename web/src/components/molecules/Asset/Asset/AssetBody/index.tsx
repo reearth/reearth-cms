@@ -58,7 +58,7 @@ const AssetWrapper: React.FC<Props> = ({
       center={
         <Wrapper>
           <PageHeader
-            title={`${t("Asset")}/${asset?.fileName}`}
+            title={`${t("Asset")} / ${asset?.fileName}`}
             extra={
               <Button onClick={onSave} disabled={isSaveDisabled} loading={updateLoading}>
                 {t("Save")}
