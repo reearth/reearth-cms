@@ -83,7 +83,7 @@ export type TypeProperty = {
   groupId?: string;
   tags?: Tag[];
   values?: string[];
-  schema?: { titleFieldId: string | null };
+  schema?: { id: string; titleFieldId: string | null };
   objectSupportedTypes?: ObjectSupportedType[];
   editorSupportedTypes?: EditorSupportedType[];
 };

@@ -104,6 +104,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     });
 
     setSelectedModelId(selectedField?.typeProperty?.modelId);
+    schemaIdRef.current = selectedField?.typeProperty?.schema?.id;
     setNumSteps(selectedField?.typeProperty?.correspondingField ? 2 : 1);
     setIsDisabled(!selectedField);
     field1Form.setFieldsValue({
@@ -170,15 +171,26 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     [setSelectedModelId],
   );
 
-  const clearFormFields = useCallback(() => {
+  const formReset = useCallback(() => {
+    prevFieldKey.current = undefined;
+    prevCorrespondingKey.current = undefined;
     modelForm.resetFields();
     field1Form.resetFields();
     field2Form.resetFields();
+  }, [field1Form, field2Form, modelForm]);
+
+  const modalReset = useCallback(() => {
     setCurrentStep(0);
     setNumSteps(1);
     setIsDisabled(true);
     setField1FormValues(initialValues);
-  }, [modelForm, field1Form, field2Form, initialValues, setCurrentStep]);
+  }, [initialValues, setCurrentStep]);
+
+  const handleCancel = useCallback(() => {
+    onClose();
+    formReset();
+    modalReset();
+  }, [formReset, modalReset, onClose]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
@@ -200,32 +212,31 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     nextStep();
   }, [handleReferencedModelGet, nextStep, numSteps, selectedModelId]);
 
-  const handleFirstField = useCallback(() => {
-    field1Form
-      .validateFields()
-      .then(async values => {
-        values.type = "Reference";
-        values.typeProperty = {
-          reference: {
-            modelId: selectedModelId,
-            schemaId: schemaIdRef.current,
-            correspondingField: null,
-          },
-        };
-        setField1FormValues(values);
-        if (currentStep < numSteps) {
-          nextStep();
+  const handleFirstField = useCallback(async () => {
+    try {
+      const values = await field1Form.validateFields();
+      values.type = "Reference";
+      values.typeProperty = {
+        reference: {
+          modelId: selectedModelId,
+          schemaId: schemaIdRef.current,
+          correspondingField: null,
+        },
+      };
+      setField1FormValues(values);
+      if (currentStep < numSteps) {
+        nextStep();
+      } else {
+        if (selectedField) {
+          await onUpdate({ ...values, fieldId: selectedField.id });
         } else {
-          if (selectedField) {
-            await onUpdate({ ...values, fieldId: selectedField.id });
-          } else {
-            await onSubmit(values);
-          }
+          await onSubmit(values);
         }
-      })
-      .catch(() => {
-        setActiveTab("settings");
-      });
+        onClose();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }, [
     field1Form,
     selectedModelId,
@@ -233,51 +244,32 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     numSteps,
     nextStep,
     selectedField,
+    onClose,
     onUpdate,
     onSubmit,
   ]);
 
-  const handleSecondField = useCallback(() => {
-    if (selectedField) {
-      field2Form
-        .validateFields()
-        .then(async fields2Values => {
-          field1FormValues.typeProperty = {
-            reference: {
-              modelId: selectedModelId ?? "",
-              schemaId: schemaIdRef.current ?? "",
-              correspondingField: {
-                ...fields2Values,
-                fieldId: selectedField?.typeProperty?.correspondingField?.id,
-              },
-            },
-          };
-          await onUpdate({ ...field1FormValues, fieldId: selectedField.id });
-          onClose();
-        })
-        .catch(() => {
-          setActiveTab("settings");
-        });
-    } else {
-      field2Form
-        .validateFields()
-        .then(async fields2Values => {
-          field1FormValues.typeProperty = {
-            reference: {
-              modelId: selectedModelId ?? "",
-              schemaId: schemaIdRef.current ?? "",
-              correspondingField: {
-                ...fields2Values,
-              },
-            },
-          };
-
-          await onSubmit(field1FormValues);
-          onClose();
-        })
-        .catch(() => {
-          setActiveTab("settings");
-        });
+  const handleSecondField = useCallback(async () => {
+    try {
+      const fields2Values = await field2Form.validateFields();
+      field1FormValues.typeProperty = {
+        reference: {
+          modelId: selectedModelId ?? "",
+          schemaId: schemaIdRef.current ?? "",
+          correspondingField: {
+            ...fields2Values,
+            fieldId: selectedField?.typeProperty?.correspondingField?.id,
+          },
+        },
+      };
+      if (selectedField) {
+        await onUpdate({ ...field1FormValues, fieldId: selectedField.id });
+      } else {
+        await onSubmit(field1FormValues);
+      }
+      onClose();
+    } catch (e) {
+      console.error(e);
     }
   }, [onClose, onSubmit, onUpdate, selectedField, field1FormValues, field2Form, selectedModelId]);
 
@@ -328,13 +320,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      onCancel={() => {
-        onClose();
-        clearFormFields();
-      }}
-      afterClose={() => {
-        clearFormFields();
-      }}
+      onCancel={handleCancel}
+      afterClose={modalReset}
       width={572}
       open={open}
       footer={
