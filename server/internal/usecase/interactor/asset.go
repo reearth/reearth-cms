@@ -477,6 +477,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return asset.NewFile().
 					Name(path.Base(f.Name)).
 					Path(f.Name).
+					Size(uint64(f.Size)).
 					GuessContentType().
 					Build(), true
 			})
