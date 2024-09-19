@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, MutableRefObject } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -23,6 +23,7 @@ import {
   FieldModalTabs,
   FieldType,
   FormValues,
+  CorrespondingField,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
@@ -70,17 +71,42 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const isDisabledCache = useRef<boolean>(true);
   const prevFieldKey = useRef<{ key: string; isSuccess: boolean }>();
   const prevCorrespondingKey = useRef<{ key: string; isSuccess: boolean }>();
+  const defaultFieldValues = useRef<Field>();
+  const defaultCorrespondingValues = useRef<CorrespondingField>();
+  const changedKeys = useRef(new Set<string>());
 
-  const formValidate = useCallback((form: FormInstance) => {
-    if (form.getFieldValue("model") || (form.getFieldValue("title") && form.getFieldValue("key"))) {
-      form
-        .validateFields()
-        .then(() => setIsDisabled(false))
-        .catch(() => setIsDisabled(true));
-    } else {
-      setIsDisabled(true);
-    }
-  }, []);
+  const formValidate = useCallback(
+    (form: FormInstance) => {
+      if (
+        form.getFieldValue("model") ||
+        (form.getFieldValue("title") && form.getFieldValue("key"))
+      ) {
+        form
+          .validateFields()
+          .then(() => setIsDisabled(currentStep === numSteps && changedKeys.current.size === 0))
+          .catch(() => setIsDisabled(true));
+      } else {
+        setIsDisabled(true);
+      }
+    },
+    [currentStep, numSteps],
+  );
+
+  const handleValuesChange = useCallback(
+    async (
+      changedValues: Field | CorrespondingField,
+      ref: MutableRefObject<typeof changedValues | undefined>,
+    ) => {
+      const [key, value] = Object.entries(changedValues)[0];
+      const defaultValue = ref.current?.[key as keyof typeof changedValues];
+      if (value === defaultValue) {
+        changedKeys.current.delete(currentStep + key);
+      } else {
+        changedKeys.current.add(currentStep + key);
+      }
+    },
+    [currentStep],
+  );
 
   const SettingValues = Form.useWatch([], modelForm);
   useEffect(() => {
@@ -107,14 +133,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     schemaIdRef.current = selectedField?.typeProperty?.schema?.id;
     setNumSteps(selectedField?.typeProperty?.correspondingField ? 2 : 1);
     setIsDisabled(!selectedField);
-    field1Form.setFieldsValue({
-      ...selectedField,
-    });
-    if (selectedField?.typeProperty?.correspondingField) {
-      field2Form.setFieldsValue({
-        ...selectedField.typeProperty.correspondingField,
-      });
-    }
+    field1Form.setFieldsValue(selectedField);
+    defaultFieldValues.current = selectedField ?? undefined;
+    field2Form.setFieldsValue(selectedField?.typeProperty?.correspondingField);
+    defaultCorrespondingValues.current = selectedField?.typeProperty?.correspondingField;
+    changedKeys.current.clear();
   }, [modelForm, selectedField, field1Form, field2Form, setNumSteps, setSelectedModelId]);
 
   const initialValues: FormValues = useMemo(
@@ -411,7 +434,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           form={field1Form}
           layout="vertical"
           initialValues={initialValues}
-          requiredMark={requiredMark}>
+          requiredMark={requiredMark}
+          onValuesChange={changedValues => {
+            handleValuesChange(changedValues, defaultFieldValues);
+          }}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
               <Form.Item
@@ -508,7 +534,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           form={field2Form}
           layout="vertical"
           initialValues={initialValues}
-          requiredMark={requiredMark}>
+          requiredMark={requiredMark}
+          onValuesChange={changedValues => {
+            handleValuesChange(changedValues, defaultCorrespondingValues);
+          }}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
               <Form.Item

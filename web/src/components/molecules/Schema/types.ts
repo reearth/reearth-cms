@@ -60,6 +60,18 @@ export type ObjectSupportedType =
 
 export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
 
+export type CorrespondingField = {
+  id: string;
+  type: FieldType;
+  title: string;
+  key: Key;
+  description: string;
+  required: boolean;
+  unique: boolean;
+  multiple: boolean;
+  order: number;
+};
+
 export type TypeProperty = {
   defaultValue?: string | boolean | string[] | boolean[];
   maxLength?: number;
@@ -68,17 +80,7 @@ export type TypeProperty = {
   integerDefaultValue?: number;
   min?: number;
   max?: number;
-  correspondingField?: {
-    id: string;
-    type: FieldType;
-    title: string;
-    key: Key;
-    description: string;
-    required: boolean;
-    unique: boolean;
-    multiple: boolean;
-    order: number;
-  };
+  correspondingField?: CorrespondingField;
   modelId?: string;
   groupId?: string;
   tags?: Tag[];
