@@ -66,7 +66,10 @@ const MyIntegrationContent: React.FC<Props> = ({
 
   return (
     <MyIntegrationWrapper>
-      <PageHeader title={integration.name} onBack={onIntegrationHeaderBack} />
+      <PageHeader
+        title={`${t("My Integration")} / ${integration.name}`}
+        onBack={onIntegrationHeaderBack}
+      />
       <MyIntegrationTabs defaultActiveKey="integration">
         <TabPane tab={t("General")} key="integration">
           <MyIntegrationSettings
