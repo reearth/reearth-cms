@@ -10,6 +10,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
@@ -154,7 +155,11 @@ const Accessibility: React.FC<Props> = ({
             <Form.Item label={t("Project Alias")}>
               <Input
                 value={aliasState}
-                suffix={<Icon icon="copy" onClick={handleCopy} />}
+                suffix={
+                  <Tooltip title={t("Alias copied!!")} trigger={"click"}>
+                    <StyledIcon icon="copy" onClick={handleCopy} />
+                  </Tooltip>
+                }
                 contentEditable={false}
               />
             </Form.Item>
@@ -184,4 +189,12 @@ const TableWrapper = styled.div`
 const StyledAnchor = styled.a`
   text-decoration: underline;
   color: #000000d9;
+`;
+
+const StyledIcon = styled(Icon)`
+  transition: all 0.3s;
+  color: rgb(0, 0, 0, 0.45);
+  :hover {
+    color: rgba(0, 0, 0, 0.88);
+  }
 `;

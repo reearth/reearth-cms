@@ -6,6 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -122,19 +123,20 @@ const AssetMolecule: React.FC<Props> = ({
     }
   }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
 
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(asset.url);
+  }, [asset.url]);
+
   return (
     <BodyContainer>
       <BodyWrapper>
         <Card
           title={
             <>
-              {asset.fileName}{" "}
-              <CopyIcon
-                icon="copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(asset.url);
-                }}
-              />
+              {asset.fileName}
+              <Tooltip title={t("URL copied!!")} trigger={"click"}>
+                <CopyIcon icon="copy" onClick={handleCopy} />
+              </Tooltip>
             </>
           }
           toolbar={
@@ -203,10 +205,12 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-const CopyIcon = styled(Icon)<{ selected?: boolean }>`
-  margin-left: 16px;
-  &:active {
-    color: #096dd9;
+const CopyIcon = styled(Icon)`
+  margin-left: 10px;
+  transition: all 0.3s;
+  color: rgb(0, 0, 0, 0.45);
+  :hover {
+    color: rgba(0, 0, 0, 0.88);
   }
 `;
 

@@ -1,16 +1,8 @@
-import styled from "@emotion/styled";
-import { Key } from "rc-table/lib/interface";
-
-import Icon from "@reearth-cms/components/atoms/Icon";
 import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 
 import { FileNode } from "./types";
 
-export const generateAssetTreeData = (
-  file: AssetFile,
-  selectedKeys: Key[],
-  assetBaseUrl: string,
-): FileNode[] => {
+export const generateAssetTreeData = (file: AssetFile): FileNode[] => {
   if (!file.filePaths) return [];
 
   const root: FileNode = {
@@ -30,21 +22,10 @@ export const generateAssetTreeData = (
         const key = `${i}-${j}`;
         const path = `${currentNode.path}${part}${/\.[^.]+$/.test(part) ? "" : "/"}`;
         const newNode: FileNode = {
-          key: key,
-          title: (
-            <>
-              {part}
-              <CopyIcon
-                selected={selectedKeys[0] === key}
-                icon="copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(assetBaseUrl + path);
-                }}
-              />
-            </>
-          ),
+          key,
+          title: part,
           name: part,
-          path: path,
+          path,
           children: [],
         };
 
@@ -58,11 +39,3 @@ export const generateAssetTreeData = (
 
   return root.children;
 };
-
-const CopyIcon = styled(Icon)<{ selected?: boolean }>`
-  margin-left: 16px;
-  visibility: ${({ selected }) => (selected ? "visible" : "hidden")};
-  &:active {
-    color: #096dd9;
-  }
-`;
