@@ -873,7 +873,8 @@ type RequestItem struct {
 }
 
 type RequestItemInput struct {
-	ItemID ID `json:"itemId"`
+	ItemID  ID      `json:"itemId"`
+	Version *string `json:"version,omitempty"`
 }
 
 type RequestPayload struct {
