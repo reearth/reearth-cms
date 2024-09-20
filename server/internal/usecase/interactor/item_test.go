@@ -587,7 +587,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -602,7 +602,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -620,7 +620,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -634,6 +634,28 @@ func TestItem_Create(t *testing.T) {
 	assert.Equal(t, item, it)
 	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
+	// ok by key
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Key: sf.Key().Ref(),
+				// Field: sf.ID().Ref(),
+				// Type:  value.TypeText,
+				Value: "xxx2",
+			},
+		},
+	}, op)
+	assert.NoError(t, err)
+	assert.NotNil(t, item)
+	assert.Equal(t, s.ID(), item.Value().Schema())
+
+	it, err = db.Item.FindByID(ctx, item.Value().ID(), nil)
+	assert.NoError(t, err)
+	assert.Equal(t, item, it)
+	assert.Equal(t, value.TypeText.Value("xxx2").AsMultiple(), it.Value().Field(sf.ID()).Value())
+
 	// validate fails
 	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: s.ID(),
@@ -641,7 +663,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "abcabcabcabc", // too long
 			},
 		},
@@ -656,7 +678,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
@@ -675,7 +697,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "",
 			},
 		},
@@ -730,7 +752,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -751,7 +773,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -765,8 +787,8 @@ func TestItem_Update(t *testing.T) {
 		ItemID: i.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Key:   sf.Key().Ref(),
-				Type:  value.TypeText,
+				Key: sf.Key().Ref(),
+				// Type:  value.TypeText,
 				Value: "yyy",
 			},
 		},
@@ -788,7 +810,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "abcabcabcabc", // too long
 			},
 		},
@@ -804,7 +826,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
@@ -821,7 +843,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -836,7 +858,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
@@ -865,7 +887,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "",
 			},
 		},
@@ -883,7 +905,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "a",
 			},
 		},

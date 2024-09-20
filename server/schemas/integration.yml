@@ -55,10 +55,10 @@ paths:
       operationId: ModelFilter
       security:
         - bearerAuth: []
-      summary: Returns a models.
+      summary: Returns a list of models.
       tags:
         - Models
-      description: Returns a models.
+      description: Returns a list of models.
       responses:
         '200':
           description: A JSON array of user names
@@ -242,6 +242,100 @@ paths:
             description: Invalid request parameter value
           '401':
             $ref: '#/components/responses/UnauthorizedError'
+  '/models/{modelId}/import':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    put:
+      operationId: ModelImport
+      summary: Import data under the selected model
+      tags:
+        - Models
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetId:
+                  x-go-type: id.AssetID
+                  type: string
+                format:
+                  type: string
+                  enum:
+                    - geoJson
+                    - json
+                strategy:
+                  type: string
+                  enum:
+                    - insert
+                    - update
+                    - upsert
+                mutateSchema:
+                  type: boolean
+                geometryFieldKey:
+                  type: string
+              required:
+                - assetId
+                - format
+                - strategy
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                format:
+                  type: string
+                  enum:
+                    - geoJson
+                    - json
+                strategy:
+                  type: string
+                  enum:
+                    - insert
+                    - update
+                    - upsert
+                mutateSchema:
+                  type: boolean
+                geometryFieldKey:
+                  type: string
+              required:
+                - assetId
+                - format
+                - strategy
+      responses:
+        '200':
+          description: A JSON object of import status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modelId:
+                    x-go-type: id.ModelID
+                    type: string
+                  itemsCount:
+                    type: integer
+                  insertedCount:
+                    type: integer
+                  updatedCount:
+                    type: integer
+                  ignoredCount:
+                    type: integer
+                  newFields:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/schemaField'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: Internal server error
   '/schemata/{schemaId}/fields':
     parameters:
       - $ref: '#/components/parameters/schemaIdParam'
@@ -733,8 +827,10 @@ paths:
           description: Internal server error
     post:
       operationId: ItemCreateWithProject
+      summary: Create an Item.
       tags:
         - Items project
+      description: Create an Item.
       security:
         - bearerAuth: []
       requestBody:
@@ -836,7 +932,7 @@ paths:
       operationId: ItemGet
       security:
         - bearerAuth: []
-      summary: Returns an items.
+      summary: Returns an item.
       tags:
         - Items
       description: Returns an item.
@@ -927,6 +1023,7 @@ paths:
       - $ref: '#/components/parameters/itemIdParam'
     get:
       operationId: ItemCommentList
+      summary: get an item comment
       tags:
         - Items comments
       security:
@@ -951,6 +1048,7 @@ paths:
           description: Not found
     post:
       operationId: ItemCommentCreate
+      summary: create an item comment
       tags:
         - Items comments
       security:
@@ -1013,6 +1111,7 @@ paths:
           description: Not found
     delete:
       operationId: ItemCommentDelete
+      summary: delete item comment
       tags:
         - Items comments
       security:
@@ -1175,6 +1274,7 @@ paths:
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetGet
+      summary: get asset
       tags:
         - Assets
       responses:
@@ -1192,6 +1292,7 @@ paths:
           description: Not found
     delete:
       operationId: AssetDelete
+      summary: delete asset
       tags:
         - Assets
       responses:
@@ -1216,6 +1317,7 @@ paths:
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetCommentList
+      summary: get asset comments
       tags:
         - Assets comments
       security:
@@ -1240,6 +1342,7 @@ paths:
           description: Not found
     post:
       operationId: AssetCommentCreate
+      summary: create asset comments
       tags:
         - Assets comments
       security:
@@ -1302,6 +1405,7 @@ paths:
           description: Not found
     delete:
       operationId: AssetCommentDelete
+      summary: delete asset comments
       tags:
         - Assets comments
       security:
