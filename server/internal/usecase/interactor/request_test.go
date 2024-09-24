@@ -357,7 +357,7 @@ func TestRequest_Approve(t *testing.T) {
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
 	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
-	item, _ := request.NewItem(i.ID())
+	item, _ := request.NewItem(i.ID(), nil)
 	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	req1 := request.New().

@@ -13,7 +13,7 @@ import (
 )
 
 func TestToRequest(t *testing.T) {
-	itm, _ := request.NewItem(id.NewItemID())
+	itm, _ := request.NewItem(id.NewItemID(), nil)
 	req := request.New().
 		NewID().
 		Project(id.NewProjectID()).

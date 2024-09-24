@@ -19,7 +19,7 @@ func TestRequest_SetDescription(t *testing.T) {
 
 func TestRequest_SetItems(t *testing.T) {
 	req := &Request{}
-	i1, _ := NewItem(id.NewItemID())
+	i1, _ := NewItem(id.NewItemID(), nil)
 	items1 := ItemList{i1}
 	items2 := ItemList{i1, i1}
 	err := req.SetItems(items1)
@@ -59,7 +59,7 @@ func TestRequest_SetTitle(t *testing.T) {
 }
 
 func TestRequest_SetState1(t *testing.T) {
-	item, _ := NewItem(id.NewItemID())
+	item, _ := NewItem(id.NewItemID(), nil)
 
 	req1 := New().
 		NewID().

@@ -9,7 +9,7 @@ import (
 )
 
 func TestList_CloseAll(t *testing.T) {
-	item, _ := NewItem(id.NewItemID())
+	item, _ := NewItem(id.NewItemID(), nil)
 
 	req1 := New().
 		NewID().
