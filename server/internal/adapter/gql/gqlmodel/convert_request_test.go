@@ -33,7 +33,7 @@ func TestToRequest(t *testing.T) {
 		ID: IDFrom(req.ID()),
 		Items: []*RequestItem{{
 			ItemID: IDFrom(itm.Item()),
-			Ref:    lo.ToPtr(version.Public.String()),
+			Ref:    lo.ToPtr(version.Latest.String()),
 		}},
 		Title:       "foo",
 		Description: lo.ToPtr("xxx"),

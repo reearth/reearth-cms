@@ -41,7 +41,7 @@ func TestNewRequest(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -99,7 +99,7 @@ func TestNewRequests(t *testing.T) {
 					Items: []RequestItem{{
 						Item:    itm.Item().String(),
 						Version: nil,
-						Ref:     lo.ToPtr(version.Public.String()),
+						Ref:     lo.ToPtr(version.Latest.String()),
 					}},
 					Title:       "ab",
 					Description: "abc",
@@ -146,7 +146,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -202,7 +202,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -226,7 +226,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -250,7 +250,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -274,7 +274,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -298,7 +298,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -322,7 +322,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -346,7 +346,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    "abc",
 					Version: nil,
-					Ref:     lo.ToPtr(version.Public.String()),
+					Ref:     lo.ToPtr(version.Latest.String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
