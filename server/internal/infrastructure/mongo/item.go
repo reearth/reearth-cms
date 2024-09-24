@@ -175,6 +175,17 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
+func (r *Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
+	c := mongodoc.NewVersionedItemConsumer()
+	if err := r.client.Find(ctx, r.readFilter(bson.M{
+		"id": itemID.String(),
+	}), version.Eq(ver), c); err != nil {
+		return nil, err
+	}
+
+	return c.Result[0], nil
+}
+
 func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.VersionedList, error) {
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.Find(ctx, r.readFilter(bson.M{

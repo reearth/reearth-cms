@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -69,14 +70,15 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}), nil
 }
 
-func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID) (*gqlmodel.VersionedItem, error) {
+func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID, ver *string) (*gqlmodel.VersionedItem, error) {
 	op := getOperator(ctx)
 	iId, err := gqlmodel.ToID[id.Item](itemID)
 	if err != nil {
 		return nil, err
 	}
 
-	itm, err := c.usecase.FindByID(ctx, iId, op)
+	ptr := version.ToVersionOrLatestRef(ver)
+	itm, err := c.usecase.FindVersionByID(ctx, iId, ptr, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil

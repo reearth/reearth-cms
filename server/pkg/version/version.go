@@ -29,6 +29,25 @@ func (v Version) OrRef() VersionOrRef {
 	return VersionOrRef{version: v}
 }
 
+func ToVersionOrLatestRef(ver *string) VersionOrRef {
+	v, ok := parseVersion(ver)
+	if !ok {
+		return Latest.OrVersion()
+	}
+	return v.OrRef()
+}
+
+func parseVersion(ver *string) (*Version, bool) {
+	if ver == nil {
+		return nil, false
+	}
+	u, err := uuid.Parse(*ver)
+	if err != nil {
+		return nil, false
+	}
+	return Version(u).Ref(), true
+}
+
 type Versions = set.Set[Version]
 
 func NewVersions(v ...Version) Versions {

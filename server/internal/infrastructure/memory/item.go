@@ -97,6 +97,18 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 	return r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), nil
 }
 
+func (r *Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	item, ok := r.data.Load(itemID, ver)
+	if !ok {
+		return nil, rerror.ErrNotFound
+	}
+	return item, nil
+}
+
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err

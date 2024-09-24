@@ -26,6 +26,7 @@ type Item interface {
 	FindByAssets(context.Context, id.AssetIDList, *version.Ref) (item.VersionedList, error)
 	LastModifiedByModel(context.Context, id.ModelID) (time.Time, error)
 	Search(context.Context, schema.Package, *item.Query, *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error)
+	FindVersionByID(context.Context, id.ItemID, version.VersionOrRef) (item.Versioned, error)
 	FindAllVersionsByID(context.Context, id.ItemID) (item.VersionedList, error)
 	FindAllVersionsByIDs(context.Context, id.ItemIDList) (item.VersionedList, error)
 	FindByModelAndValue(context.Context, id.ModelID, []FieldAndValue, *version.Ref) (item.VersionedList, error)
