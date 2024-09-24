@@ -617,7 +617,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		// here
 		if param.Version != nil && itm.Version() != *param.Version {
 			return nil, interfaces.ErrItemConflicted
 		}
