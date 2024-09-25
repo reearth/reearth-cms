@@ -3,6 +3,8 @@ package interactor
 import (
 	"context"
 	"fmt"
+	"slices"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -64,15 +66,9 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.Ref())
+		items, err := r.validateItemsForCreateOrUpdate(ctx, param.Items)
 		if err != nil {
 			return nil, err
-		}
-
-		for _, itm := range repoItems {
-			if itm.Refs().Has(version.Latest) {
-				return nil, interfaces.ErrAlreadyPublished
-			}
 		}
 
 		th, err := thread.New().NewID().Workspace(ws.ID()).Build()
@@ -90,7 +86,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			Project(param.ProjectID).
 			CreatedBy(*operator.AcOperator.User).
 			Thread(th.ID()).
-			Items(param.Items).
+			Items(*items).
 			Title(param.Title)
 
 		if param.State != nil {
@@ -167,18 +163,11 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		}
 
 		if param.Items != nil {
-			repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.Ref())
+			items, err := r.validateItemsForCreateOrUpdate(ctx, param.Items)
 			if err != nil {
 				return nil, err
 			}
-
-			for _, itm := range repoItems {
-				if itm.Refs().Has(version.Latest) {
-					return nil, interfaces.ErrAlreadyPublished
-				}
-
-			}
-			if err := req.SetItems(param.Items); err != nil {
+			if err := req.SetItems(*items); err != nil {
 				return nil, err
 			}
 		}
@@ -189,6 +178,39 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 
 		return req, nil
 	})
+}
+
+func (r Request) validateItemsForCreateOrUpdate(ctx context.Context, items request.ItemList) (*request.ItemList, error) {
+	if items.HasDuplication() {
+		return nil, request.ErrDuplicatedItem
+	}
+
+	res := slices.Clone(items)
+	publicItems, err := r.repos.Item.FindByIDs(ctx, res.IDs(), version.Public.Ref())
+	if err != nil {
+		return nil, err
+	}
+	for _, itm := range publicItems {
+		if itm.Refs().Has(version.Latest) {
+			return nil, interfaces.ErrAlreadyPublished
+		}
+	}
+
+	latestItems, err := r.repos.Item.FindByIDs(ctx, res.IDs(), version.Latest.Ref())
+	if err != nil {
+		return nil, err
+	}
+	latestItemsMap := make(map[id.ItemID]*version.Value[*item.Item], len(latestItems))
+	for _, itm := range latestItems {
+		latestItemsMap[itm.Value().ID()] = itm
+	}
+	for _, itm := range res {
+		if itm.Pointer().IsRef(version.Latest) {
+			itm.SetPointer(latestItemsMap[itm.Item()].Version().OrRef())
+		}
+	}
+
+	return &res, nil
 }
 
 func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestIDList, operator *usecase.Operator) error {
@@ -240,7 +262,7 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 		// apply changes to items (publish items)
 		for _, itm := range req.Items() {
 			// publish the approved version
-			if err := r.repos.Item.UpdateRef(ctx, itm.Item(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+			if err := r.repos.Item.UpdateRef(ctx, itm.Item(), version.Public, itm.Pointer().Ref()); err != nil {
 				return nil, err
 			}
 		}

@@ -20,6 +20,10 @@ func (i *Item) Pointer() version.VersionOrRef {
 	return i.pointer
 }
 
+func (i *Item) SetPointer(p version.VersionOrRef)  {
+	i.pointer = p
+}
+
 func NewItemWithVersion(i ItemID, v version.VersionOrRef) (*Item, error) {
 	if i.IsNil() {
 		return nil, ErrInvalidID
