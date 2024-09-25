@@ -98,6 +98,7 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onNavigateToRequest: (id: string) => void;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -172,6 +173,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
+  onNavigateToRequest,
 }) => {
   return (
     <ComplexInnerContents
@@ -256,6 +258,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onGetAsset={onGetAsset}
             onGroupGet={onGroupGet}
             onCheckItemReference={onCheckItemReference}
+            onNavigateToRequest={onNavigateToRequest}
           />
         )
       }

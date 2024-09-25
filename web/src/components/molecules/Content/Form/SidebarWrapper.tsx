@@ -1,34 +1,35 @@
 import styled from "@emotion/styled";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
+import Button from "@reearth-cms/components/atoms/Button";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
+import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { Item, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
+import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
+import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
   item?: Item;
+  onNavigateToRequest: (id: string) => void;
 };
 
-const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
+const ContentSidebarWrapper: React.FC<Props> = ({ item, onNavigateToRequest }) => {
   const t = useT();
 
   const getStatusBadge = (status: ItemStatus) => {
-    const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
-    const itemStatus: StateType[] = status.split("_") as StateType[];
+    const itemStatus = status.split("_") as StateType[];
     return (
       <>
-        {itemStatus.map((state, index) => {
-          if (index === itemStatus.length - 1) {
-            return (
-              <StyledBadge key={index} color={stateColors[state] as ColorType} text={t(state)} />
-            );
-          } else {
-            return <StyledBadge key={index} color={stateColors[state] as ColorType} />;
-          }
-        })}
+        {itemStatus.map((state, index) => (
+          <StyledBadge
+            key={index}
+            color={stateColors[state]}
+            text={index === itemStatus.length - 1 ? t(state) : undefined}
+          />
+        ))}
       </>
     );
   };
@@ -64,6 +65,27 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
               <DataTitle>{getStatusBadge(item.status)}</DataTitle>
             </DataRow>
           </SidebarCard>
+          {item.requests.length > 0 && (
+            <SidebarCard title={t("Linked Request")}>
+              <Requests>
+                {item.requests.map(request => (
+                  <Badge
+                    key={request.id}
+                    color={badgeColors[request.state]}
+                    text={
+                      <StyledButton
+                        type="link"
+                        onClick={() => {
+                          onNavigateToRequest(request.id);
+                        }}>
+                        {request.id}
+                      </StyledButton>
+                    }
+                  />
+                ))}
+              </Requests>
+            </SidebarCard>
+          )}
         </>
       )}
     </>
@@ -100,6 +122,15 @@ const StyledBadge = styled(Badge)`
   + * {
     margin-left: 4px;
   }
+`;
+
+const Requests = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledButton = styled(Button)`
+  padding: 0;
 `;
 
 export default ContentSidebarWrapper;

@@ -115,6 +115,7 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onNavigateToRequest: (id: string) => void;
 };
 
 const ContentForm: React.FC<Props> = ({
@@ -184,6 +185,7 @@ const ContentForm: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
+  onNavigateToRequest,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -625,7 +627,7 @@ const ContentForm: React.FC<Props> = ({
       </StyledForm>
       <SideBarWrapper>
         <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
-          <ContentSidebarWrapper item={item} />
+          <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
           {model?.metadataSchema?.fields?.map(field => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[

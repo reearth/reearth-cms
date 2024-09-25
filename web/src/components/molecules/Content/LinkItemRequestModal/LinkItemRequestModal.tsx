@@ -10,6 +10,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -92,24 +93,9 @@ const LinkItemRequestModal: React.FC<Props> = ({
         ellipsis: true,
         width: 130,
         minWidth: 130,
-        render: (_, request) => {
-          let color = "";
-          switch (request.state) {
-            case "APPROVED":
-              color = "#52C41A";
-              break;
-            case "CLOSED":
-              color = "#F5222D";
-              break;
-            case "WAITING":
-              color = "#FA8C16";
-              break;
-            case "DRAFT":
-            default:
-              break;
-          }
-          return <Badge color={color} text={request.state} />;
-        },
+        render: (_, request) => (
+          <Badge color={badgeColors[request.state]} text={t(request.state)} />
+        ),
       },
       {
         title: t("Created By"),

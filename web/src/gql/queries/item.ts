@@ -129,6 +129,10 @@ export const GET_ITEM_NODE = gql`
         thread {
           ...threadFragment
         }
+        requests {
+          id
+          state
+        }
       }
     }
   }

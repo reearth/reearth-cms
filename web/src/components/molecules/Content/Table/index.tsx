@@ -27,13 +27,13 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import {
-  ColorType,
   StateType,
   DefaultFilterValueType,
   DropdownFilterType,
   ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
@@ -887,12 +887,4 @@ const menuStyle: React.CSSProperties = {
   boxShadow: "none",
   overflowY: "auto",
   maxHeight: "256px",
-};
-
-const stateColors: {
-  [K in StateType]: ColorType;
-} = {
-  DRAFT: "#BFBFBF",
-  PUBLIC: "#52C41A",
-  REVIEW: "#FA8C16",
 };
