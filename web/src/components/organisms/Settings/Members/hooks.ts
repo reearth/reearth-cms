@@ -5,7 +5,8 @@ import { User, RoleUnion } from "@reearth-cms/components/molecules/Member/types"
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useGetWorkspacesQuery,
+  useGetWorkspaceQuery,
+  useGetMeQuery,
   useAddUsersToWorkspaceMutation,
   useUpdateMemberOfWorkspaceMutation,
   Role,
@@ -20,6 +21,7 @@ import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export default () => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
+  const workspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<UserMember>();
@@ -40,19 +42,24 @@ export default () => {
   const [searchedUser, changeSearchedUser] = useState<User & { isMember: boolean }>();
   const [searchedUserList, changeSearchedUserList] = useState<User[]>([]);
 
-  const { data, refetch, loading } = useGetWorkspacesQuery({
+  const {
+    data: workspaceData,
+    refetch,
+    loading,
+  } = useGetWorkspaceQuery({
+    variables: { id: workspaceId ?? "" },
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
+    skip: !workspaceId,
+  });
+
+  const { data } = useGetMeQuery({
+    fetchPolicy: "cache-and-network",
   });
   const me = useMemo(
     () => ({ id: data?.me?.id, myWorkspace: data?.me?.myWorkspace?.id }),
     [data?.me?.id, data?.me?.myWorkspace?.id],
   );
-  const workspaces = useMemo(
-    () => data?.me?.workspaces?.map(workspace => fromGraphQLWorkspace(workspace as GQLWorkspace)),
-    [data?.me?.workspaces],
-  );
-  const workspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
 
   const isOwner = useMemo(
     () =>
@@ -65,10 +72,6 @@ export default () => {
   useEffect(() => {
     setOwner(!!isOwner);
   }, [isOwner]);
-
-  useEffect(() => {
-    setWorkspace(workspaces?.find(workspace => workspace.id === workspaceId));
-  }, [setWorkspace, workspaces, data?.me, workspaceId]);
 
   const [searchUserQuery] = useGetUserBySearchLazyQuery({
     fetchPolicy: "no-cache",
@@ -85,8 +88,9 @@ export default () => {
   }, [data?.me?.id, searchedUser, searchedUserList]);
 
   const workspaceUserMembers = useMemo((): UserMember[] | undefined => {
-    return currentWorkspace?.members
-      ?.map<UserMember | undefined>(member =>
+    if (!workspaceData?.node) return;
+    return fromGraphQLWorkspace(workspaceData?.node as GQLWorkspace)
+      .members?.map<UserMember | undefined>(member =>
         "userId" in member
           ? {
               userId: member.userId,
@@ -100,7 +104,7 @@ export default () => {
           !!user && user.user.name.toLowerCase().includes(searchTerm?.toLowerCase() ?? ""),
       )
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
-  }, [currentWorkspace, searchTerm]);
+  }, [searchTerm, workspaceData?.node]);
 
   const handleUserSearch = useCallback(
     async (nameOrEmail: string) => {
