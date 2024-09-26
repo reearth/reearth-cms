@@ -21,7 +21,7 @@ func TestNewRequest(t *testing.T) {
 	ver := version.New().String()
 	now := time.Now()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), ver)
+	itm, _ := request.NewItem(item.NewID(), lo.ToPtr(ver))
 	tests := []struct {
 		name   string
 		r      *request.Request
@@ -76,7 +76,7 @@ func TestNewRequests(t *testing.T) {
 	now := time.Now()
 	ver := version.New().String()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), ver)
+	itm, _ := request.NewItem(item.NewID(), lo.ToPtr(ver))
 	tests := []struct {
 		name     string
 		requests request.List
@@ -130,7 +130,7 @@ func TestRequestDocument_Model(t *testing.T) {
 	now := time.Now()
 	ver := version.New().String()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), ver)
+	itm, _ := request.NewItem(item.NewID(), lo.ToPtr(ver))
 	uuId := uuid.New()
 	tests := []struct {
 		name    string

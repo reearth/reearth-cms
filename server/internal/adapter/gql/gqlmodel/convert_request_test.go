@@ -14,7 +14,7 @@ import (
 
 func TestToRequest(t *testing.T) {
 	ver := version.New().String()
-	itm, _ := request.NewItem(id.NewItemID(), ver)
+	itm, _ := request.NewItem(id.NewItemID(), lo.ToPtr(ver))
 	req := request.New().
 		NewID().
 		Project(id.NewProjectID()).

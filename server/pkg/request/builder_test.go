@@ -7,11 +7,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBuilder_Build(t *testing.T) {
-	i1, _ := NewItem(id.NewItemID(), version.New().String())
+	i1, _ := NewItem(id.NewItemID(), lo.ToPtr(version.New().String()))
 	req := &Request{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
