@@ -65,12 +65,34 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	return filterRequests(ids, res), nil
 }
 
-func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList) (request.List, error) {
+func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList, uFilter *repo.RequestFilter) (request.List, error) {
 
 	filter := bson.M{
 		"items.item": bson.M{
 			"$in": list.Strings(),
 		},
+	}
+
+	if uFilter != nil && uFilter.Keyword != nil {
+		filter["title"] = bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
+		}
+	}
+
+	if uFilter != nil && uFilter.State != nil {
+		filter["state"] = bson.M{
+			"$in": lo.Map(uFilter.State, func(s request.State, _ int) string {
+				return s.String()
+			}),
+		}
+	}
+
+	if uFilter != nil && uFilter.CreatedBy != nil {
+		filter["createdby"] = uFilter.CreatedBy.String()
+	}
+
+	if uFilter != nil && uFilter.Reviewer != nil {
+		filter["reviewers"] = uFilter.Reviewer.String()
 	}
 
 	return r.find(ctx, filter)

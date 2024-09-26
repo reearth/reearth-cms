@@ -470,7 +470,7 @@ func TestRequest_FindByItem(t *testing.T) {
 				err := r.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			got, _ := r.FindByItems(ctx, tc.input)
+			got, _ := r.FindByItems(ctx, tc.input, nil)
 			assert.Equal(t, tc.want, len(got))
 		})
 	}

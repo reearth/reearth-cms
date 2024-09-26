@@ -52,7 +52,7 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Opera
 }
 
 func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
-	requests, err := i.repos.Request.FindByItems(ctx, itemsIds)
+	requests, err := i.repos.Request.FindByItems(ctx, itemsIds, nil)
 	if err != nil {
 		return nil, err
 	}
