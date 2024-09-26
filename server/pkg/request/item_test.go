@@ -18,18 +18,18 @@ func TestNewItem(t *testing.T) {
 }
 
 func TestItemList_IDs(t *testing.T) {
-	i1, _ := NewItem(id.NewItemID(), nil)
-	i2, _ := NewItem(id.NewItemID(), nil)
-	i3, _ := NewItem(id.NewItemID(), nil)
+	i1, _ := NewItem(id.NewItemID(), version.New().String())
+	i2, _ := NewItem(id.NewItemID(), version.New().String())
+	i3, _ := NewItem(id.NewItemID(), version.New().String())
 	list := ItemList{i1, i2, i3}
 	ids := id.ItemIDList{i1.Item(), i2.Item(), i3.Item()}
 	assert.Equal(t, ids, list.IDs())
 }
 
 func TestItemList_HasDuplication(t *testing.T) {
-	i1, _ := NewItem(id.NewItemID(), nil)
-	i2, _ := NewItem(id.NewItemID(), nil)
-	i3, _ := NewItem(id.NewItemID(), nil)
+	i1, _ := NewItem(id.NewItemID(), version.New().String())
+	i2, _ := NewItem(id.NewItemID(), version.New().String())
+	i3, _ := NewItem(id.NewItemID(), version.New().String())
 	input1 := ItemList{i1, i2, i3, i2}
 	input2 := ItemList{i1, i2, i3}
 	assert.Equal(t, true, input1.HasDuplication())

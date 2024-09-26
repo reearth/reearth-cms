@@ -18,9 +18,10 @@ import (
 )
 
 func TestNewRequest(t *testing.T) {
+	ver := version.New().String()
 	now := time.Now()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), nil)
+	itm, _ := request.NewItem(item.NewID(), ver)
 	tests := []struct {
 		name   string
 		r      *request.Request
@@ -40,8 +41,7 @@ func TestNewRequest(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(ver),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -74,8 +74,9 @@ func TestNewRequestConsumer(t *testing.T) {
 
 func TestNewRequests(t *testing.T) {
 	now := time.Now()
+	ver := version.New().String()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), nil)
+	itm, _ := request.NewItem(item.NewID(), ver)
 	tests := []struct {
 		name     string
 		requests request.List
@@ -98,8 +99,7 @@ func TestNewRequests(t *testing.T) {
 					Project:   pId.String(),
 					Items: []RequestItem{{
 						Item:    itm.Item().String(),
-						Version: nil,
-						Ref:     lo.ToPtr(version.Latest.String()),
+						Version: lo.ToPtr(ver),
 					}},
 					Title:       "ab",
 					Description: "abc",
@@ -128,8 +128,9 @@ func TestNewRequests(t *testing.T) {
 
 func TestRequestDocument_Model(t *testing.T) {
 	now := time.Now()
+	ver := version.New().String()
 	rId, pId, uId, wId, tId := request.NewID(), project.NewID(), user.NewID(), user.NewWorkspaceID(), thread.NewID()
-	itm, _ := request.NewItem(item.NewID(), nil)
+	itm, _ := request.NewItem(item.NewID(), ver)
 	uuId := uuid.New()
 	tests := []struct {
 		name    string
@@ -145,8 +146,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(ver),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -201,8 +201,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -225,8 +224,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -249,8 +247,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   "abc",
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -273,8 +270,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -297,8 +293,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -321,8 +316,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -345,8 +339,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				Project:   pId.String(),
 				Items: []RequestItem{{
 					Item:    "abc",
-					Version: nil,
-					Ref:     lo.ToPtr(version.Latest.String()),
+					Version: lo.ToPtr(version.New().String()),
 				}},
 				Title:       "ab",
 				Description: "abc",
@@ -370,7 +363,6 @@ func TestRequestDocument_Model(t *testing.T) {
 				Items: []RequestItem{{
 					Item:    itm.Item().String(),
 					Version: lo.ToPtr("abc"),
-					Ref:     nil,
 				}},
 				Title:       "ab",
 				Description: "abc",

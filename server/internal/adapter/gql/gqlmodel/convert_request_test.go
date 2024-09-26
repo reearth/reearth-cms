@@ -13,7 +13,8 @@ import (
 )
 
 func TestToRequest(t *testing.T) {
-	itm, _ := request.NewItem(id.NewItemID(), nil)
+	ver := version.New().String()
+	itm, _ := request.NewItem(id.NewItemID(), ver)
 	req := request.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -33,7 +34,7 @@ func TestToRequest(t *testing.T) {
 		ID: IDFrom(req.ID()),
 		Items: []*RequestItem{{
 			ItemID: IDFrom(itm.Item()),
-			Ref:    lo.ToPtr(version.Latest.String()),
+			Version: lo.ToPtr(ver),
 		}},
 		Title:       "foo",
 		Description: lo.ToPtr("xxx"),

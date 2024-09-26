@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestList_CloseAll(t *testing.T) {
-	item, _ := NewItem(id.NewItemID(), nil)
+	item, _ := NewItem(id.NewItemID(), version.New().String())
 
 	req1 := New().
 		NewID().

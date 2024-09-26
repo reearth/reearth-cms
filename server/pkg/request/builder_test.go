@@ -11,7 +11,7 @@ import (
 )
 
 func TestBuilder_Build(t *testing.T) {
-	i1, _ := NewItem(id.NewItemID(), nil)
+	i1, _ := NewItem(id.NewItemID(), version.New().String())
 	req := &Request{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
