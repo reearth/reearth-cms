@@ -1491,6 +1491,7 @@ export type RequestItem = {
 
 export type RequestItemInput = {
   itemId: Scalars['ID']['input'];
+  version?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RequestPayload = {
