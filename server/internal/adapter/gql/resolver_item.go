@@ -119,3 +119,7 @@ func (i itemResolver) ReferencedItems(ctx context.Context, obj *gqlmodel.Item) (
 		return item != nil
 	}), nil
 }
+
+func (i itemResolver) Requests(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Request, error) {
+	return loaders(ctx).Request.FindByItem(ctx, obj.ID)
+}

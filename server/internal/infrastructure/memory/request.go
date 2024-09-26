@@ -116,7 +116,7 @@ func (r *Request) SaveAll(ctx context.Context, pid id.ProjectID, requests reques
 	return nil
 }
 
-func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList) (request.List, error) {
+func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList, f *repo.RequestFilter) (request.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
