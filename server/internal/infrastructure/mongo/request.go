@@ -107,12 +107,6 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 		"project": id.String(),
 	}
 
-	if uFilter.Keyword != nil {
-		filter["title"] = bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
-		}
-	}
-
 	if uFilter.State != nil {
 		filter["state"] = bson.M{
 			"$in": lo.Map(uFilter.State, func(s request.State, _ int) string {
@@ -129,8 +123,18 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 		filter["reviewers"] = uFilter.Reviewer.String()
 	}
 
-	rl, p, err := r.paginate(ctx, &filter, sort, page)
-	return rl, p, err
+	if uFilter.Keyword != nil {
+		keywordRegex := bson.M{"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"}}
+		filter = bson.M{
+			"$and": []bson.M{
+				filter,
+				{
+					"$or": []bson.M{{"title": keywordRegex}, {"description": keywordRegex}, {"id": *uFilter.Keyword}},
+				},
+			},
+		}
+	}
+	return r.paginate(ctx, &filter, sort, page)
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {
