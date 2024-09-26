@@ -1,15 +1,15 @@
 import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 
 export default (
-  itemIds: string[],
+  items: RequestItem[],
   onLinkItemRequestModalCancel: () => void,
   requestList: Request[],
   requestModalTotalCount: number,
   requestModalPage: number,
   requestModalPageSize: number,
-  onChange: (value: Request, itemIds: string[]) => Promise<void>,
+  onChange: (value: Request, items: RequestItem[]) => Promise<void>,
 ) => {
   const resetFlag = useRef(false);
   const selectedRequest = useRef<Request>();
@@ -41,7 +41,7 @@ export default (
       setIsDisabled(true);
       setIsLoading(true);
       try {
-        await onChange(selectedRequest.current, itemIds);
+        await onChange(selectedRequest.current, items);
         setSelectedRequestId(undefined);
         onLinkItemRequestModalCancel();
       } catch (_) {
@@ -50,7 +50,7 @@ export default (
         setIsLoading(false);
       }
     }
-  }, [itemIds, onChange, onLinkItemRequestModalCancel]);
+  }, [items, onChange, onLinkItemRequestModalCancel]);
 
   return { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading };
 };

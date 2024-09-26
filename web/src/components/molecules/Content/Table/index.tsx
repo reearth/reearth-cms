@@ -34,7 +34,7 @@ import {
   ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
   FieldType,
@@ -82,7 +82,7 @@ type Props = {
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
+  onAddItemToRequest: (request: Request, items: RequestItem[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
@@ -805,7 +805,7 @@ const ContentTable: React.FC<Props> = ({
         />
       ) : null}
       <LinkItemRequestModal
-        itemIds={selection.selectedRowKeys}
+        items={selection.selectedRowKeys.map(key => ({ itemId: key }))}
         onChange={onAddItemToRequest}
         onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
         visible={addItemToRequestModalShown}

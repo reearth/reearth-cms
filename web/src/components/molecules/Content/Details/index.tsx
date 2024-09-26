@@ -8,7 +8,11 @@ import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import {
+  Request,
+  RequestItem,
+  RequestState,
+} from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
@@ -86,11 +90,9 @@ type Props = {
     description: string;
     state: RequestState;
     reviewersId: string[];
-    items: {
-      itemId: string;
-    }[];
+    items: RequestItem[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => Promise<void>;
+  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;

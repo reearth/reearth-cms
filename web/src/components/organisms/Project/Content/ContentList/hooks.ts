@@ -11,7 +11,7 @@ import {
   ItemStatus,
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ConditionInput,
   ItemSort,
@@ -511,8 +511,8 @@ export default () => {
   }, []);
 
   const handleBulkAddItemToRequest = useCallback(
-    async (request: Request, itemIds: string[]) => {
-      await handleAddItemToRequest(request, itemIds);
+    async (request: Request, items: RequestItem[]) => {
+      await handleAddItemToRequest(request, items);
       refetch();
       setSelection({ selectedRowKeys: [] });
     },

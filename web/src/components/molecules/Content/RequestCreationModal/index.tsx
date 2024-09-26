@@ -10,7 +10,7 @@ import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import WarningText from "@reearth-cms/components/molecules/Content/WarningText";
-import { RequestState } from "@reearth-cms/components/molecules/Request/types";
+import { RequestItem, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -21,15 +21,14 @@ type FormValues = {
   description: string;
   state: RequestState;
   reviewersId: string[];
-  items: {
-    itemId: string;
-  }[];
+  items: RequestItem[];
 };
 
 type Props = {
   open: boolean;
   requestCreationLoading: boolean;
   itemId: string;
+  itemVersion?: string;
   unpublishedItems: FormItem[];
   workspaceUserMembers: UserMember[];
   onClose: () => void;
@@ -44,6 +43,7 @@ const initialValues: FormValues = {
   items: [
     {
       itemId: "",
+      version: "",
     },
   ],
 };
@@ -52,6 +52,7 @@ const RequestCreationModal: React.FC<Props> = ({
   open,
   requestCreationLoading,
   itemId,
+  itemVersion,
   unpublishedItems,
   workspaceUserMembers,
   onClose,
@@ -93,7 +94,7 @@ const RequestCreationModal: React.FC<Props> = ({
     try {
       const values = await form.validateFields();
       values.items = [
-        { itemId },
+        { itemId, version: itemVersion ?? "" },
         ...Object.keys(selectedItems)
           .filter(key => selectedItems[key] === true)
           .map(key => ({ itemId: key })),
@@ -105,7 +106,7 @@ const RequestCreationModal: React.FC<Props> = ({
     } catch (_) {
       setIsDisabled(false);
     }
-  }, [itemId, form, onClose, onSubmit, selectedItems]);
+  }, [form, itemId, itemVersion, selectedItems, onSubmit, onClose]);
 
   const handleClose = useCallback(() => {
     onClose();

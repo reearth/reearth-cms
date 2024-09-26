@@ -10,7 +10,7 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
   ConditionInput,
@@ -57,7 +57,7 @@ type Props = {
   onItemDelete: (itemIds: string[]) => Promise<void>;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
+  onAddItemToRequest: (request: Request, items: RequestItem[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;

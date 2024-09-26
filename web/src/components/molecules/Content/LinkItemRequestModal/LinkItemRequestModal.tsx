@@ -9,14 +9,14 @@ import Radio from "@reearth-cms/components/atoms/Radio";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
 type Props = {
-  itemIds: string[];
+  items: RequestItem[];
   visible: boolean;
   onLinkItemRequestModalCancel: () => void;
   requestModalLoading: boolean;
@@ -25,13 +25,13 @@ type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   requestList: Request[];
-  onChange: (value: Request, itemIds: string[]) => Promise<void>;
+  onChange: (value: Request, items: RequestItem[]) => Promise<void>;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
 };
 
 const LinkItemRequestModal: React.FC<Props> = ({
-  itemIds,
+  items,
   visible,
   onLinkItemRequestModalCancel,
   requestList,
@@ -47,7 +47,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
   const t = useT();
   const { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading } =
     useHooks(
-      itemIds,
+      items,
       onLinkItemRequestModalCancel,
       requestList,
       requestModalTotalCount,

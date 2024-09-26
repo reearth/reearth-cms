@@ -463,6 +463,7 @@ Failed to update request.: リクエストの更新に失敗しました。
 Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
+One of the items already exists in the request.: ''
 Successfully updated Request!: リクエストの更新に成功しました。
 Failed to publish items.: アイテムの公開に失敗しました。
 Successfully published items!: アイテムの公開に成功しました!

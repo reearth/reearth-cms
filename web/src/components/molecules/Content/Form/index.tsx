@@ -24,7 +24,11 @@ import {
   ItemValue,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import {
+  Request,
+  RequestItem,
+  RequestState,
+} from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
@@ -103,11 +107,9 @@ type Props = {
     description: string;
     state: RequestState;
     reviewersId: string[];
-    items: {
-      itemId: string;
-    }[];
+    items: RequestItem[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => Promise<void>;
+  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -645,13 +647,14 @@ const ContentForm: React.FC<Props> = ({
             open={requestModalShown}
             requestCreationLoading={requestCreationLoading}
             itemId={itemId}
+            itemVersion={item?.version}
             unpublishedItems={unpublishedItems}
             workspaceUserMembers={workspaceUserMembers}
             onClose={onModalClose}
             onSubmit={onRequestCreate}
           />
           <LinkItemRequestModal
-            itemIds={[itemId]}
+            items={[{ itemId, version: item?.version }]}
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
             visible={addItemToRequestModalShown}
