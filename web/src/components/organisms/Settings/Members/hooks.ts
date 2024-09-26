@@ -1,4 +1,5 @@
-import { Key, useCallback, useEffect, useMemo, useState } from "react";
+import { Key, useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User, RoleUnion } from "@reearth-cms/components/molecules/Member/types";
@@ -20,13 +21,13 @@ import { useWorkspace } from "@reearth-cms/state";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export default () => {
+  const navigate = useNavigate();
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const workspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<UserMember>();
   const [searchTerm, setSearchTerm] = useState<string>();
-  const [owner, setOwner] = useState(false);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
@@ -53,39 +54,14 @@ export default () => {
     skip: !workspaceId,
   });
 
-  const { data } = useGetMeQuery({
+  const { data, refetch: refetchMe } = useGetMeQuery({
     fetchPolicy: "cache-and-network",
   });
+
   const me = useMemo(
     () => ({ id: data?.me?.id, myWorkspace: data?.me?.myWorkspace?.id }),
     [data?.me?.id, data?.me?.myWorkspace?.id],
   );
-
-  const isOwner = useMemo(
-    () =>
-      currentWorkspace?.members?.find(
-        m => "userId" in m && m.userId === me?.id && m.role === "OWNER",
-      ),
-    [currentWorkspace?.members, me?.id],
-  );
-
-  useEffect(() => {
-    setOwner(!!isOwner);
-  }, [isOwner]);
-
-  const [searchUserQuery] = useGetUserBySearchLazyQuery({
-    fetchPolicy: "no-cache",
-  });
-
-  const handleUserAdd = useCallback(() => {
-    if (
-      searchedUser &&
-      searchedUser.id !== data?.me?.id &&
-      !searchedUserList.find(user => user.id === searchedUser.id)
-    ) {
-      changeSearchedUserList([...searchedUserList, searchedUser]);
-    }
-  }, [data?.me?.id, searchedUser, searchedUserList]);
 
   const workspaceUserMembers = useMemo((): UserMember[] | undefined => {
     if (!workspaceData?.node) return;
@@ -105,6 +81,30 @@ export default () => {
       )
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [searchTerm, workspaceData?.node]);
+
+  const isOwner = useMemo(
+    () => !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId === me.id),
+    [me.id, workspaceUserMembers],
+  );
+
+  const isAbleToLeave = useMemo(
+    () => !isOwner || !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId !== me.id),
+    [isOwner, me.id, workspaceUserMembers],
+  );
+
+  const [searchUserQuery] = useGetUserBySearchLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleUserAdd = useCallback(() => {
+    if (
+      searchedUser &&
+      searchedUser.id !== data?.me?.id &&
+      !searchedUserList.find(user => user.id === searchedUser.id)
+    ) {
+      changeSearchedUserList([...searchedUserList, searchedUser]);
+    }
+  }, [data?.me?.id, searchedUser, searchedUserList]);
 
   const handleUserSearch = useCallback(
     async (nameOrEmail: string) => {
@@ -130,7 +130,6 @@ export default () => {
       if (!workspaceId) return;
       const result = await addUsersToWorkspaceMutation({
         variables: { workspaceId, users: users as GQLMemberInput[] },
-        refetchQueries: ["GetWorkspaces"],
       });
       const workspace = result.data?.addUsersToWorkspace?.workspace;
       if (result.errors || !workspace) {
@@ -181,7 +180,6 @@ export default () => {
         userIds.map(async userId => {
           const result = await removeMemberFromWorkspaceMutation({
             variables: { workspaceId, userId },
-            refetchQueries: ["GetWorkspaces"],
           });
           if (result.errors) {
             Notification.error({
@@ -198,6 +196,27 @@ export default () => {
       }
     },
     [workspaceId, removeMemberFromWorkspaceMutation, t],
+  );
+
+  const handleLeave = useCallback(
+    async (userId: string) => {
+      if (!workspaceId) return;
+      const result = await removeMemberFromWorkspaceMutation({
+        variables: { workspaceId, userId },
+      });
+      if (result.errors) {
+        Notification.error({
+          message: t("Failed to leave the workspace."),
+        });
+      } else {
+        Notification.success({
+          message: t("Successfully left the workspace!"),
+        });
+        refetchMe();
+        navigate(`/workspace/${me.myWorkspace}`);
+      }
+    },
+    [workspaceId, removeMemberFromWorkspaceMutation, t, refetchMe, navigate, me.myWorkspace],
   );
 
   const handleRoleModalClose = useCallback(() => {
@@ -231,7 +250,8 @@ export default () => {
 
   return {
     me,
-    owner,
+    isOwner,
+    isAbleToLeave,
     searchedUser,
     handleSearchTerm,
     changeSearchedUser,
@@ -246,6 +266,7 @@ export default () => {
     selectedMember,
     roleModalShown,
     handleMemberRemoveFromWorkspace,
+    handleLeave,
     handleRoleModalClose,
     handleRoleModalOpen,
     handleMemberAddModalClose,

@@ -3,6 +3,7 @@ import { Key, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
+import Divider from "@reearth-cms/components/atoms/Divider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -14,13 +15,17 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
+const { confirm } = Modal;
+
 type Props = {
   me: {
     id?: string;
     myWorkspace?: string;
   };
-  owner: boolean;
+  isOwner: boolean;
+  isAbleToLeave: boolean;
   handleMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
+  onLeave: (userId: string) => Promise<void>;
   handleSearchTerm: (term?: string) => void;
   handleRoleModalOpen: (member: UserMember) => void;
   handleMemberAddModalOpen: () => void;
@@ -38,8 +43,10 @@ type Props = {
 
 const MemberTable: React.FC<Props> = ({
   me,
-  owner,
+  isOwner,
+  isAbleToLeave,
   handleMemberRemoveFromWorkspace,
+  onLeave,
   handleSearchTerm,
   handleRoleModalOpen,
   handleMemberAddModalOpen,
@@ -54,8 +61,6 @@ const MemberTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const { confirm } = Modal;
-
   const handleMemberDelete = useCallback(
     (userIds: string[]) => {
       confirm({
@@ -69,59 +74,84 @@ const MemberTable: React.FC<Props> = ({
         },
       });
     },
-    [confirm, handleMemberRemoveFromWorkspace, t],
+    [handleMemberRemoveFromWorkspace, t],
   );
 
-  const columns = [
-    {
-      title: t("Name"),
-      dataIndex: "name",
-      key: "name",
-      width: 256,
-      minWidth: 256,
-    },
-    {
-      title: t("Thumbnail"),
-      dataIndex: "thumbnail",
-      key: "thumbnail",
-      width: 128,
-      minWidth: 128,
-    },
-    {
-      title: t("Email"),
-      dataIndex: "email",
-      key: "email",
-      width: 256,
-      minWidth: 256,
-    },
-    {
-      title: t("Role"),
-      dataIndex: "role",
-      key: "role",
-      width: 128,
-      minWidth: 128,
-    },
-    {
-      title: t("Action"),
-      dataIndex: "action",
-      key: "action",
-      width: 128,
-      minWidth: 128,
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        title: t("Name"),
+        dataIndex: "name",
+        key: "name",
+        width: 256,
+        minWidth: 256,
+      },
+      {
+        title: t("Thumbnail"),
+        dataIndex: "thumbnail",
+        key: "thumbnail",
+        width: 128,
+        minWidth: 128,
+      },
+      {
+        title: t("Email"),
+        dataIndex: "email",
+        key: "email",
+        width: 256,
+        minWidth: 256,
+      },
+      {
+        title: t("Role"),
+        dataIndex: "role",
+        key: "role",
+        width: 128,
+        minWidth: 128,
+      },
+      {
+        title: t("Action"),
+        dataIndex: "action",
+        key: "action",
+        width: 128,
+        minWidth: 128,
+      },
+    ],
+    [t],
+  );
 
-  const dataSource = workspaceUserMembers?.map(member => ({
-    id: member.userId,
-    name: member.user.name,
-    thumbnail: <UserAvatar username={member.user.name} />,
-    email: member.user.email,
-    role: t(member.role),
-    action: member.userId !== me?.id && (
-      <RoleButton type="link" onClick={() => handleRoleModalOpen(member)} disabled={!owner}>
-        {t("Change Role?")}
-      </RoleButton>
-    ),
-  }));
+  const dataSource = useMemo(
+    () =>
+      workspaceUserMembers?.map(member => ({
+        id: member.userId,
+        name: member.user.name,
+        thumbnail: <UserAvatar username={member.user.name} />,
+        email: member.user.email,
+        role: t(member.role),
+        action: (
+          <>
+            <ActionButton
+              type="link"
+              onClick={() => handleRoleModalOpen(member)}
+              disabled={!isOwner || member.userId === me.id}>
+              {t("Change Role?")}
+            </ActionButton>
+            {member.userId === me.id && (
+              <>
+                <Divider type="vertical" />
+                <ActionButton
+                  type="link"
+                  onClick={() => {
+                    onLeave(member.userId);
+                  }}
+                  disabled={!isAbleToLeave}>
+                  {t("Leave")}
+                </ActionButton>
+              </>
+            )}
+          </>
+        ),
+      })),
+    [workspaceUserMembers, t, isOwner, me.id, isAbleToLeave, handleRoleModalOpen, onLeave],
+  );
 
   const toolbar: ListToolBarProps = useMemo(
     () => ({
@@ -227,8 +257,9 @@ const TableWrapper = styled.div`
   height: calc(100% - 72px);
 `;
 
-const RoleButton = styled(Button)`
+const ActionButton = styled(Button)`
   padding-left: 0;
+  padding-right: 0;
 `;
 
 const DeselectButton = styled.a`
