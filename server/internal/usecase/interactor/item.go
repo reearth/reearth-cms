@@ -337,6 +337,10 @@ func (ir *ImportRes) ItemSkipped() {
 	ir.Total++
 }
 
+func (ir *ImportRes) FieldAdded(f *schema.Field) {
+	ir.NewFields = append(ir.NewFields, f)
+}
+
 func (ir *ImportRes) Into() interfaces.ImportItemsResponse {
 	return interfaces.ImportItemsResponse{
 		Total:     ir.Total,
@@ -357,6 +361,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		if !operator.IsWritableWorkspace(s.Workspace()) {
 			return interfaces.ImportItemsResponse{}, interfaces.ErrOperationDenied
 		}
+		res := NewImportRes()
 
 		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 		if err != nil {
@@ -375,7 +380,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 					return interfaces.ImportItemsResponse{}, schema.ErrInvalidKey
 				}
 
-				f, err := schema.NewField(fieldParam.TypeProperty).
+				f, err := schema.NewFieldWithDefaultProperty(fieldParam.Type).
 					NewID().
 					Unique(fieldParam.Unique).
 					Multiple(fieldParam.Multiple).
@@ -390,6 +395,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 				}
 
 				s.AddField(f)
+				res.FieldAdded(f)
 			}
 			err = i.repos.Schema.Save(ctx, s)
 			if err != nil {
@@ -397,7 +403,6 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			}
 		}
 
-		res := NewImportRes()
 		for _, itemParam := range param.Items {
 
 			var oldItem *item.Item

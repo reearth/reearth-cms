@@ -8,7 +8,6 @@ import (
 	"mime/multipart"
 	"reflect"
 
-	"github.com/fatih/structs"
 	"github.com/oapi-codegen/runtime"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -75,7 +74,15 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 		InsertedCount: &res.Inserted,
 		UpdatedCount:  &res.Updated,
 		ItemsCount:    &res.Total,
-		NewFields:     nil,
+		NewFields: lo.ToPtr(lo.Map(res.NewFields, func(f *schema.Field, _ int) integrationapi.SchemaField {
+			return integrationapi.SchemaField{
+				Id:       f.ID().Ref(),
+				Key:      lo.ToPtr(f.Key().String()),
+				Multiple: lo.ToPtr(f.Multiple()),
+				Required: lo.ToPtr(f.Required()),
+				Type:     lo.ToPtr(integrationapi.ValueType(f.Type())),
+			}
+		})),
 	}, nil
 }
 
@@ -145,7 +152,9 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 			return nil, nil, rerror.ErrInvalidParams
 		}
 		for _, feature := range *geoJson.Features {
-			jsonObjects = append(jsonObjects, structs.Map(feature))
+			var f map[string]any
+			_ = json.Unmarshal(lo.Must(json.Marshal(feature)), &f)
+			jsonObjects = append(jsonObjects, f)
 		}
 	} else {
 		err := json.NewDecoder(r).Decode(&jsonObjects)
@@ -180,20 +189,23 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 				return nil, nil, rerror.ErrInvalidParams
 			}
 
-			v, _ := json.Marshal(o["geometry"])
+			v, err := json.Marshal(o["geometry"])
+			if err != nil {
+				return nil, nil, err
+			}
 			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
-				Field: nil,
-				Key:   geoFieldKey.Ref(),
+				Field: f.ID().Ref(),
+				Key:   f.Key().Ref(),
 				Value: string(v),
 				// Group is not supported
 				Group: nil,
 			})
 
-			props, ok := o["Properties"].(*map[string]any)
-			if !ok || props == nil {
+			props, ok := o["properties"].(map[string]any)
+			if !ok {
 				continue
 			}
-			o = *props
+			o = props
 		}
 		for k, v := range o {
 			key := key2.New(k)
@@ -202,21 +214,20 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 			}
 			newField := FieldFrom(key.String(), v, sp)
 			f := sp.FieldByIDOrKey(nil, &key)
-			if f != nil && f.Type() != newField.Type {
+			if f != nil && !isAssignable(newField.Type, f.Type()) {
 				continue
 			}
 
 			if f == nil {
-				prevField, ok := lo.Find(fields, func(fp interfaces.CreateFieldParam) bool {
+				prevField, found := lo.Find(fields, func(fp interfaces.CreateFieldParam) bool {
 					return fp.Key == key.String()
 				})
-				if ok && prevField.Type != newField.Type {
+				if found && prevField.Type != newField.Type {
 					return nil, nil, ErrDataMismatch
 				}
-				if ok {
-					continue
+				if !found {
+					fields = append(fields, newField)
 				}
-				fields = append(fields, newField)
 			}
 
 			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
@@ -229,40 +240,61 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 		}
 		items = append(items, item)
 	}
-	return items, nil, nil
+	return items, fields, nil
+}
+
+// isAssignable returns true if vt1 is assignable to vt2
+func isAssignable(vt1, vt2 value.Type) bool {
+	if vt1 == vt2 {
+		return true
+	}
+	if vt1 == value.TypeInteger &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	if vt1 == value.TypeBool &&
+		(vt2 == value.TypeCheckbox || vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	if vt1 == value.TypeText &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	return false
 }
 
 func FieldFrom(k string, v any, sp schema.Package) interfaces.CreateFieldParam {
 	t := value.TypeText
-	switch reflect.TypeOf(v).String() {
-	case "Bool":
+	switch reflect.TypeOf(v).Kind() {
+	case reflect.Bool:
 		t = value.TypeBool
-	case "Int":
-	case "Int8":
-	case "Int16":
-	case "Int32":
-	case "Int64":
-	case "Uint":
-	case "Uint8":
-	case "Uint16":
-	case "Uint32":
-	case "Uint64":
-	case "Float32":
-	case "Float64":
-		t = value.TypeNumber
-	case "String":
+	case reflect.Int:
+	case reflect.Int8:
+	case reflect.Int16:
+	case reflect.Int32:
+	case reflect.Int64:
+	case reflect.Uint:
+	case reflect.Uint8:
+	case reflect.Uint16:
+	case reflect.Uint32:
+	case reflect.Uint64:
+	case reflect.Float32:
+	case reflect.Float64:
+		t = value.TypeInteger
+	case reflect.String:
 		t = value.TypeText
 	default:
 
 	}
 	return interfaces.CreateFieldParam{
-		ModelID:      nil,
-		SchemaID:     sp.Schema().ID(),
-		Type:         t,
-		Name:         k,
-		Description:  lo.ToPtr("auto created by json/geoJson import"),
-		Key:          k,
-		TypeProperty: nil, // TODO: infer type
+		ModelID:     nil,
+		SchemaID:    sp.Schema().ID(),
+		Type:        t,
+		Name:        k,
+		Description: lo.ToPtr("auto created by json/geoJson import"),
+		Key:         k,
+		// type property is not supported in import
+		TypeProperty: nil,
 	}
 }
 
