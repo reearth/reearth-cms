@@ -23,6 +23,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import mapPinFilled from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import {
   ObjectSupportedType,
@@ -267,7 +268,7 @@ const GeometryItem: React.FC<Props> = ({
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {
-    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : supportedTypes ?? "POINT";
+    const key = Array.isArray(supportedTypes) ? supportedTypes[0] : (supportedTypes ?? "POINT");
     const obj: {
       type: string;
       coordinates?: unknown;
@@ -331,7 +332,11 @@ const GeometryItem: React.FC<Props> = ({
         params: { format: "json", q },
       });
       if (data.length) {
-        mapRef.current?.getView().setCenter(fromLonLat([Number(data[0].lon), Number(data[0].lat)]));
+        mapRef.current?.getView().animate({
+          zoom: Math.min(data[0].place_rank, 17),
+          center: fromLonLat([Number(data[0].lon), Number(data[0].lat)]),
+          duration: 0,
+        });
       }
     } catch (e) {
       console.error(e);
@@ -501,16 +506,20 @@ const GeometryItem: React.FC<Props> = ({
           handle={<span className="react-resizable-handle" />}>
           <EditorWrapper hasError={hasError} width={width}>
             <EditorButtons>
-              <EditorButton
-                icon={<Icon icon="editorCopy" size={12} />}
-                size="small"
-                onClick={copyButtonClick}
-              />
+              <Tooltip title={t("Value copied!!")} trigger={"click"}>
+                <EditorButton
+                  icon={<Icon icon="editorCopy" size={12} />}
+                  size="small"
+                  onClick={copyButtonClick}
+                  disabled={!currentValue}
+                />
+              </Tooltip>
               {!disabled && (
                 <EditorButton
                   icon={<Icon icon="trash" size={12} />}
                   size="small"
                   onClick={deleteButtonClick}
+                  disabled={!currentValue}
                 />
               )}
             </EditorButtons>

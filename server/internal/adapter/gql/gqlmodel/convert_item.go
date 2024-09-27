@@ -99,7 +99,7 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 	return &interfaces.ItemFieldParam{
 		Group: ToIDRef[id.ItemGroup](field.ItemGroupID),
 		Field: &fid,
-		Type:  FromValueType(field.Type),
+		// Type:  FromValueType(field.Type),
 		Value: field.Value,
 	}
 }

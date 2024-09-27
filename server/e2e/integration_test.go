@@ -89,7 +89,7 @@ func regenerateToken(e *httpexpect.Expect, iId string) (string, *httpexpect.Valu
 }
 
 func TestRegenerateToken(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	iId, integration := createIntegration(e, "test", "test", "https://example.com/logo.png", "Public")
 	oldToken := integration.Object().

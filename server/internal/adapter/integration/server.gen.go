@@ -27,19 +27,19 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-
+	// delete asset
 	// (DELETE /assets/{assetId})
 	AssetDelete(ctx echo.Context, assetId AssetIdParam) error
-
+	// get asset
 	// (GET /assets/{assetId})
 	AssetGet(ctx echo.Context, assetId AssetIdParam) error
-
+	// get asset comments
 	// (GET /assets/{assetId}/comments)
 	AssetCommentList(ctx echo.Context, assetId AssetIdParam) error
-
+	// create asset comments
 	// (POST /assets/{assetId}/comments)
 	AssetCommentCreate(ctx echo.Context, assetId AssetIdParam) error
-
+	// delete asset comments
 	// (DELETE /assets/{assetId}/comments/{commentId})
 	AssetCommentDelete(ctx echo.Context, assetId AssetIdParam, commentId CommentIdParam) error
 	// Update AssetComment
@@ -48,19 +48,19 @@ type ServerInterface interface {
 	// delete an item
 	// (DELETE /items/{itemId})
 	ItemDelete(ctx echo.Context, itemId ItemIdParam) error
-	// Returns an items.
+	// Returns an item.
 	// (GET /items/{itemId})
 	ItemGet(ctx echo.Context, itemId ItemIdParam, params ItemGetParams) error
 	// Update an item.
 	// (PATCH /items/{itemId})
 	ItemUpdate(ctx echo.Context, itemId ItemIdParam) error
-
+	// get an item comment
 	// (GET /items/{itemId}/comments)
 	ItemCommentList(ctx echo.Context, itemId ItemIdParam) error
-
+	// create an item comment
 	// (POST /items/{itemId}/comments)
 	ItemCommentCreate(ctx echo.Context, itemId ItemIdParam) error
-
+	// delete item comment
 	// (DELETE /items/{itemId}/comments/{commentId})
 	ItemCommentDelete(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error
 	// Update Item Comment
@@ -75,6 +75,9 @@ type ServerInterface interface {
 	// Update a model.
 	// (PATCH /models/{modelId})
 	ModelUpdate(ctx echo.Context, modelId ModelIdParam) error
+	// Import data under the selected model
+	// (PUT /models/{modelId}/import)
+	ModelImport(ctx echo.Context, modelId ModelIdParam) error
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error
@@ -87,7 +90,7 @@ type ServerInterface interface {
 	// Returns a GeoJSON that has a list of items as features.
 	// (GET /models/{modelId}/items.geojson)
 	ItemsAsGeoJSON(ctx echo.Context, modelId ModelIdParam, params ItemsAsGeoJSONParams) error
-	// Returns a models.
+	// Returns a list of models.
 	// (GET /projects/{projectIdOrAlias}/models)
 	ModelFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error
 	// create a model
@@ -114,7 +117,7 @@ type ServerInterface interface {
 	// Returns a list of items.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
 	ItemFilterWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemFilterWithProjectParams) error
-
+	// Create an Item.
 	// (POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
 	ItemCreateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
 	// Returns a CSV that has a list of items as features.
@@ -483,6 +486,24 @@ func (w *ServerInterfaceWrapper) ModelUpdate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ModelUpdate(ctx, modelId)
+	return err
+}
+
+// ModelImport converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelImport(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ModelImport(ctx, modelId)
 	return err
 }
 
@@ -1369,6 +1390,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.DELETE(baseURL+"/models/:modelId", wrapper.ModelDelete)
 	router.GET(baseURL+"/models/:modelId", wrapper.ModelGet)
 	router.PATCH(baseURL+"/models/:modelId", wrapper.ModelUpdate)
+	router.PUT(baseURL+"/models/:modelId/import", wrapper.ModelImport)
 	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
 	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
 	router.GET(baseURL+"/models/:modelId/items.csv", wrapper.ItemsAsCSV)
@@ -2072,6 +2094,55 @@ type ModelUpdate401Response = UnauthorizedErrorResponse
 
 func (response ModelUpdate401Response) VisitModelUpdateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
+	return nil
+}
+
+type ModelImportRequestObject struct {
+	ModelId       ModelIdParam `json:"modelId"`
+	JSONBody      *ModelImportJSONRequestBody
+	MultipartBody *multipart.Reader
+}
+
+type ModelImportResponseObject interface {
+	VisitModelImportResponse(w http.ResponseWriter) error
+}
+
+type ModelImport200JSONResponse struct {
+	IgnoredCount  *int           `json:"ignoredCount,omitempty"`
+	InsertedCount *int           `json:"insertedCount,omitempty"`
+	ItemsCount    *int           `json:"itemsCount,omitempty"`
+	ModelId       *id.ModelID    `json:"modelId,omitempty"`
+	NewFields     *[]SchemaField `json:"newFields,omitempty"`
+	UpdatedCount  *int           `json:"updatedCount,omitempty"`
+}
+
+func (response ModelImport200JSONResponse) VisitModelImportResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ModelImport400Response struct {
+}
+
+func (response ModelImport400Response) VisitModelImportResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ModelImport401Response = UnauthorizedErrorResponse
+
+func (response ModelImport401Response) VisitModelImportResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ModelImport500Response struct {
+}
+
+func (response ModelImport500Response) VisitModelImportResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
 	return nil
 }
 
@@ -3175,19 +3246,19 @@ func (response ProjectFilter500Response) VisitProjectFilterResponse(w http.Respo
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
-
+	// delete asset
 	// (DELETE /assets/{assetId})
 	AssetDelete(ctx context.Context, request AssetDeleteRequestObject) (AssetDeleteResponseObject, error)
-
+	// get asset
 	// (GET /assets/{assetId})
 	AssetGet(ctx context.Context, request AssetGetRequestObject) (AssetGetResponseObject, error)
-
+	// get asset comments
 	// (GET /assets/{assetId}/comments)
 	AssetCommentList(ctx context.Context, request AssetCommentListRequestObject) (AssetCommentListResponseObject, error)
-
+	// create asset comments
 	// (POST /assets/{assetId}/comments)
 	AssetCommentCreate(ctx context.Context, request AssetCommentCreateRequestObject) (AssetCommentCreateResponseObject, error)
-
+	// delete asset comments
 	// (DELETE /assets/{assetId}/comments/{commentId})
 	AssetCommentDelete(ctx context.Context, request AssetCommentDeleteRequestObject) (AssetCommentDeleteResponseObject, error)
 	// Update AssetComment
@@ -3196,19 +3267,19 @@ type StrictServerInterface interface {
 	// delete an item
 	// (DELETE /items/{itemId})
 	ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error)
-	// Returns an items.
+	// Returns an item.
 	// (GET /items/{itemId})
 	ItemGet(ctx context.Context, request ItemGetRequestObject) (ItemGetResponseObject, error)
 	// Update an item.
 	// (PATCH /items/{itemId})
 	ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error)
-
+	// get an item comment
 	// (GET /items/{itemId}/comments)
 	ItemCommentList(ctx context.Context, request ItemCommentListRequestObject) (ItemCommentListResponseObject, error)
-
+	// create an item comment
 	// (POST /items/{itemId}/comments)
 	ItemCommentCreate(ctx context.Context, request ItemCommentCreateRequestObject) (ItemCommentCreateResponseObject, error)
-
+	// delete item comment
 	// (DELETE /items/{itemId}/comments/{commentId})
 	ItemCommentDelete(ctx context.Context, request ItemCommentDeleteRequestObject) (ItemCommentDeleteResponseObject, error)
 	// Update Item Comment
@@ -3223,6 +3294,9 @@ type StrictServerInterface interface {
 	// Update a model.
 	// (PATCH /models/{modelId})
 	ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error)
+	// Import data under the selected model
+	// (PUT /models/{modelId}/import)
+	ModelImport(ctx context.Context, request ModelImportRequestObject) (ModelImportResponseObject, error)
 	// Returns a list of items.
 	// (GET /models/{modelId}/items)
 	ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error)
@@ -3235,7 +3309,7 @@ type StrictServerInterface interface {
 	// Returns a GeoJSON that has a list of items as features.
 	// (GET /models/{modelId}/items.geojson)
 	ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONRequestObject) (ItemsAsGeoJSONResponseObject, error)
-	// Returns a models.
+	// Returns a list of models.
 	// (GET /projects/{projectIdOrAlias}/models)
 	ModelFilter(ctx context.Context, request ModelFilterRequestObject) (ModelFilterResponseObject, error)
 	// create a model
@@ -3262,7 +3336,7 @@ type StrictServerInterface interface {
 	// Returns a list of items.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
 	ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error)
-
+	// Create an Item.
 	// (POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
 	ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error)
 	// Returns a CSV that has a list of items as features.
@@ -3744,6 +3818,45 @@ func (sh *strictHandler) ModelUpdate(ctx echo.Context, modelId ModelIdParam) err
 		return err
 	} else if validResponse, ok := response.(ModelUpdateResponseObject); ok {
 		return validResponse.VisitModelUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelImport operation middleware
+func (sh *strictHandler) ModelImport(ctx echo.Context, modelId ModelIdParam) error {
+	var request ModelImportRequestObject
+
+	request.ModelId = modelId
+	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "application/json") {
+		var body ModelImportJSONRequestBody
+		if err := ctx.Bind(&body); err != nil {
+			return err
+		}
+		request.JSONBody = &body
+	}
+	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "multipart/form-data") {
+		if reader, err := ctx.Request().MultipartReader(); err != nil {
+			return err
+		} else {
+			request.MultipartBody = reader
+		}
+	}
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelImport(ctx.Request().Context(), request.(ModelImportRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelImport")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelImportResponseObject); ok {
+		return validResponse.VisitModelImportResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -4452,71 +4565,74 @@ func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceId
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"O5LxKG+ALpfL/wcAAP//b9D4FW2XAAA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

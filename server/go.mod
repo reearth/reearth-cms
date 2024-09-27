@@ -13,6 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sns v1.29.2
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/deepmap/oapi-codegen/v2 v2.1.0
+	github.com/fatih/structs v1.1.0
 	github.com/gavv/httpexpect/v2 v2.16.0
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/golang/mock v1.6.0
@@ -79,7 +80,6 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
-	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
