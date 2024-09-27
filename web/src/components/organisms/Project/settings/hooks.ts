@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import {
   useGetProjectsQuery,
   useUpdateProjectMutation,

@@ -14,7 +14,7 @@ import {
   useCheckProjectAliasLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRole } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -24,6 +24,7 @@ export default () => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
+  const [userRole] = useUserRole();
 
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [projectModalShown, setProjectModalShown] = useState(false);
@@ -151,6 +152,7 @@ export default () => {
     projectModalShown,
     loadingProjects,
     workspaceModalShown,
+    userRole,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,

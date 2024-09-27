@@ -4,15 +4,18 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import { UserRole } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  userRole?: UserRole;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
   onWorkspaceModalOpen: () => void;
 };
 
 const WorkspaceHeader: React.FC<Props> = ({
+  userRole,
   onProjectSearch,
   onProjectModalOpen,
   onWorkspaceModalOpen,
@@ -29,7 +32,11 @@ const WorkspaceHeader: React.FC<Props> = ({
       />
       <ButtonWrapper>
         <Button onClick={onWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
-        <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
+        <Button
+          onClick={onProjectModalOpen}
+          type="primary"
+          icon={<Icon icon="plus" />}
+          disabled={!userRole?.project.create}>
           {t("New Project")}
         </Button>
       </ButtonWrapper>

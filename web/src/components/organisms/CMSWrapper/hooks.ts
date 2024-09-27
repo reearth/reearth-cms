@@ -4,6 +4,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   fromGraphQLMember,
   fromGraphQLWorkspace,
@@ -17,8 +18,16 @@ import {
   Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useProject, useUserId, useWorkspaceId } from "@reearth-cms/state";
+import {
+  useWorkspace,
+  useProject,
+  useUserId,
+  useWorkspaceId,
+  useUserRole,
+} from "@reearth-cms/state";
 import { splitPathname } from "@reearth-cms/utils/path";
+
+import { userRoleGet } from "./utils";
 
 export default () => {
   const t = useT();
@@ -27,10 +36,11 @@ export default () => {
   const navigate = useNavigate();
   const logoUrl = window.REEARTH_CONFIG?.logoUrl;
 
-  const [, setCurrentUserId] = useUserId();
+  const [currentUserId, setCurrentUserId] = useUserId();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [, setCurrentWorkspaceId] = useWorkspaceId();
   const [currentProject, setCurrentProject] = useProject();
+  const [, setUserRole] = useUserRole();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -82,6 +92,15 @@ export default () => {
       setCurrentWorkspaceId(workspace.id);
     }
   }, [currentWorkspace, workspace, personal, setCurrentWorkspace, setCurrentWorkspaceId]);
+
+  useEffect(() => {
+    const userInfo = currentWorkspace?.members?.find(
+      member => "userId" in member && member.userId === data?.me?.id,
+    );
+    if (userInfo) {
+      setUserRole(userRoleGet((userInfo as UserMember).role));
+    }
+  }, [currentUserId, currentWorkspace, data?.me?.id, setUserRole]);
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
   const handleWorkspaceCreate = useCallback(

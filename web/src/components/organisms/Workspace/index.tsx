@@ -9,6 +9,7 @@ const Workspace: React.FC = () => {
     projectModalShown,
     loadingProjects,
     workspaceModalShown,
+    userRole,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
@@ -27,6 +28,7 @@ const Workspace: React.FC = () => {
       projectModal={projectModalShown}
       workspaceModal={workspaceModalShown}
       loadingProjects={loadingProjects}
+      userRole={userRole}
       onProjectSearch={handleProjectSearch}
       onProjectModalOpen={handleProjectModalOpen}
       onProjectNavigation={handleProjectNavigation}

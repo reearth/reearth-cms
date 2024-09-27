@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project, Role } from "../Workspace/types";
+import { Project } from "../Workspace/types";
 
 type RequestOptionsData = {
   id: string;

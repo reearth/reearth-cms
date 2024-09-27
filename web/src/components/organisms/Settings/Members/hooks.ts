@@ -1,7 +1,7 @@
 import { Key, useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User, RoleUnion } from "@reearth-cms/components/molecules/Member/types";
+import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -9,7 +9,7 @@ import {
   useGetMeQuery,
   useAddUsersToWorkspaceMutation,
   useUpdateMemberOfWorkspaceMutation,
-  Role,
+  Role as GQLRole,
   useRemoveMemberFromWorkspaceMutation,
   Workspace as GQLWorkspace,
   useGetUserBySearchLazyQuery,
@@ -147,17 +147,17 @@ export default () => {
     useUpdateMemberOfWorkspaceMutation();
 
   const handleMemberOfWorkspaceUpdate = useCallback(
-    async (userId: string, role: RoleUnion) => {
+    async (userId: string, role: Role) => {
       if (!workspaceId) return;
       const result = await updateMemberOfWorkspaceMutation({
         variables: {
           workspaceId,
           userId,
           role: {
-            READER: Role.Reader,
-            WRITER: Role.Writer,
-            MAINTAINER: Role.Maintainer,
-            OWNER: Role.Owner,
+            READER: GQLRole.Reader,
+            WRITER: GQLRole.Writer,
+            MAINTAINER: GQLRole.Maintainer,
+            OWNER: GQLRole.Owner,
           }[role],
         },
       });

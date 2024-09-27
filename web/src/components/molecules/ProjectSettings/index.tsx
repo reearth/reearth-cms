@@ -1,11 +1,12 @@
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import DangerZone from "@reearth-cms/components/molecules/ProjectSettings/DangerZone";
 import ProjectGeneralForm from "@reearth-cms/components/molecules/ProjectSettings/GeneralForm";
 import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project, Role } from "../Workspace/types";
+import { Project } from "../Workspace/types";
 
 type Props = {
   project: Project;
