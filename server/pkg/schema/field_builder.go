@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
 var ErrInvalidKey = rerror.NewE(i18n.T("invalid key"))
@@ -25,6 +26,43 @@ func NewField(tp *TypeProperty) *FieldBuilder {
 			typeProperty: tp,
 		},
 	}
+}
+
+func NewFieldWithDefaultProperty(t value.Type) *FieldBuilder {
+	fb := &FieldBuilder{
+		f: &Field{
+			typeProperty: nil,
+		},
+	}
+	switch t {
+	case value.TypeText:
+		fb.f.typeProperty = NewText(nil).TypeProperty()
+	case value.TypeTextArea:
+		fb.f.typeProperty = NewTextArea(nil).TypeProperty()
+	case value.TypeRichText:
+		fb.f.typeProperty = NewRichText(nil).TypeProperty()
+	case value.TypeMarkdown:
+		fb.f.typeProperty = NewMarkdown(nil).TypeProperty()
+	case value.TypeDateTime:
+		fb.f.typeProperty = NewDateTime().TypeProperty()
+	case value.TypeBool:
+		fb.f.typeProperty = NewBool().TypeProperty()
+	case value.TypeCheckbox:
+		fb.f.typeProperty = NewCheckbox().TypeProperty()
+	case value.TypeSelect:
+		fb.f.typeProperty = NewSelect(nil).TypeProperty()
+	case value.TypeTag:
+		fb.f.typeProperty = lo.Must(NewFieldTag(TagList{})).TypeProperty()
+	case value.TypeInteger:
+		fb.f.typeProperty = lo.Must(NewInteger(nil, nil)).TypeProperty()
+	case value.TypeNumber:
+		fb.f.typeProperty = lo.Must(NewNumber(nil, nil)).TypeProperty()
+	case value.TypeReference:
+		fb.f.typeProperty = nil
+	case value.TypeAsset:
+		fb.f.typeProperty = NewAsset().TypeProperty()
+	}
+	return fb
 }
 
 func (b *FieldBuilder) Build() (*Field, error) {

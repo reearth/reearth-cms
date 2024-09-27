@@ -426,6 +426,7 @@ const ContentForm: React.FC<Props> = ({
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
+        disabled: item?.status === "PUBLIC",
       },
       {
         key: "unpublish",
@@ -433,6 +434,7 @@ const ContentForm: React.FC<Props> = ({
         onClick: () => {
           if (itemId) onUnpublish([itemId]);
         },
+        disabled: item?.status === "DRAFT" || item?.status === "REVIEW",
       },
     ];
     if (showPublishAction) {
@@ -440,10 +442,19 @@ const ContentForm: React.FC<Props> = ({
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
+        disabled: item?.status === "PUBLIC",
       });
     }
     return menuItems;
-  }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
+  }, [
+    t,
+    onAddItemToRequestModalOpen,
+    item?.status,
+    showPublishAction,
+    itemId,
+    onUnpublish,
+    onModalOpen,
+  ]);
 
   const handlePublishSubmit = useCallback(async () => {
     if (!itemId || !unpublishedItems) return;
@@ -476,12 +487,19 @@ const ContentForm: React.FC<Props> = ({
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={handlePublishSubmit} loading={publishLoading}>
+                    <Button
+                      type="primary"
+                      onClick={handlePublishSubmit}
+                      loading={publishLoading}
+                      disabled={item?.status === "PUBLIC"}>
                       {t("Publish")}
                     </Button>
                   )}
                   {!showPublishAction && (
-                    <Button type="primary" onClick={onModalOpen}>
+                    <Button
+                      type="primary"
+                      onClick={onModalOpen}
+                      disabled={item?.status === "PUBLIC"}>
                       {t("New Request")}
                     </Button>
                   )}

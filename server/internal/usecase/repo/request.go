@@ -21,7 +21,7 @@ type Request interface {
 	FindByProject(context.Context, id.ProjectID, RequestFilter, *usecasex.Sort, *usecasex.Pagination) (request.List, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.RequestID) (*request.Request, error)
 	FindByIDs(context.Context, id.RequestIDList) (request.List, error)
-	FindByItems(context.Context, id.ItemIDList) (request.List, error)
+	FindByItems(context.Context, id.ItemIDList, *RequestFilter) (request.List, error)
 	Save(context.Context, *request.Request) error
 	SaveAll(context.Context, id.ProjectID, request.List) error
 }

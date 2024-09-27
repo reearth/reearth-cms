@@ -21,6 +21,16 @@ export const GET_WORKSPACES = gql`
   ${workspaceFragment}
 `;
 
+export const GET_WORKSPACE = gql`
+  query GetWorkspace($id: ID!) {
+    node(id: $id, type: WORKSPACE) {
+      ... on Workspace {
+        ...WorkspaceFragment
+      }
+    }
+  }
+`;
+
 export const UPDATE_WORKSPACE = gql`
   mutation UpdateWorkspace($workspaceId: ID!, $name: String!) {
     updateWorkspace(input: { workspaceId: $workspaceId, name: $name }) {
