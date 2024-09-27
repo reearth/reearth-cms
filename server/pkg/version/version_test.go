@@ -34,3 +34,35 @@ func TestNewVersions(t *testing.T) {
 	v1, v2 := New(), New()
 	assert.Equal(t, set.FromSlice([]Version{v1, v2}), NewVersions(v1, v2))
 }
+
+func TestToVersionOrLatestRef(t *testing.T) {
+	ver1 := "b3a1e9e4-1c6e-4f56-8f93-1234567890ab"
+	ver2 := "invalid-uuid"
+	var nilVer *string
+
+	v1 := ParseVersion(&ver1)
+	v2 := ParseVersion(&ver2)
+	vNil := ParseVersion(nilVer)
+
+	assert.Equal(t, Latest.OrVersion(), ToVersionOrLatestRef(nilVer))
+	assert.Equal(t, v1.OrRef(), ToVersionOrLatestRef(&ver1))
+	assert.Equal(t, Latest.OrVersion(), ToVersionOrLatestRef(&ver2))
+	assert.Nil(t, vNil)
+	assert.NotNil(t, v1)
+	assert.Nil(t, v2)
+}
+
+func TestParseVersion(t *testing.T) {
+	ver1 := "b3a1e9e4-1c6e-4f56-8f93-1234567890ab"
+	ver2 := "invalid-uuid"
+	var nilVer *string
+
+	v1 := ParseVersion(&ver1)
+	v2 := ParseVersion(&ver2)
+	vNil := ParseVersion(nilVer)
+
+	assert.NotNil(t, v1)
+	assert.Nil(t, v2)
+	assert.Nil(t, vNil)
+	assert.Equal(t, Version(uuid.MustParse(ver1)).Ref(), v1)
+}
