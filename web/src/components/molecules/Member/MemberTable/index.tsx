@@ -77,6 +77,20 @@ const MemberTable: React.FC<Props> = ({
     [handleMemberRemoveFromWorkspace, t],
   );
 
+  const leaveConfirm = useCallback(
+    (userId: string) => {
+      confirm({
+        title: t("Are you sure to leave this workspace?"),
+        icon: <Icon icon="exclamationCircle" />,
+        content: t("Leave this workspace means you will not view any content of this workspace."),
+        async onOk() {
+          await onLeave(userId);
+        },
+      });
+    },
+    [onLeave, t],
+  );
+
   const columns = useMemo(
     () => [
       {
@@ -140,7 +154,7 @@ const MemberTable: React.FC<Props> = ({
                 <ActionButton
                   type="link"
                   onClick={() => {
-                    onLeave(member.userId);
+                    leaveConfirm(member.userId);
                   }}
                   disabled={!isAbleToLeave}>
                   {t("Leave")}
@@ -150,7 +164,7 @@ const MemberTable: React.FC<Props> = ({
           </>
         ),
       })),
-    [workspaceUserMembers, t, isOwner, me.id, isAbleToLeave, handleRoleModalOpen, onLeave],
+    [workspaceUserMembers, t, isOwner, me.id, isAbleToLeave, handleRoleModalOpen, leaveConfirm],
   );
 
   const toolbar: ListToolBarProps = useMemo(
@@ -186,8 +200,11 @@ const MemberTable: React.FC<Props> = ({
           selectedRowKeys: selectedRowKeys,
         });
       },
+      getCheckboxProps: record => ({
+        disabled: record.id === me.id,
+      }),
     }),
-    [selection, setSelection],
+    [me.id, selection, setSelection],
   );
 
   const alertOptions = useCallback(
