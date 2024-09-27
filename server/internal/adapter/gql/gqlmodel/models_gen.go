@@ -543,6 +543,7 @@ type Item struct {
 	Fields                 []*ItemField `json:"fields"`
 	Assets                 []*Asset     `json:"assets"`
 	ReferencedItems        []*Item      `json:"referencedItems,omitempty"`
+	Requests               []*Request   `json:"requests,omitempty"`
 	CreatedAt              time.Time    `json:"createdAt"`
 	UpdatedAt              time.Time    `json:"updatedAt"`
 	UpdatedBy              Operator     `json:"updatedBy,omitempty"`

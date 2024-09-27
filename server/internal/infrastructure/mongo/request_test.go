@@ -266,6 +266,28 @@ func TestRequest_FindByProject(t *testing.T) {
 			want: 1,
 		},
 		{
+			name:  "must find 2",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					Keyword: lo.ToPtr("o"),
+				},
+			},
+			want: 2,
+		},
+		{
+			name:  "must find 1 by id",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					Keyword: lo.ToPtr(req1.ID().String()),
+				},
+			},
+			want: 1,
+		},
+		{
 			name:  "must find 1",
 			seeds: request.List{req1, req2},
 			args: args{
@@ -448,7 +470,7 @@ func TestRequest_FindByItem(t *testing.T) {
 				err := r.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			got, _ := r.FindByItems(ctx, tc.input)
+			got, _ := r.FindByItems(ctx, tc.input, nil)
 			assert.Equal(t, tc.want, len(got))
 		})
 	}
