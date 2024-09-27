@@ -43,6 +43,7 @@ export type FormItem = {
   schemaId: string;
   createdBy: string;
   status: ItemStatus;
+  version?: string;
   createdAt: Date;
   updatedAt: Date;
 };

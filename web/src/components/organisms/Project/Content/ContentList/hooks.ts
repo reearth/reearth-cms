@@ -144,8 +144,10 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: string[] }>({
-    selectedRowKeys: [],
+  const [selection, setSelection] = useState<{
+    selectedRows: { itemId: string; version?: string }[];
+  }>({
+    selectedRows: [],
   });
 
   const [updateItemMutation] = useUpdateItemMutation();
@@ -315,11 +317,11 @@ export default () => {
               comments: item.thread.comments.map(comment =>
                 fromGraphQLComment(comment as GQLComment),
               ),
+              version: item.version,
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
               metadata: metadataGet(item?.metadata?.fields as ItemField[] | undefined),
               metadataId: item.metadata?.id,
-              version: item.metadata?.version,
             }
           : undefined,
       )
@@ -465,7 +467,7 @@ export default () => {
         );
         if (results) {
           Notification.success({ message: t("One or more items were successfully deleted!") });
-          setSelection({ selectedRowKeys: [] });
+          setSelection({ selectedRows: [] });
         }
       })(),
     [t, deleteItemMutation],
@@ -514,7 +516,7 @@ export default () => {
     async (request: Request, items: RequestItem[]) => {
       await handleAddItemToRequest(request, items);
       refetch();
-      setSelection({ selectedRowKeys: [] });
+      setSelection({ selectedRows: [] });
     },
     [handleAddItemToRequest, refetch],
   );

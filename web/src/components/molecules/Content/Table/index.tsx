@@ -58,7 +58,7 @@ type Props = {
   unpublishLoading: boolean;
   selectedItem?: Item;
   selection: {
-    selectedRowKeys: string[];
+    selectedRows: { itemId: string; version?: string }[];
   };
   totalCount: number;
   currentView: CurrentView;
@@ -75,7 +75,7 @@ type Props = {
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  setSelection: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
@@ -279,11 +279,11 @@ const ContentTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: Key[]) => {
+      selectedRows: selection.selectedRows,
+      onChange: (_selectedRowKeys: Key[], selectedRows: Item[]) => {
         setSelection({
           ...selection,
-          selectedRowKeys: selectedRowKeys as string[],
+          selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
         });
       },
     }),
@@ -805,7 +805,7 @@ const ContentTable: React.FC<Props> = ({
         />
       ) : null}
       <LinkItemRequestModal
-        items={selection.selectedRowKeys.map(key => ({ itemId: key }))}
+        items={selection.selectedRows}
         onChange={onAddItemToRequest}
         onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
         visible={addItemToRequestModalShown}

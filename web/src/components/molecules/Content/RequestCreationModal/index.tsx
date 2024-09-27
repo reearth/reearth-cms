@@ -27,8 +27,7 @@ type FormValues = {
 type Props = {
   open: boolean;
   requestCreationLoading: boolean;
-  itemId: string;
-  itemVersion?: string;
+  item: RequestItem;
   unpublishedItems: FormItem[];
   workspaceUserMembers: UserMember[];
   onClose: () => void;
@@ -48,11 +47,16 @@ const initialValues: FormValues = {
   ],
 };
 
+type SelectedItem = {
+  id: string;
+  version?: string;
+  checked?: boolean;
+};
+
 const RequestCreationModal: React.FC<Props> = ({
   open,
   requestCreationLoading,
-  itemId,
-  itemVersion,
+  item,
   unpublishedItems,
   workspaceUserMembers,
   onClose,
@@ -60,7 +64,7 @@ const RequestCreationModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
-  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
+  const [selectedItems, setSelectedItems] = useState<Record<string, SelectedItem>>({});
   const [isDisabled, setIsDisabled] = useState(true);
 
   const reviewers: SelectProps["options"] = [];
@@ -80,10 +84,10 @@ const RequestCreationModal: React.FC<Props> = ({
   }, [form]);
 
   const handleCheckboxChange = useCallback(
-    (itemId: string, checked: boolean) => {
+    (item: FormItem, checked: boolean) => {
       setSelectedItems(prevState => ({
         ...prevState,
-        [itemId]: checked,
+        [item.id]: { id: item.id, version: item.version, checked },
       }));
     },
     [setSelectedItems],
@@ -94,10 +98,10 @@ const RequestCreationModal: React.FC<Props> = ({
     try {
       const values = await form.validateFields();
       values.items = [
-        { itemId, version: itemVersion ?? "" },
-        ...Object.keys(selectedItems)
-          .filter(key => selectedItems[key] === true)
-          .map(key => ({ itemId: key })),
+        { ...item },
+        ...Object.values(selectedItems)
+          .filter(item => selectedItems[item.id]?.checked === true)
+          .map(item => ({ itemId: item.id, version: item.version })),
       ];
       values.state = "WAITING";
       await onSubmit(values);
@@ -106,7 +110,7 @@ const RequestCreationModal: React.FC<Props> = ({
     } catch (_) {
       setIsDisabled(false);
     }
-  }, [form, itemId, itemVersion, selectedItems, onSubmit, onClose]);
+  }, [form, item, selectedItems, onSubmit, onClose]);
 
   const handleClose = useCallback(() => {
     onClose();
@@ -164,8 +168,8 @@ const RequestCreationModal: React.FC<Props> = ({
         {unpublishedItems?.map((item, index) => (
           <StyledRow key={index}>
             <StyledCheckbox
-              value={selectedItems[item.id]}
-              onChange={e => handleCheckboxChange(item.id, e.target.checked)}>
+              value={selectedItems[item.id]?.checked}
+              onChange={e => handleCheckboxChange(item, e.target.checked)}>
               <ReferenceItem value={item.id} status={item.status} title={item.title} />
             </StyledCheckbox>
           </StyledRow>

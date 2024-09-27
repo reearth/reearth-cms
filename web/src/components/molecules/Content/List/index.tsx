@@ -31,7 +31,7 @@ type Props = {
   modelsMenu: React.ReactNode;
   selectedItem?: Item;
   selection: {
-    selectedRowKeys: string[];
+    selectedRows: { itemId: string; version?: string }[];
   };
   totalCount: number;
   currentView: CurrentView;
@@ -49,7 +49,7 @@ type Props = {
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  setSelection: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;

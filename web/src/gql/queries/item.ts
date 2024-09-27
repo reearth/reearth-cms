@@ -25,6 +25,7 @@ export const GET_ITEMS = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -86,6 +87,7 @@ export const GET_ITEM_NODE = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -163,6 +165,7 @@ export const SEARCH_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -248,6 +251,7 @@ export const CREATE_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -296,6 +300,7 @@ export const UPDATE_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -322,6 +327,7 @@ export const UNPUBLISH_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -348,6 +354,7 @@ export const PUBLISH_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }

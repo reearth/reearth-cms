@@ -646,8 +646,7 @@ const ContentForm: React.FC<Props> = ({
           <RequestCreationModal
             open={requestModalShown}
             requestCreationLoading={requestCreationLoading}
-            itemId={itemId}
-            itemVersion={item?.version}
+            item={{ itemId, version: item?.version }}
             unpublishedItems={unpublishedItems}
             workspaceUserMembers={workspaceUserMembers}
             onClose={onModalClose}
