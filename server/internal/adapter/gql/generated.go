@@ -306,6 +306,7 @@ type ComplexityRoot struct {
 		Project                func(childComplexity int) int
 		ProjectID              func(childComplexity int) int
 		ReferencedItems        func(childComplexity int) int
+		Requests               func(childComplexity int) int
 		Schema                 func(childComplexity int) int
 		SchemaID               func(childComplexity int) int
 		Status                 func(childComplexity int) int
@@ -913,6 +914,7 @@ type ItemResolver interface {
 
 	Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Asset, error)
 	ReferencedItems(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Item, error)
+	Requests(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Request, error)
 
 	UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.Operator, error)
 
@@ -1910,6 +1912,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.ReferencedItems(childComplexity), true
+
+	case "Item.requests":
+		if e.complexity.Item.Requests == nil {
+			break
+		}
+
+		return e.complexity.Item.Requests(childComplexity), true
 
 	case "Item.schema":
 		if e.complexity.Item.Schema == nil {
@@ -5712,6 +5721,7 @@ extend type Mutation {
   fields: [ItemField!]!
   assets: [Asset]!
   referencedItems:[Item!]
+  requests: [Request!]
   createdAt: DateTime!
   updatedAt: DateTime!
   updatedBy: Operator
@@ -14285,6 +14295,8 @@ func (ec *executionContext) fieldContext_Item_referencedItems(ctx context.Contex
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -14301,6 +14313,87 @@ func (ec *executionContext) fieldContext_Item_referencedItems(ctx context.Contex
 				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Item_requests(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_requests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Item().Requests(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.Request)
+	fc.Result = res
+	return ec.marshalORequest2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_requests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Request_id(ctx, field)
+			case "items":
+				return ec.fieldContext_Request_items(ctx, field)
+			case "title":
+				return ec.fieldContext_Request_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Request_description(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Request_createdById(ctx, field)
+			case "workspaceId":
+				return ec.fieldContext_Request_workspaceId(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Request_projectId(ctx, field)
+			case "threadId":
+				return ec.fieldContext_Request_threadId(ctx, field)
+			case "reviewersId":
+				return ec.fieldContext_Request_reviewersId(ctx, field)
+			case "state":
+				return ec.fieldContext_Request_state(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Request_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Request_updatedAt(ctx, field)
+			case "approvedAt":
+				return ec.fieldContext_Request_approvedAt(ctx, field)
+			case "closedAt":
+				return ec.fieldContext_Request_closedAt(ctx, field)
+			case "thread":
+				return ec.fieldContext_Request_thread(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Request_createdBy(ctx, field)
+			case "workspace":
+				return ec.fieldContext_Request_workspace(ctx, field)
+			case "project":
+				return ec.fieldContext_Request_project(ctx, field)
+			case "reviewers":
+				return ec.fieldContext_Request_reviewers(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Request", field.Name)
 		},
 	}
 	return fc, nil
@@ -14557,6 +14650,8 @@ func (ec *executionContext) fieldContext_Item_metadata(ctx context.Context, fiel
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -14656,6 +14751,8 @@ func (ec *executionContext) fieldContext_Item_original(ctx context.Context, fiel
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -14849,6 +14946,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -15090,6 +15189,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -15362,6 +15463,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -22163,6 +22266,8 @@ func (ec *executionContext) fieldContext_PublishItemPayload_items(ctx context.Co
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -28715,6 +28820,8 @@ func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -29557,6 +29664,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_assets(ctx, field)
 			case "referencedItems":
 				return ec.fieldContext_Item_referencedItems(ctx, field)
+			case "requests":
+				return ec.fieldContext_Item_requests(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
@@ -41295,6 +41404,39 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "requests":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Item_requests(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
 			out.Values[i] = ec._Item_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -50667,6 +50809,53 @@ func (ec *executionContext) marshalORemoveMemberFromWorkspacePayload2ᚖgithub�
 		return graphql.Null
 	}
 	return ec._RemoveMemberFromWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORequest2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Request) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRequest2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequest(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalORequest2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequest(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Request) graphql.Marshaler {

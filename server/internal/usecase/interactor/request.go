@@ -51,6 +51,19 @@ func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter int
 	}, sort, pagination)
 }
 
+func (r Request) FindByItem(ctx context.Context, iId id.ItemID, filter *interfaces.RequestFilter, _ *usecase.Operator) (request.List, error) {
+	var f *repo.RequestFilter
+	if filter != nil {
+		f = &repo.RequestFilter{
+			State:     filter.State,
+			Keyword:   filter.Keyword,
+			Reviewer:  filter.Reviewer,
+			CreatedBy: filter.CreatedBy,
+		}
+	}
+	return r.repos.Request.FindByItems(ctx, id.ItemIDList{iId}, f)
+}
+
 func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam, operator *usecase.Operator) (*request.Request, error) {
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
