@@ -139,6 +139,7 @@ Item Information: アイテムの情報
 Updated At: 更新日時
 Updated By: 更新者
 Publish State: 公開状態
+Linked Request: リンクされたリクエスト
 This item has been referenced: このアイテムは参照されています
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
 State: ステータス
@@ -272,9 +273,9 @@ Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
 Assign to: 割り当てる
+WAITING: レビュー待ち
 APPROVED: 承認済
 CLOSED: クローズ済
-WAITING: レビュー待ち
 Current user: 現在のユーザー
 Delete Model: モデルを削除
 Delete Group: グループを削除
