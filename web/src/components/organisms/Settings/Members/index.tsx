@@ -7,7 +7,8 @@ import useHooks from "./hooks";
 const Members: React.FC = () => {
   const {
     me,
-    owner,
+    isOwner,
+    isAbleToLeave,
     searchedUser,
     handleSearchTerm,
     changeSearchedUser,
@@ -22,6 +23,7 @@ const Members: React.FC = () => {
     selectedMember,
     roleModalShown,
     handleMemberRemoveFromWorkspace,
+    handleLeave,
     handleRoleModalClose,
     handleRoleModalOpen,
     handleMemberAddModalClose,
@@ -41,8 +43,10 @@ const Members: React.FC = () => {
     <>
       <MemberTable
         me={me}
-        owner={owner}
+        isOwner={isOwner}
+        isAbleToLeave={isAbleToLeave}
         handleMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
+        onLeave={handleLeave}
         handleSearchTerm={handleSearchTerm}
         handleRoleModalOpen={handleRoleModalOpen}
         handleMemberAddModalOpen={handleMemberAddModalOpen}

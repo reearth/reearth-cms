@@ -207,6 +207,8 @@ Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
 Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
+Are you sure to leave this workspace?: 本当にこのワークスペースを離れてもよろしいですか？
+Leave this workspace means you will not view any content of this workspace.: ワークスペースを離れると、ワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Thumbnail: サムネイル
 Email: メールアドレス
 Action: 操作
@@ -530,6 +532,8 @@ Failed to update member's role.: メンバーのロールの更新に失敗し�
 Successfully updated member's role!: メンバーのロールの更新に成功しました。
 Failed to remove member(s) from the workspace.: メンバーの削除に失敗しました。
 Successfully removed member(s) from the workspace!: メンバーの削除に成功しました。
+Failed to leave the workspace.: ワークスペースを離れることに失敗しました。
+Successfully left the workspace!: ワークスペースを離れることに成功しました!
 Failed to update integration.: インテグレーションの更新に失敗しました。
 Successfully updated integration!: インテグレーションの更新に成功しました。
 Failed to delete integration.: インテグレーションの削除に失敗しました。
