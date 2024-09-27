@@ -12,17 +12,23 @@ import (
 	"github.com/samber/lo"
 )
 
-var contextKey = struct{}{}
+type contextKey string
+
+func (c contextKey) String() string {
+	return "public_api_" + string(c)
+}
+
+var controllerCK = contextKey("controller")
 
 const defaultLimit = 50
 const maxLimit = 100
 
 func AttachController(ctx context.Context, c *Controller) context.Context {
-	return context.WithValue(ctx, contextKey, c)
+	return context.WithValue(ctx, controllerCK, c)
 }
 
 func GetController(ctx context.Context) *Controller {
-	return ctx.Value(contextKey).(*Controller)
+	return ctx.Value(controllerCK).(*Controller)
 }
 
 func Echo(e *echo.Group) {
