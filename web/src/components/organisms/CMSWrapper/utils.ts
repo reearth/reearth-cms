@@ -1,6 +1,6 @@
-import { Role, UserRole } from "@reearth-cms/components/molecules/Member/types";
+import { Role, UserRights } from "@reearth-cms/components/molecules/Member/types";
 
-export const userRoleGet = (role: Role): UserRole => {
+export const userRightsGet = (role: Role): UserRights => {
   switch (role) {
     case "OWNER":
       return {

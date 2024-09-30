@@ -23,11 +23,11 @@ import {
   useProject,
   useUserId,
   useWorkspaceId,
-  useUserRole,
+  useUserRights,
 } from "@reearth-cms/state";
 import { splitPathname } from "@reearth-cms/utils/path";
 
-import { userRoleGet } from "./utils";
+import { userRightsGet } from "./utils";
 
 export default () => {
   const t = useT();
@@ -40,7 +40,7 @@ export default () => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [, setCurrentWorkspaceId] = useWorkspaceId();
   const [currentProject, setCurrentProject] = useProject();
-  const [, setUserRole] = useUserRole();
+  const [, setUserRights] = useUserRights();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -98,9 +98,9 @@ export default () => {
       member => "userId" in member && member.userId === data?.me?.id,
     );
     if (userInfo) {
-      setUserRole(userRoleGet((userInfo as UserMember).role));
+      setUserRights(userRightsGet((userInfo as UserMember).role));
     }
-  }, [currentUserId, currentWorkspace, data?.me?.id, setUserRole]);
+  }, [currentUserId, currentWorkspace, data?.me?.id, setUserRights]);
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
   const handleWorkspaceCreate = useCallback(

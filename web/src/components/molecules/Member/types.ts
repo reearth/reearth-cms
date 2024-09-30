@@ -12,7 +12,7 @@ t("READER");
 t("MAINTAINER");
 t("OWNER");
 
-export type UserRole = {
+export type UserRights = {
   role: Role;
   workspace: {
     remove: boolean;

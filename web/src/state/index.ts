@@ -1,7 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
-import { UserRole } from "@reearth-cms/components/molecules/Member/types";
+import { UserRights } from "@reearth-cms/components/molecules/Member/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Workspace, Project } from "@reearth-cms/components/molecules/Workspace/types";
 
@@ -23,5 +23,5 @@ export const useModel = () => useAtom(model);
 const collapsedModelMenu = atomWithStorage<boolean>("collapsedModelMenu", false);
 export const useCollapsedModelMenu = () => useAtom(collapsedModelMenu);
 
-const userRole = atom<UserRole | undefined>(undefined);
-export const useUserRole = () => useAtom(userRole);
+const userRights = atom<UserRights | undefined>(undefined);
+export const useUserRights = () => useAtom(userRights);
