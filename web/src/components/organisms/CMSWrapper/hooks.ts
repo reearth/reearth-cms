@@ -88,7 +88,6 @@ export default () => {
     async (data: { name: string }) => {
       const results = await createWorkspaceMutation({
         variables: { name: data.name },
-        refetchQueries: ["GetWorkspaces"],
       });
       if (results.data?.createWorkspace) {
         Notification.success({ message: t("Successfully created workspace!") });

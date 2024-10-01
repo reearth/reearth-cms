@@ -402,7 +402,7 @@ func FromSchemaTypeProperty(t integrationapi.ValueType, multiple bool) (tpRes *s
 	case integrationapi.ValueTypeUrl:
 		tpRes = schema.NewURL().TypeProperty()
 	case integrationapi.ValueTypeGeometryObject:
-		tpRes = schema.NewGeometryObject(nil).TypeProperty()
+		tpRes = schema.NewGeometryObject(schema.GeometryAllSupportedTypes()).TypeProperty()
 	case integrationapi.ValueTypeGeometryEditor:
 		tpRes = schema.NewGeometryEditor(nil).TypeProperty()
 	default:
