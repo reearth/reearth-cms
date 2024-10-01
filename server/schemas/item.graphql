@@ -20,6 +20,7 @@ type Item implements Node {
   fields: [ItemField!]!
   assets: [Asset]!
   referencedItems:[Item!]
+  requests: [Request!]
   createdAt: DateTime!
   updatedAt: DateTime!
   updatedBy: Operator
