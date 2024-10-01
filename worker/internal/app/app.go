@@ -12,7 +12,7 @@ import (
 	rlog "github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	sns "github.com/robbiet480/go.sns"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho" // nolint:staticcheck
 )
 
 func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Echo {

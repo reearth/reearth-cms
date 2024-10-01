@@ -85,8 +85,8 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onSu
           ]}>
           <Select placeholder={t("select role")} onSelect={handleSelect}>
             <Option value="OWNER">{t("Owner")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>
+            <Option value="WRITER">{t("Writer")}</Option>
             <Option value="READER">{t("Reader")}</Option>
           </Select>
         </Form.Item>

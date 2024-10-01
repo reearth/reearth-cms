@@ -40,3 +40,15 @@ func GeometryObjectSupportedTypeFrom(s string) GeometryObjectSupportedType {
 		return GeometryObjectSupportedType("")
 	}
 }
+
+func GeometryAllSupportedTypes() GeometryObjectSupportedTypeList {
+	return GeometryObjectSupportedTypeList{
+		GeometryObjectSupportedTypePoint,
+		GeometryObjectSupportedTypeMultiPoint,
+		GeometryObjectSupportedTypeLineString,
+		GeometryObjectSupportedTypeMultiLineString,
+		GeometryObjectSupportedTypePolygon,
+		GeometryObjectSupportedTypeMultiPolygon,
+		GeometryObjectSupportedTypeGeometryCollection,
+	}
+}

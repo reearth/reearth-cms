@@ -68,7 +68,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		iid = a.Integration().StringRef()
 	}
 
-	ad, id := &AssetDocument{
+	return &AssetDocument{
 		ID:                      aid,
 		Project:                 a.Project().String(),
 		CreatedAt:               a.CreatedAt(),
@@ -82,8 +82,6 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		ArchiveExtractionStatus: archiveExtractionStatus,
 		FlatFiles:               a.FlatFiles(),
 	}, aid
-
-	return ad, id
 }
 
 func (d *AssetDocument) Model() (*asset.Asset, error) {
@@ -158,7 +156,7 @@ func (f *AssetFileDocument) Model() *asset.File {
 	}
 
 	var c []*asset.File
-	if f.Children != nil && len(f.Children) > 0 {
+	if len(f.Children) > 0 {
 		for _, v := range f.Children {
 			f := v.Model()
 			c = append(c, f)
