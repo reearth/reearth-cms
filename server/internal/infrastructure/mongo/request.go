@@ -129,7 +129,12 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 			"$and": []bson.M{
 				filter,
 				{
-					"$or": []bson.M{{"title": keywordRegex}, {"description": keywordRegex}, {"id": *uFilter.Keyword}},
+					"$or": []bson.M{
+						{"title": keywordRegex},
+						{"description": keywordRegex},
+						{"id": *uFilter.Keyword},
+						{"items.item": *uFilter.Keyword},
+					},
 				},
 			},
 		}

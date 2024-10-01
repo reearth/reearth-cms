@@ -24,9 +24,21 @@ type Item struct {
 	err  error
 }
 
-func (r *Item) FindByAssets(ctx context.Context, assetID id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
-	// TODO implement me
-	panic("implement me")
+func (r *Item) FindByAssets(ctx context.Context, list id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	var res item.VersionedList
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(ref.OrLatest().OrVersion())
+		it := itv.Value()
+		if it.AssetIDs().Has(list...) {
+			res = append(res, itv)
+		}
+		return true
+	})
+	return res, nil
 }
 
 func NewItem() repo.Item {
