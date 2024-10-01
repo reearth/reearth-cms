@@ -942,7 +942,7 @@ func TestProjectRepo_Save(t *testing.T) {
 
 func TestProject_FindByPublicAPIToken(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()
-	tid1 := id.NewWorkspaceID()
+	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	pub := project.NewPublication(project.PublicationScopeLimited, false)
 	p1 := project.New().
