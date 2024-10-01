@@ -32,7 +32,7 @@ func (r *mutationResolver) CreateRequest(ctx context.Context, input gqlmodel.Cre
 			return nil, err
 		}
 
-		return request.NewItem(iid)
+		return request.NewItem(iid, i.Version)
 	})
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (r *mutationResolver) UpdateRequest(ctx context.Context, input gqlmodel.Upd
 			return nil, err
 		}
 
-		return request.NewItem(iid)
+		return request.NewItem(iid, i.Version)
 	})
 	if err != nil {
 		return nil, err
