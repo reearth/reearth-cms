@@ -21,8 +21,7 @@ type Operator struct {
 	MaintainableProjects project.IDList
 	PublicAPIToken       string
 
-	AcOperator     *accountusecase.Operator
-	PublicAPIToken string
+	AcOperator *accountusecase.Operator
 }
 
 type Ownable interface {

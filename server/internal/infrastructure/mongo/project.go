@@ -98,6 +98,7 @@ func (r *ProjectRepo) FindByPublicName(ctx context.Context, name string) (*proje
 	})
 }
 
+
 func (r *ProjectRepo) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
 	return r.findOne(ctx, bson.M{
 		"publication.token": token,

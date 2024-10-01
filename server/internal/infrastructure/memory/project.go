@@ -36,7 +36,7 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	}
 }
 
-func (r *Project) FindByWorkspaces(_ context.Context, wids id.WorkspaceIDList, _ *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *Project) FindByWorkspaces(_ context.Context, wids accountdomain.WorkspaceIDList, _ *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -128,6 +128,7 @@ func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Pro
 	}
 	return nil, rerror.ErrNotFound
 }
+
 
 func (r *Project) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
 	if r.err != nil {
