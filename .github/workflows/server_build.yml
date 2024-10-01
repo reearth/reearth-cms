@@ -94,7 +94,7 @@ jobs:
           echo "::set-output name=version::$VERSION"
           echo "::set-output name=tags::$TAGS"
       - name: Fetch reearth-cms-web
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: ci_web.yml
@@ -107,7 +107,7 @@ jobs:
       - name: Extract reearth-cms-web
         run: tar -xvf server/reearth-cms-web.tar.gz; mv reearth-cms-web server/web; ls
       - name: Build and push docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./server
           platforms: ${{ steps.options.outputs.platforms }}
