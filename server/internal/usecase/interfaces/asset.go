@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+	"io"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -29,7 +30,11 @@ type UpdateAssetParam struct {
 
 type CreateAssetUploadParam struct {
 	ProjectID idx.ID[id.Project]
-	Filename  string
+
+	Filename      string
+	ContentLength int64
+
+	Cursor string
 }
 
 var (
@@ -43,17 +48,26 @@ type AssetFilter struct {
 	Pagination *usecasex.Pagination
 }
 
+type AssetUpload struct {
+	URL           string
+	UUID          string
+	ContentType   string
+	ContentLength int64
+	Next          string
+}
+
 type Asset interface {
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
 	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
 	FindFileByID(context.Context, id.AssetID, *usecase.Operator) (*asset.File, error)
+	DownloadByID(context.Context, id.AssetID, *usecase.Operator) (io.ReadCloser, error)
 	GetURL(*asset.Asset) string
 	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, *asset.File, error)
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
 	DecompressByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
-	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (string, string, string, error)
+	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (*AssetUpload, error)
 	RetryDecompression(context.Context, string) error
 }

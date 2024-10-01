@@ -10,20 +10,20 @@ import (
 type Query struct {
 	project id.ProjectID
 	schema  *id.SchemaID
-	model   *id.ModelID
-	q       string
+	model   id.ModelID
+	keyword string
 	ref     *version.Ref
 
 	sort   *view.Sort
 	filter *view.Condition
 }
 
-func NewQuery(project id.ProjectID, schema *id.SchemaID, model *id.ModelID, q string, ref *version.Ref) *Query {
+func NewQuery(project id.ProjectID, model id.ModelID, schema *id.SchemaID, keyword string, ref *version.Ref) *Query {
 	return &Query{
 		project: project,
 		schema:  schema,
 		model:   model,
-		q:       q,
+		keyword: keyword,
 		ref:     ref,
 	}
 }
@@ -38,9 +38,8 @@ func (q *Query) WithFilter(filter *view.Condition) *Query {
 	return q
 }
 
-// Q returns keywords for search
-func (q *Query) Q() string {
-	return q.q
+func (q *Query) Keyword() string {
+	return q.keyword
 }
 
 func (q *Query) Project() id.ProjectID {
@@ -51,7 +50,7 @@ func (q *Query) Schema() *id.SchemaID {
 	return q.schema
 }
 
-func (q *Query) Model() *id.ModelID {
+func (q *Query) Model() id.ModelID {
 	return q.model
 }
 
@@ -95,4 +94,10 @@ func (q *Query) MetaFields() view.FieldSelectorList {
 
 func (q *Query) HasMetaFields() bool {
 	return len(q.MetaFields()) > 0
+}
+
+func (q *Query) Fields() view.FieldSelectorList {
+	res := append(view.FieldSelectorList{}, q.ItemFields()...)
+	res = append(res, q.MetaFields()...)
+	return res
 }

@@ -1,28 +1,31 @@
 import styled from "@emotion/styled";
 
 import ProjectCreationModal, {
-  FormValues,
+  FormValues as ProjectFormValues,
 } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
-import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import WorkspaceCreationModal, {
+  FormValues as WorkspaceFormValues,
+} from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import ProjectList from "@reearth-cms/components/molecules/ProjectList/ProjectList";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
-import { Project as ProjectType } from "@reearth-cms/components/molecules/Workspace/types";
+import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/WorkspaceHeader";
 
-export type Props = {
+type Props = {
   coverImageUrl?: string;
-  projects?: ProjectType[];
-  projectModal?: boolean;
-  workspaceModal?: boolean;
-  loadingProjects?: boolean;
+  projects?: Project[];
+  projectModal: boolean;
+  workspaceModal: boolean;
+  loadingProjects: boolean;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
-  onProjectNavigation: (project: ProjectType) => void;
+  onProjectNavigation: (project: Project) => void;
   onWorkspaceModalClose: () => void;
   onWorkspaceModalOpen: () => void;
-  onWorkspaceCreate: (data: { name: string }) => Promise<void>;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  onWorkspaceCreate: (data: WorkspaceFormValues) => Promise<void>;
+  onClose: () => void;
+  onSubmit: (values: ProjectFormValues) => Promise<void>;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({
@@ -39,6 +42,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   onWorkspaceCreate,
   onClose,
   onSubmit,
+  onProjectAliasCheck,
 }) => {
   return (
     <Wrapper>
@@ -55,7 +59,12 @@ const WorkspaceWrapper: React.FC<Props> = ({
           onProjectModalOpen={onProjectModalOpen}
           onProjectNavigation={onProjectNavigation}
         />
-        <ProjectCreationModal open={projectModal} onClose={onClose} onSubmit={onSubmit} />
+        <ProjectCreationModal
+          open={projectModal}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          onProjectAliasCheck={onProjectAliasCheck}
+        />
       </Content>
       <WorkspaceCreationModal
         open={workspaceModal}

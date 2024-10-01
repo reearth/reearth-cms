@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -31,7 +30,7 @@ var (
 type ItemFieldParam struct {
 	Field *item.FieldID
 	Key   *key.Key
-	Type  value.Type
+	// Type  value.Type
 	Value any
 	Group *id.ItemGroupID
 }
@@ -50,6 +49,38 @@ type UpdateItemParam struct {
 	Version    *version.Version
 }
 
+type ImportStrategyType string
+
+const (
+	ImportStrategyTypeInsert ImportStrategyType = "insert"
+	ImportStrategyTypeUpdate ImportStrategyType = "update"
+	ImportStrategyTypeUpsert ImportStrategyType = "upsert"
+)
+
+type ImportItemParam struct {
+	ItemId     *id.ItemID
+	MetadataID *item.ID
+	Fields     []ItemFieldParam
+}
+
+type ImportItemsParam struct {
+	ModelID      id.ModelID
+	SP           schema.Package
+	Strategy     ImportStrategyType
+	MutateSchema bool
+	// GeoField     *string // field key or id
+	Items  []ImportItemParam
+	Fields []CreateFieldParam
+}
+
+type ImportItemsResponse struct {
+	Total     int
+	Inserted  int
+	Updated   int
+	Ignored   int
+	NewFields schema.FieldList
+}
+
 type Item interface {
 	FindByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindPublicByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
@@ -57,9 +88,8 @@ type Item interface {
 	FindByAssets(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]item.VersionedList, error)
 	FindBySchema(context.Context, id.SchemaID, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
-	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)
-	Search(context.Context, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	Search(context.Context, schema.Package, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	ItemStatus(context.Context, id.ItemIDList, *usecase.Operator) (map[id.ItemID]item.Status, error)
 	LastModifiedByModel(context.Context, id.ModelID, *usecase.Operator) (time.Time, error)
 	IsItemReferenced(context.Context, id.ItemID, id.FieldID, *usecase.Operator) (bool, error)
@@ -68,4 +98,5 @@ type Item interface {
 	Delete(context.Context, id.ItemID, *usecase.Operator) error
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
+	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
 }

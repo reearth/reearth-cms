@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mime"
+	"io"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -68,6 +69,20 @@ func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Ope
 	return files, nil
 }
 
+func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (io.ReadCloser, error) {
+	a, err := i.repos.Asset.FindByID(ctx, aid)
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := i.gateways.File.ReadAsset(ctx, a.UUID(), a.FileName())
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
+}
+
 func (i *Asset) GetURL(a *asset.Asset) string {
 	return i.gateways.File.GetURL(a)
 }
@@ -102,7 +117,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		file.Size = size
 	}
 
-	return Run2(
+	a, f, err := Run2[*asset.Asset, *asset.File](
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
@@ -147,7 +162,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Project(inp.ProjectID).
 				FileName(path.Base(file.Name)).
 				Size(uint64(file.Size)).
-				Type(asset.PreviewTypeFromContentType(file.ContentType)).
+				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).
 				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
@@ -184,19 +199,25 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 					return nil, nil, err
 				}
 			}
-
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: prj.Workspace(),
-				Type:      event.AssetCreate,
-				Object:    a,
-				Operator:  op.Operator(),
-			}); err != nil {
-				return nil, nil, err
-			}
-
 			return a, f, nil
 		})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// In AWS, extraction is done in very short time when a zip file is small, so it often results in an error because an asset is not saved yet in MongoDB. So an event should be created after commtting the transaction.
+	if err := i.event(ctx, Event{
+		Project:   prj,
+		Workspace: prj.Workspace(),
+		Type:      event.AssetCreate,
+		Object:    a,
+		Operator:  op.Operator(),
+	}); err != nil {
+		return nil, nil, err
+	}
+
+	return a, f, nil
 }
 
 func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
@@ -237,42 +258,110 @@ func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *us
 	)
 }
 
-func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUploadParam, op *usecase.Operator) (string, string, string, error) {
+type wrappedUploadCursor struct {
+	UUID   string
+	Cursor string
+}
+
+func (c wrappedUploadCursor) String() string {
+	return c.UUID + "_" + c.Cursor
+}
+
+func parseWrappedUploadCursor(c string) (*wrappedUploadCursor, error) {
+	uuid, cursor, found := strings.Cut(c, "_")
+	if !found {
+		return nil, fmt.Errorf("separator not found")
+	}
+	return &wrappedUploadCursor{
+		UUID:   uuid,
+		Cursor: cursor,
+	}, nil
+}
+
+func wrapUploadCursor(uuid, cursor string) string {
+	if cursor == "" {
+		return ""
+	}
+	return wrappedUploadCursor{UUID: uuid, Cursor: cursor}.String()
+}
+
+func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUploadParam, op *usecase.Operator) (*interfaces.AssetUpload, error) {
 	if op.AcOperator.User == nil && op.Integration == nil {
-		return "", "", "", interfaces.ErrInvalidOperator
+		return nil, interfaces.ErrInvalidOperator
 	}
-	if inp.Filename == "" {
-		return "", "", "", interfaces.ErrFileNotIncluded
+
+	var param *gateway.IssueUploadAssetParam
+	if inp.Cursor == "" {
+		if inp.Filename == "" {
+			// TODO: Change to the appropriate error
+			return nil, interfaces.ErrFileNotIncluded
+		}
+
+		const week = 7 * 24 * time.Hour
+		expiresAt := time.Now().Add(1 * week)
+		param = &gateway.IssueUploadAssetParam{
+			UUID:          uuid.New().String(),
+			Filename:      inp.Filename,
+			ContentLength: inp.ContentLength,
+			ExpiresAt:     expiresAt,
+			Cursor:        "",
+		}
+	} else {
+		wrapped, err := parseWrappedUploadCursor(inp.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("parse cursor(%s): %w", inp.Cursor, err)
+		}
+		au, err := i.repos.AssetUpload.FindByID(ctx, wrapped.UUID)
+		if err != nil {
+			return nil, fmt.Errorf("find asset upload(uuid=%s): %w", wrapped.UUID, err)
+		}
+		if inp.ProjectID.Compare(au.Project()) != 0 {
+			return nil, fmt.Errorf("unmatched project id(in=%s,db=%s)", inp.ProjectID, au.Project())
+		}
+		param = &gateway.IssueUploadAssetParam{
+			UUID:          wrapped.UUID,
+			Filename:      au.FileName(),
+			ContentLength: au.ContentLength(),
+			ExpiresAt:     au.ExpiresAt(),
+			Cursor:        wrapped.Cursor,
+		}
 	}
+
 	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
 	if err != nil {
-		return "", "", "", err
+		return nil, err
 	}
 	if !op.IsWritableWorkspace(prj.Workspace()) {
-		return "", "", "", interfaces.ErrOperationDenied
+		return nil, interfaces.ErrOperationDenied
 	}
 
-	const week = 7 * 24 * time.Hour
-	expiresAt := time.Now().Add(1 * week)
-
-	contentType := mime.TypeByExtension(path.Ext(inp.Filename))
-	uploadURL, uuid, err := i.gateways.File.IssueUploadAssetLink(ctx, inp.Filename, contentType, expiresAt)
+	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctx, *param)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
-		return "", "", "", nil
+		return nil, rerror.ErrNotFound
 	}
 	if err != nil {
-		return "", "", "", err
+		return nil, err
 	}
-	u := asset.NewUpload().
-		UUID(uuid).
-		Project(prj.ID()).
-		FileName(inp.Filename).
-		ExpiresAt(expiresAt).
-		Build()
-	if err := i.repos.AssetUpload.Save(ctx, u); err != nil {
-		return "", "", "", err
+
+	if inp.Cursor == "" {
+		u := asset.NewUpload().
+			UUID(param.UUID).
+			Project(prj.ID()).
+			FileName(param.Filename).
+			ExpiresAt(param.ExpiresAt).
+			ContentLength(param.ContentLength).
+			Build()
+		if err := i.repos.AssetUpload.Save(ctx, u); err != nil {
+			return nil, err
+		}
 	}
-	return uploadURL, uuid, contentType, nil
+	return &interfaces.AssetUpload{
+		URL:           uploadLink.URL,
+		UUID:          param.UUID,
+		ContentType:   uploadLink.ContentType,
+		ContentLength: uploadLink.ContentLength,
+		Next:          wrapUploadCursor(param.UUID, uploadLink.Next),
+	}, nil
 }
 
 func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {
@@ -333,40 +422,16 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	a, err := i.repos.Asset.FindByID(ctx, aid)
-	if err != nil {
-		return nil, err
-	}
-	if !op.CanUpdate(a) {
-		return nil, interfaces.ErrOperationDenied
-	}
-	if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
-		return a, nil
-	}
-	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
-	if err != nil {
-		return nil, err
-	}
-	assetFiles := lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
-		return asset.NewFile().
-			Name(path.Base(f.Name)).
-			Path(f.Name).
-			GuessContentType().
-			Build()
-	})
-
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
 			a, err := i.repos.Asset.FindByID(ctx, aid)
 			if err != nil {
-				return nil, err
-			}
-
-			srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
-			if err != nil {
-				return nil, err
+				if err == rerror.ErrNotFound {
+					return nil, err
+				}
+				return nil, fmt.Errorf("failed to find an asset: %v", err)
 			}
 
 			if !op.CanUpdate(a) {
@@ -377,9 +442,23 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return a, nil
 			}
 
-			assetFiles := lo.Filter(assetFiles, func(f *asset.File, _ int) bool {
-				return srcfile.Path() != f.Path()
-			})
+			prj, err := i.repos.Project.FindByID(ctx, a.Project())
+			if err != nil {
+				return nil, fmt.Errorf("failed to find a project: %v", err)
+			}
+
+			srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
+			if err != nil {
+				return nil, fmt.Errorf("failed to find an asset file: %v", err)
+			}
+
+			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
+			if err != nil {
+				if err == gateway.ErrFileNotFound {
+					return nil, err
+				}
+				return nil, fmt.Errorf("failed to get asset files: %v", err)
+			}
 
 			a.UpdateArchiveExtractionStatus(s)
 			if previewType := detectPreviewType(files); previewType != nil {
@@ -387,26 +466,34 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to save an asset: %v", err)
 			}
+
+			srcPath := srcfile.Path()
+			assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
+				if srcPath == f.Name {
+					return nil, false
+				}
+				return asset.NewFile().
+					Name(path.Base(f.Name)).
+					Path(f.Name).
+					Size(uint64(f.Size)).
+					GuessContentType().
+					Build(), true
+			})
 
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-				return nil, err
-			}
-
-			p, err := i.repos.Project.FindByID(ctx, a.Project())
-			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to save asset files: %v", err)
 			}
 
 			if err := i.event(ctx, Event{
-				Project:   p,
-				Workspace: p.Workspace(),
+				Project:   prj,
+				Workspace: prj.Workspace(),
 				Type:      event.AssetDecompress,
 				Object:    a,
 				Operator:  op.Operator(),
 			}); err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to create an event: %v", err)
 			}
 
 			return a, nil

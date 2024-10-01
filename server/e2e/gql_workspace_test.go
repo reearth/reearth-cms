@@ -9,11 +9,13 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/language"
 )
@@ -27,6 +29,8 @@ var (
 	iId1 = accountdomain.NewIntegrationID()
 	iId2 = accountdomain.NewIntegrationID()
 	iId3 = accountdomain.NewIntegrationID()
+	rid  = workspacesettings.NewResourceID()
+	rid2 = workspacesettings.NewResourceID()
 )
 
 func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
@@ -92,11 +96,28 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
+	rid := workspacesettings.NewResourceID()
+	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
+	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
+	r1 := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
+	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r1}, rid.Ref(), lo.ToPtr(false))
+
+	rid2 := workspacesettings.NewResourceID()
+	pp2 := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
+	tt2 := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(workspacesettings.TerrainTypeCesiumIon), pp2)
+	r2 := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, tt2)
+	terrains := workspacesettings.NewResourceList([]*workspacesettings.Resource{r2}, rid2.Ref(), lo.ToPtr(true))
+
+	ws := workspacesettings.New().ID(wId).Tiles(tiles).Terrains(terrains).MustBuild()
+	if err := r.WorkspaceSettings.Save(ctx, ws); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func TestCreateWorkspace(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
+	e := StartServer(t, &app.Config{}, true, baseSeederWorkspace)
 
 	query := `mutation { createWorkspace(input: {name: "test"}){ workspace{ id name } }}`
 	request := GraphQLRequest{
@@ -106,17 +127,23 @@ func TestCreateWorkspace(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
+	e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("data").Object().Value("createWorkspace").Object().Value("workspace").Object().Value("name").String().IsEqual("test")
+		WithBytes(jsonData).
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object().
+		Value("data").Object().
+		Value("createWorkspace").Object().
+		Value("workspace").Object().
+		Value("name").String().IsEqual("test")
 }
 
 func TestDeleteWorkspace(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
-	_, err := r.Workspace.FindByID(context.Background(), wId)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
+	_, err := ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	query := fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, wId)
 	request := GraphQLRequest{
@@ -132,7 +159,7 @@ func TestDeleteWorkspace(t *testing.T) {
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
 	o.Value("data").Object().Value("deleteWorkspace").Object().Value("workspaceId").String().IsEqual(wId.String())
 
-	_, err = r.Workspace.FindByID(context.Background(), wId)
+	_, err = ar.Workspace.FindByID(context.Background(), wId)
 	assert.Equal(t, rerror.ErrNotFound, err)
 
 	query = fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, accountdomain.NewWorkspaceID())
@@ -152,9 +179,9 @@ func TestDeleteWorkspace(t *testing.T) {
 }
 
 func TestUpdateWorkspace(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
-	w, err := r.Workspace.FindByID(context.Background(), wId)
+	w, err := ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.Equal(t, "e2e", w.Name())
 
@@ -173,7 +200,7 @@ func TestUpdateWorkspace(t *testing.T) {
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
 	o.Value("data").Object().Value("updateWorkspace").Object().Value("workspace").Object().Value("name").String().IsEqual("updated")
 
-	w, err = r.Workspace.FindByID(context.Background(), wId)
+	w, err = ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.Equal(t, "updated", w.Name())
 
@@ -194,9 +221,9 @@ func TestUpdateWorkspace(t *testing.T) {
 }
 
 func TestAddUsersToWorkspace(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
-	w, err := r.Workspace.FindByID(context.Background(), wId)
+	w, err := ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.False(t, w.Members().HasUser(uId2))
 
@@ -214,7 +241,7 @@ func TestAddUsersToWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK)
 
-	w, err = r.Workspace.FindByID(context.Background(), wId)
+	w, err = ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.True(t, w.Members().HasUser(uId2))
 	assert.Equal(t, w.Members().User(uId2).Role, workspace.RoleReader)
@@ -236,9 +263,9 @@ func TestAddUsersToWorkspace(t *testing.T) {
 }
 
 func TestRemoveUserFromWorkspace(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
-	w, err := r.Workspace.FindByID(context.Background(), wId2)
+	w, err := ar.Workspace.FindByID(context.Background(), wId2)
 	assert.Nil(t, err)
 	assert.True(t, w.Members().HasUser(uId3))
 
@@ -256,7 +283,7 @@ func TestRemoveUserFromWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK)
 
-	w, err = r.Workspace.FindByID(context.Background(), wId)
+	w, err = ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.False(t, w.Members().HasUser(uId3))
 
@@ -269,9 +296,9 @@ func TestRemoveUserFromWorkspace(t *testing.T) {
 }
 
 func TestUpdateMemberOfWorkspace(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
-	w, err := r.Workspace.FindByID(context.Background(), wId2)
+	w, err := ar.Workspace.FindByID(context.Background(), wId2)
 	assert.Nil(t, err)
 	assert.Equal(t, w.Members().User(uId3).Role, workspace.RoleReader)
 	query := fmt.Sprintf(`mutation { updateUserOfWorkspace(input: {workspaceId: "%s", userId: "%s", role: MAINTAINER}){ workspace{ id } }}`, wId2, uId3)
@@ -288,7 +315,7 @@ func TestUpdateMemberOfWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK)
 
-	w, err = r.Workspace.FindByID(context.Background(), wId2)
+	w, err = ar.Workspace.FindByID(context.Background(), wId2)
 	assert.Nil(t, err)
 	assert.Equal(t, w.Members().User(uId3).Role, workspace.RoleMaintainer)
 
@@ -309,9 +336,9 @@ func TestUpdateMemberOfWorkspace(t *testing.T) {
 }
 
 func TestAddIntegrationToWorkspace(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
-	w, err := r.Workspace.FindByID(context.Background(), wId)
+	w, err := ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.False(t, w.Members().HasUser(uId2))
 
@@ -329,7 +356,7 @@ func TestAddIntegrationToWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK)
 
-	w, err = r.Workspace.FindByID(context.Background(), wId)
+	w, err = ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.True(t, w.Members().HasIntegration(iId2))
 	assert.Equal(t, w.Members().Integration(iId2).Role, workspace.RoleReader)
@@ -343,9 +370,9 @@ func TestAddIntegrationToWorkspace(t *testing.T) {
 }
 
 func TestRemoveIntegrationFromWorkspace(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
-	w, err := r.Workspace.FindByID(context.Background(), wId)
+	w, err := ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.True(t, w.Members().HasIntegration(iId1))
 
@@ -363,7 +390,7 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK)
 
-	w, err = r.Workspace.FindByID(context.Background(), wId)
+	w, err = ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.False(t, w.Members().HasIntegration(iId1))
 
@@ -376,9 +403,9 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 }
 
 func TestUpdateIntegrationOfWorkspace(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
-	w, err := r.Workspace.FindByID(context.Background(), wId)
+	w, err := ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.Equal(t, w.Members().Integration(iId3).Role, workspace.RoleReader)
 	query := fmt.Sprintf(`mutation { updateIntegrationOfWorkspace(input: {workspaceId: "%s", integrationId: "%s", role: MAINTAINER}){ workspace{ id } }}`, wId, iId3)
@@ -395,7 +422,7 @@ func TestUpdateIntegrationOfWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK)
 
-	w, err = r.Workspace.FindByID(context.Background(), wId)
+	w, err = ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.Equal(t, w.Members().Integration(iId3).Role, workspace.RoleMaintainer)
 

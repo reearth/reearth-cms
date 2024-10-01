@@ -8,13 +8,7 @@ const ViewerNotSupported: React.FC = () => {
   return (
     <ViewerNotSupportedContainer>
       <ViewerNotSupportedWrapper>
-        {/* TODO: should be replaced with ExclamationCircleTwoTone */}
-        <Icon
-          icon="exclamationCircle"
-          style={{
-            marginBottom: "10px",
-          }}
-        />
+        <StyledIcon icon="exclamationCircle" />
         <ViewerNotSupportedText>{t("Not supported")}</ViewerNotSupportedText>
       </ViewerNotSupportedWrapper>
     </ViewerNotSupportedContainer>
@@ -33,7 +27,7 @@ const ViewerNotSupportedWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  alignitems: center;
+  align-items: center;
 `;
 
 const ViewerNotSupportedText = styled.span`
@@ -43,6 +37,10 @@ const ViewerNotSupportedText = styled.span`
   font-size: 14px;
   line-height: 22px;
   color: rgba(0, 0, 0, 0.85);
+`;
+
+const StyledIcon = styled(Icon)`
+  margin-bottom: 10px;
 `;
 
 export default ViewerNotSupported;

@@ -2,8 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
-	"regexp"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
@@ -11,14 +9,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var (
@@ -27,11 +22,16 @@ var (
 		"modelid",
 		"project",
 		"schema",
-		"fields.schemafield",
+		"fields.f",
+		"fields.v.t",
+		"fields.v.v",
 		"project,schema,!timestamp,!id,__r",
+		"project,__r,modelid,schema,__",
 		"modelid,id,__r",
-		// "__r,assets,project,__", // cannot index parallel arrays
+		"modelid,!_id,__r",
+		"__r,assets,project,__",
 		"__r,project,__",
+		"__r,asset,project,__",
 		"schema,id,__r,project",
 	}
 )
@@ -98,16 +98,6 @@ func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version
 	res, pi, err := r.paginate(ctx, bson.M{
 		"modelid": modelID.String(),
 	}, ref, sort, pagination)
-	return res, pi, err
-}
-
-func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(projectID) {
-		return nil, usecasex.EmptyPageInfo(), repo.ErrOperationDenied
-	}
-	res, pi, err := r.paginate(ctx, bson.M{
-		"project": projectID.String(),
-	}, ref, nil, pagination)
 	return res, pi, err
 }
 
@@ -183,227 +173,6 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 	}
 
 	return r.find(ctx, bson.M{"$or": filters}, ref)
-}
-
-func (r *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	// apply basic filter like project, model, schema, keyword search
-	pipeline := []any{basicFilterStage(query)}
-
-	// if the query has any meta fields, lookup the meta item
-	if query.HasMetaFields() {
-		pipeline = append(pipeline, lookupStages()...)
-	}
-
-	// create aliases for fields used in filter logic or sort
-	pipeline = append(pipeline, aliasStages(query)...)
-
-	// apply filters and sort to pipeline
-	filterStage := filter(query.Filter())
-	if filterStage != nil {
-		pipeline = append(pipeline, bson.M{"$match": filterStage})
-	}
-
-	res, pi, err := r.paginateAggregation(ctx, pipeline, query.Ref(), sort(query), pagination)
-	return res, pi, err
-}
-
-func sort(query *item.Query) *usecasex.Sort {
-	var s *usecasex.Sort
-	if query.Sort() != nil {
-		reverted := query.Sort().Direction == view.DirectionDesc
-		s = &usecasex.Sort{
-			Key:      fieldKey(query.Sort().Field),
-			Reverted: reverted,
-		}
-	}
-	return s
-}
-
-func basicFilterStage(query *item.Query) any {
-	filter := bson.M{
-		"project": query.Project().String(),
-	}
-	if query.Q() != "" {
-		regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"}
-		filter["$or"] = []bson.M{
-			{"fields.v.v": bson.M{"$regex": regex}},
-			{"fields.value": bson.M{"$regex": regex}}, // compat
-		}
-	}
-	if query.Schema() != nil {
-		filter["schema"] = query.Schema().String()
-	}
-	if query.Model() != nil {
-		filter["modelid"] = query.Model().String()
-	}
-	return bson.M{"$match": filter}
-}
-
-func lookupStages() []any {
-	return []any{
-		bson.M{
-			"$lookup": bson.M{
-				"from":         "item",
-				"localField":   "metadataitem",
-				"foreignField": "id",
-				"as":           "__temp.meta",
-			},
-		},
-		bson.M{
-			"$unwind": "$__temp.meta",
-		},
-	}
-}
-
-func aliasStages(query *item.Query) []any {
-	aliases := bson.M{}
-	for _, field := range query.ItemFields() {
-		aliases["__temp."+field.ID.String()] = bson.M{
-			"$filter": bson.M{
-				"input": "$fields",
-				"as":    "field",
-				"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
-			},
-		}
-	}
-	for _, field := range query.MetaFields() {
-		aliases["__temp."+field.ID.String()] = bson.M{
-			"$filter": bson.M{
-				"input": "$__temp.meta.fields",
-				"as":    "field",
-				"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
-			},
-		}
-	}
-	if len(aliases) <= 0 {
-		return []any{}
-	}
-
-	stages := []any{
-		bson.M{"$set": aliases},
-	}
-
-	// flatten the value object
-	flattenAliases := bson.M{}
-	for key := range aliases {
-		flattenAliases[key] = "$" + key + ".v.v"
-	}
-	stages = append(stages, bson.M{
-		"$set": flattenAliases,
-	})
-
-	// unwind the aliases: will get the field value in side an array
-	for key := range aliases {
-		stages = append(stages, bson.M{"$unwind": bson.M{"path": "$" + key, "preserveNullAndEmptyArrays": true}})
-	}
-	return stages
-}
-
-func filter(f *view.Condition) any {
-	if f == nil {
-		return nil
-	}
-	ff := bson.M{}
-	if f.BasicCondition != nil {
-		switch f.BasicCondition.Op {
-		case view.BasicOperatorEquals:
-			ff[fieldKey(f.BasicCondition.Field)+".0"] = f.BasicCondition.Value
-		case view.BasicOperatorNotEquals:
-			ff[fieldKey(f.BasicCondition.Field)+".0"] = bson.M{"$ne": f.BasicCondition.Value}
-		}
-	}
-	if f.NullableCondition != nil {
-		switch f.NullableCondition.Op {
-		case view.NullableOperatorEmpty:
-			ff[fieldKey(f.NullableCondition.Field)+".0"] = bson.M{"$exists": false}
-		case view.NullableOperatorNotEmpty:
-			ff[fieldKey(f.NullableCondition.Field)+".0"] = bson.M{"$exists": true}
-		}
-	}
-	if f.BoolCondition != nil {
-		switch f.BoolCondition.Op {
-		case view.BoolOperatorEquals:
-			ff[fieldKey(f.BoolCondition.Field)+".0"] = f.BoolCondition.Value
-		case view.BoolOperatorNotEquals:
-			ff[fieldKey(f.BoolCondition.Field)+".0"] = bson.M{"$ne": f.BoolCondition.Value}
-		}
-	}
-	if f.StringCondition != nil {
-		switch f.StringCondition.Op {
-		case view.StringOperatorContains:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(f.StringCondition.Value))}
-		case view.StringOperatorNotContains:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(f.StringCondition.Value))}}
-		case view.StringOperatorStartsWith:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(f.StringCondition.Value))}
-		case view.StringOperatorNotStartsWith:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(f.StringCondition.Value))}}
-		case view.StringOperatorEndsWith:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(f.StringCondition.Value))}
-		case view.StringOperatorNotEndsWith:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(f.StringCondition.Value))}}
-		}
-	}
-	if f.NumberCondition != nil {
-		switch f.NumberCondition.Op {
-		case view.NumberOperatorGreaterThan:
-			ff[fieldKey(f.NumberCondition.Field)+".0"] = bson.M{"$gt": f.NumberCondition.Value}
-		case view.NumberOperatorGreaterThanOrEqualTo:
-			ff[fieldKey(f.NumberCondition.Field)+".0"] = bson.M{"$gte": f.NumberCondition.Value}
-		case view.NumberOperatorLessThan:
-			ff[fieldKey(f.NumberCondition.Field)+".0"] = bson.M{"$lt": f.NumberCondition.Value}
-		case view.NumberOperatorLessThanOrEqualTo:
-			ff[fieldKey(f.NumberCondition.Field)+".0"] = bson.M{"$lte": f.NumberCondition.Value}
-		}
-	}
-	if f.TimeCondition != nil {
-		switch f.TimeCondition.Op {
-		case view.TimeOperatorAfter:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gt": f.TimeCondition.Value}
-		case view.TimeOperatorAfterOrOn:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gte": f.TimeCondition.Value}
-		case view.TimeOperatorBefore:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$lt": f.TimeCondition.Value}
-		case view.TimeOperatorBeforeOrOn:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$lte": f.TimeCondition.Value}
-		case view.TimeOperatorOfThisWeek:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gte": time.Now().AddDate(0, 0, -7)}
-		case view.TimeOperatorOfThisMonth:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gte": time.Now().AddDate(0, -1, 0)}
-		case view.TimeOperatorOfThisYear:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gte": time.Now().AddDate(-1, 0, 0)}
-		}
-	}
-	if f.MultipleCondition != nil {
-		switch f.MultipleCondition.Op {
-		case view.MultipleOperatorIncludesAny:
-			ff[fieldKey(f.MultipleCondition.Field)+".0"] = bson.M{"$in": f.MultipleCondition.Value}
-		case view.MultipleOperatorIncludesAll:
-			ff[fieldKey(f.MultipleCondition.Field)+".0"] = bson.M{"$all": f.MultipleCondition.Value}
-		case view.MultipleOperatorNotIncludesAny:
-			ff[fieldKey(f.MultipleCondition.Field)+".0"] = bson.M{"$nin": f.MultipleCondition.Value}
-		case view.MultipleOperatorNotIncludesAll:
-			ff[fieldKey(f.MultipleCondition.Field)+".0"] = bson.M{"$not": bson.M{"$all": f.MultipleCondition.Value}}
-		}
-	}
-	if f.AndCondition != nil {
-		ff["$and"] = lo.Map(f.AndCondition.Conditions, func(c view.Condition, _ int) any {
-			return filter(&c)
-		})
-	}
-	if f.OrCondition != nil {
-		ff["$or"] = lo.Map(f.OrCondition.Conditions, func(c view.Condition, _ int) any {
-			return filter(&c)
-		})
-	}
-	return ff
-}
-
-func fieldKey(f view.FieldSelector) string {
-	if f.Type == view.FieldTypeMetaField || f.Type == view.FieldTypeField {
-		return "__temp." + f.ID.String()
-	}
-	return string(f.Type)
 }
 
 func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.VersionedList, error) {

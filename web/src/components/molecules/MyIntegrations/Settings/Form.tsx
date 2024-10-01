@@ -1,38 +1,100 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   integration: Integration;
-  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  updateIntegrationLoading: boolean;
+  regenerateLoading: boolean;
+  onIntegrationUpdate: (data: {
+    name: string;
+    description: string;
+    logoUrl: string;
+  }) => Promise<void>;
+  onRegenerateToken: () => Promise<void>;
 };
 
-const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }) => {
+type FormType = {
+  name: string;
+  description: string;
+  logoUrl: string;
+};
+
+const MyIntegrationForm: React.FC<Props> = ({
+  integration,
+  updateIntegrationLoading,
+  regenerateLoading,
+  onIntegrationUpdate,
+  onRegenerateToken,
+}) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
+  const [isDisabled, setIsDisabled] = useState(true);
+
+  const handleValuesChange = useCallback(
+    async (_: unknown, values: FormType) => {
+      const hasError = await form
+        .validateFields()
+        .then(() => false)
+        .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+      if (hasError) {
+        setIsDisabled(true);
+      } else {
+        setIsDisabled(
+          integration.name === values.name && integration.description === values.description,
+        );
+      }
+    },
+    [form, integration.description, integration.name],
+  );
 
   const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
     try {
       const values = await form.validateFields();
-      // TODO: when assets upload is ready to use
-      values.logoUrl = "_";
-      await onIntegrationUpdate?.(values);
-    } catch (info) {
-      console.log("Validate Failed:", info);
+      values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
+      await onIntegrationUpdate(values);
+    } catch (_) {
+      setIsDisabled(false);
     }
   }, [form, onIntegrationUpdate]);
 
+  const handleRegenerateToken = useCallback(() => {
+    Modal.confirm({
+      title: t("Regenerate The Integration Token?"),
+      content: t(
+        "If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
+      ),
+      cancelText: t("Cancel"),
+      okText: t("Reset"),
+      onOk() {
+        onRegenerateToken();
+      },
+    });
+  }, [t, onRegenerateToken]);
+
+  const handleCopy = useCallback(() => {
+    if (integration.config.token) navigator.clipboard.writeText(integration.config.token);
+  }, [integration.config.token]);
+
   return (
-    <Form form={form} layout="vertical" initialValues={integration}>
+    <Form
+      form={form}
+      layout="vertical"
+      initialValues={integration}
+      onValuesChange={handleValuesChange}>
       <Row gutter={32}>
         <Col span={11}>
           <Form.Item
@@ -50,16 +112,34 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
             <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
           <Form.Item label={t("Integration Token")}>
-            <Input.Password value={integration.config.token} contentEditable={false} />
+            <StyledTokenInput
+              value={integration.config.token}
+              contentEditable={false}
+              prefix={
+                <Tooltip title={t("Token copied!!")} trigger={"click"}>
+                  <Icon icon="copy" onClick={handleCopy} />
+                </Tooltip>
+              }
+            />
+            <StyledRegenerateTokenButton
+              type="primary"
+              onClick={handleRegenerateToken}
+              loading={regenerateLoading}>
+              {t("Regenerate")}
+            </StyledRegenerateTokenButton>
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              disabled={isDisabled}
+              loading={updateIntegrationLoading}>
               {t("Save")}
             </Button>
           </Form.Item>
         </Col>
         <Col>
-          <Divider type="vertical" style={{ height: "100%" }} />
+          <StyledDivider type="vertical" />
         </Col>
         <Col span={11}>
           <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>
@@ -69,7 +149,7 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
             <CodeImportant>“{t("your model id here")}”</CodeImportant>/items&apos;&nbsp;\
             <br />
             --header &apos;Authorization: Bearer&nbsp;
-            <CodeImportant>“your Integration Token here”</CodeImportant>&apos;
+            <CodeImportant>“{t("your Integration Token here")}”</CodeImportant>&apos;
           </CodeExample>
         </Col>
       </Row>
@@ -95,6 +175,31 @@ const CodeExample = styled.div`
 
 const CodeImportant = styled.span`
   color: #ff4d4f;
+`;
+
+const StyledDivider = styled(Divider)`
+  height: 100%;
+`;
+
+const StyledTokenInput = styled(Input.Password)`
+  width: calc(100% - 120px);
+  .ant-input-prefix {
+    order: 1;
+    margin-left: 4px;
+    color: rgb(0, 0, 0, 0.45);
+    transition: all 0.3s;
+    :hover {
+      color: rgba(0, 0, 0, 0.88);
+    }
+  }
+  .ant-input-suffix {
+    order: 2;
+  }
+`;
+
+const StyledRegenerateTokenButton = styled(Button)`
+  width: 115px;
+  margin-left: 5px;
 `;
 
 export default MyIntegrationForm;

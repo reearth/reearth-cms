@@ -1,45 +1,53 @@
-import { useParams } from "react-router-dom";
+import React from "react";
 
-import ViewFormMobal from "@reearth-cms/components/molecules/View/ViewFormModal";
+import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
+import ViewFormModal from "@reearth-cms/components/molecules/View/ViewFormModal";
 import ViewsMenuMolecule from "@reearth-cms/components/molecules/View/viewsMenu";
 
 import useHooks from "./hooks";
 
-const ViewsMenu: React.FC = () => {
-  const { modelId } = useParams();
+type Props = {
+  views: View[];
+  currentView: CurrentView;
+  onViewSelect: (key: string) => void;
+  onViewChange: () => void;
+};
 
+const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewChange }) => {
   const {
-    views,
-    handleViewModalOpen,
-    // handleViewUpdateModalOpen,
+    modalState,
     handleViewRenameModalOpen,
-    selectedView,
+    handleViewCreateModalOpen,
     viewModalShown,
     submitting,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,
+    handleViewRename,
     handleViewDelete,
-    handleViewDeletionModalClose,
-  } = useHooks({ modelId });
+    handleUpdateViewsOrder,
+  } = useHooks({ currentView, onViewChange });
 
   return (
     <>
       <ViewsMenuMolecule
-        views={views || []}
-        onViewModalOpen={handleViewModalOpen}
-        // onViewUpdateModalOpen={handleViewUpdateModalOpen}
+        views={views}
         onViewRenameModalOpen={handleViewRenameModalOpen}
+        onViewCreateModalOpen={handleViewCreateModalOpen}
+        currentView={currentView}
         onDelete={handleViewDelete}
-        onViewDeletionClose={handleViewDeletionModalClose}
+        onUpdate={handleViewUpdate}
+        onViewSelect={onViewSelect}
+        onUpdateViewsOrder={handleUpdateViewsOrder}
       />
-      <ViewFormMobal
-        view={selectedView}
+      <ViewFormModal
+        modalState={modalState}
+        currentView={currentView}
         open={viewModalShown}
         submitting={submitting}
         onClose={handleViewModalReset}
         onCreate={handleViewCreate}
-        OnUpdate={handleViewUpdate}
+        OnUpdate={handleViewRename}
       />
     </>
   );

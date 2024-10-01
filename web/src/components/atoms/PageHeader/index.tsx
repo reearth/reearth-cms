@@ -1,5 +1,5 @@
+import { PageHeader, PageHeaderProps } from "@ant-design/pro-layout";
 import styled from "@emotion/styled";
-import { PageHeader, PageHeaderProps } from "antd";
 
 export type Props = PageHeaderProps;
 
@@ -8,7 +8,11 @@ const Header: React.FC<Props> = props => {
 };
 
 const StyledPageHeader = styled(PageHeader)`
-  background-color: #fff;
+  background-color: #fff !important;
+  padding: 16px 24px;
+  .ant-page-header-heading {
+    flex-wrap: inherit;
+  }
 `;
 
 export default Header;

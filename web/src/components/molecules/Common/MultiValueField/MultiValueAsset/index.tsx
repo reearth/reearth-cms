@@ -4,50 +4,45 @@ import { useCallback, useEffect } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  className?: string;
+  itemAssets?: ItemAsset[];
   value?: string[];
   onChange?: (value: string[]) => void;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  assetList?: Asset[];
+  fileList?: UploadFile[];
+  loadingAssets?: boolean;
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
+  uploadUrl?: { url: string; autoUnzip: boolean };
+  uploadType?: UploadType;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
   disabled?: boolean;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
+  onUploadModalCancel?: () => void;
+  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadType?: (type: UploadType) => void;
+  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet?: () => void;
+  onAssetsReload?: () => void;
+  onAssetSearchTerm?: (term?: string | undefined) => void;
+  setFileList?: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility?: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const MultiValueAsset: React.FC<Props> = ({
-  className,
+  itemAssets,
   value = [],
   onChange,
   assetList,
@@ -66,11 +61,13 @@ const MultiValueAsset: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
   disabled,
+  onGetAsset,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -97,7 +94,7 @@ const MultiValueAsset: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>
@@ -118,6 +115,7 @@ const MultiValueAsset: React.FC<Props> = ({
               </>
             )}
             <AssetItem
+              itemAssets={itemAssets}
               disabled={disabled}
               value={valueItem}
               assetList={assetList}
@@ -136,11 +134,13 @@ const MultiValueAsset: React.FC<Props> = ({
               setUploadType={setUploadType}
               onAssetsCreate={onAssetsCreate}
               onAssetCreateFromUrl={onAssetCreateFromUrl}
+              onAssetsGet={onAssetsGet}
               onAssetsReload={onAssetsReload}
               onAssetSearchTerm={onAssetSearchTerm}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
               onChange={(e: string) => handleInput(e, key)}
+              onGetAsset={onGetAsset}
             />
             {!disabled && (
               <FieldButton

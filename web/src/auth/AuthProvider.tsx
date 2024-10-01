@@ -1,39 +1,55 @@
 import { Auth0Provider } from "@auth0/auth0-react";
-import React, { createContext, ReactNode } from "react";
+import React, { createContext, ReactNode, useState } from "react";
+
+import { getAuthInfo, getSignInCallbackUrl, logInToTenant } from "@reearth-cms/config";
 
 import { useAuth0Auth } from "./Auth0Auth";
 import AuthHook from "./AuthHook";
 import { useCognitoAuth } from "./CognitoAuth";
+import { useFirebaseAuth } from "./FirebaseAuth";
+import FirebaseProvider from "./FirebaseProvider";
 
 export const AuthContext = createContext<AuthHook | null>(null);
 
-const Auth0Wrapper = ({ children }: { children: ReactNode }) => {
+const Auth0Wrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useAuth0Auth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
-const CognitoWrapper = ({ children }: { children: ReactNode }) => {
+const CognitoWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useCognitoAuth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
+const FirebaseWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const auth = useFirebaseAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const authProvider = window.REEARTH_CONFIG?.authProvider;
+  const [authInfo] = useState(() => {
+    logInToTenant(); // note that it includes side effect
+    return getAuthInfo();
+  });
+  const authProvider = authInfo?.authProvider;
 
   if (authProvider === "auth0") {
-    const domain = window.REEARTH_CONFIG?.auth0Domain;
-    const clientId = window.REEARTH_CONFIG?.auth0ClientId;
-    const audience = window.REEARTH_CONFIG?.auth0Audience;
+    const domain = authInfo?.auth0Domain;
+    const clientId = authInfo?.auth0ClientId;
+    const audience = authInfo?.auth0Audience;
 
     return domain && clientId ? (
       <Auth0Provider
         domain={domain}
         clientId={clientId}
-        audience={audience}
+        authorizationParams={{
+          audience: audience,
+          scope: "openid profile email offline_access",
+          redirect_uri: getSignInCallbackUrl(),
+        }}
         useRefreshTokens
-        scope="openid profile email"
-        cacheLocation="localstorage"
-        redirectUri={window.location.origin}>
+        useRefreshTokensFallback
+        cacheLocation="localstorage">
         <Auth0Wrapper>{children}</Auth0Wrapper>
       </Auth0Provider>
     ) : null;
@@ -44,5 +60,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return <CognitoWrapper>{children}</CognitoWrapper>;
   }
 
-  return <>{children}</>; // or some default fallback
+  if (authProvider === "firebase") {
+    return (
+      <FirebaseProvider>
+        <FirebaseWrapper>{children}</FirebaseWrapper>
+      </FirebaseProvider>
+    );
+  }
+
+  return null;
 };

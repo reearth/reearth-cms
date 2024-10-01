@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"net/url"
 	"path"
+	"path/filepath"
 	"strings"
-	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -43,8 +44,7 @@ func NewFile(bucketName, base, cacheControl string) (gateway.File, error) {
 		base = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
 	}
 
-	var err error
-	u, _ = url.Parse(base)
+	u, err := url.Parse(base)
 	if err != nil {
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
@@ -137,28 +137,34 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return getURL(f.base, a.UUID(), a.FileName())
 }
 
-func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentType string, expiresAt time.Time) (string, string, error) {
-	uuid := newUUID()
+func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
+	uuid := param.UUID
+	contentType := param.ContentType()
 
-	p := getGCSObjectPath(uuid, filename)
+	p := getGCSObjectPath(uuid, param.Filename)
 	if p == "" {
-		return "", "", gateway.ErrInvalidFile
+		return nil, gateway.ErrInvalidFile
 	}
 	bucket, err := f.bucket(ctx)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	opt := &storage.SignedURLOptions{
 		Method:      http.MethodPut,
-		Expires:     expiresAt,
+		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {
 		log.Warnf("gcs: failed to issue signed url: %v", err)
-		return "", "", gateway.ErrUnsupportedOperation
+		return nil, gateway.ErrUnsupportedOperation
 	}
-	return uploadURL, uuid, nil
+	return &gateway.UploadAssetLink{
+		URL:           uploadURL,
+		ContentType:   contentType,
+		ContentLength: param.ContentLength,
+		Next:          "",
+	}, nil
 }
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
@@ -169,7 +175,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	}
 	attrs, err := bucket.Object(p).Attrs(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("attrs(object=%s): %w", p, err)
 	}
 	return &file.File{
 		Content:     nil,
@@ -221,6 +227,10 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 
 	writer := object.NewWriter(ctx)
 	writer.ObjectAttrs.CacheControl = f.cacheControl
+	ct := getContentType(filename)
+	if ct != "" {
+		writer.ObjectAttrs.ContentType = ct
+	}
 
 	if _, err := io.Copy(writer, content); err != nil {
 		log.Errorf("gcs: upload err: %+v\n", err)
@@ -238,6 +248,11 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	}
 
 	return attr.Size, nil
+}
+
+func getContentType(filename string) string {
+	ext := filepath.Ext(filename)
+	return mime.TypeByExtension(ext)
 }
 
 func (f *fileRepo) delete(ctx context.Context, filename string) error {

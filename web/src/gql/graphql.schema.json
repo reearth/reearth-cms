@@ -12,6 +12,7 @@
         "kind": "INPUT_OBJECT",
         "name": "AddCommentInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -55,6 +56,7 @@
         "kind": "INPUT_OBJECT",
         "name": "AddIntegrationToWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -114,6 +116,7 @@
         "kind": "INPUT_OBJECT",
         "name": "AddUsersToWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -165,6 +168,7 @@
         "kind": "OBJECT",
         "name": "AddUsersToWorkspacePayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "workspace",
@@ -192,6 +196,7 @@
         "kind": "OBJECT",
         "name": "AndCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "conditions",
@@ -227,6 +232,7 @@
         "kind": "INPUT_OBJECT",
         "name": "AndConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -262,6 +268,7 @@
         "kind": "SCALAR",
         "name": "Any",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -272,6 +279,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ApproveRequestInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -299,6 +307,7 @@
         "kind": "ENUM",
         "name": "ArchiveExtractionStatus",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -340,6 +349,7 @@
         "kind": "OBJECT",
         "name": "Asset",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "archiveExtractionStatus",
@@ -605,6 +615,7 @@
         "kind": "OBJECT",
         "name": "AssetConnection",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "edges",
@@ -692,6 +703,7 @@
         "kind": "OBJECT",
         "name": "AssetEdge",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -731,9 +743,22 @@
         "kind": "OBJECT",
         "name": "AssetFile",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
-            "name": "children",
+            "name": "contentType",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "filePaths",
             "description": null,
             "args": [],
             "type": {
@@ -743,23 +768,11 @@
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
-                  "kind": "OBJECT",
-                  "name": "AssetFile",
+                  "kind": "SCALAR",
+                  "name": "String",
                   "ofType": null
                 }
               }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "contentType",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -822,6 +835,7 @@
         "kind": "OBJECT",
         "name": "AssetItem",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "itemId",
@@ -865,6 +879,7 @@
         "kind": "INPUT_OBJECT",
         "name": "AssetSort",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -904,6 +919,7 @@
         "kind": "ENUM",
         "name": "AssetSortType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -933,6 +949,7 @@
         "kind": "OBJECT",
         "name": "BasicFieldCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fieldId",
@@ -992,6 +1009,7 @@
         "kind": "INPUT_OBJECT",
         "name": "BasicFieldConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1051,6 +1069,7 @@
         "kind": "ENUM",
         "name": "BasicOperator",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1074,6 +1093,7 @@
         "kind": "OBJECT",
         "name": "BoolFieldCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fieldId",
@@ -1133,6 +1153,7 @@
         "kind": "INPUT_OBJECT",
         "name": "BoolFieldConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1192,6 +1213,7 @@
         "kind": "ENUM",
         "name": "BoolOperator",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1215,6 +1237,7 @@
         "kind": "SCALAR",
         "name": "Boolean",
         "description": "The `Boolean` scalar type represents `true` or `false`.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1223,8 +1246,281 @@
       },
       {
         "kind": "OBJECT",
+        "name": "CesiumResourceProps",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "cesiumIonAccessToken",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "cesiumIonAssetId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "image",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "url",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "CesiumResourcePropsInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "cesiumIonAccessToken",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "cesiumIonAssetId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "image",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "url",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Column",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "field",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "FieldSelector",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "visible",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "ColumnSelectionInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "field",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "FieldSelectorInput",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "visible",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "Comment",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "author",
@@ -1360,6 +1656,7 @@
         "kind": "OBJECT",
         "name": "CommentPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "comment",
@@ -1403,6 +1700,7 @@
         "kind": "UNION",
         "name": "Condition",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1459,6 +1757,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1578,15 +1877,20 @@
         "kind": "INPUT_OBJECT",
         "name": "CorrespondingFieldInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
             "name": "description",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -1608,9 +1912,13 @@
             "name": "key",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -1620,9 +1928,13 @@
             "name": "required",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -1632,9 +1944,13 @@
             "name": "title",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -1649,6 +1965,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateAssetInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1724,6 +2041,7 @@
         "kind": "OBJECT",
         "name": "CreateAssetPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "asset",
@@ -1751,19 +2069,40 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateAssetUploadInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
+          {
+            "name": "contentLength",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "cursor",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "filename",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -1794,9 +2133,10 @@
         "kind": "OBJECT",
         "name": "CreateAssetUploadPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
-            "name": "contentType",
+            "name": "contentLength",
             "description": null,
             "args": [],
             "type": {
@@ -1804,9 +2144,33 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "Int",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "contentType",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "next",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -1853,6 +2217,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateFieldInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2040,6 +2405,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateGroupInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2111,6 +2477,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateIntegrationInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2182,6 +2549,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateItemInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2237,6 +2605,18 @@
             "deprecationReason": null
           },
           {
+            "name": "originalId",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "schemaId",
             "description": null,
             "type": {
@@ -2261,6 +2641,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateModelInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2324,6 +2705,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateProjectInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2407,6 +2789,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateRequestInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2518,6 +2901,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateThreadInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2545,6 +2929,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateViewInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2558,7 +2943,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "INPUT_OBJECT",
-                  "name": "FieldSelectorInput",
+                  "name": "ColumnSelectionInput",
                   "ofType": null
                 }
               }
@@ -2648,6 +3033,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateWebhookInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2755,6 +3141,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2782,6 +3169,7 @@
         "kind": "OBJECT",
         "name": "CreateWorkspacePayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "workspace",
@@ -2809,6 +3197,7 @@
         "kind": "SCALAR",
         "name": "Cursor",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2819,6 +3208,7 @@
         "kind": "SCALAR",
         "name": "DateTime",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2829,6 +3219,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DecompressAssetInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2856,6 +3247,7 @@
         "kind": "OBJECT",
         "name": "DecompressAssetPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "asset",
@@ -2883,6 +3275,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteAssetInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2910,6 +3303,7 @@
         "kind": "OBJECT",
         "name": "DeleteAssetPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "assetId",
@@ -2937,6 +3331,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteCommentInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2980,6 +3375,7 @@
         "kind": "OBJECT",
         "name": "DeleteCommentPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "commentId",
@@ -3023,6 +3419,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteFieldInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3086,6 +3483,7 @@
         "kind": "OBJECT",
         "name": "DeleteFieldPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fieldId",
@@ -3113,6 +3511,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteGroupInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3140,6 +3539,7 @@
         "kind": "OBJECT",
         "name": "DeleteGroupPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "groupId",
@@ -3167,6 +3567,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteIntegrationInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3194,6 +3595,7 @@
         "kind": "OBJECT",
         "name": "DeleteIntegrationPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "integrationId",
@@ -3221,6 +3623,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteItemInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3248,6 +3651,7 @@
         "kind": "OBJECT",
         "name": "DeleteItemPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "itemId",
@@ -3275,6 +3679,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteMeInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3302,6 +3707,7 @@
         "kind": "OBJECT",
         "name": "DeleteMePayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "userId",
@@ -3329,6 +3735,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteModelInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3356,6 +3763,7 @@
         "kind": "OBJECT",
         "name": "DeleteModelPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "modelId",
@@ -3383,6 +3791,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteProjectInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3410,6 +3819,7 @@
         "kind": "OBJECT",
         "name": "DeleteProjectPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "projectId",
@@ -3437,6 +3847,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteRequestInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3488,6 +3899,7 @@
         "kind": "OBJECT",
         "name": "DeleteRequestPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "requests",
@@ -3523,6 +3935,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteViewInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3550,6 +3963,7 @@
         "kind": "OBJECT",
         "name": "DeleteViewPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "viewId",
@@ -3577,6 +3991,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteWebhookInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3620,6 +4035,7 @@
         "kind": "OBJECT",
         "name": "DeleteWebhookPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "webhookId",
@@ -3647,6 +4063,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3674,6 +4091,7 @@
         "kind": "OBJECT",
         "name": "DeleteWorkspacePayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "workspaceId",
@@ -3701,6 +4119,7 @@
         "kind": "OBJECT",
         "name": "FieldPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "field",
@@ -3728,6 +4147,7 @@
         "kind": "OBJECT",
         "name": "FieldSelector",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "id",
@@ -3767,6 +4187,7 @@
         "kind": "INPUT_OBJECT",
         "name": "FieldSelectorInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3806,6 +4227,7 @@
         "kind": "ENUM",
         "name": "FieldType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -3865,6 +4287,7 @@
         "kind": "OBJECT",
         "name": "FieldsPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fields",
@@ -3900,6 +4323,7 @@
         "kind": "SCALAR",
         "name": "FileSize",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -3910,6 +4334,7 @@
         "kind": "SCALAR",
         "name": "Float",
         "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -3917,9 +4342,100 @@
         "possibleTypes": null
       },
       {
+        "kind": "ENUM",
+        "name": "GeometryEditorSupportedType",
+        "description": null,
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "ANY",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "LINESTRING",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "POINT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "POLYGON",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "GeometryObjectSupportedType",
+        "description": null,
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "GEOMETRYCOLLECTION",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "LINESTRING",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "MULTILINESTRING",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "MULTIPOINT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "MULTIPOLYGON",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "POINT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "POLYGON",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "Group",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "description",
@@ -4010,6 +4526,22 @@
             "deprecationReason": null
           },
           {
+            "name": "order",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "project",
             "description": null,
             "args": [],
@@ -4089,6 +4621,7 @@
         "kind": "OBJECT",
         "name": "GroupPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "group",
@@ -4113,9 +4646,46 @@
         "possibleTypes": null
       },
       {
+        "kind": "OBJECT",
+        "name": "GroupsPayload",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "groups",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Group",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "SCALAR",
         "name": "ID",
         "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4126,6 +4696,7 @@
         "kind": "SCALAR",
         "name": "Int",
         "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4136,6 +4707,7 @@
         "kind": "OBJECT",
         "name": "Integration",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "config",
@@ -4305,6 +4877,7 @@
         "kind": "OBJECT",
         "name": "IntegrationConfig",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "token",
@@ -4356,6 +4929,7 @@
         "kind": "OBJECT",
         "name": "IntegrationPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "integration",
@@ -4383,6 +4957,7 @@
         "kind": "ENUM",
         "name": "IntegrationType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4406,6 +4981,7 @@
         "kind": "OBJECT",
         "name": "Item",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "assets",
@@ -4508,6 +5084,22 @@
             "deprecationReason": null
           },
           {
+            "name": "isMetadata",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "metadata",
             "description": null,
             "args": [],
@@ -4564,6 +5156,30 @@
             "deprecationReason": null
           },
           {
+            "name": "original",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "Item",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "originalId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "project",
             "description": null,
             "args": [],
@@ -4590,6 +5206,26 @@
                 "kind": "SCALAR",
                 "name": "ID",
                 "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "referencedItems",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Item",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": false,
@@ -4783,6 +5419,7 @@
         "kind": "OBJECT",
         "name": "ItemConnection",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "edges",
@@ -4870,6 +5507,7 @@
         "kind": "OBJECT",
         "name": "ItemEdge",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -4909,6 +5547,7 @@
         "kind": "OBJECT",
         "name": "ItemField",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "itemGroupId",
@@ -4976,6 +5615,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ItemFieldInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -5047,6 +5687,7 @@
         "kind": "OBJECT",
         "name": "ItemPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "item",
@@ -5074,15 +5715,20 @@
         "kind": "INPUT_OBJECT",
         "name": "ItemQueryInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
             "name": "model",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "ID",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -5137,6 +5783,7 @@
         "kind": "OBJECT",
         "name": "ItemSort",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "direction",
@@ -5176,6 +5823,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ItemSortInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -5215,6 +5863,7 @@
         "kind": "ENUM",
         "name": "ItemStatus",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5256,6 +5905,7 @@
         "kind": "OBJECT",
         "name": "KeyAvailability",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "available",
@@ -5299,6 +5949,7 @@
         "kind": "SCALAR",
         "name": "Lang",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5309,6 +5960,7 @@
         "kind": "OBJECT",
         "name": "Me",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "auths",
@@ -5346,6 +5998,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "host",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -5411,13 +6075,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "Workspace",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "Workspace",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -5504,6 +6164,7 @@
         "kind": "INPUT_OBJECT",
         "name": "MemberInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -5547,6 +6208,7 @@
         "kind": "OBJECT",
         "name": "Model",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "createdAt",
@@ -5648,6 +6310,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "order",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -5764,6 +6438,7 @@
         "kind": "OBJECT",
         "name": "ModelConnection",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "edges",
@@ -5851,6 +6526,7 @@
         "kind": "OBJECT",
         "name": "ModelEdge",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -5890,6 +6566,7 @@
         "kind": "OBJECT",
         "name": "ModelPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "model",
@@ -5915,8 +6592,45 @@
       },
       {
         "kind": "OBJECT",
+        "name": "ModelsPayload",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "models",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Model",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "MultipleFieldCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fieldId",
@@ -5984,6 +6698,7 @@
         "kind": "INPUT_OBJECT",
         "name": "MultipleFieldConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -6051,6 +6766,7 @@
         "kind": "ENUM",
         "name": "MultipleOperator",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -6086,6 +6802,7 @@
         "kind": "OBJECT",
         "name": "Mutation",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "addComment",
@@ -7045,6 +7762,35 @@
             "deprecationReason": null
           },
           {
+            "name": "regenerateToken",
+            "description": null,
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "RegenerateTokenInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IntegrationPayload",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "removeIntegrationFromWorkspace",
             "description": null,
             "args": [
@@ -7314,6 +8060,35 @@
             "deprecationReason": null
           },
           {
+            "name": "updateGroupsOrder",
+            "description": null,
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "UpdateGroupsOrderInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "GroupsPayload",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updateIntegration",
             "description": null,
             "args": [
@@ -7459,6 +8234,35 @@
             "deprecationReason": null
           },
           {
+            "name": "updateModelsOrder",
+            "description": null,
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "UpdateModelsOrderInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ModelsPayload",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updateProject",
             "description": null,
             "args": [
@@ -7575,6 +8379,35 @@
             "deprecationReason": null
           },
           {
+            "name": "updateViewsOrder",
+            "description": null,
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "UpdateViewsOrderInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ViewsPayload",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updateWebhook",
             "description": null,
             "args": [
@@ -7631,6 +8464,35 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "updateWorkspaceSettings",
+            "description": null,
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "UpdateWorkspaceSettingsInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UpdateWorkspaceSettingsPayload",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -7642,6 +8504,7 @@
         "kind": "INTERFACE",
         "name": "Node",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "id",
@@ -7718,6 +8581,11 @@
             "kind": "OBJECT",
             "name": "Workspace",
             "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "WorkspaceSettings",
+            "ofType": null
           }
         ]
       },
@@ -7725,6 +8593,7 @@
         "kind": "ENUM",
         "name": "NodeType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -7794,6 +8663,12 @@
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "WorkspaceSettings",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "possibleTypes": null
@@ -7802,6 +8677,7 @@
         "kind": "OBJECT",
         "name": "NullableFieldCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fieldId",
@@ -7845,6 +8721,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NullableFieldConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -7888,6 +8765,7 @@
         "kind": "ENUM",
         "name": "NullableOperator",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -7911,6 +8789,7 @@
         "kind": "OBJECT",
         "name": "NumberFieldCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fieldId",
@@ -7970,6 +8849,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NumberFieldConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -8029,6 +8909,7 @@
         "kind": "ENUM",
         "name": "NumberOperator",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -8064,6 +8945,7 @@
         "kind": "UNION",
         "name": "Operator",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -8085,6 +8967,7 @@
         "kind": "INPUT_OBJECT",
         "name": "OperatorInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -8168,6 +9051,7 @@
         "kind": "ENUM",
         "name": "OperatorType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -8191,6 +9075,7 @@
         "kind": "OBJECT",
         "name": "OrCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "conditions",
@@ -8226,6 +9111,7 @@
         "kind": "INPUT_OBJECT",
         "name": "OrConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -8261,6 +9147,7 @@
         "kind": "OBJECT",
         "name": "PageInfo",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "endCursor",
@@ -8328,6 +9215,7 @@
         "kind": "INPUT_OBJECT",
         "name": "Pagination",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -8399,10 +9287,17 @@
         "kind": "ENUM",
         "name": "PreviewType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "CSV",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "GEO",
             "description": null,
@@ -8452,6 +9347,7 @@
         "kind": "OBJECT",
         "name": "Project",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "alias",
@@ -8625,6 +9521,7 @@
         "kind": "OBJECT",
         "name": "ProjectAliasAvailability",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "alias",
@@ -8668,6 +9565,7 @@
         "kind": "OBJECT",
         "name": "ProjectConnection",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "edges",
@@ -8755,6 +9653,7 @@
         "kind": "OBJECT",
         "name": "ProjectEdge",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -8794,6 +9693,7 @@
         "kind": "OBJECT",
         "name": "ProjectPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "project",
@@ -8821,6 +9721,7 @@
         "kind": "OBJECT",
         "name": "ProjectPublication",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "assetPublic",
@@ -8864,6 +9765,7 @@
         "kind": "ENUM",
         "name": "ProjectPublicationScope",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -8893,6 +9795,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PublishItemInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -8928,6 +9831,7 @@
         "kind": "OBJECT",
         "name": "PublishItemPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -8963,6 +9867,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PublishModelInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -9006,6 +9911,7 @@
         "kind": "OBJECT",
         "name": "PublishModelPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "modelId",
@@ -9049,6 +9955,7 @@
         "kind": "OBJECT",
         "name": "Query",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "assetFile",
@@ -9288,16 +10195,24 @@
             "description": null,
             "args": [
               {
+                "name": "modelID",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "projectId",
                 "description": null,
                 "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "ofType": null
-                  }
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
                 },
                 "defaultValue": null,
                 "isDeprecated": false,
@@ -9879,8 +10794,37 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "RegenerateTokenInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "integrationId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "RemoveIntegrationFromWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -9924,6 +10868,7 @@
         "kind": "OBJECT",
         "name": "RemoveMemberFromWorkspacePayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "workspace",
@@ -9951,6 +10896,7 @@
         "kind": "INPUT_OBJECT",
         "name": "RemoveMyAuthInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -9978,6 +10924,7 @@
         "kind": "INPUT_OBJECT",
         "name": "RemoveUserFromWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -10021,6 +10968,7 @@
         "kind": "OBJECT",
         "name": "Request",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "approvedAt",
@@ -10338,6 +11286,7 @@
         "kind": "OBJECT",
         "name": "RequestConnection",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "edges",
@@ -10425,6 +11374,7 @@
         "kind": "OBJECT",
         "name": "RequestEdge",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -10464,6 +11414,7 @@
         "kind": "OBJECT",
         "name": "RequestItem",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "item",
@@ -10527,6 +11478,7 @@
         "kind": "INPUT_OBJECT",
         "name": "RequestItemInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -10554,6 +11506,7 @@
         "kind": "OBJECT",
         "name": "RequestPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "request",
@@ -10581,6 +11534,7 @@
         "kind": "ENUM",
         "name": "RequestState",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -10613,9 +11567,188 @@
         "possibleTypes": null
       },
       {
+        "kind": "UNION",
+        "name": "Resource",
+        "description": null,
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": [
+          {
+            "kind": "OBJECT",
+            "name": "TerrainResource",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "TileResource",
+            "ofType": null
+          }
+        ]
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "ResourceInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "terrain",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "TerrainResourceInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tile",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "TileResourceInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "ResourceList",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "enabled",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "resources",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "UNION",
+                    "name": "Resource",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "selectedResource",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "ResourcesListInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "enabled",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "resources",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "ResourceInput",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "selectedResource",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "ENUM",
         "name": "Role",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -10651,6 +11784,7 @@
         "kind": "OBJECT",
         "name": "Schema",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fields",
@@ -10764,6 +11898,7 @@
         "kind": "OBJECT",
         "name": "SchemaField",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "createdAt",
@@ -11019,6 +12154,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldAsset",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11042,6 +12178,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldAssetInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11065,6 +12202,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldBool",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11088,6 +12226,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldBoolInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11111,6 +12250,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldCheckbox",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11134,6 +12274,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldCheckboxInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11157,6 +12298,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldDate",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11180,6 +12322,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldDateInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11201,8 +12344,201 @@
       },
       {
         "kind": "OBJECT",
+        "name": "SchemaFieldGeometryEditor",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "supportedTypes",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "GeometryEditorSupportedType",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "SchemaFieldGeometryEditorInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "supportedTypes",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "GeometryEditorSupportedType",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "SchemaFieldGeometryObject",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "supportedTypes",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "GeometryObjectSupportedType",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "SchemaFieldGeometryObjectInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "supportedTypes",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "GeometryObjectSupportedType",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "SchemaFieldGroup",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "groupId",
@@ -11230,6 +12566,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldGroupInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11257,6 +12594,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldInteger",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11304,6 +12642,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldIntegerInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11348,9 +12687,34 @@
         "possibleTypes": null
       },
       {
+        "kind": "INPUT_OBJECT",
+        "name": "SchemaFieldLineStringInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "SchemaFieldMarkdown",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11386,6 +12750,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldReference",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "correspondingField",
@@ -11412,31 +12777,39 @@
             "deprecationReason": null
           },
           {
-            "name": "correspondingSchema",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "Schema",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "correspondingSchemaId",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "ID",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "modelId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "schema",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Schema",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "schemaId",
             "description": null,
             "args": [],
             "type": {
@@ -11461,6 +12834,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldReferenceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11476,19 +12850,23 @@
             "deprecationReason": null
           },
           {
-            "name": "correspondingSchemaId",
+            "name": "modelId",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "ID",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "modelId",
+            "name": "schemaId",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -11512,6 +12890,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldRichText",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11547,6 +12926,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldRichTextInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11582,6 +12962,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldSelect",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11629,6 +13010,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldSelectInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11676,6 +13058,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldTag",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11723,6 +13106,7 @@
         "kind": "ENUM",
         "name": "SchemaFieldTagColor",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -11800,6 +13184,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldTagInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11847,6 +13232,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldTagValue",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "color",
@@ -11906,6 +13292,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldTagValueInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -11953,6 +13340,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldText",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -11988,6 +13376,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldTextArea",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -12023,6 +13412,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldTextAreaInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12058,6 +13448,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldTextInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12093,6 +13484,7 @@
         "kind": "ENUM",
         "name": "SchemaFieldType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -12117,6 +13509,18 @@
           },
           {
             "name": "Date",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "GeometryEditor",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "GeometryObject",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
@@ -12188,6 +13592,7 @@
         "kind": "UNION",
         "name": "SchemaFieldTypeProperty",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -12211,6 +13616,16 @@
           {
             "kind": "OBJECT",
             "name": "SchemaFieldDate",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "SchemaFieldGeometryEditor",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "SchemaFieldGeometryObject",
             "ofType": null
           },
           {
@@ -12269,6 +13684,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldTypePropertyInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12313,6 +13729,30 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "SchemaFieldDateInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "geometryEditor",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "SchemaFieldGeometryEditorInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "geometryObject",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "SchemaFieldGeometryObjectInput",
               "ofType": null
             },
             "defaultValue": null,
@@ -12448,6 +13888,7 @@
         "kind": "OBJECT",
         "name": "SchemaFieldURL",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "defaultValue",
@@ -12471,6 +13912,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldURLInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12494,6 +13936,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SchemaMarkdownTextInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12529,6 +13972,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SearchItemInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12592,6 +14036,7 @@
         "kind": "INPUT_OBJECT",
         "name": "Sort",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12631,6 +14076,7 @@
         "kind": "ENUM",
         "name": "SortDirection",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -12654,6 +14100,7 @@
         "kind": "SCALAR",
         "name": "String",
         "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -12664,6 +14111,7 @@
         "kind": "OBJECT",
         "name": "StringFieldCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fieldId",
@@ -12723,6 +14171,7 @@
         "kind": "INPUT_OBJECT",
         "name": "StringFieldConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12782,6 +14231,7 @@
         "kind": "ENUM",
         "name": "StringOperator",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -12826,9 +14276,152 @@
         "possibleTypes": null
       },
       {
+        "kind": "OBJECT",
+        "name": "TerrainResource",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "props",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "CesiumResourceProps",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "type",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "TerrainType",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "TerrainResourceInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "id",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "props",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "CesiumResourcePropsInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "type",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "TerrainType",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "TerrainType",
+        "description": null,
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "ARC_GIS_TERRAIN",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "CESIUM_ION",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "CESIUM_WORLD_TERRAIN",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
         "kind": "ENUM",
         "name": "Theme",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -12858,6 +14451,7 @@
         "kind": "OBJECT",
         "name": "Thread",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "comments",
@@ -12937,6 +14531,7 @@
         "kind": "OBJECT",
         "name": "ThreadPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "thread",
@@ -12962,8 +14557,181 @@
       },
       {
         "kind": "OBJECT",
+        "name": "TileResource",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "props",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UrlResourceProps",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "type",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "TileType",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "TileResourceInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "id",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "props",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "UrlResourcePropsInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "type",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "TileType",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "TileType",
+        "description": null,
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "DEFAULT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "EARTH_AT_NIGHT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "ESRI_TOPOGRAPHY",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "JAPAN_GSI_STANDARD_MAP",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "LABELLED",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "OPEN_STREET_MAP",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "ROAD_MAP",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "URL",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "TimeFieldCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "fieldId",
@@ -13023,6 +14791,7 @@
         "kind": "INPUT_OBJECT",
         "name": "TimeFieldConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13082,6 +14851,7 @@
         "kind": "ENUM",
         "name": "TimeOperator",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -13135,6 +14905,7 @@
         "kind": "SCALAR",
         "name": "URL",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -13145,6 +14916,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UnpublishItemInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13180,6 +14952,7 @@
         "kind": "OBJECT",
         "name": "UnpublishItemPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -13215,6 +14988,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateAssetInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13254,6 +15028,7 @@
         "kind": "OBJECT",
         "name": "UpdateAssetPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "asset",
@@ -13281,6 +15056,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateCommentInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13340,6 +15116,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateFieldInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13511,6 +15288,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateGroupInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13572,8 +15350,45 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "UpdateGroupsOrderInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "groupIds",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "UpdateIntegrationInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13637,6 +15452,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateIntegrationOfWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13696,6 +15512,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateItemInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13751,6 +15568,18 @@
             "deprecationReason": null
           },
           {
+            "name": "originalId",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "version",
             "description": null,
             "type": {
@@ -13771,6 +15600,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateMeInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13854,6 +15684,7 @@
         "kind": "OBJECT",
         "name": "UpdateMePayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "me",
@@ -13881,6 +15712,7 @@
         "kind": "OBJECT",
         "name": "UpdateMemberOfWorkspacePayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "workspace",
@@ -13908,6 +15740,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateModelInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13985,8 +15818,45 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "UpdateModelsOrderInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "modelIds",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "UpdateProjectInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -14082,6 +15952,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateProjectPublicationInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -14117,6 +15988,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateRequestInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -14220,6 +16092,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateUserOfWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -14279,6 +16152,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateViewInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -14292,7 +16166,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "INPUT_OBJECT",
-                  "name": "FieldSelectorInput",
+                  "name": "ColumnSelectionInput",
                   "ofType": null
                 }
               }
@@ -14360,8 +16234,45 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "UpdateViewsOrderInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "viewIds",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "UpdateWebhookInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -14465,6 +16376,7 @@
         "kind": "INPUT_OBJECT",
         "name": "UpdateWorkspaceInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -14508,6 +16420,7 @@
         "kind": "OBJECT",
         "name": "UpdateWorkspacePayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "workspace",
@@ -14532,9 +16445,90 @@
         "possibleTypes": null
       },
       {
+        "kind": "INPUT_OBJECT",
+        "name": "UpdateWorkspaceSettingsInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "id",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "terrains",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ResourcesListInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tiles",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ResourcesListInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "UpdateWorkspaceSettingsPayload",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "workspaceSettings",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "WorkspaceSettings",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "SCALAR",
         "name": "Upload",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -14543,8 +16537,129 @@
       },
       {
         "kind": "OBJECT",
+        "name": "UrlResourceProps",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "image",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "url",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "UrlResourcePropsInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "image",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "url",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "User",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "email",
@@ -14558,6 +16673,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "host",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -14610,6 +16737,7 @@
         "kind": "OBJECT",
         "name": "VersionedItem",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "parents",
@@ -14697,6 +16825,7 @@
         "kind": "OBJECT",
         "name": "View",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "columns",
@@ -14710,7 +16839,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "FieldSelector",
+                  "name": "Column",
                   "ofType": null
                 }
               }
@@ -14779,6 +16908,22 @@
             "deprecationReason": null
           },
           {
+            "name": "order",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "projectId",
             "description": null,
             "args": [],
@@ -14822,6 +16967,7 @@
         "kind": "OBJECT",
         "name": "ViewPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "view",
@@ -14847,8 +16993,45 @@
       },
       {
         "kind": "OBJECT",
+        "name": "ViewsPayload",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "views",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "View",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "Webhook",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "active",
@@ -14988,6 +17171,7 @@
         "kind": "OBJECT",
         "name": "WebhookPayload",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "webhook",
@@ -15015,6 +17199,7 @@
         "kind": "OBJECT",
         "name": "WebhookTrigger",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "onAssetDecompress",
@@ -15122,6 +17307,7 @@
         "kind": "INPUT_OBJECT",
         "name": "WebhookTriggerInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -15229,6 +17415,7 @@
         "kind": "OBJECT",
         "name": "Workspace",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "id",
@@ -15318,6 +17505,7 @@
         "kind": "OBJECT",
         "name": "WorkspaceIntegrationMember",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "active",
@@ -15417,6 +17605,7 @@
         "kind": "UNION",
         "name": "WorkspaceMember",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -15436,9 +17625,80 @@
       },
       {
         "kind": "OBJECT",
+        "name": "WorkspaceSettings",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "terrains",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ResourceList",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tiles",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ResourceList",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "Node",
+            "ofType": null
+          }
+        ],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "WorkspaceUserMember",
         "description": null,
+        "isOneOf": null,
         "fields": [
+          {
+            "name": "host",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "role",
             "description": null,
@@ -15493,6 +17753,7 @@
         "kind": "OBJECT",
         "name": "__Directive",
         "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\n\nIn some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -15609,6 +17870,7 @@
         "kind": "ENUM",
         "name": "__DirectiveLocation",
         "description": "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -15734,6 +17996,7 @@
         "kind": "OBJECT",
         "name": "__EnumValue",
         "description": "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -15801,6 +18064,7 @@
         "kind": "OBJECT",
         "name": "__Field",
         "description": "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -15921,6 +18185,7 @@
         "kind": "OBJECT",
         "name": "__InputValue",
         "description": "Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -16016,6 +18281,7 @@
         "kind": "OBJECT",
         "name": "__Schema",
         "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "description",
@@ -16127,6 +18393,7 @@
         "kind": "OBJECT",
         "name": "__Type",
         "description": "The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.\n\nDepending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name, description and optional `specifiedByURL`, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "kind",
@@ -16330,6 +18597,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "isOneOf",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -16341,6 +18620,7 @@
         "kind": "ENUM",
         "name": "__TypeKind",
         "description": "An enum describing what kind of type a given `__Type` is.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -16532,6 +18812,15 @@
             "deprecationReason": null
           }
         ]
+      },
+      {
+        "name": "oneOf",
+        "description": "Indicates exactly one field must be supplied and this field must not be `null`.",
+        "isRepeatable": false,
+        "locations": [
+          "INPUT_OBJECT"
+        ],
+        "args": []
       },
       {
         "name": "onlyOne",

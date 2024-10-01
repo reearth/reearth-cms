@@ -108,6 +108,9 @@ func (m *Multiple) Equal(w *Multiple) bool {
 	if m == nil && w == nil {
 		return true
 	}
+	if m.IsEmpty() && w.IsEmpty() {
+		return true
+	}
 	if m == nil || w == nil || m.t != w.t || len(m.v) != len(w.v) {
 		return false
 	}

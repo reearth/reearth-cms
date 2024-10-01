@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -79,24 +80,6 @@ func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *versio
 		}
 		return true
 	})
-	return res, nil, nil
-}
-
-func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	if r.err != nil {
-		return nil, nil, r.err
-	}
-
-	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(ref.OrLatest().OrVersion())
-		it := itv.Value()
-		if it.Project() == projectID {
-			res = append(res, itv)
-		}
-		return true
-	})
-
 	return res, nil, nil
 }
 
@@ -252,14 +235,14 @@ func sortItems(items []*version.Value[*item.Item]) {
 	})
 }
 
-func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	// TODO: support filters, sort, and pagination
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	var res item.VersionedList
-	qq := q.Q()
+	qq := q.Keyword()
 
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
@@ -275,7 +258,7 @@ func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pag
 			})
 		})
 		schemaMatched := q.Schema() == nil || itv.Schema() == *q.Schema()
-		modelMatched := q.Model() == nil || itv.Model() == *q.Model()
+		modelMatched := itv.Model() == q.Model()
 		if searchMatched && schemaMatched && modelMatched && r.f.CanRead(itv.Project()) {
 			res = append(res, it)
 		}
@@ -296,7 +279,7 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 		if it.Model() == modelID {
 			for _, f := range fields {
 				for _, ff := range it.Fields() {
-					if f.Field == ff.FieldID() && f.Value.Equal(f.Value) {
+					if f.Field == ff.FieldID() && f.Value.Equal(ff.Value()) {
 						res = append(res, itv)
 					}
 				}

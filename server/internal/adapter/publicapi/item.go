@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 
+	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -46,7 +48,7 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 		return Item{}, rerror.ErrNotFound
 	}
 
-	s, err := c.usecases.Schema.FindByID(ctx, m.Schema(), nil)
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 	if err != nil {
 		return Item{}, err
 	}
@@ -59,7 +61,7 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 		}
 	}
 
-	return NewItem(itv, s, assets, c.assetUrlResolver), nil
+	return NewItem(itv, sp, assets, c.assetUrlResolver, getReferencedItems(ctx, itv, pr.Publication().AssetPublic(), c.assetUrlResolver)), nil
 }
 
 func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], *schema.Schema, error) {
@@ -76,7 +78,7 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		return ListResult[Item]{}, nil, rerror.ErrNotFound
 	}
 
-	s, err := c.usecases.Schema.FindByID(ctx, m.Schema(), nil)
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 	if err != nil {
 		return ListResult[Item]{}, nil, err
 	}
@@ -97,8 +99,84 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		}
 	}
 
-	res := NewListResult(util.Map(items.Unwrap(), func(i *item.Item) Item {
-		return NewItem(i, s, assets, c.assetUrlResolver)
-	}), pi, p.Pagination)
-	return res, s, nil
+	itms, err := util.TryMap(items.Unwrap(), func(i *item.Item) (Item, error) {
+
+		if err != nil {
+			return Item{}, err
+		}
+		return NewItem(i, sp, assets, c.assetUrlResolver, getReferencedItems(ctx, i, pr.Publication().AssetPublic(), c.assetUrlResolver)), nil
+	})
+	if err != nil {
+		return ListResult[Item]{}, nil, err
+	}
+
+	res := NewListResult(itms, pi, p.Pagination)
+	return res, sp.Schema(), nil
+}
+
+func (c *Controller) GetVersionedItems(ctx context.Context, prj, model string, p ListParam) (item.VersionedList, *schema.Schema, error) {
+	pr, err := c.checkProject(ctx, prj)
+	if err != nil {
+		return item.VersionedList{}, nil, err
+	}
+
+	m, err := c.usecases.Model.FindByKey(ctx, pr.ID(), model, nil)
+	if err != nil {
+		return item.VersionedList{}, nil, err
+	}
+	if !m.Public() {
+		return item.VersionedList{}, nil, rerror.ErrNotFound
+	}
+
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
+	if err != nil {
+		return item.VersionedList{}, nil, err
+	}
+
+	items, _, err := c.usecases.Item.FindPublicByModel(ctx, m.ID(), p.Pagination, nil)
+	if err != nil {
+		return item.VersionedList{}, nil, err
+	}
+
+	return items, sp.Schema(), nil
+}
+
+func getReferencedItems(ctx context.Context, i *item.Item, prp bool, urlResolver asset.URLResolver) []Item {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	if i == nil {
+		return nil
+	}
+
+	var vi []Item
+	for _, f := range i.Fields() {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+		for _, v := range f.Value().Values() {
+			iid, ok := v.Value().(id.ItemID)
+			if !ok {
+				continue
+			}
+			ii, err := uc.Item.FindByID(ctx, iid, op)
+			if err != nil || ii == nil {
+				continue
+			}
+			sp, err := uc.Schema.FindByModel(ctx, ii.Value().Model(), op)
+			if err != nil {
+				continue
+			}
+			var assets asset.List
+			if prp {
+				assets, err = uc.Asset.FindByIDs(ctx, ii.Value().AssetIDs(), nil)
+				if err != nil {
+					continue
+				}
+			}
+			vi = append(vi, NewItem(ii.Value(), sp, assets, urlResolver, nil))
+		}
+	}
+
+	return vi
 }

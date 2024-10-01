@@ -2,14 +2,14 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
 
 import Editor from "./Editor";
 import Thread from "./Thread";
 
-export type Props = {
+type Props = {
   me?: User;
   comments?: Comment[];
   emptyText?: string;
@@ -61,7 +61,7 @@ const CommentsPanel: React.FC<Props> = ({
               <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
             ) : null}
 
-            <Editor disabled={!comments} onCommentCreate={onCommentCreate} />
+            <Editor isInputDisabled={!comments} onCommentCreate={onCommentCreate} />
           </>
         )}
       </ContentWrapper>

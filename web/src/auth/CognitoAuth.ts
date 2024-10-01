@@ -1,10 +1,12 @@
-import { Auth } from "@aws-amplify/auth";
+import { Auth } from "aws-amplify";
 import { useState, useEffect } from "react";
+
+import { logOutFromTenant } from "@reearth-cms/config";
 
 import AuthHook from "./AuthHook";
 
 export const useCognitoAuth = (): AuthHook => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<unknown>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -32,10 +34,12 @@ export const useCognitoAuth = (): AuthHook => {
   };
 
   const login = () => {
+    logOutFromTenant();
     Auth.federatedSignIn();
   };
 
   const logout = async () => {
+    logOutFromTenant();
     try {
       await Auth.signOut();
       setUser(null);

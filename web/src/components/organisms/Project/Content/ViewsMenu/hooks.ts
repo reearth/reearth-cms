@@ -1,78 +1,63 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import {
-  View as GQLView,
+  toGraphColumnSelectionInput,
+  toGraphItemSort,
+  toGraphConditionInput,
+} from "@reearth-cms/components/organisms/DataConverters/table";
+import {
   useCreateViewMutation,
   useDeleteViewMutation,
-  useGetViewsQuery,
   useUpdateViewMutation,
+  useUpdateViewsOrderMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject } from "@reearth-cms/state";
-import { fromGraphQLView } from "@reearth-cms/utils/values";
+import { useProject, useModel } from "@reearth-cms/state";
 
 type Params = {
-  modelId?: string;
+  currentView: CurrentView;
+  onViewChange: () => void;
 };
 
-export default ({ modelId }: Params) => {
+export type modalStateType = "rename" | "create";
+
+export default ({ currentView, onViewChange }: Params) => {
   const t = useT();
   const [viewModalShown, setViewModalShown] = useState(false);
-  const [selectedView, setSelectedView] = useState<View>();
-  const [submitting, setSubmitting] = useState(false);
+  const [modalState, setModalState] = useState<modalStateType>("create");
   const [currentProject] = useProject();
+  const [currentModel] = useModel();
 
-  const projectId = useMemo(() => currentProject?.id, [currentProject]);
+  const handleViewRenameModalOpen = useCallback(() => {
+    setModalState("rename");
+    setViewModalShown(true);
+  }, []);
 
-  const { data } = useGetViewsQuery({
-    variables: { modelId: modelId ?? "" },
-    skip: !modelId,
-  });
-
-  const views = useMemo(() => {
-    return data?.view
-      ?.map(view => (view ? fromGraphQLView(view as GQLView) : undefined))
-      .filter((view): view is View => !!view);
-  }, [data?.view]);
-
-  const handleViewModalOpen = useCallback(() => setViewModalShown(true), []);
-
-  const handleViewUpdateModalOpen = useCallback(
-    async (view: View) => {
-      setSelectedView(view);
-      handleViewModalOpen();
-    },
-    [setSelectedView, handleViewModalOpen],
-  );
-
-  const handleViewRenameModalOpen = useCallback(
-    async (view: View) => {
-      setSelectedView(view);
-      handleViewModalOpen();
-    },
-    [setSelectedView, handleViewModalOpen],
-  );
+  const handleViewCreateModalOpen = useCallback(() => {
+    setModalState("create");
+    setViewModalShown(true);
+  }, []);
 
   const handleViewModalReset = useCallback(() => {
-    setSelectedView(undefined);
     setViewModalShown(false);
-    setSubmitting(false);
-  }, [setSelectedView, setViewModalShown, setSubmitting]);
+  }, [setViewModalShown]);
 
-  const [createNewView] = useCreateViewMutation({
+  const [createNewView, { loading: createLoading }] = useCreateViewMutation({
     refetchQueries: ["GetViews"],
   });
 
   const handleViewCreate = useCallback(
-    async (data: { name: string }) => {
-      setSubmitting(true);
+    async (name: string) => {
       const view = await createNewView({
         variables: {
-          name: data.name,
-          projectId: projectId ?? "",
-          modelId: modelId ?? "",
+          name,
+          projectId: currentProject?.id ?? "",
+          modelId: currentModel?.id ?? "",
+          sort: toGraphItemSort(currentView.sort),
+          columns: toGraphColumnSelectionInput(currentView.columns),
+          filter: toGraphConditionInput(currentView.filter),
         },
       });
       if (view.errors || !view.data?.createView) {
@@ -80,23 +65,34 @@ export default ({ modelId }: Params) => {
         return;
       }
       setViewModalShown(false);
+      onViewChange();
       Notification.success({ message: t("Successfully created view!") });
     },
-    [createNewView, projectId, modelId, t, setSubmitting],
+    [
+      createNewView,
+      currentProject?.id,
+      currentModel?.id,
+      currentView?.sort,
+      currentView?.columns,
+      currentView.filter,
+      onViewChange,
+      t,
+    ],
   );
 
-  const [updateNewView] = useUpdateViewMutation({
+  const [updateNewView, { loading: updateLoading }] = useUpdateViewMutation({
     refetchQueries: ["GetViews"],
   });
 
   const handleViewUpdate = useCallback(
-    async (data: { viewId?: string; name: string }) => {
-      if (!data.viewId) return;
-      setSubmitting(true);
+    async (viewId: string, name: string) => {
       const view = await updateNewView({
         variables: {
-          viewId: data.viewId,
-          name: data.name,
+          viewId,
+          name,
+          sort: toGraphItemSort(currentView.sort),
+          columns: toGraphColumnSelectionInput(currentView.columns),
+          filter: toGraphConditionInput(currentView.filter),
         },
       });
       if (view.errors || !view.data?.updateView) {
@@ -106,43 +102,78 @@ export default ({ modelId }: Params) => {
       Notification.success({ message: t("Successfully updated view!") });
       handleViewModalReset();
     },
-    [handleViewModalReset, t, updateNewView, setSubmitting],
+    [updateNewView, currentView, t, handleViewModalReset],
+  );
+
+  const handleViewRename = useCallback(
+    async (viewId: string, name: string) => {
+      const view = await updateNewView({
+        variables: {
+          viewId,
+          name,
+          sort: toGraphItemSort(currentView?.sort),
+          columns: toGraphColumnSelectionInput(currentView.columns),
+          filter: toGraphConditionInput(currentView.filter),
+        },
+      });
+      if (view.errors || !view.data?.updateView) {
+        Notification.error({ message: t("Failed to rename view.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully renamed view!") });
+      handleViewModalReset();
+    },
+    [handleViewModalReset, t, updateNewView, currentView],
   );
 
   const [deleteView] = useDeleteViewMutation({
     refetchQueries: ["GetViews"],
   });
 
-  const handleViewDeletionModalClose = useCallback(() => {
-    setSelectedView(undefined);
-  }, [setSelectedView]);
-
   const handleViewDelete = useCallback(
-    async (viewId?: string) => {
-      if (!viewId) return;
+    async (viewId: string) => {
       const res = await deleteView({ variables: { viewId } });
       if (res.errors || !res.data?.deleteView) {
         Notification.error({ message: t("Failed to delete view.") });
       } else {
         Notification.success({ message: t("Successfully deleted view!") });
-        handleViewDeletionModalClose();
+        onViewChange();
       }
     },
-    [deleteView, handleViewDeletionModalClose, t],
+    [deleteView, onViewChange, t],
+  );
+
+  const [updateViewsOrder] = useUpdateViewsOrderMutation({
+    refetchQueries: ["GetViews"],
+  });
+
+  const handleUpdateViewsOrder = useCallback(
+    async (viewIds: string[]) => {
+      const view = await updateViewsOrder({
+        variables: {
+          viewIds,
+        },
+      });
+      if (view.errors) {
+        Notification.error({ message: t("Failed to update views order.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated views order!") });
+    },
+    [updateViewsOrder, t],
   );
 
   return {
-    views,
-    handleViewModalOpen,
-    handleViewUpdateModalOpen,
+    modalState,
     handleViewRenameModalOpen,
-    handleViewDelete,
-    handleViewDeletionModalClose,
-    selectedView,
+    handleViewCreateModalOpen,
     viewModalShown,
-    submitting,
+    submitting: createLoading || updateLoading,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,
+    handleViewRename,
+    handleViewDelete,
+    handleUpdateViewsOrder,
   };
 };

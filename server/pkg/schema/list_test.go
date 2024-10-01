@@ -8,14 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFieldList_Find(t *testing.T) {
-	f := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	f2 := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	assert.Equal(t, f, FieldList{f, f2}.Find(f.ID()))
-	assert.Equal(t, f2, FieldList{f, f2}.Find(f2.ID()))
-	assert.Nil(t, FieldList{f, f2}.Find(NewFieldID()))
-}
-
 func TestList_SortByID(t *testing.T) {
 	id1 := NewID()
 	id2 := NewID()
@@ -34,6 +26,33 @@ func TestList_SortByID(t *testing.T) {
 		&Schema{id: id2},
 		&Schema{id: id1},
 	}, list)
+}
+
+func TestList_Schema(t *testing.T) {
+	id1 := NewID()
+	id2 := NewID()
+
+	list := List{
+		&Schema{id: id2},
+		&Schema{id: id1},
+	}
+
+	assert.Nil(t, list.Schema(nil))
+	assert.Equal(t, &Schema{id: id1}, list.Schema(&id1))
+}
+
+func TestList_Fields(t *testing.T) {
+	id1 := NewID()
+	id2 := NewID()
+	f1 := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	f2 := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+
+	list := List{
+		&Schema{id: id2, fields: FieldList{f2}},
+		&Schema{id: id1, fields: FieldList{f1}},
+	}
+
+	assert.Equal(t, FieldList{f2, f1}, list.Fields())
 }
 
 func TestList_Clone(t *testing.T) {
@@ -104,4 +123,12 @@ func TestFieldList_Ordered(t *testing.T) {
 		&Field{id: id1, order: 1},
 		&Field{id: id2, order: 2},
 	}, res)
+}
+
+func TestFieldList_Find(t *testing.T) {
+	f := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	f2 := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	assert.Equal(t, f, FieldList{f, f2}.Find(f.ID()))
+	assert.Equal(t, f2, FieldList{f, f2}.Find(f2.ID()))
+	assert.Nil(t, FieldList{f, f2}.Find(NewFieldID()))
 }

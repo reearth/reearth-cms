@@ -9,6 +9,8 @@ type Item implements Node {
   updatedByIntegrationId: ID
   userId: ID
   metadataId: ID
+  isMetadata: Boolean!
+  originalId: ID
   createdBy: Operator
   schema: Schema!
   model: Model!
@@ -17,11 +19,14 @@ type Item implements Node {
   thread: Thread!
   fields: [ItemField!]!
   assets: [Asset]!
+  referencedItems:[Item!]
+  requests: [Request!]
   createdAt: DateTime!
   updatedAt: DateTime!
   updatedBy: Operator
   version: String!
   metadata: Item
+  original: Item
   title: String
 }
 
@@ -59,12 +64,14 @@ input CreateItemInput {
   schemaId: ID!
   modelId: ID!
   metadataId: ID
+  originalId: ID
   fields: [ItemFieldInput!]!
 }
 
 input UpdateItemInput {
   itemId: ID!
   metadataId: ID
+  originalId: ID
   fields: [ItemFieldInput!]!
   version: String
 }
@@ -83,8 +90,8 @@ input PublishItemInput {
 
 input ItemQueryInput {
   project: ID!
+  model: ID!
   schema: ID
-  model: ID
   q: String
 }
 

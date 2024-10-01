@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -23,18 +22,24 @@ func NewRequestLoader(usecase interfaces.Request) *RequestLoader {
 }
 
 func (c *RequestLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Request, []error) {
-	ids2, err := util.TryMap(ids, gqlmodel.ToID[id.Request])
+	rIDs, err := util.TryMap(ids, gqlmodel.ToID[id.Request])
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, ids2, getOperator(ctx))
+	res, err := c.usecase.FindByIDs(ctx, rIDs, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return util.Map(res, func(req *request.Request) *gqlmodel.Request {
-		return gqlmodel.ToRequest(req)
+	return lo.Map(rIDs, func(id request.ID, _ int) *gqlmodel.Request {
+		r, ok := lo.Find(res, func(r *request.Request) bool {
+			return r != nil && r.ID() == id
+		})
+		if !ok {
+			return nil
+		}
+		return gqlmodel.ToRequest(r)
 	}), nil
 }
 
@@ -79,41 +84,18 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 	}, nil
 }
 
-type RequestDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Request, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Request, []error)
-}
-
-func (c *RequestLoader) DataLoader(ctx context.Context) RequestDataLoader {
-	return gqldataloader.NewRequestLoader(gqldataloader.RequestLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Request, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *RequestLoader) OrdinaryDataLoader(ctx context.Context) RequestDataLoader {
-	return &ordinaryRequestLoader{ctx: ctx, c: c}
-}
-
-type ordinaryRequestLoader struct {
-	ctx context.Context
-	c   *RequestLoader
-}
-
-func (l *ordinaryRequestLoader) Load(key gqlmodel.ID) (*gqlmodel.Request, error) {
-	res, errs := l.c.Fetch(l.ctx, []gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
+func (c *RequestLoader) FindByItem(ctx context.Context, itemId gqlmodel.ID) ([]*gqlmodel.Request, error) {
+	iid, err := gqlmodel.ToID[id.Item](itemId)
+	if err != nil {
+		return nil, err
 	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
 
-func (l *ordinaryRequestLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Request, []error) {
-	return l.c.Fetch(l.ctx, keys)
+	requests, err := c.usecase.FindByItem(ctx, iid, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(requests, func(r *request.Request, _ int) *gqlmodel.Request {
+		return gqlmodel.ToRequest(r)
+	}), nil
 }

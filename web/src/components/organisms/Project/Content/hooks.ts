@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
+import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
   Request as GQLRequest,
-  useGetModalRequestsQuery,
+  useGetModalRequestsLazyQuery,
   useUnpublishItemMutation,
   usePublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -21,31 +21,31 @@ export default () => {
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
 
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setPage(+page);
     setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const { data, loading } = useGetModalRequestsQuery({
-    fetchPolicy: "no-cache",
+  const [getModalRequests, { data, refetch, loading }] = useGetModalRequestsLazyQuery({
+    fetchPolicy: "cache-and-network",
     variables: {
       projectId: currentProject?.id ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       sort: { key: "createdAt", reverted: true },
       state: ["WAITING"] as GQLRequestState[],
+      key: searchTerm,
     },
-    skip: !currentProject?.id,
   });
 
   const requests: Request[] = useMemo(
     () =>
-      (data?.requests.nodes
-        .map(request => request as GQLRequest)
-        .map(convertRequest)
-        .filter(request => !!request) as Request[]) ?? [],
+      data?.requests.nodes
+        .filter((request): request is GQLRequest => !!request)
+        .map(request => fromGraphQLRequest(request)) ?? [],
     [data?.requests.nodes],
   );
 
@@ -75,7 +75,7 @@ export default () => {
     [updateRequest, t],
   );
 
-  const [publishItem] = usePublishItemMutation();
+  const [publishItem, { loading: publishLoading }] = usePublishItemMutation();
 
   const handlePublish = useCallback(
     async (itemIds: string[]) => {
@@ -95,7 +95,7 @@ export default () => {
     [publishItem, t],
   );
 
-  const [unpublishItem] = useUnpublishItemMutation();
+  const [unpublishItem, { loading: unpublishLoading }] = useUnpublishItemMutation();
 
   const handleUnpublish = useCallback(
     async (itemIds: string[]) => {
@@ -123,13 +123,24 @@ export default () => {
   const handleAddItemToRequestModalOpen = useCallback(() => {
     setPage(1);
     setPageSize(10);
+    setSearchTerm("");
     setAddItemToRequestModalShown(true);
-  }, []);
+    getModalRequests();
+  }, [getModalRequests]);
 
   const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
     setPage(page);
     setPageSize(pageSize);
   }, []);
+
+  const handleRequestSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setPage(1);
+  }, []);
+
+  const handleRequestTableReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   return {
     currentWorkspace,
@@ -140,10 +151,14 @@ export default () => {
     handlePublish,
     handleUnpublish,
     handleRequestTableChange,
+    handleRequestSearchTerm,
+    handleRequestTableReload,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     loading,
+    publishLoading,
+    unpublishLoading,
     totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,

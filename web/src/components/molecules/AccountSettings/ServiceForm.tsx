@@ -1,4 +1,5 @@
-import { useCallback, useMemo } from "react";
+import styled from "@emotion/styled";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -6,15 +7,21 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { localesWithLabel, useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  user?: User;
-  onLanguageUpdate: (lang?: string | undefined) => Promise<void>;
+type Props = {
+  user: User;
+  onLanguageUpdate: (lang: string) => Promise<void>;
+};
+
+type FormType = {
+  lang: string;
 };
 
 const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
   const { Option } = Select;
   const t = useT();
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const langItems = useMemo(
     () => [
@@ -27,23 +34,33 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
     [t],
   );
 
+  const handleSelect = useCallback(
+    (value: string) => {
+      setIsDisabled(value === user?.lang);
+    },
+    [user?.lang],
+  );
+
   const handleSubmit = useCallback(async () => {
-    const values = await form.validateFields();
-    await onLanguageUpdate?.(values.lang);
+    setIsDisabled(true);
+    setIsLoading(true);
+    try {
+      const values = await form.validateFields();
+      await onLanguageUpdate(values.lang);
+    } catch (_) {
+      setIsDisabled(false);
+    } finally {
+      setIsLoading(false);
+    }
   }, [form, onLanguageUpdate]);
 
   return (
-    <Form
-      style={{ maxWidth: 400 }}
-      form={form}
-      initialValues={user}
-      layout="vertical"
-      autoComplete="off">
+    <StyledForm form={form} initialValues={user} layout="vertical" autoComplete="off">
       <Form.Item
         name="lang"
         label={t("Service Language")}
         extra={t("This will change the UI language")}>
-        <Select placeholder={t("Language")}>
+        <Select placeholder={t("Language")} onSelect={handleSelect}>
           {langItems?.map(langItem => (
             <Option key={langItem.key} value={langItem.key}>
               {langItem.label}
@@ -51,11 +68,15 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
           ))}
         </Select>
       </Form.Item>
-      <Button onClick={handleSubmit} type="primary" htmlType="submit">
+      <Button onClick={handleSubmit} type="primary" disabled={isDisabled} loading={isLoading}>
         {t("Save")}
       </Button>
-    </Form>
+    </StyledForm>
   );
 };
+
+const StyledForm = styled(Form<FormType>)`
+  max-width: 400px;
+`;
 
 export default AccountServiceForm;

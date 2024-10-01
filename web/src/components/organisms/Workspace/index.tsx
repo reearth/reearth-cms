@@ -4,6 +4,7 @@ import useHooks from "./hooks";
 
 const Workspace: React.FC = () => {
   const {
+    coverImageUrl,
     projects,
     projectModalShown,
     loadingProjects,
@@ -16,7 +17,7 @@ const Workspace: React.FC = () => {
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
-    coverImageUrl,
+    handleProjectAliasCheck,
   } = useHooks();
 
   return (
@@ -34,6 +35,7 @@ const Workspace: React.FC = () => {
       onWorkspaceCreate={handleWorkspaceCreate}
       onClose={handleProjectModalClose}
       onSubmit={handleProjectCreate}
+      onProjectAliasCheck={handleProjectAliasCheck}
     />
   );
 };

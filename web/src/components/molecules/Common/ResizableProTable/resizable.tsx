@@ -5,6 +5,7 @@ import type { ResizeCallbackData } from "react-resizable";
 export type { ResizeCallbackData } from "react-resizable";
 
 export const ResizableTitle = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: React.HTMLAttributes<any> & {
     onResize: (e: React.SyntheticEvent<Element>, data: ResizeCallbackData) => void;
     width: number;
@@ -36,7 +37,8 @@ export const ResizableTitle = (
   );
 };
 
-const StyledResizable = styled(Resizable)`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const StyledResizable = styled(Resizable as any)`
   .react-resizable-handle {
     position: absolute;
     right: -5px;

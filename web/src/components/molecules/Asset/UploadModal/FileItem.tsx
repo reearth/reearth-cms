@@ -9,6 +9,7 @@ import { useT } from "@reearth-cms/i18n";
 import { isImageUrl } from "./util";
 
 type Props = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   file: UploadFile<any>;
   remove: () => void;
 };

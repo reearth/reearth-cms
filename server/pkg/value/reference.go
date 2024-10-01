@@ -36,8 +36,13 @@ func (*propertyReference) Validate(i any) bool {
 }
 
 func (*propertyReference) Equal(v, w any) bool {
-	vv := v.(Reference)
-	ww := v.(Reference)
+	var vv, ww Reference
+	if v != nil {
+		vv = v.(Reference)
+	}
+	if w != nil {
+		ww = w.(Reference)
+	}
 	return vv == ww
 }
 

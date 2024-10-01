@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -21,20 +20,26 @@ func NewViewLoader(usecase interfaces.View) *ViewLoader {
 }
 
 func (c *ViewLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.View, []error) {
-	sIds, err := util.TryMap(ids, gqlmodel.ToID[id.View])
+	vIDs, err := util.TryMap(ids, gqlmodel.ToID[id.View])
 	if err != nil {
 		return nil, []error{err}
 	}
 
 	op := getOperator(ctx)
 
-	res, err := c.usecase.FindByIDs(ctx, sIds, op)
+	res, err := c.usecase.FindByIDs(ctx, vIDs, op)
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return lo.Map(res, func(m *view.View, _ int) *gqlmodel.View {
-		return gqlmodel.ToView(m)
+	return lo.Map(vIDs, func(id view.ID, _ int) *gqlmodel.View {
+		v, ok := lo.Find(res, func(v *view.View) bool {
+			return v != nil && v.ID() == id
+		})
+		if !ok {
+			return nil
+		}
+		return gqlmodel.ToView(v)
 	}), nil
 }
 
@@ -50,53 +55,9 @@ func (c *ViewLoader) FindByModel(ctx context.Context, modelID gqlmodel.ID) ([]*g
 	if err != nil {
 		return nil, err
 	}
-	integrations := make([]*gqlmodel.View, 0, len(res))
-	for _, i := range res {
-		integrations = append(integrations, gqlmodel.ToView(i))
+	views := make([]*gqlmodel.View, 0, len(res))
+	for _, v := range res {
+		views = append(views, gqlmodel.ToView(v))
 	}
-	return integrations, nil
-}
-
-// data loaders
-
-type ViewDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.View, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.View, []error)
-}
-
-func (c *ViewLoader) DataLoader(ctx context.Context) ViewDataLoader {
-	return gqldataloader.NewViewLoader(gqldataloader.ViewLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.View, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *ViewLoader) OrdinaryDataLoader(ctx context.Context) ViewDataLoader {
-	return &ordinaryViewLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.View, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryViewLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.View, []error)
-}
-
-func (l *ordinaryViewLoader) Load(key gqlmodel.ID) (*gqlmodel.View, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryViewLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.View, []error) {
-	return l.fetch(keys)
+	return views, nil
 }

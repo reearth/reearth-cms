@@ -3,9 +3,23 @@ package gqlmodel
 import (
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/samber/lo"
 
 	"github.com/reearth/reearthx/util"
 )
+
+func SimpleToUser(u *user.Simple) *User {
+	if u == nil {
+		return nil
+	}
+
+	return &User{
+		ID:    IDFrom(u.ID),
+		Name:  u.Name,
+		Email: u.Email,
+		Host:  lo.EmptyableToPtr(u.Host),
+	}
+}
 
 func ToUser(u *user.User) *User {
 	if u == nil {
@@ -16,6 +30,7 @@ func ToUser(u *user.User) *User {
 		ID:    IDFrom(u.ID()),
 		Name:  u.Name(),
 		Email: u.Email(),
+		Host:  lo.EmptyableToPtr(u.Host()),
 	}
 }
 
@@ -29,6 +44,7 @@ func ToMe(u *user.User) *Me {
 		Name:          u.Name(),
 		Email:         u.Email(),
 		Lang:          u.Lang(),
+		Host:          lo.EmptyableToPtr(u.Host()),
 		Theme:         Theme(u.Theme()),
 		MyWorkspaceID: IDFrom(u.Workspace()),
 		Auths: util.Map(u.Auths(), func(a user.Auth) string {
@@ -64,6 +80,7 @@ func ToWorkspace(t *workspace.Workspace) *Workspace {
 		members = append(members, &WorkspaceUserMember{
 			UserID: IDFrom(u),
 			Role:   ToRole(m.Role),
+			Host:   lo.EmptyableToPtr(m.Host),
 		})
 	}
 	for i, m := range integrationsMap {

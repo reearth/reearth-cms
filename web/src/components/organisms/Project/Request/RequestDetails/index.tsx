@@ -1,5 +1,5 @@
 import RequestDetailsMolecule from "@reearth-cms/components/molecules/Request/Details";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/ContentDetails/hooks";
 
 import useHooks from "./hooks";
@@ -10,39 +10,22 @@ const RequestDetails: React.FC = () => {
     isCloseActionEnabled,
     isApproveActionEnabled,
     currentRequest,
-    loading: loadingRequest,
+    loading,
+    deleteLoading,
+    approveLoading,
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
     handleCommentUpdate,
     handleCommentDelete,
     handleNavigateToRequestsList,
+    handleNavigateToItemEdit,
   } = useHooks();
 
-  const {
-    assetList,
-    fileList,
-    loading,
-    uploading,
-    uploadModalVisibility,
-    uploadUrl,
-    uploadType,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    setFileList,
-    setUploadModalVisibility,
-    handleAssetsCreate,
-    handleAssetCreateFromUrl,
-    handleAssetsReload,
-    handleSearchTerm,
-    totalCount,
-    page,
-    pageSize,
-    handleAssetTableChange,
-  } = useAssetHooks();
+  const { handleGetAsset } = useAssetHooks(false);
 
-  const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
+  const { workspaceUserMembers, updateRequestLoading, handleRequestUpdate, handleGroupGet } =
+    useContentHooks();
 
   return (
     <RequestDetailsMolecule
@@ -51,6 +34,9 @@ const RequestDetails: React.FC = () => {
       isApproveActionEnabled={isApproveActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
+      deleteLoading={deleteLoading}
+      approveLoading={approveLoading}
+      updateLoading={updateRequestLoading}
       onRequestApprove={handleRequestApprove}
       onRequestUpdate={handleRequestUpdate}
       onRequestDelete={handleRequestDelete}
@@ -58,27 +44,10 @@ const RequestDetails: React.FC = () => {
       onCommentUpdate={handleCommentUpdate}
       onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
-      assetList={assetList}
-      fileList={fileList}
-      loadingAssets={loading}
-      loading={loadingRequest}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
-      totalCount={totalCount}
-      page={page}
-      pageSize={pageSize}
-      onAssetTableChange={handleAssetTableChange}
-      onUploadModalCancel={handleUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
-      onAssetsCreate={handleAssetsCreate}
-      onAssetCreateFromUrl={handleAssetCreateFromUrl}
-      onAssetsReload={handleAssetsReload}
-      onAssetSearchTerm={handleSearchTerm}
-      setFileList={setFileList}
-      setUploadModalVisibility={setUploadModalVisibility}
+      onNavigateToItemEdit={handleNavigateToItemEdit}
+      loading={loading}
+      onGetAsset={handleGetAsset}
+      onGroupGet={handleGroupGet}
     />
   );
 };

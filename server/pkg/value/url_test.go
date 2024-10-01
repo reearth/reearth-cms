@@ -27,7 +27,7 @@ func Test_propertyURL_ToValue(t *testing.T) {
 			name:  "string empty",
 			args:  []any{""},
 			want1: nil,
-			want2: false,
+			want2: true,
 		},
 		{
 			name:  "url",
@@ -78,7 +78,12 @@ func Test_propertyURL_Equal(t *testing.T) {
 	pu := &propertyURL{}
 	u1, _ := url.Parse("https://example.com")
 	u2, _ := url.Parse("https://example.com")
+	u3, _ := url.Parse("https://foo.com")
 	assert.True(t, pu.Equal(u1, u2))
+	assert.True(t, pu.Equal(nil, nil))
+	assert.False(t, pu.Equal(nil, u1))
+	assert.False(t, pu.Equal(u1, nil))
+	assert.False(t, pu.Equal(u1, u3))
 }
 
 func TestMultiple_ValuesURL(t *testing.T) {

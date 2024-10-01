@@ -25,6 +25,8 @@ type ItemDocument struct {
 	Integration          *string
 	Assets               []string `bson:"assets,omitempty"`
 	MetadataItem         *string
+	IsMetadata           bool
+	OriginalItem         *string
 	UpdatedByUser        *string
 	UpdatedByIntegration *string
 }
@@ -67,6 +69,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Project:      i.Project().String(),
 		Thread:       i.Thread().String(),
 		MetadataItem: i.MetadataItem().StringRef(),
+		OriginalItem: i.OriginalItem().StringRef(),
 		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
 			v := NewMultipleValue(f.Value())
 			if v == nil {
@@ -85,6 +88,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		UpdatedByIntegration: i.UpdatedByIntegration().StringRef(),
 		Integration:          i.Integration().StringRef(),
 		Assets:               i.AssetIDs().Strings(),
+		IsMetadata:           i.IsMetadata(),
 	}, itmId
 }
 
@@ -147,7 +151,9 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		UpdatedByIntegration(id.IntegrationIDFromRef(d.UpdatedByIntegration)).
 		Model(mid).
 		MetadataItem(id.ItemIDFromRef(d.MetadataItem)).
+		OriginalItem(id.ItemIDFromRef(d.OriginalItem)).
 		Thread(tid).
+		IsMetadata(d.IsMetadata).
 		Fields(fields).
 		Timestamp(d.Timestamp)
 

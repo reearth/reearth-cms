@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/k0kubun/pp/v3"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
@@ -17,49 +18,56 @@ import (
 
 const configPrefix = "REEARTH_CMS"
 
-type Config struct {
-	Port         string `default:"8080" envconfig:"PORT"`
-	ServerHost   string
-	Host         string `default:"http://localhost:8080"`
-	Dev          bool
-	Host_Web     string
-	GraphQL      GraphQLConfig
-	Origins      []string
-	DB           string `default:"mongodb://localhost"`
-	Mailer       string
-	SMTP         SMTPConfig
-	SendGrid     SendGridConfig
-	SignupSecret string
-	GCS          GCSConfig
-	S3           S3Config
-	Task         gcp.TaskConfig
-	AWSTask      aws.TaskConfig
-	AssetBaseURL string
-	Web          WebConfig
-	Web_Disabled bool
-	// auth
-	Auth          AuthConfigs
-	Auth0         Auth0Config
-	Cognito       CognitoConfig
-	Auth_ISS      string
-	Auth_AUD      string
-	Auth_ALG      *string
-	Auth_TTL      *int
-	Auth_ClientID *string
-	Auth_JWKSURI  *string
-	// auth for m2m
-	AuthM2M AuthM2MConfig
+func init() {
+	pp.Default.SetColoringEnabled(false)
+}
 
-	DB_Account string
+type Config struct {
+	Port         string            `default:"8080" envconfig:"PORT"`
+	ServerHost   string            `pp:",omitempty"`
+	Host         string            `default:"http://localhost:8080"`
+	Dev          bool              `pp:",omitempty"`
+	Host_Web     string            `pp:",omitempty"`
+	GraphQL      GraphQLConfig     `pp:",omitempty"`
+	Origins      []string          `pp:",omitempty"`
+	DB           string            `default:"mongodb://localhost"`
+	Mailer       string            `pp:",omitempty"`
+	SMTP         SMTPConfig        `pp:",omitempty"`
+	SendGrid     SendGridConfig    `pp:",omitempty"`
+	SignupSecret string            `pp:",omitempty"`
+	GCS          GCSConfig         `pp:",omitempty"`
+	S3           S3Config          `pp:",omitempty"`
+	Task         gcp.TaskConfig    `pp:",omitempty"`
+	AWSTask      aws.TaskConfig    `pp:",omitempty"`
+	AssetBaseURL string            `pp:",omitempty"`
+	Web          map[string]string `pp:",omitempty"`
+	Web_Config   JSON              `pp:",omitempty"`
+	Web_Disabled bool              `pp:",omitempty"`
+	// auth
+	Auth          AuthConfigs    `pp:",omitempty"`
+	Auth0         Auth0Config    `pp:",omitempty"`
+	Cognito       CognitoConfig  `pp:",omitempty"`
+	Firebase      FirebaseConfig `pp:",omitempty"`
+	Auth_ISS      string         `pp:",omitempty"`
+	Auth_AUD      string         `pp:",omitempty"`
+	Auth_ALG      *string        `pp:",omitempty"`
+	Auth_TTL      *int           `pp:",omitempty"`
+	Auth_ClientID *string        `pp:",omitempty"`
+	Auth_JWKSURI  *string        `pp:",omitempty"`
+	// auth for m2m
+	AuthM2M AuthM2MConfig `pp:",omitempty"`
+
+	DB_Account string          `pp:",omitempty"`
+	DB_Users   []appx.NamedURI `pp:",omitempty"`
 }
 
 type AuthConfig struct {
-	ISS      string
-	AUD      []string
-	ALG      *string
-	TTL      *int
-	ClientID *string
-	JWKSURI  *string
+	ISS      string   `pp:",omitempty"`
+	AUD      []string `pp:",omitempty"`
+	ALG      *string  `pp:",omitempty"`
+	TTL      *int     `pp:",omitempty"`
+	ClientID *string  `pp:",omitempty"`
+	JWKSURI  *string  `pp:",omitempty"`
 }
 
 type GraphQLConfig struct {
@@ -69,57 +77,64 @@ type GraphQLConfig struct {
 type AuthConfigs []AuthConfig
 
 type Auth0Config struct {
-	Domain       string
-	Audience     string
-	ClientID     string
-	ClientSecret string
-	WebClientID  string
+	Domain       string `pp:",omitempty"`
+	Audience     string `pp:",omitempty"`
+	ClientID     string `pp:",omitempty"`
+	ClientSecret string `pp:",omitempty"`
+	WebClientID  string `pp:",omitempty"`
 }
 
 type CognitoConfig struct {
-	UserPoolID string
-	Region     string
-	ClientID   string
+	UserPoolID string `pp:",omitempty"`
+	Region     string `pp:",omitempty"`
+	ClientID   string `pp:",omitempty"`
+}
+
+type FirebaseConfig struct {
+	ProjectID string `pp:",omitempty"`
+	ClientID  string `pp:",omitempty"`
 }
 
 type SendGridConfig struct {
-	Email string
-	Name  string
-	API   string
+	Email string `pp:",omitempty"`
+	Name  string `pp:",omitempty"`
+	API   string `pp:",omitempty"`
 }
 
 type SMTPConfig struct {
-	Host         string
-	Port         string
-	SMTPUsername string
-	Email        string
-	Password     string
+	Host         string `pp:",omitempty"`
+	Port         string `pp:",omitempty"`
+	SMTPUsername string `pp:",omitempty"`
+	Email        string `pp:",omitempty"`
+	Password     string `pp:",omitempty"`
 }
 
 type GCSConfig struct {
-	BucketName              string
-	PublicationCacheControl string
+	BucketName              string `pp:",omitempty"`
+	PublicationCacheControl string `pp:",omitempty"`
 }
 
 type S3Config struct {
-	BucketName              string
-	PublicationCacheControl string
+	BucketName              string `pp:",omitempty"`
+	PublicationCacheControl string `pp:",omitempty"`
 }
 
 type AuthM2MConfig struct {
-	ISS     string
-	AUD     []string
-	ALG     *string
-	TTL     *int
-	Email   string
-	JWKSURI *string
+	ISS     string   `pp:",omitempty"`
+	AUD     []string `pp:",omitempty"`
+	ALG     *string  `pp:",omitempty"`
+	TTL     *int     `pp:",omitempty"`
+	Email   string   `pp:",omitempty"`
+	JWKSURI *string  `pp:",omitempty"`
 }
 
-func (c Config) Auths() (res AuthConfigs) {
+func (c *Config) Auths() (res AuthConfigs) {
 	if cc := c.Cognito.Configs(); cc != nil {
 		return cc
 	}
-
+	if cc := c.Firebase.AuthConfig(); cc != nil {
+		res = append(res, *cc)
+	}
 	if ac := c.Auth0.AuthConfig(); ac != nil {
 		res = append(res, *ac)
 	}
@@ -141,11 +156,11 @@ func (c Config) Auths() (res AuthConfigs) {
 	return append(res, c.Auth...)
 }
 
-func (c Config) JWTProviders() (res []appx.JWTProvider) {
+func (c *Config) JWTProviders() (res []appx.JWTProvider) {
 	return c.Auths().JWTProviders()
 }
 
-func (c Config) AuthForWeb() *AuthConfig {
+func (c *Config) AuthForWeb() *AuthConfig {
 	if ac := c.Auth0.AuthConfigForWeb(); ac != nil {
 		return ac
 	}
@@ -248,6 +263,19 @@ func (c CognitoConfig) Configs() AuthConfigs {
 	}
 }
 
+// Firebase
+func (c FirebaseConfig) AuthConfig() *AuthConfig {
+	if c.ProjectID == "" || c.ClientID == "" {
+		return nil
+	}
+	return &AuthConfig{
+		ISS:      fmt.Sprintf("https://securetoken.google.com/%s", c.ProjectID),
+		AUD:      []string{c.ProjectID},
+		ClientID: &c.ClientID,
+		JWKSURI:  lo.ToPtr("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
+	}
+}
+
 // Decode is a custom decoder for AuthConfigs
 func (ipd *AuthConfigs) Decode(value string) error {
 	if value == "" {
@@ -287,13 +315,26 @@ func ReadConfig(debug bool) (*Config, error) {
 	return &c, err
 }
 
-func (c Config) Print() string {
-	s := fmt.Sprintf("%+v", c)
-	for _, secret := range []string{c.DB, c.Auth0.ClientSecret} {
+func (c *Config) Print() string {
+	s := pp.Sprint(c)
+
+	for _, secret := range c.secrets() {
 		if secret == "" {
 			continue
 		}
 		s = strings.ReplaceAll(s, secret, "***")
+	}
+
+	return s
+}
+
+func (c *Config) secrets() []string {
+	s := []string{
+		c.DB,
+		c.Auth0.ClientSecret,
+	}
+	for _, d := range c.DB_Users {
+		s = append(s, d.URI)
 	}
 	return s
 }
@@ -304,4 +345,56 @@ func prepareUrl(url string) string {
 	}
 	url = strings.TrimSuffix(url, "/")
 	return url
+}
+
+func (c *Config) WebConfig() map[string]any {
+	config := make(map[string]any)
+
+	if ac := c.AuthForWeb(); ac != nil {
+		if ac.ISS != "" {
+			config["auth0Domain"] = strings.TrimSuffix(ac.ISS, "/")
+		}
+		if ac.ClientID != nil {
+			config["auth0ClientId"] = *ac.ClientID
+		}
+		if len(ac.AUD) > 0 {
+			config["auth0Audience"] = ac.AUD[0]
+		}
+	}
+
+	for k, v := range c.Web {
+		config[k] = v
+	}
+	if m := c.Web_Config.Object(); m != nil {
+		for k, v := range m {
+			config[k] = v
+		}
+	}
+
+	return config
+}
+
+type JSON struct {
+	Data any
+}
+
+func (j *JSON) Decode(value string) error {
+	if value == "" {
+		return nil
+	}
+	return json.Unmarshal([]byte(value), &j.Data)
+}
+
+func (j *JSON) Object() map[string]any {
+	if j == nil {
+		return nil
+	}
+	if m, ok := j.Data.(map[string]any); ok {
+		w := make(map[string]any)
+		for k, v := range m {
+			w[k] = v
+		}
+		return w
+	}
+	return nil
 }

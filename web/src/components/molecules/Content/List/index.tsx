@@ -1,38 +1,40 @@
 import styled from "@emotion/styled";
+import { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
+import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
-import type {
-  SortDirection,
-  FieldSelector,
+import {
+  ItemSort,
   ConditionInput,
-} from "@reearth-cms/gql/graphql-client-api";
+  CurrentView,
+} from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  commentsPanel?: JSX.Element;
+type Props = {
+  commentsPanel: JSX.Element;
   viewsMenu: JSX.Element;
-  collapsed?: boolean;
+  collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];
-  itemsDataLoading: boolean;
-  contentTableColumns?: ProColumns<ContentTableField>[];
+  loading: boolean;
+  deleteLoading: boolean;
+  unpublishLoading: boolean;
+  contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
-  selectedItem: Item | undefined;
+  selectedItem?: Item;
   selection: {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { field?: FieldSelector; direction?: SortDirection };
-  filter?: ConditionInput[];
+  currentView: CurrentView;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -40,13 +42,11 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onContentTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { field?: FieldSelector; direction?: SortDirection },
-  ) => void;
+  onFilterChange: (filter?: ConditionInput[]) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
@@ -57,9 +57,11 @@ export type Props = {
   onItemDelete: (itemIds: string[]) => Promise<void>;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -70,17 +72,19 @@ const ContentListMolecule: React.FC<Props> = ({
   contentTableFields,
   contentTableColumns,
   modelsMenu,
-  itemsDataLoading,
+  loading,
+  deleteLoading,
+  unpublishLoading,
   selectedItem,
   selection,
   totalCount,
-  sort,
-  filter,
+  currentView,
   searchTerm,
   page,
   pageSize,
   requests,
   addItemToRequestModalShown,
+  setCurrentView,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -91,6 +95,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onSearchTerm,
+  onFilterChange,
   onContentTableChange,
   setSelection,
   onItemSelect,
@@ -99,6 +104,8 @@ const ContentListMolecule: React.FC<Props> = ({
   onItemsReload,
   onItemEdit,
   onItemDelete,
+  onRequestSearchTerm,
+  onRequestTableReload,
 }) => {
   const t = useT();
 
@@ -116,51 +123,61 @@ const ContentListMolecule: React.FC<Props> = ({
       }
       center={
         <Content>
-          <StyledPageHeder
-            title={model?.name}
-            subTitle={model?.key ? `#${model.key}` : null}
-            extra={
-              <Button
-                type="primary"
-                onClick={onItemAdd}
-                icon={<Icon icon="plus" />}
-                disabled={!model}>
-                {t("New Item")}
-              </Button>
-            }
-          />
-          {viewsMenu}
-          <ContentTable
-            totalCount={totalCount}
-            sort={sort}
-            filter={filter}
-            searchTerm={searchTerm}
-            page={page}
-            pageSize={pageSize}
-            loading={itemsDataLoading}
-            selectedItem={selectedItem}
-            selection={selection}
-            onUnpublish={onUnpublish}
-            onSearchTerm={onSearchTerm}
-            onContentTableChange={onContentTableChange}
-            setSelection={setSelection}
-            onItemSelect={onItemSelect}
-            onItemsReload={onItemsReload}
-            onItemEdit={onItemEdit}
-            contentTableFields={contentTableFields}
-            contentTableColumns={contentTableColumns}
-            onItemDelete={onItemDelete}
-            requests={requests}
-            addItemToRequestModalShown={addItemToRequestModalShown}
-            onAddItemToRequest={onAddItemToRequest}
-            onAddItemToRequestModalClose={onAddItemToRequestModalClose}
-            onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
-            onRequestTableChange={onRequestTableChange}
-            requestModalLoading={requestModalLoading}
-            requestModalTotalCount={requestModalTotalCount}
-            requestModalPage={requestModalPage}
-            requestModalPageSize={requestModalPageSize}
-          />
+          {model && (
+            <>
+              <StyledPageHeder
+                title={model?.name}
+                subTitle={model?.key ? `#${model.key}` : null}
+                extra={
+                  <Button
+                    type="primary"
+                    onClick={onItemAdd}
+                    icon={<Icon icon="plus" />}
+                    disabled={!model}>
+                    {t("New Item")}
+                  </Button>
+                }
+              />
+              {viewsMenu}
+              <ContentTable
+                totalCount={totalCount}
+                currentView={currentView}
+                searchTerm={searchTerm}
+                page={page}
+                pageSize={pageSize}
+                loading={loading}
+                deleteLoading={deleteLoading}
+                unpublishLoading={unpublishLoading}
+                selectedItem={selectedItem}
+                selection={selection}
+                onUnpublish={onUnpublish}
+                onSearchTerm={onSearchTerm}
+                onFilterChange={onFilterChange}
+                onContentTableChange={onContentTableChange}
+                setSelection={setSelection}
+                onItemSelect={onItemSelect}
+                onItemsReload={onItemsReload}
+                onItemEdit={onItemEdit}
+                contentTableFields={contentTableFields}
+                contentTableColumns={contentTableColumns}
+                onItemDelete={onItemDelete}
+                requests={requests}
+                addItemToRequestModalShown={addItemToRequestModalShown}
+                onAddItemToRequest={onAddItemToRequest}
+                onAddItemToRequestModalClose={onAddItemToRequestModalClose}
+                onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
+                onRequestTableChange={onRequestTableChange}
+                requestModalLoading={requestModalLoading}
+                requestModalTotalCount={requestModalTotalCount}
+                requestModalPage={requestModalPage}
+                requestModalPageSize={requestModalPageSize}
+                setCurrentView={setCurrentView}
+                modelKey={model?.key}
+                onRequestSearchTerm={onRequestSearchTerm}
+                onRequestTableReload={onRequestTableReload}
+              />
+            </>
+          )}
         </Content>
       }
       right={commentsPanel}

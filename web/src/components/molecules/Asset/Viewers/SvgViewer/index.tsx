@@ -3,7 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
-type Props = { url: string; svgRender: boolean };
+type Props = {
+  url: string;
+  svgRender: boolean;
+};
 
 const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const t = useT();
@@ -12,9 +15,6 @@ const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const fetchData = useCallback(async () => {
     const res = await fetch(url, {
       method: "GET",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
     });
     if (res.status !== 200) {
       setSvgText(t("Could not display svg"));

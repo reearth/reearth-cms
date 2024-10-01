@@ -9,20 +9,13 @@ import { useT } from "@reearth-cms/i18n";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  className?: string;
-  selectedValues: string[];
+  selectedValues?: string[];
   value?: string[];
   onChange?: (value: string[]) => void;
   disabled?: boolean;
 };
 
-const MultiValueSelect: React.FC<Props> = ({
-  className,
-  selectedValues,
-  value = [],
-  onChange,
-  disabled,
-}) => {
+const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChange, disabled }) => {
   const t = useT();
   const { Option } = Select;
   const handleInput = useCallback(
@@ -48,7 +41,7 @@ const MultiValueSelect: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>

@@ -5,20 +5,19 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 
-export type Props = {
-  className?: string;
+type Props = {
   items: MenuProps["items"];
   name?: string;
-  personal?: boolean;
+  personal: boolean;
 };
 
-const Dropdown: React.FC<Props> = ({ className, items, name, personal }) => {
+const Dropdown: React.FC<Props> = ({ items, name, personal, ...props }) => {
   return (
     <StyledDropdown
-      className={className}
       menu={{ items }}
       trigger={["click"]}
-      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}>
+      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
+      {...props}>
       <a onClick={e => e.preventDefault()}>
         <Space>
           <UserAvatar username={name ?? ""} shape={personal ? "circle" : "square"} size={"small"} />
@@ -40,7 +39,9 @@ const StyledDropdown = styled(DropdownAtom)`
 const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
     background-color: #141414 !important;
-    width: 190px;
+    min-width: 190px;
+    max-width: 205px;
+    padding: 4px 0;
   }
   .ant-dropdown-menu-item-divider {
     background-color: #303030;
@@ -48,7 +49,7 @@ const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu-item-group-title,
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
-    color: #fff;
+    color: #fff !important;
   }
   .ant-dropdown-menu-item-group-title {
     font-weight: 400;
@@ -56,6 +57,10 @@ const StyledDropdownMenu = styled.div`
     line-height: 22px;
     user-select: none;
     color: #dbdbdb;
+  }
+  .ant-dropdown-menu-item-group-list {
+    max-height: 50vh;
+    overflow: hidden auto;
   }
   .ant-dropdown-menu-item-active {
     background-color: #1d1d1d;

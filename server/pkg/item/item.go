@@ -22,10 +22,12 @@ type Item struct {
 	fields               []*Field
 	timestamp            time.Time
 	thread               ThreadID
+	isMetadata           bool
 	user                 *UserID
 	updatedByUser        *UserID
 	updatedByIntegration *IntegrationID
 	metadataItem         *id.ItemID
+	originalItem         *id.ItemID
 	integration          *IntegrationID
 }
 
@@ -65,6 +67,13 @@ func (i *Item) Timestamp() time.Time {
 
 func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
+}
+func (i *Item) IsMetadata() bool {
+	return i.isMetadata
+}
+
+func (i *Item) OriginalItem() *ID {
+	return i.originalItem
 }
 
 func (i *Item) Field(f FieldID) *Field {
@@ -139,6 +148,29 @@ func (i *Item) UpdateFields(fields []*Field) {
 		return ff, true
 	}), newFields...)
 
+	i.cleanGroups()
+
+	i.timestamp = util.Now()
+}
+
+func (i *Item) cleanGroups() {
+	i.fields = lo.Filter(i.fields, func(f *Field, _ int) bool {
+		if f.ItemGroup() == nil {
+			return true
+		}
+		for _, gf := range i.Fields().FieldsByType(value.TypeGroup) {
+			igs, ok := gf.value.ValuesGroup()
+			if !ok {
+				continue
+			}
+			for _, ig := range igs {
+				if *f.ItemGroup() == ig {
+					return true
+				}
+			}
+		}
+		return false
+	})
 	i.timestamp = util.Now()
 }
 
@@ -212,9 +244,25 @@ type ItemModelSchema struct {
 	ReferencedItems []Versioned
 	Model           *model.Model
 	Schema          *schema.Schema
+	GroupSchemas    schema.List
 	Changes         FieldChanges
 }
 
 func (i *Item) SetMetadataItem(iid id.ItemID) {
 	i.metadataItem = &iid
+}
+
+func (i *Item) SetOriginalItem(iid id.ItemID) {
+	i.originalItem = &iid
+}
+
+func (i *Item) GetFirstGeometryField() (*Field, bool) {
+	if i == nil {
+		return nil, false
+	}
+	geoFields := append(i.Fields().FieldsByType(value.TypeGeometryObject), i.Fields().FieldsByType(value.TypeGeometryEditor)...)
+	if len(geoFields) == 0 {
+		return nil, false
+	}
+	return geoFields[0], true
 }

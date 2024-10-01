@@ -1,19 +1,15 @@
 import styled from "@emotion/styled";
-import moment from "moment";
-import { useCallback, useEffect, useMemo } from "react";
+import dayjs from "dayjs";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { FormItem } from "@reearth-cms/components/molecules/Content/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
@@ -21,56 +17,62 @@ import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  className?: string;
   value?: string[];
   onChange?: (value: string[]) => void;
   parentField: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
-  groups?: Group[];
   fields?: Field[];
+  loadingReference?: boolean;
   linkedItemsModalList?: FormItem[];
-  formItemsData: FormItem[];
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  linkItemModalTotalCount: number;
-  linkItemModalPage: number;
-  linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId?: string) => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  linkItemModalTitle?: string;
+  formItemsData?: FormItem[];
+  itemAssets?: ItemAsset[];
+  assetList?: Asset[];
+  fileList?: UploadFile[];
+  loadingAssets?: boolean;
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
+  uploadUrl?: { url: string; autoUnzip: boolean };
+  uploadType?: UploadType;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
+  linkItemModalTotalCount?: number;
+  linkItemModalPage?: number;
+  linkItemModalPageSize?: number;
+  disabled?: boolean;
+  onSearchTerm?: (term?: string) => void;
+  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
+  onLinkItemTableReload?: () => void;
+  onLinkItemTableChange?: (page: number, pageSize: number) => void;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
+  onUploadModalCancel?: () => void;
+  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadType?: (type: UploadType) => void;
+  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet?: () => void;
+  onAssetsReload?: () => void;
+  onAssetSearchTerm?: (term?: string | undefined) => void;
+  setFileList?: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility?: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
-  className,
   parentField,
-  groups,
   form,
   fields,
   value = [],
   onChange,
+  loadingReference,
   linkedItemsModalList,
+  linkItemModalTitle,
   formItemsData,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -84,7 +86,10 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  disabled,
+  onSearchTerm,
   onReferenceModelUpdate,
+  onLinkItemTableReload,
   onLinkItemTableChange,
   onAssetTableChange,
   onUploadModalCancel,
@@ -92,10 +97,14 @@ const MultiValueGroup: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
+  onGroupGet,
+  onCheckItemReference,
 }) => {
   const t = useT();
 
@@ -106,7 +115,7 @@ const MultiValueGroup: React.FC<Props> = ({
   const handleInputDelete = useCallback(
     (key: number) => {
       onChange?.(
-        value.filter((_: any, index: number) => {
+        value.filter((_, index: number) => {
           return index !== key;
         }),
       );
@@ -114,12 +123,7 @@ const MultiValueGroup: React.FC<Props> = ({
     [onChange, value],
   );
 
-  const group = useMemo<Group | undefined>(
-    () => groups?.find(g => g.id === parentField.typeProperty?.groupId),
-    [groups, parentField.typeProperty?.groupId],
-  );
-
-  const handleAdd = useCallback(() => {
+  const handleAdd = useCallback(async () => {
     const currentValues = value || [];
     const itemGroupId = newID();
 
@@ -131,93 +135,47 @@ const MultiValueGroup: React.FC<Props> = ({
 
     // set default value
     const newValues = { ...form?.getFieldsValue() };
+    if (!parentField.typeProperty?.groupId) return;
+    const group = await onGroupGet(parentField.typeProperty.groupId);
     group?.schema.fields.forEach((field: Field) => {
+      const defaultValue = field.typeProperty?.defaultValue;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const setValue = (value: any) => {
+        if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
+          form?.setFieldValue([field.id, itemGroupId], value);
+        } else {
+          form?.setFieldValue(field.id, { [itemGroupId]: value });
+        }
+      };
+
       switch (field.type) {
         case "Select":
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            newValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
-          } else {
-            newValues[field.id] = {
-              [itemGroupId]: field.typeProperty.selectDefaultValue,
-            };
-          }
-          break;
-        case "Tag":
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            newValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
-          } else {
-            newValues[field.id] = {
-              [itemGroupId]: field.typeProperty.selectDefaultValue,
-            };
-          }
+          setValue(field.typeProperty?.selectDefaultValue);
           break;
         case "Integer":
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            newValues[field.id][itemGroupId] = field.typeProperty.integerDefaultValue;
-          } else {
-            newValues[field.id] = {
-              [itemGroupId]: field.typeProperty.integerDefaultValue,
-            };
-          }
+          setValue(field.typeProperty?.integerDefaultValue);
           break;
         case "Asset":
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            newValues[field.id][itemGroupId] = field.typeProperty.assetDefaultValue;
-          } else {
-            newValues[field.id] = {
-              [itemGroupId]: field.typeProperty.assetDefaultValue,
-            };
-          }
+          setValue(field.typeProperty?.assetDefaultValue);
           break;
         case "Date":
-          if (Array.isArray(field.typeProperty.defaultValue)) {
-            newValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
-              (valueItem: string) => {
-                if (valueItem) {
-                  if (
-                    typeof newValues[field.id] === "object" &&
-                    !Array.isArray(newValues[field.id])
-                  ) {
-                    return moment(field.typeProperty.defaultValue);
-                  } else {
-                    return {
-                      [itemGroupId]: moment(field.typeProperty.defaultValue),
-                    };
-                  }
-                } else {
-                  return "";
-                }
-              },
-            );
+          if (Array.isArray(defaultValue)) {
+            setValue(defaultValue.map(valueItem => (valueItem ? dayjs(valueItem as string) : "")));
+          } else if (defaultValue) {
+            setValue(dayjs(defaultValue as string));
           } else {
-            if (field.typeProperty.defaultValue) {
-              if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-                newValues[field.id][itemGroupId] = moment(field.typeProperty.defaultValue);
-              } else {
-                newValues[field.id] = {
-                  [itemGroupId]: moment(field.typeProperty.defaultValue),
-                };
-              }
-            } else {
-              newValues[field.id][itemGroupId] = "";
-            }
+            form?.setFieldValue([field.id, itemGroupId], "");
           }
           break;
         default:
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            form?.setFieldValue([field.id, itemGroupId], field.typeProperty.defaultValue);
-          } else {
-            form?.setFieldValue(field.id, {
-              [itemGroupId]: field.typeProperty.defaultValue,
-            });
-          }
+          setValue(defaultValue);
           break;
       }
     });
-  }, [form, group?.schema.fields, onChange, value]);
+  }, [form, onChange, onGroupGet, parentField.typeProperty?.groupId, value]);
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => {
           return (
@@ -226,8 +184,12 @@ const MultiValueGroup: React.FC<Props> = ({
                 order={key}
                 value={valueItem}
                 parentField={parentField}
+                loadingReference={loadingReference}
                 linkedItemsModalList={linkedItemsModalList}
+                linkItemModalTitle={linkItemModalTitle}
+                onSearchTerm={onSearchTerm}
                 formItemsData={formItemsData}
+                itemAssets={itemAssets}
                 assetList={assetList}
                 fileList={fileList}
                 loadingAssets={loadingAssets}
@@ -241,7 +203,9 @@ const MultiValueGroup: React.FC<Props> = ({
                 linkItemModalTotalCount={linkItemModalTotalCount}
                 linkItemModalPage={linkItemModalPage}
                 linkItemModalPageSize={linkItemModalPageSize}
+                disabled={disabled}
                 onReferenceModelUpdate={onReferenceModelUpdate}
+                onLinkItemTableReload={onLinkItemTableReload}
                 onLinkItemTableChange={onLinkItemTableChange}
                 onAssetTableChange={onAssetTableChange}
                 onUploadModalCancel={onUploadModalCancel}
@@ -249,6 +213,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 setUploadType={setUploadType}
                 onAssetsCreate={onAssetsCreate}
                 onAssetCreateFromUrl={onAssetCreateFromUrl}
+                onAssetsGet={onAssetsGet}
                 onAssetsReload={onAssetsReload}
                 onAssetSearchTerm={onAssetSearchTerm}
                 setFileList={setFileList}
@@ -258,15 +223,18 @@ const MultiValueGroup: React.FC<Props> = ({
                 onDelete={() => handleInputDelete(key)}
                 disableMoveUp={key === 0}
                 disableMoveDown={key === value.length - 1}
+                onGetAsset={onGetAsset}
+                onGroupGet={onGroupGet}
+                onCheckItemReference={onCheckItemReference}
               />
             </FieldWrapper>
           );
         })}
-      {
+      {!disabled && (
         <Button icon={<Icon icon="plus" />} type="primary" onClick={handleAdd}>
           {t("New")}
         </Button>
-      }
+      )}
     </div>
   );
 };

@@ -11,60 +11,66 @@ var ErrInvalidValue = rerror.NewE(i18n.T("invalid value"))
 // TypeProperty Represent special attributes for some field
 // only one of the type properties should be not nil
 type TypeProperty struct {
-	t         value.Type
-	asset     *FieldAsset
-	text      *FieldText
-	textArea  *FieldTextArea
-	richText  *FieldRichText
-	markdown  *FieldMarkdown
-	dateTime  *FieldDateTime
-	bool      *FieldBool
-	checkbox  *FieldCheckbox
-	selectt   *FieldSelect
-	tag       *FieldTag
-	integer   *FieldInteger
-	number    *FieldNumber
-	reference *FieldReference
-	url       *FieldURL
-	group     *FieldGroup
+	t              value.Type
+	asset          *FieldAsset
+	text           *FieldText
+	textArea       *FieldTextArea
+	richText       *FieldRichText
+	markdown       *FieldMarkdown
+	dateTime       *FieldDateTime
+	bool           *FieldBool
+	checkbox       *FieldCheckbox
+	selectt        *FieldSelect
+	tag            *FieldTag
+	integer        *FieldInteger
+	number         *FieldNumber
+	reference      *FieldReference
+	url            *FieldURL
+	group          *FieldGroup
+	geometryObject *FieldGeometryObject
+	geometryEditor *FieldGeometryEditor
 }
 
 type TypePropertyMatch struct {
-	Text      func(*FieldText)
-	TextArea  func(*FieldTextArea)
-	RichText  func(text *FieldRichText)
-	Markdown  func(*FieldMarkdown)
-	Asset     func(*FieldAsset)
-	DateTime  func(*FieldDateTime)
-	Bool      func(*FieldBool)
-	Checkbox  func(checkbox *FieldCheckbox)
-	Select    func(*FieldSelect)
-	Tag       func(*FieldTag)
-	Integer   func(*FieldInteger)
-	Number    func(*FieldNumber)
-	Reference func(*FieldReference)
-	URL       func(*FieldURL)
-	Group     func(*FieldGroup)
-	Default   func()
+	Text           func(*FieldText)
+	TextArea       func(*FieldTextArea)
+	RichText       func(text *FieldRichText)
+	Markdown       func(*FieldMarkdown)
+	Asset          func(*FieldAsset)
+	DateTime       func(*FieldDateTime)
+	Bool           func(*FieldBool)
+	Checkbox       func(checkbox *FieldCheckbox)
+	Select         func(*FieldSelect)
+	Tag            func(*FieldTag)
+	Integer        func(*FieldInteger)
+	Number         func(*FieldNumber)
+	Reference      func(*FieldReference)
+	URL            func(*FieldURL)
+	Group          func(*FieldGroup)
+	GeometryObject func(*FieldGeometryObject)
+	GeometryEditor func(*FieldGeometryEditor)
+	Default        func()
 }
 
 type TypePropertyMatch1[T any] struct {
-	Text      func(*FieldText) T
-	TextArea  func(*FieldTextArea) T
-	RichText  func(text *FieldRichText) T
-	Markdown  func(*FieldMarkdown) T
-	Asset     func(*FieldAsset) T
-	DateTime  func(*FieldDateTime) T
-	Bool      func(*FieldBool) T
-	Checkbox  func(checkbox *FieldCheckbox) T
-	Select    func(*FieldSelect) T
-	Tag       func(*FieldTag) T
-	Integer   func(*FieldInteger) T
-	Number    func(*FieldNumber) T
-	Reference func(*FieldReference) T
-	URL       func(*FieldURL) T
-	Group     func(*FieldGroup) T
-	Default   func() T
+	Text           func(*FieldText) T
+	TextArea       func(*FieldTextArea) T
+	RichText       func(text *FieldRichText) T
+	Markdown       func(*FieldMarkdown) T
+	Asset          func(*FieldAsset) T
+	DateTime       func(*FieldDateTime) T
+	Bool           func(*FieldBool) T
+	Checkbox       func(checkbox *FieldCheckbox) T
+	Select         func(*FieldSelect) T
+	Tag            func(*FieldTag) T
+	Integer        func(*FieldInteger) T
+	Number         func(*FieldNumber) T
+	Reference      func(*FieldReference) T
+	URL            func(*FieldURL) T
+	Group          func(*FieldGroup) T
+	GeometryObject func(*FieldGeometryObject) T
+	GeometryEditor func(*FieldGeometryEditor) T
+	Default        func() T
 }
 
 func (t *TypeProperty) Type() value.Type {
@@ -118,6 +124,12 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		Group: func(f *FieldGroup) error {
 			return f.Validate(v)
 		},
+		GeometryObject: func(f *FieldGeometryObject) error {
+			return f.Validate(v)
+		},
+		GeometryEditor: func(f *FieldGeometryEditor) error {
+			return f.Validate(v)
+		},
 	})
 }
 
@@ -163,6 +175,12 @@ func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
 			return f.ValidateMultiple(v)
 		},
 		Group: func(f *FieldGroup) error {
+			return f.ValidateMultiple(v)
+		},
+		GeometryObject: func(f *FieldGeometryObject) error {
+			return f.ValidateMultiple(v)
+		},
+		GeometryEditor: func(f *FieldGeometryEditor) error {
 			return f.ValidateMultiple(v)
 		},
 	})
@@ -252,6 +270,16 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.URL(t.url)
 			return
 		}
+	case value.TypeGeometryObject:
+		if m.GeometryObject != nil {
+			m.GeometryObject(t.geometryObject)
+			return
+		}
+	case value.TypeGeometryEditor:
+		if m.GeometryEditor != nil {
+			m.GeometryEditor(t.geometryEditor)
+			return
+		}
 	}
 
 	if m.Default != nil {
@@ -265,22 +293,24 @@ func (t *TypeProperty) Clone() *TypeProperty {
 	}
 
 	return &TypeProperty{
-		t:         t.t,
-		text:      t.text.Clone(),
-		textArea:  t.textArea.Clone(),
-		richText:  t.richText.Clone(),
-		markdown:  t.markdown.Clone(),
-		asset:     t.asset.Clone(),
-		dateTime:  t.dateTime.Clone(),
-		bool:      t.bool.Clone(),
-		checkbox:  t.checkbox.Clone(),
-		selectt:   t.selectt.Clone(),
-		number:    t.number.Clone(),
-		tag:       t.tag.Clone(),
-		integer:   t.integer.Clone(),
-		reference: t.reference.Clone(),
-		group:     t.group.Clone(),
-		url:       t.url.Clone(),
+		t:              t.t,
+		text:           t.text.Clone(),
+		textArea:       t.textArea.Clone(),
+		richText:       t.richText.Clone(),
+		markdown:       t.markdown.Clone(),
+		asset:          t.asset.Clone(),
+		dateTime:       t.dateTime.Clone(),
+		bool:           t.bool.Clone(),
+		checkbox:       t.checkbox.Clone(),
+		selectt:        t.selectt.Clone(),
+		number:         t.number.Clone(),
+		tag:            t.tag.Clone(),
+		integer:        t.integer.Clone(),
+		reference:      t.reference.Clone(),
+		group:          t.group.Clone(),
+		url:            t.url.Clone(),
+		geometryObject: t.geometryObject.Clone(),
+		geometryEditor: t.geometryEditor.Clone(),
 	}
 }
 
@@ -352,6 +382,14 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypeGroup:
 		if m.Group != nil {
 			return m.Group(t.group)
+		}
+	case value.TypeGeometryObject:
+		if m.GeometryObject != nil {
+			return m.GeometryObject(t.geometryObject)
+		}
+	case value.TypeGeometryEditor:
+		if m.GeometryEditor != nil {
+			return m.GeometryEditor(t.geometryEditor)
 		}
 	}
 

@@ -18,14 +18,17 @@ const ContentList: React.FC = () => {
     selectedItem,
     selection,
     loading,
+    deleteLoading,
+    unpublishLoading,
     totalCount,
-    sort,
-    filter,
+    views,
+    currentView,
     searchTerm,
     page,
     pageSize,
     requests,
     addItemToRequestModalShown,
+    setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
@@ -36,16 +39,21 @@ const ContentList: React.FC = () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
+    handleFilterChange,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
     handleModelSelect,
+    handleViewChange,
+    handleViewSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
     handleItemDelete,
     handleContentTableChange,
+    handleRequestSearchTerm,
+    handleRequestTableReload,
   } = useHooks();
 
   return (
@@ -61,6 +69,7 @@ const ContentList: React.FC = () => {
           }
           comments={selectedItem?.comments}
           threadId={selectedItem?.threadId}
+          refetchQueries={["SearchItem"]}
         />
       }
       modelsMenu={
@@ -68,20 +77,32 @@ const ContentList: React.FC = () => {
           title={t("Content")}
           collapsed={collapsedModelMenu}
           onModelSelect={handleModelSelect}
+          selectedSchemaType="model"
+          titleIcon={"table"}
         />
       }
-      viewsMenu={<ViewsMenu />}
+      viewsMenu={
+        <ViewsMenu
+          views={views}
+          currentView={currentView}
+          onViewSelect={handleViewSelect}
+          onViewChange={handleViewChange}
+        />
+      }
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
+      onFilterChange={handleFilterChange}
       selectedItem={selectedItem}
       onItemSelect={handleItemSelect}
       collapsed={collapsedModelMenu}
-      itemsDataLoading={loading}
-      sort={sort}
+      loading={loading}
+      deleteLoading={deleteLoading}
+      unpublishLoading={unpublishLoading}
+      currentView={currentView}
+      setCurrentView={setCurrentView}
       totalCount={totalCount}
       searchTerm={searchTerm}
       page={page}
-      filter={filter}
       pageSize={pageSize}
       model={currentModel}
       contentTableFields={contentTableFields}
@@ -104,6 +125,8 @@ const ContentList: React.FC = () => {
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
       onAddItemToRequest={handleAddItemToRequest}
       addItemToRequestModalShown={addItemToRequestModalShown}
+      onRequestSearchTerm={handleRequestSearchTerm}
+      onRequestTableReload={handleRequestTableReload}
     />
   );
 };

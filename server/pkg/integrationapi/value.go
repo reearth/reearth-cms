@@ -2,6 +2,8 @@ package integrationapi
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 )
@@ -37,6 +39,10 @@ func FromValueType(t *ValueType) value.Type {
 		return value.TypeTag
 	case ValueTypeGroup:
 		return value.TypeGroup
+	case ValueTypeGeometryObject:
+		return value.TypeGeometryObject
+	case ValueTypeGeometryEditor:
+		return value.TypeGeometryEditor
 	default:
 		return value.TypeUnknown
 	}
@@ -70,21 +76,27 @@ func ToValueType(t value.Type) ValueType {
 		return ValueTypeGroup
 	case value.TypeTag:
 		return ValueTypeTag
+	case value.TypeCheckbox:
+		return ValueTypeCheckbox
+	case value.TypeGeometryObject:
+		return ValueTypeGeometryObject
+	case value.TypeGeometryEditor:
+		return ValueTypeGeometryEditor
 	default:
 		return ""
 	}
 }
 
-func ToValues(v *value.Multiple, multiple bool, assets *AssetContext) any {
-	if !multiple {
-		return ToValue(v.First(), assets)
+func ToValues(v *value.Multiple, sf *schema.Field, assets *AssetContext) any {
+	if !sf.Multiple() {
+		return ToValue(v.First(), sf, assets)
 	}
 	return lo.Map(v.Values(), func(v *value.Value, _ int) any {
-		return ToValue(v, assets)
+		return ToValue(v, sf, assets)
 	})
 }
 
-func ToValue(v *value.Value, assets *AssetContext) any {
+func ToValue(v *value.Value, sf *schema.Field, assets *AssetContext) any {
 	if assets != nil {
 		if aid, ok := v.ValueAsset(); ok {
 			if a2 := assets.ResolveAsset(aid); a2 != nil {
@@ -93,6 +105,28 @@ func ToValue(v *value.Value, assets *AssetContext) any {
 		}
 	}
 
+	if sf.Type() == value.TypeTag {
+		var tag *schema.FieldTag
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Tag: func(f *schema.FieldTag) {
+				tag = f
+			},
+		})
+		str, ok := v.ValueString()
+		if !ok {
+			return nil
+		}
+		tid, err := id.TagIDFrom(str)
+		if err != nil {
+			return nil
+		}
+		res := tag.Tags().FindByID(tid)
+		return TagResponse{
+			Color: lo.ToPtr(res.Color().String()),
+			Id:    res.ID().Ref(),
+			Name:  lo.ToPtr(res.Name()),
+		}
+	}
 	return v.Interface()
 }
 

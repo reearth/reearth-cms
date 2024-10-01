@@ -1,22 +1,20 @@
-import RequestMolecule from "@reearth-cms//components/molecules/Request/Details/Request";
 import Loading from "@reearth-cms/components/atoms/Loading";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import RequestMolecule from "@reearth-cms/components/molecules/Request/Details/Request";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
-export type Props = {
+type Props = {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;
   currentRequest?: Request;
-  workspaceUserMembers: Member[];
+  workspaceUserMembers: UserMember[];
+  deleteLoading: boolean;
+  approveLoading: boolean;
+  updateLoading: boolean;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -24,31 +22,10 @@ export type Props = {
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
   onBack: () => void;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
   loading: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const RequestDetailsMolecule: React.FC<Props> = ({
@@ -57,6 +34,9 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   isApproveActionEnabled,
   currentRequest,
   workspaceUserMembers,
+  deleteLoading,
+  approveLoading,
+  updateLoading,
   onRequestApprove,
   onRequestUpdate,
   onRequestDelete,
@@ -64,67 +44,36 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onCommentUpdate,
   onCommentDelete,
   onBack,
-  assetList,
-  fileList,
-  loadingAssets,
+  onNavigateToItemEdit,
   loading,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
+  onGetAsset,
+  onGroupGet,
 }) => {
-  return currentRequest ? (
-    loading ? (
-      <Loading spinnerSize="large" minHeight="100vh" />
-    ) : (
-      <RequestMolecule
-        me={me}
-        isCloseActionEnabled={isCloseActionEnabled}
-        isApproveActionEnabled={isApproveActionEnabled}
-        currentRequest={currentRequest}
-        workspaceUserMembers={workspaceUserMembers}
-        onRequestApprove={onRequestApprove}
-        onRequestUpdate={onRequestUpdate}
-        onRequestDelete={onRequestDelete}
-        onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
-        onCommentDelete={onCommentDelete}
-        onBack={onBack}
-        assetList={assetList}
-        fileList={fileList}
-        loadingAssets={loadingAssets}
-        uploading={uploading}
-        uploadModalVisibility={uploadModalVisibility}
-        uploadUrl={uploadUrl}
-        uploadType={uploadType}
-        totalCount={totalCount}
-        page={page}
-        pageSize={pageSize}
-        onAssetTableChange={onAssetTableChange}
-        onUploadModalCancel={onUploadModalCancel}
-        setUploadUrl={setUploadUrl}
-        setUploadType={setUploadType}
-        onAssetsCreate={onAssetsCreate}
-        onAssetCreateFromUrl={onAssetCreateFromUrl}
-        onAssetsReload={onAssetsReload}
-        onAssetSearchTerm={onAssetSearchTerm}
-        setFileList={setFileList}
-        setUploadModalVisibility={setUploadModalVisibility}
-      />
-    )
-  ) : null;
+  return loading ? (
+    <Loading spinnerSize="large" minHeight="100vh" />
+  ) : currentRequest ? (
+    <RequestMolecule
+      me={me}
+      isCloseActionEnabled={isCloseActionEnabled}
+      isApproveActionEnabled={isApproveActionEnabled}
+      currentRequest={currentRequest}
+      workspaceUserMembers={workspaceUserMembers}
+      deleteLoading={deleteLoading}
+      approveLoading={approveLoading}
+      updateLoading={updateLoading}
+      onRequestApprove={onRequestApprove}
+      onRequestUpdate={onRequestUpdate}
+      onRequestDelete={onRequestDelete}
+      onCommentCreate={onCommentCreate}
+      onCommentUpdate={onCommentUpdate}
+      onCommentDelete={onCommentDelete}
+      onBack={onBack}
+      onNavigateToItemEdit={onNavigateToItemEdit}
+      onGetAsset={onGetAsset}
+      onGroupGet={onGroupGet}
+    />
+  ) : (
+    <NotFound />
+  );
 };
 export default RequestDetailsMolecule;

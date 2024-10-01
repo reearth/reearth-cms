@@ -15,6 +15,8 @@ import (
 	"google.golang.org/api/cloudbuild/v1"
 )
 
+var defaultDiskSizeGb int64 = 2000 // 2TB
+
 type TaskRunner struct {
 	conf   *TaskConfig
 	pubsub *pubsub.Client
@@ -91,8 +93,15 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	region := t.conf.GCPRegion
 
 	machineType := ""
-	if v := t.conf.DecompressorMachineType; v != "default" {
+	if v := t.conf.DecompressorMachineType; v != "" && v != "default" {
 		machineType = v
+	}
+
+	var diskSizeGb int64
+	if v := t.conf.DecompressorDiskSideGb; v > 0 {
+		diskSizeGb = v
+	} else {
+		diskSizeGb = defaultDiskSizeGb
 	}
 
 	build := &cloudbuild.Build{
@@ -101,7 +110,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		Steps: []*cloudbuild.BuildStep{
 			{
 				Name: t.conf.DecompressorImage,
-				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + t.conf.DecompressorGzipExt, "-skip-top", src, dest},
+				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + t.conf.DecompressorGzipExt, "-skip-top", "-old-windows", src, dest},
 				Env: []string{
 					"GOOGLE_CLOUD_PROJECT=" + project,
 					"REEARTH_CMS_DECOMPRESSOR_TOPIC=" + t.conf.DecompressorTopic,
@@ -111,6 +120,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		},
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
+			DiskSizeGb:  diskSizeGb,
 		},
 	}
 

@@ -15,7 +15,7 @@ type CreateViewParam struct {
 	Model   view.ModelID
 	Filter  *view.Condition
 	Sort    *view.Sort
-	Columns *view.FieldSelectorList
+	Columns *view.ColumnList
 }
 
 type UpdateViewParam struct {
@@ -23,11 +23,13 @@ type UpdateViewParam struct {
 	Name    *string
 	Filter  *view.Condition
 	Sort    *view.Sort
-	Columns *view.FieldSelectorList
+	Columns *view.ColumnList
 }
 
 var (
 	ErrLastView = rerror.NewE(i18n.T("model should have at least one view"))
+	ErrViewsAreNotInTheSameModel = rerror.NewE(i18n.T("views are not in the same model"))
+	ErrViewsLengthMismatch = rerror.NewE(i18n.T("views length mismatch"))
 )
 
 type View interface {
@@ -35,5 +37,6 @@ type View interface {
 	FindByModel(context.Context, view.ModelID, *usecase.Operator) (view.List, error)
 	Create(context.Context, CreateViewParam, *usecase.Operator) (*view.View, error)
 	Update(context.Context, view.ID, UpdateViewParam, *usecase.Operator) (*view.View, error)
+	UpdateOrder(context.Context, view.IDList, *usecase.Operator) (view.List, error)
 	Delete(context.Context, view.ID, *usecase.Operator) error
 }

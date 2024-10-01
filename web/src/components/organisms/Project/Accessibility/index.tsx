@@ -3,14 +3,31 @@ import AccessibilityMolecule from "@reearth-cms/components/molecules/Accessibili
 import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
-  const { projectScope, models, handlePublicUpdate, alias, assetPublic } = useHooks();
+  const {
+    models,
+    scope,
+    alias,
+    aliasState,
+    assetState,
+    isSaveDisabled,
+    handlePublicUpdate,
+    handleUpdatedAssetState,
+    handleUpdatedModels,
+    handleSetScope,
+  } = useHooks();
+
   return (
     <AccessibilityMolecule
-      assetPublic={assetPublic}
-      projectScope={projectScope}
       models={models}
+      scope={scope}
       alias={alias}
-      onPublicUpdate={handlePublicUpdate}
+      aliasState={aliasState}
+      assetState={assetState}
+      isSaveDisabled={isSaveDisabled}
+      handlePublicUpdate={handlePublicUpdate}
+      handleUpdatedAssetState={handleUpdatedAssetState}
+      handleUpdatedModels={handleUpdatedModels}
+      handleSetScope={handleSetScope}
     />
   );
 };

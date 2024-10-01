@@ -32,22 +32,22 @@ jobs:
         ports:
           - 27017:27017
     steps:
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.21
+          go-version: 1.23
       - name: checkout
         uses: actions/checkout@v4
       - name: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.52
+          version: v1.61
           working-directory: worker
           args: --config=../.golangci.yml
       - name: test
@@ -55,7 +55,7 @@ jobs:
         env:
           REEARTH_CMS_WORKER_DB: mongodb://localhost
       - name: codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: worker
           file: coverage.txt

@@ -1,12 +1,14 @@
 import styled from "@emotion/styled";
-import { Switch } from "antd";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Space from "@reearth-cms/components/atoms/Space";
+import Switch from "@reearth-cms/components/atoms/Switch";
 import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-export type Props = {
+type Props = {
   webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {
@@ -25,8 +27,15 @@ const WebhookCard: React.FC<Props> = ({
   onWebhookUpdate,
   onWebhookSettings,
 }) => {
-  const handleWebhookDelete = useCallback(() => {
-    onWebhookDelete(webhook.id);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleWebhookDelete = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await onWebhookDelete(webhook.id);
+    } finally {
+      setIsLoading(false);
+    }
   }, [onWebhookDelete, webhook.id]);
 
   const handleWebhookUpdate = useCallback(
@@ -37,8 +46,7 @@ const WebhookCard: React.FC<Props> = ({
   );
 
   return (
-    <Card
-      style={{ marginTop: 16 }}
+    <StyledCard
       title={
         <>
           <WebhookTitle>{webhook.name}</WebhookTitle>
@@ -51,19 +59,36 @@ const WebhookCard: React.FC<Props> = ({
         </>
       }
       extra={
-        <>
-          <Icon icon="settings" size={16} onClick={() => onWebhookSettings(webhook.id)} />
-          <Icon icon="delete" size={16} onClick={handleWebhookDelete} style={{ marginLeft: 12 }} />
-        </>
+        <Space size={4}>
+          <Button
+            type="text"
+            shape="circle"
+            size="small"
+            onClick={() => onWebhookSettings(webhook.id)}
+            icon={<Icon icon="settings" size={16} />}
+          />
+          <Button
+            type="text"
+            shape="circle"
+            size="small"
+            onClick={handleWebhookDelete}
+            loading={isLoading}
+            icon={<Icon icon="delete" size={16} />}
+          />
+        </Space>
       }>
       {webhook.url}
-    </Card>
+    </StyledCard>
   );
 };
 
 const WebhookTitle = styled.span`
   display: inline-block;
   margin-right: 8px;
+`;
+
+const StyledCard = styled(Card)`
+  margin-top: 16px;
 `;
 
 export default WebhookCard;

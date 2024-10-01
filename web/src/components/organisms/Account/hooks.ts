@@ -32,7 +32,7 @@ export default () => {
   const [deleteMeMutation] = useDeleteMeMutation();
 
   const handleUserUpdate = useCallback(
-    async (name?: string, email?: string) => {
+    async (name: string, email: string) => {
       if (!name || !email) return;
       const user = await updateMeMutation({ variables: { name, email } });
       if (user.errors) {
@@ -45,14 +45,14 @@ export default () => {
   );
 
   const handleLanguageUpdate = useCallback(
-    async (lang?: string) => {
+    async (lang: string) => {
       if (!lang) return;
       const res = await updateMeMutation({ variables: { lang } });
       if (res.errors) {
         Notification.error({ message: t("Failed to update language.") });
         return;
       } else {
-        Notification.success({ message: t("Successfully updated language!") });
+        Notification.success({ message: t("Successfully updated language!", { lng: lang }) });
       }
     },
     [updateMeMutation, t],

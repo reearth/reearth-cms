@@ -16,8 +16,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
-	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
-	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -55,12 +53,8 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 
 	if ai := adapter.GetAuthInfo(ctx); ai != nil {
 		var err error
-		userUsecase := accountinteractor.NewUser(cfg.AcRepos, cfg.AcGateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
-		u, err = userUsecase.FindOrCreate(ctx, accountinterfaces.UserFindOrCreateParam{
-			Sub:   ai.Sub,
-			ISS:   ai.Iss,
-			Token: ai.Token,
-		})
+		userUsecase := accountinteractor.NewMultiUser(cfg.AcRepos, cfg.AcGateways, cfg.Config.SignupSecret, cfg.Config.Host_Web, cfg.AcRepos.Users)
+		u, err = userUsecase.FetchBySub(ctx, ai.Sub)
 		if err != nil {
 			return nil, err
 		}
@@ -157,26 +151,6 @@ func PublicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			// 	})))
 			// }
 
-			return next(c)
-		}
-	}
-}
-
-func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			ctx := c.Request().Context()
-			if ai, ok := ctx.Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
-				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
-					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
-				}
-				op, err := generateMachineOperator(ctx)
-				if err != nil {
-					return err
-				}
-				ctx = adapter.AttachOperator(ctx, op)
-				c.SetRequest(c.Request().WithContext(ctx))
-			}
 			return next(c)
 		}
 	}
@@ -316,16 +290,6 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 		WritableProjects:     wp,
 		MaintainableProjects: mp,
 		OwningProjects:       op,
-	}, nil
-}
-
-func generateMachineOperator(ctx context.Context) (*usecase.Operator, error) {
-	return &usecase.Operator{
-		AcOperator: &accountusecase.Operator{
-			User: nil,
-		},
-		Integration: nil,
-		Machine:     true,
 	}, nil
 }
 

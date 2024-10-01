@@ -11,77 +11,64 @@ import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
 
-export type TagColor =
-  | "MAGENTA"
-  | "RED"
-  | "VOLCANO"
-  | "ORANGE"
-  | "GOLD"
-  | "LIME"
-  | "GREEN"
-  | "CYAN"
-  | "BLUE"
-  | "GEEKBLUE"
-  | "PURPLE";
+const colors = [
+  "MAGENTA",
+  "RED",
+  "VOLCANO",
+  "ORANGE",
+  "GOLD",
+  "LIME",
+  "GREEN",
+  "CYAN",
+  "BLUE",
+  "GEEKBLUE",
+  "PURPLE",
+] as const;
+
+type TagColor = (typeof colors)[number];
 
 type Props = {
-  className?: string;
   value?: { id?: string; name: string; color: TagColor }[];
   onChange?: (value: { id?: string; name: string; color: TagColor }[]) => void;
 } & TextAreaProps &
   InputProps;
 
-const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange, ...props }) => {
+const MultiValueColoredTag: React.FC<Props> = ({ value = [], onChange, ...props }) => {
   const t = useT();
   const [lastColorIndex, setLastColorIndex] = useState(0);
   const [focusedTagIndex, setFocusedTagIndex] = useState<number | null>(null); // New State to hold the focused tag index
   const divRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const generateMenuItems = (key: number) => {
-    const colors: TagColor[] = [
-      "MAGENTA",
-      "RED",
-      "VOLCANO",
-      "ORANGE",
-      "GOLD",
-      "LIME",
-      "GREEN",
-      "CYAN",
-      "BLUE",
-      "GEEKBLUE",
-      "PURPLE",
-    ];
+  const handleColorChange = useCallback(
+    (color: TagColor, key: number) => {
+      onChange?.(
+        value?.map((valueItem, index) => (index === key ? { ...valueItem, color } : valueItem)),
+      );
+    },
+    [onChange, value],
+  );
 
-    return colors.map((color: TagColor) => ({
-      key: color,
-      label: (
-        <div onClick={() => handleColorChange(color, key)}>
-          <Tag color={color.toLowerCase()}>{t("Tag")}</Tag>
-          {t(color.toLowerCase())}
-        </div>
-      ),
-    }));
-  };
+  const generateMenuItems = useCallback(
+    (key: number) => {
+      return colors.map((color: TagColor) => ({
+        key: color,
+        label: (
+          <div onClick={() => handleColorChange(color, key)}>
+            <Tag color={color.toLowerCase()}>{t("Tag")}</Tag>
+            {t(color.toLowerCase())}
+          </div>
+        ),
+      }));
+    },
+    [handleColorChange, t],
+  );
 
-  const handleNewTag = () => {
-    if (!value) value = [];
-    const colors: TagColor[] = [
-      "MAGENTA",
-      "RED",
-      "VOLCANO",
-      "ORANGE",
-      "GOLD",
-      "LIME",
-      "GREEN",
-      "CYAN",
-      "BLUE",
-      "GEEKBLUE",
-      "PURPLE",
-    ];
+  const handleNewTag = useCallback(() => {
     const newColor = colors[lastColorIndex];
-    onChange?.([...value, { color: newColor, name: "Tag" }]);
+    const payload = !value ? [] : [...value];
+    onChange?.([...payload, { color: newColor, name: "Tag" }]);
     setLastColorIndex((lastColorIndex + 1) % colors.length);
-  };
+  }, [lastColorIndex, onChange, value]);
 
   const handleInput = useCallback(
     (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {
@@ -91,15 +78,6 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
             ? { id: valueItem?.id, color: valueItem.color, name: e?.target.value }
             : valueItem,
         ),
-      );
-    },
-    [onChange, value],
-  );
-
-  const handleColorChange = useCallback(
-    (color: TagColor, key: number) => {
-      onChange?.(
-        value?.map((valueItem, index) => (index === key ? { ...valueItem, color } : valueItem)),
       );
     },
     [onChange, value],
@@ -120,9 +98,9 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
     [onChange, value],
   );
 
-  const handleTagClick = (index: number) => {
+  const handleTagClick = useCallback((index: number) => {
     setFocusedTagIndex(index);
-  };
+  }, []);
 
   useEffect(() => {
     if (focusedTagIndex !== null) {
@@ -130,12 +108,13 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
       inputElem?.focus();
     }
   }, [focusedTagIndex]);
-  const handleInputBlur = () => {
+
+  const handleInputBlur = useCallback(() => {
     setFocusedTagIndex(null);
-  };
+  }, []);
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>
@@ -155,25 +134,19 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
                 />
               </>
             )}
-            <div
-              hidden={focusedTagIndex !== key}
-              style={{ width: "100%" }}
-              ref={el => (divRefs.current[key] = el)}>
-              <Input
-                style={{ flex: 1 }}
+            <StyledDiv hidden={focusedTagIndex !== key} ref={el => (divRefs.current[key] = el)}>
+              <StyledInput
                 {...props}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
                 value={valueItem.name}
                 onBlur={() => handleInputBlur()}
               />
-            </div>
-            <StyledTag
+            </StyledDiv>
+            <StyledTagContainer
               hidden={focusedTagIndex === key} // Hide tag when it is focused
               onClick={() => handleTagClick(key)}>
-              <Tag color={valueItem.color.toLowerCase()} style={{ flex: 1, marginRight: 8 }}>
-                {valueItem.name}
-              </Tag>
-            </StyledTag>
+              <StyledTag color={valueItem.color.toLowerCase()}>{valueItem.name}</StyledTag>
+            </StyledTagContainer>
             <Dropdown menu={{ items: generateMenuItems(key) }} trigger={["click"]}>
               <FieldButton type="link" icon={<Icon icon="colorPalette" />} />
             </Dropdown>
@@ -207,7 +180,15 @@ const FieldButton = styled(Button)`
   margin-top: 4px;
 `;
 
-const StyledTag = styled.div`
+const StyledDiv = styled.div`
+  width: 100%;
+`;
+
+const StyledInput = styled(Input)`
+  flex: 1;
+`;
+
+const StyledTagContainer = styled.div`
   cursor: pointer;
   border: 1px solid #d9d9d9;
   padding: 4px 11px;
@@ -216,4 +197,9 @@ const StyledTag = styled.div`
   width: 100% !important;
   line-height: 1;
   word-break: break-all;
+`;
+
+const StyledTag = styled(Tag)`
+  flex: 1;
+  margin-right: 8px;
 `;

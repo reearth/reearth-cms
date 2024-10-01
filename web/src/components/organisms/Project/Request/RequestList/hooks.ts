@@ -1,8 +1,10 @@
-import { Key, useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Key, useCallback, useMemo, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { fromGraphQLComment } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useGetRequestsQuery,
   useDeleteRequestMutation,
@@ -13,52 +15,43 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
 
-import { convertComment } from "../../Content/convertItem";
-
 export type RequestState = "DRAFT" | "WAITING" | "CLOSED" | "APPROVED";
 
 export default () => {
   const t = useT();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
-  const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
-  const stateParam = useMemo(() => searchParams.get("requestState"), [searchParams]);
-  const createdByMeParam = useMemo(() => searchParams.get("createdByMe"), [searchParams]);
-  const reviewedByMeParam = useMemo(() => searchParams.get("reviewedByMe"), [searchParams]);
 
   const navigate = useNavigate();
+  const location: {
+    state?: {
+      searchTerm?: string;
+      requestState: RequestState[];
+      createdByMe: boolean;
+      reviewedByMe: boolean;
+      columns: Record<string, ColumnsState>;
+      page: number;
+      pageSize: number;
+    } | null;
+  } = useLocation();
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
-  const [selectedRequests, _] = useState<string[]>([]);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
   const [selectedRequestId, setselectedRequestId] = useState<string>();
-  const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
-  const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
+  const [page, setPage] = useState(location.state?.page ?? 1);
+  const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
+  const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm ?? "");
 
   const [requestState, setRequestState] = useState<RequestState[]>(
-    stateParam ? JSON.parse(stateParam) : ["WAITING"],
+    location.state?.requestState ?? ["WAITING"],
   );
-  const [createdByMe, setCreatedByMe] = useState<boolean>(
-    createdByMeParam ? JSON.parse(createdByMeParam) : false,
-  );
-  const [reviewedByMe, setReviewedByMe] = useState<boolean>(
-    reviewedByMeParam ? JSON.parse(reviewedByMeParam) : false,
-  );
+  const [createdByMe, setCreatedByMe] = useState(location.state?.createdByMe ?? false);
+  const [reviewedByMe, setReviewedByMe] = useState(location.state?.reviewedByMe ?? false);
 
-  useEffect(() => {
-    setPage(pageParam ? +pageParam : 1);
-    setPageSize(pageSizeParam ? +pageSizeParam : 10);
-    setRequestState(stateParam ? JSON.parse(stateParam) : ["WAITING"]);
-    setCreatedByMe(createdByMeParam ? JSON.parse(createdByMeParam) : false);
-    setReviewedByMe(reviewedByMeParam ? JSON.parse(reviewedByMeParam) : false);
-    setSearchTerm(searchTermParam ?? "");
-  }, [pageParam, pageSizeParam, stateParam, createdByMeParam, reviewedByMeParam, searchTermParam]);
+  const [columns, setColumns] = useState<Record<string, ColumnsState>>(
+    location.state?.columns ?? {},
+  );
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
@@ -75,18 +68,17 @@ export default () => {
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       sort: { key: "createdAt", reverted: true },
       key: searchTerm,
-      state: requestState as GQLRequestState[],
+      state: requestState.length === 0 ? undefined : (requestState as GQLRequestState[]),
       reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,
       createdBy: createdByMe && userData?.me?.id ? userData?.me?.id : undefined,
     },
+    notifyOnNetworkStatusChange: true,
     skip: !projectId,
   });
 
   const handleRequestsReload = useCallback(() => {
     refetch();
   }, [refetch]);
-
-  const isRequest = (request: any): request is Request => !!request;
 
   const requests: Request[] = useMemo(() => {
     if (!rawRequests?.requests.nodes) return [];
@@ -99,8 +91,9 @@ export default () => {
           description: r.description ?? "",
           state: r.state,
           threadId: r.threadId,
-          comments: r.thread?.comments.map(c => convertComment(c as GQLComment)) ?? [],
+          comments: r.thread?.comments.map(c => fromGraphQLComment(c as GQLComment)) ?? [],
           reviewers: r.reviewers,
+          createdBy: r.createdBy ?? undefined,
           createdAt: r.createdAt,
           updatedAt: r.updatedAt,
           approvedAt: r.approvedAt ?? undefined,
@@ -109,7 +102,7 @@ export default () => {
         };
         return request;
       })
-      .filter(r => isRequest(r)) as Request[];
+      .filter((r): r is Request => r !== undefined);
     return requests;
   }, [rawRequests?.requests.nodes]);
 
@@ -124,28 +117,40 @@ export default () => {
   const handleNavigateToRequest = useCallback(
     (requestId: string) => {
       if (!projectId || !currentWorkspace?.id || !requestId) return;
-      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${requestId}`);
+      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${requestId}`, {
+        state: { searchTerm, requestState, createdByMe, reviewedByMe, columns, page, pageSize },
+      });
     },
-    [currentWorkspace?.id, navigate, projectId],
+    [
+      navigate,
+      currentWorkspace?.id,
+      projectId,
+      searchTerm,
+      requestState,
+      createdByMe,
+      reviewedByMe,
+      columns,
+      page,
+      pageSize,
+    ],
   );
 
-  const [deleteRequestMutation] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(
-    (requestsId: string[]) =>
-      (async () => {
-        if (!projectId) return;
-        const result = await deleteRequestMutation({
-          variables: { projectId, requestsId },
-          refetchQueries: ["GetRequests"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to delete one or more requests.") });
-        }
-        if (result) {
-          Notification.success({ message: t("One or more requests were successfully closed!") });
-          setSelection({ selectedRowKeys: [] });
-        }
-      })(),
+    async (requestsId: string[]) => {
+      if (!projectId) return;
+      const result = await deleteRequestMutation({
+        variables: { projectId, requestsId },
+        refetchQueries: ["GetRequests"],
+      });
+      if (result.errors) {
+        Notification.error({ message: t("Failed to delete one or more requests.") });
+      }
+      if (result) {
+        Notification.success({ message: t("One or more requests were successfully closed!") });
+        setSelection({ selectedRowKeys: [] });
+      }
+    },
     [t, projectId, deleteRequestMutation],
   );
 
@@ -154,24 +159,10 @@ export default () => {
     [requests, selectedRequestId],
   );
 
-  // const selectRequest = useCallback(
-  //   (requestId: string) => {
-  //     if (selectedRequests.includes(requestId)) {
-  //       selectRequests(selectedRequests.filter(id => id !== requestId));
-  //     } else {
-  //       selectRequests([...selectedRequests, requestId]);
-  //     }
-  //   },
-  //   [selectedRequests, selectRequests],
-  // );
-
-  const handleSearchTerm = useCallback(
-    (term?: string) => {
-      searchParams.set("searchTerm", term ?? "");
-      setSearchParams(searchParams);
-    },
-    [setSearchParams, searchParams],
-  );
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setPage(1);
+  }, []);
 
   const handleRequestTableChange = useCallback(
     (
@@ -181,43 +172,36 @@ export default () => {
       createdByMe?: boolean,
       reviewedByMe?: boolean,
     ) => {
-      searchParams.set("page", page.toString());
-      searchParams.set("pageSize", pageSize.toString());
-      searchParams.set(
-        "requestState",
-        requestState
-          ? JSON.stringify(requestState)
-          : JSON.stringify(["WAITING", "DRAFT", "CLOSED", "APPROVED"]),
-      );
-      searchParams.set(
-        "createdByMe",
-        createdByMe ? JSON.stringify(createdByMe) : JSON.stringify(false),
-      );
-      searchParams.set(
-        "reviewedByMe",
-        reviewedByMe ? JSON.stringify(reviewedByMe) : JSON.stringify(false),
-      );
-      setSearchParams(searchParams);
+      setPage(page);
+      setPageSize(pageSize);
+      setRequestState(requestState ?? []);
+      setCreatedByMe(createdByMe ?? false);
+      setReviewedByMe(reviewedByMe ?? false);
     },
-    [searchParams, setSearchParams],
+    [],
   );
+
+  const handleColumnsChange = useCallback((cols: Record<string, ColumnsState>) => {
+    delete cols.EDIT_ICON;
+    delete cols.commentsCount;
+    setColumns(cols);
+  }, []);
 
   return {
     requests,
-    loading: loading,
+    loading,
     collapsedCommentsPanel,
     collapseCommentsPanel,
-    selectedRequests,
     selectedRequest,
-    // selectRequest,
     selection,
     handleNavigateToRequest,
     setSelection,
     handleRequestSelect,
     handleRequestsReload,
+    deleteLoading,
     handleRequestDelete,
-    handleSearchTerm,
     searchTerm,
+    handleSearchTerm,
     reviewedByMe,
     createdByMe,
     requestState,
@@ -225,5 +209,7 @@ export default () => {
     page,
     pageSize,
     handleRequestTableChange,
+    columns,
+    handleColumnsChange,
   };
 };

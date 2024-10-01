@@ -3,6 +3,7 @@ package item
 import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/util"
 )
 
 type Field struct {
@@ -41,5 +42,9 @@ func (f *Field) ItemGroup() *ItemGroupID {
 	if f == nil {
 		return nil
 	}
-	return f.group
+	return util.CloneRef(f.group)
+}
+
+func (f *Field) IsGeometryField() bool {
+	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
 }

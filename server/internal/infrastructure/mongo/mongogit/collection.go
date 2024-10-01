@@ -131,7 +131,7 @@ func (c *Collection) IsArchived(ctx context.Context, filter any) (bool, error) {
 	})
 
 	if err := c.client.FindOne(ctx, q, &cons); err != nil {
-		if errors.Is(rerror.ErrNotFound, err) || err == io.EOF {
+		if errors.Is(err, rerror.ErrNotFound) || err == io.EOF {
 			return false, nil
 		}
 		return false, err
@@ -214,7 +214,7 @@ func (c *Collection) meta(ctx context.Context, id string, v *version.VersionOrRe
 		"id": id,
 	})
 	if err := c.client.FindOne(ctx, q, &consumer); err != nil {
-		if errors.Is(rerror.ErrNotFound, err) && (v == nil || v.IsRef(version.Latest)) {
+		if errors.Is(err, rerror.ErrNotFound) && (v == nil || v.IsRef(version.Latest)) {
 			return nil, nil
 		}
 		return nil, err

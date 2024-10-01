@@ -114,6 +114,11 @@ func TestConvertAsset_FromPreviewType(t *testing.T) {
 	want9 := asset.PreviewTypeImageSvg
 	got9 := FromPreviewType(&pt9)
 	assert.Equal(t, &want9, got9)
+
+	var pt10 = PreviewTypeCSV
+	want10 := asset.PreviewTypeCSV
+	got10 := FromPreviewType(&pt10)
+	assert.Equal(t, &want10, got10)
 }
 
 func TestConvertAsset_ToPreviewType(t *testing.T) {
@@ -161,6 +166,11 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	want9 := PreviewTypeImageSVG
 	got9 := ToPreviewType(&pt9)
 	assert.Equal(t, &want9, got9)
+
+	var pt10 = asset.PreviewTypeCSV
+	want10 := PreviewTypeCSV
+	got10 := ToPreviewType(&pt10)
+	assert.Equal(t, &want10, got10)
 }
 
 func TestConvertAsset_ToStatus(t *testing.T) {
@@ -202,14 +212,14 @@ func TestConvertAsset_ToStatus(t *testing.T) {
 
 func TestConvertAsset_ToAssetFile(t *testing.T) {
 	c := []*asset.File{}
-	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Path("/").Children(c).Build()
+	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Path("/").Files(c).Build()
 
 	want1 := AssetFile{
 		Name:        "aaa.jpg",
 		Size:        int64(1000),
 		ContentType: lo.ToPtr("image/jpg"),
 		Path:        "/",
-		Children:    lo.Map(c, func(a *asset.File, _ int) *AssetFile { return ToAssetFile(a) }),
+		FilePaths:   f1.FilePaths(),
 	}
 
 	var f2 *asset.File = nil

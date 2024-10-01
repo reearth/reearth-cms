@@ -16,5 +16,6 @@ func ToGroup(g *group.Group) *Group {
 		Name:        g.Name(),
 		Description: g.Description(),
 		Key:         g.Key().String(),
+		Order:       g.Order(),
 	}
 }

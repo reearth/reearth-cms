@@ -6,12 +6,17 @@ import IntegrationCreationAction from "@reearth-cms/components/molecules/MyInteg
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   integrations?: Integration[];
   onIntegrationModalOpen: () => void;
+  onIntegrationNavigate: (integration: Integration) => void;
 };
 
-const MyIntegrationList: React.FC<Props> = ({ integrations, onIntegrationModalOpen }) => {
+const MyIntegrationList: React.FC<Props> = ({
+  integrations,
+  onIntegrationModalOpen,
+  onIntegrationNavigate,
+}) => {
   const t = useT();
 
   return (
@@ -19,7 +24,11 @@ const MyIntegrationList: React.FC<Props> = ({ integrations, onIntegrationModalOp
       <PageHeader title={t("My Integrations")} />
       <ListWrapper>
         {integrations?.map((integration: Integration) => (
-          <MyIntegrationCard key={integration.id} integration={integration} />
+          <MyIntegrationCard
+            key={integration.id}
+            integration={integration}
+            onIntegrationNavigate={onIntegrationNavigate}
+          />
         ))}
         <IntegrationCreationAction onIntegrationModalOpen={onIntegrationModalOpen} />
       </ListWrapper>
@@ -28,8 +37,9 @@ const MyIntegrationList: React.FC<Props> = ({ integrations, onIntegrationModalOp
 };
 
 const Wrapper = styled.div`
+  min-height: calc(100% - 16px);
   background: #fff;
-  min-height: 100%;
+  margin: 16px 16px 0;
 `;
 
 const ListWrapper = styled.div`

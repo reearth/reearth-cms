@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -11,16 +12,17 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../types";
 
-export type FormValues = {
+type FormValues = {
   items: string[];
 };
 
-export type Props = {
-  open?: boolean;
+type Props = {
+  open: boolean;
+  loading: boolean;
   itemId: string;
   unpublishedItems: FormItem[];
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (data: string[]) => Promise<void>;
+  onClose: () => void;
+  onSubmit: (data: string[]) => Promise<void>;
 };
 
 const initialValues: FormValues = {
@@ -29,6 +31,7 @@ const initialValues: FormValues = {
 
 const PublishItemModal: React.FC<Props> = ({
   open,
+  loading,
   itemId,
   unpublishedItems,
   onClose,
@@ -36,7 +39,7 @@ const PublishItemModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
-  const [selectedItems, setSelectedItems] = useState<{ [key: string]: boolean }>({});
+  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
 
   const handleCheckboxChange = useCallback(
     (itemId: string, checked: boolean) => {
@@ -56,13 +59,13 @@ const PublishItemModal: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     try {
-      await onSubmit?.([
+      await onSubmit([
         itemId,
         ...Object.keys(selectedItems)
           .filter(key => selectedItems[key] === true)
           .map(key => key),
       ]);
-      onClose?.(true);
+      onClose();
       form.resetFields();
     } catch (info) {
       console.log("Validate Failed:", info);
@@ -70,10 +73,22 @@ const PublishItemModal: React.FC<Props> = ({
   }, [itemId, form, onClose, onSubmit, selectedItems]);
 
   const handleClose = useCallback(() => {
-    onClose?.(true);
+    onClose();
   }, [onClose]);
+
   return (
-    <Modal open={open} onCancel={handleClose} onOk={handleSubmit} title={t("Publish")}>
+    <Modal
+      open={open}
+      onCancel={handleClose}
+      title={t("Publish")}
+      footer={[
+        <Button onClick={handleClose} disabled={loading}>
+          {t("Cancel")}
+        </Button>,
+        <Button type="primary" loading={loading} onClick={handleSubmit}>
+          {t("OK")}
+        </Button>,
+      ]}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         {unpublishedItems?.length !== 0 && (
           <WarningText

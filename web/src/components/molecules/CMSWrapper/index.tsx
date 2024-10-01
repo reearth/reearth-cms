@@ -50,8 +50,10 @@ const ContentWrapper = styled(Content)`
 `;
 
 const CMSSidebar = styled(Sider)`
-  background-color: #fff;
-
+  && {
+    background-color: #fff;
+    padding-bottom: 38px;
+  }
   .ant-layout-sider-trigger {
     background-color: #fff;
     border-top: 1px solid #f0f0f0;

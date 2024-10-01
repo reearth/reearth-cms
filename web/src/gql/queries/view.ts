@@ -7,6 +7,7 @@ export const GET_VIEWS = gql`
       name
       modelId
       projectId
+      order
       sort {
         field {
           type
@@ -15,17 +16,77 @@ export const GET_VIEWS = gql`
         direction
       }
       columns {
-        type
-        id
+        field {
+          type
+          id
+        }
+        visible
       }
       filter {
-        ... on BoolFieldCondition {
-          fieldId {
-            type
-            id
+        ... on AndCondition {
+          conditions {
+            ... on BasicFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              basicOperator: operator
+              basicValue: value
+              __typename
+            }
+            ... on NullableFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              nullableOperator: operator
+              __typename
+            }
+            ... on MultipleFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              multipleOperator: operator
+              multipleValue: value
+              __typename
+            }
+            ... on BoolFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              boolOperator: operator
+              boolValue: value
+            }
+            ... on StringFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              stringOperator: operator
+              stringValue: value
+            }
+            ... on NumberFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              numberOperator: operator
+              numberValue: value
+              __typename
+            }
+            ... on TimeFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              timeOperator: operator
+              timeValue: value
+              __typename
+            }
+            __typename
           }
-          operator
-          value
         }
       }
       __typename
@@ -41,7 +102,7 @@ export const CREATE_VIEW = gql`
     $name: String!
     $sort: ItemSortInput
     $filter: ConditionInput
-    $columns: [FieldSelectorInput!]
+    $columns: [ColumnSelectionInput!]
   ) {
     createView(
       input: {
@@ -66,17 +127,77 @@ export const CREATE_VIEW = gql`
           direction
         }
         columns {
-          type
-          id
+          field {
+            type
+            id
+          }
+          visible
         }
         filter {
-          ... on BoolFieldCondition {
-            fieldId {
-              type
-              id
+          ... on AndCondition {
+            conditions {
+              ... on BasicFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                basicOperator: operator
+                basicValue: value
+                __typename
+              }
+              ... on NullableFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                nullableOperator: operator
+                __typename
+              }
+              ... on MultipleFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                multipleOperator: operator
+                multipleValue: value
+                __typename
+              }
+              ... on BoolFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                boolOperator: operator
+                boolValue: value
+              }
+              ... on StringFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                stringOperator: operator
+                stringValue: value
+              }
+              ... on NumberFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                numberOperator: operator
+                numberValue: value
+                __typename
+              }
+              ... on TimeFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                timeOperator: operator
+                timeValue: value
+                __typename
+              }
+              __typename
             }
-            operator
-            value
           }
         }
         __typename
@@ -91,7 +212,7 @@ export const UPDATE_VIEW = gql`
     $name: String!
     $sort: ItemSortInput
     $filter: ConditionInput
-    $columns: [FieldSelectorInput!]
+    $columns: [ColumnSelectionInput!]
   ) {
     updateView(
       input: { viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns }
@@ -109,17 +230,77 @@ export const UPDATE_VIEW = gql`
           direction
         }
         columns {
-          type
-          id
+          field {
+            type
+            id
+          }
+          visible
         }
         filter {
-          ... on BoolFieldCondition {
-            fieldId {
-              type
-              id
+          ... on AndCondition {
+            conditions {
+              ... on BasicFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                basicOperator: operator
+                basicValue: value
+                __typename
+              }
+              ... on NullableFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                nullableOperator: operator
+                __typename
+              }
+              ... on MultipleFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                multipleOperator: operator
+                multipleValue: value
+                __typename
+              }
+              ... on BoolFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                boolOperator: operator
+                boolValue: value
+              }
+              ... on StringFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                stringOperator: operator
+                stringValue: value
+              }
+              ... on NumberFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                numberOperator: operator
+                numberValue: value
+                __typename
+              }
+              ... on TimeFieldCondition {
+                fieldId {
+                  type
+                  id
+                }
+                timeOperator: operator
+                timeValue: value
+                __typename
+              }
+              __typename
             }
-            operator
-            value
           }
         }
         __typename
@@ -132,6 +313,16 @@ export const DELETE_VIEW = gql`
   mutation DeleteView($viewId: ID!) {
     deleteView(input: { viewId: $viewId }) {
       viewId
+    }
+  }
+`;
+
+export const UPDATE_VIEWS_ORDER = gql`
+  mutation UpdateViewsOrder($viewIds: [ID!]!) {
+    updateViewsOrder(input: { viewIds: $viewIds }) {
+      views {
+        id
+      }
     }
   }
 `;

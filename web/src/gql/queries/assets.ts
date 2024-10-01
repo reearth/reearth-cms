@@ -3,12 +3,6 @@ import { gql } from "@apollo/client";
 export const GET_ASSETS = gql`
   query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
     assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
-      edges {
-        cursor
-        node {
-          ...assetFragment
-        }
-      }
       nodes {
         ...assetFragment
       }
@@ -31,23 +25,20 @@ export const GET_ASSETS_ITEMS = gql`
     $pagination: Pagination
   ) {
     assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
-      edges {
-        cursor
-        node {
-          id
-          items {
-            itemId
-            modelId
-          }
-        }
-      }
       nodes {
-        id
+        ...assetFragment
         items {
           itemId
           modelId
         }
       }
+      pageInfo {
+        startCursor
+        endCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      totalCount
     }
   }
 `;
@@ -63,7 +54,7 @@ export const GET_ASSET = gql`
 export const GET_ASSET_FILE = gql`
   query GetAssetFile($assetId: ID!) {
     assetFile(assetId: $assetId) {
-      ...assetFile5Fragment
+      ...assetFileFragment
     }
   }
 `;
@@ -72,7 +63,7 @@ export const GET_ASSET_ITEM = gql`
   query GetAssetItem($assetId: ID!) {
     node(id: $assetId, type: ASSET) {
       ... on Asset {
-        id
+        ...assetFragment
         items {
           itemId
           modelId
@@ -135,11 +126,25 @@ export const DECOMPRESS_ASSET = gql`
 `;
 
 export const CREATE_ASSET_UPLOAD = gql`
-  mutation CreateAssetUpload($projectId: ID!, $filename: String!) {
-    createAssetUpload(input: { projectId: $projectId, filename: $filename }) {
+  mutation CreateAssetUpload(
+    $projectId: ID!
+    $filename: String!
+    $cursor: String!
+    $contentLength: Int!
+  ) {
+    createAssetUpload(
+      input: {
+        projectId: $projectId
+        filename: $filename
+        cursor: $cursor
+        contentLength: $contentLength
+      }
+    ) {
       url
       token
       contentType
+      contentLength
+      next
     }
   }
 `;

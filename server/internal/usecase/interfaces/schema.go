@@ -43,15 +43,19 @@ type UpdateFieldParam struct {
 }
 
 var (
-	ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
-	ErrFieldNotFound       = rerror.NewE(i18n.T("field not found"))
-	ErrInvalidValue        = rerror.NewE(i18n.T("invalid value"))
-	ErrEitherModelOrGroup  = rerror.NewE(i18n.T("either model or group should be provided"))
+	ErrInvalidTypeProperty       = rerror.NewE(i18n.T("invalid type property"))
+	ErrReferencedFiledKeyExists  = rerror.NewE(i18n.T("referenced field key exists"))
+	ErrReferenceDirectionChanged = rerror.NewE(i18n.T("reference field direction can not be changed"))
+	ErrReferenceModelChanged     = rerror.NewE(i18n.T("reference field model can not be changed"))
+	ErrFieldNotFound             = rerror.NewE(i18n.T("field not found"))
+	ErrInvalidValue              = rerror.NewE(i18n.T("invalid value"))
+	ErrEitherModelOrGroup        = rerror.NewE(i18n.T("either model or group should be provided"))
 )
 
 type Schema interface {
 	FindByID(context.Context, id.SchemaID, *usecase.Operator) (*schema.Schema, error)
 	FindByIDs(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
+	FindByModel(context.Context, id.ModelID, *usecase.Operator) (*schema.Package, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateFields(context.Context, id.SchemaID, []UpdateFieldParam, *usecase.Operator) (schema.FieldList, error)

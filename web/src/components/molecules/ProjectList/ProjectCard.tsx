@@ -4,17 +4,16 @@ import React from "react";
 import Card from "@reearth-cms/components/atoms/Card";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 
-export interface Props {
-  className?: string;
+type Props = {
   project: Project;
   onProjectNavigation: (project: Project) => void;
-}
+};
 
-const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation }) => {
+const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
   const { Meta } = Card;
 
   return (
-    <CardWrapper className={className} key={project.id}>
+    <CardWrapper key={project.id}>
       <ProjectStyledCard
         onClick={() => onProjectNavigation(project)}
         cover={<Cover>{project.name.charAt(0)}</Cover>}>
@@ -29,13 +28,17 @@ const CardWrapper = styled.div`
   box-shadow: none;
   transition: box-shadow 0.2s;
   &:hover {
-    box-shadow: 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 6px 16px rgba(0, 0, 0, 0.08),
+    box-shadow:
+      0px 3px 6px -4px rgba(0, 0, 0, 0.12),
+      0px 6px 16px rgba(0, 0, 0, 0.08),
       0px 9px 28px 8px rgba(0, 0, 0, 0.05);
   }
 `;
 
 const Cover = styled.div`
-  display: flex;
+  && {
+    display: flex;
+  }
   justify-content: center;
   align-items: center;
   font-weight: 500;

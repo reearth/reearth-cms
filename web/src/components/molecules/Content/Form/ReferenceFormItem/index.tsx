@@ -12,17 +12,22 @@ import { FormItem } from "../../types";
 
 type Props = {
   linkedItemsModalList?: FormItem[];
-  className?: string;
   value?: string;
   disabled?: boolean;
+  loading?: boolean;
   correspondingFieldId: string;
   modelId?: string;
+  titleFieldId?: string | null;
   formItemsData?: FormItem[];
+  linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  onReferenceModelUpdate?: (modelId?: string) => void;
+  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
+  onSearchTerm?: (term?: string) => void;
+  onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
+  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
   onChange?: (value?: string) => void;
 };
 
@@ -30,27 +35,33 @@ const ReferenceFormItem: React.FC<Props> = ({
   linkedItemsModalList,
   value,
   disabled,
+  loading,
   correspondingFieldId,
-  onChange,
   modelId,
+  titleFieldId,
   formItemsData,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
   onReferenceModelUpdate,
+  onSearchTerm,
+  onLinkItemTableReload,
   onLinkItemTableChange,
+  onCheckItemReference,
+  onChange,
 }) => {
   const { workspaceId, projectId } = useParams();
 
   const t = useT();
   const [visible, setVisible] = useState(false);
-  const [currentItem, setCurrentItem] = useState<FormItem | undefined>();
+  const [currentItem, setCurrentItem] = useState<FormItem>();
 
   const handleClick = useCallback(() => {
-    if (!onReferenceModelUpdate) return;
-    onReferenceModelUpdate(modelId);
+    if (!onReferenceModelUpdate || !modelId) return;
+    onReferenceModelUpdate(modelId, titleFieldId ?? "");
     setVisible(true);
-  }, [setVisible, onReferenceModelUpdate, modelId]);
+  }, [onReferenceModelUpdate, modelId, titleFieldId]);
 
   const handleLinkItemModalCancel = useCallback(() => {
     if (disabled) return;
@@ -75,35 +86,44 @@ const ReferenceFormItem: React.FC<Props> = ({
             workspaceId={workspaceId}
             projectId={projectId}
             modelId={modelId}
-          />
-          <Button
             disabled={disabled}
-            type="link"
-            icon={<Icon icon={"unlinkSolid"} size={16} />}
-            onClick={() => {
-              onChange?.();
-            }}
           />
+          {!disabled && (
+            <Button
+              type="link"
+              icon={<Icon icon={"unlinkSolid"} size={16} />}
+              onClick={() => {
+                onChange?.();
+              }}
+            />
+          )}
         </ReferenceItemWrapper>
       )}
-      <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
-        <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
-      </StyledButton>
-      {!!linkItemModalTotalCount &&
-        !!linkItemModalPage &&
-        !!linkItemModalPageSize &&
-        !!onLinkItemTableChange && (
+      {!disabled && (
+        <StyledButton onClick={handleClick} type="primary">
+          <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
+        </StyledButton>
+      )}
+      {!!onSearchTerm &&
+        !!onLinkItemTableReload &&
+        !!onLinkItemTableChange &&
+        !!onCheckItemReference && (
           <LinkItemModal
+            visible={visible}
+            loading={!!loading}
+            correspondingFieldId={correspondingFieldId}
+            linkedItemsModalList={linkedItemsModalList}
+            linkedItem={value}
+            linkItemModalTitle={linkItemModalTitle}
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}
-            correspondingFieldId={correspondingFieldId}
             linkItemModalPageSize={linkItemModalPageSize}
+            onSearchTerm={onSearchTerm}
+            onLinkItemTableReload={onLinkItemTableReload}
             onLinkItemTableChange={onLinkItemTableChange}
-            linkedItemsModalList={linkedItemsModalList}
-            visible={visible}
             onLinkItemModalCancel={handleLinkItemModalCancel}
-            linkedItem={value}
             onChange={onChange}
+            onCheckItemReference={onCheckItemReference}
           />
         )}
     </>

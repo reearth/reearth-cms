@@ -1,6 +1,7 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -31,5 +32,12 @@ func (f Fields) FieldsByType(t value.Type) []*Field {
 	fields := slices.Clone(f)
 	return lo.Filter(fields, func(f *Field, _ int) bool {
 		return f.Type() == t
+	})
+}
+
+func (f Fields) FieldsByGroup(iid id.ItemGroupID) []*Field {
+	fields := slices.Clone(f)
+	return lo.Filter(fields, func(f *Field, _ int) bool {
+		return f.ItemGroup() != nil && *f.ItemGroup() == iid
 	})
 }

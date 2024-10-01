@@ -5,11 +5,21 @@ type View implements Node {
   projectId: ID!
   sort: ItemSort
   filter: Condition
-  columns: [FieldSelector!]
+  columns: [Column!]
+  order: Int!
 }
 
+type Column {
+  field: FieldSelector!
+  visible: Boolean!
+}
 
 # inputs
+
+input ColumnSelectionInput{
+  field: FieldSelectorInput!
+  visible: Boolean!
+}
 
 input CreateViewInput {
   name: String!
@@ -17,7 +27,7 @@ input CreateViewInput {
   projectId: ID!
   sort: ItemSortInput
   filter: ConditionInput
-  columns: [FieldSelectorInput!]
+  columns: [ColumnSelectionInput!]
 }
 
 input UpdateViewInput {
@@ -25,7 +35,11 @@ input UpdateViewInput {
   name: String
   sort: ItemSortInput
   filter: ConditionInput
-  columns: [FieldSelectorInput!]
+  columns: [ColumnSelectionInput!]
+}
+
+input UpdateViewsOrderInput {
+  viewIds: [ID!]!
 }
 
 input DeleteViewInput {
@@ -36,6 +50,10 @@ input DeleteViewInput {
 
 type ViewPayload {
   view: View!
+}
+
+type ViewsPayload {
+  views: [View!]!
 }
 
 type DeleteViewPayload {
@@ -49,5 +67,6 @@ extend type Query {
 extend type Mutation {
   createView(input: CreateViewInput!): ViewPayload
   updateView(input: UpdateViewInput!): ViewPayload
+  updateViewsOrder(input: UpdateViewsOrderInput!): ViewsPayload
   deleteView(input: DeleteViewInput!): DeleteViewPayload
 }

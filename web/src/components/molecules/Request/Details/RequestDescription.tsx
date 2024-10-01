@@ -1,19 +1,15 @@
 import styled from "@emotion/styled";
-import moment from "moment";
-import { useMemo } from "react";
+import dayjs from "dayjs";
+import { useMemo, useCallback } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
 
@@ -21,63 +17,45 @@ const { Panel } = Collapse;
 
 type Props = {
   currentRequest: Request;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
 };
 
 export const RequestDescription: React.FC<Props> = ({
   currentRequest,
-  assetList,
-  fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
+  onGetAsset,
+  onGroupGet,
+  onNavigateToItemEdit,
 }) => {
   const fromNow = useMemo(
-    () => moment(currentRequest.createdAt?.toString()).fromNow(),
+    () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
+  );
+
+  const headerGet = useCallback(
+    (modelName?: string, modelId?: string, itemId?: string) => {
+      if (modelName && modelId && itemId) {
+        return (
+          <>
+            {`${modelName} / `}
+            <StyledButton
+              type="link"
+              onClick={() => {
+                onNavigateToItemEdit(modelId, itemId);
+              }}>
+              {itemId}
+            </StyledButton>
+          </>
+        );
+      }
+    },
+    [onNavigateToItemEdit],
   );
 
   return (
     <StyledAntDComment
-      author={<a>{currentRequest.createdBy?.name}</a>}
+      author={currentRequest.createdBy?.name}
       avatar={<UserAvatar username={currentRequest.createdBy?.name} />}
       content={
         <>
@@ -86,45 +64,28 @@ export const RequestDescription: React.FC<Props> = ({
             <RequestText>{currentRequest.description}</RequestText>
           </RequestTextWrapper>
           <RequestItemsWrapper>
-            <Collapse>
-              {currentRequest.items
-                .filter(item => item.schema)
-                .map((item, index) => (
-                  <Panel header={item.modelName} key={index}>
+            {currentRequest.items
+              .filter(item => item.schema)
+              .map((item, index) => (
+                <Collapse key={index}>
+                  <StyledPanel header={headerGet(item.modelName, item.modelId, item.id)} key={1}>
                     <RequestItemForm
                       key={index}
                       schema={item.schema}
                       initialFormValues={item.initialValues}
-                      assetList={assetList}
-                      fileList={fileList}
-                      loadingAssets={loadingAssets}
-                      uploading={uploading}
-                      uploadModalVisibility={uploadModalVisibility}
-                      uploadUrl={uploadUrl}
-                      uploadType={uploadType}
-                      totalCount={totalCount}
-                      page={page}
-                      pageSize={pageSize}
-                      onAssetTableChange={onAssetTableChange}
-                      onUploadModalCancel={onUploadModalCancel}
-                      setUploadUrl={setUploadUrl}
-                      setUploadType={setUploadType}
-                      onAssetsCreate={onAssetsCreate}
-                      onAssetCreateFromUrl={onAssetCreateFromUrl}
-                      onAssetsReload={onAssetsReload}
-                      onAssetSearchTerm={onAssetSearchTerm}
-                      setFileList={setFileList}
-                      setUploadModalVisibility={setUploadModalVisibility}
+                      referencedItems={item.referencedItems}
+                      onGetAsset={onGetAsset}
+                      onGroupGet={onGroupGet}
                     />
-                  </Panel>
-                ))}
-            </Collapse>
+                  </StyledPanel>
+                </Collapse>
+              ))}
           </RequestItemsWrapper>
         </>
       }
       datetime={
         currentRequest.createdAt && (
-          <Tooltip title={currentRequest.createdAt.toString()}>
+          <Tooltip title={dateTimeFormat(currentRequest.createdAt)}>
             <span>{fromNow}</span>
           </Tooltip>
         )
@@ -142,10 +103,16 @@ const StyledAntDComment = styled(AntDComment)`
       font-weight: 400;
       font-size: 14px;
       color: #00000073;
+      overflow: hidden;
     }
   }
   .ant-comment-inner {
-    padding-top: 0;
+    padding: 0;
+  }
+  .ant-comment-avatar {
+    background-color: #f5f5f5;
+    margin-right: 0;
+    padding-right: 12px;
   }
   .ant-comment-content {
     background-color: #fff;
@@ -169,7 +136,28 @@ const RequestText = styled.p`
 
 const RequestItemsWrapper = styled.div`
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   .ant-pro-card-body {
     padding: 0;
   }
+`;
+
+const StyledPanel = styled(Panel)`
+  > .ant-collapse-header {
+    align-items: center !important;
+    > .ant-collapse-header-text {
+      overflow: hidden;
+    }
+  }
+  > .ant-collapse-content {
+    max-height: 640px;
+    overflow: auto;
+  }
+`;
+
+const StyledButton = styled(Button)`
+  height: auto;
+  padding: 0;
 `;

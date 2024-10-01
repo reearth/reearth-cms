@@ -21,6 +21,16 @@ export const GET_WORKSPACES = gql`
   ${workspaceFragment}
 `;
 
+export const GET_WORKSPACE = gql`
+  query GetWorkspace($id: ID!) {
+    node(id: $id, type: WORKSPACE) {
+      ... on Workspace {
+        ...WorkspaceFragment
+      }
+    }
+  }
+`;
+
 export const UPDATE_WORKSPACE = gql`
   mutation UpdateWorkspace($workspaceId: ID!, $name: String!) {
     updateWorkspace(input: { workspaceId: $workspaceId, name: $name }) {
@@ -118,6 +128,95 @@ export const CREATE_WORKSPACE = gql`
       workspace {
         id
         ...WorkspaceFragment
+      }
+    }
+  }
+`;
+
+export const GET_WORKSPACE_SETTINGS = gql`
+  query GetWorkspaceSettings($workspaceId: ID!) {
+    node(id: $workspaceId, type: WorkspaceSettings) {
+      id
+      ... on WorkspaceSettings {
+        id
+        tiles {
+          resources {
+            ... on TileResource {
+              id
+              type
+              props {
+                name
+                url
+                image
+              }
+            }
+          }
+          enabled
+          selectedResource
+        }
+        terrains {
+          resources {
+            ... on TerrainResource {
+              id
+              type
+              props {
+                name
+                url
+                image
+                cesiumIonAssetId
+                cesiumIonAccessToken
+              }
+            }
+          }
+          enabled
+          selectedResource
+        }
+      }
+    }
+  }
+`;
+
+export const UPDATE_WORKSPACE_SETTINGS = gql`
+  mutation UpdateWorkspaceSettings(
+    $id: ID!
+    $tiles: ResourcesListInput
+    $terrains: ResourcesListInput
+  ) {
+    updateWorkspaceSettings(input: { id: $id, tiles: $tiles, terrains: $terrains }) {
+      workspaceSettings {
+        id
+        tiles {
+          resources {
+            ... on TileResource {
+              id
+              type
+              props {
+                name
+                url
+                image
+              }
+            }
+          }
+          enabled
+          selectedResource
+        }
+        terrains {
+          resources {
+            ... on TerrainResource {
+              id
+              type
+              props {
+                name
+                url
+                image
+                cesiumIonAssetId
+                cesiumIonAccessToken
+              }
+            }
+          }
+          enabled
+          selectedResource
+        }
       }
     }
   }

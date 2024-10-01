@@ -3,7 +3,7 @@ import React from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   coverImageUrl?: string;
 };
 

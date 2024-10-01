@@ -5,7 +5,8 @@ import { useCallback, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
+import Space from "@reearth-cms/components/atoms/Space";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -16,16 +17,18 @@ import {
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
-import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
+import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import {
   GeoViewer,
   Geo3dViewer,
   SvgViewer,
   ImageViewer,
   GltfViewer,
+  CsvViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -42,11 +45,9 @@ type Props = {
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
+  onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
+  workspaceSettings: WorkspaceSettings;
 };
 
 export let viewerRef: CesiumViewer | undefined;
@@ -64,6 +65,7 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
+  workspaceSettings,
 }) => {
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
@@ -71,29 +73,59 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer: CesiumViewer | undefined) => {
+  const getViewer = (viewer?: CesiumViewer) => {
     viewerRef = viewer;
   };
 
   const renderPreview = useCallback(() => {
-    switch (true) {
-      case viewerType === "geo":
-        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
-      case viewerType === "geo_3d_tiles":
-        return <Geo3dViewer url={assetUrl} setAssetUrl={setAssetUrl} onGetViewer={getViewer} />;
-      case viewerType === "geo_mvt":
-        return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
-      case viewerType === "image":
+    switch (viewerType) {
+      case "geo":
+        return (
+          <GeoViewer
+            url={assetUrl}
+            assetFileExt={assetFileExt}
+            onGetViewer={getViewer}
+            workspaceSettings={workspaceSettings}
+          />
+        );
+      case "geo_3d_tiles":
+        return (
+          <Geo3dViewer
+            url={assetUrl}
+            setAssetUrl={setAssetUrl}
+            onGetViewer={getViewer}
+            workspaceSettings={workspaceSettings}
+          />
+        );
+      case "geo_mvt":
+        return (
+          <MvtViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+        );
+      case "image":
         return <ImageViewer url={assetUrl} />;
-      case viewerType === "image_svg":
+      case "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model_3d":
-        return <GltfViewer url={assetUrl} onGetViewer={getViewer} />;
-      case viewerType === "unknown":
+      case "model_3d":
+        return (
+          <GltfViewer
+            url={assetUrl}
+            onGetViewer={getViewer}
+            workspaceSettings={workspaceSettings}
+          />
+        );
+      case "csv":
+        return (
+          <CsvViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+        );
+      case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, svgRender, viewerType]);
+  }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(asset.url);
+  }, [asset.url]);
 
   return (
     <BodyContainer>
@@ -101,13 +133,10 @@ const AssetMolecule: React.FC<Props> = ({
         <Card
           title={
             <>
-              {asset.fileName}{" "}
-              <CopyIcon
-                icon="copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(asset.url);
-                }}
-              />
+              {asset.fileName}
+              <Tooltip title={t("URL copied!!")} trigger={"click"}>
+                <CopyIcon icon="copy" onClick={handleCopy} />
+              </Tooltip>
             </>
           }
           toolbar={
@@ -149,26 +178,25 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton type="ghost" selected={asset ? [asset] : undefined} displayDefaultIcon />
+        <DownloadButton ghost selected={asset ? [asset] : undefined} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
-          <PreviewTypeSelect
-            style={{ width: "75%" }}
-            value={selectedPreviewType}
-            onTypeChange={onTypeChange}
-          />
+          <PreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
-          <UserAvatar username={asset.createdBy} shadow />
+          <Space>
+            <UserAvatar username={asset.createdBy} shadow />
+            {asset.createdBy}
+          </Space>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (
             <div key={item.itemId}>
-              <Button style={{ padding: 0 }} type="link" onClick={() => onAssetItemSelect(item)}>
+              <StyledButton type="link" onClick={() => onAssetItemSelect(item)}>
                 {item.itemId}
-              </Button>
+              </StyledButton>
             </div>
           ))}
         </SideBarCard>
@@ -177,10 +205,12 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-const CopyIcon = styled(Icon)<{ selected?: boolean }>`
-  margin-left: 16px;
-  &:active {
-    color: #096dd9;
+const CopyIcon = styled(Icon)`
+  margin-left: 10px;
+  transition: all 0.3s;
+  color: rgb(0, 0, 0, 0.45);
+  :hover {
+    color: rgba(0, 0, 0, 0.88);
   }
 `;
 
@@ -209,6 +239,10 @@ const BodyWrapper = styled.div`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
+`;
+
+const StyledButton = styled(Button)`
+  padding: 0;
 `;
 
 export default AssetMolecule;

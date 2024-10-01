@@ -1,12 +1,4 @@
-export type Model = {
-  id: string;
-  name: string;
-  description?: string;
-  key: string;
-  schema: Schema;
-  metadataSchema?: MetaDataSchema;
-  public: boolean;
-};
+import { Key } from "react";
 
 export type MetaDataSchema = {
   id?: string;
@@ -23,7 +15,7 @@ export type Field = {
   type: FieldType;
   title: string;
   key: string;
-  description: string | null | undefined;
+  description: string;
   required: boolean;
   unique: boolean;
   multiple: boolean;
@@ -35,7 +27,7 @@ export type Field = {
 export type FieldType =
   | "Text"
   | "TextArea"
-  | "RichText"
+  // | "RichText"
   | "MarkdownText"
   | "Asset"
   | "Date"
@@ -43,39 +35,86 @@ export type FieldType =
   | "Select"
   | "Tag"
   | "Integer"
-  | "Float"
+  // | "Float"
   | "Reference"
   | "Checkbox"
   | "URL"
-  | "Group";
+  | "Group"
+  | "GeometryObject"
+  | "GeometryEditor";
 
-export type TypeProperty =
-  | {
-      defaultValue?: string | number;
-      maxLength?: number;
-      assetDefaultValue?: string;
-      selectDefaultValue?: string;
-      integerDefaultValue?: number;
-      min?: number;
-      max?: number;
-      correspondingField?: any;
-      modelId?: string;
-      groupId?: string;
-    }
-  | any;
+type Tag = {
+  id: string;
+  name: string;
+  color: string;
+};
 
-export type CreationFieldTypePropertyInput = {
-  asset?: { defaultValue: string };
-  integer?: { defaultValue: number; min: number; max: number };
-  markdownText?: { defaultValue: string; maxLength: number };
+export type ObjectSupportedType =
+  | "POINT"
+  | "MULTIPOINT"
+  | "LINESTRING"
+  | "MULTILINESTRING"
+  | "POLYGON"
+  | "MULTIPOLYGON"
+  | "GEOMETRYCOLLECTION";
+
+export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
+
+export type CorrespondingField = {
+  id: string;
+  type: FieldType;
+  title: string;
+  key: Key;
+  description: string;
+  required: boolean;
+  unique: boolean;
+  multiple: boolean;
+  order: number;
+};
+
+export type TypeProperty = {
+  defaultValue?: string | boolean | string[] | boolean[];
+  maxLength?: number;
+  assetDefaultValue?: string;
+  selectDefaultValue?: string | string[];
+  integerDefaultValue?: number;
+  min?: number;
+  max?: number;
+  correspondingField?: CorrespondingField;
+  modelId?: string;
+  groupId?: string;
+  tags?: Tag[];
+  values?: string[];
+  schema?: { id: string; titleFieldId: string | null };
+  objectSupportedTypes?: ObjectSupportedType[];
+  editorSupportedTypes?: EditorSupportedType[];
+};
+
+export type FieldTypePropertyInput = {
+  text?: { defaultValue?: string; maxLength?: number };
+  textArea?: { defaultValue?: string; maxLength?: number };
+  markdownText?: { defaultValue?: string; maxLength?: number };
+  asset?: { defaultValue?: string };
+  date?: { defaultValue: string };
+  bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
-  text?: { defaultValue: string; maxLength: number };
-  textArea?: { defaultValue: string; maxLength: number };
-  url?: { defaultValue: string };
+  tag?: {
+    defaultValue?: string;
+    tags: { color: string; id?: string; name: string }[];
+  };
+  checkbox?: { defaultValue?: boolean };
+  integer?: { defaultValue: number | ""; min: number | null; max: number | null };
   reference?: {
     modelId: string;
-    correspondingField: any;
+    schemaId: string;
+    correspondingField: {
+      key: string;
+      title: string;
+      description: string;
+      required: boolean;
+    } | null;
   };
+  url?: { defaultValue: string };
   group?: {
     groupId: string;
   };
@@ -91,4 +130,42 @@ export type Group = {
   description: string;
   key: string;
   schema: Schema;
+  order: number;
 };
+
+export type ModelFormValues = {
+  id?: string;
+  name: string;
+  description: string;
+  key: string;
+};
+
+export type FormValues = {
+  fieldId?: string;
+  groupId?: string;
+  title: string;
+  description: string;
+  key: string;
+  metadata: boolean;
+  multiple: boolean;
+  unique: boolean;
+  isTitle: boolean;
+  required: boolean;
+  type?: FieldType;
+  typeProperty: FieldTypePropertyInput;
+};
+
+export type FormTypes = FormValues & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  defaultValue?: any;
+  maxLength?: number;
+  values?: string[];
+  min?: number;
+  max?: number;
+  tags?: { color: string; id: string; name: string }[];
+  group: string;
+  supportedTypes?: string[] | string;
+};
+
+export type Tab = "fields" | "meta-data";
+export type SelectedSchemaType = "model" | "group";

@@ -101,7 +101,7 @@ func TestToItemParam(t *testing.T) {
 			},
 			want: &interfaces.ItemFieldParam{
 				Field: &sfid,
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "foo",
 			},
 		},
@@ -164,6 +164,7 @@ func TestToVersionedItem(t *testing.T) {
 
 func TestToItemQuery(t *testing.T) {
 	pid := id.NewProjectID()
+	mid := id.NewModelID()
 	sid := id.NewSchemaID()
 	str := "foo"
 	tests := []struct {
@@ -176,17 +177,19 @@ func TestToItemQuery(t *testing.T) {
 			input: SearchItemInput{
 				Query: &ItemQueryInput{
 					Project: IDFrom(pid),
+					Model:   IDFrom(mid),
 					Schema:  IDFromRef(sid.Ref()),
 					Q:       &str,
 				},
 			},
-			want: item.NewQuery(pid, sid.Ref(), nil, str, nil),
+			want: item.NewQuery(pid, mid, sid.Ref(), str, nil),
 		},
 		{
 			name: "invalid project id",
 			input: SearchItemInput{
 				Query: &ItemQueryInput{
-					Q: &str,
+					Q:     &str,
+					Model: IDFrom(mid),
 				},
 			},
 		},

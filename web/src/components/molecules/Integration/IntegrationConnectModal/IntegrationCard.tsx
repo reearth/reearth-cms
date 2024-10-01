@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Integration } from "@reearth-cms/components/molecules/Integration/types";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-export type Props = {
+type Props = {
   integration: Integration;
   integrationSelected: boolean;
   onClick: () => void;
@@ -16,7 +16,7 @@ const IntegrationCard: React.FC<Props> = ({ integration, integrationSelected, on
   </CardWrapper>
 );
 
-const CardWrapper = styled.div<{ isSelected?: boolean }>`
+const CardWrapper = styled.div<{ isSelected: boolean }>`
   cursor: pointer;
   box-shadow: 0px 2px 8px #00000026;
   border: 1px solid #f0f0f0;
@@ -34,6 +34,9 @@ const CardTitle = styled.h5`
   line-height: 24px;
   margin: 0;
   padding-left: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export default IntegrationCard;

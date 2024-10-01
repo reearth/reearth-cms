@@ -1,6 +1,14 @@
 import styled from "@emotion/styled";
-import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, {
+  Key,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -9,13 +17,13 @@ import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import {
-  ProColumns,
   TableRowSelection,
-  TablePaginationConfig,
   ListToolBarProps,
+  ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import {
@@ -23,10 +31,18 @@ import {
   StateType,
   DefaultFilterValueType,
   DropdownFilterType,
+  ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { SortDirection, ConditionInput, FieldSelector } from "@reearth-cms/gql/graphql-client-api";
+import {
+  ItemSort,
+  FieldType,
+  Column,
+  ConditionInput,
+  CurrentView,
+  metaColumn,
+} from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -34,23 +50,19 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-type ExtendedColumns = ProColumns<ContentTableField> & {
-  type?: string;
-  typeProperty?: { values?: string[] };
-};
-
-export type Props = {
-  className?: string;
+type Props = {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
-  selectedItem: Item | undefined;
+  deleteLoading: boolean;
+  unpublishLoading: boolean;
+  selectedItem?: Item;
   selection: {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { field?: FieldSelector; direction?: SortDirection };
-  filter?: Omit<ConditionInput, "and" | "or">[];
+  currentView: CurrentView;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -60,11 +72,8 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onContentTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { field?: FieldSelector; direction?: SortDirection },
-  ) => void;
+  onFilterChange: (filter?: ConditionInput[]) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onItemEdit: (itemId: string) => void;
@@ -73,25 +82,30 @@ export type Props = {
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  modelKey?: string;
+  onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
 };
 
 const ContentTable: React.FC<Props> = ({
   contentTableFields,
   contentTableColumns,
   loading,
+  deleteLoading,
+  unpublishLoading,
   selectedItem,
   selection,
   totalCount,
-  sort,
-  filter,
-  searchTerm,
+  currentView,
   page,
   pageSize,
   requests,
   addItemToRequestModalShown,
+  setCurrentView,
+  searchTerm,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -102,363 +116,537 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onUnpublish,
   onSearchTerm,
+  onFilterChange,
   onContentTableChange,
   onItemSelect,
   setSelection,
+  onItemEdit,
   onItemDelete,
   onItemsReload,
+  modelKey,
+  onRequestSearchTerm,
+  onRequestTableReload,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
-  const actionsColumn: ExtendedColumns[] = useMemo(
+
+  const sortOrderGet = useCallback(
+    (key: FieldType) =>
+      currentView.sort?.field.type === key
+        ? currentView.sort.direction === "ASC"
+          ? "ascend"
+          : "descend"
+        : null,
+    [currentView?.sort?.direction, currentView.sort?.field.type],
+  );
+
+  const actionsColumns: ExtendedColumns[] = useMemo(
     () => [
       {
+        title: "",
+        hideInSetting: true,
         render: (_, contentField) => (
-          <Link to={`details/${contentField.id}`}>
-            <Icon icon="edit" />
-          </Link>
+          <Icon icon="edit" color={"#1890ff"} onClick={() => onItemEdit(contentField.id)} />
         ),
+        dataIndex: "editIcon",
+        fieldType: "EDIT_ICON",
+        key: "EDIT_ICON",
         width: 48,
         minWidth: 48,
+        ellipsis: true,
+        align: "center",
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
+        fieldType: "commentsCount",
         key: "commentsCount",
         render: (_, item) => {
           return (
-            <Button type="link" onClick={() => onItemSelect(item.id)}>
+            <StyledButton type="link" onClick={() => onItemSelect(item.id)}>
               <CustomTag
                 value={item.comments?.length || 0}
                 color={item.id === selectedItem?.id ? "#87e8de" : undefined}
               />
-            </Button>
+            </StyledButton>
           );
         },
         width: 48,
         minWidth: 48,
+        ellipsis: true,
+        align: "center",
       },
       {
         title: t("Status"),
-        dataIndex: "status",
+        dataIndex: "Status",
+        fieldType: "STATUS",
         key: "STATUS",
         render: (_, item) => {
-          const itemStatus: StateType[] = item.status.split("_") as StateType[];
+          const itemStatus = item.status.split("_") as StateType[];
           return (
             <>
-              {itemStatus.map((state, index) => {
-                if (index === itemStatus.length - 1) {
-                  return <StyledBadge key={index} color={stateColors[state]} text={t(state)} />;
-                } else {
-                  return <StyledBadge key={index} color={stateColors[state]} />;
-                }
-              })}
+              {itemStatus.map((state, index) => (
+                <StyledBadge
+                  key={index}
+                  color={stateColors[state]}
+                  text={index === itemStatus.length - 1 ? t(state) : undefined}
+                />
+              ))}
             </>
           );
         },
         width: 148,
         minWidth: 148,
-        type: "STATUS",
+        ellipsis: true,
       },
       {
         title: t("Created At"),
         dataIndex: "createdAt",
+        fieldType: "CREATION_DATE",
         key: "CREATION_DATE",
+        sortOrder: sortOrderGet("CREATION_DATE"),
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
-        defaultSortOrder:
-          sort?.field?.type === "CREATION_DATE"
-            ? sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        defaultSortOrder: sortOrderGet("CREATION_DATE"),
         width: 148,
         minWidth: 148,
+        ellipsis: true,
         type: "Date",
+      },
+      {
+        title: t("Created By"),
+        dataIndex: "createdBy",
+        fieldType: "CREATION_USER",
+        key: "CREATION_USER",
+        sortOrder: sortOrderGet("CREATION_USER"),
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.createdBy} size={"small"} />
+            {item.createdBy}
+          </Space>
+        ),
+        sorter: true,
+        defaultSortOrder: sortOrderGet("CREATION_USER"),
+        width: 148,
+        minWidth: 148,
+        type: "Person",
+        ellipsis: true,
       },
       {
         title: t("Updated At"),
         dataIndex: "updatedAt",
+        fieldType: "MODIFICATION_DATE",
         key: "MODIFICATION_DATE",
+        sortOrder: sortOrderGet("MODIFICATION_DATE"),
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
-        defaultSortOrder:
-          sort?.field?.type === "MODIFICATION_DATE"
-            ? sort?.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        defaultSortOrder: sortOrderGet("MODIFICATION_DATE"),
         width: 148,
         minWidth: 148,
+        ellipsis: true,
         type: "Date",
       },
+      {
+        title: t("Updated By"),
+        dataIndex: "updatedBy",
+        fieldType: "MODIFICATION_USER",
+        key: "MODIFICATION_USER",
+        sortOrder: sortOrderGet("MODIFICATION_USER"),
+        render: (_, item) =>
+          item.updatedBy ? (
+            <Space>
+              <UserAvatar username={item.updatedBy} size={"small"} />
+              {item.updatedBy}
+            </Space>
+          ) : (
+            "-"
+          ),
+        sorter: true,
+        defaultSortOrder: sortOrderGet("MODIFICATION_USER"),
+        width: 148,
+        minWidth: 148,
+        type: "Person",
+        ellipsis: true,
+      },
     ],
-    [t, sort?.field?.type, sort?.direction, selectedItem?.id, onItemSelect],
+    [t, sortOrderGet, onItemEdit, selectedItem?.id, onItemSelect],
   );
 
-  const rowSelection: TableRowSelection = {
-    selectedRowKeys: selection.selectedRowKeys,
-    onChange: (selectedRowKeys: Key[]) => {
-      setSelection({
-        ...selection,
-        selectedRowKeys: selectedRowKeys as string[],
-      });
-    },
-  };
+  const tableColumns = useMemo(() => {
+    return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : [...actionsColumns];
+  }, [actionsColumns, contentTableColumns]);
 
-  const AlertOptions = (props: any) => {
-    return (
-      <Space size={16}>
-        <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
-          <Icon icon="plus" /> {t("Add to Request")}
-        </PrimaryButton>
-        <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
-          <Icon icon="eyeInvisible" /> {t("Unpublish")}
-        </PrimaryButton>
-        <PrimaryButton onClick={props.onCleanSelected}>
-          <Icon icon="clear" /> {t("Deselect")}
-        </PrimaryButton>
-        <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Delete")}
-        </DeleteButton>
-      </Space>
-    );
-  };
+  const rowSelection: TableRowSelection = useMemo(
+    () => ({
+      selectedRowKeys: selection.selectedRowKeys,
+      onChange: (selectedRowKeys: Key[]) => {
+        setSelection({
+          ...selection,
+          selectedRowKeys: selectedRowKeys as string[],
+        });
+      },
+    }),
+    [selection, setSelection],
+  );
+
+  const alertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (props: any) => {
+      return (
+        <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="plus" />}
+            onClick={() => onAddItemToRequestModalOpen()}>
+            {t("Add to Request")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="eyeInvisible" />}
+            onClick={() => onUnpublish(props.selectedRowKeys)}
+            loading={unpublishLoading}>
+            {t("Unpublish")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="clear" />}
+            onClick={props.onCleanSelected}>
+            {t("Deselect")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="delete" />}
+            onClick={() => onItemDelete(props.selectedRowKeys)}
+            danger
+            loading={deleteLoading}>
+            {t("Delete")}
+          </Button>
+        </Space>
+      );
+    },
+    [deleteLoading, onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t, unpublishLoading],
+  );
 
   const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
 
   const [filters, setFilters] = useState<DropdownFilterType[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<DropdownFilterType>();
+  const filterRemove = useCallback(
+    (index: number) => {
+      setFilters(prev => {
+        prev.splice(index, 1);
+        return prev;
+      });
+      defaultFilterValues.current.splice(index, 1);
+      const currentFilters =
+        currentView.filter && currentView.filter.and ? [...currentView.filter.and.conditions] : [];
+      currentFilters.splice(index, 1);
+      onFilterChange(currentFilters.length > 0 ? currentFilters : undefined);
+    },
+    [currentView.filter, onFilterChange],
+  );
 
   useEffect(() => {
-    if (filter && contentTableColumns) {
-      const newFilters: any[] = [];
-      const newDefaultValues = [];
-      for (const f of filter) {
-        const condition = Object.values(f)[0];
-        if (!condition) break;
+    if (currentView.filter && currentView.filter.and && contentTableColumns) {
+      const newFilters: DropdownFilterType[] = [];
+      const newDefaultValues: DefaultFilterValueType[] = [];
+      for (const c of currentView.filter.and.conditions) {
+        const condition = Object.values(c)[0];
+        if (!condition || !("operator" in condition)) break;
         const { operator, fieldId } = condition;
-        const value = "value" in condition ? condition?.value : "";
-        const operatorType = Object.keys(f)[0];
-        let column;
-
-        const columns: ExtendedColumns[] =
-          fieldId.type === "FIELD" || fieldId.type === "CREATION_USER"
+        const value = "value" in condition ? (condition.value as string) : "";
+        const operatorType = Object.keys(c)[0];
+        const columns =
+          fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
             ? contentTableColumns
-            : actionsColumn;
-        for (const c of columns) {
-          if (c.key === fieldId.id) {
-            column = c;
-            break;
+            : actionsColumns;
+        const column = columns.find(c => c.key === fieldId.id);
+        if (column) {
+          const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
+          const members = currentWorkspace?.members;
+          if (
+            dataIndex &&
+            title &&
+            type &&
+            typeProperty &&
+            key &&
+            required !== undefined &&
+            multiple !== undefined &&
+            members
+          ) {
+            newFilters.push({
+              dataIndex: dataIndex as string | string[],
+              title: title as string,
+              type,
+              typeProperty,
+              members,
+              id: key as string,
+              required,
+              multiple,
+            });
+            newDefaultValues.push({ operatorType, operator, value });
           }
         }
-        newFilters.push({
-          dataIndex: column?.dataIndex,
-          title: column?.title,
-          type: column?.type,
-          typeProperty: column?.typeProperty,
-          members: currentWorkspace?.members,
-          id: column?.key,
-        });
-        newDefaultValues.push({ operatorType, operator, value });
       }
       setFilters(newFilters);
       defaultFilterValues.current = newDefaultValues;
+    } else {
+      setFilters([]);
+      defaultFilterValues.current = [];
     }
-  }, [filter, contentTableColumns, actionsColumn, currentWorkspace?.members]);
+    isFilterOpen.current = false;
+  }, [currentView.filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
 
   const isFilter = useRef<boolean>(true);
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
 
-  const handleControlMenuOpenChange = (open: boolean) => {
+  const handleControlMenuOpenChange = useCallback((open: boolean) => {
     setControlMenuOpen(open);
-  };
+  }, []);
 
-  const toolBarItemClick = (isFilterMode: boolean) => {
-    setInputValue("");
-    setItems(getOptions(true));
-    isFilter.current = isFilterMode;
-    handleOptionsOpenChange(true);
-  };
+  const handleOptionsOpenChange = useCallback((open: boolean) => {
+    if (!open) {
+      setOptionsOpen(false);
+    }
+  }, []);
 
-  const handleOptionsOpenChange = (open: boolean) => {
-    setControlMenuOpen(false);
-    setOptionsOpen(open);
-  };
+  const handleConditionMenuOpenChange = useCallback((open: boolean) => {
+    if (!open) {
+      setConditionMenuOpen(false);
+    }
+  }, []);
 
-  const handleConditionMenuOpenChange = (open: boolean) => {
-    setConditionMenuOpen(open);
-  };
-
-  const close = () => {
+  const close = useCallback(() => {
     setConditionMenuOpen(false);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    const reg = new RegExp(e.target.value, "i");
-    const result = getOptions(optionsOpen)?.filter(item => {
-      return reg.test((item as any)?.label);
-    });
-    setItems(result);
-  };
+  }, []);
 
   const getOptions = useCallback(
     (isFromMenu: boolean): MenuProps["items"] => {
       const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
-        const filter = {
-          dataIndex: column.dataIndex,
-          title: column.title,
-          type: column.type,
-          typeProperty: column.typeProperty,
-          members: currentWorkspace?.members,
-          id: column.key,
-        };
-        if (isFilter) {
-          setFilters(prevState => [...prevState, filter] as any);
-        }
-        setSelectedFilter(filter as any);
-        handleOptionsOpenChange(false);
-        if (isFromMenu) {
-          handleConditionMenuOpenChange(true);
+        const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
+        const members = currentWorkspace?.members;
+        if (
+          dataIndex &&
+          title &&
+          type &&
+          typeProperty &&
+          key &&
+          required !== undefined &&
+          multiple !== undefined &&
+          members
+        ) {
+          const filter: DropdownFilterType = {
+            dataIndex: dataIndex as string | string[],
+            title: title as string,
+            type,
+            typeProperty,
+            members,
+            id: key as string,
+            required,
+            multiple,
+          };
+          if (isFilter) {
+            setFilters(prevState => [...prevState, filter]);
+          }
+          setSelectedFilter(filter);
+          handleOptionsOpenChange(false);
+          if (isFromMenu) {
+            setConditionMenuOpen(true);
+            isFilterOpen.current = false;
+          } else {
+            isFilterOpen.current = true;
+          }
         }
       };
 
       return [
-        ...((actionsColumn ?? [])
-          .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
-          .map(column => ({
-            key: column.key,
-            label: column.title,
-            onClick: () => {
-              optionClick(isFilter.current, column);
-            },
-          })) as any),
+        // TODO: Uncomment this when we have a way to filter by creation/modification date
+        // ...((actionsColumns ?? [])
+        //   .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
+        //   .map(column => ({
+        //     key: column.key,
+        //     label: column.title,
+        //     onClick: () => {
+        //       optionClick(isFilter.current, column);
+        //     },
+        //   })) as any),
         ...((contentTableColumns ?? [])
-          .filter(column => !!column.title && typeof column.title === "string")
+          .filter(
+            column => column.type !== "Group" && column.type !== "Reference" && !column.multiple,
+          )
           .map(column => ({
             key: column.key,
             label: column.title,
             onClick: () => {
               optionClick(isFilter.current, column);
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           })) as any),
       ];
     },
-    [actionsColumn, contentTableColumns, currentWorkspace?.members],
+    [contentTableColumns, currentWorkspace?.members, handleOptionsOpenChange],
   );
 
+  const toolBarItemClick = useCallback(
+    ({ key }: { key: string }) => {
+      setInputValue("");
+      setItems(getOptions(true));
+      isFilter.current = key === "filter";
+      setControlMenuOpen(false);
+      setOptionsOpen(true);
+    },
+    [getOptions],
+  );
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(e.target.value);
+      const reg = new RegExp(e.target.value, "i");
+      const result = getOptions(optionsOpen)?.filter(item => {
+        if (item && "label" in item && typeof item.label === "string") {
+          return reg.test(item.label);
+        }
+      });
+      setItems(result);
+    },
+    [getOptions, optionsOpen],
+  );
+
+  const isFilterOpen = useRef(false);
   const defaultItems = getOptions(false);
   const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
-
   const [inputValue, setInputValue] = useState("");
 
-  const sharedProps = {
-    menu: { items },
-    dropdownRender: (menu: React.ReactNode): React.ReactNode => (
-      <Wrapper>
-        <InputWrapper>
-          <Input value={inputValue} placeholder="Filter by..." onChange={handleChange} />
-        </InputWrapper>
-        {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
-      </Wrapper>
-    ),
-    arrow: true,
-  };
+  const sharedProps = useMemo(
+    () => ({
+      menu: { items },
+      dropdownRender: (menu: React.ReactNode): React.ReactNode => (
+        <Wrapper>
+          <InputWrapper>
+            <Input
+              value={inputValue}
+              placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
+              onChange={handleChange}
+            />
+          </InputWrapper>
+          {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
+        </Wrapper>
+      ),
+      arrow: false,
+    }),
+    [handleChange, inputValue, items],
+  );
 
-  const handleToolbarEvents: ListToolBarProps | undefined = {
-    search: (
-      <StyledSearchContainer>
-        <StyledSearchInput
-          placeholder={t("Please enter")}
-          defaultValue={searchTerm}
-          onSearch={(value: string) => {
-            if (value) {
+  const handleToolbarEvents: ListToolBarProps = useMemo(
+    () => ({
+      search: (
+        <StyledSearchContainer>
+          <Input.Search
+            allowClear
+            placeholder={t("input search text")}
+            onSearch={(value: string) => {
               onSearchTerm(value);
-            } else {
-              onSearchTerm();
-            }
-          }}
-        />
-        <StyledFilterWrapper>
-          <StyledFilterSpace size={[0, 8]}>
-            {filters.map((filter, index) => (
-              <FilterDropdown
-                key={index}
-                filter={filter}
-                defaultValue={defaultFilterValues.current[index]}
-                index={index}
-              />
-            ))}
-          </StyledFilterSpace>
-          <Dropdown
-            {...sharedProps}
-            placement="bottomLeft"
-            trigger={["click"]}
-            onOpenChange={() => {
-              isFilter.current = true;
-              setInputValue("");
-              setItems(defaultItems);
-            }}>
-            <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
-              Filter
-            </StyledFilterButton>
-          </Dropdown>
-        </StyledFilterWrapper>
-      </StyledSearchContainer>
-    ),
-  };
-
-  const pagination: TablePaginationConfig = {
-    showSizeChanger: true,
-    current: page,
-    total: totalCount,
-    pageSize: pageSize,
-  };
-
-  const options = {
-    search: true,
-    fullScreen: true,
-    reload: onItemsReload,
-    // edit here
-    setting: true,
-  };
-
-  const toolBarItems: MenuProps["items"] = [
-    {
-      label: (
-        <span
-          onClick={() => {
-            toolBarItemClick(true);
-          }}>
-          Add Filter
-        </span>
+            }}
+            defaultValue={searchTerm}
+            key={`${modelKey}${currentView.id}`}
+          />
+          <StyledFilterWrapper>
+            <StyledFilterSpace size={[0, 8]}>
+              {filters.map((filter, index) => (
+                <FilterDropdown
+                  key={index}
+                  filter={filter}
+                  defaultValue={defaultFilterValues.current[index]}
+                  index={index}
+                  filterRemove={filterRemove}
+                  isFilterOpen={isFilterOpen.current}
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  onFilterChange={onFilterChange}
+                />
+              ))}
+            </StyledFilterSpace>
+            <Dropdown
+              {...sharedProps}
+              placement="bottomLeft"
+              trigger={["click"]}
+              onOpenChange={() => {
+                isFilter.current = true;
+                setInputValue("");
+                setItems(defaultItems);
+              }}>
+              <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
+                {t("Filter")}
+              </StyledFilterButton>
+            </Dropdown>
+          </StyledFilterWrapper>
+        </StyledSearchContainer>
       ),
-      key: "filter",
-      icon: <Icon icon="filter" />,
-    },
-    {
-      label: (
-        <span
-          onClick={() => {
-            toolBarItemClick(false);
-          }}>
-          Add Sort
-        </span>
-      ),
-      key: "sort",
-      icon: <Icon icon="sortAscending" />,
-    },
-  ];
+    }),
+    [
+      currentView,
+      defaultItems,
+      filterRemove,
+      filters,
+      modelKey,
+      onFilterChange,
+      onSearchTerm,
+      searchTerm,
+      setCurrentView,
+      sharedProps,
+      t,
+    ],
+  );
 
-  const toolBarRender = () => {
+  const pagination = useMemo(
+    () => ({
+      showSizeChanger: true,
+      current: page,
+      total: totalCount,
+      pageSize: pageSize,
+    }),
+    [page, pageSize, totalCount],
+  );
+
+  const options = useMemo(
+    () => ({
+      search: true,
+      fullScreen: true,
+      reload: onItemsReload,
+      setting: true,
+    }),
+    [onItemsReload],
+  );
+
+  const toolBarItems: MenuProps["items"] = useMemo(
+    () => [
+      {
+        label: t("Add Filter"),
+        key: "filter",
+        icon: <Icon icon="filter" />,
+      },
+      {
+        label: t("Add Sort"),
+        key: "sort",
+        icon: <Icon icon="sortAscending" />,
+      },
+    ],
+    [t],
+  );
+
+  const toolBarRender = useCallback(() => {
     return [
       <Dropdown
         {...sharedProps}
         placement="bottom"
-        trigger={["contextMenu"]}
+        trigger={["click"]}
         open={optionsOpen}
         onOpenChange={handleOptionsOpenChange}
         key="control">
@@ -471,22 +659,26 @@ const ContentTable: React.FC<Props> = ({
                 index={filters.length - 1}
                 open={conditionMenuOpen}
                 isFilter={isFilter.current}
+                currentView={currentView}
+                setCurrentView={setCurrentView}
+                onFilterChange={onFilterChange}
+                key={Math.random()}
               />
             )
           }
-          trigger={["contextMenu"]}
+          trigger={["click"]}
           placement="bottom"
-          arrow
+          arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
-            menu={{ items: toolBarItems }}
+            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
             placement="bottom"
             trigger={["click"]}
-            arrow
+            arrow={false}
             open={controlMenuOpen}
             onOpenChange={handleControlMenuOpenChange}>
-            <Tooltip title="Control">
+            <Tooltip title={t("Control")}>
               <IconWrapper>
                 <Icon icon="control" size={18} />
               </IconWrapper>
@@ -495,64 +687,145 @@ const ContentTable: React.FC<Props> = ({
         </Dropdown>
       </Dropdown>,
     ];
-  };
+  }, [
+    close,
+    conditionMenuOpen,
+    controlMenuOpen,
+    currentView,
+    filters.length,
+    handleConditionMenuOpenChange,
+    handleControlMenuOpenChange,
+    handleOptionsOpenChange,
+    onFilterChange,
+    optionsOpen,
+    selectedFilter,
+    setCurrentView,
+    sharedProps,
+    t,
+    toolBarItemClick,
+    toolBarItems,
+  ]);
+
+  const settingOptions = useMemo(() => {
+    const cols: Record<string, ColumnsState> = {};
+    currentView.columns?.forEach((col, index) => {
+      const colKey = (metaColumn as readonly string[]).includes(col.field.type)
+        ? col.field.type
+        : (col.field.id ?? "");
+      cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
+    });
+    return cols;
+  }, [currentView.columns]);
+
+  const setSettingOptions = useCallback(
+    (options: Record<string, ColumnsState>) => {
+      const cols: Column[] = tableColumns
+        .filter(
+          col =>
+            typeof col.key === "string" &&
+            col.fieldType !== "EDIT_ICON" &&
+            col.fieldType !== "commentsCount",
+        )
+        .map((col, index) => {
+          const colKey = col.key as string;
+          const colFieldType = col.fieldType as FieldType;
+          return {
+            field: {
+              type: colFieldType,
+              id: colFieldType === "FIELD" || colFieldType === "META_FIELD" ? colKey : undefined,
+            },
+            visible: options[colKey]?.show ?? true,
+            order: options[colKey]?.order ?? index,
+            fixed:
+              colFieldType === "FIELD" || colFieldType === "META_FIELD"
+                ? options[colKey]?.fixed
+                : options[colFieldType]?.fixed,
+          };
+        })
+        .sort((a, b) => a.order - b.order)
+        .map(col => {
+          return {
+            field: col.field,
+            visible: col.visible,
+            fixed: col.fixed,
+          };
+        });
+
+      setCurrentView(prev => ({
+        ...prev,
+        columns: cols,
+      }));
+    },
+    [setCurrentView, tableColumns],
+  );
 
   return (
     <>
       {contentTableColumns ? (
         <ResizableProTable
+          showSorterTooltip={false}
           options={options}
           loading={loading}
           pagination={pagination}
           toolbar={handleToolbarEvents}
           toolBarRender={toolBarRender}
           dataSource={contentTableFields}
-          tableAlertOptionRender={AlertOptions}
+          tableAlertOptionRender={alertOptions}
           rowSelection={rowSelection}
-          columns={[...actionsColumn, ...contentTableColumns]}
-          onChange={(pagination, _, sorter: any) => {
+          columns={tableColumns}
+          columnsState={{
+            value: settingOptions,
+            onChange: setSettingOptions,
+          }}
+          onChange={(pagination, _, sorter) => {
             onContentTableChange(
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
-              sorter?.order
-                ? {
-                    field: { type: sorter.columnKey },
-                    direction: sorter.order === "ascend" ? SortDirection.Asc : SortDirection.Desc,
-                  }
-                : undefined,
+              Array.isArray(sorter)
+                ? undefined
+                : sorter.order &&
+                    sorter.column &&
+                    "fieldType" in sorter.column &&
+                    typeof sorter.columnKey === "string"
+                  ? {
+                      field: {
+                        id:
+                          sorter.column.fieldType === "FIELD" ||
+                          sorter.column.fieldType === "META_FIELD"
+                            ? sorter.columnKey
+                            : undefined,
+                        type: sorter.column.fieldType as FieldType,
+                      },
+                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
+                    }
+                  : undefined,
             );
           }}
+          heightOffset={102}
         />
       ) : null}
-      {selection && (
-        <LinkItemRequestModal
-          itemIds={selection.selectedRowKeys}
-          onChange={onAddItemToRequest}
-          onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
-          visible={addItemToRequestModalShown}
-          linkedRequest={undefined}
-          requestList={requests}
-          onRequestTableChange={onRequestTableChange}
-          requestModalLoading={requestModalLoading}
-          requestModalTotalCount={requestModalTotalCount}
-          requestModalPage={requestModalPage}
-          requestModalPageSize={requestModalPageSize}
-        />
-      )}
+      <LinkItemRequestModal
+        itemIds={selection.selectedRowKeys}
+        onChange={onAddItemToRequest}
+        onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
+        visible={addItemToRequestModalShown}
+        requestList={requests}
+        onRequestTableChange={onRequestTableChange}
+        requestModalLoading={requestModalLoading}
+        requestModalTotalCount={requestModalTotalCount}
+        requestModalPage={requestModalPage}
+        requestModalPageSize={requestModalPageSize}
+        onRequestSearchTerm={onRequestSearchTerm}
+        onRequestTableReload={onRequestTableReload}
+      />
     </>
   );
 };
 
 export default ContentTable;
 
-const PrimaryButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
+const StyledButton = styled(Button)`
+  padding: 0;
 `;
 
 const StyledBadge = styled(Badge)`
@@ -563,16 +836,12 @@ const StyledBadge = styled(Badge)`
 
 const StyledSearchContainer = styled.div`
   display: flex;
-`;
-
-const StyledSearchInput = styled(Input.Search)`
-  min-width: 200px;
+  gap: 10px;
 `;
 
 const StyledFilterSpace = styled(Space)`
-  max-width: 750px;
+  gap: 16px;
   overflow-x: auto;
-  margin-top: 0;
 `;
 
 const StyledFilterButton = styled(Button)`
@@ -588,6 +857,8 @@ const StyledFilterWrapper = styled.div`
     justify-self: start;
     text-align: start;
   }
+  overflow: auto;
+  gap: 16px;
   .ant-pro-form-light-filter-item {
     margin: 0;
   }
@@ -606,13 +877,16 @@ const InputWrapper = styled.div`
 
 const Wrapper = styled.div`
   background-color: #fff;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 
 const menuStyle: React.CSSProperties = {
   boxShadow: "none",
   overflowY: "auto",
+  maxHeight: "256px",
 };
 
 const stateColors: {

@@ -1,21 +1,25 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox, { CheckboxOptionType } from "@reearth-cms/components/atoms/Checkbox";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
-import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import {
+  WebhookTrigger,
+  WebhookValues,
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-export type Props = {
-  onBack?: () => void;
-  webhookInitialValues?: any;
+type Props = {
+  webhookInitialValues?: WebhookValues;
+  loading: boolean;
+  onBack: () => void;
   onWebhookCreate: (data: {
     name: string;
     url: string;
@@ -33,15 +37,23 @@ export type Props = {
   }) => Promise<void>;
 };
 
+type FormType = {
+  name: string;
+  url: string;
+  secret: string;
+  trigger: string[];
+};
+
 const WebhookForm: React.FC<Props> = ({
+  webhookInitialValues,
+  loading,
+  onBack,
   onWebhookCreate,
   onWebhookUpdate,
-  webhookInitialValues,
-  onBack,
 }) => {
   const t = useT();
-
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
+  const [isDisabled, setIsDisabled] = useState(true);
 
   const itemOptions: CheckboxOptionType[] = [
     { label: t("Create"), value: "onItemCreate" },
@@ -57,26 +69,62 @@ const WebhookForm: React.FC<Props> = ({
     { label: t("Delete"), value: "onAssetDelete" },
   ];
 
+  const checkIfArrayEquals = useCallback(
+    (ary1: unknown[], ary2: unknown[]) =>
+      ary1.length === ary2.length && ary1.every(value => ary2.includes(value)),
+    [],
+  );
+
+  const handleValuesChange = useCallback(
+    async (_: unknown, values: FormType) => {
+      const hasError = await form
+        .validateFields()
+        .then(() => false)
+        .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+      if (!hasError && webhookInitialValues) {
+        let isSame = true;
+        for (const newValueKey in values) {
+          const initialValue = webhookInitialValues?.[newValueKey as keyof FormType];
+          const newValue = values[newValueKey as keyof FormType];
+          if (Array.isArray(initialValue) && Array.isArray(newValue)) {
+            if (!checkIfArrayEquals(initialValue, newValue)) {
+              isSame = false;
+              break;
+            }
+          } else if (initialValue !== newValue) {
+            isSame = false;
+            break;
+          }
+        }
+        setIsDisabled(isSame);
+      } else {
+        setIsDisabled(hasError);
+      }
+    },
+    [checkIfArrayEquals, form, webhookInitialValues],
+  );
+
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      const trigger: WebhookTrigger = ((values.trigger as string[]) ?? []).reduce(
+      const trigger: WebhookTrigger = (values.trigger ?? []).reduce(
         (ac, a) => ({ ...ac, [a]: true }),
         {},
-      ) as WebhookTrigger;
-      // TODO: refactor
-      values.active = false;
+      );
+      const payload = {
+        ...values,
+        active: false,
+        trigger,
+      };
       if (webhookInitialValues?.id) {
-        const val = {
-          ...values,
+        await onWebhookUpdate({
+          ...payload,
           active: webhookInitialValues.active,
           webhookId: webhookInitialValues.id,
-          trigger,
-        };
-        await onWebhookUpdate(val);
+        });
         onBack?.();
       } else {
-        await onWebhookCreate?.({ ...values, trigger });
+        await onWebhookCreate(payload);
         form.resetFields();
       }
     } catch (info) {
@@ -87,7 +135,11 @@ const WebhookForm: React.FC<Props> = ({
   return (
     <>
       <Icon icon="arrowLeft" onClick={onBack} />
-      <StyledForm form={form} layout="vertical" initialValues={webhookInitialValues}>
+      <StyledForm
+        form={form}
+        layout="vertical"
+        initialValues={webhookInitialValues}
+        onValuesChange={handleValuesChange}>
         <Row gutter={32}>
           <Col span={11}>
             <Form.Item
@@ -108,11 +160,10 @@ const WebhookForm: React.FC<Props> = ({
               extra={t("Please note that all webhook URLs must start with http://.")}
               rules={[
                 {
+                  required: true,
                   message: t("URL is not valid"),
                   validator: async (_, value) => {
-                    if (!validateURL(value) && value.length > 0) return Promise.reject();
-
-                    return Promise.resolve();
+                    return validateURL(value) ? Promise.resolve() : Promise.reject();
                   },
                 },
               ]}>
@@ -131,18 +182,18 @@ const WebhookForm: React.FC<Props> = ({
               <Input />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" onClick={handleSubmit}>
+              <Button type="primary" onClick={handleSubmit} disabled={isDisabled} loading={loading}>
                 {t("Save")}
               </Button>
             </Form.Item>
           </Col>
           <Col>
-            <Divider type="vertical" style={{ height: "100%" }} />
+            <StyledDivider type="vertical" />
           </Col>
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
             <Form.Item name="trigger">
-              <Checkbox.Group>
+              <StyledCheckboxGroup>
                 <CheckboxLabel>{t("Item")}</CheckboxLabel>
                 <Row>
                   {itemOptions.map((item, index) => (
@@ -159,7 +210,7 @@ const WebhookForm: React.FC<Props> = ({
                     </Col>
                   ))}
                 </Row>
-              </Checkbox.Group>
+              </StyledCheckboxGroup>
             </Form.Item>
           </Col>
         </Row>
@@ -167,6 +218,10 @@ const WebhookForm: React.FC<Props> = ({
     </>
   );
 };
+
+const StyledCheckboxGroup = styled(Checkbox.Group)`
+  display: block;
+`;
 
 const CheckboxLabel = styled.p`
   margin-top: 24px;
@@ -177,7 +232,7 @@ const CheckboxLabel = styled.p`
   color: #000000d9;
 `;
 
-const StyledForm = styled(Form)`
+const StyledForm = styled(Form<FormType>)`
   margin-top: 36px;
 `;
 
@@ -187,6 +242,10 @@ const CheckboxTitle = styled.h5`
   line-height: 24px;
   color: #000000d9;
   margin-bottom: 24px;
+`;
+
+const StyledDivider = styled(Divider)`
+  height: 100%;
 `;
 
 export default WebhookForm;

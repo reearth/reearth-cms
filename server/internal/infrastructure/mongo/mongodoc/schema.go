@@ -36,17 +36,19 @@ type FieldDocument struct {
 }
 
 type TypePropertyDocument struct {
-	Type      string
-	Text      *FieldTextPropertyDocument      `bson:",omitempty"`
-	TextArea  *FieldTextPropertyDocument      `bson:",omitempty"`
-	RichText  *FieldTextPropertyDocument      `bson:",omitempty"`
-	Markdown  *FieldTextPropertyDocument      `bson:",omitempty"`
-	Select    *FieldSelectPropertyDocument    `bson:",omitempty"`
-	Tag       *FieldTagPropertyDocument       `bson:",omitempty"`
-	Number    *FieldNumberPropertyDocument    `bson:",omitempty"`
-	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
-	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
-	Group     *FieldGroupPropertyDocument     `bson:",omitempty"`
+	Type           string
+	Text           *FieldTextPropertyDocument           `bson:",omitempty"`
+	TextArea       *FieldTextPropertyDocument           `bson:",omitempty"`
+	RichText       *FieldTextPropertyDocument           `bson:",omitempty"`
+	Markdown       *FieldTextPropertyDocument           `bson:",omitempty"`
+	Select         *FieldSelectPropertyDocument         `bson:",omitempty"`
+	Tag            *FieldTagPropertyDocument            `bson:",omitempty"`
+	Number         *FieldNumberPropertyDocument         `bson:",omitempty"`
+	Integer        *FieldIntegerPropertyDocument        `bson:",omitempty"`
+	Reference      *FieldReferencePropertyDocument      `bson:",omitempty"`
+	Group          *FieldGroupPropertyDocument          `bson:",omitempty"`
+	GeometryObject *FieldGeometryObjectPropertyDocument `bson:",omitempty"`
+	GeometryEditor *FieldGeometryEditorPropertyDocument `bson:",omitempty"`
 }
 
 type FieldTextPropertyDocument struct {
@@ -77,32 +79,43 @@ type FieldIntegerPropertyDocument struct {
 }
 
 type FieldReferencePropertyDocument struct {
-	Model               string
-	CorrespondingSchema *string
-	CorrespondingField  *string
+	Model              string
+	Schema             string
+	CorrespondingField *string
 }
 
 type FieldGroupPropertyDocument struct {
 	Group string
 }
 
+type FieldGeometryObjectPropertyDocument struct {
+	SupportedTypes []string
+}
+
+type FieldGeometryEditorPropertyDocument struct {
+	SupportedTypes []string
+}
+
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 	sId := s.ID().String()
 	fieldsDoc := util.Map(s.Fields(), func(f *schema.Field) FieldDocument {
 		fd := FieldDocument{
-			ID:           f.ID().String(),
-			Name:         f.Name(),
-			Description:  f.Description(),
-			Order:        f.Order(),
-			Key:          f.Key().String(),
-			Unique:       f.Unique(),
-			Multiple:     f.Multiple(),
-			Required:     f.Required(),
-			UpdatedAt:    f.UpdatedAt(),
-			DefaultValue: NewMultipleValue(f.DefaultValue()),
+			ID:          f.ID().String(),
+			Name:        f.Name(),
+			Description: f.Description(),
+			Order:       f.Order(),
+			Key:         f.Key().String(),
+			Unique:      f.Unique(),
+			Multiple:    f.Multiple(),
+			Required:    f.Required(),
+			UpdatedAt:   f.UpdatedAt(),
 			TypeProperty: TypePropertyDocument{
 				Type: string(f.Type()),
 			},
+		}
+
+		if len(f.DefaultValue().Values()) > 0 && !f.DefaultValue().First().IsEmpty() {
+			fd.DefaultValue = NewMultipleValue(f.DefaultValue())
 		}
 
 		f.TypeProperty().Match(schema.TypePropertyMatch{
@@ -161,9 +174,9 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			},
 			Reference: func(fp *schema.FieldReference) {
 				fd.TypeProperty.Reference = &FieldReferencePropertyDocument{
-					Model:               fp.Model().String(),
-					CorrespondingSchema: fp.CorrespondingSchema().StringRef(),
-					CorrespondingField:  fp.CorrespondingFieldID().StringRef(),
+					Model:              fp.Model().String(),
+					Schema:             fp.Schema().String(),
+					CorrespondingField: fp.CorrespondingFieldID().StringRef(),
 				}
 			},
 			Group: func(fp *schema.FieldGroup) {
@@ -172,6 +185,20 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 				}
 			},
 			URL: func(fp *schema.FieldURL) {},
+			GeometryObject: func(fp *schema.FieldGeometryObject) {
+				fd.TypeProperty.GeometryObject = &FieldGeometryObjectPropertyDocument{
+					SupportedTypes: lo.Map(fp.SupportedTypes(), func(item schema.GeometryObjectSupportedType, _ int) string {
+						return item.String()
+					}),
+				}
+			},
+			GeometryEditor: func(fp *schema.FieldGeometryEditor) {
+				fd.TypeProperty.GeometryEditor = &FieldGeometryEditorPropertyDocument{
+					SupportedTypes: lo.Map(fp.SupportedTypes(), func(item schema.GeometryEditorSupportedType, _ int) string {
+						return item.String()
+					}),
+				}
+			},
 		})
 		return fd
 	})
@@ -265,19 +292,28 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			if err != nil {
 				return nil, err
 			}
+			sid, err := id.SchemaIDFrom(tpd.Reference.Schema)
+			if err != nil {
+				return nil, err
+			}
 			var cfid *id.FieldID
 			if tpd.Reference.CorrespondingField != nil {
 				cfid = id.FieldIDFromRef(tpd.Reference.CorrespondingField)
 			}
-			var sid *id.SchemaID
-			if tpd.Reference.CorrespondingSchema != nil {
-				sid = id.SchemaIDFromRef(tpd.Reference.CorrespondingSchema)
-			}
-			tp = schema.NewReference(mid, sid, nil, cfid).TypeProperty()
+			tp = schema.NewReference(mid, sid, cfid, nil).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
 		case value.TypeGroup:
 			tp = schema.NewGroup(gid).TypeProperty()
+		case value.TypeGeometryObject:
+			tp = schema.NewGeometryObject(lo.Map(tpd.GeometryObject.SupportedTypes, func(item string, _ int) schema.GeometryObjectSupportedType {
+				return schema.GeometryObjectSupportedTypeFrom(item)
+			})).TypeProperty()
+		case value.TypeGeometryEditor:
+			tp = schema.NewGeometryEditor(lo.Map(tpd.GeometryEditor.SupportedTypes, func(item string, _ int) schema.GeometryEditorSupportedType {
+				return schema.GeometryEditorSupportedTypeFrom(item)
+			})).TypeProperty()
+
 		}
 
 		fid, err := id.FieldIDFrom(fd.ID)

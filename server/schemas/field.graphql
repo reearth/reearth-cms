@@ -13,6 +13,8 @@ enum SchemaFieldType {
   Checkbox
   URL
   Group
+  GeometryObject
+  GeometryEditor
 }
 
 enum SchemaFieldTagColor {
@@ -29,6 +31,22 @@ enum SchemaFieldTagColor {
   PURPLE
 }
 
+enum GeometryObjectSupportedType {
+  POINT
+  MULTIPOINT
+  LINESTRING
+  MULTILINESTRING
+  POLYGON
+  MULTIPOLYGON
+  GEOMETRYCOLLECTION
+}
+
+enum GeometryEditorSupportedType {
+  POINT
+  LINESTRING
+  POLYGON
+  ANY
+}
 
 type SchemaField {
   id: ID!
@@ -53,7 +71,7 @@ type SchemaField {
 }
 
 union SchemaFieldTypeProperty =
-  SchemaFieldText
+    SchemaFieldText
   | SchemaFieldTextArea
   | SchemaFieldRichText
   | SchemaFieldMarkdown
@@ -67,6 +85,8 @@ union SchemaFieldTypeProperty =
   | SchemaFieldURL
   | SchemaFieldCheckbox
   | SchemaFieldGroup
+  | SchemaFieldGeometryObject
+  | SchemaFieldGeometryEditor
 
 type SchemaFieldText {
   defaultValue: Any
@@ -124,8 +144,8 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
-  correspondingSchemaId: ID
-  correspondingSchema: Schema
+  schemaId: ID!
+  schema: Schema!
   correspondingFieldId: ID
   correspondingField: SchemaField
 }
@@ -140,6 +160,16 @@ type SchemaFieldCheckbox {
 
 type SchemaFieldGroup {
   groupId: ID!
+}
+
+type SchemaFieldGeometryObject {
+  defaultValue: Any
+  supportedTypes: [GeometryObjectSupportedType!]!
+}
+
+type SchemaFieldGeometryEditor {
+  defaultValue: Any
+  supportedTypes: [GeometryEditorSupportedType!]!
 }
 
 # Inputs
@@ -204,15 +234,15 @@ input SchemaFieldIntegerInput {
 
 input CorrespondingFieldInput {
   fieldId: ID
-  title: String
-  key: String
-  description: String
-  required: Boolean
-} 
+  title: String!
+  key: String!
+  description: String!
+  required: Boolean!
+}
 
 input SchemaFieldReferenceInput {
   modelId: ID!
-  correspondingSchemaId: ID
+  schemaId: ID!
   correspondingField: CorrespondingFieldInput
 }
 
@@ -222,6 +252,20 @@ input SchemaFieldURLInput {
 
 input SchemaFieldGroupInput {
   groupId: ID!
+}
+
+input SchemaFieldGeometryObjectInput {
+  defaultValue: Any
+  supportedTypes: [GeometryObjectSupportedType!]!
+}
+
+input SchemaFieldGeometryEditorInput {
+  defaultValue: Any
+  supportedTypes: [GeometryEditorSupportedType!]!
+}
+
+input SchemaFieldLineStringInput {
+  defaultValue: Any
 }
 
 input SchemaFieldTypePropertyInput @onlyOne {
@@ -239,6 +283,8 @@ input SchemaFieldTypePropertyInput @onlyOne {
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
+  geometryObject: SchemaFieldGeometryObjectInput
+  geometryEditor: SchemaFieldGeometryEditorInput
 }
 
 input CreateFieldInput {

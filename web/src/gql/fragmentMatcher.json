@@ -22,17 +22,24 @@
       "Schema",
       "User",
       "View",
-      "Workspace"
+      "Workspace",
+      "WorkspaceSettings"
     ],
     "Operator": [
       "Integration",
       "User"
+    ],
+    "Resource": [
+      "TerrainResource",
+      "TileResource"
     ],
     "SchemaFieldTypeProperty": [
       "SchemaFieldAsset",
       "SchemaFieldBool",
       "SchemaFieldCheckbox",
       "SchemaFieldDate",
+      "SchemaFieldGeometryEditor",
+      "SchemaFieldGeometryObject",
       "SchemaFieldGroup",
       "SchemaFieldInteger",
       "SchemaFieldMarkdown",

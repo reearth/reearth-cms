@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
@@ -12,7 +13,7 @@ import (
 )
 
 var (
-	groupIndexes       = []string{"project", "project,key"}
+	groupIndexes       = []string{"project,key"}
 	groupUniqueIndexes = []string{"id"}
 )
 
@@ -91,6 +92,21 @@ func (r *Group) Save(ctx context.Context, group *group.Group) error {
 	}
 	doc, mId := mongodoc.NewGroup(group)
 	return r.client.SaveOne(ctx, mId, doc)
+}
+
+func (r *Group) SaveAll(ctx context.Context, list group.List) error {
+	if len(list) == 0 {
+		return nil
+	}
+	if !r.f.CanWrite(list.Projects()...) {
+		return repo.ErrOperationDenied
+	}
+	docs, ids := mongodoc.NewGroups(list)
+	docsAny := make([]any, 0, len(list))
+	for _, d := range docs {
+		docsAny = append(docsAny, d)
+	}
+	return r.client.SaveAll(ctx, ids, docsAny)
 }
 
 func (r *Group) Remove(ctx context.Context, groupID id.GroupID) error {

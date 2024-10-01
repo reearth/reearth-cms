@@ -14,7 +14,8 @@ type View struct {
 	project   ProjectID
 	sort      *Sort
 	filter    *Condition
-	columns   *FieldSelectorList
+	columns   *ColumnList
+	order     int
 	user      UserID
 	updatedAt time.Time
 }
@@ -25,6 +26,14 @@ func (v *View) Model() ModelID {
 
 func (v *View) ID() ID {
 	return v.id
+}
+
+func (g *View) Order() int {
+	return g.order
+}
+
+func (g *View) SetOrder(order int) {
+	g.order = order
 }
 
 func (v *View) Clone() *View {
@@ -40,6 +49,7 @@ func (v *View) Clone() *View {
 		sort:      v.sort,
 		filter:    v.filter,
 		columns:   v.columns,
+		order:     v.order,
 		user:      v.user.Clone(),
 		updatedAt: lo.FromPtr(&v.updatedAt),
 	}
@@ -53,16 +63,16 @@ func (v *View) SetName(name string) {
 	v.name = name
 }
 
-func (v *View) SetFilter(condition Condition) {
-	v.filter = &condition
+func (v *View) SetFilter(condition *Condition) {
+	v.filter = condition
 }
 
-func (v *View) SetSort(sort Sort) {
-	v.sort = &sort
+func (v *View) SetSort(sort *Sort) {
+	v.sort = sort
 }
 
-func (v *View) SetColumns(fields FieldSelectorList) {
-	v.columns = &fields
+func (v *View) SetColumns(columns *ColumnList) {
+	v.columns = columns
 }
 
 func (v *View) SetUpdatedAt(now time.Time) {
@@ -77,7 +87,7 @@ func (v *View) Sort() *Sort {
 	return v.sort
 }
 
-func (v *View) Columns() *FieldSelectorList {
+func (v *View) Columns() *ColumnList {
 	return v.columns
 }
 

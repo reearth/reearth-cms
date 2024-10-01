@@ -51,17 +51,28 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		Object().
 		HasValue("page", 1).
 		HasValue("perPage", 5).
-		HasValue("totalCount", 1)
+		HasValue("totalCount", 2)
 
 	al := obj.Value("items").Array()
-	al.Length().IsEqual(1)
+	al.Length().IsEqual(2)
 	al.Value(0).Object().
-		HasValue("id", aid.String()).
+		HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("totalSize", 1000).
 		HasValue("previewType", "unknown").
-		HasValue("createdAt", aid.Timestamp().UTC().Format(time.RFC3339Nano)).
+		HasValue("createdAt", aid1.Timestamp().UTC().Format(time.RFC3339Nano)).
 		HasValue("updatedAt", time.Time{}.Format("2006-01-02T15:04:05Z"))
+
+	e.GET("/api/projects/{projectId}/assets", pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("keyword", "aaa").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("totalCount", 1)
 }
 
 // POST projects/{projectId}/assets
@@ -105,11 +116,41 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		// HasValue("id", aid.String()).
+		// HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("name", "testFile.jpg").
 		HasValue("contentType", "image/jpeg").
 		HasValue("totalSize", 4)
 	r.Keys().
 		ContainsAll("id", "file", "name", "projectId", "url", "contentType", "createdAt", "previewType", "totalSize", "updatedAt")
+}
+
+// POST projects/{projectId}/assets/uploads
+func TestIntegrationCreateAssetUploadAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusBadRequest)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{"name": "test.jpg"}).
+		Expect().
+		Status(http.StatusNotFound) // FS does not support upload link
 }

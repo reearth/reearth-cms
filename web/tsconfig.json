@@ -16,13 +16,13 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
-    "paths":{
-      "@reearth-cms/*": [
-        "src/*"
-      ]
-    }
+    "paths": {
+      "@reearth-cms/e2e/*": ["e2e/*"],
+      "@reearth-cms/*": ["src/*"]
+    },
+    "types": ["@testing-library/jest-dom"]
   },
-  "include": ["src"],
+  "include": ["src", "e2e"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"

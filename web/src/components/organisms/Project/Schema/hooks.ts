@@ -3,8 +3,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
+import {
+  Field,
+  FieldType,
+  Group,
+  SelectedSchemaType,
+} from "@reearth-cms/components/molecules/Schema/types";
+import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -13,7 +21,9 @@ import {
   useUpdateFieldMutation,
   useUpdateFieldsMutation,
   useGetModelsQuery,
+  useGetModelLazyQuery,
   useGetGroupsQuery,
+  useGetGroupQuery,
   Model as GQLModel,
   Group as GQLGroup,
   useCheckGroupKeyAvailabilityLazyQuery,
@@ -26,24 +36,20 @@ import {
   useModelsByGroupQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel } from "@reearth-cms/state";
-import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
+import { useModel, useCollapsedModelMenu } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const { confirm } = Modal;
   const navigate = useNavigate();
-  const { projectId, workspaceId, modelId } = useParams();
-  const [currentModel] = useModel();
+  const { projectId, workspaceId, modelId: schemaId } = useParams();
+  const [currentModel, setCurrentModel] = useModel();
 
-  const [groupId, setGroupId] = useState<string | undefined>(undefined);
-  const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
-  const [isMeta, setIsMeta] = useState<boolean | undefined>(false);
-  const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
+  const [fieldModalShown, setFieldModalShown] = useState(false);
+  const [isMeta, setIsMeta] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const [collapsed, collapse] = useState(false);
-  const [selectedSchemaType, setSelectedSchemaType] = useState<SelectedSchemaType>("model");
+  const [collapsed, setCollapsed] = useCollapsedModelMenu();
   const { data: modelsData } = useGetModelsQuery({
     variables: {
       projectId: projectId ?? "",
@@ -58,6 +64,24 @@ export default () => {
       .filter((model): model is Model => !!model);
   }, [modelsData?.models.nodes]);
 
+  const [getModel, { data: modelData }] = useGetModelLazyQuery({
+    fetchPolicy: "cache-and-network",
+  });
+
+  const handleReferencedModelGet = useCallback(
+    (modelId: string) => {
+      getModel({
+        variables: { id: modelId },
+      });
+    },
+    [getModel],
+  );
+
+  const referencedModel = useMemo<Model | undefined>(
+    () => fromGraphQLModel(modelData?.node as GQLModel),
+    [modelData?.node],
+  );
+
   const { data: groupsData } = useGetGroupsQuery({
     variables: {
       projectId: projectId ?? "",
@@ -65,81 +89,86 @@ export default () => {
     skip: !projectId,
   });
 
-  const rawModel = useMemo(
-    () => modelsData?.models?.nodes?.find(node => node?.id === modelId),
-    [modelsData?.models, modelId],
-  );
-
-  const model = useMemo<Model | undefined>(
-    () => (rawModel?.id ? fromGraphQLModel(rawModel as GQLModel) : undefined),
-    [rawModel],
-  );
-
   const groups = useMemo(() => {
     return groupsData?.groups
       ?.map<Group | undefined>(group => fromGraphQLGroup(group as GQLGroup))
       .filter((group): group is Group => !!group);
   }, [groupsData?.groups]);
 
-  const rawGroup = useMemo(
-    () => groupsData?.groups?.find(node => node?.id === groupId),
-    [groupsData?.groups, groupId],
-  );
+  const { data: groupData } = useGetGroupQuery({
+    fetchPolicy: "cache-and-network",
+    variables: {
+      id: schemaId ?? "",
+    },
+    skip: !schemaId,
+  });
 
-  const group = useMemo<Group | undefined>(
-    () => (rawGroup?.id ? fromGraphQLGroup(rawGroup as GQLGroup) : undefined),
-    [rawGroup],
+  const group = useMemo(() => fromGraphQLGroup(groupData?.node as GQLGroup), [groupData?.node]);
+
+  const selectedSchemaType: SelectedSchemaType = useMemo(
+    () => (group ? "group" : "model"),
+    [group],
   );
 
   useEffect(() => {
-    if (!modelId && currentModel) {
+    if (!schemaId && currentModel) {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
     }
-  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [schemaId, currentModel, navigate, workspaceId, projectId]);
 
   const handleModelSelect = useCallback(
     (modelId: string) => {
-      setSelectedSchemaType("model");
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
     },
     [navigate, workspaceId, projectId],
   );
 
-  const handleGroupSelect = useCallback((groupId: string) => {
-    setSelectedSchemaType("group");
-    setGroupId(groupId);
+  const handleGroupSelect = useCallback(
+    (groupId: string) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${groupId}`);
+    },
+    [navigate, projectId, workspaceId],
+  );
+
+  const keyUniqueCheck = useCallback((key: string, fieldId?: string, model?: Model) => {
+    const sameKeyField = model?.schema.fields.find(field => field.key === key);
+    return !sameKeyField || sameKeyField.id === fieldId;
   }, []);
 
   const handleFieldKeyUnique = useCallback(
-    (key: string, fieldId?: string): boolean => {
-      return !currentModel?.schema.fields.some(
-        field => field.key === key && (!fieldId || (fieldId && fieldId !== field.id)),
-      );
-    },
-    [currentModel],
+    (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),
+    [keyUniqueCheck, selectedField?.id, currentModel],
+  );
+
+  const handleCorrespondingFieldKeyUnique = useCallback(
+    (key: string) =>
+      keyUniqueCheck(key, selectedField?.typeProperty?.correspondingField?.id, referencedModel),
+    [keyUniqueCheck, selectedField?.typeProperty?.correspondingField?.id, referencedModel],
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
-    refetchQueries: ["GetModels", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroup"],
   });
 
   const [updateField, { loading: fieldUpdateLoading }] = useUpdateFieldMutation({
-    refetchQueries: ["GetModels", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroup"],
   });
 
   const [deleteFieldMutation] = useDeleteFieldMutation({
-    refetchQueries: ["GetModels", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroup"],
   });
 
   const handleFieldDelete = useCallback(
     async (fieldId: string) => {
-      if (!modelId && !groupId) return;
+      if (!schemaId) return;
       const options = {
-        variables: { fieldId, metadata: isMeta } as any,
+        variables: {
+          fieldId,
+          metadata: isMeta,
+          modelId: selectedSchemaType === "model" ? schemaId : undefined,
+          groupId: selectedSchemaType === "group" ? schemaId : undefined,
+        },
       };
-      selectedSchemaType === "model"
-        ? (options.variables.modelId = modelId)
-        : (options.variables.groupId = groupId);
       const results = await deleteFieldMutation(options);
       if (results.errors) {
         Notification.error({ message: t("Failed to delete field.") });
@@ -147,25 +176,12 @@ export default () => {
       }
       Notification.success({ message: t("Successfully deleted field!") });
     },
-    [modelId, groupId, isMeta, selectedSchemaType, deleteFieldMutation, t],
+    [schemaId, isMeta, selectedSchemaType, deleteFieldMutation, t],
   );
 
   const handleFieldUpdate = useCallback(
-    async (data: {
-      fieldId?: string;
-      groupId?: string;
-      title: string;
-      description?: string;
-      key: string;
-      metadata?: boolean;
-      multiple: boolean;
-      unique: boolean;
-      isTitle: boolean;
-      required: boolean;
-      type?: FieldType;
-      typeProperty: SchemaFieldTypePropertyInput;
-    }) => {
-      if ((!modelId && !groupId) || !data.fieldId) return;
+    async (data: FormValues) => {
+      if (!schemaId || !data.fieldId) return;
       const options = {
         variables: {
           fieldId: data.fieldId,
@@ -177,43 +193,38 @@ export default () => {
           unique: data.unique,
           isTitle: data.isTitle,
           required: data.required,
-          typeProperty: data.typeProperty,
+          typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
+          modelId: selectedSchemaType === "model" ? schemaId : undefined,
+          groupId: selectedSchemaType === "group" ? schemaId : undefined,
         },
-      } as any;
-      selectedSchemaType === "model"
-        ? (options.variables.modelId = modelId)
-        : (options.variables.groupId = groupId);
+      };
       const field = await updateField(options);
       if (field.errors || !field.data?.updateField) {
         Notification.error({ message: t("Failed to update field.") });
         return;
       }
       Notification.success({ message: t("Successfully updated field!") });
-      setFieldUpdateModalShown(false);
+      setFieldModalShown(false);
     },
-    [modelId, groupId, selectedSchemaType, updateField, t],
+    [schemaId, selectedSchemaType, updateField, t],
   );
 
   const [updateFieldsOrder] = useUpdateFieldsMutation({
-    refetchQueries: ["GetModels"],
+    refetchQueries: ["GetModel"],
   });
 
   const handleFieldOrder = useCallback(
     async (fields: Field[]) => {
-      if (!modelId && !groupId) return;
+      if (!schemaId) return;
       const response = await updateFieldsOrder({
         variables: {
-          updateFieldInput: fields.map((field, index) => {
-            const options = {
-              fieldId: field.id,
-              metadata: field.metadata,
-              order: index,
-            } as any;
-            selectedSchemaType === "model"
-              ? (options.modelId = modelId)
-              : (options.groupId = groupId);
-            return options;
-          }),
+          updateFieldInput: fields.map((field, index) => ({
+            fieldId: field.id,
+            metadata: field.metadata,
+            order: index,
+            modelId: selectedSchemaType === "model" ? schemaId : undefined,
+            groupId: selectedSchemaType === "group" ? schemaId : undefined,
+          })),
         },
       });
       if (response.errors || !response?.data?.updateFields) {
@@ -221,26 +232,14 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated field!") });
-      setFieldUpdateModalShown(false);
+      setFieldModalShown(false);
     },
-    [modelId, groupId, updateFieldsOrder, t, selectedSchemaType],
+    [schemaId, updateFieldsOrder, t, selectedSchemaType],
   );
 
   const handleFieldCreate = useCallback(
-    async (data: {
-      groupId?: string;
-      title: string;
-      description?: string;
-      key: string;
-      metadata?: boolean;
-      multiple: boolean;
-      unique: boolean;
-      isTitle: boolean;
-      required: boolean;
-      type?: FieldType;
-      typeProperty: SchemaFieldTypePropertyInput;
-    }) => {
-      if (!modelId && !groupId) return;
+    async (data: FormValues) => {
+      if (!schemaId) return;
       const options = {
         variables: {
           title: data.title,
@@ -252,53 +251,43 @@ export default () => {
           isTitle: data.isTitle,
           required: data.required,
           type: data.type as SchemaFieldType,
-          typeProperty: data.typeProperty,
-        } as any,
+          typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
+          modelId: selectedSchemaType === "model" ? schemaId : undefined,
+          groupId: selectedSchemaType === "group" ? schemaId : undefined,
+        },
       };
-      selectedSchemaType === "model"
-        ? (options.variables.modelId = modelId)
-        : (options.variables.groupId = groupId);
       const field = await createNewField(options);
       if (field.errors || !field.data?.createField) {
         Notification.error({ message: t("Failed to create field.") });
-        setFieldCreationModalShown(false);
+        setFieldModalShown(false);
         return;
       }
       Notification.success({ message: t("Successfully created field!") });
-      setFieldCreationModalShown(false);
+      setFieldModalShown(false);
     },
-    [modelId, groupId, selectedSchemaType, createNewField, t],
+    [schemaId, selectedSchemaType, createNewField, t],
   );
 
-  const handleFieldUpdateModalClose = useCallback(() => {
+  const handleFieldModalClose = useCallback(() => {
     setSelectedField(null);
-    setFieldUpdateModalShown(false);
+    setFieldModalShown(false);
   }, [setSelectedField]);
-
-  const handleFieldCreationModalClose = useCallback(() => {
-    setFieldCreationModalShown(false);
-    handleFieldUpdateModalClose();
-  }, [handleFieldUpdateModalClose]);
 
   const handleFieldUpdateModalOpen = useCallback(
     (field: Field) => {
       setSelectedType(field.type);
       setSelectedField(field);
-      setFieldUpdateModalShown(true);
+      setFieldModalShown(true);
     },
     [setSelectedField],
   );
 
   // group hooks
-  const [groupCreateModalShown, setGroupCreateModalShown] = useState(false);
-  const [groupUpdateModalShown, setGroupUpdateModalShown] = useState(false);
-  const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
+  const [groupModalShown, setGroupModalShown] = useState(false);
   const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
 
-  const handleGroupCreateModalClose = useCallback(() => setGroupCreateModalShown(false), []);
-  const handleGroupUpdateModalClose = useCallback(() => setGroupUpdateModalShown(false), []);
-  const handleGroupCreateModalOpen = useCallback(() => setGroupCreateModalShown(true), []);
-  const handleGroupUpdateModalOpen = useCallback(() => setGroupUpdateModalShown(true), []);
+  const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
+  const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupDeletionModalOpen = useCallback(
     () => setGroupDeletionModalShown(true),
     [setGroupDeletionModalShown],
@@ -307,34 +296,19 @@ export default () => {
     () => setGroupDeletionModalShown(false),
     [setGroupDeletionModalShown],
   );
-  const [CheckGroupKeyAvailability, { data: groupKeyData }] = useCheckGroupKeyAvailabilityLazyQuery(
-    {
-      fetchPolicy: "no-cache",
-    },
-  );
-
-  const handleGroupKeyCheck = useCallback(
-    async (key: string, ignoredKey?: string) => {
-      if (!projectId || !key) return false;
-      if (ignoredKey && key === ignoredKey) return true;
-      const response = await CheckGroupKeyAvailability({ variables: { projectId, key } });
-      return response.data ? response.data.checkGroupKeyAvailability.available : false;
-    },
-    [projectId, CheckGroupKeyAvailability],
-  );
-
-  useEffect(() => {
-    setIsGroupKeyAvailable(!!groupKeyData?.checkGroupKeyAvailability.available);
-  }, [groupKeyData?.checkGroupKeyAvailability]);
-
-  const { data: modelsByGroupData } = useModelsByGroupQuery({
-    variables: {
-      groupId: groupId ?? "",
-    },
-    skip: !groupId,
+  const [CheckGroupKeyAvailability] = useCheckGroupKeyAvailabilityLazyQuery({
+    fetchPolicy: "no-cache",
   });
 
-  const [deleteGroup] = useDeleteGroupMutation({
+  const { data: modelsByGroupData } = useModelsByGroupQuery({
+    fetchPolicy: "cache-and-network",
+    variables: {
+      groupId: schemaId ?? "",
+    },
+    skip: !schemaId || selectedSchemaType !== "group",
+  });
+
+  const [deleteGroup, { loading: deleteGroupLoading }] = useDeleteGroupMutation({
     refetchQueries: ["GetGroups"],
   });
 
@@ -362,9 +336,19 @@ export default () => {
       } else {
         Notification.success({ message: t("Successfully deleted group!") });
         handleGroupDeletionModalClose();
+        navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
       }
     },
-    [deleteGroup, group?.name, handleGroupDeletionModalClose, modelsByGroupData?.modelsByGroup, t],
+    [
+      deleteGroup,
+      group?.name,
+      handleGroupDeletionModalClose,
+      modelsByGroupData?.modelsByGroup,
+      navigate,
+      projectId,
+      t,
+      workspaceId,
+    ],
   );
 
   const [createNewGroup] = useCreateGroupMutation({
@@ -372,7 +356,7 @@ export default () => {
   });
 
   const handleGroupCreate = useCallback(
-    async (data: { name: string; description: string; key: string }) => {
+    async (data: ModelFormValues) => {
       if (!projectId) return;
       const group = await createNewGroup({
         variables: {
@@ -387,9 +371,12 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully created group!") });
-      handleGroupCreateModalClose();
+      handleGroupModalClose();
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/schema/${group.data?.createGroup.group.id}`,
+      );
     },
-    [projectId, createNewGroup, t, handleGroupCreateModalClose],
+    [projectId, createNewGroup, t, handleGroupModalClose, navigate, workspaceId],
   );
 
   const [updateNewGroup] = useUpdateGroupMutation({
@@ -397,11 +384,11 @@ export default () => {
   });
 
   const handleGroupUpdate = useCallback(
-    async (data: { groupId?: string; name: string; description: string; key: string }) => {
-      if (!data.groupId) return;
+    async (data: ModelFormValues) => {
+      if (!data.id) return;
       const group = await updateNewGroup({
         variables: {
-          groupId: data.groupId,
+          groupId: data.id,
           name: data.name,
           description: data.description,
           key: data.key,
@@ -412,9 +399,9 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated group!") });
-      handleGroupUpdateModalClose();
+      handleGroupModalClose();
     },
-    [updateNewGroup, handleGroupUpdateModalClose, t],
+    [updateNewGroup, handleGroupModalClose, t],
   );
 
   const handleFieldCreationModalOpen = useCallback(
@@ -423,46 +410,30 @@ export default () => {
         confirm({
           title: t("No available Group"),
           content: t("Please create a Group first to use the field"),
-          okText: "Create Group",
-          okType: "primary",
+          okText: t("Create Group"),
           cancelText: t("Cancel"),
           onOk() {
-            handleGroupCreateModalOpen();
+            handleGroupModalOpen();
           },
           onCancel() {
-            handleGroupCreateModalClose();
+            handleGroupModalClose();
           },
         });
       } else {
         setSelectedType(fieldType);
-        if (modelId) setFieldCreationModalShown(true);
+        if (schemaId) setFieldModalShown(true);
       }
     },
-    [confirm, groups?.length, handleGroupCreateModalClose, handleGroupCreateModalOpen, modelId, t],
+    [confirm, groups?.length, handleGroupModalClose, handleGroupModalOpen, schemaId, t],
   );
 
   // model hooks
-  const [modelUpdateModalShown, setModelUpdateModalShown] = useState(false);
-  const [isModelKeyAvailable, setIsModelKeyAvailable] = useState(false);
+  const [modelModalShown, setModelModalShown] = useState(false);
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
 
-  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
+  const [CheckModelKeyAvailability] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
-
-  const handleModelKeyCheck = useCallback(
-    async (key: string, ignoredKey?: string) => {
-      if (!projectId || !key) return false;
-      if (ignoredKey && key === ignoredKey) return true;
-      const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
-      return response.data ? response.data.checkModelKeyAvailability.available : false;
-    },
-    [projectId, CheckModelKeyAvailability],
-  );
-
-  useEffect(() => {
-    setIsModelKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
-  }, [keyData?.checkModelKeyAvailability]);
 
   const handleModelDeletionModalOpen = useCallback(
     () => setModelDeletionModalShown(true),
@@ -474,7 +445,7 @@ export default () => {
     [setModelDeletionModalShown],
   );
 
-  const [deleteModel] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteModelLoading }] = useDeleteModelMutation({
     refetchQueries: ["GetModels"],
   });
 
@@ -487,24 +458,34 @@ export default () => {
       } else {
         Notification.success({ message: t("Successfully deleted model!") });
         handleModelDeletionModalClose();
+        setCurrentModel(undefined);
+        navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
       }
     },
-    [deleteModel, handleModelDeletionModalClose, t],
+    [
+      deleteModel,
+      handleModelDeletionModalClose,
+      navigate,
+      projectId,
+      setCurrentModel,
+      t,
+      workspaceId,
+    ],
   );
 
   const [updateNewModel] = useUpdateModelMutation({
     refetchQueries: ["GetModels"],
   });
 
-  const handleModelUpdateModalClose = useCallback(() => setModelUpdateModalShown(false), []);
-  const handleModelUpdateModalOpen = useCallback(() => setModelUpdateModalShown(true), []);
+  const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
+  const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
   const handleModelUpdate = useCallback(
-    async (data: { modelId?: string; name: string; description: string; key: string }) => {
-      if (!data.modelId) return;
+    async (data: ModelFormValues) => {
+      if (!data.id) return;
       const model = await updateNewModel({
         variables: {
-          modelId: data.modelId,
+          modelId: data.id,
           name: data.name,
           description: data.description,
           key: data.key,
@@ -516,63 +497,108 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated model!") });
-      handleModelUpdateModalClose();
+      handleModelModalClose();
     },
-    [updateNewModel, handleModelUpdateModalClose, t],
+    [updateNewModel, handleModelModalClose, t],
+  );
+
+  const isGroup = useMemo(
+    () => groupModalShown || selectedSchemaType === "group",
+    [groupModalShown, selectedSchemaType],
+  );
+
+  const data = useMemo(() => (isGroup ? group : currentModel), [currentModel, group, isGroup]);
+
+  const handleKeyCheck = useCallback(
+    async (key: string, ignoredKey?: string) => {
+      if (!projectId || !key) return false;
+      if (ignoredKey && key === ignoredKey) return true;
+      if (isGroup) {
+        const response = await CheckGroupKeyAvailability({ variables: { projectId, key } });
+        return response.data ? response.data.checkGroupKeyAvailability.available : false;
+      } else {
+        const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
+        return response.data ? response.data.checkModelKeyAvailability.available : false;
+      }
+    },
+    [CheckGroupKeyAvailability, CheckModelKeyAvailability, isGroup, projectId],
+  );
+
+  const handleModalOpen = useMemo(
+    () => (selectedSchemaType === "model" ? handleModelModalOpen : handleGroupModalOpen),
+    [handleGroupModalOpen, handleModelModalOpen, selectedSchemaType],
+  );
+
+  const handleModalClose = useMemo(
+    () => (isGroup ? handleGroupModalClose : handleModelModalClose),
+    [handleGroupModalClose, handleModelModalClose, isGroup],
+  );
+
+  const handleDeletionModalOpen = useMemo(
+    () =>
+      selectedSchemaType === "model" ? handleModelDeletionModalOpen : handleGroupDeletionModalOpen,
+    [handleGroupDeletionModalOpen, handleModelDeletionModalOpen, selectedSchemaType],
+  );
+
+  const handleDeletionModalClose = useMemo(
+    () => (isGroup ? handleGroupDeletionModalClose : handleModelDeletionModalClose),
+    [handleGroupDeletionModalClose, handleModelDeletionModalClose, isGroup],
+  );
+
+  const handleSchemaCreate = useMemo(
+    () => (isGroup ? handleGroupCreate : undefined),
+    [handleGroupCreate, isGroup],
+  );
+
+  const handleSchemaUpdate = useMemo(
+    () => (isGroup ? handleGroupUpdate : handleModelUpdate),
+    [handleGroupUpdate, handleModelUpdate, isGroup],
+  );
+
+  const handleSchemaDelete = useMemo(
+    () => (isGroup ? handleGroupDelete : handleModelDelete),
+    [handleGroupDelete, handleModelDelete, isGroup],
   );
 
   return {
+    data,
     models,
-    model,
     groups,
-    group,
     isMeta,
     setIsMeta,
-    fieldCreationModalShown,
-    fieldUpdateModalShown,
+    fieldModalShown,
     selectedField,
-    currentModel,
     selectedType,
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
-    collapse,
+    deleteModelLoading,
+    deleteGroupLoading,
+    setCollapsed,
     selectedSchemaType,
     handleModelSelect,
     handleGroupSelect,
-    handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
-    handleFieldUpdateModalClose,
+    handleFieldModalClose,
     handleFieldCreate,
+    handleReferencedModelGet,
+    handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldOrder,
     handleFieldDelete,
-    // group
-    groupCreateModalShown,
-    groupUpdateModalShown,
-    isGroupKeyAvailable,
+    handleKeyCheck,
+    handleModalOpen,
+    handleDeletionModalOpen,
+    handleModalClose,
+    handleDeletionModalClose,
+    handleSchemaCreate,
+    handleSchemaUpdate,
+    handleSchemaDelete,
+    groupModalShown,
     groupDeletionModalShown,
-    handleGroupUpdateModalOpen,
-    handleGroupDeletionModalOpen,
-    handleGroupCreateModalClose,
-    handleGroupUpdateModalClose,
-    handleGroupDeletionModalClose,
-    handleGroupDelete,
-    handleGroupCreate,
-    handleGroupUpdate,
-    handleGroupKeyCheck,
-    // modal
-    modelUpdateModalShown,
-    isModelKeyAvailable,
+    modelModalShown,
     modelDeletionModalShown,
-    handleModelUpdateModalOpen,
-    handleModelDeletionModalOpen,
-    handleModelUpdateModalClose,
-    handleModelDeletionModalClose,
-    handleModelDelete,
-    handleModelUpdate,
-    handleModelKeyCheck,
   };
 };

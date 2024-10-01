@@ -6,15 +6,25 @@ import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrati
 import {
   Integration,
   WebhookTrigger,
+  WebhookValues,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
+import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   integration: Integration;
-  webhookInitialValues?: any;
-  // activeTab?: string;
-  // showWebhookForm: boolean;
-  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  webhookInitialValues?: WebhookValues;
+  updateIntegrationLoading: boolean;
+  regenerateLoading: boolean;
+  createWebhookLoading: boolean;
+  updateWebhookLoading: boolean;
+  onIntegrationUpdate: (data: {
+    name: string;
+    description: string;
+    logoUrl: string;
+  }) => Promise<void>;
+  onIntegrationDelete: () => Promise<void>;
+  onRegenerateToken: () => Promise<void>;
   onWebhookCreate: (data: {
     name: string;
     url: string;
@@ -33,56 +43,54 @@ export type Props = {
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
   onWebhookSelect: (id: string) => void;
-  onIntegrationDelete: () => Promise<void>;
-  // onWebhookFormHeaderBack: () => void;
-  // onWebhookFormNavigation: () => void;
-  // onWebhookEditNavigation: (webhookId: string) => void;
 };
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
   webhookInitialValues,
-  // activeTab,
-  // showWebhookForm,
+  updateIntegrationLoading,
+  regenerateLoading,
+  createWebhookLoading,
+  updateWebhookLoading,
   onIntegrationUpdate,
+  onRegenerateToken,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
   onIntegrationHeaderBack,
   onIntegrationDelete,
   onWebhookSelect,
-  // onWebhookFormHeaderBack,
-  // onWebhookFormNavigation,
-  // onWebhookEditNavigation,
 }) => {
   const { TabPane } = Tabs;
+  const t = useT();
 
   return (
     <MyIntegrationWrapper>
-      <PageHeader title={integration.name} onBack={onIntegrationHeaderBack} />
-      <MyIntegrationTabs
-        defaultActiveKey="integration"
-        // activeKey={activeTab}
-        // onChange={onTabChange}
-      >
-        <TabPane tab="General" key="integration">
+      <PageHeader
+        title={`${t("My Integration")} / ${integration.name}`}
+        onBack={onIntegrationHeaderBack}
+      />
+      <MyIntegrationTabs defaultActiveKey="integration">
+        <TabPane tab={t("General")} key="integration">
           <MyIntegrationSettings
             integration={integration}
+            updateIntegrationLoading={updateIntegrationLoading}
+            regenerateLoading={regenerateLoading}
             onIntegrationUpdate={onIntegrationUpdate}
             onIntegrationDelete={onIntegrationDelete}
+            onRegenerateToken={onRegenerateToken}
           />
         </TabPane>
-        <TabPane tab="Webhook" key="webhooks">
+        <TabPane tab={t("Webhook")} key="webhooks">
           <Webhook
             integration={integration}
             webhookInitialValues={webhookInitialValues}
+            createWebhookLoading={createWebhookLoading}
+            updateWebhookLoading={updateWebhookLoading}
             onWebhookCreate={onWebhookCreate}
             onWebhookDelete={onWebhookDelete}
             onWebhookUpdate={onWebhookUpdate}
             onWebhookSelect={onWebhookSelect}
-            // onWebhookFormHeaderBack={onWebhookFormHeaderBack}
-            // onWebhookFormNavigation={onWebhookFormNavigation}
-            // onWebhookEditNavigation={onWebhookEditNavigation}
           />
         </TabPane>
       </MyIntegrationTabs>
@@ -91,8 +99,9 @@ const MyIntegrationContent: React.FC<Props> = ({
 };
 
 const MyIntegrationWrapper = styled.div`
-  min-height: 100%;
+  min-height: calc(100% - 16px);
   background-color: #fff;
+  margin: 16px 16px 0;
 `;
 
 const MyIntegrationTabs = styled(Tabs)`

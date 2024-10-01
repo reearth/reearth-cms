@@ -19,7 +19,8 @@ type ViewDocument struct {
 	Schema    string
 	Sort      *SortDocument
 	Filter    *FilterDocument
-	Columns   []FieldSelectorDocument
+	Columns   []ColumnDocument
+	Order     int
 	UpdatedAt time.Time
 }
 
@@ -42,6 +43,25 @@ func (d FieldSelectorDocument) Model() view.FieldSelector {
 	}
 }
 
+type ColumnDocument struct {
+	Field   FieldSelectorDocument
+	Visible bool
+}
+
+func NewColumn(i view.Column) ColumnDocument {
+	return ColumnDocument{
+		Field:   NewFieldSelector(i.Field),
+		Visible: i.Visible,
+	}
+}
+
+func (d *ColumnDocument) Model() view.Column {
+	return view.Column{
+		Field:   d.Field.Model(),
+		Visible: d.Visible,
+	}
+}
+
 type SortDocument struct {
 	Field     FieldSelectorDocument
 	Direction string
@@ -56,6 +76,20 @@ func NewSort(i *view.Sort) *SortDocument {
 		Field:     NewFieldSelector(i.Field),
 		Direction: string(i.Direction),
 	}
+}
+
+func NewViews(views view.List) ([]*ViewDocument, []string) {
+	res := make([]*ViewDocument, 0, len(views))
+	ids := make([]string, 0, len(views))
+	for _, v := range views {
+		if v == nil {
+			continue
+		}
+		r, rid := NewView(v)
+		res = append(res, r)
+		ids = append(ids, rid)
+	}
+	return res, ids
 }
 
 func (d *SortDocument) Model() *view.Sort {
@@ -302,10 +336,10 @@ func NewView(i *view.View) (*ViewDocument, string) {
 	}
 	iId := i.ID().String()
 
-	var columns []FieldSelectorDocument
+	var columns []ColumnDocument
 	if i.Columns() != nil {
-		columns = lo.Map(*i.Columns(), func(c view.FieldSelector, _ int) FieldSelectorDocument {
-			return NewFieldSelector(c)
+		columns = lo.Map(*i.Columns(), func(c view.Column, _ int) ColumnDocument {
+			return NewColumn(c)
 		})
 	}
 	return &ViewDocument{
@@ -318,6 +352,7 @@ func NewView(i *view.View) (*ViewDocument, string) {
 		Sort:      NewSort(i.Sort()),
 		Filter:    NewFilter(i.Filter()),
 		Columns:   columns,
+		Order:     i.Order(),
 		UpdatedAt: i.UpdatedAt(),
 	}, iId
 }
@@ -348,7 +383,7 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		return nil, err
 	}
 
-	columns := lo.Map(d.Columns, func(c FieldSelectorDocument, _ int) view.FieldSelector { return c.Model() })
+	columns := lo.Map(d.Columns, func(c ColumnDocument, _ int) view.Column { return c.Model() })
 
 	return view.New().
 		ID(vID).
@@ -358,8 +393,9 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		Schema(sID).
 		Sort(d.Sort.Model()).
 		Filter(d.Filter.Model()).
-		Columns((*view.FieldSelectorList)(&columns)).
+		Columns((*view.ColumnList)(&columns)).
 		User(uID).
+		Order(d.Order).
 		UpdatedAt(d.UpdatedAt).
 		Build()
 }

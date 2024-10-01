@@ -4,57 +4,9 @@ export const GET_GROUPS = gql`
   query GetGroups($projectId: ID!) {
     groups(projectId: $projectId) {
       id
-      schemaId
-      projectId
       name
-      description
       key
-      schema {
-        id
-        fields {
-          id
-          type
-          title
-          key
-          description
-          required
-          unique
-          isTitle
-          multiple
-          typeProperty {
-            ... on SchemaFieldText {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldTextArea {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldMarkdown {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldAsset {
-              assetDefaultValue: defaultValue
-            }
-            ... on SchemaFieldSelect {
-              selectDefaultValue: defaultValue
-              values
-            }
-            ... on SchemaFieldInteger {
-              integerDefaultValue: defaultValue
-              min
-              max
-            }
-            ... on SchemaFieldBool {
-              defaultValue
-            }
-            ... on SchemaFieldURL {
-              defaultValue
-            }
-          }
-        }
-      }
+      order
     }
   }
 `;
@@ -112,6 +64,17 @@ export const GET_GROUP = gql`
               ... on SchemaFieldURL {
                 defaultValue
               }
+              ... on SchemaFieldDate {
+                defaultValue
+              }
+              ... on SchemaFieldGeometryObject {
+                defaultValue
+                objectSupportedTypes: supportedTypes
+              }
+              ... on SchemaFieldGeometryEditor {
+                defaultValue
+                editorSupportedTypes: supportedTypes
+              }
             }
           }
         }
@@ -163,6 +126,16 @@ export const MODELS_BY_GROUP = gql`
   query ModelsByGroup($groupId: ID!) {
     modelsByGroup(groupId: $groupId) {
       name
+    }
+  }
+`;
+
+export const UPDATE_GROUPS_ORDER = gql`
+  mutation UpdateGroupsOrder($groupIds: [ID!]!) {
+    updateGroupsOrder(input: { groupIds: $groupIds }) {
+      groups {
+        id
+      }
     }
   }
 `;

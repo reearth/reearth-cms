@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"errors"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -14,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Model struct {
@@ -28,23 +30,39 @@ func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 	}
 }
 
-func (i Model) FindByID(ctx context.Context, id id.ModelID, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByID(ctx context.Context, id id.ModelID, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByID(ctx, id)
 }
 
-func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecase.Operator) (model.List, error) {
+func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, _ *usecase.Operator) (*model.Model, error) {
+	return i.repos.Model.FindBySchema(ctx, id)
+}
+
+func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, _ *usecase.Operator) (model.List, error) {
 	return i.repos.Model.FindByIDs(ctx, ids)
 }
 
-func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
-	return i.repos.Model.FindByProject(ctx, projectID, pagination)
+func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	m, p, err := i.repos.Model.FindByProject(ctx, projectID, pagination)
+	if err != nil {
+		return nil, nil, err
+	}
+	return m.Ordered(), p, nil
 }
 
-func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByProjectAndKeyword(ctx context.Context, projectID id.ProjectID, k string, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, projectID, k, pagination)
+	if err != nil {
+		return nil, nil, err
+	}
+	return m.Ordered(), p, nil
+}
+
+func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByKey(ctx, pid, model)
 }
 
-func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByIDOrKey(ctx, p, q)
 }
 
@@ -94,6 +112,14 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				mb = mb.Key(key.New(*param.Key))
 			} else {
 				mb = mb.Key(key.Random())
+			}
+			models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+			if err != nil {
+				return nil, err
+			}
+
+			if len(models) > 0 {
+				mb = mb.Order(len(models))
 			}
 
 			m, err = mb.Build()
@@ -170,7 +196,15 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 				return interfaces.ErrOperationDenied
 			}
 
+			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+			if err != nil {
+				return err
+			}
+			res := models.Remove(modelID)
 			if err := i.repos.Model.Remove(ctx, modelID); err != nil {
+				return err
+			}
+			if err := i.repos.Model.SaveAll(ctx, res); err != nil {
 				return err
 			}
 			return nil
@@ -253,5 +287,30 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 
 			// otherwise return standard schema
 			return i.repos.Schema.FindByID(ctx, sid)
+		})
+}
+
+func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *usecase.Operator) (model.List, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ model.List, err error) {
+			if len(ids) == 0 {
+				return nil, nil
+			}
+			models, err := i.repos.Model.FindByIDs(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			if len(models) != len(ids) {
+				return nil, rerror.ErrNotFound
+			}
+
+			if !operator.IsMaintainingProject(models.Projects()...) {
+				return nil, interfaces.ErrOperationDenied
+			}
+			ordered := models.OrderByIDs(ids)
+			if err := i.repos.Model.SaveAll(ctx, ordered); err != nil {
+				return nil, err
+			}
+			return ordered, nil
 		})
 }

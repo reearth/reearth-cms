@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -14,17 +15,17 @@ const { TabPane } = Tabs;
 
 type Props = {
   alsoLink?: boolean;
-  visible: boolean;
+  visible?: boolean;
   uploadProps: UploadProps;
-  fileList: UploadFile<File>[];
-  uploading: boolean;
+  fileList?: UploadFile<File>[];
+  uploading?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
+  uploadType?: UploadType;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
+  setUploadType?: (type: UploadType) => void;
   onUploadModalClose?: () => void;
   onUpload: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
 };
 
 const UploadModal: React.FC<Props> = ({
@@ -42,22 +43,41 @@ const UploadModal: React.FC<Props> = ({
   onCancel,
 }) => {
   const t = useT();
-  const handleTabChange = (key: string) => {
-    setUploadType(key as UploadType);
-  };
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setUploadType?.(key as UploadType);
+    },
+    [setUploadType],
+  );
 
   return (
-    <Modal
+    <StyledModal
       centered
       open={visible}
       onCancel={onCancel}
-      footer={null}
+      closable={!uploading}
+      maskClosable={!uploading}
+      footer={
+        <>
+          <Button type="default" disabled={uploading} onClick={onCancel}>
+            {t("Cancel")}
+          </Button>
+          <Button
+            type="primary"
+            onClick={onUpload}
+            disabled={fileList?.length === 0 && !uploadUrl.url}
+            loading={uploading}>
+            {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
+          </Button>
+        </>
+      }
       width="50vw"
       afterClose={onUploadModalClose}
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        paddingBottom: "80px",
+      styles={{
+        body: {
+          minHeight: "50vh",
+        },
       }}>
       <div>
         <h2>{t("Asset Uploader")}</h2>
@@ -69,34 +89,18 @@ const UploadModal: React.FC<Props> = ({
         <TabPane tab={t("URL")} key="url">
           <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
         </TabPane>
-        {/* TODO: uncomment this once upload asset from google drive is implemented */}
-        {/* <TabPane tab={t("Google Drive")} key="3" /> */}
       </Tabs>
-      <Footer>
-        <CancelButton type="default" disabled={uploading} onClick={onCancel}>
-          {t("Cancel")}
-        </CancelButton>
-        <Button
-          type="primary"
-          onClick={onUpload}
-          disabled={fileList?.length === 0 && !uploadUrl}
-          loading={uploading}>
-          {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
-        </Button>
-      </Footer>
-    </Modal>
+    </StyledModal>
   );
 };
 
-const Footer = styled.div`
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  padding: 10px;
-`;
-
-const CancelButton = styled(Button)`
-  margin-right: 8px;
+const StyledModal = styled(Modal)`
+  .ant-upload-span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
 `;
 
 export default UploadModal;

@@ -6,9 +6,9 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FieldType } from "../../types";
 
-export interface Props {
+export type Props = {
   selectedType: FieldType;
-}
+};
 
 const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {
   const t = useT();

@@ -11,7 +11,7 @@ import (
 
 func createView(e *httpexpect.Expect, pID, mID, name string, sort, filter map[string]any, columns []map[string]any) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
-		Query: `mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+		Query: `mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [ColumnSelectionInput!]) {
 				  createView(input: {projectId: $projectId, modelId: $modelId, name: $name, sort: $sort, filter: $filter, columns: $columns}) {
 					view {
 					  id
@@ -24,8 +24,11 @@ func createView(e *httpexpect.Expect, pID, mID, name string, sort, filter map[st
 						direction
 		              }
 					  columns {
-						type
-						id
+						field {
+							type
+							id
+						}
+						visible
 					  }
 					  filter {
 						
@@ -68,7 +71,7 @@ func createView(e *httpexpect.Expect, pID, mID, name string, sort, filter map[st
 
 func updateView(e *httpexpect.Expect, vID, name string, sort, filter map[string]any, columns []map[string]any) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
-		Query: `mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+		Query: `mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [ColumnSelectionInput!]) {
 				  updateView(input: {viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns}) {
 					view {
 					  id
@@ -81,8 +84,11 @@ func updateView(e *httpexpect.Expect, vID, name string, sort, filter map[string]
 						direction
 		              }
 					  columns {
-						type
-						id
+						field {
+							type
+							id
+						}
+						visible
 					  }
 					  filter {
 						
@@ -160,8 +166,11 @@ func getViews(e *httpexpect.Expect, mID string) *httpexpect.Value {
 						direction
 		              }
 					  columns {
-						type
-						id
+						field{
+							type
+							id
+						}
+						visible
 					  }
 					  filter {
 						  ... on BoolFieldCondition {
@@ -196,7 +205,7 @@ func getViews(e *httpexpect.Expect, mID string) *httpexpect.Value {
 }
 
 func TestViewCRUD(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -210,8 +219,8 @@ func TestViewCRUD(t *testing.T) {
 		"direction": "ASC",
 	}
 	columns := []map[string]any{
-		{"type": "ID", "id": nil},
-		{"type": "CREATION_DATE", "id": nil},
+		{"field": map[string]any{"type": "ID", "id": nil}, "visible": true},
+		{"field": map[string]any{"type": "CREATION_DATE", "id": nil}, "visible": false},
 	}
 	filter := map[string]any{
 		"bool": map[string]any{
@@ -266,4 +275,87 @@ func TestViewCRUD(t *testing.T) {
 		HasValue("sort", sort).
 		HasValue("columns", columns).
 		HasValue("filter", filter["bool"])
+
+	// test reset
+	updateView(e, vID, "test updated", nil, nil, nil)
+
+	res = getViews(e, mID)
+	res.Object().
+		Value("data").Object().
+		Value("view").Array().
+		Value(0).Object().
+		HasValue("name", "test updated").
+		HasValue("sort", nil).
+		HasValue("columns", []any{}).
+		HasValue("filter", nil)
+}
+
+func updateViewsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateViewsOrder($viewIds:[ID!]!) {
+				  updateViewsOrder(input: {viewIds: $viewIds}) {
+					views {
+						id
+						name
+						sort {
+						  field {
+							type
+							id	
+						  }
+						  direction
+						}
+						columns {
+						  field {
+							  type
+							  id
+						  }
+						  visible
+						}
+						filter {
+						  
+							... on BoolFieldCondition {
+							  fieldId {
+								type
+								id
+							  }
+							  operator
+							  value
+							}
+						  
+						}
+						order
+						__typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"viewIds": ids,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func TestUpdateViewsOrder(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+	mId, _ := createModel(e, pId, "test", "test", "test-2")
+	vId1, _ := createView(e, pId, mId, "test1", nil, nil, nil)
+	vId2, _ := createView(e, pId, mId, "test2", nil, nil, nil)
+	vId3, _ := createView(e, pId, mId, "test3", nil, nil, nil)
+	vId4, _ := createView(e, pId, mId, "test4", nil, nil, nil)
+
+	res := updateViewsOrder(e, []string{vId4, vId1, vId2, vId3})
+	res.Path("$.data.updateViewsOrder.views[:].id").Array().IsEqual([]string{vId4, vId1, vId2, vId3})
+	res.Path("$.data.updateViewsOrder.views[:].order").Array().IsEqual([]int{0, 1, 2, 3})
 }

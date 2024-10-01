@@ -2,12 +2,15 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/ProjectOverview";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
 import {
   useDeleteModelMutation,
   useGetModelsQuery,
   useUpdateModelMutation,
+  Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
@@ -26,7 +29,6 @@ export default () => {
     handleModelModalOpen,
     handleModelCreate,
     handleModelKeyCheck,
-    isModelKeyAvailable,
   } = useModelHooks({});
 
   const { data } = useGetModelsQuery({
@@ -35,17 +37,8 @@ export default () => {
   });
 
   const models = useMemo(() => {
-    return (data?.models.nodes ?? [])
-      .map<Model | undefined>(model =>
-        model
-          ? {
-              id: model.id,
-              description: model.description,
-              name: model.name,
-              key: model.key,
-            }
-          : undefined,
-      )
+    return data?.models.nodes
+      ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
@@ -70,7 +63,7 @@ export default () => {
     setModelDeletionModalShown(false);
   }, [setSelectedModel, setModelDeletionModalShown]);
 
-  const [deleteModel] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteLoading }] = useDeleteModelMutation({
     refetchQueries: ["GetModels"],
   });
 
@@ -93,11 +86,11 @@ export default () => {
   });
 
   const handleModelUpdate = useCallback(
-    async (data: { modelId?: string; name: string; description: string; key: string }) => {
-      if (!data.modelId) return;
+    async (data: ModelFormValues) => {
+      if (!data.id) return;
       const model = await updateNewModel({
         variables: {
-          modelId: data.modelId,
+          modelId: data.id,
           name: data.name,
           description: data.description,
           key: data.key,
@@ -140,10 +133,10 @@ export default () => {
   return {
     currentProject,
     models,
-    isModelKeyAvailable,
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
+    deleteLoading,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,
