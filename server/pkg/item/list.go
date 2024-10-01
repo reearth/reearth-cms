@@ -52,3 +52,11 @@ func (l VersionedList) Item(iid id.ItemID) Versioned {
 	}
 	return nil
 }
+
+func (l VersionedList) ToMap() map[id.ItemID]*version.Value[*Item] {
+	m := make(map[id.ItemID]*version.Value[*Item], len(l))
+	for _, i := range l {
+		m[i.Value().ID()] = i
+	}
+	return m
+}

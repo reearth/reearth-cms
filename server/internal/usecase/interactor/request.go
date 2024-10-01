@@ -213,12 +213,9 @@ func (r Request) validateItemsForCreateOrUpdate(ctx context.Context, items reque
 	if err != nil {
 		return nil, err
 	}
-	latestItemsMap := make(map[id.ItemID]*version.Value[*item.Item], len(latestItems))
-	for _, itm := range latestItems {
-		latestItemsMap[itm.Value().ID()] = itm
-	}
+	latestItemsMap := latestItems.ToMap()
 	for _, itm := range res {
-		if itm.Pointer().IsRef(version.Latest) {
+		if itm.Pointer().IsZero() || itm.Pointer().IsRef(version.Latest) {
 			itm.SetPointer(latestItemsMap[itm.Item()].Version().OrRef())
 		}
 	}
