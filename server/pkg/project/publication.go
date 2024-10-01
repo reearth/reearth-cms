@@ -32,14 +32,6 @@ func NewPublicationWithToken(scope PublicationScope, assetPublic bool, token str
 	return p
 }
 
-func NewPublicationWithToken(scope PublicationScope, assetPublic bool, token string) *Publication {
-	p := &Publication{}
-	p.SetScope(scope)
-	p.SetAssetPublic(assetPublic)
-	p.SetToken(token)
-	return p
-}
-
 func (p *Publication) Scope() PublicationScope {
 	if p.scope == "" {
 		return PublicationScopePrivate
