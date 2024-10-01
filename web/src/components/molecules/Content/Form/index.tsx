@@ -34,7 +34,7 @@ import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldCom
 import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
-interface Props {
+type Props = {
   item?: Item;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
@@ -115,7 +115,7 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
-}
+};
 
 const ContentForm: React.FC<Props> = ({
   item,
@@ -319,7 +319,7 @@ const ContentForm: React.FC<Props> = ({
         return [];
       }
     } else {
-      return dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "";
+      return dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? "");
     }
   }, []);
 
@@ -370,7 +370,7 @@ const ContentForm: React.FC<Props> = ({
         const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
         if (type) {
           metaFields.push({
-            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "",
+            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? ""),
             schemaFieldId: key,
             type,
           });
@@ -404,7 +404,7 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? "")) as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
@@ -424,6 +424,7 @@ const ContentForm: React.FC<Props> = ({
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
+        disabled: item?.status === "PUBLIC",
       },
       {
         key: "unpublish",
@@ -431,6 +432,7 @@ const ContentForm: React.FC<Props> = ({
         onClick: () => {
           if (itemId) onUnpublish([itemId]);
         },
+        disabled: item?.status === "DRAFT" || item?.status === "REVIEW",
       },
     ];
     if (showPublishAction) {
@@ -438,10 +440,19 @@ const ContentForm: React.FC<Props> = ({
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
+        disabled: item?.status === "PUBLIC",
       });
     }
     return menuItems;
-  }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
+  }, [
+    t,
+    onAddItemToRequestModalOpen,
+    item?.status,
+    showPublishAction,
+    itemId,
+    onUnpublish,
+    onModalOpen,
+  ]);
 
   const handlePublishSubmit = useCallback(async () => {
     if (!itemId || !unpublishedItems) return;
@@ -474,12 +485,19 @@ const ContentForm: React.FC<Props> = ({
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={handlePublishSubmit} loading={publishLoading}>
+                    <Button
+                      type="primary"
+                      onClick={handlePublishSubmit}
+                      loading={publishLoading}
+                      disabled={item?.status === "PUBLIC"}>
                       {t("Publish")}
                     </Button>
                   )}
                   {!showPublishAction && (
-                    <Button type="primary" onClick={onModalOpen}>
+                    <Button
+                      type="primary"
+                      onClick={onModalOpen}
+                      disabled={item?.status === "PUBLIC"}>
                       {t("New Request")}
                     </Button>
                   )}
@@ -495,20 +513,6 @@ const ContentForm: React.FC<Props> = ({
         />
         <FormItemsWrapper>
           {model?.schema.fields.map(field => {
-            const FieldComponent =
-              FIELD_TYPE_COMPONENT_MAP[
-                field.type as
-                  | "Select"
-                  | "Date"
-                  | "Tag"
-                  | "Bool"
-                  | "Checkbox"
-                  | "URL"
-                  | "TextArea"
-                  | "MarkdownText"
-                  | "Integer"
-              ] || DefaultField;
-
             if (field.type === "Asset") {
               return (
                 <StyledFormItemWrapper key={field.id}>
@@ -562,7 +566,7 @@ const ContentForm: React.FC<Props> = ({
               );
             } else if (field.type === "Group") {
               return (
-                <StyledFormItemWrapper key={field.id}>
+                <StyledFormItemWrapper key={field.id} isFullWidth>
                   <GroupField
                     field={field}
                     form={form}
@@ -605,7 +609,29 @@ const ContentForm: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
+            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+
+              return (
+                <StyledFormItemWrapper key={field.id} isFullWidth>
+                  <FieldComponent field={field} />
+                </StyledFormItemWrapper>
+              );
             } else {
+              const FieldComponent =
+                FIELD_TYPE_COMPONENT_MAP[
+                  field.type as
+                    | "Select"
+                    | "Date"
+                    | "Tag"
+                    | "Bool"
+                    | "Checkbox"
+                    | "URL"
+                    | "TextArea"
+                    | "MarkdownText"
+                    | "Integer"
+                ] || DefaultField;
+
               return (
                 <StyledFormItemWrapper key={field.id}>
                   <FieldComponent field={field} />
@@ -670,8 +696,8 @@ const ContentForm: React.FC<Props> = ({
   );
 };
 
-const StyledFormItemWrapper = styled.div`
-  width: 500px;
+const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
+  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
   word-wrap: break-word;
 `;
 

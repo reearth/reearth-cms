@@ -11,12 +11,12 @@ import { User } from "@reearth-cms/components/molecules/Member/types";
 import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface FormValues {
+type FormValues = {
   name: string;
   names: User[];
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   searchedUser?: User & { isMember: boolean };
   searchedUserList: User[];
@@ -27,7 +27,7 @@ interface Props {
   onSubmit: (users: MemberInput[]) => Promise<void>;
   changeSearchedUser: (user?: User & { isMember: boolean }) => void;
   changeSearchedUserList: React.Dispatch<React.SetStateAction<User[]>>;
-}
+};
 
 const initialValues: FormValues = {
   name: "",
@@ -111,7 +111,7 @@ const MemberAddModal: React.FC<Props> = ({
         </Button>,
       ]}>
       {open && (
-        <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
+        <Form form={form} layout="vertical" initialValues={initialValues}>
           <Form.Item name="name" label={t("Email address or user name")}>
             <Search size="large" onSearch={handleMemberNameChange} type="text" allowClear />
           </Form.Item>

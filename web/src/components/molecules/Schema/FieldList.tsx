@@ -8,21 +8,21 @@ import { useT } from "@reearth-cms/i18n";
 import { fieldTypes } from "./fieldTypes";
 import { FieldType, Tab, SelectedSchemaType } from "./types";
 
-interface Props {
+type Props = {
   currentTab: Tab;
   selectedSchemaType: SelectedSchemaType;
   addField: (fieldType: FieldType) => void;
-}
+};
 
-interface FieldListItem {
+type FieldListItem = {
   title: string;
   fields: FieldType[];
-}
+};
 
 const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();
 
-  const group: FieldListItem[] = useMemo(
+  const common: FieldListItem[] = useMemo(
     () => [
       {
         title: t("Text"),
@@ -56,9 +56,19 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
     [t],
   );
 
+  const geometry: FieldListItem = useMemo(
+    () => ({
+      title: t("GeoJSON Geometry"),
+      fields: ["GeometryObject", "GeometryEditor"],
+    }),
+    [t],
+  );
+
+  const group: FieldListItem[] = useMemo(() => [...common, geometry], [common, geometry]);
+
   const data: FieldListItem[] = useMemo(
     () => [
-      ...group,
+      ...common,
       {
         title: t("Relation"),
         fields: ["Reference"],
@@ -67,8 +77,9 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         title: t("Group"),
         fields: ["Group"],
       },
+      geometry,
     ],
-    [group, t],
+    [common, geometry, t],
   );
 
   const meta: FieldListItem[] = useMemo(

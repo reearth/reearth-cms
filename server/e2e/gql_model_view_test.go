@@ -205,7 +205,7 @@ func getViews(e *httpexpect.Expect, mID string) *httpexpect.Value {
 }
 
 func TestViewCRUD(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -347,7 +347,7 @@ func updateViewsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 }
 
 func TestUpdateViewsOrder(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
 	mId, _ := createModel(e, pId, "test", "test", "test-2")
 	vId1, _ := createView(e, pId, mId, "test1", nil, nil, nil)

@@ -1,6 +1,7 @@
-/// <reference types="vitest" />
 /// <reference types="vite/client" />
+/// <reference types="vitest" />
 
+import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
@@ -9,32 +10,47 @@ import react from "@vitejs/plugin-react";
 import { readEnv } from "read-env";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import cesium from "vite-plugin-cesium";
+import tsconfigPaths from "vite-tsconfig-paths";
 import { configDefaults } from "vitest/config";
 
-// https://vitejs.dev/config/
-export default defineConfig(() => ({
+import pkg from "./package.json";
+
+let commitHash = "";
+try {
+  commitHash = execSync("git rev-parse HEAD").toString().trimEnd();
+} catch {
+  // noop
+}
+
+const cesiumPackageJson = JSON.parse(
+  readFileSync(resolve(__dirname, "node_modules", "cesium", "package.json"), "utf-8"),
+);
+
+export default defineConfig({
   server: {
     port: 3000,
     open: true,
     host: "127.0.0.1",
   },
   envPrefix: "REEARTH_CMS_",
-  plugins: [react(), yaml(), cesium(), serverHeaders(), config()],
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __REEARTH_COMMIT_HASH__: JSON.stringify(commitHash)
+  },
+  plugins: [
+    react(),
+    yaml(),
+    cesium({ cesiumBaseUrl: `cesium-${cesiumPackageJson.version}/` }),
+    serverHeaders(),
+    config(),
+    tsconfigPaths()
+  ],
   css: {
     preprocessorOptions: {
       less: {
         javascriptEnabled: true,
       },
     },
-  },
-  resolve: {
-    alias: [
-      { find: "@reearth-cms", replacement: resolve(__dirname, "src") },
-      {
-        find: /^~/,
-        replacement: "",
-      },
-    ],
   },
   test: {
     environment: "jsdom",
@@ -52,7 +68,7 @@ export default defineConfig(() => ({
       reporter: ["text", "json", "lcov"],
     },
   },
-}));
+});
 
 function serverHeaders(): Plugin {
   return {
@@ -112,7 +128,7 @@ function config(): Plugin {
 function loadJSON(path: string): object {
   try {
     return JSON.parse(readFileSync(path, "utf8")) || {};
-  } catch (err) {
+  } catch (_) {
     return {};
   }
 }

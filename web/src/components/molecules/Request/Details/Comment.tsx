@@ -15,12 +15,12 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { TextArea } = Input;
 
-interface Props {
+type Props = {
   me?: User;
   comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-}
+};
 
 const ThreadCommentMolecule: React.FC<Props> = ({
   me,

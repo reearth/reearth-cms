@@ -6,15 +6,15 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-export interface FormValues {
+export type FormValues = {
   name: string;
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
-}
+};
 
 const initialValues: FormValues = {
   name: "",

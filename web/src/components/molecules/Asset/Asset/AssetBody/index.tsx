@@ -10,7 +10,7 @@ import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   commentsPanel: JSX.Element;
   asset?: Asset;
   assetFileExt?: string;
@@ -29,7 +29,7 @@ interface Props {
   onBack: () => void;
   onSave: () => void;
   workspaceSettings: WorkspaceSettings;
-}
+};
 
 const AssetWrapper: React.FC<Props> = ({
   asset,
@@ -58,7 +58,7 @@ const AssetWrapper: React.FC<Props> = ({
       center={
         <Wrapper>
           <PageHeader
-            title={`${t("Asset")}/${asset?.fileName}`}
+            title={`${t("Asset")} / ${asset?.fileName}`}
             extra={
               <Button onClick={onSave} disabled={isSaveDisabled} loading={updateLoading}>
                 {t("Save")}

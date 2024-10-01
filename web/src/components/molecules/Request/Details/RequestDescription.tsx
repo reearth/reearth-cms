@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
@@ -14,16 +15,42 @@ import RequestItemForm from "./ItemForm";
 
 const { Panel } = Collapse;
 
-interface Props {
+type Props = {
   currentRequest: Request;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
+};
 
-export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset, onGroupGet }) => {
+export const RequestDescription: React.FC<Props> = ({
+  currentRequest,
+  onGetAsset,
+  onGroupGet,
+  onNavigateToItemEdit,
+}) => {
   const fromNow = useMemo(
     () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
+  );
+
+  const headerGet = useCallback(
+    (modelName?: string, modelId?: string, itemId?: string) => {
+      if (modelName && modelId && itemId) {
+        return (
+          <>
+            {`${modelName} / `}
+            <StyledButton
+              type="link"
+              onClick={() => {
+                onNavigateToItemEdit(modelId, itemId);
+              }}>
+              {itemId}
+            </StyledButton>
+          </>
+        );
+      }
+    },
+    [onNavigateToItemEdit],
   );
 
   return (
@@ -41,7 +68,7 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
               .filter(item => item.schema)
               .map((item, index) => (
                 <Collapse key={index}>
-                  <StyledPanel header={item.modelName} key={1}>
+                  <StyledPanel header={headerGet(item.modelName, item.modelId, item.id)} key={1}>
                     <RequestItemForm
                       key={index}
                       schema={item.schema}
@@ -118,8 +145,19 @@ const RequestItemsWrapper = styled.div`
 `;
 
 const StyledPanel = styled(Panel)`
+  > .ant-collapse-header {
+    align-items: center !important;
+    > .ant-collapse-header-text {
+      overflow: hidden;
+    }
+  }
   > .ant-collapse-content {
     max-height: 640px;
     overflow: auto;
   }
+`;
+
+const StyledButton = styled(Button)`
+  height: auto;
+  padding: 0;
 `;

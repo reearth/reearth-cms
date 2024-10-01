@@ -59,7 +59,7 @@ func ToAssetFile(f *asset.File, all bool) *File {
 
 	var children *[]File
 	if all {
-		children = lo.ToPtr(lo.FilterMap(f.Children(), func(c *asset.File, _ int) (File, bool) {
+		children = lo.ToPtr(lo.FilterMap(f.Files(), func(c *asset.File, _ int) (File, bool) {
 			f := ToAssetFile(c, true)
 			if f == nil {
 				return File{}, false

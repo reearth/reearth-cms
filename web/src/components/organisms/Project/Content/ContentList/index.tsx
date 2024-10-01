@@ -78,6 +78,7 @@ const ContentList: React.FC = () => {
           collapsed={collapsedModelMenu}
           onModelSelect={handleModelSelect}
           selectedSchemaType="model"
+          titleIcon={"table"}
         />
       }
       viewsMenu={

@@ -99,6 +99,7 @@ export const fromGraphQLRequest = (request: GQLRequest): Request => ({
   closedAt: request.closedAt ?? undefined,
   items: request.items?.map(item => ({
     id: item.itemId,
+    modelId: item?.item?.value.modelId,
     modelName: item?.item?.value.model.name,
     initialValues: initialValuesGet(item.item?.value.fields),
     schema: item.item?.value.schema ? (item.item?.value.schema as Schema) : undefined,

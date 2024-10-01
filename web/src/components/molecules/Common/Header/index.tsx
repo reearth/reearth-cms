@@ -12,7 +12,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import HeaderDropdown from "./Dropdown";
 
-interface Props {
+type Props = {
   username: string;
   personalWorkspace?: Workspace;
   currentWorkspace?: Workspace;
@@ -23,7 +23,7 @@ interface Props {
   onWorkspaceNavigation: (id: string) => void;
   onHomeNavigation: () => void;
   logoUrl?: string;
-}
+};
 
 const HeaderMolecule: React.FC<Props> = ({
   username,

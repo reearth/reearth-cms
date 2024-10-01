@@ -1,12 +1,12 @@
 import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
-interface Props {
+type Props = {
   title: string | JSX.Element;
   toolbar?: ReactNode;
   children?: ReactNode;
   style?: CSSProperties;
-}
+};
 
 const Card: React.FC<Props> = ({ title, toolbar, children, style }) => {
   return (

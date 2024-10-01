@@ -36,7 +36,7 @@ import {
   useModelsByGroupQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel } from "@reearth-cms/state";
+import { useModel, useCollapsedModelMenu } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -49,7 +49,7 @@ export default () => {
   const [isMeta, setIsMeta] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useCollapsedModelMenu();
   const { data: modelsData } = useGetModelsQuery({
     variables: {
       projectId: projectId ?? "",
@@ -137,13 +137,13 @@ export default () => {
 
   const handleFieldKeyUnique = useCallback(
     (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),
-    [selectedField?.id, currentModel],
+    [keyUniqueCheck, selectedField?.id, currentModel],
   );
 
   const handleCorrespondingFieldKeyUnique = useCallback(
     (key: string) =>
       keyUniqueCheck(key, selectedField?.typeProperty?.correspondingField?.id, referencedModel),
-    [selectedField?.typeProperty?.correspondingField?.id, referencedModel],
+    [keyUniqueCheck, selectedField?.typeProperty?.correspondingField?.id, referencedModel],
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({

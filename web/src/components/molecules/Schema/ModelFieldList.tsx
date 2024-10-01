@@ -12,13 +12,13 @@ import { useT } from "@reearth-cms/i18n";
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
 
-interface Props {
+type Props = {
   isMeta?: boolean;
   fields?: Field[];
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
-}
+};
 
 const ModelFieldList: React.FC<Props> = ({
   fields,

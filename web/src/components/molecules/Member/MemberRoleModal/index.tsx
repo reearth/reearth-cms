@@ -8,17 +8,17 @@ import { RoleUnion } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-interface FormValues {
+type FormValues = {
   role: RoleUnion;
-}
+};
 
-interface Props {
+type Props = {
   open: boolean;
   member: UserMember;
   loading: boolean;
   onClose: () => void;
   onSubmit: (userId: string, role: RoleUnion) => Promise<void>;
-}
+};
 
 const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onSubmit }) => {
   const t = useT();
@@ -85,8 +85,8 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onSu
           ]}>
           <Select placeholder={t("select role")} onSelect={handleSelect}>
             <Option value="OWNER">{t("Owner")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>
+            <Option value="WRITER">{t("Writer")}</Option>
             <Option value="READER">{t("Reader")}</Option>
           </Select>
         </Form.Item>

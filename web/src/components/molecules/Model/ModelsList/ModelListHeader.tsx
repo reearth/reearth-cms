@@ -2,16 +2,17 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 
-interface Props {
+type Props = {
   title: string;
   collapsed: boolean;
-}
+  titleIcon: string;
+};
 
-const ModelListHeader: React.FC<Props> = ({ title, collapsed }) => {
+const ModelListHeader: React.FC<Props> = ({ title, collapsed, titleIcon }) => {
   return (
     <>
       {collapsed ? (
-        <StyledIcon icon="unorderedList" />
+        <StyledIcon icon={titleIcon} />
       ) : (
         <Header>
           <SchemaStyledTitle>{title}</SchemaStyledTitle>

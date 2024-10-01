@@ -7,9 +7,9 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   onIntegrationDelete: () => Promise<void>;
-}
+};
 
 const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
   const t = useT();

@@ -8,9 +8,9 @@ import { useT } from "@reearth-cms/i18n";
 
 const { TextArea } = Input;
 
-interface Props {
+type Props = {
   onCommentCreate: (content: string) => Promise<void>;
-}
+};
 
 const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);

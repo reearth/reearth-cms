@@ -29,20 +29,25 @@ var (
 	publicAPIItem2ID      = id.NewItemID()
 	publicAPIItem3ID      = id.NewItemID()
 	publicAPIItem4ID      = id.NewItemID()
+	publicAPIItem6ID      = id.NewItemID()
+	publicAPIItem7ID      = id.NewItemID()
 	publicAPIAsset1ID     = id.NewAssetID()
 	publicAPIAsset2ID     = id.NewAssetID()
 	publicAPIAssetUUID    = uuid.NewString()
 	publicAPIProjectAlias = "test-project"
 	publicAPIModelKey     = "test-model"
 	publicAPIModelKey2    = "test-model-2"
+	publicAPIModelKey3    = "test-model-3"
 	publicAPIField1Key    = "test-field-1"
 	publicAPIField2Key    = "asset"
 	publicAPIField3Key    = "test-field-2"
 	publicAPIField4Key    = "asset2"
+	publicAPIField5Key    = "geometry-object"
+	publicAPIField6Key    = "geometry-editor"
 )
 
 func TestPublicAPI(t *testing.T) {
-	e, repos := StartServerAndRepos(t, &app.Config{
+	e, repos, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
@@ -103,8 +108,26 @@ func TestPublicAPI(t *testing.T) {
 						},
 					},
 				},
+				{
+					"id":               publicAPIItem6ID.String(),
+					publicAPIField1Key: "ccc",
+					publicAPIField3Key: []string{"aaa", "bbb", "ccc"},
+					publicAPIField4Key: []any{
+						map[string]any{
+							"type": "asset",
+							"id":   publicAPIAsset1ID.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+						},
+					},
+					publicAPIField5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+					publicAPIField6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+				},
+				{
+					"id":               publicAPIItem7ID.String(),
+					publicAPIField1Key: "ccc",
+				},
 			},
-			"totalCount": 3,
+			"totalCount": 5,
 			"hasMore":    false,
 			"limit":      50,
 			"offset":     0,
@@ -125,8 +148,8 @@ func TestPublicAPI(t *testing.T) {
 					publicAPIField1Key: "bbb",
 				},
 			},
-			"totalCount": 3,
-			"hasMore":    false,
+			"totalCount": 5,
+			"hasMore":    true,
 			"limit":      1,
 			"offset":     1,
 			"page":       2,
@@ -146,7 +169,7 @@ func TestPublicAPI(t *testing.T) {
 					publicAPIField1Key: "bbb",
 				},
 			},
-			"totalCount": 3,
+			"totalCount": 5,
 			"hasMore":    true,
 			"nextCursor": publicAPIItem2ID.String(),
 		})
@@ -221,12 +244,76 @@ func TestPublicAPI(t *testing.T) {
 					publicAPIField3Key: []string{"aaa", "bbb", "ccc"},
 					// publicAPIField4Key should be removed
 				},
+				{
+					"id":               publicAPIItem6ID.String(),
+					publicAPIField1Key: "ccc",
+					publicAPIField3Key: []string{"aaa", "bbb", "ccc"},
+					publicAPIField5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+					publicAPIField6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+				},
+				{
+					"id":               publicAPIItem7ID.String(),
+					publicAPIField1Key: "ccc",
+				},
 			},
-			"totalCount": 3,
+			"totalCount": 5,
 			"hasMore":    false,
 			"limit":      50,
 			"offset":     0,
 			"page":       1,
+		})
+
+	e.GET("/api/p/{project}/{model}.geojson", publicAPIProjectAlias, publicAPIModelKey).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]interface{}{
+			"type": "FeatureCollection",
+			"features": []map[string]interface{}{
+				{
+					"type": "Feature",
+					"id":   publicAPIItem6ID.String(),
+					"geometry": map[string]interface{}{
+						"type": "Point",
+						"coordinates": []interface{}{
+							102,
+							0.5,
+						},
+					},
+					"properties": map[string]interface{}{
+						"test-field-1": "ccc",
+						"test-field-2": []interface{}{
+							"aaa",
+							"bbb",
+							"ccc",
+						},
+					},
+				},
+			},
+		})
+
+	// no geometry field
+	e.GET("/api/p/{project}/{model}.geojson", publicAPIProjectAlias, publicAPIModelKey3).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]interface{}{
+			"error": "not found",
+		})
+
+	e.GET("/api/p/{project}/{model}.csv", publicAPIProjectAlias, publicAPIModelKey).
+		Expect().
+		Status(http.StatusOK).
+		Body().
+		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,102,0.5,ccc,,aaa,\n", publicAPIItem6ID.String()))
+
+	// no geometry field
+	e.GET("/api/p/{project}/{model}.csv", publicAPIProjectAlias, publicAPIModelKey3).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]interface{}{
+			"error": "not found",
 		})
 
 	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, publicAPIModelKey, publicAPIItem1ID).
@@ -271,16 +358,25 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
 
 	fid := id.NewFieldID()
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 	s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Key(key.New(publicAPIField1Key)).MustBuild(),
-		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField2Key)).MustBuild(),
-		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
-		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(key.New(publicAPIField1Key)).MustBuild(),
+		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(publicAPIField2Key).Key(key.New(publicAPIField2Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name(publicAPIField3Key).Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(publicAPIField4Key).Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name(publicAPIField5Key).Key(key.New(publicAPIField5Key)).MustBuild(),
+		schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name(publicAPIField6Key).Key(key.New(publicAPIField6Key)).MustBuild(),
 	}).TitleField(fid.Ref()).MustBuild()
 
+	s2 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(key.New(publicAPIField1Key)).MustBuild(),
+	}).MustBuild()
+
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
-	// not public model
-	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
+	// m2 is not a public model
+	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Name(publicAPIModelKey2).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
+	m3 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s2.ID()).Name(publicAPIModelKey3).Key(key.New(publicAPIModelKey3)).Public(true).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
@@ -308,6 +404,19 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
+	i6 := item.New().ID(publicAPIItem6ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple(), nil),
+		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
+		item.NewField(s.Fields()[3].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
+		item.NewField(s.Fields()[4].ID(), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
+		item.NewField(s.Fields()[5].ID(), value.TypeGeometryEditor.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil),
+	}).MustBuild()
+
+	i7 := item.New().ID(publicAPIItem7ID).Model(m3.ID()).Schema(s2.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
+	}).MustBuild()
+
 	lo.Must0(r.Project.Save(ctx, p1))
 	lo.Must0(r.Asset.Save(ctx, a))
 	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af))
@@ -318,9 +427,13 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	lo.Must0(r.Item.Save(ctx, i3))
 	lo.Must0(r.Item.Save(ctx, i4))
 	lo.Must0(r.Item.Save(ctx, i5))
+	lo.Must0(r.Item.Save(ctx, i6))
+	lo.Must0(r.Item.Save(ctx, i7))
 	lo.Must0(r.Item.UpdateRef(ctx, i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i2.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i3.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.UpdateRef(ctx, i6.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.UpdateRef(ctx, i7.ID(), version.Public, version.Latest.OrVersion().Ref()))
 
 	return nil
 }

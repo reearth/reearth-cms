@@ -6,11 +6,11 @@ import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-interface DefaultFieldProps {
+type DefaultFieldProps = {
   field: Field;
   itemGroupId?: string;
   disabled?: boolean;
-}
+};
 
 const MarkdownField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();

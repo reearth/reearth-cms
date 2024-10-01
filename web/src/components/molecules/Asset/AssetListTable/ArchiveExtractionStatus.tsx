@@ -3,9 +3,9 @@ import { ArchiveExtractionStatus as ArchiveExtractionStatusType } from "@reearth
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   archiveExtractionStatus: ArchiveExtractionStatusType;
-}
+};
 
 const ArchiveExtractionStatus: React.FC<Props> = ({ archiveExtractionStatus }) => {
   const { status, statusColor } = useHooks(archiveExtractionStatus);

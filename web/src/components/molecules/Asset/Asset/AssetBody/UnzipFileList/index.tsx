@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
@@ -11,12 +12,12 @@ import { useT } from "@reearth-cms/i18n";
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
 
-interface Props {
+type Props = {
   file: AssetFile;
   assetBaseUrl: string;
   archiveExtractionStatus: ArchiveExtractionStatus;
   setAssetUrl: (url: string) => void;
-}
+};
 
 const UnzipFileList: React.FC<Props> = ({
   file,
@@ -26,14 +27,13 @@ const UnzipFileList: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0-0"]);
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
-  const [treeData, setTreeData] = useState<FileNode[]>([]);
+  const [treeData, setTreeData] = useState<FileNode[]>();
 
   useEffect(() => {
-    const data = generateAssetTreeData(file, selectedKeys, assetBaseUrl);
+    const data = generateAssetTreeData(file);
     setTreeData(data);
-  }, [assetBaseUrl, file, selectedKeys]);
+  }, [file]);
 
   const previewFile = useCallback(
     (path: string) => {
@@ -51,9 +51,12 @@ const UnzipFileList: React.FC<Props> = ({
     [previewFile, selectedKeys],
   );
 
-  const handleExpand: TreeProps["onExpand"] = (keys: Key[]) => {
-    setExpandedKeys([...keys]);
-  };
+  const handleCopy = useCallback(
+    (path: string) => {
+      navigator.clipboard.writeText(assetBaseUrl + path);
+    },
+    [assetBaseUrl],
+  );
 
   return (
     <UnzipFileListWrapper>
@@ -69,16 +72,29 @@ const UnzipFileList: React.FC<Props> = ({
           </ExtractionFailedText>
         </ExtractionFailedWrapper>
       ) : (
-        <Tree
-          switcherIcon={<Icon icon="caretDown" />}
-          expandedKeys={[...expandedKeys]}
-          selectedKeys={[...selectedKeys]}
-          onSelect={handleSelect}
-          onExpand={handleExpand}
-          treeData={treeData}
-          multiple={false}
-          showLine
-        />
+        treeData && (
+          <Tree
+            switcherIcon={<Icon icon="caretDown" />}
+            defaultExpandedKeys={["0-0"]}
+            selectedKeys={selectedKeys}
+            onSelect={handleSelect}
+            treeData={treeData}
+            multiple={false}
+            showLine
+            titleRender={({ title, key, path }) => {
+              return (
+                <>
+                  {title}
+                  {selectedKeys[0] === key && (
+                    <Tooltip title={t("URL copied!!")} trigger={"click"}>
+                      <CopyIcon icon="copy" onClick={() => handleCopy(path)} />
+                    </Tooltip>
+                  )}
+                </>
+              );
+            }}
+          />
+        )
       )}
     </UnzipFileListWrapper>
   );
@@ -117,6 +133,15 @@ const ExtractionFailedText = styled.p`
   font-size: 14px;
   line-height: 22px;
   color: rgba(0, 0, 0, 0.85);
+`;
+
+const CopyIcon = styled(Icon)`
+  margin-left: 6px;
+  transition: all 0.3s;
+  color: rgb(0, 0, 0, 0.45);
+  :hover {
+    color: rgba(0, 0, 0, 0.88);
+  }
 `;
 
 export default UnzipFileList;

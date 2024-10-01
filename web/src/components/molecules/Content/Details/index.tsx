@@ -12,7 +12,7 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
-interface Props {
+type Props = {
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction: boolean;
@@ -98,7 +98,7 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
-}
+};
 
 const ContentDetailsMolecule: React.FC<Props> = ({
   loadingReference,

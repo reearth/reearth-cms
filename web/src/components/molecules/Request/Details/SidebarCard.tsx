@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-interface Props {
+type Props = {
   title: string;
   children?: ReactNode;
-}
+};
 
 const SidebarCard: React.FC<Props> = ({ title, children }) => {
   return (

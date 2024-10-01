@@ -8,7 +8,7 @@ import { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { modalStateType } from "@reearth-cms/components/organisms/Project/Content/ViewsMenu/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   currentView: CurrentView;
   open: boolean;
   modalState: modalStateType;
@@ -16,11 +16,11 @@ interface Props {
   onClose: () => void;
   onCreate: (name: string) => Promise<void>;
   OnUpdate: (viewId: string, name: string) => Promise<void>;
-}
+};
 
-interface FormType {
+type FormType = {
   name: string;
-}
+};
 
 const ViewFormModal: React.FC<Props> = ({
   currentView,

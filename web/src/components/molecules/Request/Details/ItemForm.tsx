@@ -11,13 +11,13 @@ import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Cont
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
 
-interface Props {
+type Props = {
   schema?: Schema;
   initialFormValues: Record<string, unknown>;
   referencedItems?: FormItem[];
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+};
 
 const RequestItemForm: React.FC<Props> = ({
   schema,
@@ -55,6 +55,14 @@ const RequestItemForm: React.FC<Props> = ({
                 />
               </div>
             );
+          } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
+            const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+
+            return (
+              <div key={field.id}>
+                <FieldComponent field={field} disabled />
+              </div>
+            );
           } else {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[
@@ -69,6 +77,7 @@ const RequestItemForm: React.FC<Props> = ({
                   | "MarkdownText"
                   | "Integer"
               ] || DefaultField;
+
             return (
               <div key={field.id}>
                 <FieldComponent field={field} disabled />

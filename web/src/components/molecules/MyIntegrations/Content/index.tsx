@@ -11,7 +11,7 @@ import {
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 import { useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   integration: Integration;
   webhookInitialValues?: WebhookValues;
   updateIntegrationLoading: boolean;
@@ -43,7 +43,7 @@ interface Props {
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
   onWebhookSelect: (id: string) => void;
-}
+};
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
@@ -66,7 +66,10 @@ const MyIntegrationContent: React.FC<Props> = ({
 
   return (
     <MyIntegrationWrapper>
-      <PageHeader title={integration.name} onBack={onIntegrationHeaderBack} />
+      <PageHeader
+        title={`${t("My Integration")} / ${integration.name}`}
+        onBack={onIntegrationHeaderBack}
+      />
       <MyIntegrationTabs defaultActiveKey="integration">
         <TabPane tab={t("General")} key="integration">
           <MyIntegrationSettings

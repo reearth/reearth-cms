@@ -95,6 +95,7 @@ const ProjectSchema: React.FC = () => {
             onModelSelect={handleModelSelect}
             onGroupSelect={handleGroupSelect}
             displayGroups
+            titleIcon={"unorderedList"}
           />
         }
         setIsMeta={setIsMeta}

@@ -7,14 +7,14 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 
-interface Props {
+type Props = {
   open: boolean;
   data?: Model | Group;
   deleteLoading: boolean;
   onClose: () => void;
   onDelete: (modelId?: string) => Promise<void>;
   isModel: boolean;
-}
+};
 
 const DeletionModal: React.FC<Props> = ({
   open,

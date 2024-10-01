@@ -11,7 +11,7 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
 
-interface Props {
+type Props = {
   me?: User;
   currentRequest: Request;
   onCommentCreate: (content: string) => Promise<void>;
@@ -19,7 +19,8 @@ interface Props {
   onCommentDelete: (commentId: string) => Promise<void>;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-}
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
+};
 
 const RequestThread: React.FC<Props> = ({
   me,
@@ -29,6 +30,7 @@ const RequestThread: React.FC<Props> = ({
   onCommentDelete,
   onGetAsset,
   onGroupGet,
+  onNavigateToItemEdit,
 }) => {
   return (
     <ContentWrapper>
@@ -38,6 +40,7 @@ const RequestThread: React.FC<Props> = ({
             currentRequest={currentRequest}
             onGetAsset={onGetAsset}
             onGroupGet={onGroupGet}
+            onNavigateToItemEdit={onNavigateToItemEdit}
           />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList

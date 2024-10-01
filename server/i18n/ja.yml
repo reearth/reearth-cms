@@ -14,6 +14,7 @@ comment already exist in this thread: コメントは既にこのスレッドに
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
 comment not found: コメントが見つかりませんでした。
 createdBy is required: createdByは必須です。
+data type mismatch: データ型の不一致
 duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
 duplicated value: 値が重複しています。
@@ -61,6 +62,8 @@ metadata schema not found: メタデータのスキーマが見つかりませ�
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
 model should have at least one view: モデルには少なくとも 1 つのビューが必要です
 multiple reference is not supported: 複数参照はサポートされていません
+no geometry field in this model: このモデルにはジオメトリフィールドがありません。
+no point field in this model: このモデルにはポイントフィールドがありません。
 not found: 見つかりませんでした。
 not implemented: 未実装です。
 not implemented yet: 未実装です。
@@ -70,6 +73,7 @@ one or more items not found: 対象のアイテムが見つかりませんでし
 only requests with status waiting can be approved: レビュー待ちのリクエストのみ承認可能です。
 only reviewers can approve: レビュワーのみ承認可能です。
 operation denied: 操作が拒否されました。
+point type is not supported in any geometry field in this model: このモデルのどのジオメトリフィールドでも、ポイントタイプはサポートされていません。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
 project alias is not set: プロジェクトエイリアスが設定されていません。
 projectID is required: プロジェクトIDは必須です。

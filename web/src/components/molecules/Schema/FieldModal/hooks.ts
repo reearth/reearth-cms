@@ -10,6 +10,8 @@ import {
   FieldType,
   FormValues,
   FormTypes,
+  ObjectSupportedType,
+  EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
@@ -18,6 +20,7 @@ export default (
   selectedType: FieldType,
   isMeta: boolean,
   selectedField: Field | null,
+  open: boolean,
   onClose: () => void,
   onSubmit: (values: FormValues) => Promise<void>,
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean,
@@ -27,6 +30,10 @@ export default (
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const selectedValues = Form.useWatch("values", form);
   const selectedTags = Form.useWatch("tags", form);
+  const selectedSupportedTypes = Form.useWatch<ObjectSupportedType[] | EditorSupportedType>(
+    "supportedTypes",
+    form,
+  );
   const [multipleValue, setMultipleValue] = useState(false);
   const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
@@ -126,6 +133,9 @@ export default (
       values: selectedField?.typeProperty?.values,
       tags: selectedField?.typeProperty?.tags,
       group: selectedField?.typeProperty?.groupId,
+      supportedTypes:
+        selectedField?.typeProperty?.objectSupportedTypes ||
+        selectedField?.typeProperty?.editorSupportedTypes?.[0],
     });
   }, [defaultValueGet, form, selectedField]);
 
@@ -146,7 +156,7 @@ export default (
       case "Select": {
         const defaultValue = Array.isArray(values.defaultValue)
           ? values.defaultValue.filter((value: string) => value)
-          : values.defaultValue ?? "";
+          : (values.defaultValue ?? "");
         return {
           select: { defaultValue, values: values.values ?? [] },
         };
@@ -154,7 +164,7 @@ export default (
       case "Integer": {
         const defaultValue = Array.isArray(values.defaultValue)
           ? values.defaultValue.filter((value: number | string) => typeof value === "number")
-          : values.defaultValue ?? "";
+          : (values.defaultValue ?? "");
         return {
           integer: {
             defaultValue,
@@ -187,6 +197,20 @@ export default (
         return {
           group: { groupId: values.group },
         };
+      case "GeometryObject":
+        return {
+          geometryObject: {
+            defaultValue: values.defaultValue,
+            supportedTypes: values.supportedTypes,
+          },
+        };
+      case "GeometryEditor":
+        return {
+          geometryEditor: {
+            defaultValue: values.defaultValue,
+            supportedTypes: [values.supportedTypes],
+          },
+        };
       case "Text":
       default:
         return {
@@ -198,10 +222,14 @@ export default (
   const values = Form.useWatch([], form);
   useEffect(() => {
     if (form.getFieldValue("title") && form.getFieldValue("key")) {
-      form
-        .validateFields()
-        .then(() => setButtonDisabled(false))
-        .catch(() => setButtonDisabled(true));
+      if (form.getFieldValue("supportedTypes")?.length === 0) {
+        setButtonDisabled(true);
+      } else {
+        form
+          .validateFields()
+          .then(() => setButtonDisabled(false))
+          .catch(() => setButtonDisabled(true));
+      }
     } else {
       setButtonDisabled(true);
     }
@@ -223,6 +251,7 @@ export default (
   );
 
   const handleModalReset = useCallback(() => {
+    prevKey.current = undefined;
     form.resetFields();
     setActiveTab("settings");
     setMultipleValue(false);
@@ -243,7 +272,7 @@ export default (
     } catch (error) {
       console.error(error);
     }
-  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
+  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, handleModalReset]);
 
   const isRequiredDisabled = useMemo(
     () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
@@ -267,8 +296,50 @@ export default (
         return Promise.reject();
       }
     },
-    [selectedField?.id],
+    [handleFieldKeyUnique, selectedField?.id],
   );
+
+  const isTitleDisabled = useMemo(
+    () =>
+      isMeta ||
+      selectedType === "Group" ||
+      selectedType === "GeometryObject" ||
+      selectedType === "GeometryEditor",
+    [isMeta, selectedType],
+  );
+
+  const ObjectSupportType = useMemo(
+    () => [
+      { label: "Point", value: "POINT" },
+      { label: "Linestring", value: "LINESTRING" },
+      { label: "Polygon", value: "POLYGON" },
+      { label: "GeometryCollection", value: "GEOMETRYCOLLECTION" },
+      { label: "MultiPoint", value: "MULTIPOINT" },
+      { label: "MultiLinestring", value: "MULTILINESTRING" },
+      { label: "MultiPolygon", value: "MULTIPOLYGON" },
+    ],
+    [],
+  );
+
+  const EditorSupportType = useMemo(
+    () => [
+      { label: "Point", value: "POINT" },
+      { label: "Linestring", value: "LINESTRING" },
+      { label: "Polygon", value: "POLYGON" },
+      { label: "Any", value: "ANY" },
+    ],
+    [],
+  );
+
+  useEffect(() => {
+    if (open && !selectedField) {
+      if (selectedType === "GeometryObject") {
+        form.setFieldValue("supportedTypes", []);
+      } else if (selectedType === "GeometryEditor") {
+        form.setFieldValue("supportedTypes", EditorSupportType[0].value);
+      }
+    }
+  }, [EditorSupportType, form, open, selectedField, selectedType]);
 
   return {
     form,
@@ -276,6 +347,7 @@ export default (
     activeTab,
     selectedValues,
     selectedTags,
+    selectedSupportedTypes,
     multipleValue,
     handleMultipleChange,
     handleTabChange,
@@ -286,5 +358,8 @@ export default (
     isRequiredDisabled,
     isUniqueDisabled,
     keyValidate,
+    isTitleDisabled,
+    ObjectSupportType,
+    EditorSupportType,
   };
 };

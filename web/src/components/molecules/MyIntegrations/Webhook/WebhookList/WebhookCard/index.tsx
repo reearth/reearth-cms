@@ -8,7 +8,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-interface Props {
+type Props = {
   webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {
@@ -19,7 +19,7 @@ interface Props {
     trigger: WebhookTrigger;
   }) => Promise<void>;
   onWebhookSettings: (webhookId: string) => void;
-}
+};
 
 const WebhookCard: React.FC<Props> = ({
   webhook,

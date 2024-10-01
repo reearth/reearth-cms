@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -636,9 +637,17 @@ func unpackArray(s any) []any {
 		return nil
 	}
 	v := reflect.ValueOf(s)
+	if v.Kind() != reflect.Slice {
+		return nil
+	}
 	r := make([]any, v.Len())
 	for i := 0; i < v.Len(); i++ {
-		r[i] = v.Index(i).Interface()
+		elem := v.Index(i).Interface()
+		if str, ok := elem.(string); ok && strings.TrimSpace(str) == "" {
+			r[i] = nil
+		} else {
+			r[i] = elem
+		}
 	}
 	return r
 }
