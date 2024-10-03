@@ -182,7 +182,7 @@ func closeAllRequests(e *httpexpect.Expect, projectId string, requestsId []strin
 	return res
 }
 
-func TestRequest(t *testing.T) {
+func TestCreateRequest(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
@@ -198,18 +198,36 @@ func TestRequest(t *testing.T) {
 	})
 	ver1 := i1.Path("$.data.createItem.item.version").Raw().(string)
 
-	// Create request
 	res := createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("DRAFT"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
 	req := res.Path("$.data.createRequest.request").Object()
-	rid := req.Value("id").String().Raw()
 
 	req.Value("title").IsEqual("test")
 	req.Value("description").IsEqual("test")
 	req.Value("state").IsEqual("DRAFT")
 	req.Value("reviewersId").IsEqual([]string{uId1.String()})
 	req.Value("items").IsEqual([]any{map[string]any{"itemId": iid1, "ref": nil, "version": ver1}})
+}
 
-	// Update request
+func TestUpdateRequest(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+	fid, _ := createField(e, mId, "text", "text", "text",
+		false, false, false, false, "Text",
+		map[string]any{
+			"text": map[string]any{},
+		})
+	sId, _, _ := getModel(e, mId)
+	iid1, i1 := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fid, "value": "test", "type": "Text"},
+	})
+	ver1 := i1.Path("$.data.createItem.item.version").Raw().(string)
+
+	res := createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("DRAFT"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
+	req := res.Path("$.data.createRequest.request").Object()
+	rid := req.Value("id").String().Raw()
+
 	iid2 := item.NewID().String()
 	ver2 := uuid.New().String()
 	res2 := updateRequest(e, rid, "test2", lo.ToPtr("test2"), lo.ToPtr("WAITING"), []string{uId1.String(), uId4.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}, map[string]any{"itemId": iid2, "version": ver2}})
@@ -221,12 +239,38 @@ func TestRequest(t *testing.T) {
 	req2.Value("reviewersId").IsEqual([]string{uId1.String(), uId4.String()})
 	req2.Value("items").Array().Length().IsEqual(2)
 	req2.Value("items").IsEqual([]any{map[string]any{"itemId": iid1, "ref": nil, "version": ver1}, map[string]any{"itemId": iid2, "ref": nil, "version": ver2}})
+}
 
-	// Approve
-	res3 := approveRequest(e, rid)
-	req3 := res3.Path("$.data.approveRequest.request").Object()
-	req3.Value("id").IsEqual(rid)
-	req3.Value("state").IsEqual("APPROVED")
+func TestApproveRequest(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+	fid, _ := createField(e, mId, "text", "text", "text",
+		false, false, false, false, "Text",
+		map[string]any{
+			"text": map[string]any{},
+		})
+	sId, _, _ := getModel(e, mId)
+	iid1, i1 := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fid, "value": "test", "type": "Text"},
+	})
+	ver1 := i1.Path("$.data.createItem.item.version").Raw().(string)
+
+	res := createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver1}})
+	req := res.Path("$.data.createRequest.request").Object()
+	rid := req.Value("id").String().Raw()
+
+	req.Value("title").IsEqual("test")
+	req.Value("description").IsEqual("test")
+	req.Value("state").IsEqual("WAITING")
+	req.Value("reviewersId").IsEqual([]string{uId1.String()})
+	req.Value("items").IsEqual([]any{map[string]any{"itemId": iid1, "ref": nil, "version": ver1}})
+
+	res2 := approveRequest(e, rid)
+	req2 := res2.Path("$.data.approveRequest.request").Object()
+	req2.Value("id").IsEqual(rid)
+	req2.Value("state").IsEqual("APPROVED")
 
 	_, itm_public := getItem(e, iid1)
 	itm_public.Path("$.data.node").Object().Value("version").IsEqual(ver1)
