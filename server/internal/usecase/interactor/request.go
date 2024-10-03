@@ -162,6 +162,13 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			req.SetState(*param.State)
 		}
 
+		if param.Title != nil {
+			err := req.SetTitle(*param.Title)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		if param.Description != nil {
 			req.SetDescription(*param.Description)
 		}

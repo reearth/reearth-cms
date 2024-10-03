@@ -8,6 +8,7 @@ import (
 	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 )
 
 func createRequest(e *httpexpect.Expect, projectId, title string, description, state *string, reviewersId []string, items []any) *httpexpect.Value {
@@ -202,10 +203,7 @@ func TestRequest(t *testing.T) {
 	description := "test"
 	state := "DRAFT"
 	reviewersId := []string{uId1.String()}
-	itm1 := map[string]any{
-		"itemId":  iid1,
-		"version": ver,
-	}
+	itm1 := map[string]any{"itemId": iid1, "version": ver}
 	items := []any{itm1}
 
 	res := createRequest(e, pId, title, &description, &state, reviewersId, items)
@@ -216,33 +214,35 @@ func TestRequest(t *testing.T) {
 	req.Value("description").IsEqual(description)
 	req.Value("state").IsEqual(state)
 	req.Value("reviewersId").IsEqual(reviewersId)
-	req.Value("items").Array().Value(0).Object().Value("itemId").IsEqual(iid1)
-	req.Value("items").Array().Value(0).Object().Value("version").IsEqual(ver)
+
+	req.Value("items").IsEqual([]any{map[string]any{"itemId": iid1, "ref": nil,  "version": ver}})
 
 	// Update request
 	title2 := "test2"
 	description2 := "test2"
 	state2 := "WAITING"
 	reviewersId2 := []string{uId1.String(), uId4.String()}
-	newVer2 := uuid.New().String()
-	itm2 := map[string]any{
-		"itemId":  itmId2,
-		"version": newVer2,
-	}
-	items2 := []any{itm1, itm2}
+	iid2 := item.NewID().String()
+	ver2 := uuid.New().String()
+	items2 := []any{itm1, map[string]any{"itemId": iid2, "version": ver2}}
 	res2 := updateRequest(e, rid, title2, &description2, &state2, reviewersId2, items2)
 	req2 := res2.Path("$.data.updateRequest.request").Object()
-	fmt.Println(req2)
-	
+
+	req2.Value("title").IsEqual(title2)
+	req2.Value("description").IsEqual(description2)
+	req2.Value("state").IsEqual(state2)
+	req2.Value("reviewersId").IsEqual(reviewersId2)
+	req2.Value("items").Array().Length().IsEqual(2)
+	req2.Value("items").IsEqual([]any{map[string]any{"itemId": iid1, "ref": nil,  "version": ver},map[string]any{"itemId": iid2, "ref": nil,  "version": ver2}})
+
 	// Approve
 	res3 := approveRequest(e, rid)
 	req3 := res3.Path("$.data.approveRequest.request").Object()
 	req3.Value("state").IsEqual("APPROVED")
 	fmt.Println(req3)
-	
+
 	// Close All
 	res4 := closeAllRequests(e, pId, []string{rid})
 	req4 := res4.Path("$.data.deleteRequest.requests").Array()
 	req4.Value(0).IsEqual(rid)
-	fmt.Println(req4)
 }
