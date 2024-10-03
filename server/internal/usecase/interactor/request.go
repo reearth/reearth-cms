@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -78,15 +79,9 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.Ref())
+		items, err := r.validateItemsForCreateOrUpdate(ctx, param.Items)
 		if err != nil {
 			return nil, err
-		}
-
-		for _, itm := range repoItems {
-			if itm.Refs().Has(version.Latest) {
-				return nil, interfaces.ErrAlreadyPublished
-			}
 		}
 
 		th, err := thread.New().NewID().Workspace(ws.ID()).Build()
@@ -104,7 +99,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			Project(param.ProjectID).
 			CreatedBy(*operator.AcOperator.User).
 			Thread(th.ID()).
-			Items(param.Items).
+			Items(*items).
 			Title(param.Title)
 
 		if param.State != nil {
@@ -167,6 +162,13 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 			req.SetState(*param.State)
 		}
 
+		if param.Title != nil {
+			err := req.SetTitle(*param.Title)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		if param.Description != nil {
 			req.SetDescription(*param.Description)
 		}
@@ -181,18 +183,11 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		}
 
 		if param.Items != nil {
-			repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.Ref())
+			items, err := r.validateItemsForCreateOrUpdate(ctx, param.Items)
 			if err != nil {
 				return nil, err
 			}
-
-			for _, itm := range repoItems {
-				if itm.Refs().Has(version.Latest) {
-					return nil, interfaces.ErrAlreadyPublished
-				}
-
-			}
-			if err := req.SetItems(param.Items); err != nil {
+			if err := req.SetItems(*items); err != nil {
 				return nil, err
 			}
 		}
@@ -203,6 +198,36 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 
 		return req, nil
 	})
+}
+
+func (r Request) validateItemsForCreateOrUpdate(ctx context.Context, items request.ItemList) (*request.ItemList, error) {
+	if items.HasDuplication() {
+		return nil, request.ErrDuplicatedItem
+	}
+
+	res := slices.Clone(items)
+	publicItems, err := r.repos.Item.FindByIDs(ctx, res.IDs(), version.Public.Ref())
+	if err != nil {
+		return nil, err
+	}
+	for _, itm := range publicItems {
+		if itm.Refs().Has(version.Latest) {
+			return nil, interfaces.ErrAlreadyPublished
+		}
+	}
+
+	latestItems, err := r.repos.Item.FindByIDs(ctx, res.IDs(), version.Latest.Ref())
+	if err != nil {
+		return nil, err
+	}
+	latestItemsMap := latestItems.ToMap()
+	for _, itm := range res {
+		if itm.Pointer().IsZero() || itm.Pointer().IsRef(version.Latest) {
+			itm.SetPointer(latestItemsMap[itm.Item()].Version().OrRef())
+		}
+	}
+
+	return &res, nil
 }
 
 func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestIDList, operator *usecase.Operator) error {

@@ -216,6 +216,13 @@ export default () => {
     [navigate, currentWorkspace?.id, currentProject?.id],
   );
 
+  const handleNavigateToRequest = useCallback(
+    (id: string) => {
+      navigate(`/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/request/${id}`);
+    },
+    [navigate, currentWorkspace?.id, currentProject?.id],
+  );
+
   const handleBack = useCallback(() => {
     navigate(
       `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}`,
@@ -613,6 +620,7 @@ export default () => {
     handleItemUpdate,
     handleMetaItemUpdate,
     handleNavigateToModel,
+    handleNavigateToRequest,
     handleBack,
     handleRequestCreate,
     updateRequestLoading,
