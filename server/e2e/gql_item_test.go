@@ -20,8 +20,9 @@ func createItem(e *httpexpect.Expect, mID, sID string, metaId *string, fields []
 				  ) {
 					item {
 					  id
+						version
 					  schemaId
-                      isMetadata
+              isMetadata
 					  fields {
 						value
 						type
