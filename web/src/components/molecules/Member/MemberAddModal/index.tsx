@@ -111,7 +111,7 @@ const MemberAddModal: React.FC<Props> = ({
         </Button>,
       ]}>
       {open && (
-        <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
+        <Form form={form} layout="vertical" initialValues={initialValues}>
           <Form.Item name="name" label={t("Email address or user name")}>
             <Search size="large" onSearch={handleMemberNameChange} type="text" allowClear />
           </Form.Item>

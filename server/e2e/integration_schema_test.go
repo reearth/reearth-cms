@@ -151,7 +151,8 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusBadRequest)
 
-	obj1 := e.POST(endpoint, sid1).
+	// region bool
+	res := e.POST(endpoint, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -160,17 +161,20 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 			"required": false,
 		}).
 		Expect().
-		Status(http.StatusOK)
+		Status(http.StatusOK).
+		JSON().
+		Object()
 
-	obj1.JSON().Object().ContainsKey("id")
+	res.ContainsKey("id")
 
-	obj := e.GET("/api/models/{modelId}", mId1).
+	res = e.GET("/api/models/{modelId}", mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", mId1.String()).
+		Object()
+
+	res.HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
 		HasValue("public", true).
@@ -178,9 +182,46 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
 
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
+	res.Value("createdAt").NotNull()
+	res.Value("updatedAt").NotNull()
+	res.Value("lastModified").NotNull()
+	// endregion
+
+	// region GeoObject
+	res = e.POST(endpoint, sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"key":      "fKey2",
+			"type":     "geometryObject",
+			"multiple": false,
+			"required": false,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.ContainsKey("id")
+
+	res = e.GET("/api/models/{modelId}", mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.HasValue("id", mId1.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
+		HasValue("public", true).
+		HasValue("key", ikey1.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid1)
+
+	res.Value("createdAt").NotNull()
+	res.Value("updatedAt").NotNull()
+	res.Value("lastModified").NotNull()
+	// endregion
 }
 
 // PATCH /api/models/{modelId}/fields/{FieldIdOrKey}
