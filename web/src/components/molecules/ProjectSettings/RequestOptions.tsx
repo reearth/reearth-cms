@@ -17,10 +17,15 @@ type RequestOptionsData = {
 
 type Props = {
   project: Project;
+  hasUpdateRight: boolean;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
 };
 
-const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRolesUpdate }) => {
+const ProjectRequestOptions: React.FC<Props> = ({
+  project,
+  hasUpdateRight,
+  onProjectRequestRolesUpdate,
+}) => {
   const t = useT();
   const [requestRoles, setRequestRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +74,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
                 setRequestRoles(requestRoles?.filter(role => role !== "OWNER"));
               }
             }}
+            disabled={!hasUpdateRight}
           />
         ),
       },
@@ -89,6 +95,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
                 setRequestRoles(requestRoles?.filter(role => role !== "MAINTAINER"));
               }
             }}
+            disabled={!hasUpdateRight}
           />
         ),
       },
@@ -109,6 +116,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
                 setRequestRoles(requestRoles?.filter(role => role !== "WRITER"));
               }
             }}
+            disabled={!hasUpdateRight}
           />
         ),
       },
@@ -136,7 +144,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
     ];
 
     return columns;
-  }, [requestRoles]);
+  }, [hasUpdateRight, requestRoles]);
 
   const handleSave = useCallback(async () => {
     setIsLoading(true);
@@ -150,7 +158,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
   return (
     <>
       <SeondaryText>
-        {t("If this option is chosen, all new model within the project will default follow it")}
+        {t("If this option is chosen, all new model within the project will default follow it.")}
       </SeondaryText>
       <TableWrapper>
         <Table dataSource={dataSource} columns={columns} pagination={false} />
