@@ -35,6 +35,7 @@ type Props = {
   totalCount?: number;
   page?: number;
   pageSize?: number;
+  hasCreateRight: boolean;
   onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
@@ -62,6 +63,7 @@ const LinkAssetModal: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  hasCreateRight,
   onAssetTableChange,
   setUploadUrl,
   setUploadType,
@@ -231,6 +233,7 @@ const LinkAssetModal: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          hasCreateRight={hasCreateRight}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
           displayUploadModal={displayUploadModal}

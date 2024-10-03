@@ -76,6 +76,7 @@ const AssetItem: React.FC<Props> = ({
     visible,
     workspaceId,
     projectId,
+    hasCreateRight,
     handleClick,
     handleLinkAssetModalCancel,
     displayUploadModal,
@@ -203,6 +204,7 @@ const AssetItem: React.FC<Props> = ({
           totalCount={totalCount}
           page={page}
           pageSize={pageSize}
+          hasCreateRight={hasCreateRight}
           onAssetTableChange={onAssetTableChange}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
