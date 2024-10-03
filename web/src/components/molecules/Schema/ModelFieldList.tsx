@@ -15,6 +15,8 @@ import { Field } from "./types";
 type Props = {
   isMeta?: boolean;
   fields?: Field[];
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
@@ -23,6 +25,8 @@ type Props = {
 const ModelFieldList: React.FC<Props> = ({
   fields,
   isMeta,
+  hasUpdateRight,
+  hasDeleteRight,
   onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
@@ -51,23 +55,29 @@ const ModelFieldList: React.FC<Props> = ({
     setData(fields);
   }, [fields]);
 
-  const reorder = (list: Field[] | undefined, startIndex: number, endIndex: number) => {
-    if (!list) return;
-    let result = Array.from(list);
-    if (isMeta) {
-      result = result.map(field => ({ ...field, metadata: true }));
-    }
+  const reorder = useCallback(
+    (list: Field[] | undefined, startIndex: number, endIndex: number) => {
+      if (!list) return;
+      let result = Array.from(list);
+      if (isMeta) {
+        result = result.map(field => ({ ...field, metadata: true }));
+      }
 
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    onFieldReorder(result);
-    return result;
-  };
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      onFieldReorder(result);
+      return result;
+    },
+    [isMeta, onFieldReorder],
+  );
 
-  const onDragEnd = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0) return;
-    return setData(reorder(data, fromIndex, toIndex));
-  };
+  const onDragEnd = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0) return;
+      return setData(reorder(data, fromIndex, toIndex));
+    },
+    [data, reorder],
+  );
 
   return (
     <>
@@ -104,6 +114,7 @@ const ModelFieldList: React.FC<Props> = ({
       ) : (
         <ReactDragListView
           nodeSelector=".ant-list-item"
+          handleSelector=".grabbable"
           lineClassName="dragLine"
           onDragEnd={onDragEnd}>
           <FieldStyledList itemLayout="horizontal">
@@ -118,6 +129,7 @@ const ModelFieldList: React.FC<Props> = ({
                     size="small"
                     onClick={() => handleFieldDeleteConfirmation(item.id)}
                     icon={<Icon icon="delete" color="#8c8c8c" />}
+                    disabled={!hasDeleteRight}
                   />,
                   <Button
                     type="text"
@@ -125,12 +137,13 @@ const ModelFieldList: React.FC<Props> = ({
                     size="small"
                     onClick={() => handleFieldUpdateModalOpen(item)}
                     icon={<Icon icon="ellipsis" color="#8c8c8c" />}
+                    disabled={!hasUpdateRight}
                   />,
                 ]}>
                 <List.Item.Meta
                   avatar={
                     <FieldThumbnail>
-                      <DragIcon icon="menu" className="grabbable" />
+                      {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
                       <StyledIcon
                         icon={fieldTypes[item.type].icon}
                         color={fieldTypes[item.type].color}
@@ -159,6 +172,9 @@ const ModelFieldList: React.FC<Props> = ({
 const DragIcon = styled(Icon)`
   margin-right: 16px;
   cursor: grab;
+  :active {
+    cursor: grabbing;
+  }
 `;
 
 const StyledIcon = styled(Icon)`
@@ -190,7 +206,6 @@ const FieldStyledList = styled(List)`
   }
   .ant-list-item {
     background-color: #fff;
-    cursor: pointer;
     + .ant-list-item {
       margin-top: 12px;
     }
@@ -209,10 +224,6 @@ const FieldStyledList = styled(List)`
     .ant-list-item-action > li {
       padding: 0 3px;
     }
-  }
-
-  .grabbable {
-    cursor: grab;
   }
 `;
 
