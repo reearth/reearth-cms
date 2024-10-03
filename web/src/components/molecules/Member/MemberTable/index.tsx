@@ -39,6 +39,8 @@ type Props = {
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
   onReload: () => void;
+  hasInviteRight: boolean;
+  hasRemoveRight: boolean;
 };
 
 const MemberTable: React.FC<Props> = ({
@@ -58,6 +60,8 @@ const MemberTable: React.FC<Props> = ({
   onTableChange,
   loading,
   onReload,
+  hasInviteRight,
+  hasRemoveRight,
 }) => {
   const t = useT();
 
@@ -214,12 +218,18 @@ const MemberTable: React.FC<Props> = ({
         <DeselectButton onClick={props.onCleanSelected}>
           <Icon icon="clear" /> {t("Deselect")}
         </DeselectButton>
-        <DeleteButton onClick={() => handleMemberDelete(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Remove")}
-        </DeleteButton>
+        <Button
+          type="link"
+          size="small"
+          icon={<Icon icon="delete" />}
+          onClick={() => handleMemberDelete(props.selectedRowKeys)}
+          danger
+          disabled={!hasRemoveRight}>
+          {t("Remove")}
+        </Button>
       </Space>
     ),
-    [handleMemberDelete, t],
+    [handleMemberDelete, t, hasRemoveRight],
   );
 
   const options = useMemo(
@@ -238,7 +248,8 @@ const MemberTable: React.FC<Props> = ({
           <Button
             type="primary"
             onClick={handleMemberAddModalOpen}
-            icon={<Icon icon="userGroupAdd" />}>
+            icon={<Icon icon="userGroupAdd" />}
+            disabled={!hasInviteRight}>
             {t("New Member")}
           </Button>
         }
@@ -283,13 +294,6 @@ const DeselectButton = styled.a`
   display: flex;
   align-items: center;
   gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
-  :hover {
-    color: #ff7875b3;
-  }
 `;
 
 export default MemberTable;
