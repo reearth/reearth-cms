@@ -6,7 +6,16 @@ export const userRightsGet = (role: Role): UserRights => {
       return {
         role,
         workspace: {
-          remove: true,
+          update: true,
+          delete: true,
+        },
+        workspaceSetting: {
+          update: true,
+        },
+        integrations: {
+          connect: true,
+          update: true,
+          delete: true,
         },
         members: {
           invite: true,
@@ -34,11 +43,18 @@ export const userRightsGet = (role: Role): UserRights => {
           delete: true,
           publish: true,
         },
+        view: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+        },
         content: {
           create: true,
           read: true,
           update: true,
           delete: true,
+          publish: true,
         },
         asset: {
           create: true,
@@ -52,7 +68,7 @@ export const userRightsGet = (role: Role): UserRights => {
           update: true,
           delete: true,
           approve: true,
-          deny: true,
+          close: true,
         },
         comment: {
           create: true,
@@ -65,12 +81,21 @@ export const userRightsGet = (role: Role): UserRights => {
       return {
         role,
         workspace: {
-          remove: true,
+          update: false,
+          delete: false,
+        },
+        workspaceSetting: {
+          update: true,
+        },
+        integrations: {
+          connect: true,
+          update: true,
+          delete: true,
         },
         members: {
-          invite: true,
-          remove: true,
-          changeRole: true,
+          invite: false,
+          remove: false,
+          changeRole: false,
           leave: true,
         },
         project: {
@@ -81,6 +106,12 @@ export const userRightsGet = (role: Role): UserRights => {
           publish: true,
         },
         schema: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+        },
+        view: {
           create: true,
           read: true,
           update: true,
@@ -98,6 +129,7 @@ export const userRightsGet = (role: Role): UserRights => {
           read: true,
           update: true,
           delete: true,
+          publish: true,
         },
         asset: {
           create: true,
@@ -111,7 +143,7 @@ export const userRightsGet = (role: Role): UserRights => {
           update: true,
           delete: true,
           approve: true,
-          deny: true,
+          close: true,
         },
         comment: {
           create: true,
@@ -124,7 +156,16 @@ export const userRightsGet = (role: Role): UserRights => {
       return {
         role,
         workspace: {
-          remove: false,
+          update: false,
+          delete: false,
+        },
+        workspaceSetting: {
+          update: false,
+        },
+        integrations: {
+          connect: false,
+          update: false,
+          delete: false,
         },
         members: {
           invite: false,
@@ -145,6 +186,12 @@ export const userRightsGet = (role: Role): UserRights => {
           update: false,
           delete: false,
         },
+        view: {
+          create: false,
+          read: true,
+          update: false,
+          delete: false,
+        },
         model: {
           create: false,
           read: true,
@@ -155,28 +202,29 @@ export const userRightsGet = (role: Role): UserRights => {
         content: {
           create: true,
           read: true,
-          update: true,
-          delete: true,
+          update: false,
+          delete: false,
+          publish: false,
         },
         asset: {
           create: true,
           read: true,
-          update: true,
-          delete: true,
+          update: false,
+          delete: false,
         },
         request: {
           create: true,
           read: true,
-          update: true,
-          delete: true,
+          update: false,
+          delete: false,
           approve: false,
-          deny: false,
+          close: false,
         },
         comment: {
           create: true,
           read: true,
-          update: true,
-          delete: true,
+          update: false,
+          delete: false,
         },
       };
     case "READER":
@@ -184,7 +232,16 @@ export const userRightsGet = (role: Role): UserRights => {
       return {
         role,
         workspace: {
-          remove: false,
+          update: false,
+          delete: false,
+        },
+        workspaceSetting: {
+          update: false,
+        },
+        integrations: {
+          connect: false,
+          update: false,
+          delete: false,
         },
         members: {
           invite: false,
@@ -205,6 +262,12 @@ export const userRightsGet = (role: Role): UserRights => {
           update: false,
           delete: false,
         },
+        view: {
+          create: false,
+          read: true,
+          update: false,
+          delete: false,
+        },
         model: {
           create: false,
           read: true,
@@ -217,6 +280,7 @@ export const userRightsGet = (role: Role): UserRights => {
           read: true,
           update: false,
           delete: false,
+          publish: false,
         },
         asset: {
           create: false,
@@ -230,7 +294,7 @@ export const userRightsGet = (role: Role): UserRights => {
           update: false,
           delete: false,
           approve: false,
-          deny: false,
+          close: false,
         },
         comment: {
           create: false,
