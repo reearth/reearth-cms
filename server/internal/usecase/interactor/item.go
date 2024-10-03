@@ -128,6 +128,10 @@ func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.
 	return res, nil
 }
 
+func (i Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef, _ *usecase.Operator) (item.Versioned, error) {
+	return i.repos.Item.FindVersionByID(ctx, itemID, ver)
+}
+
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }

@@ -32,7 +32,7 @@ func (r *mutationResolver) CreateRequest(ctx context.Context, input gqlmodel.Cre
 			return nil, err
 		}
 
-		return request.NewItem(iid)
+		return request.NewItem(iid, i.Version)
 	})
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (r *mutationResolver) UpdateRequest(ctx context.Context, input gqlmodel.Upd
 			return nil, err
 		}
 
-		return request.NewItem(iid)
+		return request.NewItem(iid, i.Version)
 	})
 	if err != nil {
 		return nil, err
@@ -171,7 +171,7 @@ func (r *requestResolver) Reviewers(ctx context.Context, obj *gqlmodel.Request) 
 
 // Item is the resolver for the item field.
 func (r *requestItemResolver) Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error) {
-	return loaders(ctx).Item.FindVersionedItem(ctx, obj.ItemID)
+	return loaders(ctx).Item.FindVersionedItem(ctx, obj.ItemID, obj.Version)
 }
 
 // Request returns RequestResolver implementation.

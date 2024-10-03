@@ -24,6 +24,7 @@ var (
 	uId1 = accountdomain.NewUserID()
 	uId2 = accountdomain.NewUserID()
 	uId3 = accountdomain.NewUserID()
+	uId4 = accountdomain.NewUserID()
 	wId  = accountdomain.NewWorkspaceID()
 	wId2 = accountdomain.NewWorkspaceID()
 	iId1 = accountdomain.NewIntegrationID()
