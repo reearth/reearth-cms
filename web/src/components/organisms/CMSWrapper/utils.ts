@@ -66,9 +66,8 @@ export const userRightsGet = (role: Role): UserRights => {
           create: true,
           read: true,
           update: true,
-          delete: true,
-          approve: true,
           close: true,
+          approve: true,
         },
         comment: {
           create: true,
@@ -141,9 +140,8 @@ export const userRightsGet = (role: Role): UserRights => {
           create: true,
           read: true,
           update: true,
-          delete: true,
-          approve: true,
           close: true,
+          approve: true,
         },
         comment: {
           create: true,
@@ -216,9 +214,8 @@ export const userRightsGet = (role: Role): UserRights => {
           create: true,
           read: true,
           update: false,
-          delete: false,
-          approve: false,
           close: false,
+          approve: false,
         },
         comment: {
           create: true,
@@ -292,9 +289,8 @@ export const userRightsGet = (role: Role): UserRights => {
           create: false,
           read: true,
           update: false,
-          delete: false,
-          approve: false,
           close: false,
+          approve: false,
         },
         comment: {
           create: false,

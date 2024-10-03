@@ -10,10 +10,9 @@ import {
   useDeleteRequestMutation,
   Comment as GQLComment,
   RequestState as GQLRequestState,
-  useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
 
 export type RequestState = "DRAFT" | "WAITING" | "CLOSED" | "APPROVED";
 
@@ -32,12 +31,34 @@ export default () => {
       pageSize: number;
     } | null;
   } = useLocation();
+
   const [currentProject] = useProject();
+  const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const [currentWorkspace] = useWorkspace();
+  const [userId] = useUserId();
+  const [userRights] = useUserRights();
+  const [hasCloseRight, setHasCloseRight] = useState(false);
+
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
+
+  const handleSelect = useCallback(
+    (selectedRowKeys: Key[], selectedRows: Request[]) => {
+      setSelection({
+        ...selection,
+        selectedRowKeys,
+      });
+      if (userRights?.role === "WRITER") {
+        setHasCloseRight(selectedRows.every(row => row.createdBy?.id === userId));
+      } else {
+        setHasCloseRight(!!userRights?.request.close);
+      }
+    },
+    [selection, userId, userRights?.request.close, userRights?.role],
+  );
+
   const [selectedRequestId, setselectedRequestId] = useState<string>();
   const [page, setPage] = useState(location.state?.page ?? 1);
   const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
@@ -53,10 +74,6 @@ export default () => {
     location.state?.columns ?? {},
   );
 
-  const projectId = useMemo(() => currentProject?.id, [currentProject]);
-
-  const { data: userData } = useGetMeQuery();
-
   const {
     data: rawRequests,
     refetch,
@@ -69,8 +86,8 @@ export default () => {
       sort: { key: "createdAt", reverted: true },
       key: searchTerm,
       state: requestState.length === 0 ? undefined : (requestState as GQLRequestState[]),
-      reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,
-      createdBy: createdByMe && userData?.me?.id ? userData?.me?.id : undefined,
+      reviewer: reviewedByMe && userId ? userId : undefined,
+      createdBy: createdByMe && userId ? userId : undefined,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
@@ -195,7 +212,7 @@ export default () => {
     selectedRequest,
     selection,
     handleNavigateToRequest,
-    setSelection,
+    handleSelect,
     handleRequestSelect,
     handleRequestsReload,
     deleteLoading,
@@ -211,5 +228,6 @@ export default () => {
     handleRequestTableChange,
     columns,
     handleColumnsChange,
+    hasCloseRight,
   };
 };

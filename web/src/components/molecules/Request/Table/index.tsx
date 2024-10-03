@@ -31,7 +31,7 @@ type Props = {
   selection: {
     selectedRowKeys: Key[];
   };
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Request[]) => void;
   onRequestsReload: () => void;
   deleteLoading: boolean;
   onRequestDelete: (requestIds: string[]) => void;
@@ -50,6 +50,7 @@ type Props = {
   pageSize: number;
   columns: Record<string, ColumnsState>;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
+  hasCloseRight: boolean;
 };
 
 const RequestListTable: React.FC<Props> = ({
@@ -61,7 +62,7 @@ const RequestListTable: React.FC<Props> = ({
   searchTerm,
   onSearchTerm,
   selection,
-  setSelection,
+  onSelect,
   onRequestsReload,
   deleteLoading,
   onRequestDelete,
@@ -74,6 +75,7 @@ const RequestListTable: React.FC<Props> = ({
   pageSize,
   columns: columnsState,
   onColumnsChange,
+  hasCloseRight,
 }) => {
   const t = useT();
 
@@ -245,14 +247,9 @@ const RequestListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys,
-        });
-      },
+      onChange: onSelect,
     }),
-    [selection, setSelection],
+    [onSelect, selection.selectedRowKeys],
   );
 
   const handleToolbarEvents: ListToolBarProps = useMemo(
@@ -289,13 +286,14 @@ const RequestListTable: React.FC<Props> = ({
             icon={<Icon icon="delete" />}
             onClick={() => onRequestDelete(props.selectedRowKeys)}
             danger
-            loading={deleteLoading}>
+            loading={deleteLoading}
+            disabled={!hasCloseRight}>
             {t("Close")}
           </Button>
         </Space>
       );
     },
-    [deleteLoading, onRequestDelete, t],
+    [deleteLoading, onRequestDelete, t, hasCloseRight],
   );
 
   return (
