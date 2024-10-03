@@ -13,8 +13,14 @@ import RequestSidebarWrapper from "./SidebarWrapper";
 
 type Props = {
   me?: User;
+  isWriter: boolean;
+  hasCommentCreateRight: boolean;
+  hasCommentUpdateRight: boolean;
+  hasCommentDeleteRight: boolean;
   isCloseActionEnabled: boolean;
+  isReopenActionEnabled: boolean;
   isApproveActionEnabled: boolean;
+  isAssignActionEnabled: boolean;
   currentRequest: Request;
   workspaceUserMembers: UserMember[];
   deleteLoading: boolean;
@@ -34,8 +40,14 @@ type Props = {
 
 const RequestMolecule: React.FC<Props> = ({
   me,
+  isWriter,
+  hasCommentCreateRight,
+  hasCommentUpdateRight,
+  hasCommentDeleteRight,
   isCloseActionEnabled,
+  isReopenActionEnabled,
   isApproveActionEnabled,
+  isAssignActionEnabled,
   currentRequest,
   workspaceUserMembers,
   deleteLoading,
@@ -69,6 +81,7 @@ const RequestMolecule: React.FC<Props> = ({
             </Button>
             <Button
               hidden={currentRequest.state !== "CLOSED"}
+              disabled={!isReopenActionEnabled}
               loading={updateLoading}
               onClick={() =>
                 onRequestUpdate({
@@ -95,6 +108,10 @@ const RequestMolecule: React.FC<Props> = ({
         <ThreadWrapper>
           <RequestThread
             me={me}
+            isWriter={isWriter}
+            hasCommentCreateRight={hasCommentCreateRight}
+            hasCommentUpdateRight={hasCommentUpdateRight}
+            hasCommentDeleteRight={hasCommentDeleteRight}
             currentRequest={currentRequest}
             onCommentCreate={onCommentCreate}
             onCommentUpdate={onCommentUpdate}
@@ -107,6 +124,7 @@ const RequestMolecule: React.FC<Props> = ({
         <RequestSidebarWrapper
           currentRequest={currentRequest}
           workspaceUserMembers={workspaceUserMembers}
+          isAssignActionEnabled={isAssignActionEnabled}
           onRequestUpdate={onRequestUpdate}
         />
       </BodyWrapper>
