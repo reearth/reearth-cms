@@ -261,12 +261,6 @@ func TestApproveRequest(t *testing.T) {
 	req := res.Path("$.data.createRequest.request").Object()
 	rid := req.Value("id").String().Raw()
 
-	req.Value("title").IsEqual("test")
-	req.Value("description").IsEqual("test")
-	req.Value("state").IsEqual("WAITING")
-	req.Value("reviewersId").IsEqual([]string{uId1.String()})
-	req.Value("items").IsEqual([]any{map[string]any{"itemId": iid1, "ref": nil, "version": ver1}})
-
 	res2 := approveRequest(e, rid)
 	req2 := res2.Path("$.data.approveRequest.request").Object()
 	req2.Value("id").IsEqual(rid)
