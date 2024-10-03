@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -214,7 +213,6 @@ func TestRequest(t *testing.T) {
 	req.Value("description").IsEqual(description)
 	req.Value("state").IsEqual(state)
 	req.Value("reviewersId").IsEqual(reviewersId)
-
 	req.Value("items").IsEqual([]any{map[string]any{"itemId": iid1, "ref": nil,  "version": ver}})
 
 	// Update request
@@ -238,8 +236,8 @@ func TestRequest(t *testing.T) {
 	// Approve
 	res3 := approveRequest(e, rid)
 	req3 := res3.Path("$.data.approveRequest.request").Object()
+	req3.Value("id").IsEqual(rid)
 	req3.Value("state").IsEqual("APPROVED")
-	fmt.Println(req3)
 
 	// Close All
 	res4 := closeAllRequests(e, pId, []string{rid})
