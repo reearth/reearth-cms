@@ -17,15 +17,8 @@ const IntegerField: React.FC<Props> = ({ multiple, min, max }) => {
   const validate = useCallback(
     (value: unknown) => {
       if (typeof value === "number") {
-        if (min) {
-          if (value < min) {
-            return true;
-          }
-        }
-        if (max) {
-          if (max < value) {
-            return true;
-          }
+        if ((min && value < min) || (max && value > max)) {
+          return true;
         }
       }
       return false;
