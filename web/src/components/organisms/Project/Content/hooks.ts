@@ -12,12 +12,15 @@ import {
   usePublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
+import { useModel, useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const [currentModel] = useModel();
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
+  const [userId] = useUserId();
+  const [userRights] = useUserRights();
+
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
 
@@ -38,6 +41,7 @@ export default () => {
       sort: { key: "createdAt", reverted: true },
       state: ["WAITING"] as GQLRequestState[],
       key: searchTerm,
+      createdBy: userRights?.role === "WRITER" ? userId : undefined,
     },
   });
 
