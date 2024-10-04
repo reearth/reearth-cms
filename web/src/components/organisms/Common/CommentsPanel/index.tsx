@@ -23,7 +23,16 @@ const CommentsPanel: React.FC<Props> = ({
   onCollapse,
   refetchQueries,
 }) => {
-  const { me, handleCommentCreate, handleCommentUpdate, handleCommentDelete } = useHooks({
+  const {
+    me,
+    isWriter,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
+    handleCommentCreate,
+    handleCommentUpdate,
+    handleCommentDelete,
+  } = useHooks({
     threadId,
     refetchQueries,
   });
@@ -31,6 +40,10 @@ const CommentsPanel: React.FC<Props> = ({
   return (
     <CommentsPanelMolecule
       me={me}
+      isWriter={isWriter}
+      hasCreateRight={hasCreateRight}
+      hasUpdateRight={hasUpdateRight}
+      hasDeleteRight={hasDeleteRight}
       emptyText={emptyText}
       comments={comments}
       collapsed={collapsed}

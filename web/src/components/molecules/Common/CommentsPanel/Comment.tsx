@@ -19,12 +19,23 @@ const { TextArea } = Input;
 
 type Props = {
   me?: User;
+  isWriter: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
 };
 
-const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onCommentDelete }) => {
+const CommentMolecule: React.FC<Props> = ({
+  me,
+  isWriter,
+  hasUpdateRight,
+  hasDeleteRight,
+  comment,
+  onCommentUpdate,
+  onCommentDelete,
+}) => {
   const [showEditor, setShowEditor] = useState(false);
   const [value, setValue] = useState(comment.content);
 
@@ -51,20 +62,37 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
     [comment.createdAt],
   );
 
+  const actions = useMemo(() => {
+    const result = [];
+    const isMine = isWriter && me?.id === comment.author.id;
+    if (hasDeleteRight || isMine) {
+      result.push(<Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />);
+    }
+    if (hasUpdateRight || isMine) {
+      result.push(
+        <Icon
+          key="edit"
+          icon={showEditor ? "check" : "edit"}
+          onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
+        />,
+      );
+    }
+    return result;
+  }, [
+    comment.author.id,
+    comment.id,
+    handleSubmit,
+    hasDeleteRight,
+    hasUpdateRight,
+    isWriter,
+    me?.id,
+    onCommentDelete,
+    showEditor,
+  ]);
+
   return (
     <StyledComment
-      actions={
-        me?.id === comment.author.id
-          ? [
-              <Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />,
-              showEditor ? (
-                <Icon key="edit" icon="check" onClick={handleSubmit} />
-              ) : (
-                <Icon key="edit" icon="edit" onClick={() => setShowEditor(true)} />
-              ),
-            ]
-          : []
-      }
+      actions={actions}
       author={comment.author.name}
       avatar={
         comment.author.type === "Integration" ? (
