@@ -62,6 +62,7 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
     assets: GQLItem.assets
       ?.map(asset => asset && { id: asset.id, fileName: asset.fileName })
       .filter((asset): asset is ItemAsset => asset !== null),
+    requests: GQLItem.requests?.map(request => ({ id: request.id, state: request.state })) ?? [],
   };
 };
 

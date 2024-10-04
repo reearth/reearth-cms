@@ -32,7 +32,7 @@ jobs:
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
 
       - name: get latest web artifact
-        uses: dawidd6/action-download-artifact@v3.1.2
+        uses: dawidd6/action-download-artifact@v3.1.4
         with:
           github_token: ${{ steps.app-token.outputs.token }}
           workflow: ci_web.yml
