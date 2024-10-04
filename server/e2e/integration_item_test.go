@@ -456,7 +456,7 @@ func IntegrationModelImportMultiPart(e *httpexpect.Expect, mId string, format st
 	return res
 }
 
-func IntegrationModelImportJSON(e *httpexpect.Expect, mId string, assetId string, format string, strategy string, mutateSchema bool, geometryFieldKey string) *httpexpect.Value {
+func IntegrationModelImportJSON(e *httpexpect.Expect, mId string, assetId string, format string, strategy string, mutateSchema bool, geometryFieldKey *string) *httpexpect.Value {
 	res := e.PUT("/api/models/{modelId}/import", mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -1310,7 +1310,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	g.Value("coordinates").Array().IsEqual([]float64{139.28179282584915, 36.58570985749664})
 }
 
-// POST /models/{modelId}/import //multipart
+// POST /models/{modelId}/import //body: multipart
 func TestIntegrationModelImportMultiPart(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
@@ -1354,8 +1354,8 @@ func TestIntegrationModelImportMultiPart(t *testing.T) {
 	// res6 := IntegrationModelImport(e, mId, "geoJson", "upsert", true, fids.geometryObjectFid, fileContent6)
 }
 
-// POST /models/{modelId}/import //json
-func TestIntegrationModelImportJSON(t *testing.T) {
+// POST /models/{modelId}/import //body: json, content: geoJson
+func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
@@ -1364,17 +1364,36 @@ func TestIntegrationModelImportJSON(t *testing.T) {
 
 	// strategy="insert" and mutateSchema=false
 	fileContent1 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	id1 := UploadAsset(e, pId, "./test1.geojson", fileContent1).Object().Value("id").String().Raw()
-	res1 := IntegrationModelImportJSON(e, mId, id1, "geoJson", "insert", false, fids.geometryObjectFid)
-	res1.Object().Value("modelId").String().IsEqual(mId)
-	res1.Object().Value("itemsCount").Number().IsEqual(1)
-	res1.Object().Value("insertedCount").Number().IsEqual(1)
-	res1.Object().Value("updatedCount").Number().IsEqual(0)
-	res1.Object().Value("ignoredCount").Number().IsEqual(0)
-	//newFields1 := res1.Object().Value("newFields").Array()
-	//newFields1.Length().IsEqual(1)
-	//field1 := newFields1.Value(0).Object()
-	//field1.Value("key").String().IsEqual(fids.geometryObjectFid)
+	aId := UploadAsset(e, pId, "./test1.geojson", fileContent1).Object().Value("id").String().Raw()
+	res := IntegrationModelImportJSON(e, mId, aId, "geoJson", "insert", false, &fids.geometryObjectFid)
+	res.Object().Value("modelId").String().IsEqual(mId)
+	res.Object().IsEqual(map[string]any{
+		"modelId":       mId,
+		"itemsCount":    1,
+		"insertedCount": 1,
+		"updatedCount":  0,
+		"ignoredCount":  0,
+		"newFields":     []any{},
+	})
+
+	obj := e.GET("/api/models/{modelId}/items", mId).
+		// WithHeader("authorization", "Bearer "+secret).
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
+
+	a := obj.Value("items").Array()
+	a.Length().IsEqual(1)
+	i := a.Value(0).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(2)
 
 	// // strategy="insert" and mutateSchema=true
 	// fileContent2 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [239.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
@@ -1400,6 +1419,89 @@ func TestIntegrationModelImportJSON(t *testing.T) {
 	// fileContent6 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
 	// id6 := UploadAsset(e, pId, "./test6.geojson", fileContent6).Object().Value("id").String().Raw()
 	// res6 := IntegrationModelImportJSON(e, mId, id6, "geoJson", "upsert", true, fids.geometryObjectFid)
+}
+
+// POST /models/{modelId}/import //body: json, content: json
+func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	// region strategy="insert" and mutateSchema=false
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+	createFieldOfEachType(t, e, mId)
+
+	jsonContent := `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2}]`
+	aId := UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
+	res := IntegrationModelImportJSON(e, mId, aId, "json", "insert", false, nil)
+	res.Object().IsEqual(map[string]any{
+		"modelId":       mId,
+		"itemsCount":    2,
+		"insertedCount": 2,
+		"updatedCount":  0,
+		"ignoredCount":  0,
+		"newFields":     []any{},
+	})
+
+	obj := e.GET("/api/models/{modelId}/items", mId).
+		// WithHeader("authorization", "Bearer "+secret).
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 2)
+
+	a := obj.Value("items").Array()
+	a.Length().IsEqual(2)
+	i := a.Value(0).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(3)
+	i = a.Value(1).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(3)
+	// endregion
+
+	// region strategy="insert" and mutateSchema=true
+	mId, _ = createModel(e, pId, "test-2", "test-2", "test-2")
+
+	// jsonContent = `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2}]`
+	// aId = UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
+	res = IntegrationModelImportJSON(e, mId, aId, "json", "insert", true, nil)
+	res.Object().ContainsSubset(map[string]any{
+		"modelId":       mId,
+		"itemsCount":    2,
+		"insertedCount": 2,
+		"updatedCount":  0,
+		"ignoredCount":  0,
+	})
+	res.Object().Value("newFields").Array().Length().IsEqual(3)
+
+	obj = e.GET("/api/models/{modelId}/items", mId).
+		// WithHeader("authorization", "Bearer "+secret).
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 2)
+
+	a = obj.Value("items").Array()
+	a.Length().IsEqual(2)
+	i = a.Value(0).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(3)
+	i = a.Value(1).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(3)
+	// endregion
 }
 
 // GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson

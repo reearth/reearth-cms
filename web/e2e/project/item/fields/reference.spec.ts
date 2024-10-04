@@ -58,10 +58,12 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
     page.getByLabel("Create Reference Field").getByText("ref model #ref-model"),
   ).toBeVisible();
 
-  await page.getByLabel("One-way reference").check();
+  await expect(page.getByLabel("One-way reference")).toBeChecked();
   await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeDisabled();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("ref");
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeEnabled();
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("ref description");
   await expect(
@@ -82,6 +84,15 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await expect(
     page.locator("label").filter({ hasText: "Two-way reference" }).locator("span").first(),
   ).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeDisabled();
+  await page.getByLabel("Display name").click();
+  await page.getByLabel("Display name").fill("reff");
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeEnabled();
+  await page.getByLabel("Display name").click();
+  await page.getByLabel("Display name").fill("ref");
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeDisabled();
   await page.getByLabel("Close", { exact: true }).first().click();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("ref");
@@ -167,8 +178,10 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByText("ref model #ref-model").click();
   await page.getByLabel("Two-way reference").check();
   await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByRole("button", { name: "Next" })).toBeDisabled();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("ref1");
+  await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("ref1 description");
   await expect(
@@ -181,8 +194,10 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   ).toBeDisabled();
   await page.getByRole("button", { name: "Next" }).click();
 
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeDisabled();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("ref2");
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeEnabled();
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("ref2 description");
   await page.getByRole("tab", { name: "Validation" }).click();
@@ -190,7 +205,7 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Previous" }).click();
   await expect(page.getByLabel("Display name")).toHaveValue("ref1");
   await expect(page.getByLabel("Field Key")).toHaveValue("ref1");
-  await page.getByLabel("Description(optional)").click();
+  await expect(page.getByLabel("Description(optional)")).toHaveValue("ref1 description");
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Make field required")).toBeChecked();
   await page.getByRole("button", { name: "Next" }).click();
@@ -212,6 +227,27 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await expect(
     page.locator("label").filter({ hasText: "Two-way reference" }).locator("span").first(),
   ).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeDisabled();
+  await page.getByLabel("Display name").click();
+  await page.getByLabel("Display name").fill("reff");
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeEnabled();
+  await page.getByLabel("Display name").click();
+  await page.getByLabel("Display name").fill("ref2");
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeDisabled();
+  await page.getByRole("button", { name: "Previous" }).click();
+  await page.getByLabel("Display name").click();
+  await page.getByLabel("Display name").fill("reff");
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeEnabled();
+  await page.getByRole("button", { name: "Previous" }).click();
+  await page.getByLabel("Display name").click();
+  await page.getByLabel("Display name").fill("ref1");
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByRole("button", { name: "Confirm" })).toBeDisabled();
   await page.getByLabel("Close", { exact: true }).first().click();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("ref1");

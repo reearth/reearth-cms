@@ -7,7 +7,11 @@ exec:
 model:
   filename: internal/adapter/gql/gqlmodel/models_gen.go
 resolver:
+  layout: follow-schema
+  dir: internal/adapter/gql
+  package: gql
   filename: internal/adapter/gql/resolver.go
+  filename_template: resolver_{name}.go
   type: Resolver
 models:
   Me:
@@ -55,6 +59,8 @@ models:
       referencedItems:
         resolver: true
       updatedBy:
+        resolver: true
+      requests:
         resolver: true
 
   Model:

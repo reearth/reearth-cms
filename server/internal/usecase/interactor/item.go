@@ -52,7 +52,7 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Opera
 }
 
 func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
-	requests, err := i.repos.Request.FindByItems(ctx, itemsIds)
+	requests, err := i.repos.Request.FindByItems(ctx, itemsIds, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -126,6 +126,10 @@ func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.
 		}
 	}
 	return res, nil
+}
+
+func (i Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef, _ *usecase.Operator) (item.Versioned, error) {
+	return i.repos.Item.FindVersionByID(ctx, itemID, ver)
 }
 
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
@@ -337,6 +341,10 @@ func (ir *ImportRes) ItemSkipped() {
 	ir.Total++
 }
 
+func (ir *ImportRes) FieldAdded(f *schema.Field) {
+	ir.NewFields = append(ir.NewFields, f)
+}
+
 func (ir *ImportRes) Into() interfaces.ImportItemsResponse {
 	return interfaces.ImportItemsResponse{
 		Total:     ir.Total,
@@ -357,6 +365,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		if !operator.IsWritableWorkspace(s.Workspace()) {
 			return interfaces.ImportItemsResponse{}, interfaces.ErrOperationDenied
 		}
+		res := NewImportRes()
 
 		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 		if err != nil {
@@ -375,7 +384,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 					return interfaces.ImportItemsResponse{}, schema.ErrInvalidKey
 				}
 
-				f, err := schema.NewField(fieldParam.TypeProperty).
+				f, err := schema.NewFieldWithDefaultProperty(fieldParam.Type).
 					NewID().
 					Unique(fieldParam.Unique).
 					Multiple(fieldParam.Multiple).
@@ -390,6 +399,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 				}
 
 				s.AddField(f)
+				res.FieldAdded(f)
 			}
 			err = i.repos.Schema.Save(ctx, s)
 			if err != nil {
@@ -397,7 +407,6 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			}
 		}
 
-		res := NewImportRes()
 		for _, itemParam := range param.Items {
 
 			var oldItem *item.Item

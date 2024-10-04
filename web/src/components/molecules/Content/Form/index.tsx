@@ -116,6 +116,7 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onNavigateToRequest: (id: string) => void;
 };
 
 const ContentForm: React.FC<Props> = ({
@@ -185,6 +186,7 @@ const ContentForm: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
+  onNavigateToRequest,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -430,6 +432,7 @@ const ContentForm: React.FC<Props> = ({
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
+        disabled: item?.status === "PUBLIC",
       },
       {
         key: "unpublish",
@@ -437,6 +440,7 @@ const ContentForm: React.FC<Props> = ({
         onClick: () => {
           if (itemId) onUnpublish([itemId]);
         },
+        disabled: item?.status === "DRAFT" || item?.status === "REVIEW",
       },
     ];
     if (showPublishAction) {
@@ -444,10 +448,19 @@ const ContentForm: React.FC<Props> = ({
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
+        disabled: item?.status === "PUBLIC",
       });
     }
     return menuItems;
-  }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
+  }, [
+    t,
+    onAddItemToRequestModalOpen,
+    item?.status,
+    showPublishAction,
+    itemId,
+    onUnpublish,
+    onModalOpen,
+  ]);
 
   const handlePublishSubmit = useCallback(async () => {
     if (!itemId || !unpublishedItems) return;
@@ -480,12 +493,19 @@ const ContentForm: React.FC<Props> = ({
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={handlePublishSubmit} loading={publishLoading}>
+                    <Button
+                      type="primary"
+                      onClick={handlePublishSubmit}
+                      loading={publishLoading}
+                      disabled={item?.status === "PUBLIC"}>
                       {t("Publish")}
                     </Button>
                   )}
                   {!showPublishAction && (
-                    <Button type="primary" onClick={onModalOpen}>
+                    <Button
+                      type="primary"
+                      onClick={onModalOpen}
+                      disabled={item?.status === "PUBLIC"}>
                       {t("New Request")}
                     </Button>
                   )}
@@ -631,7 +651,7 @@ const ContentForm: React.FC<Props> = ({
       </StyledForm>
       <SideBarWrapper>
         <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
-          <ContentSidebarWrapper item={item} />
+          <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
           {model?.metadataSchema?.fields?.map(field => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[

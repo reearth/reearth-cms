@@ -174,3 +174,34 @@ func TestVersionedList_Unwrap(t *testing.T) {
 
 	assert.Equal(t, List{i}, vl.Unwrap())
 }
+
+func TestToMap(t *testing.T) {
+	now := time.Now()
+	fId1 := id.NewFieldID()
+	iId1 := id.NewItemID()
+	i1 := New().ID(iId1).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		Fields([]*Field{NewField(fId1, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		MustBuild()
+	vi1 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i1)
+	fId2 := id.NewFieldID()
+	iId2 := id.NewItemID()
+	i2 := New().ID(iId2).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		Fields([]*Field{NewField(fId2, value.TypeBool.Value(true).AsMultiple(), nil)}).
+		MustBuild()
+	vi2 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i2)
+	vl := VersionedList{vi1, vi2}
+	m := vl.ToMap()
+
+	assert.Equal(t, 2, len(m))
+	assert.Equal(t, vi1, m[iId1])
+	assert.Equal(t, vi2, m[iId2])
+	assert.Nil(t, m[id.NewItemID()])
+}

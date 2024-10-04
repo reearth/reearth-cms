@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
@@ -11,6 +11,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -85,11 +86,8 @@ const MyIntegrationForm: React.FC<Props> = ({
     });
   }, [t, onRegenerateToken]);
 
-  const copyIcon = useMemo(() => {
-    const onClick = () => {
-      if (integration.config.token) navigator.clipboard.writeText(integration.config.token);
-    };
-    return <Icon icon="copy" onClick={onClick} />;
+  const handleCopy = useCallback(() => {
+    if (integration.config.token) navigator.clipboard.writeText(integration.config.token);
   }, [integration.config.token]);
 
   return (
@@ -118,7 +116,11 @@ const MyIntegrationForm: React.FC<Props> = ({
             <StyledTokenInput
               value={integration.config.token}
               contentEditable={false}
-              prefix={copyIcon}
+              prefix={
+                <Tooltip title={t("Token copied!!")} trigger={"click"}>
+                  <Icon icon="copy" onClick={handleCopy} />
+                </Tooltip>
+              }
             />
             <StyledRegenerateTokenButton
               type="primary"
@@ -186,6 +188,7 @@ const StyledTokenInput = styled(Password)`
     order: 1;
     margin-left: 4px;
     color: rgb(0, 0, 0, 0.45);
+    transition: all 0.3s;
     :hover {
       color: rgba(0, 0, 0, 0.88);
     }

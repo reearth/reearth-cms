@@ -254,6 +254,7 @@ export default (
   );
 
   const handleModalReset = useCallback(() => {
+    prevKey.current = undefined;
     form.resetFields();
     setActiveTab("settings");
     setMultipleValue(false);

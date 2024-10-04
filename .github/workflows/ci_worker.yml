@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: 1.23
       - name: checkout
         uses: actions/checkout@v4
       - name: cache
@@ -45,9 +45,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.54
+          version: v1.61
           working-directory: worker
           args: --config=../.golangci.yml
       - name: test
