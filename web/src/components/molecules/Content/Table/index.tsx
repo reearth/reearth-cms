@@ -58,6 +58,9 @@ type Props = {
   unpublishLoading: boolean;
   selectedItem?: Item;
   selection: {
+    selectedRowKeys: string[];
+  };
+  selectedItems: {
     selectedRows: { itemId: string; version?: string }[];
   };
   totalCount: number;
@@ -75,7 +78,8 @@ type Props = {
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
+  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
@@ -98,6 +102,7 @@ const ContentTable: React.FC<Props> = ({
   unpublishLoading,
   selectedItem,
   selection,
+  selectedItems,
   totalCount,
   currentView,
   page,
@@ -120,6 +125,7 @@ const ContentTable: React.FC<Props> = ({
   onContentTableChange,
   onItemSelect,
   setSelection,
+  setSelectedItems,
   onItemEdit,
   onItemDelete,
   onItemsReload,
@@ -279,15 +285,19 @@ const ContentTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRows: selection.selectedRows,
-      onChange: (_selectedRowKeys: Key[], selectedRows: Item[]) => {
+      selectedRowKeys: selection.selectedRowKeys,
+      onChange: (selectedRowKeys: Key[], selectedRows: Item[]) => {
+        setSelectedItems({
+          ...selectedItems,
+          selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
+        });
         setSelection({
           ...selection,
-          selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
+          selectedRowKeys: selectedRowKeys as string[],
         });
       },
     }),
-    [selection, setSelection],
+    [selectedItems, selection, setSelectedItems, setSelection],
   );
 
   const alertOptions = useCallback(
@@ -805,7 +815,7 @@ const ContentTable: React.FC<Props> = ({
         />
       ) : null}
       <LinkItemRequestModal
-        items={selection.selectedRows}
+        items={selectedItems.selectedRows}
         onChange={onAddItemToRequest}
         onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
         visible={addItemToRequestModalShown}
