@@ -13,6 +13,10 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
+  hasRequestCreateRight: boolean;
+  hasRequestUpdateRight: boolean;
+  hasPublishRight: boolean;
+  hasItemUpdateRight: boolean;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction: boolean;
@@ -101,6 +105,10 @@ type Props = {
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  hasRequestCreateRight,
+  hasRequestUpdateRight,
+  hasPublishRight,
+  hasItemUpdateRight,
   loadingReference,
   linkedItemsModalList,
   showPublishAction,
@@ -191,6 +199,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         ) : (
           <ContentForm
             item={item}
+            hasRequestCreateRight={hasRequestCreateRight}
+            hasRequestUpdateRight={hasRequestUpdateRight}
+            hasPublishRight={hasPublishRight}
+            hasItemUpdateRight={hasItemUpdateRight}
             linkItemModalTitle={linkItemModalTitle}
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}
