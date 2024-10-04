@@ -24,8 +24,7 @@ export const keyReplace = (
   form.setFieldValue(key, e.currentTarget.value.replaceAll(" ", "-"));
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const emptyConvert = (value: any) => {
+export const emptyConvert = (value: unknown) => {
   if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
     return undefined;
   } else {
