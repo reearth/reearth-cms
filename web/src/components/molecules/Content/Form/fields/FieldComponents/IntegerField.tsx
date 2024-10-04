@@ -9,7 +9,7 @@ import FieldTitle from "../../FieldTitle";
 type DefaultFieldProps = {
   field: Field;
   itemGroupId?: string;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 const IntegerField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {

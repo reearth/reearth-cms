@@ -10,7 +10,7 @@ type DefaultFieldProps = {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => Promise<void>;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 const DefaultField: React.FC<DefaultFieldProps> = ({
