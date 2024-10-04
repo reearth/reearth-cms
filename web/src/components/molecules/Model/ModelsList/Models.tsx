@@ -9,6 +9,8 @@ type Props = {
   selectedKey?: string;
   models?: Model[];
   open: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
   onModalOpen: () => void;
   onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onClose: () => void;
@@ -22,6 +24,8 @@ const Models: React.FC<Props> = ({
   selectedKey,
   models,
   open,
+  hasCreateRight,
+  hasUpdateRight,
   onModalOpen,
   onModelKeyCheck,
   onClose,
@@ -35,6 +39,8 @@ const Models: React.FC<Props> = ({
         selectedKey={selectedKey}
         models={models}
         collapsed={collapsed}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
         onModelSelect={onModelSelect}
         onModalOpen={onModalOpen}
         onUpdateModelsOrder={onUpdateModelsOrder}
