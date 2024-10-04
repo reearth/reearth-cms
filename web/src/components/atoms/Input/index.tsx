@@ -1,5 +1,5 @@
-import { Input as AntDInput, InputProps } from "antd";
-import { useMemo } from "react";
+import { Input as AntDInput, InputProps, InputRef } from "antd";
+import { forwardRef, useMemo } from "react";
 import { runes } from "runes2";
 
 export type { SearchProps } from "antd/lib/input";
@@ -8,7 +8,7 @@ type Props = {
   value?: string;
 } & InputProps;
 
-const Input: React.FC<Props> = ({ value, maxLength, ...props }, ref) => {
+const Input = forwardRef<InputRef, Props>(({ value, maxLength, ...props }, ref) => {
   const status = useMemo(() => {
     if (maxLength && value && runes(value).length > maxLength) {
       return "error";
@@ -27,7 +27,7 @@ const Input: React.FC<Props> = ({ value, maxLength, ...props }, ref) => {
       {...props}
     />
   );
-};
+});
 
 export default Input;
 export type { InputProps };
