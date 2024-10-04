@@ -13,11 +13,14 @@ import {
   Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
+
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
   const t = useT();
@@ -137,6 +140,7 @@ export default () => {
     selectedModel,
     modelDeletionModalShown,
     deleteLoading,
+    hasCreateRight,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,

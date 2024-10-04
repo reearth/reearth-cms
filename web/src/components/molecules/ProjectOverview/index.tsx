@@ -13,6 +13,7 @@ type Props = {
   projectName?: string;
   projectDescription?: string;
   models?: Model[];
+  hasCreateRight: boolean;
   onModelModalOpen: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
@@ -24,6 +25,7 @@ const ProjectOverview: React.FC<Props> = ({
   projectName,
   projectDescription,
   models,
+  hasCreateRight,
   onModelModalOpen,
   onSchemaNavigate,
   onContentNavigate,
@@ -37,7 +39,11 @@ const ProjectOverview: React.FC<Props> = ({
       <ContentSection
         title={t("Models")}
         headerActions={
-          <Button type="primary" icon={<Icon icon="plus" />} onClick={onModelModalOpen}>
+          <Button
+            type="primary"
+            icon={<Icon icon="plus" />}
+            onClick={onModelModalOpen}
+            disabled={!hasCreateRight}>
             {t("New Model")}
           </Button>
         }>
