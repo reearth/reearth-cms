@@ -216,8 +216,7 @@ const ContentForm: React.FC<Props> = ({
   );
 
   const handleValuesChange = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (changedValues: any) => {
+    async (changedValues: Record<string, unknown>) => {
       try {
         await form.validateFields();
       } catch (e) {
