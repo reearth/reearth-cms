@@ -32,10 +32,13 @@ import {
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useUserId, useUserRights } from "@reearth-cms/state";
 import { getExtension } from "@reearth-cms/utils/file";
 
 export default (assetId?: string) => {
   const t = useT();
+  const [userId] = useUserId();
+  const [userRights] = useUserRights();
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
   const location = useLocation();
@@ -77,6 +80,12 @@ export default (assetId?: string) => {
         }
       : undefined;
   }, [convertedAsset, rawFile?.assetFile]);
+
+  const hasUpdateRight = useMemo(
+    () =>
+      userRights?.role === "WRITER" ? asset?.createdBy.id === userId : !!userRights?.asset.update,
+    [asset?.createdBy.id, userId, userRights?.asset.update, userRights?.role],
+  );
 
   const [updateAssetMutation, { loading: updateLoading }] = useUpdateAssetMutation();
   const handleAssetUpdate = useCallback(
@@ -236,6 +245,7 @@ export default (assetId?: string) => {
     decompressing,
     isSaveDisabled,
     updateLoading,
+    hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,
     handleToggleCommentMenu,

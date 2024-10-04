@@ -21,6 +21,7 @@ type Props = {
   decompressing: boolean;
   isSaveDisabled: boolean;
   updateLoading: boolean;
+  hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onTypeChange: (value: PreviewType) => void;
@@ -42,6 +43,7 @@ const AssetWrapper: React.FC<Props> = ({
   commentsPanel,
   isSaveDisabled,
   updateLoading,
+  hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
   onTypeChange,
@@ -74,6 +76,7 @@ const AssetWrapper: React.FC<Props> = ({
             viewerType={viewerType}
             displayUnzipFileList={displayUnzipFileList}
             decompressing={decompressing}
+            hasUpdateRight={hasUpdateRight}
             onAssetDecompress={onAssetDecompress}
             onAssetItemSelect={onAssetItemSelect}
             onTypeChange={onTypeChange}
