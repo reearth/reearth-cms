@@ -1,4 +1,4 @@
-import { Input as AntInput, InputProps } from "antd";
+import { Input as AntDInput, InputProps } from "antd";
 import { useMemo } from "react";
 import { runes } from "runes2";
 
@@ -16,7 +16,7 @@ const Input: React.FC<Props> = ({ value, maxLength, ...props }, ref) => {
   }, [maxLength, value]);
 
   return (
-    <AntInput
+    <AntDInput
       count={{
         max: maxLength,
         strategy: txt => runes(txt).length,

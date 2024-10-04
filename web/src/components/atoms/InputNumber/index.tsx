@@ -1,4 +1,4 @@
-import { InputNumber as AntInputNumber, InputNumberProps } from "antd";
+import { InputNumber as AntDInputNumber, InputNumberProps } from "antd";
 import { useMemo } from "react";
 
 const InputNumber: <T extends string | number>(
@@ -14,7 +14,7 @@ const InputNumber: <T extends string | number>(
     }
   }, [props.max, props.min, value]);
 
-  return <AntInputNumber value={value} status={status} {...props} />;
+  return <AntDInputNumber value={value} status={status} {...props} />;
 };
 
 export default InputNumber;
