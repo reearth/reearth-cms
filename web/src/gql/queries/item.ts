@@ -12,6 +12,7 @@ export const GET_ITEMS = gql`
         createdAt
         updatedAt
         status
+        version
         referencedItems {
           id
           title
@@ -236,6 +237,7 @@ export const CREATE_ITEM = gql`
       item {
         id
         schemaId
+        version
         fields {
           value
           type
@@ -285,6 +287,7 @@ export const UPDATE_ITEM = gql`
       item {
         id
         schemaId
+        version
         fields {
           value
           type
@@ -318,6 +321,7 @@ export const UNPUBLISH_ITEM = gql`
     unpublishItem(input: { itemIds: $itemIds }) {
       items {
         id
+        version
         referencedItems {
           id
           title
@@ -345,6 +349,7 @@ export const PUBLISH_ITEM = gql`
     publishItem(input: { itemIds: $itemIds }) {
       items {
         id
+        version
         referencedItems {
           id
           title
