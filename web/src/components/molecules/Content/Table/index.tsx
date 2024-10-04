@@ -58,7 +58,7 @@ type Props = {
   unpublishLoading: boolean;
   selectedItem?: Item;
   selection: {
-    selectedRowKeys: string[];
+    selectedRowKeys: Key[];
   };
   totalCount: number;
   currentView: CurrentView;
@@ -75,7 +75,7 @@ type Props = {
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
@@ -88,6 +88,9 @@ type Props = {
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
+  hasDeleteRight: boolean;
+  hasPublishRight: boolean;
+  hasReqestUpdateRight: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -119,13 +122,16 @@ const ContentTable: React.FC<Props> = ({
   onFilterChange,
   onContentTableChange,
   onItemSelect,
-  setSelection,
+  onSelect,
   onItemEdit,
   onItemDelete,
   onItemsReload,
   modelKey,
   onRequestSearchTerm,
   onRequestTableReload,
+  hasDeleteRight,
+  hasPublishRight,
+  hasReqestUpdateRight,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -222,8 +228,8 @@ const ContentTable: React.FC<Props> = ({
         sortOrder: sortOrderGet("CREATION_USER"),
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.createdBy} size={"small"} />
-            {item.createdBy}
+            <UserAvatar username={item.createdBy.name} size={"small"} />
+            {item.createdBy.name}
           </Space>
         ),
         sorter: true,
@@ -280,14 +286,9 @@ const ContentTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys as string[],
-        });
-      },
+      onChange: onSelect,
     }),
-    [selection, setSelection],
+    [onSelect, selection.selectedRowKeys],
   );
 
   const alertOptions = useCallback(
@@ -299,7 +300,8 @@ const ContentTable: React.FC<Props> = ({
             type="link"
             size="small"
             icon={<Icon icon="plus" />}
-            onClick={() => onAddItemToRequestModalOpen()}>
+            onClick={() => onAddItemToRequestModalOpen()}
+            disabled={!hasReqestUpdateRight}>
             {t("Add to Request")}
           </Button>
           <Button
@@ -307,7 +309,8 @@ const ContentTable: React.FC<Props> = ({
             size="small"
             icon={<Icon icon="eyeInvisible" />}
             onClick={() => onUnpublish(props.selectedRowKeys)}
-            loading={unpublishLoading}>
+            loading={unpublishLoading}
+            disabled={!hasPublishRight}>
             {t("Unpublish")}
           </Button>
           <Button
@@ -323,13 +326,24 @@ const ContentTable: React.FC<Props> = ({
             icon={<Icon icon="delete" />}
             onClick={() => onItemDelete(props.selectedRowKeys)}
             danger
-            loading={deleteLoading}>
+            loading={deleteLoading}
+            disabled={!hasDeleteRight}>
             {t("Delete")}
           </Button>
         </Space>
       );
     },
-    [deleteLoading, onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t, unpublishLoading],
+    [
+      deleteLoading,
+      hasDeleteRight,
+      hasPublishRight,
+      hasReqestUpdateRight,
+      onAddItemToRequestModalOpen,
+      onItemDelete,
+      onUnpublish,
+      t,
+      unpublishLoading,
+    ],
   );
 
   const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
@@ -805,7 +819,7 @@ const ContentTable: React.FC<Props> = ({
         />
       ) : null}
       <LinkItemRequestModal
-        itemIds={selection.selectedRowKeys}
+        itemIds={selection.selectedRowKeys as string[]}
         onChange={onAddItemToRequest}
         onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
         visible={addItemToRequestModalShown}

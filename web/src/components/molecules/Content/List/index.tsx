@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, Key } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -31,7 +31,7 @@ type Props = {
   modelsMenu: React.ReactNode;
   selectedItem?: Item;
   selection: {
-    selectedRowKeys: string[];
+    selectedRowKeys: Key[];
   };
   totalCount: number;
   currentView: CurrentView;
@@ -49,7 +49,7 @@ type Props = {
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;
@@ -62,6 +62,10 @@ type Props = {
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasPublishRight: boolean;
+  hasReqestUpdateRight: boolean;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -97,7 +101,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onSearchTerm,
   onFilterChange,
   onContentTableChange,
-  setSelection,
+  onSelect,
   onItemSelect,
   onCollapse,
   onItemAdd,
@@ -106,6 +110,10 @@ const ContentListMolecule: React.FC<Props> = ({
   onItemDelete,
   onRequestSearchTerm,
   onRequestTableReload,
+  hasCreateRight,
+  hasDeleteRight,
+  hasPublishRight,
+  hasReqestUpdateRight,
 }) => {
   const t = useT();
 
@@ -133,7 +141,7 @@ const ContentListMolecule: React.FC<Props> = ({
                     type="primary"
                     onClick={onItemAdd}
                     icon={<Icon icon="plus" />}
-                    disabled={!model}>
+                    disabled={!model || !hasCreateRight}>
                     {t("New Item")}
                   </Button>
                 }
@@ -154,7 +162,7 @@ const ContentListMolecule: React.FC<Props> = ({
                 onSearchTerm={onSearchTerm}
                 onFilterChange={onFilterChange}
                 onContentTableChange={onContentTableChange}
-                setSelection={setSelection}
+                onSelect={onSelect}
                 onItemSelect={onItemSelect}
                 onItemsReload={onItemsReload}
                 onItemEdit={onItemEdit}
@@ -175,6 +183,9 @@ const ContentListMolecule: React.FC<Props> = ({
                 modelKey={model?.key}
                 onRequestSearchTerm={onRequestSearchTerm}
                 onRequestTableReload={onRequestTableReload}
+                hasDeleteRight={hasDeleteRight}
+                hasPublishRight={hasPublishRight}
+                hasReqestUpdateRight={hasReqestUpdateRight}
               />
             </>
           )}
