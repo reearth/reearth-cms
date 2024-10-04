@@ -17,12 +17,14 @@ const { Option } = Select;
 type Props = {
   currentRequest: Request;
   workspaceUserMembers: UserMember[];
+  isAssignActionEnabled: boolean;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
 };
 
 const RequestSidebarWrapper: React.FC<Props> = ({
   currentRequest,
   workspaceUserMembers,
+  isAssignActionEnabled,
   onRequestUpdate,
 }) => {
   const t = useT();
@@ -132,7 +134,10 @@ const RequestSidebarWrapper: React.FC<Props> = ({
           </StyledSelect>
         ) : (
           <ViewReviewers>
-            <StyledButton type="link" onClick={displayViewReviewers}>
+            <StyledButton
+              type="link"
+              onClick={displayViewReviewers}
+              disabled={!isAssignActionEnabled}>
               {t("Assign to")}
             </StyledButton>
           </ViewReviewers>

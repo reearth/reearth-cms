@@ -20,6 +20,8 @@ export default () => {
   const [currentWorkspace] = useWorkspace();
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.model.update, [userRights?.model.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.model.delete, [userRights?.model.delete]);
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
@@ -141,6 +143,8 @@ export default () => {
     modelDeletionModalShown,
     deleteLoading,
     hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,

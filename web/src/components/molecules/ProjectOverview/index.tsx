@@ -14,6 +14,8 @@ type Props = {
   projectDescription?: string;
   models?: Model[];
   hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   onModelModalOpen: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
@@ -26,6 +28,8 @@ const ProjectOverview: React.FC<Props> = ({
   projectDescription,
   models,
   hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   onModelModalOpen,
   onSchemaNavigate,
   onContentNavigate,
@@ -52,6 +56,8 @@ const ProjectOverview: React.FC<Props> = ({
             <ModelCard
               key={m.id}
               model={m}
+              hasUpdateRight={hasUpdateRight}
+              hasDeleteRight={hasDeleteRight}
               onSchemaNavigate={onSchemaNavigate}
               onContentNavigate={onContentNavigate}
               onModelDeletionModalOpen={onModelDeletionModalOpen}

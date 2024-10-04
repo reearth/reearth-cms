@@ -13,6 +13,8 @@ const ProjectOverview: React.FC = () => {
     modelDeletionModalShown,
     deleteLoading,
     hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,
@@ -33,6 +35,8 @@ const ProjectOverview: React.FC = () => {
         projectDescription={currentProject?.description}
         models={models}
         hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         onSchemaNavigate={handleSchemaNavigation}
         onContentNavigate={handleContentNavigation}
         onModelModalOpen={handleModelModalOpen}
