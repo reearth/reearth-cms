@@ -15,7 +15,16 @@ t("OWNER");
 export type UserRights = {
   role: Role;
   workspace: {
-    remove: boolean;
+    update: boolean;
+    delete: boolean;
+  };
+  workspaceSetting: {
+    update: boolean;
+  };
+  integrations: {
+    connect: boolean;
+    update: boolean;
+    delete: boolean;
   };
   members: {
     invite: boolean;
@@ -43,11 +52,18 @@ export type UserRights = {
     delete: boolean;
     publish: boolean;
   };
+  view: {
+    create: boolean;
+    read: boolean;
+    update: boolean;
+    delete: boolean;
+  };
   content: {
     create: boolean;
     read: boolean;
     update: boolean;
     delete: boolean;
+    publish: boolean;
   };
   asset: {
     create: boolean;
@@ -59,9 +75,8 @@ export type UserRights = {
     create: boolean;
     read: boolean;
     update: boolean;
-    delete: boolean;
+    close: boolean;
     approve: boolean;
-    deny: boolean;
   };
   comment: {
     create: boolean;
