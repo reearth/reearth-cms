@@ -18,12 +18,16 @@ import {
   useGetAssetLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useUserId, useUserRights } from "@reearth-cms/state";
 
 type UploadType = "local" | "url";
 
 export default (isItemsRequired: boolean) => {
   const t = useT();
-
+  const [userRights] = useUserRights();
+  const [userId] = useUserId();
+  const hasCreateRight = useMemo(() => !!userRights?.asset.create, [userRights?.asset.create]);
+  const [hasDeleteRight, setHasDeleteRight] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
 
   const { workspaceId, projectId } = useParams();
@@ -59,6 +63,21 @@ export default (isItemsRequired: boolean) => {
   const [uploading, setUploading] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
   const [createAssetUploadMutation] = useCreateAssetUploadMutation();
+
+  const handleSelect = useCallback(
+    (selectedRowKeys: Key[], selectedRows: Asset[]) => {
+      setSelection({
+        ...selection,
+        selectedRowKeys,
+      });
+      if (userRights?.role === "WRITER") {
+        setHasDeleteRight(selectedRows.every(row => row.createdBy.id === userId));
+      } else {
+        setHasDeleteRight(!!userRights?.asset.delete);
+      }
+    },
+    [selection, userId, userRights?.asset.delete, userRights?.role],
+  );
 
   const [getAsset] = useGetAssetLazyQuery();
 
@@ -338,6 +357,8 @@ export default (isItemsRequired: boolean) => {
     sort,
     searchTerm,
     columns,
+    hasCreateRight,
+    hasDeleteRight,
     handleColumnsChange,
     handleToggleCommentMenu,
     handleAssetItemSelect,
@@ -345,7 +366,7 @@ export default (isItemsRequired: boolean) => {
     handleUploadModalCancel,
     setUploadUrl,
     setUploadType,
-    setSelection,
+    handleSelect,
     setFileList,
     setUploadModalVisibility,
     handleAssetsCreate,

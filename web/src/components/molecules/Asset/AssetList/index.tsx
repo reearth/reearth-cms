@@ -32,6 +32,8 @@ type Props = {
   sort?: SortType;
   searchTerm: string;
   columns: Record<string, ColumnsState>;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
@@ -43,7 +45,7 @@ type Props = {
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (assetId: string) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
@@ -68,6 +70,8 @@ const AssetList: React.FC<Props> = ({
   sort,
   searchTerm,
   columns,
+  hasCreateRight,
+  hasDeleteRight,
   onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
@@ -79,7 +83,7 @@ const AssetList: React.FC<Props> = ({
   onAssetDelete,
   onSearchTerm,
   onEdit,
-  setSelection,
+  onSelect,
   setFileList,
   setUploadModalVisibility,
   onAssetsReload,
@@ -127,14 +131,15 @@ const AssetList: React.FC<Props> = ({
             title={t("Asset")}
             extra={
               <UploadAsset
+                uploadProps={uploadProps}
                 fileList={fileList}
                 uploading={uploading}
-                uploadProps={uploadProps}
+                uploadModalVisibility={uploadModalVisibility}
                 uploadUrl={uploadUrl}
                 uploadType={uploadType}
+                hasCreateRight={hasCreateRight}
                 setUploadUrl={setUploadUrl}
                 setUploadType={setUploadType}
-                uploadModalVisibility={uploadModalVisibility}
                 displayUploadModal={displayUploadModal}
                 onUploadModalCancel={onUploadModalCancel}
                 onUpload={handleUpload}
@@ -153,12 +158,13 @@ const AssetList: React.FC<Props> = ({
             sort={sort}
             searchTerm={searchTerm}
             columns={columns}
+            hasDeleteRight={hasDeleteRight}
             onColumnsChange={onColumnsChange}
             onAssetItemSelect={onAssetItemSelect}
             onAssetSelect={onAssetSelect}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
-            setSelection={setSelection}
+            onSelect={onSelect}
             onAssetsReload={onAssetsReload}
             onAssetDelete={onAssetDelete}
             onAssetTableChange={onAssetTableChange}
