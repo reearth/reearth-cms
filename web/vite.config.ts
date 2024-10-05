@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 /// <reference types="vitest" />
 
-import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
@@ -14,13 +13,6 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { configDefaults } from "vitest/config";
 
 import pkg from "./package.json";
-
-let commitHash = "";
-try {
-  commitHash = execSync("git rev-parse HEAD").toString().trimEnd();
-} catch {
-  // noop
-}
 
 const cesiumPackageJson = JSON.parse(
   readFileSync(resolve(__dirname, "node_modules", "cesium", "package.json"), "utf-8"),
@@ -35,7 +27,7 @@ export default defineConfig({
   envPrefix: "REEARTH_CMS_",
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
-    __REEARTH_COMMIT_HASH__: JSON.stringify(commitHash)
+    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA)
   },
   plugins: [
     react(),
