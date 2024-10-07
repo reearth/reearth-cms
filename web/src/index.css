@@ -47,3 +47,19 @@ code {
   color: inherit;
   cursor: inherit;
 }
+
+.contentPopover {
+  .ant-popover-title,
+  .ant-popover-inner-content {
+    max-width: 20vw;
+  }
+  .ant-popover-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ant-popover-inner-content {
+    max-height: 20vh;
+    overflow: auto;
+  }
+}
