@@ -5,7 +5,7 @@ import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -13,6 +13,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import { emptyConvert } from "@reearth-cms/components/molecules/Common/Form/utils";
 import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
@@ -191,7 +192,7 @@ const ContentForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(!!itemId);
   const changedKeys = useRef(new Set<string>());
   const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
@@ -214,18 +215,22 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const emptyConvert = useCallback((value: any) => {
-    if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
-      return undefined;
-    } else {
-      return value;
-    }
-  }, []);
-
   const handleValuesChange = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (changedValues: any) => {
+    async (changedValues: Record<string, unknown>) => {
+      try {
+        await form.validateFields();
+      } catch (e) {
+        if ((e as ValidateErrorEntity).errorFields.length > 0) {
+          setIsDisabled(true);
+          return;
+        }
+      }
+
+      if (!itemId) {
+        setIsDisabled(false);
+        return;
+      }
+
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
         const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
@@ -247,7 +252,7 @@ const ContentForm: React.FC<Props> = ({
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
-    [checkIfSingleGroupField, emptyConvert, initialFormValues],
+    [checkIfSingleGroupField, form, initialFormValues, itemId],
   );
 
   useEffect(() => {
@@ -481,7 +486,7 @@ const ContentForm: React.FC<Props> = ({
           onBack={onBack}
           extra={
             <>
-              <Button onClick={handleSubmit} loading={loading} disabled={!!itemId && isDisabled}>
+              <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
                 {t("Save")}
               </Button>
               {itemId && (
