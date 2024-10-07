@@ -81,7 +81,12 @@ export const renderField = (
       </>
     );
     return (
-      <Popover content={content} title={field.title} trigger="click" placement="bottom">
+      <Popover
+        overlayClassName="contentPopover"
+        content={content}
+        title={field.title}
+        trigger="click"
+        placement="bottom">
         <StyledButton>
           <Icon icon={fieldTypes[field.type].icon} size={16} />
           {items.length > 1 && <span>x{items.length}</span>}

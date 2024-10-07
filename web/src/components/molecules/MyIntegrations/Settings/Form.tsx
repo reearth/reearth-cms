@@ -8,6 +8,7 @@ import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
@@ -181,7 +182,7 @@ const StyledDivider = styled(Divider)`
   height: 100%;
 `;
 
-const StyledTokenInput = styled(Input.Password)`
+const StyledTokenInput = styled(Password)`
   width: calc(100% - 120px);
   .ant-input-prefix {
     order: 1;

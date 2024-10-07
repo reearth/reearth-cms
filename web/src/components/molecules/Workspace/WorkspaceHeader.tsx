@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
+import Search from "@reearth-cms/components/atoms/Search";
 import { UserRights } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -57,7 +57,7 @@ const ButtonWrapper = styled.div`
   }
 `;
 
-const StyledSearch = styled(Input.Search)`
+const StyledSearch = styled(Search)`
   width: 264px;
 `;
 
