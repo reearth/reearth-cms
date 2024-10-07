@@ -21,8 +21,8 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import mapPinFilled from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
-import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Search from "@reearth-cms/components/atoms/Search";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import {
@@ -210,7 +210,7 @@ const GeometryItem: React.FC<Props> = ({
   );
 
   const typeCheck = useCallback(
-    (isTypeChange: boolean, newValue?: string) => {
+    (newValue?: string) => {
       if (newValue && supportedTypes) {
         try {
           const valueJson: {
@@ -224,28 +224,16 @@ const GeometryItem: React.FC<Props> = ({
                 ? [GEO_TYPE_MAP.POINT, GEO_TYPE_MAP.LINESTRING, GEO_TYPE_MAP.POLYGON]
                 : [GEO_TYPE_MAP[supportedTypes]];
             if (convertedTypes.includes(valueJson.type)) {
-              if (isTypeChange) {
-                setHasError(false);
-              } else {
-                handleErrorDelete();
-              }
+              handleErrorDelete();
             } else {
-              if (isTypeChange) {
-                setHasError(true);
-              } else {
-                handleErrorAdd();
-              }
+              handleErrorAdd();
             }
           }
         } catch (_) {
           return;
         }
       } else {
-        if (isTypeChange) {
-          setHasError(false);
-        } else {
-          handleErrorDelete();
-        }
+        handleErrorDelete();
       }
     },
     [handleErrorAdd, handleErrorDelete, supportedTypes],
@@ -254,7 +242,7 @@ const GeometryItem: React.FC<Props> = ({
   const handleEditorOnChange = useCallback(
     (value?: string) => {
       onChange?.(value ?? "");
-      typeCheck(false, value);
+      typeCheck(value);
     },
     [onChange, typeCheck],
   );
@@ -262,7 +250,7 @@ const GeometryItem: React.FC<Props> = ({
   const [currentValue, setCurrentValue] = useState<string | undefined>();
   useEffect(() => {
     if (value === currentValue) {
-      typeCheck(true, value);
+      typeCheck(value);
     }
     setCurrentValue(value ?? undefined);
   }, [currentValue, typeCheck, value]);
@@ -685,7 +673,7 @@ const MapContainer = styled.div<{ isDrawing: boolean }>`
   cursor: ${({ isDrawing }) => (isDrawing ? "crosshair" : undefined)};
 `;
 
-const StyledSearch = styled(Input.Search)`
+const StyledSearch = styled(Search)`
   z-index: 1;
   position: absolute;
   left: 8px;

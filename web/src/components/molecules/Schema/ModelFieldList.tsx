@@ -7,7 +7,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import { useT } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
@@ -20,6 +20,7 @@ type Props = {
   handleFieldUpdateModalOpen: (field: Field) => void;
 };
 
+const { confirm } = Modal;
 const ModelFieldList: React.FC<Props> = ({
   fields,
   isMeta,
@@ -28,12 +29,11 @@ const ModelFieldList: React.FC<Props> = ({
   handleFieldUpdateModalOpen,
 }) => {
   const t = useT();
-  const { confirm } = Modal;
 
   const handleFieldDeleteConfirmation = useCallback(
-    (fieldId: string) => {
+    (fieldId: string, name: string) => {
       confirm({
-        title: t("Are you sure you want to delete this field?"),
+        content: <Trans i18nKey="Are you sure you want to delete this field?" values={{ name }} />,
         icon: <Icon icon="exclamationCircle" />,
         cancelText: t("Cancel"),
         maskClosable: true,
@@ -42,7 +42,7 @@ const ModelFieldList: React.FC<Props> = ({
         },
       });
     },
-    [confirm, onFieldDelete, t],
+    [onFieldDelete, t],
   );
 
   const [data, setData] = useState(fields);
@@ -116,7 +116,7 @@ const ModelFieldList: React.FC<Props> = ({
                     type="text"
                     shape="circle"
                     size="small"
-                    onClick={() => handleFieldDeleteConfirmation(item.id)}
+                    onClick={() => handleFieldDeleteConfirmation(item.id, item.title)}
                     icon={<Icon icon="delete" color="#8c8c8c" />}
                   />,
                   <Button

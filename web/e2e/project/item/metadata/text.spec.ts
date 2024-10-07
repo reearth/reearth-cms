@@ -114,8 +114,7 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus New" }).click();
   await page.locator("#defaultValue").nth(1).click();
   await page.locator("#defaultValue").nth(1).fill("text2");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.locator("#defaultValue").nth(0).click();
   await page.locator("#defaultValue").nth(0).fill("text1");
   await page.getByRole("button", { name: "arrow-down" }).first().click();

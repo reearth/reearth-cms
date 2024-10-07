@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
@@ -17,13 +17,41 @@ type Props = {
 
 const GeometryField: React.FC<Props> = ({ supportedTypes, isEditor, multiple }) => {
   const t = useT();
+  const errorSet = useRef(new Set<number>());
+
+  const errorAdd = useCallback((index: number) => {
+    errorSet.current.add(index);
+  }, []);
+
+  const errorDelete = useCallback((index: number) => {
+    errorSet.current.delete(index);
+  }, []);
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
+    <Form.Item
+      name="defaultValue"
+      label={t("Set default value")}
+      rules={[
+        {
+          validator: () => {
+            return errorSet.current.size ? Promise.reject() : Promise.resolve();
+          },
+        },
+      ]}>
       {multiple ? (
-        <MultiValueGeometry supportedTypes={supportedTypes} isEditor={isEditor} />
+        <MultiValueGeometry
+          supportedTypes={supportedTypes}
+          isEditor={isEditor}
+          errorAdd={errorAdd}
+          errorDelete={errorDelete}
+        />
       ) : (
-        <GeometryItem supportedTypes={supportedTypes} isEditor={isEditor} />
+        <GeometryItem
+          supportedTypes={supportedTypes}
+          isEditor={isEditor}
+          errorAdd={() => errorAdd(0)}
+          errorDelete={() => errorDelete(0)}
+        />
       )}
     </Form.Item>
   );
