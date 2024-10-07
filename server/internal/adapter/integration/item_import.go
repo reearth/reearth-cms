@@ -208,6 +208,9 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 			o = props
 		}
 		for k, v := range o {
+			if v == nil {
+				continue
+			}
 			key := key2.New(k)
 			if !key.IsValid() {
 				return nil, nil, rerror.ErrInvalidParams

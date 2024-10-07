@@ -1430,13 +1430,13 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	createFieldOfEachType(t, e, mId)
 
-	jsonContent := `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2}]`
+	jsonContent := `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2},{"text": "test3", "bool": null, "integer": null}]`
 	aId := UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
 	res := IntegrationModelImportJSON(e, mId, aId, "json", "insert", false, nil)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
-		"itemsCount":    2,
-		"insertedCount": 2,
+		"itemsCount":    3,
+		"insertedCount": 3,
 		"updatedCount":  0,
 		"ignoredCount":  0,
 		"newFields":     []any{},
@@ -1453,16 +1453,19 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 		Object().
 		HasValue("page", 1).
 		HasValue("perPage", 5).
-		HasValue("totalCount", 2)
+		HasValue("totalCount", 3)
 
 	a := obj.Value("items").Array()
-	a.Length().IsEqual(2)
+	a.Length().IsEqual(3)
 	i := a.Value(0).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
 	i = a.Value(1).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
+	i = a.Value(2).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(1)
 	// endregion
 
 	// region strategy="insert" and mutateSchema=true
@@ -1473,8 +1476,8 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 	res = IntegrationModelImportJSON(e, mId, aId, "json", "insert", true, nil)
 	res.Object().ContainsSubset(map[string]any{
 		"modelId":       mId,
-		"itemsCount":    2,
-		"insertedCount": 2,
+		"itemsCount":    3,
+		"insertedCount": 3,
 		"updatedCount":  0,
 		"ignoredCount":  0,
 	})
@@ -1491,16 +1494,19 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 		Object().
 		HasValue("page", 1).
 		HasValue("perPage", 5).
-		HasValue("totalCount", 2)
+		HasValue("totalCount", 3)
 
 	a = obj.Value("items").Array()
-	a.Length().IsEqual(2)
+	a.Length().IsEqual(3)
 	i = a.Value(0).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
 	i = a.Value(1).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
+	i = a.Value(2).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(1)
 	// endregion
 }
 

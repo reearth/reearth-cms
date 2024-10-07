@@ -6384,7 +6384,6 @@ input CreateRequestInput {
   items: [RequestItemInput!]!
 }
 
-
 input UpdateRequestInput {
   requestId: ID!
   title: String
@@ -6396,6 +6395,7 @@ input UpdateRequestInput {
 
 input RequestItemInput {
   itemId: ID!
+  version: String
 }
 
 input DeleteRequestInput {
@@ -37755,7 +37755,7 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"itemId"}
+	fieldsInOrder := [...]string{"itemId", "version"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -37769,6 +37769,13 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 				return it, err
 			}
 			it.ItemID = data
+		case "version":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Version = data
 		}
 	}
 

@@ -94,7 +94,7 @@ jobs:
           echo "::set-output name=version::$VERSION"
           echo "::set-output name=tags::$TAGS"
       - name: Build and push docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./worker
           platforms: ${{ steps.options.outputs.platforms }}
