@@ -133,8 +133,8 @@ test("Creating a new request and adding to request has succeeded", async ({ page
   await closeNotification(page);
   await page.getByText("Request", { exact: true }).click();
   await page.getByLabel("edit").locator("svg").click();
-  await expect(page.getByRole("button", { name: "right e2e model name" }).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "right e2e model name" }).nth(1)).toBeVisible();
+  await expect(page.getByRole("button", { name: "collapsed e2e model name" }).nth(0)).toBeVisible();
+  await expect(page.getByRole("button", { name: "collapsed e2e model name" }).nth(1)).toBeVisible();
 });
 
 test("Navigating from request to item has succeeded", async ({ page }) => {
