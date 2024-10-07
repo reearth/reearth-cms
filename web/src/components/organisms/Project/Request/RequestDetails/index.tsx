@@ -7,7 +7,6 @@ import useHooks from "./hooks";
 const RequestDetails: React.FC = () => {
   const {
     me,
-    isWriter,
     hasCommentCreateRight,
     hasCommentUpdateRight,
     hasCommentDeleteRight,
@@ -36,7 +35,6 @@ const RequestDetails: React.FC = () => {
   return (
     <RequestDetailsMolecule
       me={me}
-      isWriter={isWriter}
       hasCommentCreateRight={hasCommentCreateRight}
       hasCommentUpdateRight={hasCommentUpdateRight}
       hasCommentDeleteRight={hasCommentDeleteRight}

@@ -25,7 +25,6 @@ const CommentsPanel: React.FC<Props> = ({
 }) => {
   const {
     me,
-    isWriter,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -40,7 +39,6 @@ const CommentsPanel: React.FC<Props> = ({
   return (
     <CommentsPanelMolecule
       me={me}
-      isWriter={isWriter}
       hasCreateRight={hasCreateRight}
       hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}

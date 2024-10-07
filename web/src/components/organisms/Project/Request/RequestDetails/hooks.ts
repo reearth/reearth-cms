@@ -27,17 +27,16 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [userRights] = useUserRights();
-  const isWriter = useMemo(() => userRights?.role === "WRITER", [userRights?.role]);
   const hasCommentCreateRight = useMemo(
     () => !!userRights?.comment.create,
     [userRights?.comment.create],
   );
   const hasCommentUpdateRight = useMemo(
-    () => !!userRights?.comment.update,
+    () => userRights?.comment.update !== undefined && userRights.comment.update,
     [userRights?.comment.update],
   );
   const hasCommentDeleteRight = useMemo(
-    () => !!userRights?.comment.delete,
+    () => userRights?.comment.delete !== undefined && userRights.comment.delete,
     [userRights?.comment.delete],
   );
 
@@ -69,16 +68,10 @@ export default () => {
   const isCloseActionEnabled = useMemo(
     () =>
       (currentRequest?.state === "WAITING" || currentRequest?.state === "DRAFT") &&
-      userRights?.role === "WRITER"
+      userRights?.request.close === null
         ? currentRequest.createdBy?.id === me?.id
         : !!userRights?.request.close,
-    [
-      currentRequest?.createdBy?.id,
-      currentRequest?.state,
-      me?.id,
-      userRights?.request.close,
-      userRights?.role,
-    ],
+    [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.close],
   );
 
   const isReopenActionEnabled = useMemo(
@@ -97,16 +90,10 @@ export default () => {
   const isAssignActionEnabled = useMemo(
     () =>
       (currentRequest?.state === "WAITING" || currentRequest?.state === "DRAFT") &&
-      userRights?.role === "WRITER"
+      userRights?.request.update === null
         ? currentRequest.createdBy?.id === me?.id
         : !!userRights?.request.update,
-    [
-      currentRequest?.createdBy?.id,
-      currentRequest?.state,
-      me?.id,
-      userRights?.request.update,
-      userRights?.role,
-    ],
+    [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.update],
   );
 
   const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
@@ -232,7 +219,6 @@ export default () => {
 
   return {
     me,
-    isWriter,
     hasCommentCreateRight,
     hasCommentUpdateRight,
     hasCommentDeleteRight,

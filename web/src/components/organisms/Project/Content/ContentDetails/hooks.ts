@@ -79,12 +79,12 @@ export default () => {
     [userRights?.request.create],
   );
   const hasRequestUpdateRight = useMemo(
-    () => myRole === "WRITER" || !!userRights?.request.update,
-    [myRole, userRights?.request.update],
+    () => userRights?.request.update === null || !!userRights?.request.update,
+    [userRights?.request.update],
   );
   const hasPublishRight = useMemo(
-    () => myRole === "WRITER" || !!userRights?.request.update,
-    [myRole, userRights?.request.update],
+    () => !!userRights?.content.publish,
+    [userRights?.content.publish],
   );
 
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
@@ -200,8 +200,10 @@ export default () => {
 
   const hasItemUpdateRight = useMemo(
     () =>
-      myRole === "WRITER" ? currentItem?.createdBy?.id === me?.id : !!userRights?.content.update,
-    [currentItem?.createdBy?.id, me?.id, myRole, userRights?.content.update],
+      userRights?.content.update === null
+        ? currentItem?.createdBy?.id === me?.id
+        : !!userRights?.content.update,
+    [currentItem?.createdBy?.id, me?.id, userRights?.content.update],
   );
 
   const [getGroup] = useGetGroupLazyQuery({

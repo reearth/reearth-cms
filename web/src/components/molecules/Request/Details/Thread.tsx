@@ -13,10 +13,9 @@ import RequestStatus from "./RequestStatus";
 
 type Props = {
   me?: User;
-  isWriter: boolean;
   hasCommentCreateRight: boolean;
-  hasCommentUpdateRight: boolean;
-  hasCommentDeleteRight: boolean;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   currentRequest: Request;
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
@@ -28,7 +27,6 @@ type Props = {
 
 const RequestThread: React.FC<Props> = ({
   me,
-  isWriter,
   hasCommentCreateRight,
   hasCommentUpdateRight,
   hasCommentDeleteRight,
@@ -53,7 +51,6 @@ const RequestThread: React.FC<Props> = ({
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList
               me={me}
-              isWriter={isWriter}
               hasCommentUpdateRight={hasCommentUpdateRight}
               hasCommentDeleteRight={hasCommentDeleteRight}
               comments={currentRequest.comments}

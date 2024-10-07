@@ -41,7 +41,7 @@ export default () => {
       sort: { key: "createdAt", reverted: true },
       state: ["WAITING"] as GQLRequestState[],
       key: searchTerm,
-      createdBy: userRights?.role === "WRITER" ? userId : undefined,
+      createdBy: userRights?.request.update === null ? userId : undefined,
     },
   });
 

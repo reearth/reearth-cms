@@ -39,18 +39,18 @@ export type UserRights = {
     delete: boolean;
     publish: boolean;
   };
-  schema: {
-    create: boolean;
-    read: boolean;
-    update: boolean;
-    delete: boolean;
-  };
   model: {
     create: boolean;
     read: boolean;
     update: boolean;
     delete: boolean;
     publish: boolean;
+  };
+  schema: {
+    create: boolean;
+    read: boolean;
+    update: boolean;
+    delete: boolean;
   };
   view: {
     create: boolean;
@@ -61,27 +61,27 @@ export type UserRights = {
   content: {
     create: boolean;
     read: boolean;
-    update: boolean;
-    delete: boolean;
+    update: boolean | null;
+    delete: boolean | null;
     publish: boolean;
   };
   asset: {
     create: boolean;
     read: boolean;
-    update: boolean;
-    delete: boolean;
+    update: boolean | null;
+    delete: boolean | null;
   };
   request: {
     create: boolean;
     read: boolean;
-    update: boolean;
-    close: boolean;
+    update: boolean | null;
+    close: boolean | null;
     approve: boolean;
   };
   comment: {
     create: boolean;
     read: boolean;
-    update: boolean;
-    delete: boolean;
+    update: boolean | null;
+    delete: boolean | null;
   };
 };

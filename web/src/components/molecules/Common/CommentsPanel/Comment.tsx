@@ -19,9 +19,8 @@ const { TextArea } = Input;
 
 type Props = {
   me?: User;
-  isWriter: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
+  hasUpdateRight: boolean | null;
+  hasDeleteRight: boolean | null;
   comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
@@ -29,7 +28,6 @@ type Props = {
 
 const CommentMolecule: React.FC<Props> = ({
   me,
-  isWriter,
   hasUpdateRight,
   hasDeleteRight,
   comment,
@@ -64,11 +62,11 @@ const CommentMolecule: React.FC<Props> = ({
 
   const actions = useMemo(() => {
     const result = [];
-    const isMine = isWriter && me?.id === comment.author.id;
-    if (hasDeleteRight || isMine) {
+    const isMine = me?.id === comment.author.id;
+    if (hasDeleteRight || (hasDeleteRight === null && isMine)) {
       result.push(<Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />);
     }
-    if (hasUpdateRight || isMine) {
+    if (hasUpdateRight || (hasUpdateRight === null && isMine)) {
       result.push(
         <Icon
           key="edit"
@@ -84,7 +82,6 @@ const CommentMolecule: React.FC<Props> = ({
     handleSubmit,
     hasDeleteRight,
     hasUpdateRight,
-    isWriter,
     me?.id,
     onCommentDelete,
     showEditor,

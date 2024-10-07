@@ -48,13 +48,13 @@ export default () => {
         ...selection,
         selectedRowKeys,
       });
-      if (userRights?.role === "WRITER") {
-        setHasCloseRight(selectedRows.every(row => row.createdBy?.id === userId));
-      } else {
-        setHasCloseRight(!!userRights?.request.close);
-      }
+      const newCloseRight =
+        userRights?.request.close === null
+          ? selectedRows.every(row => row.createdBy?.id === userId)
+          : !!userRights?.request.close;
+      setHasCloseRight(newCloseRight);
     },
-    [selection, userId, userRights?.request.close, userRights?.role],
+    [selection, userId, userRights?.request.close],
   );
 
   const [selectedRequestId, setselectedRequestId] = useState<string>();

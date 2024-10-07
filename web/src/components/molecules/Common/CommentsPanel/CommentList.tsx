@@ -6,9 +6,8 @@ import CommentMolecule from "./Comment";
 
 type Props = {
   me?: User;
-  isWriter: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
+  hasUpdateRight: boolean | null;
+  hasDeleteRight: boolean | null;
   comments: Comment[];
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
@@ -16,7 +15,6 @@ type Props = {
 
 export const CommentList: React.FC<Props> = ({
   me,
-  isWriter,
   hasUpdateRight,
   hasDeleteRight,
   comments,
@@ -29,7 +27,6 @@ export const CommentList: React.FC<Props> = ({
     renderItem={props => (
       <CommentMolecule
         me={me}
-        isWriter={isWriter}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
         comment={props}

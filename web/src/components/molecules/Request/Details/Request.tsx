@@ -13,10 +13,9 @@ import RequestSidebarWrapper from "./SidebarWrapper";
 
 type Props = {
   me?: User;
-  isWriter: boolean;
   hasCommentCreateRight: boolean;
-  hasCommentUpdateRight: boolean;
-  hasCommentDeleteRight: boolean;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   isCloseActionEnabled: boolean;
   isReopenActionEnabled: boolean;
   isApproveActionEnabled: boolean;
@@ -40,7 +39,6 @@ type Props = {
 
 const RequestMolecule: React.FC<Props> = ({
   me,
-  isWriter,
   hasCommentCreateRight,
   hasCommentUpdateRight,
   hasCommentDeleteRight,
@@ -108,7 +106,6 @@ const RequestMolecule: React.FC<Props> = ({
         <ThreadWrapper>
           <RequestThread
             me={me}
-            isWriter={isWriter}
             hasCommentCreateRight={hasCommentCreateRight}
             hasCommentUpdateRight={hasCommentUpdateRight}
             hasCommentDeleteRight={hasCommentDeleteRight}

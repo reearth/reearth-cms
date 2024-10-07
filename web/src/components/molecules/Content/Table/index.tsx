@@ -90,7 +90,7 @@ type Props = {
   onRequestTableReload: () => void;
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
-  hasReqestUpdateRight: boolean;
+  hasRequestUpdateRight: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -131,7 +131,7 @@ const ContentTable: React.FC<Props> = ({
   onRequestTableReload,
   hasDeleteRight,
   hasPublishRight,
-  hasReqestUpdateRight,
+  hasRequestUpdateRight,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -301,7 +301,7 @@ const ContentTable: React.FC<Props> = ({
             size="small"
             icon={<Icon icon="plus" />}
             onClick={() => onAddItemToRequestModalOpen()}
-            disabled={!hasReqestUpdateRight}>
+            disabled={!hasRequestUpdateRight}>
             {t("Add to Request")}
           </Button>
           <Button
@@ -337,7 +337,7 @@ const ContentTable: React.FC<Props> = ({
       deleteLoading,
       hasDeleteRight,
       hasPublishRight,
-      hasReqestUpdateRight,
+      hasRequestUpdateRight,
       onAddItemToRequestModalOpen,
       onItemDelete,
       onUnpublish,

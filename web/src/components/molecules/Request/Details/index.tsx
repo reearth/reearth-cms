@@ -8,10 +8,9 @@ import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
   me?: User;
-  isWriter: boolean;
   hasCommentCreateRight: boolean;
-  hasCommentUpdateRight: boolean;
-  hasCommentDeleteRight: boolean;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   isCloseActionEnabled: boolean;
   isReopenActionEnabled: boolean;
   isApproveActionEnabled: boolean;
@@ -36,7 +35,6 @@ type Props = {
 
 const RequestDetailsMolecule: React.FC<Props> = ({
   me,
-  isWriter,
   hasCommentCreateRight,
   hasCommentUpdateRight,
   hasCommentDeleteRight,
@@ -66,7 +64,6 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   ) : currentRequest ? (
     <RequestMolecule
       me={me}
-      isWriter={isWriter}
       hasCommentCreateRight={hasCommentCreateRight}
       hasCommentUpdateRight={hasCommentUpdateRight}
       hasCommentDeleteRight={hasCommentDeleteRight}

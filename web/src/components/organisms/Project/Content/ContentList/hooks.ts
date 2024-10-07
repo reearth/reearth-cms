@@ -95,10 +95,7 @@ export default () => {
     () => !!userRights?.content.publish,
     [userRights?.content.publish],
   );
-  const hasReqestUpdateRight = useMemo(
-    () => userRights?.role === "WRITER" || !!userRights?.request.update,
-    [userRights?.request.update, userRights?.role],
-  );
+  const [hasRequestUpdateRight, setHasRequestUpdateRight] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState<string>(location.state?.searchTerm ?? "");
   const [page, setPage] = useState<number>(location.state?.page ?? 1);
@@ -169,13 +166,18 @@ export default () => {
         ...selection,
         selectedRowKeys,
       });
-      if (userRights?.role === "WRITER") {
-        setHasDeleteRight(selectedRows.every(row => row.createdBy.id === userId));
-      } else {
-        setHasDeleteRight(!!userRights?.asset.delete);
+
+      const newRight =
+        userRights?.content.delete === null
+          ? selectedRows.every(row => row.createdBy.id === userId)
+          : !!userRights?.content.delete;
+      setHasDeleteRight(newRight);
+
+      if (userRights?.request.update || userRights?.request.update === null) {
+        setHasRequestUpdateRight(selectedRows.every(row => row.status !== "PUBLIC"));
       }
     },
-    [selection, userId, userRights?.asset.delete, userRights?.role],
+    [selection, userId, userRights?.content.delete, userRights?.request.update],
   );
 
   const [updateItemMutation] = useUpdateItemMutation();
@@ -372,8 +374,9 @@ export default () => {
   );
 
   const hasRightGet = useCallback(
-    (id: string) => (userRights?.role === "WRITER" ? id === userId : !!userRights?.content.update),
-    [userId, userRights?.content.update, userRights?.role],
+    (id: string) =>
+      userRights?.content.update === null ? id === userId : !!userRights?.content.update,
+    [userId, userRights?.content.update],
   );
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
@@ -579,7 +582,7 @@ export default () => {
     hasCreateRight,
     hasDeleteRight,
     hasPublishRight,
-    hasReqestUpdateRight,
+    hasRequestUpdateRight,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,

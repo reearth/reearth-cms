@@ -70,13 +70,13 @@ export default (isItemsRequired: boolean) => {
         ...selection,
         selectedRowKeys,
       });
-      if (userRights?.role === "WRITER") {
+      if (userRights?.asset.delete === null) {
         setHasDeleteRight(selectedRows.every(row => row.createdBy.id === userId));
       } else {
         setHasDeleteRight(!!userRights?.asset.delete);
       }
     },
-    [selection, userId, userRights?.asset.delete, userRights?.role],
+    [selection, userId, userRights?.asset.delete],
   );
 
   const [getAsset] = useGetAssetLazyQuery();

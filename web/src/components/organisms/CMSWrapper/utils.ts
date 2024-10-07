@@ -30,18 +30,18 @@ export const userRightsGet = (role: Role): UserRights => {
           delete: true,
           publish: true,
         },
-        schema: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-        },
         model: {
           create: true,
           read: true,
           update: true,
           delete: true,
           publish: true,
+        },
+        schema: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
         },
         view: {
           create: true,
@@ -87,9 +87,9 @@ export const userRightsGet = (role: Role): UserRights => {
           update: true,
         },
         integrations: {
-          connect: true,
-          update: true,
-          delete: true,
+          connect: false,
+          update: false,
+          delete: false,
         },
         members: {
           invite: false,
@@ -98,6 +98,13 @@ export const userRightsGet = (role: Role): UserRights => {
           leave: true,
         },
         project: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+          publish: true,
+        },
+        model: {
           create: true,
           read: true,
           update: true,
@@ -115,13 +122,6 @@ export const userRightsGet = (role: Role): UserRights => {
           read: true,
           update: true,
           delete: true,
-        },
-        model: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-          publish: true,
         },
         content: {
           create: true,
@@ -178,6 +178,13 @@ export const userRightsGet = (role: Role): UserRights => {
           delete: false,
           publish: false,
         },
+        model: {
+          create: false,
+          read: true,
+          update: false,
+          delete: false,
+          publish: false,
+        },
         schema: {
           create: false,
           read: true,
@@ -190,38 +197,31 @@ export const userRightsGet = (role: Role): UserRights => {
           update: false,
           delete: false,
         },
-        model: {
-          create: false,
-          read: true,
-          update: false,
-          delete: false,
-          publish: false,
-        },
         content: {
           create: true,
           read: true,
-          update: false,
-          delete: false,
+          update: null,
+          delete: null,
           publish: false,
         },
         asset: {
           create: true,
           read: true,
-          update: false,
-          delete: false,
+          update: null,
+          delete: null,
         },
         request: {
           create: true,
           read: true,
-          update: false,
-          close: false,
+          update: null,
+          close: null,
           approve: false,
         },
         comment: {
           create: true,
           read: true,
-          update: false,
-          delete: false,
+          update: null,
+          delete: null,
         },
       };
     case "READER":
@@ -253,6 +253,13 @@ export const userRightsGet = (role: Role): UserRights => {
           delete: false,
           publish: false,
         },
+        model: {
+          create: false,
+          read: true,
+          update: false,
+          delete: false,
+          publish: false,
+        },
         schema: {
           create: false,
           read: true,
@@ -264,13 +271,6 @@ export const userRightsGet = (role: Role): UserRights => {
           read: true,
           update: false,
           delete: false,
-        },
-        model: {
-          create: false,
-          read: true,
-          update: false,
-          delete: false,
-          publish: false,
         },
         content: {
           create: false,

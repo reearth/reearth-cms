@@ -434,7 +434,7 @@ const ContentForm: React.FC<Props> = ({
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
-        disabled: item?.status === "PUBLIC" ? false : !hasRequestUpdateRight,
+        disabled: item?.status === "PUBLIC" || !hasRequestUpdateRight,
       },
       {
         key: "unpublish",
@@ -479,6 +479,11 @@ const ContentForm: React.FC<Props> = ({
   const handlePublishItemClose = useCallback(() => {
     setPublishModalOpen(false);
   }, [setPublishModalOpen]);
+
+  const fieldDisabled = useMemo(
+    () => !!itemId && !hasItemUpdateRight,
+    [hasItemUpdateRight, itemId],
+  );
 
   return (
     <>
@@ -542,7 +547,7 @@ const ContentForm: React.FC<Props> = ({
                     totalCount={totalCount}
                     page={page}
                     pageSize={pageSize}
-                    disabled={!hasItemUpdateRight}
+                    disabled={fieldDisabled}
                     onAssetTableChange={onAssetTableChange}
                     onUploadModalCancel={onUploadModalCancel}
                     setUploadUrl={setUploadUrl}
@@ -570,7 +575,7 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
-                    disabled={!hasItemUpdateRight}
+                    disabled={fieldDisabled}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onSearchTerm={onSearchTerm}
                     onLinkItemTableReload={onLinkItemTableReload}
@@ -603,7 +608,7 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
-                    disabled={!hasItemUpdateRight}
+                    disabled={fieldDisabled}
                     onSearchTerm={onSearchTerm}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onLinkItemTableReload={onLinkItemTableReload}
@@ -630,7 +635,7 @@ const ContentForm: React.FC<Props> = ({
 
               return (
                 <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <FieldComponent field={field} disabled={!hasItemUpdateRight} />
+                  <FieldComponent field={field} disabled={fieldDisabled} />
                 </StyledFormItemWrapper>
               );
             } else {
@@ -650,7 +655,7 @@ const ContentForm: React.FC<Props> = ({
 
               return (
                 <StyledFormItemWrapper key={field.id}>
-                  <FieldComponent field={field} disabled={!hasItemUpdateRight} />
+                  <FieldComponent field={field} disabled={fieldDisabled} />
                 </StyledFormItemWrapper>
               );
             }
@@ -670,7 +675,7 @@ const ContentForm: React.FC<Props> = ({
                 <FieldComponent
                   field={field}
                   onMetaUpdate={handleMetaUpdate}
-                  disabled={!hasItemUpdateRight}
+                  disabled={fieldDisabled}
                 />
               </MetaFormItemWrapper>
             );

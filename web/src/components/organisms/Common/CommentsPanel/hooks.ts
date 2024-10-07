@@ -21,10 +21,15 @@ export default ({ threadId, refetchQueries }: Params) => {
   const t = useT();
 
   const [userRights] = useUserRights();
-  const isWriter = useMemo(() => userRights?.role === "WRITER", [userRights?.role]);
   const hasCreateRight = useMemo(() => !!userRights?.comment.create, [userRights?.comment.create]);
-  const hasUpdateRight = useMemo(() => !!userRights?.comment.update, [userRights?.comment.update]);
-  const hasDeleteRight = useMemo(() => !!userRights?.comment.delete, [userRights?.comment.delete]);
+  const hasUpdateRight = useMemo(
+    () => userRights?.comment.update !== undefined && userRights.comment.update,
+    [userRights?.comment.update],
+  );
+  const hasDeleteRight = useMemo(
+    () => userRights?.comment.delete !== undefined && userRights.comment.delete,
+    [userRights?.comment.delete],
+  );
 
   const { data: userData } = useGetMeQuery();
 
@@ -108,7 +113,6 @@ export default ({ threadId, refetchQueries }: Params) => {
 
   return {
     me,
-    isWriter,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,

@@ -5,9 +5,8 @@ import { CommentList } from "./CommentList";
 
 type Props = {
   me?: User;
-  isWriter: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
+  hasUpdateRight: boolean | null;
+  hasDeleteRight: boolean | null;
   comments?: Comment[];
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
@@ -15,7 +14,6 @@ type Props = {
 
 export const Thread: React.FC<Props> = ({
   me,
-  isWriter,
   hasUpdateRight,
   hasDeleteRight,
   comments,
@@ -27,7 +25,6 @@ export const Thread: React.FC<Props> = ({
       {comments && comments?.length > 0 && (
         <CommentList
           me={me}
-          isWriter={isWriter}
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
           comments={comments}

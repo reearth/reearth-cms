@@ -11,10 +11,9 @@ import Thread from "./Thread";
 
 type Props = {
   me?: User;
-  isWriter: boolean;
   hasCreateRight: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
+  hasUpdateRight: boolean | null;
+  hasDeleteRight: boolean | null;
   comments?: Comment[];
   emptyText?: string;
   collapsed: boolean;
@@ -26,7 +25,6 @@ type Props = {
 
 const CommentsPanel: React.FC<Props> = ({
   me,
-  isWriter,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
@@ -58,7 +56,6 @@ const CommentsPanel: React.FC<Props> = ({
               <CommentsContainer>
                 <Thread
                   me={me}
-                  isWriter={isWriter}
                   hasUpdateRight={hasUpdateRight}
                   hasDeleteRight={hasDeleteRight}
                   comments={comments}

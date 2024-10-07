@@ -83,8 +83,10 @@ export default (assetId?: string) => {
 
   const hasUpdateRight = useMemo(
     () =>
-      userRights?.role === "WRITER" ? asset?.createdBy.id === userId : !!userRights?.asset.update,
-    [asset?.createdBy.id, userId, userRights?.asset.update, userRights?.role],
+      userRights?.asset.update === null
+        ? asset?.createdBy.id === userId
+        : !!userRights?.asset.update,
+    [asset?.createdBy.id, userId, userRights?.asset.update],
   );
 
   const [updateAssetMutation, { loading: updateLoading }] = useUpdateAssetMutation();
