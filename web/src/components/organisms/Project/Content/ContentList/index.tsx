@@ -16,7 +16,6 @@ const ContentList: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
-    selection,
     selectedItems,
     loading,
     deleteLoading,
@@ -41,7 +40,6 @@ const ContentList: React.FC = () => {
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelection,
     setSelectedItems,
     handleItemSelect,
     collapseCommentsPanel,
@@ -109,7 +107,6 @@ const ContentList: React.FC = () => {
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
-      selection={selection}
       selectedItems={selectedItems}
       requests={requests}
       onRequestTableChange={handleRequestTableChange}
@@ -117,7 +114,6 @@ const ContentList: React.FC = () => {
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      setSelection={setSelection}
       setSelectedItems={setSelectedItems}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}

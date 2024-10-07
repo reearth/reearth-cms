@@ -30,12 +30,7 @@ type Props = {
   contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
   selectedItem?: Item;
-  selection: {
-    selectedRowKeys: string[];
-  };
-  selectedItems: {
-    selectedRows: { itemId: string; version?: string }[];
-  };
+  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
   totalCount: number;
   currentView: CurrentView;
   searchTerm: string;
@@ -52,7 +47,6 @@ type Props = {
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
   setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
@@ -80,7 +74,6 @@ const ContentListMolecule: React.FC<Props> = ({
   deleteLoading,
   unpublishLoading,
   selectedItem,
-  selection,
   selectedItems,
   totalCount,
   currentView,
@@ -102,7 +95,6 @@ const ContentListMolecule: React.FC<Props> = ({
   onSearchTerm,
   onFilterChange,
   onContentTableChange,
-  setSelection,
   setSelectedItems,
   onItemSelect,
   onCollapse,
@@ -155,13 +147,11 @@ const ContentListMolecule: React.FC<Props> = ({
                 deleteLoading={deleteLoading}
                 unpublishLoading={unpublishLoading}
                 selectedItem={selectedItem}
-                selection={selection}
                 selectedItems={selectedItems}
                 onUnpublish={onUnpublish}
                 onSearchTerm={onSearchTerm}
                 onFilterChange={onFilterChange}
                 onContentTableChange={onContentTableChange}
-                setSelection={setSelection}
                 setSelectedItems={setSelectedItems}
                 onItemSelect={onItemSelect}
                 onItemsReload={onItemsReload}

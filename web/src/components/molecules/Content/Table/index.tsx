@@ -58,12 +58,7 @@ type Props = {
   deleteLoading: boolean;
   unpublishLoading: boolean;
   selectedItem?: Item;
-  selection: {
-    selectedRowKeys: string[];
-  };
-  selectedItems: {
-    selectedRows: { itemId: string; version?: string }[];
-  };
+  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
   totalCount: number;
   currentView: CurrentView;
   setCurrentView: Dispatch<SetStateAction<CurrentView>>;
@@ -79,7 +74,6 @@ type Props = {
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
   setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
@@ -102,7 +96,6 @@ const ContentTable: React.FC<Props> = ({
   deleteLoading,
   unpublishLoading,
   selectedItem,
-  selection,
   selectedItems,
   totalCount,
   currentView,
@@ -125,7 +118,6 @@ const ContentTable: React.FC<Props> = ({
   onFilterChange,
   onContentTableChange,
   onItemSelect,
-  setSelection,
   setSelectedItems,
   onItemEdit,
   onItemDelete,
@@ -286,19 +278,15 @@ const ContentTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: Key[], selectedRows: Item[]) => {
+      selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
+      onChange: (_selectedRowKeys: Key[], selectedRows: Item[]) => {
         setSelectedItems({
           ...selectedItems,
           selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
         });
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys as string[],
-        });
       },
     }),
-    [selectedItems, selection, setSelectedItems, setSelection],
+    [selectedItems, setSelectedItems],
   );
 
   const alertOptions = useCallback(

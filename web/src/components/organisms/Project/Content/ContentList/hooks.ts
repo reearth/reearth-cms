@@ -146,12 +146,7 @@ export default () => {
   const [selectedItemId, setSelectedItemId] = useState<string>();
   const [selectedItems, setSelectedItems] = useState<{
     selectedRows: { itemId: string; version?: string }[];
-  }>({
-    selectedRows: [],
-  });
-  const [selection, setSelection] = useState<{ selectedRowKeys: string[] }>({
-    selectedRowKeys: [],
-  });
+  }>({ selectedRows: [] });
 
   const [updateItemMutation] = useUpdateItemMutation();
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
@@ -470,7 +465,6 @@ export default () => {
         );
         if (results) {
           Notification.success({ message: t("One or more items were successfully deleted!") });
-          setSelection({ selectedRowKeys: [] });
           setSelectedItems({ selectedRows: [] });
         }
       })(),
@@ -520,7 +514,6 @@ export default () => {
     async (request: Request, items: RequestItem[]) => {
       await handleAddItemToRequest(request, items);
       refetch();
-      setSelection({ selectedRowKeys: [] });
       setSelectedItems({ selectedRows: [] });
     },
     [handleAddItemToRequest, refetch],
@@ -536,7 +529,6 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
-    selection,
     selectedItems,
     totalCount: data?.searchItem.totalCount ?? 0,
     views: viewsRef.current,
@@ -558,7 +550,6 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelection,
     setSelectedItems,
     handleItemSelect,
     collapseCommentsPanel,
