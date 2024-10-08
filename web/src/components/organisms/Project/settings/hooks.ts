@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
@@ -11,18 +11,21 @@ import {
   useCheckProjectAliasLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 type Params = {
   projectId?: string;
 };
 
 export default ({ projectId }: Params) => {
-  const navigate = useNavigate();
-  const [currentWorkspace] = useWorkspace();
   const t = useT();
+  const navigate = useNavigate();
 
-  const workspaceId = currentWorkspace?.id;
+  const [currentWorkspace] = useWorkspace();
+  const workspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
+  const [userRights] = useUserRights();
+  const hasUpdateRight = useMemo(() => !!userRights?.project.update, [userRights?.project.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.project.delete, [userRights?.project.delete]);
 
   const { data, loading } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
@@ -134,13 +137,12 @@ export default ({ projectId }: Params) => {
   return {
     project,
     loading,
-    projectId,
-    currentWorkspace,
+    hasUpdateRight,
+    hasDeleteRight,
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
     handleProjectDelete,
     handleProjectAliasCheck,
-    assetModalOpened,
     toggleAssetModal,
   };
 };

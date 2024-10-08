@@ -4,12 +4,12 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { RoleUnion } from "@reearth-cms/components/molecules/Member/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type FormValues = {
-  role: RoleUnion;
+  role: Role;
 };
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
   member: UserMember;
   loading: boolean;
   onClose: () => void;
-  onSubmit: (userId: string, role: RoleUnion) => Promise<void>;
+  onSubmit: (userId: string, role: Role) => Promise<void>;
 };
 
 const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onSubmit }) => {

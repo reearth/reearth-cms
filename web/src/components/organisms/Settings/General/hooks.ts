@@ -5,7 +5,6 @@ import {
   WorkspaceSettings,
   TileInput,
   TerrainInput,
-  UserMember,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspaceSettings } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -13,15 +12,15 @@ import {
   useUpdateWorkspaceSettingsMutation,
   ResourceInput,
   WorkspaceSettings as GQLWorkspaceSettings,
-  useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
 
   const [currentWorkspace] = useWorkspace();
+  const [userRights] = useUserRights();
   const workspaceId = currentWorkspace?.id;
   const { data, refetch, loading } = useGetWorkspaceSettingsQuery({
     variables: { workspaceId: workspaceId ?? "" },
@@ -78,18 +77,15 @@ export default () => {
     [refetch, t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
   );
 
-  const { data: userData } = useGetMeQuery();
-  const hasPrivilege: boolean = useMemo(() => {
-    const myRole = currentWorkspace?.members?.find(
-      (m): m is UserMember => "userId" in m && m.userId === userData?.me?.id,
-    )?.role;
-    return myRole === "OWNER" || myRole === "MAINTAINER";
-  }, [currentWorkspace?.members, userData?.me?.id]);
+  const hasUpdateRight = useMemo(
+    () => !!userRights?.workspaceSetting.update,
+    [userRights?.workspaceSetting.update],
+  );
 
   return {
     workspaceSettings,
     loading,
-    hasPrivilege,
+    hasUpdateRight,
     updateLoading,
     handleWorkspaceSettingsUpdate,
   };

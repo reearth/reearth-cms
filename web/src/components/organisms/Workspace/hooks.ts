@@ -14,7 +14,7 @@ import {
   useCheckProjectAliasLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -24,6 +24,8 @@ export default () => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.project.create, [userRights?.project.create]);
 
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [projectModalShown, setProjectModalShown] = useState(false);
@@ -151,6 +153,7 @@ export default () => {
     projectModalShown,
     loadingProjects,
     workspaceModalShown,
+    hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,

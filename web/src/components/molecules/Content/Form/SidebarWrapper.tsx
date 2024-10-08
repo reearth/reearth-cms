@@ -49,7 +49,7 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item, onNavigateToRequest }) =
             </DataRow>
             <DataRow>
               <DataTitle>{t("Created By")}</DataTitle>
-              <DataText>{item.createdBy}</DataText>
+              <DataText>{item.createdBy?.name}</DataText>
             </DataRow>
             <DataRow>
               <DataTitle>{t("Updated At")}</DataTitle>
@@ -57,7 +57,7 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item, onNavigateToRequest }) =
             </DataRow>
             <DataRow>
               <DataTitle>{t("Updated By")}</DataTitle>
-              <DataText>{item.updatedBy}</DataText>
+              <DataText>{item.updatedBy?.name}</DataText>
             </DataRow>
           </SidebarCard>
           <SidebarCard title={t("Publish State")}>

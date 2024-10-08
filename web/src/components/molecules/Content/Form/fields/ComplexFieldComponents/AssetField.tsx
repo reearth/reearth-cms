@@ -23,7 +23,7 @@ type AssetFieldProps = {
   totalCount?: number;
   page?: number;
   pageSize?: number;
-  disabled?: boolean;
+  disabled: boolean;
   onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel?: () => void;
   setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;

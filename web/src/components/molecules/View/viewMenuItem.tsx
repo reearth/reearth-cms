@@ -8,12 +8,21 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   view: View;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   onViewRenameModalOpen: (view: View) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   onDelete: (viewId: string) => Promise<void>;
 };
 
-const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate, onDelete }) => {
+const ViewsMenuItem: React.FC<Props> = ({
+  view,
+  hasUpdateRight,
+  hasDeleteRight,
+  onViewRenameModalOpen,
+  onUpdate,
+  onDelete,
+}) => {
   const t = useT();
 
   const children = [
@@ -22,12 +31,14 @@ const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate,
       key: "update",
       icon: <Icon icon="reload" />,
       onClick: () => onUpdate(view.id, view.name),
+      disabled: !hasDeleteRight,
     },
     {
       label: t("Rename"),
       key: "rename",
       icon: <Icon icon="edit" />,
       onClick: () => onViewRenameModalOpen(view),
+      disabled: !hasUpdateRight,
     },
     {
       label: t("Remove View"),
@@ -58,6 +69,7 @@ const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate,
           },
         });
       },
+      disabled: !hasUpdateRight,
     },
   ];
 

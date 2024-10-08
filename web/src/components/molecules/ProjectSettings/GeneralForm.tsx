@@ -12,6 +12,7 @@ import { Project } from "../Workspace/types";
 
 type Props = {
   project: Project;
+  hasUpdateRight: boolean;
   onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
@@ -22,7 +23,12 @@ type FormType = {
   description: string;
 };
 
-const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProjectAliasCheck }) => {
+const ProjectGeneralForm: React.FC<Props> = ({
+  project,
+  hasUpdateRight,
+  onProjectUpdate,
+  onProjectAliasCheck,
+}) => {
   const [form] = Form.useForm<FormType>();
   const t = useT();
   const [isDisabled, setIsDisabled] = useState(true);
@@ -72,7 +78,7 @@ const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProje
         name="name"
         label={t("Name")}
         rules={[{ required: true, message: t("Please input the name of project!") }]}>
-        <Input />
+        <Input disabled={!hasUpdateRight} />
       </Form.Item>
       <Form.Item
         name="alias"
@@ -92,13 +98,13 @@ const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProje
             },
           },
         ]}>
-        <Input />
+        <Input disabled={!hasUpdateRight} />
       </Form.Item>
       <Form.Item
         name="description"
         label={t("Description")}
         extra={t("Write something here to describe this record.")}>
-        <TextArea rows={4} />
+        <TextArea rows={4} disabled={!hasUpdateRight} />
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit" disabled={isDisabled} loading={isLoading}>

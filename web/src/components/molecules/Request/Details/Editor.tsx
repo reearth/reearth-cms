@@ -7,10 +7,11 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  hasCommentCreateRight: boolean;
   onCommentCreate: (content: string) => Promise<void>;
 };
 
-const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
+const RequestEditor: React.FC<Props> = ({ hasCommentCreateRight, onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
   const [form] = Form.useForm();
@@ -37,7 +38,12 @@ const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
   return (
     <Form form={form} layout="vertical">
       <TextAreaItem name="content">
-        <TextArea rows={4} placeholder={t("Leave your comment...")} onChange={handleChange} />
+        <TextArea
+          rows={4}
+          placeholder={t("Leave your comment...")}
+          onChange={handleChange}
+          disabled={!hasCommentCreateRight}
+        />
       </TextAreaItem>
       <ButtonItem>
         <Button disabled={isDisabled} loading={submitting} onClick={handleSubmit} type="primary">

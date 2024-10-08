@@ -12,7 +12,7 @@ type DateFieldProps = {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => void;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {

@@ -36,7 +36,7 @@ import {
   useModelsByGroupQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useCollapsedModelMenu } from "@reearth-cms/state";
+import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -44,6 +44,10 @@ export default () => {
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId: schemaId } = useParams();
   const [currentModel, setCurrentModel] = useModel();
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.schema.create, [userRights?.schema.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.schema.update, [userRights?.schema.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.schema.delete, [userRights?.schema.delete]);
 
   const [fieldModalShown, setFieldModalShown] = useState(false);
   const [isMeta, setIsMeta] = useState(false);
@@ -600,5 +604,8 @@ export default () => {
     groupDeletionModalShown,
     modelModalShown,
     modelDeletionModalShown,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
   };
 };
