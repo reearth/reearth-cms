@@ -78,10 +78,18 @@ export default () => {
 
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
-    setCurrentWorkspace(data.me?.myWorkspace ?? undefined);
-    setCurrentWorkspaceId(data.me?.myWorkspace?.id);
+    setCurrentWorkspace(personalWorkspace ?? undefined);
+    setCurrentWorkspaceId(personalWorkspace?.id);
     navigate(`/workspace/${data.me?.myWorkspace?.id}`);
-  }, [data, navigate, setCurrentWorkspace, setCurrentWorkspaceId, currentWorkspace, workspaceId]);
+  }, [
+    data,
+    navigate,
+    setCurrentWorkspace,
+    setCurrentWorkspaceId,
+    currentWorkspace,
+    workspaceId,
+    personalWorkspace,
+  ]);
 
   useEffect(() => {
     if (workspace?.id && workspace.id !== currentWorkspace?.id) {

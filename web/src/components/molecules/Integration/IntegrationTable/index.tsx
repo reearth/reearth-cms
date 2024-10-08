@@ -12,6 +12,7 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
@@ -81,6 +82,12 @@ const IntegrationTable: React.FC<Props> = ({
         key: "creator",
         width: 250,
         minWidth: 100,
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.integration?.developer.name} size="small" />
+            {item.integration?.developer.name}
+          </Space>
+        ),
       },
       {
         key: "action",
