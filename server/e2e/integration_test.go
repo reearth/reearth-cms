@@ -56,8 +56,8 @@ func createIntegration(e *httpexpect.Expect, name, desc, logoUrl, iType string) 
 func regenerateToken(e *httpexpect.Expect, iId string) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `
-		mutation regenerateToken($integrationId: ID!) {
-			regenerateToken(input: { integrationId: $integrationId }) {
+		mutation regenerateIntegrationToken($integrationId: ID!) {
+			regenerateIntegrationToken(input: { integrationId: $integrationId }) {
 			  integration {
 				id
 				name
@@ -85,7 +85,7 @@ func regenerateToken(e *httpexpect.Expect, iId string) (string, *httpexpect.Valu
 		Status(http.StatusOK).
 		JSON()
 
-	return res.Path("$.data.regenerateToken.integration.config.token").Raw().(string), res
+	return res.Path("$.data.regenerateIntegrationToken.integration.config.token").Raw().(string), res
 }
 
 func TestRegenerateToken(t *testing.T) {
@@ -102,7 +102,7 @@ func TestRegenerateToken(t *testing.T) {
 	_, updatedIntegration := regenerateToken(e, iId)
 	newToken := updatedIntegration.Object().
 		Value("data").Object().
-		Value("regenerateToken").Object().
+		Value("regenerateIntegrationToken").Object().
 		Value("integration").Object().
 		Value("config").Object().
 		Value("token")
