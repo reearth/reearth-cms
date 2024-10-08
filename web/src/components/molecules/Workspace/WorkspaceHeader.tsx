@@ -4,18 +4,17 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Search from "@reearth-cms/components/atoms/Search";
-import { UserRights } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  userRights?: UserRights;
+  hasCreateRight: boolean;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
   onWorkspaceModalOpen: () => void;
 };
 
 const WorkspaceHeader: React.FC<Props> = ({
-  userRights,
+  hasCreateRight,
   onProjectSearch,
   onProjectModalOpen,
   onWorkspaceModalOpen,
@@ -36,7 +35,7 @@ const WorkspaceHeader: React.FC<Props> = ({
           onClick={onProjectModalOpen}
           type="primary"
           icon={<Icon icon="plus" />}
-          disabled={!userRights?.project.create}>
+          disabled={!hasCreateRight}>
           {t("New Project")}
         </Button>
       </ButtonWrapper>

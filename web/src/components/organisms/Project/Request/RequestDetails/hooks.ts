@@ -68,9 +68,9 @@ export default () => {
   const isCloseActionEnabled = useMemo(
     () =>
       (currentRequest?.state === "WAITING" || currentRequest?.state === "DRAFT") &&
-      userRights?.request.close === null
+      (userRights?.request.close === null
         ? currentRequest.createdBy?.id === me?.id
-        : !!userRights?.request.close,
+        : !!userRights?.request.close),
     [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.close],
   );
 
@@ -90,9 +90,9 @@ export default () => {
   const isAssignActionEnabled = useMemo(
     () =>
       (currentRequest?.state === "WAITING" || currentRequest?.state === "DRAFT") &&
-      userRights?.request.update === null
+      (userRights?.request.update === null
         ? currentRequest.createdBy?.id === me?.id
-        : !!userRights?.request.update,
+        : !!userRights?.request.update),
     [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.update],
   );
 

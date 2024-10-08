@@ -6,7 +6,6 @@ import ProjectCreationModal, {
 import WorkspaceCreationModal, {
   FormValues as WorkspaceFormValues,
 } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import { UserRights } from "@reearth-cms/components/molecules/Member/types";
 import ProjectList from "@reearth-cms/components/molecules/ProjectList/ProjectList";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
@@ -18,7 +17,7 @@ type Props = {
   projectModal: boolean;
   workspaceModal: boolean;
   loadingProjects: boolean;
-  userRights?: UserRights;
+  hasCreateRight: boolean;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
   onProjectNavigation: (project: Project) => void;
@@ -36,7 +35,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   projectModal,
   workspaceModal,
   loadingProjects,
-  userRights,
+  hasCreateRight,
   onProjectSearch,
   onProjectModalOpen,
   onProjectNavigation,
@@ -52,7 +51,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
       <Greeting coverImageUrl={coverImageUrl} />
       <Content>
         <WorkspaceHeader
-          userRights={userRights}
+          hasCreateRight={hasCreateRight}
           onProjectSearch={onProjectSearch}
           onProjectModalOpen={onProjectModalOpen}
           onWorkspaceModalOpen={onWorkspaceModalOpen}

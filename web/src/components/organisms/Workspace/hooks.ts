@@ -25,6 +25,7 @@ export default () => {
 
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
   const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.project.create, [userRights?.project.create]);
 
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [projectModalShown, setProjectModalShown] = useState(false);
@@ -152,7 +153,7 @@ export default () => {
     projectModalShown,
     loadingProjects,
     workspaceModalShown,
-    userRights,
+    hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
