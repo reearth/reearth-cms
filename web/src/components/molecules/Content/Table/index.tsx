@@ -35,7 +35,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
   FieldType,
@@ -58,9 +58,7 @@ type Props = {
   deleteLoading: boolean;
   unpublishLoading: boolean;
   selectedItem?: Item;
-  selection: {
-    selectedRowKeys: Key[];
-  };
+  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
   totalCount: number;
   currentView: CurrentView;
   setCurrentView: Dispatch<SetStateAction<CurrentView>>;
@@ -83,7 +81,7 @@ type Props = {
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
+  onAddItemToRequest: (request: Request, items: RequestItem[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
@@ -101,7 +99,7 @@ const ContentTable: React.FC<Props> = ({
   deleteLoading,
   unpublishLoading,
   selectedItem,
-  selection,
+  selectedItems,
   totalCount,
   currentView,
   page,
@@ -286,10 +284,10 @@ const ContentTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
+      selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
       onChange: onSelect,
     }),
-    [onSelect, selection.selectedRowKeys],
+    [onSelect, selectedItems.selectedRows],
   );
 
   const alertOptions = useCallback(
@@ -726,7 +724,7 @@ const ContentTable: React.FC<Props> = ({
     currentView.columns?.forEach((col, index) => {
       const colKey = (metaColumn as readonly string[]).includes(col.field.type)
         ? col.field.type
-        : col.field.id ?? "";
+        : (col.field.id ?? "");
       cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
     });
     return cols;
@@ -820,7 +818,7 @@ const ContentTable: React.FC<Props> = ({
         />
       ) : null}
       <LinkItemRequestModal
-        itemIds={selection.selectedRowKeys as string[]}
+        items={selectedItems.selectedRows}
         onChange={onAddItemToRequest}
         onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
         visible={addItemToRequestModalShown}

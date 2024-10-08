@@ -16,7 +16,7 @@ const ContentList: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
-    selection,
+    selectedItems,
     loading,
     deleteLoading,
     unpublishLoading,
@@ -111,7 +111,7 @@ const ContentList: React.FC = () => {
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
-      selection={selection}
+      selectedItems={selectedItems}
       requests={requests}
       onRequestTableChange={handleRequestTableChange}
       requestModalLoading={requestModalLoading}

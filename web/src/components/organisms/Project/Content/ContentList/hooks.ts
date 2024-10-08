@@ -11,7 +11,7 @@ import {
   ItemStatus,
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ConditionInput,
   ItemSort,
@@ -156,15 +156,15 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
-    selectedRowKeys: [],
-  });
+  const [selectedItems, setSelectedItems] = useState<{
+    selectedRows: { itemId: string; version?: string }[];
+  }>({ selectedRows: [] });
 
   const handleSelect = useCallback(
-    (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => {
-      setSelection({
-        ...selection,
-        selectedRowKeys,
+    (_selectedRowKeys: Key[], selectedRows: ContentTableField[]) => {
+      setSelectedItems({
+        ...selectedItems,
+        selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
       });
 
       const newRight =
@@ -177,7 +177,7 @@ export default () => {
         setHasRequestUpdateRight(selectedRows.every(row => row.status !== "PUBLIC"));
       }
     },
-    [selection, userId, userRights?.content.delete, userRights?.request.update],
+    [selectedItems, userId, userRights?.content.delete, userRights?.request.update],
   );
 
   const [updateItemMutation] = useUpdateItemMutation();
@@ -347,11 +347,11 @@ export default () => {
               comments: item.thread.comments.map(comment =>
                 fromGraphQLComment(comment as GQLComment),
               ),
+              version: item.version,
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
               metadata: metadataGet(item?.metadata?.fields as ItemField[] | undefined),
               metadataId: item.metadata?.id,
-              version: item.metadata?.version,
             }
           : undefined,
       )
@@ -506,7 +506,7 @@ export default () => {
         );
         if (results) {
           Notification.success({ message: t("One or more items were successfully deleted!") });
-          setSelection({ selectedRowKeys: [] });
+          setSelectedItems({ selectedRows: [] });
         }
       })(),
     [t, deleteItemMutation],
@@ -552,10 +552,10 @@ export default () => {
   }, []);
 
   const handleBulkAddItemToRequest = useCallback(
-    async (request: Request, itemIds: string[]) => {
-      await handleAddItemToRequest(request, itemIds);
+    async (request: Request, items: RequestItem[]) => {
+      await handleAddItemToRequest(request, items);
       refetch();
-      setSelection({ selectedRowKeys: [] });
+      setSelectedItems({ selectedRows: [] });
     },
     [handleAddItemToRequest, refetch],
   );
@@ -570,7 +570,7 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
-    selection,
+    selectedItems,
     totalCount: data?.searchItem.totalCount ?? 0,
     views: viewsRef.current,
     currentView,

@@ -12,6 +12,7 @@ export const GET_ITEMS = gql`
         createdAt
         updatedAt
         status
+        version
         referencedItems {
           id
           title
@@ -25,6 +26,7 @@ export const GET_ITEMS = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -86,6 +88,7 @@ export const GET_ITEM_NODE = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -169,6 +172,7 @@ export const SEARCH_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -237,6 +241,7 @@ export const CREATE_ITEM = gql`
       item {
         id
         schemaId
+        version
         fields {
           value
           type
@@ -256,6 +261,7 @@ export const CREATE_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -285,6 +291,7 @@ export const UPDATE_ITEM = gql`
       item {
         id
         schemaId
+        version
         fields {
           value
           type
@@ -304,6 +311,7 @@ export const UPDATE_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -317,6 +325,7 @@ export const UNPUBLISH_ITEM = gql`
     unpublishItem(input: { itemIds: $itemIds }) {
       items {
         id
+        version
         referencedItems {
           id
           title
@@ -330,6 +339,7 @@ export const UNPUBLISH_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }
@@ -343,6 +353,7 @@ export const PUBLISH_ITEM = gql`
     publishItem(input: { itemIds: $itemIds }) {
       items {
         id
+        version
         referencedItems {
           id
           title
@@ -356,6 +367,7 @@ export const PUBLISH_ITEM = gql`
             }
           }
           status
+          version
           createdAt
           updatedAt
         }

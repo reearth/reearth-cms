@@ -10,7 +10,7 @@ import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import WarningText from "@reearth-cms/components/molecules/Content/WarningText";
-import { RequestState } from "@reearth-cms/components/molecules/Request/types";
+import { RequestItem, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -21,15 +21,13 @@ type FormValues = {
   description: string;
   state: RequestState;
   reviewersId: string[];
-  items: {
-    itemId: string;
-  }[];
+  items: RequestItem[];
 };
 
 type Props = {
   open: boolean;
   requestCreationLoading: boolean;
-  itemId: string;
+  item: RequestItem;
   unpublishedItems: FormItem[];
   workspaceUserMembers: UserMember[];
   onClose: () => void;
@@ -44,14 +42,21 @@ const initialValues: FormValues = {
   items: [
     {
       itemId: "",
+      version: "",
     },
   ],
+};
+
+type SelectedItem = {
+  id: string;
+  version?: string;
+  checked?: boolean;
 };
 
 const RequestCreationModal: React.FC<Props> = ({
   open,
   requestCreationLoading,
-  itemId,
+  item,
   unpublishedItems,
   workspaceUserMembers,
   onClose,
@@ -59,7 +64,7 @@ const RequestCreationModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
-  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
+  const [selectedItems, setSelectedItems] = useState<Record<string, SelectedItem>>({});
   const [isDisabled, setIsDisabled] = useState(true);
 
   const reviewers: SelectProps["options"] = [];
@@ -79,10 +84,10 @@ const RequestCreationModal: React.FC<Props> = ({
   }, [form]);
 
   const handleCheckboxChange = useCallback(
-    (itemId: string, checked: boolean) => {
+    (item: FormItem, checked: boolean) => {
       setSelectedItems(prevState => ({
         ...prevState,
-        [itemId]: checked,
+        [item.id]: { id: item.id, version: item.version, checked },
       }));
     },
     [setSelectedItems],
@@ -93,10 +98,10 @@ const RequestCreationModal: React.FC<Props> = ({
     try {
       const values = await form.validateFields();
       values.items = [
-        { itemId },
-        ...Object.keys(selectedItems)
-          .filter(key => selectedItems[key] === true)
-          .map(key => ({ itemId: key })),
+        { ...item },
+        ...Object.values(selectedItems)
+          .filter(item => selectedItems[item.id]?.checked === true)
+          .map(item => ({ itemId: item.id, version: item.version })),
       ];
       values.state = "WAITING";
       await onSubmit(values);
@@ -105,7 +110,7 @@ const RequestCreationModal: React.FC<Props> = ({
     } catch (_) {
       setIsDisabled(false);
     }
-  }, [itemId, form, onClose, onSubmit, selectedItems]);
+  }, [form, item, selectedItems, onSubmit, onClose]);
 
   const handleClose = useCallback(() => {
     onClose();
@@ -163,8 +168,8 @@ const RequestCreationModal: React.FC<Props> = ({
         {unpublishedItems?.map((item, index) => (
           <StyledRow key={index}>
             <StyledCheckbox
-              value={selectedItems[item.id]}
-              onChange={e => handleCheckboxChange(item.id, e.target.checked)}>
+              value={selectedItems[item.id]?.checked}
+              onChange={e => handleCheckboxChange(item, e.target.checked)}>
               <ReferenceItem value={item.id} status={item.status} title={item.title} />
             </StyledCheckbox>
           </StyledRow>
