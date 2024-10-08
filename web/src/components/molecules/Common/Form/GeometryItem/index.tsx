@@ -225,12 +225,10 @@ const GeometryItem: React.FC<Props> = ({
                 : [GEO_TYPE_MAP[supportedTypes]];
             if (convertedTypes.includes(valueJson.type)) {
               handleErrorDelete();
-            } else {
-              throw new Error();
+              return;
             }
-          } else {
-            throw new Error();
           }
+          throw new Error();
         } catch (_) {
           handleErrorAdd();
         }
