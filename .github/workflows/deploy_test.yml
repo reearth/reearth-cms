@@ -20,8 +20,8 @@ env:
 
   # web
   WEB_IMAGE:  reearth/reearth-cms-web:nightly
-  WEB_IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/reearth/reearth-cms-worker:nightly
-  WEB_IMAGE_GCP: us-central1-docker.pkg.dev/reearth-oss/reearth/reearth-cms-worker:nightly
+  WEB_IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/reearth/reearth-cms-web:nightly
+  WEB_IMAGE_GCP: us-central1-docker.pkg.dev/reearth-oss/reearth/reearth-cms-web:nightly
 
   # worker
   WORKER_IMAGE:  reearth/reearth-cms-worker:nightly
