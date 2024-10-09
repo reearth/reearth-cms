@@ -35,7 +35,7 @@ export default defineConfig({
   envPrefix: "REEARTH_CMS_",
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
-    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA) || commitHash
+    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash)
   },
   plugins: [
     react(),
