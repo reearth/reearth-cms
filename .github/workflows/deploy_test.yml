@@ -1,7 +1,7 @@
 name: deploy-test
 on:
   workflow_run:
-    workflows: [server-build, ci-web, worker-build]
+    workflows: [server-build, ci-web, web-build, worker-build]
     types: [completed]
     branches: [main]
 concurrency:
