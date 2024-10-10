@@ -48,4 +48,5 @@ type Project interface {
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
 	CheckAlias(context.Context, string) (bool, error)
 	Delete(context.Context, id.ProjectID, *usecase.Operator) error
+	RegenerateToken(context.Context, id.ProjectID, *usecase.Operator) (*project.Project, error)
 }

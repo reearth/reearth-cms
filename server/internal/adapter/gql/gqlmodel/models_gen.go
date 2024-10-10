@@ -784,6 +784,7 @@ type ProjectPayload struct {
 type ProjectPublication struct {
 	Scope       ProjectPublicationScope `json:"scope"`
 	AssetPublic bool                    `json:"assetPublic"`
+	Token       *string                 `json:"token,omitempty"`
 }
 
 type PublishItemInput struct {
@@ -807,8 +808,12 @@ type PublishModelPayload struct {
 type Query struct {
 }
 
-type RegenerateTokenInput struct {
+type RegenerateIntegrationTokenInput struct {
 	IntegrationID ID `json:"integrationId"`
+}
+
+type RegeneratePublicAPITokenInput struct {
+	ProjectID ID `json:"projectId"`
 }
 
 type RemoveIntegrationFromWorkspaceInput struct {

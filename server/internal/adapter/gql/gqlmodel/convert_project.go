@@ -29,9 +29,15 @@ func ToProjectPublication(p *project.Publication) *ProjectPublication {
 		return nil
 	}
 
+	token := lo.ToPtr(p.Token())
+	if p.Scope() != project.PublicationScopeLimited {
+		token = nil
+	}
+
 	return &ProjectPublication{
 		Scope:       ToProjectPublicationScope(p.Scope()),
 		AssetPublic: p.AssetPublic(),
+		Token:       token,
 	}
 }
 
