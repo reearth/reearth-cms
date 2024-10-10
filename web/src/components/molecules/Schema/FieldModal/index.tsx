@@ -153,11 +153,11 @@ const FieldModal: React.FC<Props> = ({
       title={
         <FieldThumbnail>
           <StyledIcon icon={fieldTypes[selectedType].icon} color={fieldTypes[selectedType].color} />
-          <h3>
+          <StyledTitle>
             {selectedField
               ? t("Update Field", { field: selectedField.title })
               : t("Create Field", { field: t(fieldTypes[selectedType].title) })}
-          </h3>
+          </StyledTitle>
         </FieldThumbnail>
       }
       width={572}
@@ -378,14 +378,6 @@ const OptionTitle = styled.p`
 const FieldThumbnail = styled.div`
   display: flex;
   align-items: center;
-  h3 {
-    margin: 0;
-    margin-left: 12px;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
-    color: #000000d9;
-  }
 `;
 
 const StyledIcon = styled(Icon)`
@@ -398,6 +390,13 @@ const StyledIcon = styled(Icon)`
   span {
     display: inherit;
   }
+`;
+
+const StyledTitle = styled.p`
+  color: #000000d9;
+  font-size: 16px;
+  margin: 0 20px 0 12px;
+  overflow: auto;
 `;
 
 const StyledGroupKey = styled.span`
