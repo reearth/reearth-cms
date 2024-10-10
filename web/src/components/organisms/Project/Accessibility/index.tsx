@@ -4,30 +4,28 @@ import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
   const {
+    form,
     models,
-    scope,
-    alias,
-    aliasState,
+    modelsState,
     assetState,
     isSaveDisabled,
+    loading,
+    apiUrl,
+    handleValuesChange,
     handlePublicUpdate,
-    handleUpdatedAssetState,
-    handleUpdatedModels,
-    handleSetScope,
   } = useHooks();
 
   return (
     <AccessibilityMolecule
+      form={form}
       models={models}
-      scope={scope}
-      alias={alias}
-      aliasState={aliasState}
+      modelsState={modelsState}
       assetState={assetState}
       isSaveDisabled={isSaveDisabled}
+      loading={loading}
+      apiUrl={apiUrl}
+      handleValuesChange={handleValuesChange}
       handlePublicUpdate={handlePublicUpdate}
-      handleUpdatedAssetState={handleUpdatedAssetState}
-      handleUpdatedModels={handleUpdatedModels}
-      handleSetScope={handleSetScope}
     />
   );
 };

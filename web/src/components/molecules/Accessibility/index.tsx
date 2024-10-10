@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import React, { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
@@ -11,7 +11,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -20,154 +20,147 @@ type ModelDataType = {
   name: string;
   public: JSX.Element;
   publicState: boolean;
-  key?: string;
+  key: string;
 };
 
 type Props = {
-  models?: Model[];
-  scope?: PublicScope;
-  alias?: string;
-  aliasState?: string;
-  assetState?: boolean;
+  form: FormInstance<FormType>;
+  models: Model[];
+  modelsState: Record<string, boolean>;
+  assetState: boolean;
   isSaveDisabled: boolean;
+  loading: boolean;
+  apiUrl: string;
+  handleValuesChange: (changedValues: Partial<FormType>, values: FormType) => void;
   handlePublicUpdate: () => Promise<void>;
-  handleUpdatedAssetState: (state: boolean) => void;
-  handleUpdatedModels: (model: Model) => void;
-  handleSetScope: (projectScope: PublicScope) => void;
 };
 
 const Accessibility: React.FC<Props> = ({
+  form,
   models,
-  scope,
-  alias,
-  aliasState,
+  modelsState,
   assetState,
   isSaveDisabled,
+  loading,
+  apiUrl,
+  handleValuesChange,
   handlePublicUpdate,
-  handleUpdatedAssetState,
-  handleUpdatedModels,
-  handleSetScope,
 }) => {
   const t = useT();
-  const [form] = Form.useForm();
 
-  const columns: TableColumnsType<ModelDataType> = [
-    {
-      title: t("Model"),
-      dataIndex: "name",
-      key: "name",
-      width: 220,
-    },
-    {
-      title: t("Switch"),
-      dataIndex: "public",
-      key: "public",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: t("End point"),
-      dataIndex: "endpoint",
-      key: "endpoint",
-      render: (_, modelData: ModelDataType) => {
-        return (
-          modelData.publicState &&
-          modelData.key && (
-            <StyledAnchor
-              target="_blank"
-              href={window.REEARTH_CONFIG?.api + "/p/" + alias + "/" + modelData.key}
-              rel="noreferrer">
-              {window.REEARTH_CONFIG?.api}/p/{alias}/{modelData.key}
-            </StyledAnchor>
-          )
-        );
-      },
-    },
-  ];
-
-  const dataSource: ModelDataType[] = useMemo(() => {
-    let columns: ModelDataType[] = [
+  const columns: TableColumnsType<ModelDataType> = useMemo(
+    () => [
       {
-        id: "assets",
-        name: t("Assets"),
-        key: "assets",
-        publicState: assetState ?? false,
-        public: (
-          <Switch
-            checked={assetState}
-            onChange={(publicState: boolean) => handleUpdatedAssetState(publicState)}
-          />
-        ),
+        title: t("Model"),
+        dataIndex: "name",
+        key: "name",
+        width: 220,
       },
-    ];
+      {
+        title: t("Switch"),
+        dataIndex: "public",
+        key: "public",
+        align: "center",
+        width: 90,
+      },
+      {
+        title: t("End point"),
+        dataIndex: "endpoint",
+        key: "endpoint",
+        render: (_, modelData) => {
+          if (modelData.publicState) {
+            const url = apiUrl + modelData.key;
+            return (
+              <StyledAnchor target="_blank" href={url} rel="noreferrer">
+                {url}
+              </StyledAnchor>
+            );
+          }
+        },
+      },
+    ],
+    [apiUrl, t],
+  );
 
-    if (models) {
-      columns = [
-        ...models.map(m => {
-          return {
-            id: m.id,
-            name: m.name ?? "",
-            key: m.key,
-            publicState: m.public,
-            public: (
-              <Switch
-                checked={m.public}
-                onChange={(publicState: boolean) =>
-                  handleUpdatedModels({ ...m, public: publicState })
-                }
-              />
-            ),
-          };
-        }),
-        ...columns,
-      ];
-    }
+  const dataSource = useMemo(() => {
+    const columns: ModelDataType[] = [];
+    models.forEach(m => {
+      columns.push({
+        id: m.id,
+        name: m.name,
+        key: m.key,
+        publicState: modelsState[m.id],
+        public: (
+          <StyledFormItem name={["models", m.id]}>
+            <Switch />
+          </StyledFormItem>
+        ),
+      });
+    });
+    columns.push({
+      id: "assets",
+      name: t("Assets"),
+      key: "assets",
+      publicState: assetState,
+      public: (
+        <StyledFormItem name="assetPublic">
+          <Switch />
+        </StyledFormItem>
+      ),
+    });
     return columns;
-  }, [models, assetState, handleUpdatedAssetState, handleUpdatedModels, t]);
+  }, [assetState, models, modelsState, t]);
 
-  const publicScopeList = [
-    { id: 1, name: t("Private"), value: "private" },
-    { id: 2, name: t("Public"), value: "public" },
-  ];
+  const publicScopeList = useMemo(
+    () => [
+      { name: t("Private"), value: "PRIVATE" },
+      { name: t("Public"), value: "PUBLIC" },
+    ],
+    [t],
+  );
 
   const handleCopy = useCallback(() => {
-    if (aliasState) navigator.clipboard.writeText(aliasState);
-  }, [aliasState]);
+    navigator.clipboard.writeText(form.getFieldValue("alias"));
+  }, [form]);
 
   return (
     <InnerContent title={t("Accessibility")} flexChildren>
       <ContentSection title="">
-        <Form form={form} layout="vertical" autoComplete="off">
+        <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
           <ItemsWrapper>
             <Form.Item
+              name="scope"
               label={t("Public Scope")}
               extra={t(
                 "Choose the scope of your project. This affects all the models shown below that are switched on.",
               )}>
-              <Select value={scope} onChange={handleSetScope}>
-                {publicScopeList.map(type => (
-                  <Select.Option key={type.id} value={type.value}>
-                    {type.name}
+              <Select>
+                {publicScopeList.map(({ value, name }) => (
+                  <Select.Option key={value} value={value}>
+                    {name}
                   </Select.Option>
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item label={t("Project Alias")}>
-              <Input
-                value={aliasState}
+            <Form.Item name="alias" label={t("Project Alias")}>
+              <StyledInput
                 suffix={
                   <Tooltip title={t("Alias copied!!")} trigger={"click"}>
                     <StyledIcon icon="copy" onClick={handleCopy} />
                   </Tooltip>
                 }
-                contentEditable={false}
+                disabled
               />
             </Form.Item>
           </ItemsWrapper>
           <TableWrapper>
             <Table dataSource={dataSource} columns={columns} pagination={false} />
           </TableWrapper>
-          <Button type="primary" disabled={isSaveDisabled} onClick={handlePublicUpdate}>
+          <Button
+            type="primary"
+            disabled={isSaveDisabled}
+            onClick={handlePublicUpdate}
+            loading={loading}>
             {t("Save changes")}
           </Button>
         </Form>
@@ -197,4 +190,13 @@ const StyledIcon = styled(Icon)`
   :hover {
     color: rgba(0, 0, 0, 0.88);
   }
+`;
+
+const StyledFormItem = styled(Form.Item)`
+  margin: 0;
+`;
+
+const StyledInput = styled(Input)`
+  color: inherit !important;
+  background-color: inherit !important;
 `;

@@ -193,12 +193,5 @@ export default () => {
   };
 };
 
-const convertScope = (scope?: ProjectPublicationScope): PublicScope | undefined => {
-  switch (scope) {
-    case "PUBLIC":
-      return "public";
-    case "PRIVATE":
-      return "private";
-  }
-  return "private";
-};
+const convertScope = (scope?: ProjectPublicationScope): PublicScope =>
+  !scope || scope === "LIMITED" ? "PRIVATE" : scope;
