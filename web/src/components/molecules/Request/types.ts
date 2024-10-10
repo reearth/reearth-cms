@@ -21,10 +21,16 @@ export type Request = {
     id: string;
     modelId?: string;
     modelName?: string;
+    version?: string;
     schema?: Schema;
     initialValues: Record<string, unknown>;
     referencedItems: FormItem[];
   }[];
+};
+
+export type RequestItem = {
+  itemId: string;
+  version?: string;
 };
 
 export type RequestUpdatePayload = {
@@ -33,7 +39,5 @@ export type RequestUpdatePayload = {
   description?: string;
   state?: RequestState;
   reviewersId?: string[];
-  items?: {
-    itemId: string;
-  }[];
+  items?: RequestItem[];
 };

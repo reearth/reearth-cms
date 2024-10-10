@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
@@ -21,9 +21,13 @@ const WorkspaceGeneralForm: React.FC<Props> = ({
   updateWorkspaceLoading,
   onWorkspaceUpdate,
 }) => {
+  const t = useT();
   const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
-  const t = useT();
+
+  useEffect(() => {
+    form.setFieldsValue({ name: workspaceName });
+  }, [form, workspaceName]);
 
   const handleValuesChange = useCallback(
     async (_: unknown, values: FormType) => {
@@ -53,7 +57,6 @@ const WorkspaceGeneralForm: React.FC<Props> = ({
   return (
     <StyledForm
       form={form}
-      initialValues={{ name: workspaceName }}
       layout="vertical"
       autoComplete="off"
       onValuesChange={handleValuesChange}
