@@ -128,6 +128,7 @@ const FieldModal: React.FC<Props> = ({
     multipleValue,
     handleMultipleChange,
     handleTabChange,
+    handleValuesChange,
     handleNameChange,
     handleKeyChange,
     handleSubmit,
@@ -176,7 +177,12 @@ const FieldModal: React.FC<Props> = ({
           {t("OK")}
         </Button>,
       ]}>
-      <Form form={form} layout="vertical" initialValues={initialValues} requiredMark={requiredMark}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        requiredMark={requiredMark}
+        onValuesChange={handleValuesChange}>
         <Tabs activeKey={activeTab} onChange={handleTabChange}>
           <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item

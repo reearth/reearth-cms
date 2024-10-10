@@ -50,8 +50,9 @@ const MultiValueGeometry: React.FC<Props> = ({
           return index !== key;
         }),
       );
+      errorDelete?.(key);
     },
-    [onChange, value],
+    [errorDelete, onChange, value],
   );
 
   return (
