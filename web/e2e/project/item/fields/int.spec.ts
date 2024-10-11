@@ -85,8 +85,7 @@ test("Int field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Set minimum value").fill("10");
   await page.getByLabel("Set maximum value").click();
   await page.getByLabel("Set maximum value").fill("2");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.getByLabel("Set minimum value").click();
   await page.getByLabel("Set minimum value").fill("2");
   await page.getByLabel("Set maximum value").click();
@@ -96,12 +95,10 @@ test("Int field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Set default value")).toBeVisible();
   await expect(page.getByLabel("Set default value")).toHaveValue("1");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("11");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("2");
   await page.getByRole("button", { name: "plus New" }).click();

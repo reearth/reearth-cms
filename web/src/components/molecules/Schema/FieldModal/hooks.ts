@@ -34,6 +34,9 @@ export default (
     "supportedTypes",
     form,
   );
+  const maxLength = Form.useWatch("maxLength", form);
+  const min = Form.useWatch("min", form);
+  const max = Form.useWatch("max", form);
   const [multipleValue, setMultipleValue] = useState(false);
   const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
@@ -348,6 +351,9 @@ export default (
     selectedValues,
     selectedTags,
     selectedSupportedTypes,
+    maxLength,
+    min,
+    max,
     multipleValue,
     handleMultipleChange,
     handleTabChange,

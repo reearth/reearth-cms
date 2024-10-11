@@ -21,6 +21,7 @@ import {
   ListToolBarProps,
   ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -34,7 +35,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
   FieldType,
@@ -57,9 +58,7 @@ type Props = {
   deleteLoading: boolean;
   unpublishLoading: boolean;
   selectedItem?: Item;
-  selection: {
-    selectedRowKeys: string[];
-  };
+  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
   totalCount: number;
   currentView: CurrentView;
   setCurrentView: Dispatch<SetStateAction<CurrentView>>;
@@ -75,14 +74,14 @@ type Props = {
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
+  onAddItemToRequest: (request: Request, items: RequestItem[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
@@ -97,7 +96,7 @@ const ContentTable: React.FC<Props> = ({
   deleteLoading,
   unpublishLoading,
   selectedItem,
-  selection,
+  selectedItems,
   totalCount,
   currentView,
   page,
@@ -119,7 +118,7 @@ const ContentTable: React.FC<Props> = ({
   onFilterChange,
   onContentTableChange,
   onItemSelect,
-  setSelection,
+  setSelectedItems,
   onItemEdit,
   onItemDelete,
   onItemsReload,
@@ -279,15 +278,15 @@ const ContentTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys as string[],
+      selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
+      onChange: (_selectedRowKeys: Key[], selectedRows: Item[]) => {
+        setSelectedItems({
+          ...selectedItems,
+          selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
         });
       },
     }),
-    [selection, setSelection],
+    [selectedItems, setSelectedItems],
   );
 
   const alertOptions = useCallback(
@@ -548,7 +547,7 @@ const ContentTable: React.FC<Props> = ({
     () => ({
       search: (
         <StyledSearchContainer>
-          <Input.Search
+          <Search
             allowClear
             placeholder={t("input search text")}
             onSearch={(value: string) => {
@@ -711,7 +710,7 @@ const ContentTable: React.FC<Props> = ({
     currentView.columns?.forEach((col, index) => {
       const colKey = (metaColumn as readonly string[]).includes(col.field.type)
         ? col.field.type
-        : (col.field.id ?? "");
+        : col.field.id ?? "";
       cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
     });
     return cols;
@@ -805,7 +804,7 @@ const ContentTable: React.FC<Props> = ({
         />
       ) : null}
       <LinkItemRequestModal
-        itemIds={selection.selectedRowKeys}
+        items={selectedItems.selectedRows}
         onChange={onAddItemToRequest}
         onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
         visible={addItemToRequestModalShown}

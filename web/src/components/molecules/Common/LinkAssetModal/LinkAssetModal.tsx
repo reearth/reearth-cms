@@ -3,13 +3,13 @@ import { useState, useRef, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import {
   StretchColumn,
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -87,7 +87,7 @@ const LinkAssetModal: React.FC<Props> = ({
 
   const toolbar: ListToolBarProps = {
     search: (
-      <Input.Search
+      <Search
         allowClear
         placeholder={t("input search text")}
         onSearch={(value: string) => {
