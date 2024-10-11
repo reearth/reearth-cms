@@ -236,31 +236,33 @@ export default (
   const filterValue = useRef<string>();
 
   useEffect(() => {
+    let isShow = true;
     if (defaultValue) {
+      const { operator, operatorType, value } = defaultValue;
       filterOption.current = {
-        value: defaultValue.operator,
-        operatorType: defaultValue.operatorType,
+        value: operator,
+        operatorType,
       };
-      filterValue.current = defaultValue.value;
+      filterValue.current = value;
+      if (
+        operatorType === "nullable" ||
+        operator === TimeOperator.OfThisWeek ||
+        operator === TimeOperator.OfThisMonth ||
+        operator === TimeOperator.OfThisYear
+      ) {
+        isShow = false;
+      }
     } else {
+      const { value, operatorType } = options[0];
       filterOption.current = {
-        value: options[0].value,
-        operatorType: options[0].operatorType,
+        value,
+        operatorType,
       };
+      if (operatorType === "nullable") {
+        isShow = false;
+      }
     }
-
-    if (defaultValue?.operatorType === "nullable") {
-      setIsShowInputField(false);
-    } else if (
-      defaultValue?.operator === TimeOperator.OfThisWeek ||
-      defaultValue?.operator === TimeOperator.OfThisMonth ||
-      defaultValue?.operator === TimeOperator.OfThisYear
-    ) {
-      setIsShowInputField(false);
-      defaultValue.value = "";
-    } else {
-      setIsShowInputField(true);
-    }
+    setIsShowInputField(isShow);
   }, [defaultValue, options]);
 
   const confirm = useCallback(() => {
