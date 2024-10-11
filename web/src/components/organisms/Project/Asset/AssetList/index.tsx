@@ -13,6 +13,7 @@ const AssetList: React.FC = () => {
     uploading,
     uploadModalVisibility,
     loading,
+    deleteLoading,
     uploadUrl,
     uploadType,
     selectedAsset,
@@ -20,6 +21,10 @@ const AssetList: React.FC = () => {
     totalCount,
     page,
     pageSize,
+    sort,
+    searchTerm,
+    columns,
+    handleColumnsChange,
     handleToggleCommentMenu,
     handleAssetItemSelect,
     handleAssetSelect,
@@ -59,11 +64,16 @@ const AssetList: React.FC = () => {
       totalCount={totalCount}
       page={page}
       pageSize={pageSize}
+      sort={sort}
+      searchTerm={searchTerm}
+      columns={columns}
+      onColumnsChange={handleColumnsChange}
       fileList={fileList}
       selection={selection}
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
       loading={loading}
+      deleteLoading={deleteLoading}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
       onAssetItemSelect={handleAssetItemSelect}

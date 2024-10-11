@@ -12,19 +12,27 @@ const Integration: React.FC = () => {
   const {
     integrations,
     workspaceIntegrationMembers,
-    handleIntegrationConnect,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
+    addLoading,
+    handleIntegrationConnect,
+    deleteLoading,
+    handleIntegrationRemove,
     integrationConnectModalShown,
+    handleUpdateIntegration,
+    updateLoading,
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,
-    handleUpdateIntegration,
     selectedIntegrationMember,
     selection,
     handleSearchTerm,
     setSelection,
-    handleIntegrationRemove,
+    page,
+    pageSize,
+    handleTableChange,
+    loading,
+    handleReload,
   } = useHooks(workspaceId);
 
   return (
@@ -36,19 +44,27 @@ const Integration: React.FC = () => {
         onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
         setSelection={setSelection}
+        deleteLoading={deleteLoading}
         onIntegrationRemove={handleIntegrationRemove}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={handleTableChange}
+        loading={loading}
+        onReload={handleReload}
       />
       <IntegrationConnectModal
         integrations={integrations}
-        onSubmit={handleIntegrationConnect}
         open={integrationConnectModalShown}
+        loading={addLoading}
         onClose={handleIntegrationConnectModalClose}
+        onSubmit={handleIntegrationConnect}
       />
       <IntegrationSettingsModal
         selectedIntegrationMember={selectedIntegrationMember}
-        onSubmit={handleUpdateIntegration}
         open={integrationSettingsModalShown}
+        loading={updateLoading}
         onClose={handleIntegrationSettingsModalClose}
+        onSubmit={handleUpdateIntegration}
       />
     </>
   );

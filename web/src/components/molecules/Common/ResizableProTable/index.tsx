@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -136,6 +137,7 @@ const StyledProTable = styled(ProTable)<{
     height: calc(100% - 47px);
   }
   .ant-pro-table-list-toolbar-left {
+    flex: 1;
     max-width: calc(100% - 150px);
     .ant-pro-table-list-toolbar-search {
       width: 100%;

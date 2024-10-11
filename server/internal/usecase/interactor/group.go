@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"errors"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -39,7 +40,11 @@ func (i Group) FindByIDs(ctx context.Context, ids id.GroupIDList, operator *usec
 }
 
 func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operator *usecase.Operator) (group.List, error) {
-	return i.repos.Group.FindByProject(ctx, projectID)
+	g, err := i.repos.Group.FindByProject(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	return g.Ordered(), nil
 }
 
 func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, operator *usecase.Operator) (*group.Group, error) {
@@ -82,6 +87,14 @@ func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, op
 
 			if param.Description != nil {
 				mb = mb.Description(*param.Description)
+			}
+
+			groups, err := i.repos.Group.FindByProject(ctx, param.ProjectId)
+			if err != nil {
+				return nil, err
+			}
+			if len(groups) > 0 {
+				mb = mb.Order(len(groups))
 			}
 
 			g, err = mb.Build()
@@ -209,7 +222,11 @@ func (i Group) FindByModel(ctx context.Context, modelID id.ModelID, operator *us
 					gids = gids.Add(fg.Group())
 				}
 			}
-			return i.repos.Group.FindByIDs(ctx, gids)
+			g, err := i.repos.Group.FindByIDs(ctx, gids)
+			if err != nil {
+				return nil, err
+			}
+			return g.Ordered(), nil
 		})
 }
 
@@ -241,4 +258,37 @@ func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.
 
 	}
 	return
+}
+
+func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *usecase.Operator) (group.List, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ group.List, err error) {
+			if len(ids) == 0 {
+				return nil, nil
+			}
+			g, err := i.repos.Group.FindByIDs(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			if !g.AreGroupsInTheSameProject() {
+				return nil, rerror.ErrNotFound
+			}
+			pid := g[0].Project()
+			if !operator.IsMaintainingProject(pid) {
+				return nil, interfaces.ErrOperationDenied
+			}
+			groups, err := i.repos.Group.FindByProject(ctx, pid)
+			if err != nil {
+				return nil, err
+			}
+			if len(groups) != len(ids) {
+				return nil, rerror.ErrNotFound
+			}
+
+			ordered := groups.OrderByIDs(ids)
+			if err := i.repos.Group.SaveAll(ctx, ordered); err != nil {
+				return nil, err
+			}
+			return ordered, nil
+		})
 }

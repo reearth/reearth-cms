@@ -1,9 +1,20 @@
 package asset
 
 import (
+	"path/filepath"
 	"strings"
 
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/samber/lo"
+)
+
+var (
+	imageExtensions   = []string{".jpg", ".jpeg", ".png", ".gif", ".tiff", ".webp"}
+	imageSVGExtension = ".svg"
+	geoExtensions     = []string{".kml", ".czml", ".topojson", ".geojson"}
+	geoMvtExtension   = ".mvt"
+	model3dExtensions = []string{".gltf", ".glb"}
+	csvExtension      = ".csv"
 )
 
 type PreviewType string
@@ -19,6 +30,7 @@ const (
 	PreviewTypeGeo3dTiles PreviewType = "geo_3d_tiles"
 	PreviewTypeGeoMvt     PreviewType = "geo_mvt"
 	PreviewTypeModel3d    PreviewType = "model_3d"
+	PreviewTypeCSV        PreviewType = "csv"
 	PreviewTypeUnknown    PreviewType = "unknown"
 )
 
@@ -37,6 +49,8 @@ func PreviewTypeFrom(p string) (PreviewType, bool) {
 		return PreviewTypeGeoMvt, true
 	case PreviewTypeModel3d:
 		return PreviewTypeModel3d, true
+	case PreviewTypeCSV:
+		return PreviewTypeCSV, true
 	case PreviewTypeUnknown:
 		return PreviewTypeUnknown, true
 	default:
@@ -56,14 +70,49 @@ func PreviewTypeFromRef(p *string) *PreviewType {
 	return &pp
 }
 
-func PreviewTypeFromContentType(c string) *PreviewType {
+func DetectPreviewType(f *file.File) *PreviewType {
+	pt := PreviewTypeFromContentType(f.ContentType)
+	if pt != PreviewTypeUnknown {
+		return lo.ToPtr(pt)
+	}
+	ext := filepath.Ext(f.Name)
+	pt = PreviewTypeFromExtension(ext)
+	return lo.ToPtr(pt)
+}
+
+func PreviewTypeFromContentType(c string) PreviewType {
 	if strings.HasPrefix(c, "image/") {
 		if strings.HasPrefix(c, "image/svg") {
-			return lo.ToPtr(PreviewTypeImageSvg)
+			return PreviewTypeImageSvg
 		}
-		return lo.ToPtr(PreviewTypeImage)
+		return PreviewTypeImage
 	}
-	return lo.ToPtr(PreviewTypeUnknown)
+	if strings.HasPrefix(c, "text/csv") {
+		return PreviewTypeCSV
+	}
+	return PreviewTypeUnknown
+}
+
+func PreviewTypeFromExtension(ext string) PreviewType {
+	if lo.Contains(imageExtensions, ext) {
+		return PreviewTypeImage
+	}
+	if ext == imageSVGExtension {
+		return PreviewTypeImageSvg
+	}
+	if lo.Contains(geoExtensions, ext) {
+		return PreviewTypeGeo
+	}
+	if ext == geoMvtExtension {
+		return PreviewTypeGeoMvt
+	}
+	if lo.Contains(model3dExtensions, ext) {
+		return PreviewTypeModel3d
+	}
+	if ext == csvExtension {
+		return PreviewTypeCSV
+	}
+	return PreviewTypeUnknown
 }
 
 func (p PreviewType) String() string {

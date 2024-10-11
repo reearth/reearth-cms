@@ -20,8 +20,9 @@ func createItem(e *httpexpect.Expect, mID, sID string, metaId *string, fields []
 				  ) {
 					item {
 					  id
+						version
 					  schemaId
-                      isMetadata
+              isMetadata
 					  fields {
 						value
 						type
@@ -355,7 +356,7 @@ func deleteItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 }
 
 func TestCreateItem(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -374,12 +375,14 @@ func TestCreateItem(t *testing.T) {
 		{"schemaFieldId": fids.selectFId, "value": "s1", "type": "Select"},
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.1s.com", "type": "URL"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
 	})
 
 }
 
 func TestClearItemValues(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -404,10 +407,12 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00Z", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": tagIds[0], "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": true, "type": "Checkbox"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
 	})
 	fields := r1.Path("$.data.createItem.item.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
-		"Text", "TextArea", "MarkdownText", aid.String(), true, "s1", float64(1), "https://www.1s.com", "2023-01-01T00:00:00Z", tagIds[0], true,
+		"Text", "TextArea", "MarkdownText", aid.String(), true, "s1", float64(1), "https://www.1s.com", "2023-01-01T00:00:00Z", tagIds[0], true, "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 	}, fields)
 	i1ver, _ := getItem(e, iid)
 	_, r2 := updateItem(e, iid, i1ver, []map[string]any{
@@ -422,10 +427,12 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": "", "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": "", "type": "Checkbox"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "", "type": "GeometryEditor"},
 	})
 	fields = r2.Path("$.data.updateItem.item.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 	}, fields)
 
 	iid2, _ := createItem(e, mId, sId, nil, []map[string]any{
@@ -440,17 +447,19 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": "", "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": "", "type": "Checkbox"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "", "type": "GeometryEditor"},
 	})
 	_, r3 := getItem(e, iid2)
 	fields2 := r3.Path("$.data.node.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 	}, fields2)
 
 }
 
 func TestOneWayReferenceFields(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -503,7 +512,7 @@ func TestOneWayReferenceFields(t *testing.T) {
 }
 
 func TestTwoWayReferenceFields(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -635,7 +644,7 @@ func TestTwoWayReferenceFields(t *testing.T) {
 }
 
 func TestSearchItem(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	// region init
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
@@ -667,6 +676,8 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test1.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00.000Z", "type": "Date"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
 	})
 	r1.Path("$.data.createItem.item.isMetadata").IsEqual(false)
 
@@ -694,7 +705,35 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 2, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test2.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-02T00:00:00.000Z", "type": "Date"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
+		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
 	})
+	// endregion
+
+	// region search by id
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"schema":  sId,
+		"q":       i1Id,
+	}, nil, nil, map[string]any{
+		"first": 10,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"schema":  sId,
+		"q":       i2Id,
+	}, nil, nil, map[string]any{
+		"first": 10,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
 	// endregion
 
 	// region fetch by schema

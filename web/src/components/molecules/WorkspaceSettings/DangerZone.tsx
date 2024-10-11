@@ -7,7 +7,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   onWorkspaceDelete: () => Promise<void>;
 };
 
@@ -19,8 +19,9 @@ const DangerZone: React.FC<Props> = ({ onWorkspaceDelete }) => {
     confirm({
       title: t("Are you sure you want to delete this workspace?"),
       icon: <Icon icon="exclamationCircle" />,
-      onOk() {
-        onWorkspaceDelete();
+      cancelText: t("Cancel"),
+      async onOk() {
+        await onWorkspaceDelete();
       },
     });
   }, [confirm, onWorkspaceDelete, t]);
@@ -33,7 +34,6 @@ const DangerZone: React.FC<Props> = ({ onWorkspaceDelete }) => {
           "Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
-
       <Button onClick={handleWorkspaceDeleteConfirmation} type="primary" danger>
         {t("Remove Workspace")}
       </Button>

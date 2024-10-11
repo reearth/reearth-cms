@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
 import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
-import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
+import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCesium } from "resium";
@@ -17,7 +17,7 @@ type Props = {
   handleProperties: (prop: Property) => void;
 };
 
-export type Property = { [k: string]: string | number | boolean };
+export type Property = Record<string, unknown>;
 
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
 type TileCoordinates = {
@@ -91,7 +91,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   }, [loadData, url]);
 
   useEffect(() => {
-    const imageryProvider = new MVTImageryProvider({
+    const imageryProvider = new CesiumMVTImageryProvider({
       urlTemplate,
       layerName: currentLayer,
       style,
@@ -154,7 +154,11 @@ const fetchLayers = async (url: string) => {
   return { ...parseMetadata(await res.json()), base };
 };
 
-type TileCoords = { x: number; y: number; level: number };
+type TileCoords = {
+  x: number;
+  y: number;
+  level: number;
+};
 
 const idFromGeometry = (
   geometry: ReturnType<VectorTileFeature["loadGeometry"]>,
@@ -170,6 +174,7 @@ const idFromGeometry = (
   return hash.hex();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseMetadata(json: any):
   | {
       layers: string[];
@@ -182,6 +187,7 @@ export function parseMetadata(json: any):
   let layers: string[] = [];
   if (typeof json.json === "string") {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       layers = JSON.parse(json.json)?.vector_layers?.map((l: any): string => l.id);
     } catch {
       // ignore

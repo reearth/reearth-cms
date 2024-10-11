@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -51,7 +52,7 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Opera
 }
 
 func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
-	requests, err := i.repos.Request.FindByItems(ctx, itemsIds)
+	requests, err := i.repos.Request.FindByItems(ctx, itemsIds, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -98,14 +99,6 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase
 	return res, nil
 }
 
-func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	if !operator.IsReadableProject(projectID) {
-		return nil, nil, rerror.ErrNotFound
-	}
-	// TODO: check operation for projects that publication type is limited
-	return i.repos.Item.FindByProject(ctx, projectID, nil, p)
-}
-
 func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	m, err := i.repos.Model.FindByID(ctx, modelID)
 	if err != nil {
@@ -135,6 +128,10 @@ func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.
 	return res, nil
 }
 
+func (i Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef, _ *usecase.Operator) (item.Versioned, error) {
+	return i.repos.Item.FindVersionByID(ctx, itemID, ver)
+}
+
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
@@ -158,10 +155,7 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 		return false, nil
 	}
 
-	for _, f := range s.Fields() {
-		if f.Type() != value.TypeReference {
-			continue
-		}
+	for _, f := range s.FieldsByType(value.TypeReference) {
 		fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
 		if !ok {
 			continue
@@ -187,17 +181,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
-		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
-		if err != nil {
-			return nil, err
-		}
-
-		prj, err := i.repos.Project.FindByID(ctx, s.Project())
-		if err != nil {
-			return nil, err
-		}
-
 		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+		if err != nil {
+			return nil, err
+		}
+		//if m.Schema() != param.SchemaID {
+		//	return nil, interfaces.ErrInvalidSchema
+		//}
+
+		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 		if err != nil {
 			return nil, err
 		}
@@ -223,7 +215,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 
 		th, err := thread.New().NewID().Workspace(s.Workspace()).Build()
-
 		if err != nil {
 			return nil, err
 		}
@@ -293,6 +284,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		if isMetadata {
+			return vi, nil
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
+		if err != nil {
+			return nil, err
+		}
+
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -314,7 +314,288 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
-func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, op *usecase.Operator) (time.Time, error) {
+type ImportRes interfaces.ImportItemsResponse
+
+func NewImportRes() ImportRes {
+	return ImportRes{
+		Total:     0,
+		Inserted:  0,
+		Updated:   0,
+		Ignored:   0,
+		NewFields: nil,
+	}
+}
+
+func (ir *ImportRes) ItemInserted() {
+	ir.Inserted++
+	ir.Total++
+}
+
+func (ir *ImportRes) ItemUpdated() {
+	ir.Updated++
+	ir.Total++
+}
+
+func (ir *ImportRes) ItemSkipped() {
+	ir.Ignored++
+	ir.Total++
+}
+
+func (ir *ImportRes) FieldAdded(f *schema.Field) {
+	ir.NewFields = append(ir.NewFields, f)
+}
+
+func (ir *ImportRes) Into() interfaces.ImportItemsResponse {
+	return interfaces.ImportItemsResponse{
+		Total:     ir.Total,
+		Inserted:  ir.Inserted,
+		Updated:   ir.Updated,
+		Ignored:   ir.Ignored,
+		NewFields: ir.NewFields,
+	}
+}
+
+func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return interfaces.ImportItemsResponse{}, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ImportItemsResponse, error) {
+		s := param.SP.Schema()
+		if !operator.IsWritableWorkspace(s.Workspace()) {
+			return interfaces.ImportItemsResponse{}, interfaces.ErrOperationDenied
+		}
+		res := NewImportRes()
+
+		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+		if err != nil {
+			return interfaces.ImportItemsResponse{}, err
+		}
+
+		isMetadata := false
+		if m.Metadata() != nil && s.ID() == *m.Metadata() {
+			isMetadata = true
+		}
+
+		// update schema if needed
+		if param.MutateSchema && len(param.Fields) > 0 {
+			for _, fieldParam := range param.Fields {
+				if fieldParam.Key == "" || s.HasFieldByKey(fieldParam.Key) {
+					return interfaces.ImportItemsResponse{}, schema.ErrInvalidKey
+				}
+
+				f, err := schema.NewFieldWithDefaultProperty(fieldParam.Type).
+					NewID().
+					Unique(fieldParam.Unique).
+					Multiple(fieldParam.Multiple).
+					Required(fieldParam.Required).
+					Name(fieldParam.Name).
+					Description(lo.FromPtr(fieldParam.Description)).
+					Key(key.New(fieldParam.Key)).
+					DefaultValue(fieldParam.DefaultValue).
+					Build()
+				if err != nil {
+					return interfaces.ImportItemsResponse{}, err
+				}
+
+				s.AddField(f)
+				res.FieldAdded(f)
+			}
+			err = i.repos.Schema.Save(ctx, s)
+			if err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+		}
+
+		for _, itemParam := range param.Items {
+
+			var oldItem *item.Item
+			if itemParam.ItemId != nil {
+				itm, err := i.repos.Item.FindByID(ctx, *itemParam.ItemId, nil)
+				if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+					return interfaces.ImportItemsResponse{}, err
+				}
+				oldItem = itm.Value()
+			}
+
+			// strategy: insert. 	item: exists  				=> ignore
+			if param.Strategy == interfaces.ImportStrategyTypeInsert && oldItem != nil {
+				res.ItemSkipped()
+				continue
+			}
+
+			// strategy: update. 	item: not exists 			=> ignore
+			if param.Strategy == interfaces.ImportStrategyTypeUpdate && oldItem == nil {
+				res.ItemSkipped()
+				continue
+			}
+
+			action := param.Strategy
+			if action == interfaces.ImportStrategyTypeUpsert {
+				if oldItem != nil {
+					action = interfaces.ImportStrategyTypeUpdate
+				} else {
+					action = interfaces.ImportStrategyTypeInsert
+				}
+			}
+
+			// strategy: update. 	item: exists & !permission 	=> error
+			if action == interfaces.ImportStrategyTypeUpdate && !operator.CanUpdate(oldItem) {
+				return interfaces.ImportItemsResponse{}, interfaces.ErrOperationDenied
+			}
+
+			// TODO: more validation
+			// 	schema: immutable. 	field: not exists 			=> ignore
+			// 	schema: x. 			field: type mismatch 		=> ignore
+
+			var it *item.Item
+			if action == interfaces.ImportStrategyTypeInsert {
+
+				th, err := thread.New().NewID().Workspace(s.Workspace()).Build()
+				if err != nil {
+					return interfaces.ImportItemsResponse{}, err
+				}
+				if err := i.repos.Thread.Save(ctx, th); err != nil {
+					return interfaces.ImportItemsResponse{}, err
+				}
+
+				ib := item.New().
+					NewID().
+					Schema(s.ID()).
+					IsMetadata(isMetadata).
+					Project(s.Project()).
+					Model(m.ID()).
+					Thread(th.ID())
+
+				if operator.AcOperator.User != nil {
+					ib = ib.User(*operator.AcOperator.User)
+				}
+				if operator.Integration != nil {
+					ib = ib.Integration(*operator.Integration)
+				}
+
+				it, err = ib.Build()
+				if err != nil {
+					return interfaces.ImportItemsResponse{}, err
+				}
+			} else {
+				it = oldItem
+				if operator.AcOperator.User != nil {
+					it.SetUpdatedByUser(*operator.AcOperator.User)
+				} else if operator.Integration != nil {
+					it.SetUpdatedByIntegration(*operator.Integration)
+				}
+
+				// TODO: check if we should handel the version
+				//  A: do not check
+			}
+
+			var mi item.Versioned
+			if itemParam.MetadataID != nil {
+				mi, err = i.repos.Item.FindByID(ctx, *itemParam.MetadataID, nil)
+				if err != nil {
+					return interfaces.ImportItemsResponse{}, err
+				}
+				if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
+					return interfaces.ImportItemsResponse{}, interfaces.ErrMetadataMismatch
+				}
+
+				if it.MetadataItem() != nil && *it.MetadataItem() != *itemParam.MetadataID {
+					return interfaces.ImportItemsResponse{}, interfaces.ErrMetadataMismatch
+				}
+				it.SetMetadataItem(*itemParam.MetadataID)
+
+				if mi.Value().OriginalItem() != nil && *mi.Value().OriginalItem() != it.ID() {
+					return interfaces.ImportItemsResponse{}, interfaces.ErrMetadataMismatch
+				}
+				mi.Value().SetOriginalItem(it.ID())
+				if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
+					return interfaces.ImportItemsResponse{}, err
+				}
+			}
+
+			modelSchemaFields, otherFields := filterFieldParamsBySchema(itemParam.Fields, s)
+
+			fields, err := itemFieldsFromParams(modelSchemaFields, s)
+			if err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+
+			if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+
+			oldFields := it.Fields()
+			it.UpdateFields(fields)
+
+			groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), it.Fields())
+			if err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+
+			it.UpdateFields(groupFields)
+
+			if err = i.handleReferenceFields(ctx, *s, it, oldFields); err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+
+			if err := i.repos.Item.Save(ctx, it); err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+
+			if isMetadata {
+				continue
+			}
+
+			vi, err := i.repos.Item.FindByID(ctx, it.ID(), nil)
+			if err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+
+			refItems, err := i.getReferencedItems(ctx, it.Fields())
+			if err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, s.Project())
+			if err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+
+			// TODO: check if event creation is transactional
+			//  A: in future create ItemsImported event
+			var eType event.Type
+			if action == interfaces.ImportStrategyTypeInsert {
+				eType = event.ItemCreate
+				res.ItemInserted()
+			} else {
+				eType = event.ItemUpdate
+				res.ItemUpdated()
+			}
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      eType,
+				Object:    vi,
+				WebhookObject: item.ItemModelSchema{
+					Item:            vi.Value(),
+					Model:           m,
+					Schema:          s,
+					GroupSchemas:    groupSchemas,
+					ReferencedItems: refItems,
+					Changes:         item.CompareFields(it.Fields(), oldFields),
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return interfaces.ImportItemsResponse{}, err
+			}
+		}
+
+		return res.Into(), nil
+	})
+}
+
+func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, _ *usecase.Operator) (time.Time, error) {
 	return i.repos.Item.LastModifiedByModel(ctx, model)
 }
 
@@ -346,11 +627,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
-		if err != nil {
-			return nil, err
-		}
-
-		prj, err := i.repos.Project.FindByID(ctx, s.Project())
 		if err != nil {
 			return nil, err
 		}
@@ -407,6 +683,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 		refItems, err := i.getReferencedItems(ctx, fields)
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
 		if err != nil {
 			return nil, err
 		}
@@ -647,10 +928,55 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 	return nil
 }
 
-func (i Item) getItemCorrespondingItems(ctx context.Context, s schema.Schema, itm *item.Item, oldFields item.Fields, fid id.FieldID) (item.List, error) {
+func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, itm *item.Item, oldFields item.Fields) error {
+	for _, sf := range s.FieldsByType(value.TypeReference) {
+		newF := itm.Field(sf.ID())
+		oldF := oldFields.Field(sf.ID())
+
+		if err := i.handleReferenceField(ctx, *sf, itm.ID(), newF, oldF); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (i Item) handleReferenceField(ctx context.Context, sf schema.Field, iID item.ID, newF, oldF *item.Field) error {
+	fr, ok := schema.FieldReferenceFromTypeProperty(sf.TypeProperty())
+	if !ok || !fr.IsTowWay() || newF.Value().Equal(oldF.Value()) {
+		return nil
+	}
+
+	items, err := i.getItemCorrespondingItems(ctx, *fr, newF, oldF)
+	if err != nil {
+		return err
+	}
+
+	for _, cItm := range items {
+		cItm.ClearField(sf.ID())
+		if fr.CorrespondingFieldID() != nil {
+			cItm.ClearField(*fr.CorrespondingFieldID())
+		}
+		if err := i.repos.Item.Save(ctx, cItm); err != nil {
+			return err
+		}
+	}
+
+	refItmId, ok := newF.Value().First().ValueReference()
+	if !ok || refItmId.IsEmpty() {
+		return nil
+	}
+	refItm, _ := items.Item(refItmId)
+	idValue := value.NewMultiple(value.TypeReference, []any{iID})
+	refItm.UpdateFields([]*item.Field{item.NewField(*fr.CorrespondingFieldID(), idValue, nil)})
+	if err := i.repos.Item.Save(ctx, refItm); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (i Item) getItemCorrespondingItems(ctx context.Context, fr schema.FieldReference, newF, oldF *item.Field) (item.List, error) {
 	var ci = make([]*item.Item, 0)
 
-	oldF := oldFields.Field(fid)
 	oldRefId, _ := oldF.Value().First().ValueReference()
 	if !oldRefId.IsEmpty() {
 		oldRefItm, err := i.repos.Item.FindByID(ctx, oldRefId, nil)
@@ -662,15 +988,9 @@ func (i Item) getItemCorrespondingItems(ctx context.Context, s schema.Schema, it
 		}
 	}
 
-	// if the is no change in reference item then there is no more corresponding item
-	newF := itm.Field(fid)
 	newRefId, _ := newF.Value().First().ValueReference()
-	if newRefId == oldRefId {
-		return ci, nil
-	}
-
-	// in case of dereference there is no more corresponding items
-	if newRefId.IsEmpty() {
+	// if there is no change in reference field or if the field is cleared then there is no more corresponding item
+	if newRefId == oldRefId || newRefId.IsEmpty() {
 		return ci, nil
 	}
 
@@ -681,62 +1001,18 @@ func (i Item) getItemCorrespondingItems(ctx context.Context, s schema.Schema, it
 	ci = append(ci, newRefItm.Value())
 
 	// if the new referenced item has reference item get it
-	crf, ok := schema.FieldReferenceFromTypeProperty(s.Field(fid).TypeProperty())
-	if !ok || crf.CorrespondingFieldID() == nil {
-		return ci, nil
-	}
-	newRefRefF := newRefItm.Value().Field(*crf.CorrespondingFieldID())
+	newRefRefF := newRefItm.Value().Field(*fr.CorrespondingFieldID())
 	newRefRefId, _ := newRefRefF.Value().First().ValueReference()
 	if !newRefRefId.IsEmpty() {
 		newRefRefItm, err := i.repos.Item.FindByID(ctx, newRefRefId, nil)
-		if err != nil {
+		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, err
 		}
-		ci = append(ci, newRefRefItm.Value())
+		if err == nil {
+			ci = append(ci, newRefRefItm.Value())
+		}
 	}
 	return ci, nil
-}
-
-func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, it *item.Item, oldFields item.Fields) error {
-	sf := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return f.Type() == value.TypeReference
-	})
-	for _, f := range sf {
-		rf, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
-		if !ok {
-			continue
-		}
-		items, err := i.getItemCorrespondingItems(ctx, s, it, oldFields, f.ID())
-		if err != nil {
-			return err
-		}
-
-		for _, itm := range items {
-			itm.ClearField(f.ID())
-			if rf.CorrespondingFieldID() != nil {
-				itm.ClearField(*rf.CorrespondingFieldID())
-			}
-			if err := i.repos.Item.Save(ctx, itm); err != nil {
-				return err
-			}
-		}
-
-		if rf.CorrespondingFieldID() == nil {
-			continue
-		}
-		refItmId, ok := it.Field(f.ID()).Value().First().ValueReference()
-		if !ok || refItmId.IsEmpty() {
-			continue
-		}
-		refItm, _ := items.Item(refItmId)
-		idValue := value.NewMultiple(value.TypeReference, []any{it.ID().String()})
-		refItm.UpdateFields([]*item.Field{item.NewField(*rf.CorrespondingFieldID(), idValue, nil)})
-		if err := i.repos.Item.Save(ctx, refItm); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFieldParam, s *schema.Schema, mId id.ModelID, itemFields item.Fields) (item.Fields, schema.List, error) {

@@ -8,14 +8,12 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-
-const { TextArea } = Input;
 
 type Props = {
   me?: User;
@@ -90,7 +88,6 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
             <ReactMarkdown
               components={{
                 a(props) {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   const { node, ...rest } = props;
                   return <a target="_blank" {...rest} />;
                 },

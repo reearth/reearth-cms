@@ -24,9 +24,21 @@ type Item struct {
 	err  error
 }
 
-func (r *Item) FindByAssets(ctx context.Context, assetID id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
-	// TODO implement me
-	panic("implement me")
+func (r *Item) FindByAssets(ctx context.Context, list id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	var res item.VersionedList
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(ref.OrLatest().OrVersion())
+		it := itv.Value()
+		if it.AssetIDs().Has(list...) {
+			res = append(res, itv)
+		}
+		return true
+	})
+	return res, nil
 }
 
 func NewItem() repo.Item {
@@ -71,24 +83,6 @@ func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *versio
 	return res, nil, nil
 }
 
-func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	if r.err != nil {
-		return nil, nil, r.err
-	}
-
-	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(ref.OrLatest().OrVersion())
-		it := itv.Value()
-		if it.Project() == projectID {
-			res = append(res, itv)
-		}
-		return true
-	})
-
-	return res, nil, nil
-}
-
 func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
@@ -113,6 +107,18 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 	}
 
 	return r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), nil
+}
+
+func (r *Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	item, ok := r.data.Load(itemID, ver)
+	if !ok {
+		return nil, rerror.ErrNotFound
+	}
+	return item, nil
 }
 
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
@@ -248,7 +254,7 @@ func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagin
 	}
 
 	var res item.VersionedList
-	qq := q.Q()
+	qq := q.Keyword()
 
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
@@ -285,7 +291,7 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 		if it.Model() == modelID {
 			for _, f := range fields {
 				for _, ff := range it.Fields() {
-					if f.Field == ff.FieldID() && f.Value.Equal(f.Value) {
+					if f.Field == ff.FieldID() && f.Value.Equal(ff.Value()) {
 						res = append(res, itv)
 					}
 				}

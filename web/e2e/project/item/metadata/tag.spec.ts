@@ -64,7 +64,7 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.locator("#root").getByText("Tag1", { exact: true })).toBeVisible();
   await page.getByLabel("Back").click();
   await expect(page.getByText("Tag1", { exact: true })).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("close-circle").locator("svg").click();
   await page.getByLabel("tag1").click();
   await page
@@ -85,11 +85,13 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
     .click();
   await closeNotification(page);
   await expect(page.locator("tbody").getByText("Tag1").first()).toBeVisible();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100);
   await page.getByRole("cell", { name: "Tag1", exact: true }).locator("svg").click();
   await closeNotification(page);
-  await expect(page.locator("#root").getByText("Tag1", { exact: true }).first()).not.toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
-  await expect(page.locator("#root").getByText("Tag1", { exact: true })).not.toBeVisible();
+  await expect(page.locator("#root").getByText("Tag1", { exact: true }).first()).toBeHidden();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  await expect(page.locator("#root").getByText("Tag1", { exact: true })).toBeHidden();
 });
 
 test("Tag metadata editing has succeeded", async ({ page }) => {
@@ -150,18 +152,18 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await page.getByText("Tag3").nth(2).click();
   await expect(page.getByLabel("Update Tag").getByText("Tag1Tag2Tag3")).toBeVisible();
   await page.getByRole("tab", { name: "Settings" }).click();
-  await page.getByRole("button", { name: "delete" }).first().click();
+  await page.getByLabel("Update Tag").getByRole("button", { name: "delete" }).first().click();
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Update Tag").getByText("Tag2Tag3")).toBeVisible();
   await page.locator(".ant-select-selector").click();
-  await expect(page.getByText("Tag1").last()).not.toBeVisible();
+  await expect(page.getByText("Tag1").last()).toBeHidden();
   await page.locator(".ant-select-selector").click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByLabel("Meta Data")).toContainText("new tag1 *#new-tag1(unique)");
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new tag1");
-  await expect(page.getByText("Tag1", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("Tag1", { exact: true })).toBeHidden();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("new tag1(unique)");
   await expect(page.getByText("Tag2Tag3")).toBeVisible();
@@ -173,8 +175,9 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("cell", { name: "Tag2 Tag3" }).click();
   await page.getByText("Tag2").nth(2).click();
   await closeNotification(page);
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByText("Tag3")).toBeVisible();
+  await page.getByLabel("close-circle").locator("svg").hover();
   await page.getByLabel("close-circle").locator("svg").click();
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.locator(".ant-select-selector").click();

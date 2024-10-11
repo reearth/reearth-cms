@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
 import { useCallback, useMemo } from "react";
+import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -13,6 +15,7 @@ type Props = {
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
+  onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
 };
 
 const GroupsList: React.FC<Props> = ({
@@ -21,6 +24,7 @@ const GroupsList: React.FC<Props> = ({
   collapsed,
   onModalOpen,
   onGroupSelect,
+  onUpdateGroupsOrder,
 }) => {
   const t = useT();
 
@@ -35,14 +39,24 @@ const GroupsList: React.FC<Props> = ({
 
   const items = useMemo(
     () =>
-      groups?.map(group => ({
-        label: (
-          <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
-            {collapsed ? <Icon icon="dot" /> : group.name}
-          </div>
-        ),
-        key: group.id,
-      })),
+      groups
+        ?.sort((a, b) => a.order - b.order)
+        .map(group => ({
+          label: (
+            <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
+              {collapsed ? (
+                <Tooltip placement="right" title={group.name}>
+                  <span>
+                    <Icon icon="dot" />
+                  </span>
+                </Tooltip>
+              ) : (
+                group.name
+              )}
+            </div>
+          ),
+          key: group.id,
+        })),
     [collapsed, groups, scrollToSelected, selectedKey],
   );
 
@@ -53,6 +67,17 @@ const GroupsList: React.FC<Props> = ({
     [onGroupSelect],
   );
 
+  const onDragEnd = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0 || !groups) return;
+      const [removed] = groups.splice(fromIndex, 1);
+      groups.splice(toIndex, 0, removed);
+      const groupIds = groups.map(group => group.id);
+      onUpdateGroupsOrder(groupIds);
+    },
+    [groups, onUpdateGroupsOrder],
+  );
+
   return (
     <SchemaStyledMenu>
       {collapsed ? (
@@ -60,7 +85,7 @@ const GroupsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("Groups")}</SchemaStyledMenuTitle>
+            <SchemaStyledMenuTitle>{t("GROUPS")}</SchemaStyledMenuTitle>
             <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
               {!collapsed && t("Add")}
             </SchemaAddButton>
@@ -68,13 +93,18 @@ const GroupsList: React.FC<Props> = ({
         </Header>
       )}
       <MenuWrapper>
-        <StyledMenu
-          selectedKeys={selectedKeys}
-          mode={collapsed ? "vertical" : "inline"}
-          collapsed={collapsed}
-          items={items}
-          onClick={handleClick}
-        />
+        <ReactDragListView
+          nodeSelector=".ant-menu-item"
+          lineClassName="dragLine"
+          onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
+          <StyledMenu
+            selectedKeys={selectedKeys}
+            mode={collapsed ? "vertical" : "inline"}
+            collapsed={collapsed}
+            items={items}
+            onClick={handleClick}
+          />
+        </ReactDragListView>
       </MenuWrapper>
     </SchemaStyledMenu>
   );
@@ -111,7 +141,6 @@ const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-right: 1px solid #f0f0f0;
 `;
 
 const MenuWrapper = styled.div`
@@ -120,7 +149,8 @@ const MenuWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid #f0f0f0;
-  padding: 12px 20px;
+  padding: 12px 0;
+  justify-content: center;
 `;
 
 const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`

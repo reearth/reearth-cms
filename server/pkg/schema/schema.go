@@ -2,8 +2,8 @@ package schema
 
 import (
 	"errors"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -153,4 +153,23 @@ func (s *Schema) Clone() *Schema {
 		fields:     slices.Clone(s.fields),
 		titleField: s.TitleField().CloneRef(),
 	}
+}
+
+func (s *Schema) HasGeometryFields() bool {
+	if s == nil {
+		return false
+	}
+	return len(s.FieldsByType(value.TypeGeometryObject)) > 0 || len(s.FieldsByType(value.TypeGeometryEditor)) > 0
+}
+
+func (s *Schema) IsPointFieldSupported() bool {
+	if s == nil {
+		return false
+	}
+	for _, f := range s.Fields() {
+		if f.SupportsPointField() {
+			return true
+		}
+	}
+	return false
 }

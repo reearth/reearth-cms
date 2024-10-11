@@ -2,6 +2,9 @@ package mongo
 
 import (
 	"context"
+	"fmt"
+	"regexp"
+
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -10,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var (
@@ -43,6 +47,15 @@ func (r *Model) FindByID(ctx context.Context, modelID id.ModelID) (*model.Model,
 	})
 }
 
+func (r *Model) FindBySchema(ctx context.Context, schemaID id.SchemaID) (*model.Model, error) {
+	return r.findOne(ctx, bson.M{
+		"$or": bson.A{
+			bson.M{"schema": schemaID.String()},
+			bson.M{"metadata": schemaID.String()},
+		},
+	})
+}
+
 func (r *Model) FindByIDs(ctx context.Context, ids id.ModelIDList) (model.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
@@ -67,6 +80,24 @@ func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, pagination 
 	return r.paginate(ctx, bson.M{
 		"project": pid.String(),
 	}, pagination)
+}
+
+func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(pid) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
+	filter := bson.M{
+		"project": pid.String(),
+	}
+
+	if k != "" {
+		filter["name"] = bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(k)), Options: "i"},
+		}
+	}
+
+	return r.paginate(ctx, filter, pagination)
 }
 
 func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*model.Model, error) {

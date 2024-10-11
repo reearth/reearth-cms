@@ -4,14 +4,14 @@ import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
+  commentsPanel: JSX.Element;
   asset?: Asset;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
@@ -19,18 +19,16 @@ export type Props = {
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
-  commentsPanel?: JSX.Element;
+  isSaveDisabled: boolean;
+  updateLoading: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
+  onTypeChange: (value: PreviewType) => void;
   onModalCancel: () => void;
   onChangeToFullScreen: () => void;
   onBack: () => void;
   onSave: () => void;
-  workspaceSettings?: WorkspaceSettings;
+  workspaceSettings: WorkspaceSettings;
 };
 
 const AssetWrapper: React.FC<Props> = ({
@@ -42,6 +40,8 @@ const AssetWrapper: React.FC<Props> = ({
   displayUnzipFileList,
   decompressing,
   commentsPanel,
+  isSaveDisabled,
+  updateLoading,
   onAssetItemSelect,
   onAssetDecompress,
   onTypeChange,
@@ -58,8 +58,12 @@ const AssetWrapper: React.FC<Props> = ({
       center={
         <Wrapper>
           <PageHeader
-            title={`${t("Asset")}/${asset?.fileName}`}
-            extra={<Button onClick={onSave}>{t("Save")}</Button>}
+            title={`${t("Asset")} / ${asset?.fileName}`}
+            extra={
+              <Button onClick={onSave} disabled={isSaveDisabled} loading={updateLoading}>
+                {t("Save")}
+              </Button>
+            }
             onBack={onBack}
           />
           <AssetMolecule

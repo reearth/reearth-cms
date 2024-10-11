@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"path"
 	"strings"
 	"time"
@@ -66,6 +67,20 @@ func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Ope
 	}
 
 	return files, nil
+}
+
+func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (io.ReadCloser, error) {
+	a, err := i.repos.Asset.FindByID(ctx, aid)
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := i.gateways.File.ReadAsset(ctx, a.UUID(), a.FileName())
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
 }
 
 func (i *Asset) GetURL(a *asset.Asset) string {
@@ -147,7 +162,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Project(inp.ProjectID).
 				FileName(path.Base(file.Name)).
 				Size(uint64(file.Size)).
-				Type(asset.PreviewTypeFromContentType(file.ContentType)).
+				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).
 				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
@@ -462,6 +477,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return asset.NewFile().
 					Name(path.Base(f.Name)).
 					Path(f.Name).
+					Size(uint64(f.Size)).
 					GuessContentType().
 					Build(), true
 			})

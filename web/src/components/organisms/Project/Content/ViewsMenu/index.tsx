@@ -25,6 +25,7 @@ const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewCh
     handleViewUpdate,
     handleViewRename,
     handleViewDelete,
+    handleUpdateViewsOrder,
   } = useHooks({ currentView, onViewChange });
 
   return (
@@ -37,6 +38,7 @@ const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewCh
         onDelete={handleViewDelete}
         onUpdate={handleViewUpdate}
         onViewSelect={onViewSelect}
+        onUpdateViewsOrder={handleUpdateViewsOrder}
       />
       <ViewFormModal
         modalState={modalState}

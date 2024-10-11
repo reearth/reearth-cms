@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
 import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
@@ -9,8 +8,7 @@ import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General
 import useHooks from "./hooks";
 
 const Asset: React.FC = () => {
-  const navigate = useNavigate();
-  const { workspaceId, projectId, assetId } = useParams();
+  const { assetId } = useParams();
   const {
     asset,
     assetFileExt,
@@ -21,26 +19,19 @@ const Asset: React.FC = () => {
     viewerType,
     displayUnzipFileList,
     decompressing,
+    isSaveDisabled,
+    updateLoading,
     handleAssetDecompress,
     handleAssetItemSelect,
     handleToggleCommentMenu,
-    handleAssetUpdate,
     handleTypeChange,
     handleModalCancel,
     handleFullScreen,
+    handleBack,
+    handleSave,
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
-
-  const handleSave = useCallback(async () => {
-    if (assetId) {
-      await handleAssetUpdate(assetId, selectedPreviewType);
-    }
-  }, [assetId, handleAssetUpdate, selectedPreviewType]);
-
-  const handleBack = useCallback(() => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`);
-  }, [navigate, projectId, workspaceId]);
 
   return isLoading ? (
     <Loading spinnerSize="large" minHeight="100vh" />
@@ -62,6 +53,8 @@ const Asset: React.FC = () => {
       viewerType={viewerType}
       displayUnzipFileList={displayUnzipFileList}
       decompressing={decompressing}
+      isSaveDisabled={isSaveDisabled}
+      updateLoading={updateLoading}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
       onTypeChange={handleTypeChange}

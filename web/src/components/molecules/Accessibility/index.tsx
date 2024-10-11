@@ -1,14 +1,16 @@
 import styled from "@emotion/styled";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
@@ -28,11 +30,10 @@ type Props = {
   aliasState?: string;
   assetState?: boolean;
   isSaveDisabled: boolean;
-  handlePublicUpdate: () => void;
-  handleAliasChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handlePublicUpdate: () => Promise<void>;
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
-  handleSetScope?: (projectScope: PublicScope) => void;
+  handleSetScope: (projectScope: PublicScope) => void;
 };
 
 const Accessibility: React.FC<Props> = ({
@@ -43,7 +44,6 @@ const Accessibility: React.FC<Props> = ({
   assetState,
   isSaveDisabled,
   handlePublicUpdate,
-  handleAliasChange,
   handleUpdatedAssetState,
   handleUpdatedModels,
   handleSetScope,
@@ -130,6 +130,10 @@ const Accessibility: React.FC<Props> = ({
     { id: 2, name: t("Public"), value: "public" },
   ];
 
+  const handleCopy = useCallback(() => {
+    if (aliasState) navigator.clipboard.writeText(aliasState);
+  }, [aliasState]);
+
   return (
     <InnerContent title={t("Accessibility")} flexChildren>
       <ContentSection title="">
@@ -149,7 +153,15 @@ const Accessibility: React.FC<Props> = ({
               </Select>
             </Form.Item>
             <Form.Item label={t("Project Alias")}>
-              <Input value={aliasState} onChange={handleAliasChange} />
+              <Input
+                value={aliasState}
+                suffix={
+                  <Tooltip title={t("Alias copied!!")} trigger={"click"}>
+                    <StyledIcon icon="copy" onClick={handleCopy} />
+                  </Tooltip>
+                }
+                contentEditable={false}
+              />
             </Form.Item>
           </ItemsWrapper>
           <TableWrapper>
@@ -177,4 +189,12 @@ const TableWrapper = styled.div`
 const StyledAnchor = styled.a`
   text-decoration: underline;
   color: #000000d9;
+`;
+
+const StyledIcon = styled(Icon)`
+  transition: all 0.3s;
+  color: rgb(0, 0, 0, 0.45);
+  :hover {
+    color: rgba(0, 0, 0, 0.88);
+  }
 `;

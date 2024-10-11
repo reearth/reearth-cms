@@ -55,8 +55,8 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
         <ReactMarkdown
           components={{
             a(props) {
-              const { node: _, ...rest } = props;
-              return <a target="_blank" {...rest} />;
+              delete props.node;
+              return <a target="_blank" {...props} />;
             },
           }}
           remarkPlugins={[remarkGfm]}>
@@ -74,7 +74,7 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
           }}
         />
       ) : (
-        dateTimeFormat(item)
+        dateTimeFormat(item, "YYYY-MM-DD")
       );
     case "Bool":
       return update ? (

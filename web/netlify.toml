@@ -7,4 +7,5 @@
   to = "/index.html"
 
 [context.deploy-preview.environment]
-  NODE_VERSION = "18.16.1"
+  NODE_VERSION = "20.11.0"
+  NODE_OPTIONS = "--max_old_space_size=3072"

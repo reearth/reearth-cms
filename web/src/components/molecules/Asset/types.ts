@@ -1,4 +1,5 @@
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { SortDirection } from "@reearth-cms/components/molecules/View/types";
 
 import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
 
@@ -18,6 +19,7 @@ export type ViewerType =
   | "image"
   | "image_svg"
   | "model_3d"
+  | "csv"
   | "unknown";
 
 export type Asset = {
@@ -46,4 +48,11 @@ export type AssetFile = {
   filePaths?: string[];
   name: string;
   path: string;
+};
+
+export type AssetSortType = "DATE" | "NAME" | "SIZE";
+
+export type SortType = {
+  type: AssetSortType;
+  direction: SortDirection;
 };

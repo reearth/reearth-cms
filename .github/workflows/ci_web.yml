@@ -29,9 +29,13 @@ jobs:
         run: yarn i18n --fail-on-update
       - name: Build
         run: yarn build
+      
+      # TODO: Remove after dockerizing the web.
       - name: Pack
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
         run: mv dist reearth-cms-web && tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
+
+      # TODO: Remove after dockerizing the web.
       - uses: actions/upload-artifact@v4
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
         with:

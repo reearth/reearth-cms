@@ -205,7 +205,7 @@ func getViews(e *httpexpect.Expect, mID string) *httpexpect.Value {
 }
 
 func TestViewCRUD(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -288,4 +288,74 @@ func TestViewCRUD(t *testing.T) {
 		HasValue("sort", nil).
 		HasValue("columns", []any{}).
 		HasValue("filter", nil)
+}
+
+func updateViewsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateViewsOrder($viewIds:[ID!]!) {
+				  updateViewsOrder(input: {viewIds: $viewIds}) {
+					views {
+						id
+						name
+						sort {
+						  field {
+							type
+							id	
+						  }
+						  direction
+						}
+						columns {
+						  field {
+							  type
+							  id
+						  }
+						  visible
+						}
+						filter {
+						  
+							... on BoolFieldCondition {
+							  fieldId {
+								type
+								id
+							  }
+							  operator
+							  value
+							}
+						  
+						}
+						order
+						__typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"viewIds": ids,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func TestUpdateViewsOrder(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+	mId, _ := createModel(e, pId, "test", "test", "test-2")
+	vId1, _ := createView(e, pId, mId, "test1", nil, nil, nil)
+	vId2, _ := createView(e, pId, mId, "test2", nil, nil, nil)
+	vId3, _ := createView(e, pId, mId, "test3", nil, nil, nil)
+	vId4, _ := createView(e, pId, mId, "test4", nil, nil, nil)
+
+	res := updateViewsOrder(e, []string{vId4, vId1, vId2, vId3})
+	res.Path("$.data.updateViewsOrder.views[:].id").Array().IsEqual([]string{vId4, vId1, vId2, vId3})
+	res.Path("$.data.updateViewsOrder.views[:].order").Array().IsEqual([]int{0, 1, 2, 3})
 }

@@ -2,29 +2,28 @@ import styled from "@emotion/styled";
 import { Steps } from "antd";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { RequestState } from "@reearth-cms/components/organisms/Project/Request/RequestList/hooks";
+import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  className?: string;
   requestState: RequestState;
 };
 
-const RequestStatus: React.FC<Props> = ({ className, requestState }) => {
+const RequestStatus: React.FC<Props> = ({ requestState }) => {
   const t = useT();
   const { Step } = Steps;
 
   return (
-    <StyledSteps className={className} direction="vertical" current={1}>
+    <StyledSteps direction="vertical" current={1}>
       {requestState === "APPROVED" && (
         <Step
-          icon={<Icon icon="checkCircle" color="#52C41A" size={32} />}
+          icon={<StyledIcon icon="checkCircle" color="#52C41A" size={28} />}
           title={<StatusTitle>{t("Approved")}</StatusTitle>}
         />
       )}
       {requestState === "CLOSED" && (
         <Step
-          icon={<Icon icon="closeCircle" color="#BFBFBF" size={32} />}
+          icon={<StyledIcon icon="closeCircle" color="#BFBFBF" size={28} />}
           title={<StatusTitle>{t("Closed")}</StatusTitle>}
         />
       )}
@@ -35,7 +34,7 @@ const RequestStatus: React.FC<Props> = ({ className, requestState }) => {
 const StyledSteps = styled(Steps)`
   position: relative;
   max-width: 100%;
-  padding: 16px 44px;
+  padding: 36px 0 0 44px;
   display: inline-block;
   .ant-steps-item-icon::before {
     content: "";
@@ -45,8 +44,13 @@ const StyledSteps = styled(Steps)`
     height: 24px;
     background-color: #d9d9d9;
     left: 16px;
-    top: -28px;
+    top: -30px;
   }
+`;
+
+const StyledIcon = styled(Icon)`
+  padding-top: 3px;
+  padding-left: 3px;
 `;
 
 const StatusTitle = styled.p`
@@ -54,7 +58,7 @@ const StatusTitle = styled.p`
   font-weight: 500;
   font-size: 14px;
   line-height: 22px;
-  color: #000000d9;
+  color: #00000073;
 `;
 
 export default RequestStatus;

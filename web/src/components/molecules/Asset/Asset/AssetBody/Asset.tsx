@@ -5,8 +5,8 @@ import { useCallback, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -25,6 +25,7 @@ import {
   SvgViewer,
   ImageViewer,
   GltfViewer,
+  CsvViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
@@ -44,12 +45,9 @@ type Props = {
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
+  onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-  workspaceSettings?: WorkspaceSettings;
+  workspaceSettings: WorkspaceSettings;
 };
 
 export let viewerRef: CesiumViewer | undefined;
@@ -75,13 +73,13 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer: CesiumViewer | undefined) => {
+  const getViewer = (viewer?: CesiumViewer) => {
     viewerRef = viewer;
   };
 
   const renderPreview = useCallback(() => {
-    switch (true) {
-      case viewerType === "geo":
+    switch (viewerType) {
+      case "geo":
         return (
           <GeoViewer
             url={assetUrl}
@@ -90,7 +88,7 @@ const AssetMolecule: React.FC<Props> = ({
             workspaceSettings={workspaceSettings}
           />
         );
-      case viewerType === "geo_3d_tiles":
+      case "geo_3d_tiles":
         return (
           <Geo3dViewer
             url={assetUrl}
@@ -99,15 +97,15 @@ const AssetMolecule: React.FC<Props> = ({
             workspaceSettings={workspaceSettings}
           />
         );
-      case viewerType === "geo_mvt":
+      case "geo_mvt":
         return (
           <MvtViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
         );
-      case viewerType === "image":
+      case "image":
         return <ImageViewer url={assetUrl} />;
-      case viewerType === "image_svg":
+      case "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model_3d":
+      case "model_3d":
         return (
           <GltfViewer
             url={assetUrl}
@@ -115,11 +113,19 @@ const AssetMolecule: React.FC<Props> = ({
             workspaceSettings={workspaceSettings}
           />
         );
-      case viewerType === "unknown":
+      case "csv":
+        return (
+          <CsvViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+        );
+      case "unknown":
       default:
         return <ViewerNotSupported />;
     }
   }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(asset.url);
+  }, [asset.url]);
 
   return (
     <BodyContainer>
@@ -127,13 +133,10 @@ const AssetMolecule: React.FC<Props> = ({
         <Card
           title={
             <>
-              {asset.fileName}{" "}
-              <CopyIcon
-                icon="copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(asset.url);
-                }}
-              />
+              {asset.fileName}
+              <Tooltip title={t("URL copied!!")} trigger={"click"}>
+                <CopyIcon icon="copy" onClick={handleCopy} />
+              </Tooltip>
             </>
           }
           toolbar={
@@ -179,7 +182,7 @@ const AssetMolecule: React.FC<Props> = ({
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
-          <StyledPreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
+          <PreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
@@ -202,10 +205,12 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-const CopyIcon = styled(Icon)<{ selected?: boolean }>`
-  margin-left: 16px;
-  &:active {
-    color: #096dd9;
+const CopyIcon = styled(Icon)`
+  margin-left: 10px;
+  transition: all 0.3s;
+  color: rgb(0, 0, 0, 0.45);
+  :hover {
+    color: rgba(0, 0, 0, 0.88);
   }
 `;
 
@@ -234,10 +239,6 @@ const BodyWrapper = styled.div`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
-`;
-
-const StyledPreviewTypeSelect = styled(PreviewTypeSelect)`
-  width: 75%;
 `;
 
 const StyledButton = styled(Button)`

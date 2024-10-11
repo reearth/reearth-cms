@@ -16,8 +16,10 @@ const ContentList: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
-    selection,
+    selectedItems,
     loading,
+    deleteLoading,
+    unpublishLoading,
     totalCount,
     views,
     currentView,
@@ -38,7 +40,7 @@ const ContentList: React.FC = () => {
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelection,
+    setSelectedItems,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -76,6 +78,7 @@ const ContentList: React.FC = () => {
           collapsed={collapsedModelMenu}
           onModelSelect={handleModelSelect}
           selectedSchemaType="model"
+          titleIcon={"table"}
         />
       }
       viewsMenu={
@@ -92,7 +95,9 @@ const ContentList: React.FC = () => {
       selectedItem={selectedItem}
       onItemSelect={handleItemSelect}
       collapsed={collapsedModelMenu}
-      itemsDataLoading={loading}
+      loading={loading}
+      deleteLoading={deleteLoading}
+      unpublishLoading={unpublishLoading}
       currentView={currentView}
       setCurrentView={setCurrentView}
       totalCount={totalCount}
@@ -102,14 +107,14 @@ const ContentList: React.FC = () => {
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
-      selection={selection}
+      selectedItems={selectedItems}
       requests={requests}
       onRequestTableChange={handleRequestTableChange}
       requestModalLoading={requestModalLoading}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      setSelection={setSelection}
+      setSelectedItems={setSelectedItems}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}

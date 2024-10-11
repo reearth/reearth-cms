@@ -346,122 +346,6 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	assert.Equal(t, wantErr, err)
 }
 
-func TestItem_FindByProject(t *testing.T) {
-	pid1 := id.NewProjectID()
-	pid2 := id.NewProjectID()
-	wid := accountdomain.NewWorkspaceID()
-	s1 := project.New().ID(pid1).Workspace(wid).MustBuild()
-	s2 := project.New().ID(pid2).Workspace(wid).MustBuild()
-	i1 := item.New().NewID().
-		Project(pid1).
-		Schema(id.NewSchemaID()).
-		Model(id.NewModelID()).
-		Thread(id.NewThreadID()).
-		Timestamp(time.Now().Truncate(time.Millisecond).UTC()).
-		MustBuild()
-	i2 := item.New().NewID().
-		Project(pid1).
-		Schema(id.NewSchemaID()).
-		Model(id.NewModelID()).
-		Thread(id.NewThreadID()).
-		Timestamp(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC()).
-		MustBuild()
-	i3 := item.New().NewID().
-		Project(pid2).
-		Schema(id.NewSchemaID()).
-		Model(id.NewModelID()).
-		Thread(id.NewThreadID()).
-		Timestamp(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC()).
-		MustBuild()
-
-	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
-	op := &usecase.Operator{
-		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(u.ID()),
-		},
-		ReadableProjects: []id.ProjectID{pid1, pid2},
-	}
-
-	type args struct {
-		id         id.ProjectID
-		operator   *usecase.Operator
-		pagination *usecasex.Pagination
-	}
-
-	tests := []struct {
-		name        string
-		seedItems   item.List
-		seedProject *project.Project
-		args        args
-		want        int
-		mockItemErr bool
-		wantErr     error
-	}{
-		{
-			name:        "find 2 of 3",
-			seedItems:   item.List{i1, i2, i3},
-			seedProject: s1,
-			args: args{
-				id:       pid1,
-				operator: op,
-			},
-			want:    2,
-			wantErr: nil,
-		},
-		{
-			name:        "items not found",
-			seedItems:   item.List{},
-			seedProject: s1,
-			args: args{
-				id:       pid1,
-				operator: op,
-			},
-			want:    0,
-			wantErr: nil,
-		},
-		{
-			name:        "project not found",
-			seedItems:   item.List{i1, i2, i3},
-			seedProject: s2,
-			args: args{
-				id:       id.NewProjectID(),
-				operator: op,
-			},
-			want:    0,
-			wantErr: rerror.ErrNotFound,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			// t.Parallel()
-
-			ctx := context.Background()
-			db := memory.New()
-			if tc.mockItemErr {
-				memory.SetItemError(db.Item, tc.wantErr)
-			}
-			for _, seed := range tc.seedItems {
-				err := db.Item.Save(ctx, seed)
-				assert.NoError(t, err)
-			}
-			err := db.Project.Save(ctx, tc.seedProject)
-			assert.NoError(t, err)
-			itemUC := NewItem(db, nil)
-			itemUC.ignoreEvent = true
-
-			got, _, err := itemUC.FindByProject(ctx, tc.args.id, tc.args.pagination, tc.args.operator)
-			if tc.wantErr != nil {
-				assert.Equal(t, tc.wantErr, err)
-				return
-			}
-			assert.NoError(t, err)
-			assert.Equal(t, tc.want, len(got.Unwrap()))
-		})
-	}
-}
-
 func TestItem_Search(t *testing.T) {
 	mid := id.NewModelID()
 	sid1 := id.NewSchemaID()
@@ -703,7 +587,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -718,7 +602,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -736,7 +620,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -750,6 +634,28 @@ func TestItem_Create(t *testing.T) {
 	assert.Equal(t, item, it)
 	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
+	// ok by key
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Key: sf.Key().Ref(),
+				// Field: sf.ID().Ref(),
+				// Type:  value.TypeText,
+				Value: "xxx2",
+			},
+		},
+	}, op)
+	assert.NoError(t, err)
+	assert.NotNil(t, item)
+	assert.Equal(t, s.ID(), item.Value().Schema())
+
+	it, err = db.Item.FindByID(ctx, item.Value().ID(), nil)
+	assert.NoError(t, err)
+	assert.Equal(t, item, it)
+	assert.Equal(t, value.TypeText.Value("xxx2").AsMultiple(), it.Value().Field(sf.ID()).Value())
+
 	// validate fails
 	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: s.ID(),
@@ -757,7 +663,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "abcabcabcabc", // too long
 			},
 		},
@@ -772,7 +678,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
@@ -791,7 +697,7 @@ func TestItem_Create(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "",
 			},
 		},
@@ -846,7 +752,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -867,7 +773,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -881,8 +787,8 @@ func TestItem_Update(t *testing.T) {
 		ItemID: i.ID(),
 		Fields: []interfaces.ItemFieldParam{
 			{
-				Key:   sf.Key().Ref(),
-				Type:  value.TypeText,
+				Key: sf.Key().Ref(),
+				// Type:  value.TypeText,
 				Value: "yyy",
 			},
 		},
@@ -904,7 +810,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "abcabcabcabc", // too long
 			},
 		},
@@ -920,7 +826,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
@@ -937,7 +843,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx",
 			},
 		},
@@ -952,7 +858,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "xxx", // duplicated
 			},
 		},
@@ -981,7 +887,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "",
 			},
 		},
@@ -999,7 +905,7 @@ func TestItem_Update(t *testing.T) {
 		Fields: []interfaces.ItemFieldParam{
 			{
 				Field: sf.ID().Ref(),
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "a",
 			},
 		},
@@ -1086,7 +992,7 @@ func TestWorkFlow(t *testing.T) {
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
 	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
-	ri, _ := request.NewItem(i.ID())
+	ri, _ := request.NewItem(i.ID(), lo.ToPtr(version.New().String()))
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	req1 := request.New().
 		NewID().

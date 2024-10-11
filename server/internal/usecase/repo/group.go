@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
@@ -13,5 +14,6 @@ type Group interface {
 	FindByProject(context.Context, id.ProjectID) (group.List, error)
 	FindByKey(context.Context, id.ProjectID, string) (*group.Group, error)
 	Save(context.Context, *group.Group) error
+	SaveAll(context.Context, group.List) error
 	Remove(context.Context, id.GroupID) error
 }

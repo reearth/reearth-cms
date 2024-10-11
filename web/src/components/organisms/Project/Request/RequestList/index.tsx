@@ -17,7 +17,9 @@ const RequestList: React.FC = () => {
     collapseCommentsPanel,
     handleRequestSelect,
     handleRequestsReload,
+    deleteLoading,
     handleRequestDelete,
+    searchTerm,
     handleSearchTerm,
     handleNavigateToRequest,
     totalCount,
@@ -27,6 +29,8 @@ const RequestList: React.FC = () => {
     page,
     pageSize,
     handleRequestTableChange,
+    columns,
+    handleColumnsChange,
   } = useHooks();
 
   return (
@@ -49,8 +53,10 @@ const RequestList: React.FC = () => {
       onRequestSelect={handleRequestSelect}
       loading={loading}
       onRequestsReload={handleRequestsReload}
+      deleteLoading={deleteLoading}
       onRequestDelete={handleRequestDelete}
       selectedRequest={selectedRequest}
+      searchTerm={searchTerm}
       onSearchTerm={handleSearchTerm}
       selection={selection}
       setSelection={setSelection}
@@ -62,6 +68,8 @@ const RequestList: React.FC = () => {
       page={page}
       onRequestTableChange={handleRequestTableChange}
       pageSize={pageSize}
+      columns={columns}
+      onColumnsChange={handleColumnsChange}
     />
   );
 };

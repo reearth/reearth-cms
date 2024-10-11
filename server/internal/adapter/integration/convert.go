@@ -4,6 +4,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -59,7 +61,7 @@ func fromItemFieldParam(f integrationapi.Field, sf *schema.Field) interfaces.Ite
 	return interfaces.ItemFieldParam{
 		Field: f.Id,
 		Key:   k,
-		Type:  sf.Type(),
+		// Type:  sf.Type(),
 		Value: v,
 		Group: f.Group,
 	}
@@ -120,7 +122,7 @@ func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFiel
 		res = append(res, interfaces.ItemFieldParam{
 			Field: gsf.ID().Ref(),
 			Key:   gsf.Key().Ref(),
-			Type:  gsf.Type(),
+			// Type:  gsf.Type(),
 			Value: v,
 			Group: nil,
 		})
@@ -149,7 +151,7 @@ func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam, igID
 		res = append(res, interfaces.ItemFieldParam{
 			Field: sf.ID().Ref(),
 			Key:   sf.Key().Ref(),
-			Type:  sf.Type(),
+			// Type:  sf.Type(),
 			Value: v,
 			Group: igID,
 		})
@@ -180,4 +182,53 @@ func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
 		var v any = tagIDs
 		field.Value = &v
 	}
+}
+
+func fromQuery(sp schema.Package, req ItemFilterRequestObject) *item.Query {
+	var s *view.Sort
+	if req.Params.Sort != nil {
+		s = fromSort(sp, *req.Params.Sort, req.Params.Dir)
+	}
+
+	var c *view.Condition
+	if req.Body.Filter != nil {
+		c = fromCondition(sp, *req.Body.Filter)
+	}
+
+	return item.NewQuery(sp.Schema().Project(), req.ModelId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
+		WithSort(s).
+		WithFilter(c)
+}
+
+func fromSort(sp schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
+	if dir == nil {
+		dir = lo.ToPtr(integrationapi.ItemFilterParamsDirAsc)
+	}
+	d := view.DirectionDesc
+	if *dir == integrationapi.ItemFilterParamsDirAsc {
+		d = view.DirectionAsc
+	}
+	switch sort {
+	case integrationapi.ItemFilterParamsSortCreatedAt:
+		return &view.Sort{
+			Field: view.FieldSelector{
+				Type: view.FieldTypeCreationDate,
+				ID:   nil,
+			},
+			Direction: d,
+		}
+	case integrationapi.ItemFilterParamsSortUpdatedAt:
+		return &view.Sort{
+			Field: view.FieldSelector{
+				Type: view.FieldTypeModificationDate,
+				ID:   nil,
+			},
+			Direction: d,
+		}
+	}
+	return nil
+}
+
+func fromCondition(sp schema.Package, condition integrationapi.Condition) *view.Condition {
+	return condition.Into()
 }

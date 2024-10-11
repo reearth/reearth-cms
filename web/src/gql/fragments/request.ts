@@ -24,6 +24,24 @@ export const requestFragment = gql`
             schemaFieldId
             type
             value
+            itemGroupId
+          }
+          referencedItems {
+            id
+            title
+            schemaId
+            createdBy {
+              ... on Integration {
+                name
+              }
+              ... on User {
+                name
+              }
+            }
+            status
+            version
+            createdAt
+            updatedAt
           }
           schema {
             id
@@ -67,6 +85,12 @@ export const requestFragment = gql`
                 }
                 ... on SchemaFieldURL {
                   defaultValue
+                }
+                ... on SchemaFieldReference {
+                  modelId
+                }
+                ... on SchemaFieldGroup {
+                  groupId
                 }
               }
             }

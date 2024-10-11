@@ -352,7 +352,7 @@ func TestRequest_FindByItem(t *testing.T) {
 				SetRequestError(r, tc.wantErr)
 			}
 
-			got, err := r.FindByItems(ctx, tc.input)
+			got, err := r.FindByItems(ctx, tc.input, nil)
 			if tc.wantErr != nil {
 				assert.Same(t, tc.wantErr, err)
 				return

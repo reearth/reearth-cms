@@ -2,7 +2,7 @@ name: ci-worker
 on:
   workflow_call:
 env:
-  GO_VERSION: "1.22"
+  GO_VERSION: "1.23"
 jobs:
   ci-server-lint:
     name: lint
@@ -15,7 +15,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
           version: v1.55
           working-directory: worker
@@ -33,7 +33,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: go setup
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: test

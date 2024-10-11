@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/rerror"
@@ -14,6 +15,7 @@ type Group struct {
 	name        string
 	description string
 	key         key.Key
+	order       int
 }
 
 func (g *Group) ID() ID {
@@ -40,6 +42,14 @@ func (g *Group) Key() key.Key {
 	return g.key
 }
 
+func (g *Group) Order() int {
+	return g.order
+}
+
+func (g *Group) SetOrder(order int) {
+	g.order = order
+}
+
 func (g *Group) Clone() *Group {
 	if g == nil {
 		return nil
@@ -51,6 +61,7 @@ func (g *Group) Clone() *Group {
 		name:        g.name,
 		description: g.description,
 		key:         g.key,
+		order:       g.order,
 	}
 }
 

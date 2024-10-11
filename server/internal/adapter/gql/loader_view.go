@@ -55,9 +55,9 @@ func (c *ViewLoader) FindByModel(ctx context.Context, modelID gqlmodel.ID) ([]*g
 	if err != nil {
 		return nil, err
 	}
-	integrations := make([]*gqlmodel.View, 0, len(res))
-	for _, i := range res {
-		integrations = append(integrations, gqlmodel.ToView(i))
+	views := make([]*gqlmodel.View, 0, len(res))
+	for _, v := range res {
+		views = append(views, gqlmodel.ToView(v))
 	}
-	return integrations, nil
+	return views, nil
 }

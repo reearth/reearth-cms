@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -69,14 +70,15 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	}), nil
 }
 
-func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID) (*gqlmodel.VersionedItem, error) {
+func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID, ver *string) (*gqlmodel.VersionedItem, error) {
 	op := getOperator(ctx)
 	iId, err := gqlmodel.ToID[id.Item](itemID)
 	if err != nil {
 		return nil, err
 	}
 
-	itm, err := c.usecase.FindByID(ctx, iId, op)
+	ptr := version.ToVersionOrLatestRef(ver)
+	itm, err := c.usecase.FindVersionByID(ctx, iId, ptr, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil
@@ -112,49 +114,6 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 		vis = append(vis, gqlmodel.ToVersionedItem(t, ss[0], gs))
 	}
 	return vis, nil
-}
-
-func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
-	op := getOperator(ctx)
-	pid, err := gqlmodel.ToID[id.Project](projectID)
-	if err != nil {
-		return nil, err
-	}
-
-	res, pi, err := c.usecase.FindByProject(ctx, pid, p.Into(), op)
-	if err != nil {
-		return nil, err
-	}
-
-	sIds := lo.SliceToMap(res, func(v item.Versioned) (id.ItemID, id.SchemaID) {
-		return v.Value().ID(), v.Value().Schema()
-	})
-
-	ss, err := c.schemaUsecase.FindByIDs(ctx, lo.Uniq(lo.Values(sIds)), op)
-	if err != nil {
-		return nil, err
-	}
-
-	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
-	nodes := make([]*gqlmodel.Item, 0, len(res))
-	for _, i := range res {
-		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
-			return s.ID() == sIds[i.Value().ID()]
-		})
-		itm := gqlmodel.ToItem(i, s, nil)
-		edges = append(edges, &gqlmodel.ItemEdge{
-			Node:   itm,
-			Cursor: usecasex.Cursor(itm.ID),
-		})
-		nodes = append(nodes, itm)
-	}
-
-	return &gqlmodel.ItemConnection{
-		Edges:      edges,
-		Nodes:      nodes,
-		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: int(pi.TotalCount),
-	}, nil
 }
 
 func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error) {

@@ -1,17 +1,15 @@
-// eslint-disable-next-line no-restricted-imports
 import { test as base, type Page } from "@playwright/test";
 
 import { config, getAccessToken, type Config } from "./config";
 
-// eslint-disable-next-line no-restricted-imports
 export { expect } from "@playwright/test";
 
 export type Reearth = {
   goto: Page["goto"];
   token: string | undefined;
-  gql: <T = any>(
+  gql: <T = unknown>(
     query: string,
-    variables?: Record<string, any>,
+    variables?: Record<string, unknown>,
     options?: { ignoreError?: boolean },
   ) => Promise<T>;
 } & Config;

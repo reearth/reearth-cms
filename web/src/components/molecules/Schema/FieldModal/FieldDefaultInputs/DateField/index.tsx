@@ -7,7 +7,7 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  multiple?: boolean;
+  multiple: boolean;
 };
 
 const DateField: React.FC<Props> = ({ multiple }) => {

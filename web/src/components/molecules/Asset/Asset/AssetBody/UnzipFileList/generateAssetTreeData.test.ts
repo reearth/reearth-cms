@@ -1,4 +1,3 @@
-import { Key } from "rc-table/lib/interface";
 import { expect, test } from "vitest";
 
 import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
@@ -6,7 +5,7 @@ import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { generateAssetTreeData } from "./generateAssetTreeData";
 
 test("returns empty array if filePaths property is not provided", () => {
-  const result = generateAssetTreeData({ name: "", path: "/" }, [], "http://example.com");
+  const result = generateAssetTreeData({ name: "", path: "/" });
   expect(result).toEqual([]);
 });
 
@@ -21,9 +20,7 @@ test("returns correct file tree data", () => {
       "/folder3/file4.txt",
     ],
   };
-  const selectedKeys: Key[] = [];
-  const assetBaseUrl = "http://example.com";
-  const result = generateAssetTreeData(file, selectedKeys, assetBaseUrl);
+  const result = generateAssetTreeData(file);
 
   // /folder1/
   expect(result[0].key).toEqual("0-0");

@@ -50,6 +50,22 @@ func TestValue_Match(t *testing.T) {
 	res = nil
 	(&Value{t: TypeBool}).Match(Match{Default: func() { res = "default" }})
 	assert.Equal(t, "default", res)
+
+	res = nil
+	g := `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`
+	(&Value{t: TypeGeometryObject, v: g}).Match(Match{GeometryObject: func(v string) { res = v }})
+	assert.Equal(t, g, res)
+
+	res = nil
+	ge := `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`
+	(&Value{t: TypeGeometryEditor, v: ge}).Match(Match{GeometryEditor: func(v string) { res = v }})
+	assert.Equal(t, ge, res)
 }
 
 func TestOptional_Match(t *testing.T) {

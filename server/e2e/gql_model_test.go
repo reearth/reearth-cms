@@ -1,12 +1,12 @@
 package e2e
 
 import (
-	"github.com/samber/lo"
 	"net/http"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/samber/lo"
 )
 
 func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *httpexpect.Value) {
@@ -315,7 +315,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 }
 
 func TestCreateModel(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -331,7 +331,7 @@ func TestCreateModel(t *testing.T) {
 
 }
 func TestUpdateModel(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
 
@@ -347,7 +347,7 @@ func TestUpdateModel(t *testing.T) {
 }
 
 func TestUpdateModelsOrder(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
 

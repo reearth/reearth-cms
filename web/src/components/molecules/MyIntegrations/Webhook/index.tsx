@@ -3,13 +3,16 @@ import { useCallback, useState } from "react";
 import {
   Integration,
   WebhookTrigger,
+  WebhookValues,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookList";
 
-export type Props = {
+type Props = {
   integration: Integration;
-  webhookInitialValues?: any;
+  webhookInitialValues?: WebhookValues;
+  createWebhookLoading: boolean;
+  updateWebhookLoading: boolean;
   onWebhookCreate: (data: {
     name: string;
     url: string;
@@ -32,6 +35,8 @@ export type Props = {
 const Webhook: React.FC<Props> = ({
   integration,
   webhookInitialValues,
+  createWebhookLoading,
+  updateWebhookLoading,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
@@ -72,10 +77,11 @@ const Webhook: React.FC<Props> = ({
 
   return showWebhookForm ? (
     <WebhookForm
+      webhookInitialValues={webhookInitialValues}
+      loading={createWebhookLoading || updateWebhookLoading}
       onBack={handleBack}
       onWebhookCreate={handleWebhookCreate}
       onWebhookUpdate={onWebhookUpdate}
-      webhookInitialValues={webhookInitialValues}
     />
   ) : (
     <WebhookList

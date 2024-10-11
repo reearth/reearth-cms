@@ -10,7 +10,7 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
   ConditionInput,
@@ -19,18 +19,18 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  commentsPanel?: JSX.Element;
+  commentsPanel: JSX.Element;
   viewsMenu: JSX.Element;
-  collapsed?: boolean;
+  collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];
-  itemsDataLoading: boolean;
+  loading: boolean;
+  deleteLoading: boolean;
+  unpublishLoading: boolean;
   contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
-  selectedItem: Item | undefined;
-  selection: {
-    selectedRowKeys: string[];
-  };
+  selectedItem?: Item;
+  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
   totalCount: number;
   currentView: CurrentView;
   searchTerm: string;
@@ -47,7 +47,7 @@ type Props = {
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;
@@ -55,7 +55,7 @@ type Props = {
   onItemDelete: (itemIds: string[]) => Promise<void>;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequest: (request: Request, items: RequestItem[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
@@ -70,9 +70,11 @@ const ContentListMolecule: React.FC<Props> = ({
   contentTableFields,
   contentTableColumns,
   modelsMenu,
-  itemsDataLoading,
+  loading,
+  deleteLoading,
+  unpublishLoading,
   selectedItem,
-  selection,
+  selectedItems,
   totalCount,
   currentView,
   searchTerm,
@@ -93,7 +95,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onSearchTerm,
   onFilterChange,
   onContentTableChange,
-  setSelection,
+  setSelectedItems,
   onItemSelect,
   onCollapse,
   onItemAdd,
@@ -119,55 +121,61 @@ const ContentListMolecule: React.FC<Props> = ({
       }
       center={
         <Content>
-          <StyledPageHeder
-            title={model?.name}
-            subTitle={model?.key ? `#${model.key}` : null}
-            extra={
-              <Button
-                type="primary"
-                onClick={onItemAdd}
-                icon={<Icon icon="plus" />}
-                disabled={!model}>
-                {t("New Item")}
-              </Button>
-            }
-          />
-          {viewsMenu}
-          <ContentTable
-            totalCount={totalCount}
-            currentView={currentView}
-            searchTerm={searchTerm}
-            page={page}
-            pageSize={pageSize}
-            loading={itemsDataLoading}
-            selectedItem={selectedItem}
-            selection={selection}
-            onUnpublish={onUnpublish}
-            onSearchTerm={onSearchTerm}
-            onFilterChange={onFilterChange}
-            onContentTableChange={onContentTableChange}
-            setSelection={setSelection}
-            onItemSelect={onItemSelect}
-            onItemsReload={onItemsReload}
-            onItemEdit={onItemEdit}
-            contentTableFields={contentTableFields}
-            contentTableColumns={contentTableColumns}
-            onItemDelete={onItemDelete}
-            requests={requests}
-            addItemToRequestModalShown={addItemToRequestModalShown}
-            onAddItemToRequest={onAddItemToRequest}
-            onAddItemToRequestModalClose={onAddItemToRequestModalClose}
-            onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
-            onRequestTableChange={onRequestTableChange}
-            requestModalLoading={requestModalLoading}
-            requestModalTotalCount={requestModalTotalCount}
-            requestModalPage={requestModalPage}
-            requestModalPageSize={requestModalPageSize}
-            setCurrentView={setCurrentView}
-            modelKey={model?.key}
-            onRequestSearchTerm={onRequestSearchTerm}
-            onRequestTableReload={onRequestTableReload}
-          />
+          {model && (
+            <>
+              <StyledPageHeder
+                title={model?.name}
+                subTitle={model?.key ? `#${model.key}` : null}
+                extra={
+                  <Button
+                    type="primary"
+                    onClick={onItemAdd}
+                    icon={<Icon icon="plus" />}
+                    disabled={!model}>
+                    {t("New Item")}
+                  </Button>
+                }
+              />
+              {viewsMenu}
+              <ContentTable
+                totalCount={totalCount}
+                currentView={currentView}
+                searchTerm={searchTerm}
+                page={page}
+                pageSize={pageSize}
+                loading={loading}
+                deleteLoading={deleteLoading}
+                unpublishLoading={unpublishLoading}
+                selectedItem={selectedItem}
+                selectedItems={selectedItems}
+                onUnpublish={onUnpublish}
+                onSearchTerm={onSearchTerm}
+                onFilterChange={onFilterChange}
+                onContentTableChange={onContentTableChange}
+                setSelectedItems={setSelectedItems}
+                onItemSelect={onItemSelect}
+                onItemsReload={onItemsReload}
+                onItemEdit={onItemEdit}
+                contentTableFields={contentTableFields}
+                contentTableColumns={contentTableColumns}
+                onItemDelete={onItemDelete}
+                requests={requests}
+                addItemToRequestModalShown={addItemToRequestModalShown}
+                onAddItemToRequest={onAddItemToRequest}
+                onAddItemToRequestModalClose={onAddItemToRequestModalClose}
+                onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
+                onRequestTableChange={onRequestTableChange}
+                requestModalLoading={requestModalLoading}
+                requestModalTotalCount={requestModalTotalCount}
+                requestModalPage={requestModalPage}
+                requestModalPageSize={requestModalPageSize}
+                setCurrentView={setCurrentView}
+                modelKey={model?.key}
+                onRequestSearchTerm={onRequestSearchTerm}
+                onRequestTableReload={onRequestTableReload}
+              />
+            </>
+          )}
         </Content>
       }
       right={commentsPanel}

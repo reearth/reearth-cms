@@ -1,33 +1,35 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useState, ChangeEvent } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 
-const { TextArea } = Input;
-
 type EditorProps = {
+  isInputDisabled: boolean;
   onCommentCreate: (content: string) => Promise<void>;
-  disabled: boolean;
 };
 
-const Editor: React.FC<EditorProps> = ({ disabled, onCommentCreate }) => {
+const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [form] = Form.useForm();
   const t = useT();
 
+  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setIsSubmitDisabled(!e.target.value);
+  }, []);
+
   const handleSubmit = useCallback(async () => {
+    setSubmitting(true);
+    setIsSubmitDisabled(true);
     try {
-      setSubmitting(true);
       const values = await form.validateFields();
       await onCommentCreate?.(values.content);
       form.resetFields();
-      setSubmitting(false);
-    } catch (info) {
-      setSubmitting(false);
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsSubmitDisabled(false);
     } finally {
       setSubmitting(false);
     }
@@ -36,12 +38,17 @@ const Editor: React.FC<EditorProps> = ({ disabled, onCommentCreate }) => {
   return (
     <StyledForm form={form} layout="vertical">
       <Form.Item name="content">
-        <TextArea maxLength={1000} showCount autoSize={{ maxRows: 4 }} />
+        <TextArea
+          maxLength={1000}
+          showCount
+          autoSize={{ maxRows: 4 }}
+          onChange={handleChange}
+          disabled={isInputDisabled}
+        />
       </Form.Item>
       <StyledFormItem>
         <Button
-          disabled={disabled}
-          htmlType="submit"
+          disabled={isSubmitDisabled}
           loading={submitting}
           onClick={handleSubmit}
           type="primary"

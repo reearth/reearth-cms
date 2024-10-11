@@ -27,6 +27,7 @@ func TestGroup_Clone(t *testing.T) {
 				name:        "n1",
 				description: "d1",
 				key:         key.New("123456"),
+				order:       1,
 			},
 		},
 		{
@@ -52,6 +53,7 @@ func TestGroup_Clone(t *testing.T) {
 			assert.NotSame(t, tt.group.name, c.name)
 			assert.NotSame(t, tt.group.description, c.description)
 			assert.NotSame(t, tt.group.key, c.key)
+			assert.NotSame(t, tt.group.order, c.order)
 		})
 	}
 }
@@ -333,4 +335,10 @@ func TestGroup_SetName(t *testing.T) {
 			assert.Equal(t, tt.want, m)
 		})
 	}
+}
+
+func TestGroup_SetOrder(t *testing.T) {
+	g := &Group{order: 3}
+	g.SetOrder(1)
+	assert.Equal(t, 1, g.Order())
 }
