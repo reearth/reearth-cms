@@ -24,7 +24,7 @@ jobs:
 
       - name: changed files for server
         id: server
-        uses: tj-actions/changed-files@v36
+        uses: tj-actions/changed-files@v45
         with:
           files: |
             server
