@@ -154,16 +154,16 @@ export default () => {
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
   const [createNewItem] = useCreateItemMutation();
 
-  const itemIdToMetadata = useMemo(() => new Map<string, Metadata>(), []);
+  const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
     async (id: string) => {
       const { data } = await getItem({ variables: { id } });
       const item = fromGraphQLItem(data?.node as GQLItem);
       if (item) {
-        itemIdToMetadata.set(id, item.metadata);
+        itemIdToMetadata.current.set(id, item.metadata);
       }
     },
-    [getItem, itemIdToMetadata],
+    [getItem],
   );
 
   const handleMetaItemUpdate = useCallback(
@@ -178,7 +178,7 @@ export default () => {
         Notification.error({ message: t("Failed to update item.") });
         return;
       } else {
-        const metadata = itemIdToMetadata.get(updateItemId) ?? target.metadata;
+        const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
         if (metadata?.fields && metadata.id) {
           const fields = metadata.fields.map(field => {
             if (field.schemaFieldId === key) {
@@ -243,10 +243,9 @@ export default () => {
     [
       createNewItem,
       currentModel?.id,
-      currentModel?.metadataSchema?.fields,
-      currentModel?.metadataSchema?.id,
+      currentModel?.metadataSchema.fields,
+      currentModel?.metadataSchema.id,
       data?.searchItem.nodes,
-      itemIdToMetadata,
       metadataVersionSet,
       t,
       updateItemMutation,
