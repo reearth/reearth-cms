@@ -231,7 +231,7 @@ export default () => {
   }, [currentModel?.id, currentProject?.id, currentWorkspace?.id, location.state, navigate]);
 
   const [createItem, { loading: itemCreationLoading }] = useCreateItemMutation({
-    refetchQueries: ["SearchItem", "GetRequests"],
+    refetchQueries: ["GetRequests"],
   });
 
   const handleItemCreate = useCallback(
