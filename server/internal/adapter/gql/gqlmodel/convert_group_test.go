@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/group"
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +14,7 @@ func TestToGroup(t *testing.T) {
 	mId := group.NewID()
 	pId := project.NewID()
 	sId := schema.NewID()
-	k := key.Random()
+	k := id.RandomKey()
 	tests := []struct {
 		name  string
 		group *group.Group

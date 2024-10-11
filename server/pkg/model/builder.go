@@ -4,12 +4,11 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 )
 
 type Builder struct {
 	model *Model
-	k     key.Key
+	k     id.Key
 }
 
 func New() *Builder {
@@ -75,13 +74,13 @@ func (b *Builder) Description(description string) *Builder {
 	return b
 }
 
-func (b *Builder) Key(key key.Key) *Builder {
+func (b *Builder) Key(key id.Key) *Builder {
 	b.k = key
 	return b
 }
 
 func (b *Builder) RandomKey() *Builder {
-	b.k = key.Random()
+	b.k = id.RandomKey()
 	return b
 }
 

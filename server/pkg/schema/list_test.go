@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,8 +43,8 @@ func TestList_Schema(t *testing.T) {
 func TestList_Fields(t *testing.T) {
 	id1 := NewID()
 	id2 := NewID()
-	f1 := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	f2 := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	f1 := NewField(NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	f2 := NewField(NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 
 	list := List{
 		&Schema{id: id2, fields: FieldList{f2}},
@@ -126,8 +125,8 @@ func TestFieldList_Ordered(t *testing.T) {
 }
 
 func TestFieldList_Find(t *testing.T) {
-	f := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	f2 := NewField(NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	f := NewField(NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	f2 := NewField(NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	assert.Equal(t, f, FieldList{f, f2}.Find(f.ID()))
 	assert.Equal(t, f2, FieldList{f, f2}.Find(f2.ID()))
 	assert.Nil(t, FieldList{f, f2}.Find(NewFieldID()))

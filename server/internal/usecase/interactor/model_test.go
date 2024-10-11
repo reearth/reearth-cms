@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -23,9 +22,9 @@ import (
 func TestModel_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewModelID()
-	m1 := model.New().ID(id1).Key(key.Random()).Schema(sid).Project(id.NewProjectID()).MustBuild()
+	m1 := model.New().ID(id1).Key(id.RandomKey()).Schema(sid).Project(id.NewProjectID()).MustBuild()
 	id2 := id.NewModelID()
-	m2 := model.New().ID(id2).Key(key.Random()).Schema(sid).Project(id.NewProjectID()).MustBuild()
+	m2 := model.New().ID(id2).Key(id.RandomKey()).Schema(sid).Project(id.NewProjectID()).MustBuild()
 
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -133,7 +132,7 @@ func TestModel_CheckKey(t *testing.T) {
 			name: "with different key",
 			seeds: seeds{
 				model: []*model.Model{
-					model.New().NewID().Key(key.Random()).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
+					model.New().NewID().Key(id.RandomKey()).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
 				},
 			},
 			args: args{
@@ -148,7 +147,7 @@ func TestModel_CheckKey(t *testing.T) {
 			name: "with same key",
 			seeds: seeds{
 				model: []*model.Model{
-					model.New().NewID().Key(key.New("test123")).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
+					model.New().NewID().Key(id.NewKey("test123")).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
 				},
 			},
 			args: args{
@@ -163,7 +162,7 @@ func TestModel_CheckKey(t *testing.T) {
 			name: "with same key different project",
 			seeds: seeds{
 				model: []*model.Model{
-					model.New().NewID().Key(key.New("test123")).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
+					model.New().NewID().Key(id.NewKey("test123")).Project(pId).Schema(id.NewSchemaID()).MustBuild(),
 				},
 			},
 			args: args{

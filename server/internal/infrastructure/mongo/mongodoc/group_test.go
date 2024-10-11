@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/group"
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +32,7 @@ func TestGroupDocument_Group(t *testing.T) {
 			want: group.New().ID(mId).
 				Name("abc").
 				Description("xyz").
-				Key(key.New("mmm123")).
+				Key(id.NewKey("mmm123")).
 				Project(pId).
 				Schema(sId).
 				Order(1).
@@ -110,7 +110,7 @@ func TestNewGroup(t *testing.T) {
 			args: group.New().ID(mId).
 				Name("abc").
 				Description("xyz").
-				Key(key.New("mmm123")).
+				Key(id.NewKey("mmm123")).
 				Project(pId).
 				Schema(sId).
 				Order(1).
