@@ -1,4 +1,4 @@
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -38,15 +38,34 @@ export default (
   const t = useT();
   const [form] = Form.useForm();
 
+  const defaultValueGet = useCallback(() => {
+    switch (filter.type) {
+      case "Select":
+      case "Tag":
+      case "Person":
+      case "Bool":
+      case "Checkbox":
+        return defaultValue?.value?.toString();
+      case "Date":
+        return defaultValue && defaultValue.value !== "" ? dayjs(defaultValue.value) : undefined;
+      default:
+        return defaultValue?.value;
+    }
+  }, [defaultValue, filter.type]);
+
   useEffect(() => {
-    if (open && !defaultValue) {
-      form.resetFields();
-      setIsShowInputField(true);
-      if (!isFilter && filterOption.current) {
-        filterOption.current.value = "ASC";
+    if (open) {
+      if (defaultValue) {
+        form.setFieldsValue({ condition: defaultValue.operator, value: defaultValueGet() });
+      } else {
+        form.resetFields();
+        setIsShowInputField(true);
+        if (!isFilter && filterOption.current) {
+          filterOption.current.value = "ASC";
+        }
       }
     }
-  }, [open, form, defaultValue, isFilter]);
+  }, [open, form, defaultValue, isFilter, defaultValueGet]);
 
   const options = useMemo(() => {
     const result: {
