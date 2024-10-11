@@ -76,7 +76,27 @@ func TestIntegrationModelUpdateAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	obj := e.PATCH(endpoint, mId1).
+	// update empty model
+	obj := e.PATCH(endpoint, mId0).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"name":        "M0 updated",
+			"description": "M0 desc updated",
+			"key":         "M0KeyUpdated",
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	obj.
+		ContainsKey("id").
+		ContainsKey("schemaId").
+		HasValue("projectId", pid).
+		HasValue("name", "M0 updated").
+		HasValue("description", "M0 desc updated").
+		HasValue("key", "M0KeyUpdated")
+
+	obj = e.PATCH(endpoint, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"name":        "newM1 updated",
@@ -187,12 +207,22 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 			Object().
 			HasValue("page", 1).
 			HasValue("perPage", 10).
-			HasValue("totalCount", 5).
+			HasValue("totalCount", 6).
 			Value("models").
 			Array()
-		models.Length().IsEqual(5)
+		models.Length().IsEqual(6)
 
-		obj1 := models.Value(0).Object()
+		obj0 := models.Value(0).Object()
+		obj0.
+			HasValue("id", mId0.String()).
+			HasValue("name", "m0").
+			HasValue("description", "m0 desc").
+			HasValue("public", true).
+			HasValue("key", ikey0.String()).
+			HasValue("projectId", pid).
+			HasValue("schemaId", sid0)
+
+		obj1 := models.Value(1).Object()
 		obj1.
 			HasValue("id", mId1.String()).
 			HasValue("name", "m1").
@@ -206,7 +236,7 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 		obj1.Value("updatedAt").NotNull()
 		obj1.Value("lastModified").NotNull()
 
-		obj2 := models.Value(1).Object()
+		obj2 := models.Value(2).Object()
 		obj2.
 			HasValue("id", mId2.String()).
 			HasValue("name", "m2").
