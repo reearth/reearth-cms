@@ -8,7 +8,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -28,13 +27,13 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	pid := id.NewProjectID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString, schema.GeometryObjectSupportedTypePolygon}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString, schema.GeometryEditorSupportedTypePolygon}
-	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(key.Random()).MustBuild()
-	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(key.Random()).Multiple(true).MustBuild()
-	sf3 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("Polygon").Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(id.RandomKey()).MustBuild()
+	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(id.RandomKey()).Multiple(true).MustBuild()
+	sf3 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("Polygon").Key(id.RandomKey()).MustBuild()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
 	tp4 := in4.TypeProperty()
-	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(key.Random()).MustBuild()
-	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(key.Random()).MustBuild()
+	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(id.RandomKey()).MustBuild()
+	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(id.RandomKey()).MustBuild()
 	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil)
 	fi2 := item.NewField(sf2.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
 	fi3 := item.NewField(sf3.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
@@ -114,8 +113,8 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 
 func TestExtractGeometry(t *testing.T) {
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString, schema.GeometryObjectSupportedTypePolygon}
-	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(key.Random()).MustBuild()
-	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(key.Random()).Multiple(true).MustBuild()
+	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(id.RandomKey()).MustBuild()
+	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(id.RandomKey()).Multiple(true).MustBuild()
 	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil)
 	fi2 := item.NewField(sf2.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
 
@@ -141,13 +140,13 @@ func TestExtractProperties(t *testing.T) {
 	pid := id.NewProjectID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString, schema.GeometryObjectSupportedTypePolygon}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString, schema.GeometryEditorSupportedTypePolygon}
-	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(key.Random()).MustBuild()
-	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(key.Random()).Multiple(true).MustBuild()
-	sf3 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("Polygon").Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(id.RandomKey()).MustBuild()
+	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(id.RandomKey()).Multiple(true).MustBuild()
+	sf3 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("Polygon").Key(id.RandomKey()).MustBuild()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
 	tp4 := in4.TypeProperty()
-	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(key.Random()).MustBuild()
-	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(key.Random()).MustBuild()
+	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(id.RandomKey()).MustBuild()
+	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(id.RandomKey()).MustBuild()
 	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil)
 	fi2 := item.NewField(sf2.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
 	fi3 := item.NewField(sf3.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
@@ -223,7 +222,7 @@ func TestStringToGeometry(t *testing.T) {
 }
 
 func TestToGeoJSONProp(t *testing.T) {
-	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
 	s1, ok1 := ToGeoJSONProp(if1)
 	assert.Equal(t, "test", s1)
@@ -234,7 +233,7 @@ func TestToGeoJSONProp(t *testing.T) {
 	assert.Empty(t, s2)
 	assert.False(t, ok2)
 
-	sf3 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf3 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if3 := item.NewField(sf3.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
 	s3, ok3 := ToGeoJSONProp(if3)
 	assert.Equal(t, []any{"a", "b", "c"}, s3)
@@ -242,26 +241,26 @@ func TestToGeoJSONProp(t *testing.T) {
 }
 
 func TestToGeoJsonSingleValue(t *testing.T) {
-	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if1 := item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)
 	s1, ok1 := ToGeoJsonSingleValue(if1.Value().First())
 	assert.Equal(t, "test", s1)
 	assert.True(t, ok1)
 
-	sf2 := schema.NewField(schema.NewTextArea(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf2 := schema.NewField(schema.NewTextArea(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if2 := item.NewField(sf2.ID(), value.TypeTextArea.Value("test").AsMultiple(), nil)
 	s2, ok2 := ToGeoJsonSingleValue(if2.Value().First())
 	assert.Equal(t, "test", s2)
 	assert.True(t, ok2)
 
-	sf3 := schema.NewField(schema.NewURL().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf3 := schema.NewField(schema.NewURL().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	v3 := url.URL{Scheme: "https", Host: "reearth.io"}
 	if3 := item.NewField(sf3.ID(), value.TypeURL.Value(v3).AsMultiple(), nil)
 	s3, ok3 := ToGeoJsonSingleValue(if3.Value().First())
 	assert.Equal(t, "https://reearth.io", s3)
 	assert.True(t, ok3)
 
-	sf4 := schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf4 := schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(id.NewAssetID()).AsMultiple(), nil)
 	s4, ok4 := ToGeoJsonSingleValue(if4.Value().First())
 	assert.Empty(t, s4)
@@ -269,14 +268,14 @@ func TestToGeoJsonSingleValue(t *testing.T) {
 
 	gid := id.NewGroupID()
 	igid := id.NewItemGroupID()
-	sf5 := schema.NewField(schema.NewGroup(gid).TypeProperty()).NewID().Key(key.Random()).Multiple(true).MustBuild()
+	sf5 := schema.NewField(schema.NewGroup(gid).TypeProperty()).NewID().Key(id.RandomKey()).Multiple(true).MustBuild()
 	if5 := item.NewField(sf5.ID(), value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(igid)}), nil)
 	s5, ok5 := ToGeoJsonSingleValue(if5.Value().First())
 	assert.Empty(t, s5)
 	assert.False(t, ok5)
 
 	v6 := id.NewItemID()
-	sf6 := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf6 := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	if6 := item.NewField(sf6.ID(), value.TypeReference.Value(v6).AsMultiple(), nil)
 	s6, ok6 := ToGeoJsonSingleValue(if6.Value().First())
 	assert.Empty(t, s6)
@@ -285,7 +284,7 @@ func TestToGeoJsonSingleValue(t *testing.T) {
 	v7 := int64(30)
 	in7, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
 	tp7 := in7.TypeProperty()
-	sf7 := schema.NewField(tp7).NewID().Name("age").Key(key.Random()).MustBuild()
+	sf7 := schema.NewField(tp7).NewID().Name("age").Key(id.RandomKey()).MustBuild()
 	if7 := item.NewField(sf7.ID(), value.TypeInteger.Value(v7).AsMultiple(), nil)
 	s7, ok7 := ToGeoJsonSingleValue(if7.Value().First())
 	assert.Equal(t, int64(30), s7)
@@ -294,21 +293,21 @@ func TestToGeoJsonSingleValue(t *testing.T) {
 	v8 := float64(30.123)
 	in8, _ := schema.NewNumber(lo.ToPtr(float64(1)), lo.ToPtr(float64(100)))
 	tp8 := in8.TypeProperty()
-	sf8 := schema.NewField(tp8).NewID().Name("age").Key(key.Random()).MustBuild()
+	sf8 := schema.NewField(tp8).NewID().Name("age").Key(id.RandomKey()).MustBuild()
 	if8 := item.NewField(sf8.ID(), value.TypeNumber.Value(v8).AsMultiple(), nil)
 	s8, ok8 := ToGeoJsonSingleValue(if8.Value().First())
 	assert.Equal(t, 30.123, s8)
 	assert.True(t, ok8)
 
 	v9 := true
-	sf9 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
+	sf9 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("age").Key(id.RandomKey()).MustBuild()
 	if9 := item.NewField(sf9.ID(), value.TypeBool.Value(v9).AsMultiple(), nil)
 	s9, ok9 := ToGeoJsonSingleValue(if9.Value().First())
 	assert.Equal(t, true, s9)
 	assert.True(t, ok9)
 
 	v10 := time.Now()
-	sf10 := schema.NewField(schema.NewDateTime().TypeProperty()).NewID().Name("age").Key(key.Random()).MustBuild()
+	sf10 := schema.NewField(schema.NewDateTime().TypeProperty()).NewID().Name("age").Key(id.RandomKey()).MustBuild()
 	if10 := item.NewField(sf10.ID(), value.TypeDateTime.Value(v10).AsMultiple(), nil)
 	s10, ok10 := ToGeoJsonSingleValue(if10.Value().First())
 	assert.Equal(t, v10.Format(time.RFC3339), s10)
