@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -70,7 +69,7 @@ func TestField_Clone(t *testing.T) {
 		id:           NewFieldID(),
 		name:         "a",
 		description:  "b",
-		key:          key.Random(),
+		key:          id.RandomKey(),
 		unique:       true,
 		multiple:     true,
 		required:     true,
@@ -131,7 +130,7 @@ func TestField_SetOrder(t *testing.T) {
 
 func TestField_SetKey(t *testing.T) {
 	f := &Field{}
-	k := key.Random()
+	k := id.RandomKey()
 	assert.NoError(t, f.SetKey(k))
 	assert.Equal(t, &Field{key: k}, f)
 	assert.Equal(t, k, f.Key())
@@ -139,7 +138,7 @@ func TestField_SetKey(t *testing.T) {
 	assert.Equal(t, &rerror.Error{
 		Label: ErrInvalidKey,
 		Err:   fmt.Errorf("%s", ""),
-	}, f.SetKey(key.New("")))
+	}, f.SetKey(id.NewKey("")))
 }
 
 func TestField_SetTypeProperty(t *testing.T) {

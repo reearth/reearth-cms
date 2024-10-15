@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
@@ -87,7 +86,7 @@ func (s *Schema) Field(fId FieldID) *Field {
 	return f
 }
 
-func (s *Schema) FieldByIDOrKey(fId *FieldID, key *key.Key) *Field {
+func (s *Schema) FieldByIDOrKey(fId *FieldID, key *id.Key) *Field {
 	if s == nil || s.fields == nil {
 		return nil
 	}

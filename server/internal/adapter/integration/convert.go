@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/usecasex"
@@ -53,9 +52,9 @@ func fromItemFieldParam(f integrationapi.Field, sf *schema.Field) interfaces.Ite
 		v = *f.Value
 	}
 
-	var k *key.Key
+	var k *id.Key
 	if f.Key != nil {
-		k = key.New(*f.Key).Ref()
+		k = id.NewKey(*f.Key).Ref()
 	}
 
 	return interfaces.ItemFieldParam{
