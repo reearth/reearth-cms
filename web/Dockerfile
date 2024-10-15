@@ -34,6 +34,17 @@ ENV PORT=8080
 # Ref: https://cloud.google.com/load-balancing/docs/https#target-proxies
 ENV REAL_IP_HEADER=X-Forwarded-For
 
+# Default values.
+# Cesium Ion access token is not a secret.
+ENV REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN=null
+
+# All values in reearth_config.json must have a default value.
+ENV REEARTH_CMS_API=null
+ENV REEARTH_CMS_COVER_IMAGE_URL=null
+ENV REEARTH_CMS_EDITOR_URL=null
+ENV REEARTH_CMS_LOGO_URL=null
+ENV REEARTH_CMS_MULTI_TENANT=null
+
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 COPY --chown=nginx:nginx docker/nginx.conf.template /etc/nginx/templates/nginx.conf.template 
 COPY --chown=nginx:nginx docker/40-envsubst-on-reearth-config.sh /docker-entrypoint.d

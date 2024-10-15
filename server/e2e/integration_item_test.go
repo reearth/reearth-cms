@@ -39,6 +39,7 @@ var (
 	wId0   = accountdomain.NewWorkspaceID()
 	uId    = accountdomain.NewUserID()
 	iId    = id.NewIntegrationID()
+	mId0   = id.NewModelID()
 	mId1   = id.NewModelID()
 	mId2   = id.NewModelID()
 	mId3   = id.NewModelID()
@@ -72,7 +73,9 @@ var (
 	ikey2  = key.Random()
 	ikey3  = key.Random()
 	ikey4  = key.Random()
+	ikey0  = id.RandomKey()
 	pid    = id.NewProjectID()
+	sid0   = id.NewSchemaID()
 	sid1   = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
 	sid3   = id.NewSchemaID()
@@ -153,6 +156,11 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	sf3 := schema.NewField(schema.NewReference(mId1, sid1, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId4).Key(sfKey4).MustBuild()
 
+	s0 := schema.New().ID(sid0).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{}).MustBuild()
+	if err := r.Schema.Save(ctx, s0); err != nil {
+		return err
+	}
+
 	s1 := schema.New().ID(sid1).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf1, sf2}).TitleField(sf1.ID().Ref()).MustBuild()
 	if err := r.Schema.Save(ctx, s1); err != nil {
 		return err
@@ -165,6 +173,19 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 
 	s3 := schema.New().ID(sid3).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf4}).MustBuild()
 	if err := r.Schema.Save(ctx, s3); err != nil {
+		return err
+	}
+
+	m0 := model.New().
+		ID(mId0).
+		Name("m0").
+		Description("m0 desc").
+		Public(true).
+		Key(ikey0).
+		Project(p.ID()).
+		Schema(s0.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m0); err != nil {
 		return err
 	}
 
