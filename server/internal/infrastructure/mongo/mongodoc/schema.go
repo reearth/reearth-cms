@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -329,7 +328,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			Order(fd.Order).
 			Required(fd.Required).
 			Description(fd.Description).
-			Key(key.New(fd.Key)).
+			Key(id.NewKey(fd.Key)).
 			UpdatedAt(fd.UpdatedAt).
 			DefaultValue(fd.DefaultValue.MultipleValue()).
 			Build()

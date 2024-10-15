@@ -2,10 +2,10 @@ package model
 
 import (
 	"fmt"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/exp/slices"
@@ -23,7 +23,7 @@ type Model struct {
 	metadata    *SchemaID
 	name        string
 	description string
-	key         key.Key
+	key         id.Key
 	public      bool
 	updatedAt   time.Time
 	order       int
@@ -65,11 +65,11 @@ func (p *Model) SetDescription(description string) {
 	p.description = description
 }
 
-func (p *Model) Key() key.Key {
+func (p *Model) Key() id.Key {
 	return p.key
 }
 
-func (p *Model) SetKey(key key.Key) error {
+func (p *Model) SetKey(key id.Key) error {
 	if !validateModelKey(key) {
 		return &rerror.Error{
 			Label: ErrInvalidKey,
@@ -129,7 +129,7 @@ func (p *Model) Clone() *Model {
 	}
 }
 
-func validateModelKey(k key.Key) bool {
+func validateModelKey(k id.Key) bool {
 	// assets is used as an API endpoint
-	return k.IsValid() && len(k.String()) > 2 && !slices.Contains(ngKeys, k.String())
+	return k.IsURLCompatible() && len(k.String()) > 2 && !slices.Contains(ngKeys, k.String())
 }

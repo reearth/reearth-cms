@@ -1,11 +1,11 @@
 package mongodoc
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/model"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/mongox"
 )
 
@@ -71,7 +71,7 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 		Name(d.Name).
 		Description(d.Description).
 		UpdatedAt(d.UpdatedAt).
-		Key(key.New(d.Key)).
+		Key(id.NewKey(d.Key)).
 		Public(d.Public).
 		Project(pId).
 		Metadata(id.SchemaIDFromRef(d.Metadata)).
