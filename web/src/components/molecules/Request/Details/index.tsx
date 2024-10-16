@@ -8,10 +8,16 @@ import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
   me?: User;
+  hasCommentCreateRight: boolean;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   isCloseActionEnabled: boolean;
+  isReopenActionEnabled: boolean;
   isApproveActionEnabled: boolean;
+  isAssignActionEnabled: boolean;
   currentRequest?: Request;
   workspaceUserMembers: UserMember[];
+  loading: boolean;
   deleteLoading: boolean;
   approveLoading: boolean;
   updateLoading: boolean;
@@ -23,17 +29,22 @@ type Props = {
   onCommentDelete: (commentId: string) => Promise<void>;
   onBack: () => void;
   onNavigateToItemEdit: (modelId: string, itemId: string) => void;
-  loading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const RequestDetailsMolecule: React.FC<Props> = ({
   me,
+  hasCommentCreateRight,
+  hasCommentUpdateRight,
+  hasCommentDeleteRight,
   isCloseActionEnabled,
+  isReopenActionEnabled,
   isApproveActionEnabled,
+  isAssignActionEnabled,
   currentRequest,
   workspaceUserMembers,
+  loading,
   deleteLoading,
   approveLoading,
   updateLoading,
@@ -45,7 +56,6 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onCommentDelete,
   onBack,
   onNavigateToItemEdit,
-  loading,
   onGetAsset,
   onGroupGet,
 }) => {
@@ -54,8 +64,13 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   ) : currentRequest ? (
     <RequestMolecule
       me={me}
+      hasCommentCreateRight={hasCommentCreateRight}
+      hasCommentUpdateRight={hasCommentUpdateRight}
+      hasCommentDeleteRight={hasCommentDeleteRight}
       isCloseActionEnabled={isCloseActionEnabled}
+      isReopenActionEnabled={isReopenActionEnabled}
       isApproveActionEnabled={isApproveActionEnabled}
+      isAssignActionEnabled={isAssignActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
       deleteLoading={deleteLoading}

@@ -158,7 +158,7 @@ test("Schema reordering has succeeded", async ({ page }) => {
   );
   await page
     .getByLabel("Fields")
-    .locator(".draggable-item")
+    .locator(".grabbable")
     .nth(1)
     .dragTo(page.getByLabel("Fields").locator(".draggable-item").nth(0));
   await closeNotification(page);

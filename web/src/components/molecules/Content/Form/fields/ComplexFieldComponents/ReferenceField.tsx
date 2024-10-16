@@ -15,7 +15,7 @@ type ReferenceFieldProps = {
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  disabled?: boolean;
+  disabled: boolean;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm?: (term?: string) => void;
   onLinkItemTableReload?: () => void;

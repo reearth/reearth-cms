@@ -7,8 +7,13 @@ import useHooks from "./hooks";
 const RequestDetails: React.FC = () => {
   const {
     me,
+    hasCommentCreateRight,
+    hasCommentUpdateRight,
+    hasCommentDeleteRight,
     isCloseActionEnabled,
+    isReopenActionEnabled,
     isApproveActionEnabled,
+    isAssignActionEnabled,
     currentRequest,
     loading,
     deleteLoading,
@@ -30,10 +35,16 @@ const RequestDetails: React.FC = () => {
   return (
     <RequestDetailsMolecule
       me={me}
+      hasCommentCreateRight={hasCommentCreateRight}
+      hasCommentUpdateRight={hasCommentUpdateRight}
+      hasCommentDeleteRight={hasCommentDeleteRight}
       isCloseActionEnabled={isCloseActionEnabled}
+      isReopenActionEnabled={isReopenActionEnabled}
       isApproveActionEnabled={isApproveActionEnabled}
+      isAssignActionEnabled={isAssignActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
+      loading={loading}
       deleteLoading={deleteLoading}
       approveLoading={approveLoading}
       updateLoading={updateRequestLoading}
@@ -45,7 +56,6 @@ const RequestDetails: React.FC = () => {
       onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
       onNavigateToItemEdit={handleNavigateToItemEdit}
-      loading={loading}
       onGetAsset={handleGetAsset}
       onGroupGet={handleGroupGet}
     />

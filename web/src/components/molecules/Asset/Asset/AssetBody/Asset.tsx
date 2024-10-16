@@ -42,6 +42,7 @@ type Props = {
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
+  hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
@@ -60,6 +61,7 @@ const AssetMolecule: React.FC<Props> = ({
   viewerType,
   displayUnzipFileList,
   decompressing,
+  hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
   onTypeChange,
@@ -182,13 +184,17 @@ const AssetMolecule: React.FC<Props> = ({
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
-          <PreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
+          <PreviewTypeSelect
+            value={selectedPreviewType}
+            onTypeChange={onTypeChange}
+            hasUpdateRight={hasUpdateRight}
+          />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
           <Space>
-            <UserAvatar username={asset.createdBy} shadow />
-            {asset.createdBy}
+            <UserAvatar username={asset.createdBy.name} shadow />
+            {asset.createdBy.name}
           </Space>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>

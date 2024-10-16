@@ -37,6 +37,8 @@ const Members: React.FC = () => {
     handleTableChange,
     loading,
     handleReload,
+    hasInviteRight,
+    hasRemoveRight,
   } = useHooks();
 
   return (
@@ -58,6 +60,8 @@ const Members: React.FC = () => {
         onTableChange={handleTableChange}
         loading={loading}
         onReload={handleReload}
+        hasInviteRight={hasInviteRight}
+        hasRemoveRight={hasRemoveRight}
       />
       {selectedMember && (
         <MemberRoleModal

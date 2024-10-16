@@ -1,14 +1,17 @@
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import DangerZone from "@reearth-cms/components/molecules/ProjectSettings/DangerZone";
 import ProjectGeneralForm from "@reearth-cms/components/molecules/ProjectSettings/GeneralForm";
 import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project, Role } from "../Workspace/types";
+import { Project } from "../Workspace/types";
 
 type Props = {
   project: Project;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
   onProjectDelete: () => Promise<void>;
@@ -17,6 +20,8 @@ type Props = {
 
 const ProjectSettings: React.FC<Props> = ({
   project,
+  hasUpdateRight,
+  hasDeleteRight,
   onProjectDelete,
   onProjectUpdate,
   onProjectRequestRolesUpdate,
@@ -29,6 +34,7 @@ const ProjectSettings: React.FC<Props> = ({
       <ContentSection title={t("General")}>
         <ProjectGeneralForm
           project={project}
+          hasUpdateRight={hasUpdateRight}
           onProjectUpdate={onProjectUpdate}
           onProjectAliasCheck={onProjectAliasCheck}
         />
@@ -36,10 +42,11 @@ const ProjectSettings: React.FC<Props> = ({
       <ContentSection title={t("Request")}>
         <ProjectRequestOptions
           project={project}
+          hasUpdateRight={hasUpdateRight}
           onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         />
       </ContentSection>
-      <DangerZone onProjectDelete={onProjectDelete} />
+      <DangerZone hasDeleteRight={hasDeleteRight} onProjectDelete={onProjectDelete} />
     </InnerContent>
   );
 };

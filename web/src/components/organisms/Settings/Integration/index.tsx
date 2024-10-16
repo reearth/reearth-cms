@@ -33,6 +33,9 @@ const Integration: React.FC = () => {
     handleTableChange,
     loading,
     handleReload,
+    hasConnectRight,
+    hasUpdateRight,
+    hasDeleteRight,
   } = useHooks(workspaceId);
 
   return (
@@ -51,6 +54,9 @@ const Integration: React.FC = () => {
         onTableChange={handleTableChange}
         loading={loading}
         onReload={handleReload}
+        hasConnectRight={hasConnectRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
       />
       <IntegrationConnectModal
         integrations={integrations}
