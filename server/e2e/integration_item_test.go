@@ -1450,7 +1450,7 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	createFieldOfEachType(t, e, mId)
 
-	jsonContent := `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2},{"text": "test3", "bool": null, "integer": null}]`
+	jsonContent := `[{"text": "test1", "bool": true, "number": 1.1},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
 	aId := UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
 	res := IntegrationModelImportJSON(e, mId, aId, "json", "insert", false, nil)
 	res.Object().IsEqual(map[string]any{
@@ -1573,7 +1573,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 	})
 
 	res := IntegrationItemsAsCSV(e, mId, 1, 10, i1Id, "", "", nil)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,,,,,\n", i1Id)
+	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
@@ -1593,7 +1593,7 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 	})
 
 	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10, i1Id, "", "", nil)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,30,,,,\n", i1Id)
+	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,30,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
