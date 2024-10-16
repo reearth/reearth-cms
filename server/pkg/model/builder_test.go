@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +19,7 @@ func TestNew(t *testing.T) {
 			name: "test",
 			want: &Builder{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 		},
 	}
@@ -41,7 +40,7 @@ func TestBuilder_Build(t *testing.T) {
 	now := time.Now()
 	type fields struct {
 		m *Model
-		k key.Key
+		k id.Key
 	}
 	tests := []struct {
 		name    string
@@ -58,12 +57,12 @@ func TestBuilder_Build(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					updatedAt:   now,
 					order:       2,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want: &Model{
 				id:          mId,
@@ -71,7 +70,7 @@ func TestBuilder_Build(t *testing.T) {
 				schema:      sId,
 				name:        "m1",
 				description: "m1 desc",
-				key:         key.New("T123456"),
+				key:         id.NewKey("T123456"),
 				public:      false,
 				updatedAt:   now,
 				order:       2,
@@ -87,11 +86,11 @@ func TestBuilder_Build(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					// updatedAt:   now,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want: &Model{
 				id:          mId,
@@ -99,7 +98,7 @@ func TestBuilder_Build(t *testing.T) {
 				schema:      sId,
 				name:        "m1",
 				description: "m1 desc",
-				key:         key.New("T123456"),
+				key:         id.NewKey("T123456"),
 				public:      false,
 				updatedAt:   mId.Timestamp(),
 			},
@@ -114,11 +113,11 @@ func TestBuilder_Build(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					updatedAt:   now,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want:    nil,
 			wantErr: ErrInvalidID,
@@ -132,11 +131,11 @@ func TestBuilder_Build(t *testing.T) {
 					// schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					updatedAt:   now,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want:    nil,
 			wantErr: ErrInvalidID,
@@ -150,7 +149,7 @@ func TestBuilder_Build(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					updatedAt:   now,
 				},
@@ -189,7 +188,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 	now := time.Now()
 	type fields struct {
 		m *Model
-		k key.Key
+		k id.Key
 	}
 	tests := []struct {
 		name    string
@@ -206,11 +205,11 @@ func TestBuilder_MustBuild(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					updatedAt:   now,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want: &Model{
 				id:          mId,
@@ -218,7 +217,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				schema:      sId,
 				name:        "m1",
 				description: "m1 desc",
-				key:         key.New("T123456"),
+				key:         id.NewKey("T123456"),
 				public:      false,
 				updatedAt:   now,
 			},
@@ -233,11 +232,11 @@ func TestBuilder_MustBuild(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					// updatedAt:   now,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want: &Model{
 				id:          mId,
@@ -245,7 +244,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				schema:      sId,
 				name:        "m1",
 				description: "m1 desc",
-				key:         key.New("T123456"),
+				key:         id.NewKey("T123456"),
 				public:      false,
 				updatedAt:   mId.Timestamp(),
 			},
@@ -260,11 +259,11 @@ func TestBuilder_MustBuild(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					updatedAt:   now,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want:    nil,
 			wantErr: ErrInvalidID,
@@ -278,11 +277,11 @@ func TestBuilder_MustBuild(t *testing.T) {
 					// schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					updatedAt:   now,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want:    nil,
 			wantErr: ErrInvalidID,
@@ -296,7 +295,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
 					public:      false,
 					updatedAt:   now,
 				},
@@ -333,7 +332,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 func TestBuilder_Description(t *testing.T) {
 	type fields struct {
 		model *Model
-		k     key.Key
+		k     id.Key
 	}
 	type args struct {
 		description string
@@ -348,7 +347,7 @@ func TestBuilder_Description(t *testing.T) {
 			name: "test",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
 				description: "d1",
@@ -357,7 +356,7 @@ func TestBuilder_Description(t *testing.T) {
 				model: &Model{
 					description: "d1",
 				},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}
@@ -379,7 +378,7 @@ func TestBuilder_ID(t *testing.T) {
 	mId := NewID()
 	type fields struct {
 		model *Model
-		k     key.Key
+		k     id.Key
 	}
 	type args struct {
 		id ID
@@ -394,7 +393,7 @@ func TestBuilder_ID(t *testing.T) {
 			name: "test",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
 				id: mId,
@@ -403,7 +402,7 @@ func TestBuilder_ID(t *testing.T) {
 				model: &Model{
 					id: mId,
 				},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}
@@ -424,7 +423,7 @@ func TestBuilder_ID(t *testing.T) {
 func TestBuilder_Public(t *testing.T) {
 	type fields struct {
 		model *Model
-		k     key.Key
+		k     id.Key
 	}
 	type args struct {
 		public bool
@@ -439,7 +438,7 @@ func TestBuilder_Public(t *testing.T) {
 			name: "test 1",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
 				public: true,
@@ -448,14 +447,14 @@ func TestBuilder_Public(t *testing.T) {
 				model: &Model{
 					public: true,
 				},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 		{
 			name: "test 2",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
 				public: false,
@@ -464,7 +463,7 @@ func TestBuilder_Public(t *testing.T) {
 				model: &Model{
 					public: false,
 				},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}
@@ -485,10 +484,10 @@ func TestBuilder_Public(t *testing.T) {
 func TestBuilder_Key(t *testing.T) {
 	type fields struct {
 		model *Model
-		k     key.Key
+		k     id.Key
 	}
 	type args struct {
-		key key.Key
+		key id.Key
 	}
 	tests := []struct {
 		name   string
@@ -500,14 +499,14 @@ func TestBuilder_Key(t *testing.T) {
 			name: "test 1",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
-				key: key.New("123321"),
+				key: id.NewKey("123321"),
 			},
 			want: &Builder{
 				model: &Model{},
-				k:     key.New("123321"),
+				k:     id.NewKey("123321"),
 			},
 		},
 	}
@@ -528,7 +527,7 @@ func TestBuilder_Key(t *testing.T) {
 func TestBuilder_Name(t *testing.T) {
 	type fields struct {
 		model *Model
-		k     key.Key
+		k     id.Key
 	}
 	type args struct {
 		name string
@@ -543,7 +542,7 @@ func TestBuilder_Name(t *testing.T) {
 			name: "test",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
 				name: "n1",
@@ -552,7 +551,7 @@ func TestBuilder_Name(t *testing.T) {
 				model: &Model{
 					name: "n1",
 				},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}
@@ -573,7 +572,7 @@ func TestBuilder_Name(t *testing.T) {
 func TestBuilder_NewID(t *testing.T) {
 	type fields struct {
 		p *Model
-		k key.Key
+		k id.Key
 	}
 	tests := []struct {
 		name   string
@@ -583,7 +582,7 @@ func TestBuilder_NewID(t *testing.T) {
 			name: "test",
 			fields: fields{
 				p: &Model{},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}
@@ -606,7 +605,7 @@ func TestBuilder_Project(t *testing.T) {
 	pId := id.NewProjectID()
 	type fields struct {
 		model *Model
-		k     key.Key
+		k     id.Key
 	}
 	type args struct {
 		p id.ProjectID
@@ -621,7 +620,7 @@ func TestBuilder_Project(t *testing.T) {
 			name: "test",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
 				p: pId,
@@ -630,7 +629,7 @@ func TestBuilder_Project(t *testing.T) {
 				model: &Model{
 					project: pId,
 				},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}
@@ -651,7 +650,7 @@ func TestBuilder_Project(t *testing.T) {
 func TestBuilder_RandomKey(t *testing.T) {
 	type fields struct {
 		p *Model
-		k key.Key
+		k id.Key
 	}
 	tests := []struct {
 		name   string
@@ -661,7 +660,7 @@ func TestBuilder_RandomKey(t *testing.T) {
 			name: "test",
 			fields: fields{
 				p: &Model{},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}
@@ -684,7 +683,7 @@ func TestBuilder_Schema(t *testing.T) {
 	sId := id.NewSchemaID()
 	type fields struct {
 		model *Model
-		k     key.Key
+		k     id.Key
 	}
 	type args struct {
 		s id.SchemaID
@@ -699,7 +698,7 @@ func TestBuilder_Schema(t *testing.T) {
 			name: "test",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
 				s: sId,
@@ -708,7 +707,7 @@ func TestBuilder_Schema(t *testing.T) {
 				model: &Model{
 					schema: sId,
 				},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}
@@ -730,7 +729,7 @@ func TestBuilder_UpdatedAt(t *testing.T) {
 	now := time.Now()
 	type fields struct {
 		model *Model
-		k     key.Key
+		k     id.Key
 	}
 	type args struct {
 		updatedAt time.Time
@@ -745,7 +744,7 @@ func TestBuilder_UpdatedAt(t *testing.T) {
 			name: "test",
 			fields: fields{
 				model: &Model{},
-				k:     key.Key{},
+				k:     id.Key{},
 			},
 			args: args{
 				updatedAt: now,
@@ -754,7 +753,7 @@ func TestBuilder_UpdatedAt(t *testing.T) {
 				model: &Model{
 					updatedAt: now,
 				},
-				k: key.Key{},
+				k: id.Key{},
 			},
 		},
 	}

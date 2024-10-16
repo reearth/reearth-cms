@@ -18,7 +18,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -69,26 +68,26 @@ var (
 	thId4  = id.NewThreadID()
 	thId5  = id.NewThreadID()
 	icId   = id.NewCommentID()
-	ikey1  = key.Random()
-	ikey2  = key.Random()
-	ikey3  = key.Random()
-	ikey4  = key.Random()
 	ikey0  = id.RandomKey()
+	ikey1  = id.RandomKey()
+	ikey2  = id.RandomKey()
+	ikey3  = id.RandomKey()
+	ikey4  = id.RandomKey()
 	pid    = id.NewProjectID()
 	sid0   = id.NewSchemaID()
 	sid1   = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
 	sid3   = id.NewSchemaID()
 	palias = "PROJECT_ALIAS"
-	sfKey1 = key.Random()
+	sfKey1 = id.RandomKey()
 	sfKey2 = id.NewKey("asset")
-	sfKey3 = key.Random()
-	sfKey4 = key.Random()
+	sfKey3 = id.RandomKey()
+	sfKey4 = id.RandomKey()
 	sfKey5 = id.NewKey("asset-key")
 	sfKey6 = id.NewKey("group-key")
 	sfKey7 = id.NewKey("geometry-key")
 	sfKey8 = id.NewKey("geometry-editor-key")
-	gKey1  = key.Random()
+	gKey1  = id.RandomKey()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
 	gId3   = id.NewItemGroupID()
@@ -380,28 +379,28 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	// endregion
 
 	// Default value
-	msf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewBool().TypeProperty().Type().Value(true).AsMultiple()).MustBuild()
+	msf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewBool().TypeProperty().Type().Value(true).AsMultiple()).MustBuild()
 	sm := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{msf1}).MustBuild()
 	if err := r.Schema.Save(ctx, sm); err != nil {
 		return err
 	}
-	gsf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default group").AsMultiple()).MustBuild()
+	gsf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default group").AsMultiple()).MustBuild()
 	gs := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{gsf}).MustBuild()
 	if err := r.Schema.Save(ctx, gs); err != nil {
 		return err
 	}
-	gp := group.New().NewID().Name("group2").Project(pid).Key(key.Random()).Schema(gs.ID()).MustBuild()
+	gp := group.New().NewID().Name("group2").Project(pid).Key(id.RandomKey()).Schema(gs.ID()).MustBuild()
 	if err := r.Group.Save(ctx, gp); err != nil {
 		return err
 	}
-	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(key.Random()).MustBuild()
-	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
-	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(id.RandomKey()).MustBuild()
+	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
+	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 
 	gst2 := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 
 	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
@@ -412,7 +411,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Name("dvm").
 		Description("dvm desc").
 		Public(true).
-		Key(key.Random()).
+		Key(id.RandomKey()).
 		Project(pid).
 		Schema(dvs1.ID()).
 		Metadata(sm.ID().Ref()).

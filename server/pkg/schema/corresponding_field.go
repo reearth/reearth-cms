@@ -2,7 +2,6 @@ package schema
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
@@ -20,7 +19,7 @@ func CreateCorrespondingField(sid id.SchemaID, mid id.ModelID, f *Field, inp Cor
 		Required(inp.Required).
 		Name(inp.Title).
 		Description(inp.Description).
-		Key(key.New(inp.Key)).
+		Key(id.NewKey(inp.Key)).
 		DefaultValue(nil).
 		Build()
 	if err != nil {

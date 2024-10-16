@@ -1,15 +1,14 @@
 package id
 
 import (
-	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/rerror"
 	"regexp"
-	"strings"
+	"slices"
 
 	"github.com/goombaio/namegenerator"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 var ErrInvalidKey = rerror.NewE(i18n.T("invalid key"))
@@ -25,9 +24,6 @@ type Key struct {
 }
 
 func NewKey(key string) Key {
-	if !keyRegexp.MatchString(key) {
-		return Key{}
-	}
 	k := Key{key}
 	return k
 }
@@ -42,7 +38,11 @@ func RandomKey() Key {
 }
 
 func (k Key) IsValid() bool {
-	return k.key != "" && !strings.HasPrefix(k.key, "_") && !strings.HasPrefix(k.key, "-") && !slices.Contains(ngKeys, k.key)
+	return k.key != "" && !slices.Contains(ngKeys, k.key) // && !strings.HasPrefix(k.key, "_") && !strings.HasPrefix(k.key, "-")
+}
+
+func (k Key) IsURLCompatible() bool {
+	return k.IsValid() && keyRegexp.MatchString(k.key)
 }
 
 func (k Key) Ref() *Key {

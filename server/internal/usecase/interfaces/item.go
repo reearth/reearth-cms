@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -29,7 +28,7 @@ var (
 
 type ItemFieldParam struct {
 	Field *item.FieldID
-	Key   *key.Key
+	Key   *id.Key
 	// Type  value.Type
 	Value any
 	Group *id.ItemGroupID
