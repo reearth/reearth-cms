@@ -567,13 +567,19 @@ export default () => {
   });
 
   const handleCheckItemReference = useCallback(
-    async (value: string, correspondingFieldId: string) => {
+    async (itemId: string, correspondingFieldId: string, groupId?: string) => {
+      const initialValue = groupId
+        ? initialFormValues[groupId][correspondingFieldId]
+        : initialFormValues[correspondingFieldId];
+      if (initialValue === itemId) {
+        return false;
+      }
       const res = await checkIfItemIsReferenced({
-        variables: { itemId: value ?? "", correspondingFieldId },
+        variables: { itemId, correspondingFieldId },
       });
       return res.data?.isItemReferenced ?? false;
     },
-    [checkIfItemIsReferenced],
+    [checkIfItemIsReferenced, initialFormValues],
   );
 
   return {

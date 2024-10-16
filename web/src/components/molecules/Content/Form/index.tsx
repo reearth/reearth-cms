@@ -117,7 +117,11 @@ type Props = {
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
   onNavigateToRequest: (id: string) => void;
 };
 
