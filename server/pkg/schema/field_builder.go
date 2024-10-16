@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -140,13 +140,13 @@ func (b *FieldBuilder) Description(description string) *FieldBuilder {
 	return b
 }
 
-func (b *FieldBuilder) Key(key key.Key) *FieldBuilder {
+func (b *FieldBuilder) Key(key id.Key) *FieldBuilder {
 	b.f.key = key
 	return b
 }
 
 func (b *FieldBuilder) RandomKey() *FieldBuilder {
-	b.f.key = key.Random()
+	b.f.key = id.RandomKey()
 	return b
 }
 

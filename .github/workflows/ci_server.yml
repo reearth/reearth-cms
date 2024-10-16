@@ -1,64 +1,65 @@
 name: ci-server
 on:
-  push:
-    branches: [main, release]
-    paths:
-      - server/**
-      - .github/workflows/ci_server.yml
-      - .github/workflows/server_build.yml
-      - .github/workflows/deploy_test.yml
-      - .github/workflows/pr_title.yml
-      - .github/workflows/stage.yml
-      - .github/workflows/release.yml
-      - .github/workflows/server_build.yml
-  pull_request:
-    paths:
-      - server/**
-      - .github/workflows/ci_server.yml
-      - .github/workflows/server_build.yml
-      - .github/workflows/deploy_test.yml
-      - .github/workflows/pr_title.yml
-      - .github/workflows/stage.yml
-      - .github/workflows/release.yml
+  workflow_call:
+env:
+  GO_VERSION: "1.23"
+
 jobs:
-  ci:
-    name: ci
+  ci-server-lint:
+    name: lint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: server
-    services:
-      mongo:
-        image: mongo:6-focal
-        ports:
-          - 27017:27017
     steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: 1.23
       - name: checkout
         uses: actions/checkout@v4
-      - name: cache
-        uses: actions/cache@v4
+      - name: go setup
+        uses: actions/setup-go@v5
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          go-version: ${{ env.GO_VERSION }}
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.61
           working-directory: server
           args: --config=../.golangci.yml
+          skip-cache: true
+  ci-server-i18n:
+    name: i18n
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: go setup
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: check forgotten translations
+        working-directory: server
+        run: make i18n-ci
+  ci-server-test:
+    name: test
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6-focal
+        ports:
+          - 27017:27017
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: go setup
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
       - name: test
-        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m
+        working-directory: server
         env:
           REEARTH_CMS_DB: mongodb://localhost
-      - name: codecov
+      - name: Send coverage report
         uses: codecov/codecov-action@v4
         with:
           flags: server
           file: coverage.txt
-      - name: check forgotten translations
-        run: make i18n-ci

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -29,9 +28,9 @@ func Test_AreItemsReferenced(t *testing.T) {
 		Description: "description",
 		Required:    true,
 	}
-	f1 := schema.NewField(schema.NewReference(mid2, sid1, fid2.Ref(), cf1).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
-	f2 := schema.NewField(schema.NewReference(mid1, sid2, fid1.Ref(), cf2).TypeProperty()).ID(fid2).Key(key.Random()).MustBuild()
-	f3 := schema.NewField(schema.NewReference(mid3, sid3, nil, nil).TypeProperty()).ID(fid3).Key(key.Random()).MustBuild()
+	f1 := schema.NewField(schema.NewReference(mid2, sid1, fid2.Ref(), cf1).TypeProperty()).ID(fid1).Key(id.RandomKey()).MustBuild()
+	f2 := schema.NewField(schema.NewReference(mid1, sid2, fid1.Ref(), cf2).TypeProperty()).ID(fid2).Key(id.RandomKey()).MustBuild()
+	f3 := schema.NewField(schema.NewReference(mid3, sid3, nil, nil).TypeProperty()).ID(fid3).Key(id.RandomKey()).MustBuild()
 	s1 := schema.New().ID(sid1).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{f1}).MustBuild()
 	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{f2}).MustBuild()
 	s3 := schema.New().ID(sid3).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{f3}).MustBuild()

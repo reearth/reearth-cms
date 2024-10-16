@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -391,7 +390,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 					Required(fieldParam.Required).
 					Name(fieldParam.Name).
 					Description(lo.FromPtr(fieldParam.Description)).
-					Key(key.New(fieldParam.Key)).
+					Key(id.NewKey(fieldParam.Key)).
 					DefaultValue(fieldParam.DefaultValue).
 					Build()
 				if err != nil {

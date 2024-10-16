@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -81,7 +80,7 @@ func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, op
 				New().
 				NewID().
 				Schema(s.ID()).
-				Key(key.New(param.Key)).
+				Key(id.NewKey(param.Key)).
 				Project(param.ProjectId).
 				Name(param.Name)
 
@@ -136,7 +135,7 @@ func (i Group) Update(ctx context.Context, param interfaces.UpdateGroupParam, op
 				if gg != nil {
 					return nil, id.ErrDuplicatedKey
 				}
-				if err := g.SetKey(key.New(*param.Key)); err != nil {
+				if err := g.SetKey(id.NewKey(*param.Key)); err != nil {
 					return nil, err
 				}
 			}
@@ -151,7 +150,7 @@ func (i Group) Update(ctx context.Context, param interfaces.UpdateGroupParam, op
 func (i Group) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, error) {
 	return Run1(ctx, nil, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (bool, error) {
-			if k := key.New(s); !k.IsValid() {
+			if k := id.NewKey(s); !k.IsValid() {
 				return false, id.ErrInvalidKey
 			}
 
