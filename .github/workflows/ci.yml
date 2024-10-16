@@ -18,7 +18,7 @@ jobs:
         uses: tj-actions/changed-files@v45
         with:
           files: |
-            web
+            web/**
             .github/workflows/ci.yml
             .github/workflows/ci_web.yml
 
@@ -27,7 +27,7 @@ jobs:
         uses: tj-actions/changed-files@v45
         with:
           files: |
-            server
+            server/**
             .github/workflows/ci.yml
             .github/workflows/ci_server.yml
             .github/workflows/build_server.yml
@@ -37,7 +37,7 @@ jobs:
         uses: tj-actions/changed-files@v45
         with:
           files: |
-            worker
+            worker/**
             .github/workflows/ci.yml
             .github/workflows/ci_worker.yml
             .github/workflows/build_worker.yml
