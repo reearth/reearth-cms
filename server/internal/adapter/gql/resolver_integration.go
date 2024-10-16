@@ -85,8 +85,8 @@ func (r *mutationResolver) DeleteIntegration(ctx context.Context, input gqlmodel
 	}, nil
 }
 
-// RegenerateToken is the resolver for the regenerateToken field.
-func (r *mutationResolver) RegenerateToken(ctx context.Context, input gqlmodel.RegenerateTokenInput) (*gqlmodel.IntegrationPayload, error) {
+// RegenerateIntegrationToken is the resolver for the regenerateToken field.
+func (r *mutationResolver) RegenerateIntegrationToken(ctx context.Context, input gqlmodel.RegenerateIntegrationTokenInput) (*gqlmodel.IntegrationPayload, error) {
 	iId, err := gqlmodel.ToID[id.Integration](input.IntegrationID)
 	if err != nil {
 		return nil, err

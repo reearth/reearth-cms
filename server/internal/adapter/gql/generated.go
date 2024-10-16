@@ -445,7 +445,8 @@ type ComplexityRoot struct {
 		DeleteWorkspace                func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
 		PublishItem                    func(childComplexity int, input gqlmodel.PublishItemInput) int
 		PublishModel                   func(childComplexity int, input gqlmodel.PublishModelInput) int
-		RegenerateToken                func(childComplexity int, input gqlmodel.RegenerateTokenInput) int
+		RegenerateIntegrationToken     func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
+		RegeneratePublicAPIToken       func(childComplexity int, input gqlmodel.RegeneratePublicAPITokenInput) int
 		RemoveIntegrationFromWorkspace func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
 		RemoveMyAuth                   func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		RemoveUserFromWorkspace        func(childComplexity int, input gqlmodel.RemoveUserFromWorkspaceInput) int
@@ -531,6 +532,7 @@ type ComplexityRoot struct {
 	ProjectPublication struct {
 		AssetPublic func(childComplexity int) int
 		Scope       func(childComplexity int) int
+		Token       func(childComplexity int) int
 	}
 
 	PublishItemPayload struct {
@@ -948,7 +950,7 @@ type MutationResolver interface {
 	CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	UpdateIntegration(ctx context.Context, input gqlmodel.UpdateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	DeleteIntegration(ctx context.Context, input gqlmodel.DeleteIntegrationInput) (*gqlmodel.DeleteIntegrationPayload, error)
-	RegenerateToken(ctx context.Context, input gqlmodel.RegenerateTokenInput) (*gqlmodel.IntegrationPayload, error)
+	RegenerateIntegrationToken(ctx context.Context, input gqlmodel.RegenerateIntegrationTokenInput) (*gqlmodel.IntegrationPayload, error)
 	CreateWebhook(ctx context.Context, input gqlmodel.CreateWebhookInput) (*gqlmodel.WebhookPayload, error)
 	UpdateWebhook(ctx context.Context, input gqlmodel.UpdateWebhookInput) (*gqlmodel.WebhookPayload, error)
 	DeleteWebhook(ctx context.Context, input gqlmodel.DeleteWebhookInput) (*gqlmodel.DeleteWebhookPayload, error)
@@ -969,6 +971,7 @@ type MutationResolver interface {
 	CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error)
 	UpdateProject(ctx context.Context, input gqlmodel.UpdateProjectInput) (*gqlmodel.ProjectPayload, error)
 	DeleteProject(ctx context.Context, input gqlmodel.DeleteProjectInput) (*gqlmodel.DeleteProjectPayload, error)
+	RegeneratePublicAPIToken(ctx context.Context, input gqlmodel.RegeneratePublicAPITokenInput) (*gqlmodel.ProjectPayload, error)
 	CreateRequest(ctx context.Context, input gqlmodel.CreateRequestInput) (*gqlmodel.RequestPayload, error)
 	UpdateRequest(ctx context.Context, input gqlmodel.UpdateRequestInput) (*gqlmodel.RequestPayload, error)
 	ApproveRequest(ctx context.Context, input gqlmodel.ApproveRequestInput) (*gqlmodel.RequestPayload, error)
@@ -2757,17 +2760,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.PublishModel(childComplexity, args["input"].(gqlmodel.PublishModelInput)), true
 
-	case "Mutation.regenerateToken":
-		if e.complexity.Mutation.RegenerateToken == nil {
+	case "Mutation.regenerateIntegrationToken":
+		if e.complexity.Mutation.RegenerateIntegrationToken == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_regenerateToken_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_regenerateIntegrationToken_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RegenerateToken(childComplexity, args["input"].(gqlmodel.RegenerateTokenInput)), true
+		return e.complexity.Mutation.RegenerateIntegrationToken(childComplexity, args["input"].(gqlmodel.RegenerateIntegrationTokenInput)), true
+
+	case "Mutation.regeneratePublicApiToken":
+		if e.complexity.Mutation.RegeneratePublicAPIToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_regeneratePublicApiToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegeneratePublicAPIToken(childComplexity, args["input"].(gqlmodel.RegeneratePublicAPITokenInput)), true
 
 	case "Mutation.removeIntegrationFromWorkspace":
 		if e.complexity.Mutation.RemoveIntegrationFromWorkspace == nil {
@@ -3273,6 +3288,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ProjectPublication.Scope(childComplexity), true
+
+	case "ProjectPublication.token":
+		if e.complexity.ProjectPublication.Token == nil {
+			break
+		}
+
+		return e.complexity.ProjectPublication.Token(childComplexity), true
 
 	case "PublishItemPayload.items":
 		if e.complexity.PublishItemPayload.Items == nil {
@@ -4742,7 +4764,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputPublishItemInput,
 		ec.unmarshalInputPublishModelInput,
-		ec.unmarshalInputRegenerateTokenInput,
+		ec.unmarshalInputRegenerateIntegrationTokenInput,
+		ec.unmarshalInputRegeneratePublicApiTokenInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
 		ec.unmarshalInputRemoveMyAuthInput,
 		ec.unmarshalInputRemoveUserFromWorkspaceInput,
@@ -5601,7 +5624,7 @@ input DeleteIntegrationInput {
   integrationId: ID!
 }
 
-input RegenerateTokenInput {
+input RegenerateIntegrationTokenInput {
   integrationId: ID!
 }
 
@@ -5620,7 +5643,7 @@ extend type Mutation {
   createIntegration(input: CreateIntegrationInput!): IntegrationPayload
   updateIntegration(input: UpdateIntegrationInput!): IntegrationPayload
   deleteIntegration(input: DeleteIntegrationInput!): DeleteIntegrationPayload
-  regenerateToken(input: RegenerateTokenInput!): IntegrationPayload
+  regenerateIntegrationToken(input: RegenerateIntegrationTokenInput!): IntegrationPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/integration_webhook.graphql", Input: `type WebhookTrigger {
@@ -6264,6 +6287,7 @@ enum ProjectPublicationScope {
 type ProjectPublication {
   scope: ProjectPublicationScope!
   assetPublic: Boolean!
+  token: String
 }
 
 type Project implements Node {
@@ -6306,6 +6330,10 @@ input DeleteProjectInput {
   projectId: ID!
 }
 
+input RegeneratePublicApiTokenInput {
+  projectId: ID!
+}
+
 # Payload
 type ProjectPayload {
   project: Project!
@@ -6336,6 +6364,7 @@ extend type Mutation {
   createProject(input: CreateProjectInput!): ProjectPayload
   updateProject(input: UpdateProjectInput!): ProjectPayload
   deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
+  regeneratePublicApiToken(input: RegeneratePublicApiTokenInput!): ProjectPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/request.graphql", Input: `type Request implements Node {
@@ -7872,35 +7901,67 @@ func (ec *executionContext) field_Mutation_publishModel_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_regenerateToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_regenerateIntegrationToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_regenerateToken_argsInput(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_regenerateIntegrationToken_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_regenerateToken_argsInput(
+func (ec *executionContext) field_Mutation_regenerateIntegrationToken_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (gqlmodel.RegenerateTokenInput, error) {
+) (gqlmodel.RegenerateIntegrationTokenInput, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
 	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal gqlmodel.RegenerateTokenInput
+		var zeroVal gqlmodel.RegenerateIntegrationTokenInput
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNRegenerateTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateTokenInput(ctx, tmp)
+		return ec.unmarshalNRegenerateIntegrationTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateIntegrationTokenInput(ctx, tmp)
 	}
 
-	var zeroVal gqlmodel.RegenerateTokenInput
+	var zeroVal gqlmodel.RegenerateIntegrationTokenInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_regeneratePublicApiToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_regeneratePublicApiToken_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_regeneratePublicApiToken_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (gqlmodel.RegeneratePublicAPITokenInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal gqlmodel.RegeneratePublicAPITokenInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRegeneratePublicApiTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegeneratePublicAPITokenInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.RegeneratePublicAPITokenInput
 	return zeroVal, nil
 }
 
@@ -20001,8 +20062,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteIntegration(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_regenerateToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_regenerateToken(ctx, field)
+func (ec *executionContext) _Mutation_regenerateIntegrationToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_regenerateIntegrationToken(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -20015,7 +20076,7 @@ func (ec *executionContext) _Mutation_regenerateToken(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RegenerateToken(rctx, fc.Args["input"].(gqlmodel.RegenerateTokenInput))
+		return ec.resolvers.Mutation().RegenerateIntegrationToken(rctx, fc.Args["input"].(gqlmodel.RegenerateIntegrationTokenInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20029,7 +20090,7 @@ func (ec *executionContext) _Mutation_regenerateToken(ctx context.Context, field
 	return ec.marshalOIntegrationPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_regenerateToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_regenerateIntegrationToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -20050,7 +20111,7 @@ func (ec *executionContext) fieldContext_Mutation_regenerateToken(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_regenerateToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_regenerateIntegrationToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -21173,6 +21234,62 @@ func (ec *executionContext) fieldContext_Mutation_deleteProject(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteProject_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_regeneratePublicApiToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_regeneratePublicApiToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RegeneratePublicAPIToken(rctx, fc.Args["input"].(gqlmodel.RegeneratePublicAPITokenInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ProjectPayload)
+	fc.Result = res
+	return ec.marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_regeneratePublicApiToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "project":
+				return ec.fieldContext_ProjectPayload_project(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProjectPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_regeneratePublicApiToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -23206,6 +23323,8 @@ func (ec *executionContext) fieldContext_Project_publication(_ context.Context, 
 				return ec.fieldContext_ProjectPublication_scope(ctx, field)
 			case "assetPublic":
 				return ec.fieldContext_ProjectPublication_assetPublic(ctx, field)
+			case "token":
+				return ec.fieldContext_ProjectPublication_token(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProjectPublication", field.Name)
 		},
@@ -23812,6 +23931,47 @@ func (ec *executionContext) fieldContext_ProjectPublication_assetPublic(_ contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectPublication_token(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectPublication) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectPublication_token(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Token, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectPublication_token(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectPublication",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -37626,8 +37786,8 @@ func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRegenerateTokenInput(ctx context.Context, obj interface{}) (gqlmodel.RegenerateTokenInput, error) {
-	var it gqlmodel.RegenerateTokenInput
+func (ec *executionContext) unmarshalInputRegenerateIntegrationTokenInput(ctx context.Context, obj interface{}) (gqlmodel.RegenerateIntegrationTokenInput, error) {
+	var it gqlmodel.RegenerateIntegrationTokenInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -37647,6 +37807,33 @@ func (ec *executionContext) unmarshalInputRegenerateTokenInput(ctx context.Conte
 				return it, err
 			}
 			it.IntegrationID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRegeneratePublicApiTokenInput(ctx context.Context, obj interface{}) (gqlmodel.RegeneratePublicAPITokenInput, error) {
+	var it gqlmodel.RegeneratePublicAPITokenInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"projectId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "projectId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectID = data
 		}
 	}
 
@@ -44226,9 +44413,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteIntegration(ctx, field)
 			})
-		case "regenerateToken":
+		case "regenerateIntegrationToken":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_regenerateToken(ctx, field)
+				return ec._Mutation_regenerateIntegrationToken(ctx, field)
 			})
 		case "createWebhook":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -44309,6 +44496,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteProject":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteProject(ctx, field)
+			})
+		case "regeneratePublicApiToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_regeneratePublicApiToken(ctx, field)
 			})
 		case "createRequest":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -44902,6 +45093,8 @@ func (ec *executionContext) _ProjectPublication(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "token":
+			out.Values[i] = ec._ProjectPublication_token(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -50335,8 +50528,13 @@ func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearth�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRegenerateTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateTokenInput(ctx context.Context, v interface{}) (gqlmodel.RegenerateTokenInput, error) {
-	res, err := ec.unmarshalInputRegenerateTokenInput(ctx, v)
+func (ec *executionContext) unmarshalNRegenerateIntegrationTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateIntegrationTokenInput(ctx context.Context, v interface{}) (gqlmodel.RegenerateIntegrationTokenInput, error) {
+	res, err := ec.unmarshalInputRegenerateIntegrationTokenInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRegeneratePublicApiTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegeneratePublicAPITokenInput(ctx context.Context, v interface{}) (gqlmodel.RegeneratePublicAPITokenInput, error) {
+	res, err := ec.unmarshalInputRegeneratePublicApiTokenInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
