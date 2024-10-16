@@ -3,7 +3,6 @@ package mongodoc
 import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/mongox"
 )
 
@@ -62,7 +61,7 @@ func (d *GroupDocument) Model() (*group.Group, error) {
 		ID(mId).
 		Name(d.Name).
 		Description(d.Description).
-		Key(key.New(d.Key)).
+		Key(id.NewKey(d.Key)).
 		Project(pId).
 		Schema(sId).
 		Order(d.Order).

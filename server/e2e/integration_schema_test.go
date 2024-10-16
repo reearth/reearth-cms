@@ -43,12 +43,22 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 			Object().
 			HasValue("page", 1).
 			HasValue("perPage", 10).
-			HasValue("totalCount", 5).
+			HasValue("totalCount", 6).
 			Value("models").
 			Array()
-		models.Length().IsEqual(5)
+		models.Length().IsEqual(6)
 
-		obj1 := models.Value(0).Object()
+		obj0 := models.Value(0).Object()
+		obj0.
+			HasValue("id", mId0.String()).
+			HasValue("name", "m0").
+			HasValue("description", "m0 desc").
+			HasValue("public", true).
+			HasValue("key", ikey0.String()).
+			HasValue("projectId", pid).
+			HasValue("schemaId", sid0)
+
+		obj1 := models.Value(1).Object()
 		obj1.
 			HasValue("id", mId1.String()).
 			HasValue("name", "m1").
@@ -62,7 +72,7 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 		obj1.Value("updatedAt").NotNull()
 		obj1.Value("lastModified").NotNull()
 
-		obj2 := models.Value(1).Object()
+		obj2 := models.Value(2).Object()
 		obj2.
 			HasValue("id", mId2.String()).
 			HasValue("name", "m2").
