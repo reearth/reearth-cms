@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -36,7 +36,7 @@ func TestModelDocument_Model(t *testing.T) {
 			want: model.New().ID(mId).
 				Name("abc").
 				Description("xyz").
-				Key(key.New("mmm123")).
+				Key(id.NewKey("mmm123")).
 				Public(true).
 				Project(pId).
 				Metadata(smId.Ref()).
@@ -120,7 +120,7 @@ func TestNewModel(t *testing.T) {
 			args: model.New().ID(mId).
 				Name("abc").
 				Description("xyz").
-				Key(key.New("mmm123")).
+				Key(id.NewKey("mmm123")).
 				Public(true).
 				Project(pId).
 				Schema(sId).

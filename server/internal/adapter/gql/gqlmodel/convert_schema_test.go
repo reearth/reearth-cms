@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -17,7 +16,7 @@ func TestToSchema(t *testing.T) {
 	pId := id.NewProjectID()
 	sId := schema.NewID()
 	fId := id.NewFieldID()
-	k := key.Random()
+	k := id.RandomKey()
 	tests := []struct {
 		name   string
 		schema *schema.Schema
@@ -91,7 +90,7 @@ func TestToSchemaField(t *testing.T) {
 				UpdatedAt(fid.Timestamp()).
 				Name("N1").
 				Description("D1").
-				Key(key.New("K123456")).
+				Key(id.NewKey("K123456")).
 				Unique(true).
 				Multiple(true).
 				Required(true).
