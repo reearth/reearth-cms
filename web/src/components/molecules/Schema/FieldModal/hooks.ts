@@ -248,9 +248,7 @@ export default (
     }
   }, [form, values]);
 
-  const handleValuesChange = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (changedValues: any) => {
+  const handleValuesChange = useCallback(async (changedValues: Record<string, unknown>) => {
       const [key, value] = Object.entries(changedValues)[0];
       let changedValue = value;
       let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
