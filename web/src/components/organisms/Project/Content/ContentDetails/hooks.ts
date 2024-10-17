@@ -581,7 +581,7 @@ export default () => {
     if (currentItem) {
       const titleField = currentModel?.schema.fields.find(field => field.isTitle);
       const titleValue = titleField && initialFormValues[titleField.id];
-      result += `/ ${titleValue || currentItem.id}`;
+      result += ` / ${titleValue || currentItem.id}`;
     }
     return result;
   }, [currentItem, currentModel?.name, currentModel?.schema.fields, initialFormValues]);
