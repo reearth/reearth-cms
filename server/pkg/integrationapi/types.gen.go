@@ -163,6 +163,7 @@ const (
 	ValueTypeGroup          ValueType = "group"
 	ValueTypeInteger        ValueType = "integer"
 	ValueTypeMarkdown       ValueType = "markdown"
+	ValueTypeNumber         ValueType = "number"
 	ValueTypeReference      ValueType = "reference"
 	ValueTypeRichText       ValueType = "richText"
 	ValueTypeSelect         ValueType = "select"

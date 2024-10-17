@@ -9,6 +9,7 @@ enum SchemaFieldType {
   Select
   Tag
   Integer
+  Number
   Reference
   Checkbox
   URL
@@ -81,6 +82,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldSelect
   | SchemaFieldTag
   | SchemaFieldInteger
+  | SchemaFieldNumber
   | SchemaFieldReference
   | SchemaFieldURL
   | SchemaFieldCheckbox
@@ -140,6 +142,12 @@ type SchemaFieldInteger {
   defaultValue: Any
   min: Int
   max: Int
+}
+
+type SchemaFieldNumber {
+  defaultValue: Any
+  min: Float
+  max: Float
 }
 
 type SchemaFieldReference {
@@ -232,6 +240,12 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input SchemaFieldNumberInput {
+  defaultValue: Any
+  min: Float
+  max: Float
+}
+
 input CorrespondingFieldInput {
   fieldId: ID
   title: String!
@@ -280,6 +294,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   tag: SchemaFieldTagInput
   checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
+  number: SchemaFieldNumberInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
