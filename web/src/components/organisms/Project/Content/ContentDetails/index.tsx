@@ -17,6 +17,7 @@ const ContentDetails: React.FC = () => {
     itemId,
     itemLoading,
     currentModel,
+    title,
     currentItem,
     initialFormValues,
     initialMetaFormValues,
@@ -125,6 +126,7 @@ const ContentDetails: React.FC = () => {
           />
         ) : undefined
       }
+      title={title}
       item={currentItem}
       itemId={itemId}
       itemLoading={itemLoading}
