@@ -100,7 +100,7 @@ export type FieldTypePropertyInput = {
   select?: { defaultValue: string; values: string[] };
   tag?: {
     defaultValue?: string;
-    tags: { color: string; id?: string; name: string }[];
+    tags: Tag[];
   };
   checkbox?: { defaultValue?: boolean };
   integer?: { defaultValue: number | ""; min: number | null; max: number | null };
@@ -162,9 +162,9 @@ export type FormTypes = FormValues & {
   values?: string[];
   min?: number;
   max?: number;
-  tags?: { color: string; id: string; name: string }[];
+  tags?: Tag[];
   group: string;
-  supportedTypes?: string[] | string;
+  supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
 };
 
 export type Tab = "fields" | "meta-data";
