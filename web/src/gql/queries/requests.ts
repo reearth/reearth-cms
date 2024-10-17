@@ -83,6 +83,7 @@ export const GET_MODAL_REQUESTS = gql`
         }
         items {
           itemId
+          version
         }
         reviewers {
           id

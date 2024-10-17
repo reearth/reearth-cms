@@ -5,7 +5,6 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import {
   ListToolBarProps,
   StretchColumn,
@@ -13,10 +12,12 @@ import {
   TableRowSelection,
   ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -121,28 +122,9 @@ const RequestListTable: React.FC<Props> = ({
         title: t("State"),
         dataIndex: "requestState",
         key: "requestState",
-        render: (_, request) => {
-          let color = "";
-          let text = t("DRAFT");
-          switch (request.state) {
-            case "APPROVED":
-              color = "#52C41A";
-              text = t("APPROVED");
-              break;
-            case "CLOSED":
-              color = "#F5222D";
-              text = t("CLOSED");
-              break;
-            case "WAITING":
-              color = "#FA8C16";
-              text = t("WAITING");
-              break;
-            case "DRAFT":
-            default:
-              break;
-          }
-          return <Badge color={color} text={text} />;
-        },
+        render: (_, request) => (
+          <Badge color={badgeColors[request.state]} text={t(request.state)} />
+        ),
         filters: [
           { text: t("WAITING"), value: "WAITING" },
           { text: t("APPROVED"), value: "APPROVED" },
@@ -258,7 +240,7 @@ const RequestListTable: React.FC<Props> = ({
   const handleToolbarEvents: ListToolBarProps = useMemo(
     () => ({
       search: (
-        <Input.Search
+        <Search
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {

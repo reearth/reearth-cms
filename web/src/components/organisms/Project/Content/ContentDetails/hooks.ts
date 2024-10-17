@@ -13,6 +13,7 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   RequestUpdatePayload,
   RequestState,
+  RequestItem,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
@@ -211,6 +212,13 @@ export default () => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
       );
+    },
+    [navigate, currentWorkspace?.id, currentProject?.id],
+  );
+
+  const handleNavigateToRequest = useCallback(
+    (id: string) => {
+      navigate(`/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/request/${id}`);
     },
     [navigate, currentWorkspace?.id, currentProject?.id],
   );
@@ -490,7 +498,7 @@ export default () => {
       description: string;
       state: RequestState;
       reviewersId: string[];
-      items: { itemId: string }[];
+      items: RequestItem[];
     }) => {
       if (!currentProject?.id) return;
       const request = await createRequestMutation({
@@ -612,6 +620,7 @@ export default () => {
     handleItemUpdate,
     handleMetaItemUpdate,
     handleNavigateToModel,
+    handleNavigateToRequest,
     handleBack,
     handleRequestCreate,
     updateRequestLoading,

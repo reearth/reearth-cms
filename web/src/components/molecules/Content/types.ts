@@ -1,3 +1,4 @@
+import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
@@ -35,6 +36,7 @@ export type Item = {
   threadId: string;
   comments: Comment[];
   assets: ItemAsset[];
+  requests: Pick<Request, "id" | "state">[];
 };
 
 export type FormItem = {
@@ -43,6 +45,7 @@ export type FormItem = {
   schemaId: string;
   createdBy: string;
   status: ItemStatus;
+  version?: string;
   createdAt: Date;
   updatedAt: Date;
 };

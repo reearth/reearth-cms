@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -126,6 +125,10 @@ func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.
 		}
 	}
 	return res, nil
+}
+
+func (i Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef, _ *usecase.Operator) (item.Versioned, error) {
+	return i.repos.Item.FindVersionByID(ctx, itemID, ver)
 }
 
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
@@ -387,7 +390,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 					Required(fieldParam.Required).
 					Name(fieldParam.Name).
 					Description(lo.FromPtr(fieldParam.Description)).
-					Key(key.New(fieldParam.Key)).
+					Key(id.NewKey(fieldParam.Key)).
 					DefaultValue(fieldParam.DefaultValue).
 					Build()
 				if err != nil {

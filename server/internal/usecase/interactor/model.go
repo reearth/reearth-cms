@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/i18n"
@@ -109,9 +108,9 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				mb = mb.Public(*param.Public)
 			}
 			if param.Key != nil {
-				mb = mb.Key(key.New(*param.Key))
+				mb = mb.Key(id.NewKey(*param.Key))
 			} else {
-				mb = mb.Key(key.Random())
+				mb = mb.Key(id.RandomKey())
 			}
 			models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 			if err != nil {
@@ -154,7 +153,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				m.SetDescription(*param.Description)
 			}
 			if param.Key != nil {
-				if err := m.SetKey(key.New(*param.Key)); err != nil {
+				if err := m.SetKey(id.NewKey(*param.Key)); err != nil {
 					return nil, err
 				}
 			}
@@ -172,7 +171,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, error) {
 	return Run1(ctx, nil, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (bool, error) {
-			if k := key.New(s); !k.IsValid() {
+			if k := id.NewKey(s); !k.IsValid() {
 				return false, model.ErrInvalidKey
 			}
 

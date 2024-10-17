@@ -173,7 +173,7 @@ func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObje
 	}
 
 	lastModified, err := uc.Item.LastModifiedByModel(ctx, request.ModelId, op)
-	if err != nil {
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
 

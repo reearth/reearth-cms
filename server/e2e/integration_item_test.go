@@ -18,7 +18,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -39,6 +38,7 @@ var (
 	wId0   = accountdomain.NewWorkspaceID()
 	uId    = accountdomain.NewUserID()
 	iId    = id.NewIntegrationID()
+	mId0   = id.NewModelID()
 	mId1   = id.NewModelID()
 	mId2   = id.NewModelID()
 	mId3   = id.NewModelID()
@@ -68,24 +68,26 @@ var (
 	thId4  = id.NewThreadID()
 	thId5  = id.NewThreadID()
 	icId   = id.NewCommentID()
-	ikey1  = key.Random()
-	ikey2  = key.Random()
-	ikey3  = key.Random()
-	ikey4  = key.Random()
+	ikey0  = id.RandomKey()
+	ikey1  = id.RandomKey()
+	ikey2  = id.RandomKey()
+	ikey3  = id.RandomKey()
+	ikey4  = id.RandomKey()
 	pid    = id.NewProjectID()
+	sid0   = id.NewSchemaID()
 	sid1   = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
 	sid3   = id.NewSchemaID()
 	palias = "PROJECT_ALIAS"
-	sfKey1 = key.Random()
+	sfKey1 = id.RandomKey()
 	sfKey2 = id.NewKey("asset")
-	sfKey3 = key.Random()
-	sfKey4 = key.Random()
+	sfKey3 = id.RandomKey()
+	sfKey4 = id.RandomKey()
 	sfKey5 = id.NewKey("asset-key")
 	sfKey6 = id.NewKey("group-key")
 	sfKey7 = id.NewKey("geometry-key")
 	sfKey8 = id.NewKey("geometry-editor-key")
-	gKey1  = key.Random()
+	gKey1  = id.RandomKey()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
 	gId3   = id.NewItemGroupID()
@@ -153,6 +155,11 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	sf3 := schema.NewField(schema.NewReference(mId1, sid1, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId4).Key(sfKey4).MustBuild()
 
+	s0 := schema.New().ID(sid0).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{}).MustBuild()
+	if err := r.Schema.Save(ctx, s0); err != nil {
+		return err
+	}
+
 	s1 := schema.New().ID(sid1).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf1, sf2}).TitleField(sf1.ID().Ref()).MustBuild()
 	if err := r.Schema.Save(ctx, s1); err != nil {
 		return err
@@ -165,6 +172,19 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 
 	s3 := schema.New().ID(sid3).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf4}).MustBuild()
 	if err := r.Schema.Save(ctx, s3); err != nil {
+		return err
+	}
+
+	m0 := model.New().
+		ID(mId0).
+		Name("m0").
+		Description("m0 desc").
+		Public(true).
+		Key(ikey0).
+		Project(p.ID()).
+		Schema(s0.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m0); err != nil {
 		return err
 	}
 
@@ -360,28 +380,28 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	// endregion
 
 	// Default value
-	msf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewBool().TypeProperty().Type().Value(true).AsMultiple()).MustBuild()
+	msf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewBool().TypeProperty().Type().Value(true).AsMultiple()).MustBuild()
 	sm := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{msf1}).MustBuild()
 	if err := r.Schema.Save(ctx, sm); err != nil {
 		return err
 	}
-	gsf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default group").AsMultiple()).MustBuild()
+	gsf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default group").AsMultiple()).MustBuild()
 	gs := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{gsf}).MustBuild()
 	if err := r.Schema.Save(ctx, gs); err != nil {
 		return err
 	}
-	gp := group.New().NewID().Name("group2").Project(pid).Key(key.Random()).Schema(gs.ID()).MustBuild()
+	gp := group.New().NewID().Name("group2").Project(pid).Key(id.RandomKey()).Schema(gs.ID()).MustBuild()
 	if err := r.Group.Save(ctx, gp); err != nil {
 		return err
 	}
-	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(key.Random()).MustBuild()
-	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
-	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(id.RandomKey()).MustBuild()
+	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
+	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 
 	gst2 := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 
 	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
@@ -392,7 +412,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Name("dvm").
 		Description("dvm desc").
 		Public(true).
-		Key(key.Random()).
+		Key(id.RandomKey()).
 		Project(pid).
 		Schema(dvs1.ID()).
 		Metadata(sm.ID().Ref()).
@@ -1430,13 +1450,13 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	createFieldOfEachType(t, e, mId)
 
-	jsonContent := `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2}]`
+	jsonContent := `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2},{"text": "test3", "bool": null, "integer": null}]`
 	aId := UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
 	res := IntegrationModelImportJSON(e, mId, aId, "json", "insert", false, nil)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
-		"itemsCount":    2,
-		"insertedCount": 2,
+		"itemsCount":    3,
+		"insertedCount": 3,
 		"updatedCount":  0,
 		"ignoredCount":  0,
 		"newFields":     []any{},
@@ -1453,16 +1473,19 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 		Object().
 		HasValue("page", 1).
 		HasValue("perPage", 5).
-		HasValue("totalCount", 2)
+		HasValue("totalCount", 3)
 
 	a := obj.Value("items").Array()
-	a.Length().IsEqual(2)
+	a.Length().IsEqual(3)
 	i := a.Value(0).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
 	i = a.Value(1).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
+	i = a.Value(2).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(1)
 	// endregion
 
 	// region strategy="insert" and mutateSchema=true
@@ -1473,8 +1496,8 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 	res = IntegrationModelImportJSON(e, mId, aId, "json", "insert", true, nil)
 	res.Object().ContainsSubset(map[string]any{
 		"modelId":       mId,
-		"itemsCount":    2,
-		"insertedCount": 2,
+		"itemsCount":    3,
+		"insertedCount": 3,
 		"updatedCount":  0,
 		"ignoredCount":  0,
 	})
@@ -1491,16 +1514,19 @@ func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
 		Object().
 		HasValue("page", 1).
 		HasValue("perPage", 5).
-		HasValue("totalCount", 2)
+		HasValue("totalCount", 3)
 
 	a = obj.Value("items").Array()
-	a.Length().IsEqual(2)
+	a.Length().IsEqual(3)
 	i = a.Value(0).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
 	i = a.Value(1).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
+	i = a.Value(2).Object()
+	i.Value("id").NotNull()
+	i.Value("fields").Array().Length().IsEqual(1)
 	// endregion
 }
 

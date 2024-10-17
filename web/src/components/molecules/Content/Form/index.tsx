@@ -5,7 +5,7 @@ import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -13,6 +13,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import { emptyConvert } from "@reearth-cms/components/molecules/Common/Form/utils";
 import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
@@ -24,7 +25,11 @@ import {
   ItemValue,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import {
+  Request,
+  RequestItem,
+  RequestState,
+} from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
@@ -103,11 +108,9 @@ type Props = {
     description: string;
     state: RequestState;
     reviewersId: string[];
-    items: {
-      itemId: string;
-    }[];
+    items: RequestItem[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => Promise<void>;
+  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -115,6 +118,7 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onNavigateToRequest: (id: string) => void;
 };
 
 const ContentForm: React.FC<Props> = ({
@@ -184,12 +188,13 @@ const ContentForm: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
+  onNavigateToRequest,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(!!itemId);
   const changedKeys = useRef(new Set<string>());
   const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
@@ -212,18 +217,22 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const emptyConvert = useCallback((value: any) => {
-    if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
-      return undefined;
-    } else {
-      return value;
-    }
-  }, []);
-
   const handleValuesChange = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (changedValues: any) => {
+    async (changedValues: Record<string, unknown>) => {
+      try {
+        await form.validateFields();
+      } catch (e) {
+        if ((e as ValidateErrorEntity).errorFields.length > 0) {
+          setIsDisabled(true);
+          return;
+        }
+      }
+
+      if (!itemId) {
+        setIsDisabled(false);
+        return;
+      }
+
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
         const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
@@ -245,7 +254,7 @@ const ContentForm: React.FC<Props> = ({
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
-    [checkIfSingleGroupField, emptyConvert, initialFormValues],
+    [checkIfSingleGroupField, form, initialFormValues, itemId],
   );
 
   useEffect(() => {
@@ -479,7 +488,7 @@ const ContentForm: React.FC<Props> = ({
           onBack={onBack}
           extra={
             <>
-              <Button onClick={handleSubmit} loading={loading} disabled={!!itemId && isDisabled}>
+              <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
                 {t("Save")}
               </Button>
               {itemId && (
@@ -643,7 +652,7 @@ const ContentForm: React.FC<Props> = ({
       </StyledForm>
       <SideBarWrapper>
         <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
-          <ContentSidebarWrapper item={item} />
+          <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
           {model?.metadataSchema?.fields?.map(field => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[
@@ -662,14 +671,14 @@ const ContentForm: React.FC<Props> = ({
           <RequestCreationModal
             open={requestModalShown}
             requestCreationLoading={requestCreationLoading}
-            itemId={itemId}
+            item={{ itemId, version: item?.version }}
             unpublishedItems={unpublishedItems}
             workspaceUserMembers={workspaceUserMembers}
             onClose={onModalClose}
             onSubmit={onRequestCreate}
           />
           <LinkItemRequestModal
-            itemIds={[itemId]}
+            items={[{ itemId, version: item?.version }]}
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
             visible={addItemToRequestModalShown}

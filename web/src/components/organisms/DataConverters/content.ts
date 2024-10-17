@@ -37,6 +37,7 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
         schemaId: item.schemaId,
         createdBy: item.createdBy?.name ?? "",
         status: item.status,
+        version: item?.version ?? "",
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
       })) ?? [],
@@ -62,6 +63,7 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
     assets: GQLItem.assets
       ?.map(asset => asset && { id: asset.id, fileName: asset.fileName })
       .filter((asset): asset is ItemAsset => asset !== null),
+    requests: GQLItem.requests?.map(request => ({ id: request.id, state: request.state })) ?? [],
   };
 };
 
@@ -101,6 +103,7 @@ export const fromGraphQLRequest = (request: GQLRequest): Request => ({
     id: item.itemId,
     modelId: item?.item?.value.modelId,
     modelName: item?.item?.value.model.name,
+    version: item?.version ?? "",
     initialValues: initialValuesGet(item.item?.value.fields),
     schema: item.item?.value.schema ? (item.item?.value.schema as Schema) : undefined,
     referencedItems:
@@ -110,6 +113,7 @@ export const fromGraphQLRequest = (request: GQLRequest): Request => ({
         schemaId: item.schemaId,
         createdBy: item.createdBy?.name ?? "",
         status: item.status,
+        version: item?.version ?? "",
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
       })) ?? [],

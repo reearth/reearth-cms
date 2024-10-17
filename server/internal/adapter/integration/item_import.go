@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	key2 "github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
@@ -179,7 +178,7 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 				return nil, nil, rerror.ErrInvalidParams
 			}
 
-			geoFieldKey := key2.New(*geoField)
+			geoFieldKey := id.NewKey(*geoField)
 			if !geoFieldKey.IsValid() {
 				return nil, nil, rerror.ErrInvalidParams
 			}
@@ -208,7 +207,10 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 			o = props
 		}
 		for k, v := range o {
-			key := key2.New(k)
+			if v == nil {
+				continue
+			}
+			key := id.NewKey(k)
 			if !key.IsValid() {
 				return nil, nil, rerror.ErrInvalidParams
 			}

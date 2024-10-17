@@ -53,6 +53,7 @@ const ContentDetails: React.FC = () => {
     handleItemUpdate,
     handleMetaItemUpdate,
     handleNavigateToModel,
+    handleNavigateToRequest,
     handleBack,
     handleRequestCreate,
     handleModalClose,
@@ -179,6 +180,7 @@ const ContentDetails: React.FC = () => {
       onGetAsset={handleGetAsset}
       onGroupGet={handleGroupGet}
       onCheckItemReference={handleCheckItemReference}
+      onNavigateToRequest={handleNavigateToRequest}
     />
   );
 };

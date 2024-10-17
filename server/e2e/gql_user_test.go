@@ -48,8 +48,20 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 	if err := r.User.Save(ctx, u3); err != nil {
 		return err
 	}
+	u4 := user.New().ID(uId4).
+		Name("e2e4").
+		Workspace(wId).
+		Email("e2e4@e2e.com").
+		MustBuild()
+	if err := r.User.Save(ctx, u4); err != nil {
+		return err
+	}
 	roleOwner := workspace.Member{
 		Role:      workspace.RoleOwner,
+		InvitedBy: uId1,
+	}
+	roleMaintainer := workspace.Member{
+		Role:      workspace.RoleMaintainer,
 		InvitedBy: uId1,
 	}
 	roleReader := workspace.Member{
@@ -61,6 +73,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 		Name("e2e").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
 			uId1: roleOwner,
+			uId4: roleMaintainer,
 		}).
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
 			iId1: roleOwner,

@@ -23,3 +23,11 @@ export const keyReplace = (
   const { form, key } = formData;
   form.setFieldValue(key, e.currentTarget.value.replaceAll(" ", "-"));
 };
+
+export const emptyConvert = (value: unknown) => {
+  if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
+    return undefined;
+  } else {
+    return value;
+  }
+};

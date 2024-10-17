@@ -1,7 +1,7 @@
-name: worker-build
+name: server-build
 on:
   workflow_run:
-    workflows: [ci-worker]
+    workflows: [ci-server]
     types: [completed]
     branches: [main, release]
 concurrency:
@@ -36,7 +36,7 @@ jobs:
               echo "::set-output name=new_tag::$TAG"
               echo "::set-output name=new_tag_short::${TAG#v}"
             else
-              echo "::set-output name=name::rc"
+                echo "::set-output name=name::rc"
             fi
           else
             echo "::set-output name=name::nightly"
@@ -56,7 +56,7 @@ jobs:
       - info
     if: needs.info.outputs.name || needs.info.outputs.new_tag
     env:
-      IMAGE_NAME: reearth/reearth-cms-worker
+      IMAGE_NAME: reearth/reearth-cms
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -93,10 +93,23 @@ jobs:
           echo "::set-output name=platforms::$PLATFORMS"
           echo "::set-output name=version::$VERSION"
           echo "::set-output name=tags::$TAGS"
-      - name: Build and push docker image
-        uses: docker/build-push-action@v5
+      - name: Fetch reearth-cms-web
+        uses: dawidd6/action-download-artifact@v6
         with:
-          context: ./worker
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: ci_web.yml
+          workflow_conclusion: success
+          branch: main
+          name: reearth-cms-web
+          path: server
+          check_artifacts: true
+          search_artifacts: true
+      - name: Extract reearth-cms-web
+        run: tar -xvf server/reearth-cms-web.tar.gz; mv reearth-cms-web server/web; ls
+      - name: Build and push docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server
           platforms: ${{ steps.options.outputs.platforms }}
           push: true
           build-args: VERSION=${{ steps.options.outputs.version }}

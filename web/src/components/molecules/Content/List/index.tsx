@@ -10,7 +10,7 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
   ConditionInput,
@@ -30,9 +30,7 @@ type Props = {
   contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
   selectedItem?: Item;
-  selection: {
-    selectedRowKeys: string[];
-  };
+  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
   totalCount: number;
   currentView: CurrentView;
   searchTerm: string;
@@ -49,7 +47,7 @@ type Props = {
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;
@@ -57,7 +55,7 @@ type Props = {
   onItemDelete: (itemIds: string[]) => Promise<void>;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
+  onAddItemToRequest: (request: Request, items: RequestItem[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
@@ -76,7 +74,7 @@ const ContentListMolecule: React.FC<Props> = ({
   deleteLoading,
   unpublishLoading,
   selectedItem,
-  selection,
+  selectedItems,
   totalCount,
   currentView,
   searchTerm,
@@ -97,7 +95,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onSearchTerm,
   onFilterChange,
   onContentTableChange,
-  setSelection,
+  setSelectedItems,
   onItemSelect,
   onCollapse,
   onItemAdd,
@@ -149,12 +147,12 @@ const ContentListMolecule: React.FC<Props> = ({
                 deleteLoading={deleteLoading}
                 unpublishLoading={unpublishLoading}
                 selectedItem={selectedItem}
-                selection={selection}
+                selectedItems={selectedItems}
                 onUnpublish={onUnpublish}
                 onSearchTerm={onSearchTerm}
                 onFilterChange={onFilterChange}
                 onContentTableChange={onContentTableChange}
-                setSelection={setSelection}
+                setSelectedItems={setSelectedItems}
                 onItemSelect={onItemSelect}
                 onItemsReload={onItemsReload}
                 onItemEdit={onItemEdit}
