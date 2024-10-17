@@ -161,8 +161,45 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusBadRequest)
 
-	// region bool
+	// region text
 	res := e.POST(endpoint, sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"key":      "テスト",
+			"type":     "text",
+			"multiple": false,
+			"required": false,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.ContainsKey("id")
+
+	res = e.GET("/api/models/{modelId}", mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.HasValue("id", mId1.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
+		HasValue("public", true).
+		HasValue("key", ikey1.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid1)
+
+	res.Value("schema").Object().Value("fields").Array().Length().IsEqual(3)
+	res.Value("createdAt").NotNull()
+	res.Value("updatedAt").NotNull()
+	res.Value("lastModified").NotNull()
+	// endregion
+
+	//region bool
+	res = e.POST(endpoint, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -192,6 +229,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
 
+	res.Value("schema").Object().Value("fields").Array().Length().IsEqual(4)
 	res.Value("createdAt").NotNull()
 	res.Value("updatedAt").NotNull()
 	res.Value("lastModified").NotNull()
