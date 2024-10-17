@@ -458,6 +458,7 @@ func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage i
 
 	return res
 }
+
 func IntegrationModelImportMultiPart(e *httpexpect.Expect, mId string, format string, strategy string, mutateSchema bool, geometryFieldKey string, content string) *httpexpect.Value {
 	res := e.PUT("/api/models/{modelId}/import", mId).
 		WithHeader("Origin", "https://example.com").
