@@ -392,6 +392,9 @@ func FromSchemaTypeProperty(t integrationapi.ValueType, multiple bool) (tpRes *s
 	case integrationapi.ValueTypeInteger:
 		tpi, _ := schema.NewInteger(nil, nil)
 		tpRes = tpi.TypeProperty()
+	case integrationapi.ValueTypeNumber:
+		tpi, _ := schema.NewNumber(nil, nil)
+		tpRes = tpi.TypeProperty()
 	case integrationapi.ValueTypeReference:
 		if multiple {
 			return nil, nil, ErrMultipleReference
