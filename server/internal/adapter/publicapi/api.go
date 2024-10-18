@@ -64,28 +64,34 @@ func PublicApiItemList() echo.HandlerFunc {
 		ctx := c.Request().Context()
 		ctrl := GetController(ctx)
 
+		mKey := c.Param("model")
+		pKey := c.Param("project")
 		p, err := listParamFromEchoContext(c)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, "invalid offset or limit")
 		}
 
 		resType := ""
-		m := c.Param("model")
-		if strings.Contains(m, ".") {
-			m, resType, _ = strings.Cut(m, ".")
+		if strings.Contains(mKey, ".") {
+			mKey, resType, _ = strings.Cut(mKey, ".")
 		}
 		if resType != "csv" && resType != "json" && resType != "geojson" {
 			resType = "json"
 		}
 
-		items, _, err := ctrl.GetItems(ctx, c.Param("project"), m, p)
+		var res any
+		if mKey == "assets" {
+			res, err = ctrl.GetAssets(ctx, pKey, p)
+		} else {
+			res, _, err = ctrl.GetItems(ctx, pKey, mKey, p)
+		}
 		if err != nil {
 			return err
 		}
 
-		vi, s, err1 := ctrl.GetVersionedItems(ctx, c.Param("project"), m, p)
-		if err1 != nil {
-			return err1
+		vi, s, err := ctrl.GetVersionedItems(ctx, pKey, mKey, p)
+		if mKey != "assets" && err != nil {
+			return err
 		}
 
 		switch resType {
@@ -94,9 +100,9 @@ func PublicApiItemList() echo.HandlerFunc {
 		case "geojson":
 			return toGeoJSON(c, vi, s)
 		case "json":
-			return c.JSON(http.StatusOK, items)
+			return c.JSON(http.StatusOK, res)
 		default:
-			return c.JSON(http.StatusOK, items)
+			return c.JSON(http.StatusOK, res)
 		}
 	}
 }
