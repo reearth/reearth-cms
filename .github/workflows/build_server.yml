@@ -1,9 +1,8 @@
 name: server-build
 on:
-  workflow_run:
-    workflows: [ci-server]
-    types: [completed]
+  push:
     branches: [main, release]
+    paths: [server/**, .github/workflows/build_server.yml]
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
