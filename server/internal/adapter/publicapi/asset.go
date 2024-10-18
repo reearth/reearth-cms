@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
@@ -42,6 +43,10 @@ func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (L
 	prj, err := c.checkProject(ctx, pKey)
 	if err != nil {
 		return ListResult[Asset]{}, err
+	}
+
+	if prj.Publication().Scope() != project.PublicationScopePublic || !prj.Publication().AssetPublic() {
+		return ListResult[Asset]{}, rerror.ErrNotFound
 	}
 
 	a, pi, err := c.usecases.Asset.FindByProject(ctx, prj.ID(), interfaces.AssetFilter{
