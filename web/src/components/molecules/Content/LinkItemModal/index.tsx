@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -53,7 +53,6 @@ const LinkItemModal: React.FC<Props> = ({
   onChange,
   onCheckItemReference,
 }) => {
-  const [hoveredAssetId, setHoveredItemId] = useState<string>();
   const t = useT();
   const { confirm } = Modal;
   const { value, pagination, handleInput } = useHooks(
@@ -110,16 +109,12 @@ const LinkItemModal: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         render: (_, item) => {
-          const link =
-            (item.id === linkedItem && hoveredAssetId !== item.id) ||
-            (item.id !== linkedItem && hoveredAssetId === item.id);
+          const isLink = item.id !== linkedItem;
           return (
             <Button
               type="link"
-              onMouseEnter={() => setHoveredItemId(item.id)}
-              onMouseLeave={() => setHoveredItemId(undefined)}
-              icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
-              onClick={() => handleClick(link, item)}
+              icon={<Icon icon={isLink ? "arrowUpRight" : "arrowUpRightSlash"} size={18} />}
+              onClick={() => handleClick(isLink, item)}
             />
           );
         },
@@ -158,7 +153,7 @@ const LinkItemModal: React.FC<Props> = ({
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
     ],
-    [t, linkedItem, hoveredAssetId, handleClick],
+    [t, linkedItem, handleClick],
   );
 
   const toolbar: ListToolBarProps = useMemo(
@@ -188,9 +183,7 @@ const LinkItemModal: React.FC<Props> = ({
       onCancel={onLinkItemModalCancel}
       styles={{
         body: {
-          minHeight: "50vh",
-          position: "relative",
-          padding: "12px",
+          height: "70vh",
         },
       }}>
       <ResizableProTable
