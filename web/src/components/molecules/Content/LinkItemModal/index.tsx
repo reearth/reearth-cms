@@ -113,7 +113,7 @@ const LinkItemModal: React.FC<Props> = ({
           return (
             <Button
               type="link"
-              icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
+              icon={<Icon icon={isLink ? "arrowUpRight" : "arrowUpRightSlash"} size={18} />}
               onClick={() => handleClick(isLink, item)}
             />
           );
