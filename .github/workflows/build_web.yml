@@ -2,7 +2,7 @@ name: web-build
 on:
   push:
     branches: [ main, release ]
-    paths: [ web/** ]
+    paths: [ web/**, .github/workflows/build_web.yml ]
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
