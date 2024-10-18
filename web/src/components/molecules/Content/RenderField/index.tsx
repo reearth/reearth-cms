@@ -36,7 +36,8 @@ export const renderField = (
             : option?.key;
           update?.(value);
         }}
-        placeholder="-">
+        placeholder="-"
+        disabled={!update}>
         {tags?.map(({ id, name, color }) => (
           <Select.Option key={id} value={name}>
             <Tag color={color.toLowerCase()}>{name}</Tag>

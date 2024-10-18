@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { CurrentView } from "@reearth-cms/components/molecules/View/types";
@@ -14,7 +14,7 @@ import {
   useUpdateViewsOrderMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useModel } from "@reearth-cms/state";
+import { useProject, useModel, useUserRights } from "@reearth-cms/state";
 
 type Params = {
   currentView: CurrentView;
@@ -29,6 +29,10 @@ export default ({ currentView, onViewChange }: Params) => {
   const [modalState, setModalState] = useState<modalStateType>("create");
   const [currentProject] = useProject();
   const [currentModel] = useModel();
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.view.create, [userRights?.view.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.view.update, [userRights?.view.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.view.delete, [userRights?.view.delete]);
 
   const handleViewRenameModalOpen = useCallback(() => {
     setModalState("rename");
@@ -165,10 +169,13 @@ export default ({ currentView, onViewChange }: Params) => {
 
   return {
     modalState,
-    handleViewRenameModalOpen,
-    handleViewCreateModalOpen,
     viewModalShown,
     submitting: createLoading || updateLoading,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
+    handleViewRenameModalOpen,
+    handleViewCreateModalOpen,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,

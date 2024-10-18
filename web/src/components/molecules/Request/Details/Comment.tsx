@@ -15,6 +15,8 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
   me?: User;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
@@ -22,6 +24,8 @@ type Props = {
 
 const ThreadCommentMolecule: React.FC<Props> = ({
   me,
+  hasCommentUpdateRight,
+  hasCommentDeleteRight,
   comment,
   onCommentUpdate,
   onCommentDelete,
@@ -52,21 +56,37 @@ const ThreadCommentMolecule: React.FC<Props> = ({
     [comment.createdAt],
   );
 
+  const actions = useMemo(() => {
+    const result = [];
+    const isMine = me?.id === comment.author.id;
+    if (hasCommentDeleteRight || (hasCommentDeleteRight === null && isMine)) {
+      result.push(<Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />);
+    }
+    if (hasCommentUpdateRight || (hasCommentUpdateRight === null && isMine)) {
+      result.push(
+        <Icon
+          key="edit"
+          icon={showEditor ? "check" : "edit"}
+          onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
+        />,
+      );
+    }
+    return result;
+  }, [
+    comment.author.id,
+    comment.id,
+    handleSubmit,
+    hasCommentDeleteRight,
+    hasCommentUpdateRight,
+    me?.id,
+    onCommentDelete,
+    showEditor,
+  ]);
+
   return (
     <StyledAntDComment
       author={comment.author.name}
-      actions={
-        me?.id === comment.author.id
-          ? [
-              <Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />,
-              showEditor ? (
-                <Icon key="edit" icon="check" onClick={handleSubmit} />
-              ) : (
-                <Icon key="edit" icon="edit" onClick={() => setShowEditor(true)} />
-              ),
-            ]
-          : []
-      }
+      actions={actions}
       avatar={
         comment.author.type === "Integration" ? (
           <Badge count={<StyledIcon icon="api" size={8} color="#BFBFBF" />} offset={[0, 24]}>

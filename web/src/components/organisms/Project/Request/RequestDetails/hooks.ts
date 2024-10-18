@@ -4,7 +4,6 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useDeleteRequestMutation,
@@ -17,15 +16,29 @@ import {
   Request as GQLRequest,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const navigate = useNavigate();
-  const [currentProject] = useProject();
-  const [currentWorkspace] = useWorkspace();
   const { requestId } = useParams();
   const location = useLocation();
+
+  const [currentProject] = useProject();
+  const [currentWorkspace] = useWorkspace();
+  const [userRights] = useUserRights();
+  const hasCommentCreateRight = useMemo(
+    () => !!userRights?.comment.create,
+    [userRights?.comment.create],
+  );
+  const hasCommentUpdateRight = useMemo(
+    () => userRights?.comment.update !== undefined && userRights.comment.update,
+    [userRights?.comment.update],
+  );
+  const hasCommentDeleteRight = useMemo(
+    () => userRights?.comment.delete !== undefined && userRights.comment.delete,
+    [userRights?.comment.delete],
+  );
 
   const { data: userData } = useGetMeQuery();
   const { data: rawRequest, loading } = useGetRequestQuery({
@@ -45,13 +58,6 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const myRole = useMemo(
-    () =>
-      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
-        ?.role,
-    [currentWorkspace?.members, me?.id],
-  );
-
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const currentRequest: Request | undefined = useMemo(() => {
@@ -59,23 +65,35 @@ export default () => {
     return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);
 
-  const isCloseActionEnabled: boolean = useMemo(
+  const isCloseActionEnabled = useMemo(
     () =>
-      currentRequest?.state !== "CLOSED" &&
-      currentRequest?.state !== "APPROVED" &&
-      !!currentRequest?.reviewers.find(reviewer => reviewer.id === me?.id) &&
-      myRole !== "READER" &&
-      myRole !== "WRITER",
-    [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
+      (currentRequest?.state === "WAITING" || currentRequest?.state === "DRAFT") &&
+      (userRights?.request.close === null
+        ? currentRequest.createdBy?.id === me?.id
+        : !!userRights?.request.close),
+    [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.close],
   );
 
-  const isApproveActionEnabled: boolean = useMemo(
+  const isReopenActionEnabled = useMemo(
+    () => currentRequest?.state === "CLOSED" && !!userRights?.request.close,
+    [currentRequest?.state, userRights?.request.close],
+  );
+
+  const isApproveActionEnabled = useMemo(
     () =>
       currentRequest?.state === "WAITING" &&
-      !!currentRequest?.reviewers.find(reviewer => reviewer.id === me?.id) &&
-      myRole !== "READER" &&
-      myRole !== "WRITER",
-    [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
+      !!userRights?.request.approve &&
+      currentRequest?.reviewers.some(reviewer => reviewer.id === me?.id),
+    [currentRequest?.reviewers, currentRequest?.state, me?.id, userRights?.request.approve],
+  );
+
+  const isAssignActionEnabled = useMemo(
+    () =>
+      (currentRequest?.state === "WAITING" || currentRequest?.state === "DRAFT") &&
+      (userRights?.request.update === null
+        ? currentRequest.createdBy?.id === me?.id
+        : !!userRights?.request.update),
+    [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.update],
   );
 
   const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
@@ -201,11 +219,16 @@ export default () => {
 
   return {
     me,
+    hasCommentCreateRight,
+    hasCommentUpdateRight,
+    hasCommentDeleteRight,
     isCloseActionEnabled,
+    isReopenActionEnabled,
+    isApproveActionEnabled,
+    isAssignActionEnabled,
     loading,
     deleteLoading,
     approveLoading,
-    isApproveActionEnabled,
     currentRequest,
     handleRequestDelete,
     handleRequestApprove,

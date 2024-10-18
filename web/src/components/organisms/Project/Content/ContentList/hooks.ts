@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -42,7 +42,7 @@ import {
   useGetViewsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useCollapsedModelMenu } from "@reearth-cms/state";
+import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
 import { fileName } from "./utils";
 
@@ -85,6 +85,18 @@ export default () => {
       pageSize: number;
     } | null;
   } = useLocation();
+
+  const [userId] = useUserId();
+  const [userRights] = useUserRights();
+
+  const hasCreateRight = useMemo(() => !!userRights?.content.create, [userRights?.content.create]);
+  const [hasDeleteRight, setHasDeleteRight] = useState(false);
+  const hasPublishRight = useMemo(
+    () => !!userRights?.content.publish,
+    [userRights?.content.publish],
+  );
+  const [hasRequestUpdateRight, setHasRequestUpdateRight] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState<string>(location.state?.searchTerm ?? "");
   const [page, setPage] = useState<number>(location.state?.page ?? 1);
   const [pageSize, setPageSize] = useState<number>(location.state?.pageSize ?? 20);
@@ -147,6 +159,26 @@ export default () => {
   const [selectedItems, setSelectedItems] = useState<{
     selectedRows: { itemId: string; version?: string }[];
   }>({ selectedRows: [] });
+
+  const handleSelect = useCallback(
+    (_selectedRowKeys: Key[], selectedRows: ContentTableField[]) => {
+      setSelectedItems({
+        ...selectedItems,
+        selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
+      });
+
+      const newRight =
+        userRights?.content.delete === null
+          ? selectedRows.every(row => row.createdBy.id === userId)
+          : !!userRights?.content.delete;
+      setHasDeleteRight(newRight);
+
+      if (userRights?.request.update || userRights?.request.update === null) {
+        setHasRequestUpdateRight(selectedRows.every(row => row.status !== "PUBLIC"));
+      }
+    },
+    [selectedItems, userId, userRights?.content.delete, userRights?.request.update],
+  );
 
   const [updateItemMutation] = useUpdateItemMutation();
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
@@ -309,8 +341,8 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              createdBy: item.createdBy?.name,
-              updatedBy: item.updatedBy?.name || "",
+              createdBy: { id: item.createdBy?.id ?? "", name: item.createdBy?.name ?? "" },
+              updatedBy: item.updatedBy?.name ?? "",
               fields: fieldsGet(item as unknown as Item),
               comments: item.thread.comments.map(comment =>
                 fromGraphQLComment(comment as GQLComment),
@@ -339,6 +371,12 @@ export default () => {
       }
     },
     [currentView.sort?.direction, currentView.sort?.field.id],
+  );
+
+  const hasRightGet = useCallback(
+    (id: string) =>
+      userRights?.content.update === null ? id === userId : !!userRights?.content.update,
+    [userId, userRights?.content.update],
   );
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
@@ -378,14 +416,17 @@ export default () => {
         sortOrder: sortOrderGet(field.id),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
-          return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
-            handleMetaItemUpdate(record.id, field.id, value, index);
-          });
+          const update = hasRightGet(record.createdBy.id)
+            ? (value?: string | string[] | boolean, index?: number) => {
+                handleMetaItemUpdate(record.id, field.id, value, index);
+              }
+            : undefined;
+          return renderField(el, field, update);
         },
       })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
-  }, [currentModel, handleMetaItemUpdate, sortOrderGet]);
+  }, [currentModel, handleMetaItemUpdate, hasRightGet, sortOrderGet]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
@@ -538,6 +579,10 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    hasCreateRight,
+    hasDeleteRight,
+    hasPublishRight,
+    hasRequestUpdateRight,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
@@ -550,7 +595,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelectedItems,
+    handleSelect,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,

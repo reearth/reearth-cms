@@ -13,6 +13,9 @@ import RequestStatus from "./RequestStatus";
 
 type Props = {
   me?: User;
+  hasCommentCreateRight: boolean;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   currentRequest: Request;
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
@@ -24,6 +27,9 @@ type Props = {
 
 const RequestThread: React.FC<Props> = ({
   me,
+  hasCommentCreateRight,
+  hasCommentUpdateRight,
+  hasCommentDeleteRight,
   currentRequest,
   onCommentCreate,
   onCommentUpdate,
@@ -45,6 +51,8 @@ const RequestThread: React.FC<Props> = ({
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList
               me={me}
+              hasCommentUpdateRight={hasCommentUpdateRight}
+              hasCommentDeleteRight={hasCommentDeleteRight}
               comments={currentRequest.comments}
               onCommentUpdate={onCommentUpdate}
               onCommentDelete={onCommentDelete}
@@ -56,7 +64,12 @@ const RequestThread: React.FC<Props> = ({
       <ThreadDivider />
       <StyledAntDComment
         avatar={<UserAvatar username={me?.name} />}
-        content={<RequestEditor onCommentCreate={onCommentCreate} />}
+        content={
+          <RequestEditor
+            hasCommentCreateRight={hasCommentCreateRight}
+            onCommentCreate={onCommentCreate}
+          />
+        }
       />
     </ContentWrapper>
   );

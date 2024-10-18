@@ -20,7 +20,7 @@ import {
   Group as GQLGroup,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useWorkspace, useProject } from "@reearth-cms/state";
+import { useModel, useWorkspace, useProject, useUserRights } from "@reearth-cms/state";
 
 type Params = {
   modelId?: string;
@@ -31,6 +31,10 @@ export default ({ modelId }: Params) => {
   const [, setCurrentModel] = useModel();
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.model.update, [userRights?.model.update]);
+
   const navigate = useNavigate();
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
@@ -212,6 +216,8 @@ export default ({ modelId }: Params) => {
     groups,
     modelModalShown,
     groupModalShown,
+    hasCreateRight,
+    hasUpdateRight,
     handleModelModalOpen,
     handleModelModalClose,
     handleModelCreate,

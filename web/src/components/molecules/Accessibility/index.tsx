@@ -30,6 +30,7 @@ type Props = {
   aliasState?: string;
   assetState?: boolean;
   isSaveDisabled: boolean;
+  hasPublishRight: boolean;
   handlePublicUpdate: () => Promise<void>;
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
@@ -43,6 +44,7 @@ const Accessibility: React.FC<Props> = ({
   aliasState,
   assetState,
   isSaveDisabled,
+  hasPublishRight,
   handlePublicUpdate,
   handleUpdatedAssetState,
   handleUpdatedModels,
@@ -95,6 +97,7 @@ const Accessibility: React.FC<Props> = ({
         public: (
           <Switch
             checked={assetState}
+            disabled={!hasPublishRight}
             onChange={(publicState: boolean) => handleUpdatedAssetState(publicState)}
           />
         ),
@@ -112,6 +115,7 @@ const Accessibility: React.FC<Props> = ({
             public: (
               <Switch
                 checked={m.public}
+                disabled={!hasPublishRight}
                 onChange={(publicState: boolean) =>
                   handleUpdatedModels({ ...m, public: publicState })
                 }
@@ -123,7 +127,7 @@ const Accessibility: React.FC<Props> = ({
       ];
     }
     return columns;
-  }, [models, assetState, handleUpdatedAssetState, handleUpdatedModels, t]);
+  }, [t, assetState, hasPublishRight, models, handleUpdatedAssetState, handleUpdatedModels]);
 
   const publicScopeList = [
     { id: 1, name: t("Private"), value: "private" },
@@ -144,7 +148,7 @@ const Accessibility: React.FC<Props> = ({
               extra={t(
                 "Choose the scope of your project. This affects all the models shown below that are switched on.",
               )}>
-              <Select value={scope} onChange={handleSetScope}>
+              <Select value={scope} onChange={handleSetScope} disabled={!hasPublishRight}>
                 {publicScopeList.map(type => (
                   <Select.Option key={type.id} value={type.value}>
                     {type.name}

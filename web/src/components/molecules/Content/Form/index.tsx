@@ -42,6 +42,10 @@ import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 type Props = {
   title: string;
   item?: Item;
+  hasRequestCreateRight: boolean;
+  hasRequestUpdateRight: boolean;
+  hasPublishRight: boolean;
+  hasItemUpdateRight: boolean;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction: boolean;
@@ -125,6 +129,10 @@ type Props = {
 const ContentForm: React.FC<Props> = ({
   title,
   item,
+  hasRequestCreateRight,
+  hasRequestUpdateRight,
+  hasPublishRight,
+  hasItemUpdateRight,
   loadingReference,
   linkedItemsModalList,
   showPublishAction,
@@ -435,7 +443,7 @@ const ContentForm: React.FC<Props> = ({
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
-        disabled: item?.status === "PUBLIC",
+        disabled: item?.status === "PUBLIC" || !hasRequestUpdateRight,
       },
       {
         key: "unpublish",
@@ -443,7 +451,7 @@ const ContentForm: React.FC<Props> = ({
         onClick: () => {
           if (itemId) onUnpublish([itemId]);
         },
-        disabled: item?.status === "DRAFT" || item?.status === "REVIEW",
+        disabled: item?.status === "DRAFT" || item?.status === "REVIEW" || !hasPublishRight,
       },
     ];
     if (showPublishAction) {
@@ -451,7 +459,7 @@ const ContentForm: React.FC<Props> = ({
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
-        disabled: item?.status === "PUBLIC",
+        disabled: item?.status === "PUBLIC" || !hasRequestCreateRight,
       });
     }
     return menuItems;
@@ -459,10 +467,13 @@ const ContentForm: React.FC<Props> = ({
     t,
     onAddItemToRequestModalOpen,
     item?.status,
+    hasRequestUpdateRight,
+    hasPublishRight,
     showPublishAction,
     itemId,
     onUnpublish,
     onModalOpen,
+    hasRequestCreateRight,
   ]);
 
   const handlePublishSubmit = useCallback(async () => {
@@ -477,6 +488,11 @@ const ContentForm: React.FC<Props> = ({
   const handlePublishItemClose = useCallback(() => {
     setPublishModalOpen(false);
   }, [setPublishModalOpen]);
+
+  const fieldDisabled = useMemo(
+    () => !!itemId && !hasItemUpdateRight,
+    [hasItemUpdateRight, itemId],
+  );
 
   return (
     <>
@@ -500,7 +516,7 @@ const ContentForm: React.FC<Props> = ({
                       type="primary"
                       onClick={handlePublishSubmit}
                       loading={publishLoading}
-                      disabled={item?.status === "PUBLIC"}>
+                      disabled={item?.status === "PUBLIC" || !hasPublishRight}>
                       {t("Publish")}
                     </Button>
                   )}
@@ -508,7 +524,7 @@ const ContentForm: React.FC<Props> = ({
                     <Button
                       type="primary"
                       onClick={onModalOpen}
-                      disabled={item?.status === "PUBLIC"}>
+                      disabled={item?.status === "PUBLIC" || !hasRequestCreateRight}>
                       {t("New Request")}
                     </Button>
                   )}
@@ -540,6 +556,7 @@ const ContentForm: React.FC<Props> = ({
                     totalCount={totalCount}
                     page={page}
                     pageSize={pageSize}
+                    disabled={fieldDisabled}
                     onAssetTableChange={onAssetTableChange}
                     onUploadModalCancel={onUploadModalCancel}
                     setUploadUrl={setUploadUrl}
@@ -567,6 +584,7 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
+                    disabled={fieldDisabled}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onSearchTerm={onSearchTerm}
                     onLinkItemTableReload={onLinkItemTableReload}
@@ -599,6 +617,7 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
+                    disabled={fieldDisabled}
                     onSearchTerm={onSearchTerm}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onLinkItemTableReload={onLinkItemTableReload}
@@ -625,7 +644,7 @@ const ContentForm: React.FC<Props> = ({
 
               return (
                 <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <FieldComponent field={field} />
+                  <FieldComponent field={field} disabled={fieldDisabled} />
                 </StyledFormItemWrapper>
               );
             } else {
@@ -645,7 +664,7 @@ const ContentForm: React.FC<Props> = ({
 
               return (
                 <StyledFormItemWrapper key={field.id}>
-                  <FieldComponent field={field} />
+                  <FieldComponent field={field} disabled={fieldDisabled} />
                 </StyledFormItemWrapper>
               );
             }
@@ -662,7 +681,11 @@ const ContentForm: React.FC<Props> = ({
               ] || DefaultField;
             return (
               <MetaFormItemWrapper key={field.id}>
-                <FieldComponent field={field} onMetaUpdate={handleMetaUpdate} />
+                <FieldComponent
+                  field={field}
+                  onMetaUpdate={handleMetaUpdate}
+                  disabled={fieldDisabled}
+                />
               </MetaFormItemWrapper>
             );
           })}

@@ -25,7 +25,7 @@ export type ViewerType =
 export type Asset = {
   id: string;
   createdAt: string;
-  createdBy: string;
+  createdBy: { id: string; name: string };
   createdByType: string;
   file?: AssetFile;
   fileName: string;

@@ -11,6 +11,9 @@ import Thread from "./Thread";
 
 type Props = {
   me?: User;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean | null;
+  hasDeleteRight: boolean | null;
   comments?: Comment[];
   emptyText?: string;
   collapsed: boolean;
@@ -22,6 +25,9 @@ type Props = {
 
 const CommentsPanel: React.FC<Props> = ({
   me,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   comments,
   emptyText,
   collapsed,
@@ -50,6 +56,8 @@ const CommentsPanel: React.FC<Props> = ({
               <CommentsContainer>
                 <Thread
                   me={me}
+                  hasUpdateRight={hasUpdateRight}
+                  hasDeleteRight={hasDeleteRight}
                   comments={comments}
                   onCommentUpdate={onCommentUpdate}
                   onCommentDelete={onCommentDelete}
@@ -61,7 +69,10 @@ const CommentsPanel: React.FC<Props> = ({
               <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
             ) : null}
 
-            <Editor isInputDisabled={!comments} onCommentCreate={onCommentCreate} />
+            <Editor
+              isInputDisabled={!comments || !hasCreateRight}
+              onCommentCreate={onCommentCreate}
+            />
           </>
         )}
       </ContentWrapper>

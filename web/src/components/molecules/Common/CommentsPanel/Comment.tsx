@@ -17,12 +17,21 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
   me?: User;
+  hasUpdateRight: boolean | null;
+  hasDeleteRight: boolean | null;
   comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
 };
 
-const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onCommentDelete }) => {
+const CommentMolecule: React.FC<Props> = ({
+  me,
+  hasUpdateRight,
+  hasDeleteRight,
+  comment,
+  onCommentUpdate,
+  onCommentDelete,
+}) => {
   const [showEditor, setShowEditor] = useState(false);
   const [value, setValue] = useState(comment.content);
 
@@ -49,20 +58,36 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
     [comment.createdAt],
   );
 
+  const actions = useMemo(() => {
+    const result = [];
+    const isMine = me?.id === comment.author.id;
+    if (hasDeleteRight || (hasDeleteRight === null && isMine)) {
+      result.push(<Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />);
+    }
+    if (hasUpdateRight || (hasUpdateRight === null && isMine)) {
+      result.push(
+        <Icon
+          key="edit"
+          icon={showEditor ? "check" : "edit"}
+          onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
+        />,
+      );
+    }
+    return result;
+  }, [
+    comment.author.id,
+    comment.id,
+    handleSubmit,
+    hasDeleteRight,
+    hasUpdateRight,
+    me?.id,
+    onCommentDelete,
+    showEditor,
+  ]);
+
   return (
     <StyledComment
-      actions={
-        me?.id === comment.author.id
-          ? [
-              <Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />,
-              showEditor ? (
-                <Icon key="edit" icon="check" onClick={handleSubmit} />
-              ) : (
-                <Icon key="edit" icon="edit" onClick={() => setShowEditor(true)} />
-              ),
-            ]
-          : []
-      }
+      actions={actions}
       author={comment.author.name}
       avatar={
         comment.author.type === "Integration" ? (
