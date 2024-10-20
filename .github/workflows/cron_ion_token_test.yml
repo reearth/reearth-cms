@@ -9,11 +9,16 @@ env:
 jobs:
   update_ion_token:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # To checkout
+      id-token: write # To authenticate with Google Cloud using OIDC
     steps:
+      - uses: actions/checkout@v4
+
       - uses: google-github-actions/auth@v2
         with:
           service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER}}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Download reearth config
