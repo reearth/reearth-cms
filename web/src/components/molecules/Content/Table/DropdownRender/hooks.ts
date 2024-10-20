@@ -1,4 +1,4 @@
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -38,15 +38,34 @@ export default (
   const t = useT();
   const [form] = Form.useForm();
 
+  const defaultValueGet = useCallback(() => {
+    switch (filter.type) {
+      case "Select":
+      case "Tag":
+      case "Person":
+      case "Bool":
+      case "Checkbox":
+        return defaultValue?.value?.toString();
+      case "Date":
+        return defaultValue && defaultValue.value !== "" ? dayjs(defaultValue.value) : undefined;
+      default:
+        return defaultValue?.value;
+    }
+  }, [defaultValue, filter.type]);
+
   useEffect(() => {
-    if (open && !defaultValue) {
-      form.resetFields();
-      setIsShowInputField(true);
-      if (!isFilter && filterOption.current) {
-        filterOption.current.value = "ASC";
+    if (open) {
+      if (defaultValue) {
+        form.setFieldsValue({ condition: defaultValue.operator, value: defaultValueGet() });
+      } else {
+        form.resetFields();
+        setIsShowInputField(true);
+        if (!isFilter && filterOption.current) {
+          filterOption.current.value = "ASC";
+        }
       }
     }
-  }, [open, form, defaultValue, isFilter]);
+  }, [open, form, defaultValue, isFilter, defaultValueGet]);
 
   const options = useMemo(() => {
     const result: {
@@ -236,31 +255,33 @@ export default (
   const filterValue = useRef<string>();
 
   useEffect(() => {
+    let isShow = true;
     if (defaultValue) {
+      const { operator, operatorType, value } = defaultValue;
       filterOption.current = {
-        value: defaultValue.operator,
-        operatorType: defaultValue.operatorType,
+        value: operator,
+        operatorType,
       };
-      filterValue.current = defaultValue.value;
+      filterValue.current = value;
+      if (
+        operatorType === "nullable" ||
+        operator === TimeOperator.OfThisWeek ||
+        operator === TimeOperator.OfThisMonth ||
+        operator === TimeOperator.OfThisYear
+      ) {
+        isShow = false;
+      }
     } else {
+      const { value, operatorType } = options[0];
       filterOption.current = {
-        value: options[0].value,
-        operatorType: options[0].operatorType,
+        value,
+        operatorType,
       };
+      if (operatorType === "nullable") {
+        isShow = false;
+      }
     }
-
-    if (defaultValue?.operatorType === "nullable") {
-      setIsShowInputField(false);
-    } else if (
-      defaultValue?.operator === TimeOperator.OfThisWeek ||
-      defaultValue?.operator === TimeOperator.OfThisMonth ||
-      defaultValue?.operator === TimeOperator.OfThisYear
-    ) {
-      setIsShowInputField(false);
-      defaultValue.value = "";
-    } else {
-      setIsShowInputField(true);
-    }
+    setIsShowInputField(isShow);
   }, [defaultValue, options]);
 
   const confirm = useCallback(() => {

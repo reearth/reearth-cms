@@ -10,7 +10,8 @@ import (
 func TestNewKey(t *testing.T) {
 	assert.Equal(t, Key{key: "aaaaaaa"}, NewKey("aaaaaaa"))
 	assert.Equal(t, Key{key: "aaaa"}, NewKey("aaaa"))
-	assert.Equal(t, Key{}, NewKey("aaa!@#"))
+	assert.Equal(t, Key{key: "aaa!@#"}, NewKey("aaa!@#"))
+	assert.Equal(t, Key{key: "テスト"}, NewKey("テスト"))
 }
 
 func TestRandomKey(t *testing.T) {
@@ -23,6 +24,14 @@ func TestKey_IsValid(t *testing.T) {
 	assert.True(t, Key{key: "aaa"}.IsValid())
 	assert.False(t, Key{}.IsValid())
 	assert.False(t, Key{key: "id"}.IsValid())
+}
+
+func TestKey_IsURLCompatible(t *testing.T) {
+	assert.True(t, Key{key: "aaa"}.IsURLCompatible())
+	assert.False(t, Key{}.IsURLCompatible())
+	assert.False(t, Key{key: "id"}.IsURLCompatible())
+	assert.False(t, Key{key: "#aaa"}.IsURLCompatible())
+	assert.False(t, Key{key: "a b"}.IsURLCompatible())
 }
 
 func TestKey_Ref(t *testing.T) {
