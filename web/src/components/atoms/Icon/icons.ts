@@ -55,6 +55,7 @@ import {
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import ArrowUpRight from "./Icons/arrowUpRight.svg";
+import ArrowUpRightSlash from "./Icons/arrowUpRightSlash.svg";
 import Asset from "./Icons/asset.svg";
 import Boolean from "./Icons/boolean.svg";
 import CheckSquare from "./Icons/checkSquare.svg";
@@ -123,6 +124,7 @@ export default {
   asset: Asset,
   listBullets: ListBullets,
   arrowUpRight: ArrowUpRight,
+  arrowUpRightSlash: ArrowUpRightSlash,
   numberNine: NumberNine,
   link: Link,
   linkSolid: LinkSolid,

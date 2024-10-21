@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useRef, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -74,7 +74,6 @@ const LinkAssetModal: React.FC<Props> = ({
   onUploadAndLink,
 }) => {
   const t = useT();
-  const [hoveredAssetId, setHoveredAssetId] = useState<string>();
   const resetFlag = useRef(false);
 
   const options: OptionConfig = useMemo(
@@ -127,14 +126,10 @@ const LinkAssetModal: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         render: (_, asset) => {
-          const isLink =
-            (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
-            (asset.id !== linkedAsset?.id && hoveredAssetId === asset.id);
+          const isLink = asset.id !== linkedAsset?.id;
           return (
             <Button
               type="link"
-              onMouseEnter={() => setHoveredAssetId(asset.id)}
-              onMouseLeave={() => setHoveredAssetId(undefined)}
               icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
               onClick={() => onLinkClick(isLink, asset)}
             />
@@ -184,7 +179,7 @@ const LinkAssetModal: React.FC<Props> = ({
         minWidth: 100,
       },
     ],
-    [hoveredAssetId, linkedAsset?.id, onLinkClick, t],
+    [linkedAsset?.id, onLinkClick, t],
   );
 
   const handleChange = useCallback(
@@ -242,9 +237,7 @@ const LinkAssetModal: React.FC<Props> = ({
       width="70vw"
       styles={{
         body: {
-          minHeight: "50vh",
-          position: "relative",
-          padding: "12px",
+          height: "70vh",
         },
       }}>
       <ResizableProTable
