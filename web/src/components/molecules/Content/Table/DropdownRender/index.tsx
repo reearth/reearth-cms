@@ -156,6 +156,10 @@ const StyledFormItem = styled(Form.Item)`
 
 const TextWrapper = styled.span`
   min-width: 137px;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-align: left;
 `;
 
