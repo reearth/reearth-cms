@@ -820,6 +820,15 @@ type RemoveMemberFromWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type RemoveMultipleMembersFromWorkspacePayload struct {
+	Workspace *Workspace `json:"workspace"`
+}
+
+type RemoveMultipleUsersFromWorkspaceInput struct {
+	WorkspaceID ID   `json:"workspaceId"`
+	UserIds     []ID `json:"userIds"`
+}
+
 type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
 }
