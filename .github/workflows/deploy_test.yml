@@ -34,6 +34,9 @@ jobs:
     name: Deploy web to test env
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # To checkout
+      id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - uses: actions/create-github-app-token@v1
         id: app-token
@@ -55,7 +58,8 @@ jobs:
         run: tar -xvf reearth-cms-web.tar.gz
       - uses: google-github-actions/auth@v2
         with:
-          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Deploy
@@ -65,12 +69,16 @@ jobs:
     name: Deploy server to test env
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+    permissions:
+      contents: read # To checkout
+      id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - uses: actions/checkout@v4
 
       - uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Configure docker
@@ -92,12 +100,16 @@ jobs:
     name: Deploy web to test env
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'web-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+    permissions:
+      contents: read # To checkout
+      id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - uses: actions/checkout@v4
 
       - uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Configure docker
@@ -119,12 +131,16 @@ jobs:
     name: Deploy worker to test env
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'worker-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+    permissions:
+      contents: read # To checkout
+      id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - uses: actions/checkout@v4
       
       - uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Configure docker
