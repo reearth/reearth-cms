@@ -688,6 +688,12 @@ type ComplexityRoot struct {
 		MaxLength    func(childComplexity int) int
 	}
 
+	SchemaFieldNumber struct {
+		DefaultValue func(childComplexity int) int
+		Max          func(childComplexity int) int
+		Min          func(childComplexity int) int
+	}
+
 	SchemaFieldReference struct {
 		CorrespondingField   func(childComplexity int) int
 		CorrespondingFieldID func(childComplexity int) int
@@ -4003,6 +4009,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldMarkdown.MaxLength(childComplexity), true
 
+	case "SchemaFieldNumber.defaultValue":
+		if e.complexity.SchemaFieldNumber.DefaultValue == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldNumber.DefaultValue(childComplexity), true
+
+	case "SchemaFieldNumber.max":
+		if e.complexity.SchemaFieldNumber.Max == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldNumber.Max(childComplexity), true
+
+	case "SchemaFieldNumber.min":
+		if e.complexity.SchemaFieldNumber.Min == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldNumber.Min(childComplexity), true
+
 	case "SchemaFieldReference.correspondingField":
 		if e.complexity.SchemaFieldReference.CorrespondingField == nil {
 			break
@@ -4758,6 +4785,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldGroupInput,
 		ec.unmarshalInputSchemaFieldIntegerInput,
 		ec.unmarshalInputSchemaFieldLineStringInput,
+		ec.unmarshalInputSchemaFieldNumberInput,
 		ec.unmarshalInputSchemaFieldReferenceInput,
 		ec.unmarshalInputSchemaFieldRichTextInput,
 		ec.unmarshalInputSchemaFieldSelectInput,
@@ -5159,6 +5187,7 @@ extend type Mutation {
   Select
   Tag
   Integer
+  Number
   Reference
   Checkbox
   URL
@@ -5231,6 +5260,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldSelect
   | SchemaFieldTag
   | SchemaFieldInteger
+  | SchemaFieldNumber
   | SchemaFieldReference
   | SchemaFieldURL
   | SchemaFieldCheckbox
@@ -5290,6 +5320,12 @@ type SchemaFieldInteger {
   defaultValue: Any
   min: Int
   max: Int
+}
+
+type SchemaFieldNumber {
+  defaultValue: Any
+  min: Float
+  max: Float
 }
 
 type SchemaFieldReference {
@@ -5382,6 +5418,12 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input SchemaFieldNumberInput {
+  defaultValue: Any
+  min: Float
+  max: Float
+}
+
 input CorrespondingFieldInput {
   fieldId: ID
   title: String!
@@ -5430,6 +5472,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   tag: SchemaFieldTagInput
   checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
+  number: SchemaFieldNumberInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
@@ -6383,6 +6426,7 @@ input CreateRequestInput {
   reviewersId: [ID!]
   items: [RequestItemInput!]!
 }
+
 
 input UpdateRequestInput {
   requestId: ID!
@@ -28701,6 +28745,129 @@ func (ec *executionContext) fieldContext_SchemaFieldMarkdown_maxLength(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldNumber_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldNumber) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldNumber_defaultValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(any)
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldNumber_defaultValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldNumber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Any does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldNumber_min(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldNumber) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldNumber_min(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Min, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldNumber_min(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldNumber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldNumber_max(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldNumber) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldNumber_max(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Max, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldNumber_max(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldNumber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldReference_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldReference_modelId(ctx, field)
 	if err != nil {
@@ -38185,6 +38352,47 @@ func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSchemaFieldNumberInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldNumberInput, error) {
+	var it gqlmodel.SchemaFieldNumberInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"defaultValue", "min", "max"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "defaultValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
+			data, err := ec.unmarshalOAny2interface(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DefaultValue = data
+		case "min":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("min"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Min = data
+		case "max":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Max = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldReferenceInput, error) {
 	var it gqlmodel.SchemaFieldReferenceInput
 	asMap := map[string]interface{}{}
@@ -38444,7 +38652,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url", "group", "geometryObject", "geometryEditor"}
+	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "number", "reference", "url", "group", "geometryObject", "geometryEditor"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -38735,6 +38943,32 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 				it.Integer = nil
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldIntegerInput`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "number":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx, v)
+			}
+
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.OnlyOne == nil {
+					var zeroVal *gqlmodel.SchemaFieldNumberInput
+					return zeroVal, errors.New("directive onlyOne is not implemented")
+				}
+				return ec.directives.OnlyOne(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*gqlmodel.SchemaFieldNumberInput); ok {
+				it.Number = data
+			} else if tmp == nil {
+				it.Number = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldNumberInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "reference":
@@ -40644,6 +40878,13 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldInteger(ctx, sel, obj)
+	case gqlmodel.SchemaFieldNumber:
+		return ec._SchemaFieldNumber(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldNumber:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldNumber(ctx, sel, obj)
 	case gqlmodel.SchemaFieldReference:
 		return ec._SchemaFieldReference(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldReference:
@@ -46592,6 +46833,46 @@ func (ec *executionContext) _SchemaFieldMarkdown(ctx context.Context, sel ast.Se
 	return out
 }
 
+var schemaFieldNumberImplementors = []string{"SchemaFieldNumber", "SchemaFieldTypeProperty"}
+
+func (ec *executionContext) _SchemaFieldNumber(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldNumber) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldNumberImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldNumber")
+		case "defaultValue":
+			out.Values[i] = ec._SchemaFieldNumber_defaultValue(ctx, field, obj)
+		case "min":
+			out.Values[i] = ec._SchemaFieldNumber_min(ctx, field, obj)
+		case "max":
+			out.Values[i] = ec._SchemaFieldNumber_max(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var schemaFieldReferenceImplementors = []string{"SchemaFieldReference", "SchemaFieldTypeProperty"}
 
 func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldReference) graphql.Marshaler {
@@ -52132,6 +52413,22 @@ func (ec *executionContext) marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋre
 	return ec._FieldsPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
 func (ec *executionContext) marshalOGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Group) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -52846,6 +53143,14 @@ func (ec *executionContext) unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputSchemaFieldIntegerInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldNumberInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSchemaFieldNumberInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
