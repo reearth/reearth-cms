@@ -214,9 +214,13 @@ func TestPublicAPI(t *testing.T) {
 			"page":    1,
 			"results": []map[string]any{
 				map[string]any{
-					"id":   publicAPIAsset1ID.String(),
-					"type": "asset",
-					"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+					"id":          publicAPIAsset1ID.String(),
+					"type":        "asset",
+					"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+					"contentType": "application/zip",
+					"files": []string{
+						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+					},
 				},
 			},
 			"totalCount": 1,
@@ -227,9 +231,13 @@ func TestPublicAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		IsEqual(map[string]any{
-			"type": "asset",
-			"id":   publicAPIAsset1ID.String(),
-			"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+			"type":        "asset",
+			"id":          publicAPIAsset1ID.String(),
+			"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+			"contentType": "application/zip",
+			"files": []string{
+				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+			},
 		})
 
 	// make the project's assets private
@@ -370,8 +378,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 
 	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID()).
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
-	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
-
+	af := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(1).Children([]*asset.File{asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()}).Build()
 	fid := id.NewFieldID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
@@ -434,7 +441,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 
 	lo.Must0(r.Project.Save(ctx, p1))
 	lo.Must0(r.Asset.Save(ctx, a))
-	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af.Clone()))
+	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af))
 	lo.Must0(r.Schema.Save(ctx, s))
 	lo.Must0(r.Model.Save(ctx, m))
 	lo.Must0(r.Item.Save(ctx, i1))
