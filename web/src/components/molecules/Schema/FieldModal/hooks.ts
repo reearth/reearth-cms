@@ -3,7 +3,11 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
-import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
+import {
+  keyAutoFill,
+  keyReplace,
+  emptyConvert,
+} from "@reearth-cms/components/molecules/Common/Form/utils";
 import {
   Field,
   FieldModalTabs,
@@ -118,9 +122,12 @@ export default (
     }
   }, []);
 
+  const changedKeys = useRef(new Set<string>());
+  const defaultValueRef = useRef<Partial<FormTypes>>();
+
   useEffect(() => {
     setMultipleValue(!!selectedField?.multiple);
-    form.setFieldsValue({
+    const defaultValue = {
       fieldId: selectedField?.id,
       title: selectedField?.title,
       description: selectedField?.description,
@@ -139,7 +146,10 @@ export default (
       supportedTypes:
         selectedField?.typeProperty?.objectSupportedTypes ||
         selectedField?.typeProperty?.editorSupportedTypes?.[0],
-    });
+    };
+    form.setFieldsValue(defaultValue);
+    defaultValueRef.current = defaultValue;
+    changedKeys.current.clear();
   }, [defaultValueGet, form, selectedField]);
 
   const typePropertyGet = useCallback((values: FormTypes) => {
@@ -230,13 +240,35 @@ export default (
       } else {
         form
           .validateFields()
-          .then(() => setButtonDisabled(false))
+          .then(() => setButtonDisabled(changedKeys.current.size === 0))
           .catch(() => setButtonDisabled(true));
       }
     } else {
       setButtonDisabled(true);
     }
   }, [form, values]);
+
+  const handleValuesChange = useCallback(async (changedValues: Record<string, unknown>) => {
+      const [key, value] = Object.entries(changedValues)[0];
+      let changedValue = value;
+      let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
+      if (Array.isArray(value)) {
+        changedValue = [...value].sort();
+      }
+      if (Array.isArray(defaultValue)) {
+        defaultValue = [...defaultValue].sort();
+      }
+
+      if (
+        JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))
+      ) {
+        changedKeys.current.delete(key);
+      } else {
+        changedKeys.current.add(key);
+      }
+    },
+    [],
+  );
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -357,6 +389,7 @@ export default (
     multipleValue,
     handleMultipleChange,
     handleTabChange,
+    handleValuesChange,
     handleNameChange,
     handleKeyChange,
     handleSubmit,

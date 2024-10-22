@@ -28,7 +28,7 @@ type Props = {
 const FilterDropdown: React.FC<Props> = ({
   filter,
   index,
-  defaultValue: value,
+  defaultValue,
   filterRemove,
   isFilterOpen,
   currentView,
@@ -61,7 +61,7 @@ const FilterDropdown: React.FC<Props> = ({
           filter={filter}
           index={index}
           close={close}
-          defaultValue={value}
+          defaultValue={defaultValue}
           open={open}
           isFilter={true}
           currentView={currentView}
