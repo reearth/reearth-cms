@@ -235,11 +235,48 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	res.Value("lastModified").NotNull()
 	// endregion
 
-	// region GeoObject
+	//region number
 	res = e.POST(endpoint, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey2",
+			"type":     "number",
+			"multiple": false,
+			"required": false,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.ContainsKey("id")
+
+	res = e.GET("/api/models/{modelId}", mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.HasValue("id", mId1.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
+		HasValue("public", true).
+		HasValue("key", ikey1.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid1)
+
+	res.Value("schema").Object().Value("fields").Array().Length().IsEqual(5)
+	res.Value("createdAt").NotNull()
+	res.Value("updatedAt").NotNull()
+	res.Value("lastModified").NotNull()
+	// endregion
+
+	// region GeoObject
+	res = e.POST(endpoint, sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"key":      "fKey3",
 			"type":     "geometryObject",
 			"multiple": false,
 			"required": false,
