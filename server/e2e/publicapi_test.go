@@ -220,6 +220,7 @@ func TestPublicAPI(t *testing.T) {
 					"contentType": "application/zip",
 					"files": []string{
 						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
 					},
 				},
 			},
@@ -237,6 +238,7 @@ func TestPublicAPI(t *testing.T) {
 			"contentType": "application/zip",
 			"files": []string{
 				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
 			},
 		})
 
@@ -378,7 +380,9 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 
 	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID()).
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
-	af := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(1).Children([]*asset.File{asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()}).Build()
+	c := []*asset.File{asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build(), asset.NewFile().Name("ccc.txt").Path("aaa/ccc.txt").Build()}
+	af := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(10).Children(c).Build()
+
 	fid := id.NewFieldID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}

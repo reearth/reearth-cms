@@ -33,7 +33,7 @@ func GetController(ctx context.Context) *Controller {
 
 func Echo(e *echo.Group) {
 	e.Use(middleware.CORS())
-	e.GET("/:project/:model", PublicApiItemList())
+	e.GET("/:project/:model", PublicApiItemOrAssetList())
 	e.GET("/:project/:model/:item", PublicApiItemOrAsset())
 }
 
@@ -59,7 +59,7 @@ func PublicApiItemOrAsset() echo.HandlerFunc {
 	}
 }
 
-func PublicApiItemList() echo.HandlerFunc {
+func PublicApiItemOrAssetList() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(ctx)
@@ -71,6 +71,14 @@ func PublicApiItemList() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, "invalid offset or limit")
 		}
 
+		if mKey == "assets" {
+			res, err := ctrl.GetAssets(ctx, pKey, p)
+			if err != nil {
+				return err
+			}
+			return c.JSON(http.StatusOK, res)
+		}
+
 		resType := ""
 		if strings.Contains(mKey, ".") {
 			mKey, resType, _ = strings.Cut(mKey, ".")
@@ -79,18 +87,13 @@ func PublicApiItemList() echo.HandlerFunc {
 			resType = "json"
 		}
 
-		var res any
-		if mKey == "assets" {
-			res, err = ctrl.GetAssets(ctx, pKey, p)
-		} else {
-			res, _, err = ctrl.GetItems(ctx, pKey, mKey, p)
-		}
+		res, _, err := ctrl.GetItems(ctx, pKey, mKey, p)
 		if err != nil {
 			return err
 		}
 
 		vi, s, err := ctrl.GetVersionedItems(ctx, pKey, mKey, p)
-		if mKey != "assets" && err != nil {
+		if err != nil {
 			return err
 		}
 
