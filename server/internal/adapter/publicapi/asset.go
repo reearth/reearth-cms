@@ -49,7 +49,7 @@ func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (L
 		return ListResult[Asset]{}, rerror.ErrNotFound
 	}
 
-	a, pi, err := c.usecases.Asset.FindByProject(ctx, prj.ID(), interfaces.AssetFilter{
+	al, pi, err := c.usecases.Asset.FindByProject(ctx, prj.ID(), interfaces.AssetFilter{
 		Sort:       nil,
 		Keyword:    nil,
 		Pagination: p.Pagination,
@@ -62,16 +62,12 @@ func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (L
 		return ListResult[Asset]{}, err
 	}
 
-	res, err := util.TryMap(a, func(i *asset.Asset) (Asset, error) {
-		f, err := c.usecases.Asset.FindFileByID(ctx, i.ID(), nil)
-		if err != nil {
-			return Asset{}, err
-		}
-		return NewAsset(i, f, c.assetUrlResolver), nil
-	})
+	fileMap, err := c.usecases.Asset.FindFilesByIDs(ctx, util.Map(al, func(a *asset.Asset) id.AssetID { return a.ID() }), nil)
 	if err != nil {
 		return ListResult[Asset]{}, err
 	}
 
-	return NewListResult(res, pi, p.Pagination), nil
+	return NewListResult(util.Map(al, func(a *asset.Asset) Asset {
+		return NewAsset(a, fileMap[a.ID()], c.assetUrlResolver)
+	}), pi, p.Pagination), nil
 }
