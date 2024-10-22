@@ -15,6 +15,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: server/go.mod
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
@@ -35,6 +36,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: server/go.mod
       - name: check forgotten translations
         working-directory: server
         run: make i18n-ci
@@ -53,6 +55,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: server/go.mod
       - name: test
         run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m
         working-directory: server
