@@ -1,9 +1,8 @@
 name: worker-build
 on:
-  workflow_run:
-    workflows: [ci-worker]
-    types: [completed]
+  push:
     branches: [main, release]
+    paths: [worker/**, .github/workflows/build_worker.yml]
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
