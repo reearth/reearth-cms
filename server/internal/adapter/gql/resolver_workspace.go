@@ -6,11 +6,13 @@ package gql
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -38,9 +40,8 @@ func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.D
 		return nil, err
 	}
 
-	if err := usecases(ctx).WorkspaceSettings.Delete(ctx, interfaces.DeleteWorkspaceSettingsParam{
-		ID: wid,
-	}, getOperator(ctx)); err != nil {
+	err = usecases(ctx).WorkspaceSettings.Delete(ctx, interfaces.DeleteWorkspaceSettingsParam{ID: wid}, getOperator(ctx))
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
 

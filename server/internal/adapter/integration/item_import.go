@@ -251,6 +251,10 @@ func isAssignable(vt1, vt2 value.Type) bool {
 		return true
 	}
 	if vt1 == value.TypeInteger &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown || vt2 == value.TypeNumber) {
+		return true
+	}
+	if vt1 == value.TypeNumber &&
 		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
 		return true
 	}
@@ -282,7 +286,7 @@ func FieldFrom(k string, v any, sp schema.Package) interfaces.CreateFieldParam {
 	case reflect.Uint64:
 	case reflect.Float32:
 	case reflect.Float64:
-		t = value.TypeInteger
+		t = value.TypeNumber
 	case reflect.String:
 		t = value.TypeText
 	default:
