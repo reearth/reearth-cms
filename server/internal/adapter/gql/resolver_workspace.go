@@ -9,9 +9,9 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/util"
 )
 
 // CreateWorkspace is the resolver for the createWorkspace field.
@@ -125,13 +125,9 @@ func (r *mutationResolver) RemoveMultipleUsersFromWorkspace(ctx context.Context,
 		return nil, err
 	}
 
-	var userIds id.UserIDList
-	for _, userID := range input.UserIds {
-		uid, err := gqlmodel.ToID[accountdomain.User](userID)
-		if err != nil {
-			return nil, err
-		}
-		userIds = append(userIds, uid)
+	userIds, err := util.TryMap(input.UserIds, gqlmodel.ToID[accountdomain.User])
+	if err != nil {
+		return nil, err
 	}
 
 	res, err := usecases(ctx).Workspace.RemoveMultipleUserMembers(ctx, wId, userIds, getAcOperator(ctx))
