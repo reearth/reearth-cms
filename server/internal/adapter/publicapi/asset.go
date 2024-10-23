@@ -62,7 +62,7 @@ func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (L
 		return ListResult[Asset]{}, err
 	}
 
-	fileMap, err := c.usecases.Asset.FindFilesByIDs(ctx, util.Map(al, func(a *asset.Asset) id.AssetID { return a.ID() }), nil)
+	fileMap, err := c.usecases.Asset.FindFilesByIDs(ctx, al.IDs(), nil)
 	if err != nil {
 		return ListResult[Asset]{}, err
 	}

@@ -1,6 +1,7 @@
 package asset
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -26,4 +27,11 @@ func (l List) Map() Map {
 	}), func(a *Asset) (ID, *Asset) {
 		return a.ID(), a
 	})
+}
+
+func (l List) IDs() (ids id.AssetIDList) {
+	for _, a := range l {
+		ids = ids.Add(a.ID())
+	}
+	return
 }
