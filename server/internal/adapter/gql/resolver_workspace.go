@@ -104,23 +104,8 @@ func (r *mutationResolver) AddIntegrationToWorkspace(ctx context.Context, input 
 	return &gqlmodel.AddUsersToWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
 }
 
-// RemoveUserFromWorkspace is the resolver for the removeUserFromWorkspace field.
-func (r *mutationResolver) RemoveUserFromWorkspace(ctx context.Context, input gqlmodel.RemoveUserFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error) {
-	tid, uid, err := gqlmodel.ToID2[accountdomain.Workspace, accountdomain.User](input.WorkspaceID, input.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := usecases(ctx).Workspace.RemoveUserMember(ctx, tid, uid, getAcOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-
-	return &gqlmodel.RemoveMemberFromWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
-}
-
 // RemoveMultipleUsersFromWorkspace is the resolver for the removeMultipleUsersFromWorkspace field.
-func (r *mutationResolver) RemoveMultipleUsersFromWorkspace(ctx context.Context, input gqlmodel.RemoveMultipleUsersFromWorkspaceInput) (*gqlmodel.RemoveMultipleMembersFromWorkspacePayload, error) {
+func (r *mutationResolver) RemoveMultipleMembersFromWorkspace(ctx context.Context, input gqlmodel.RemoveMultipleMembersFromWorkspaceInput) (*gqlmodel.RemoveMultipleMembersFromWorkspacePayload, error) {
 	wId, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
 	if err != nil {
 		return nil, err
@@ -140,7 +125,7 @@ func (r *mutationResolver) RemoveMultipleUsersFromWorkspace(ctx context.Context,
 }
 
 // RemoveIntegrationFromWorkspace is the resolver for the removeIntegrationFromWorkspace field.
-func (r *mutationResolver) RemoveIntegrationFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error) {
+func (r *mutationResolver) RemoveIntegrationFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationFromWorkspaceInput) (*gqlmodel.RemoveIntegrationFromWorkspacePayload, error) {
 	wId, iId, err := gqlmodel.ToID2[accountdomain.Workspace, accountdomain.Integration](input.WorkspaceID, input.IntegrationID)
 	if err != nil {
 		return nil, err
@@ -151,7 +136,7 @@ func (r *mutationResolver) RemoveIntegrationFromWorkspace(ctx context.Context, i
 		return nil, err
 	}
 
-	return &gqlmodel.RemoveMemberFromWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
+	return &gqlmodel.RemoveIntegrationFromWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
 }
 
 // UpdateUserOfWorkspace is the resolver for the updateUserOfWorkspace field.
