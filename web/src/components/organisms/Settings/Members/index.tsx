@@ -15,6 +15,7 @@ const Members: React.FC = () => {
     searchedUserList,
     changeSearchedUserList,
     handleUserSearch,
+    searchLoading,
     handleUserAdd,
     addLoading,
     handleUsersAddToWorkspace,
@@ -72,6 +73,7 @@ const Members: React.FC = () => {
         open={MemberAddModalShown}
         searchedUser={searchedUser}
         searchedUserList={searchedUserList}
+        searchLoading={searchLoading}
         addLoading={addLoading}
         onUserSearch={handleUserSearch}
         onUserAdd={handleUserAdd}
