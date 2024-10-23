@@ -92,7 +92,7 @@ export default () => {
     [isOwner, me.id, workspaceUserMembers],
   );
 
-  const [searchUserQuery] = useGetUserBySearchLazyQuery({
+  const [searchUserQuery, { loading: searchLoading }] = useGetUserBySearchLazyQuery({
     fetchPolicy: "no-cache",
   });
 
@@ -258,6 +258,7 @@ export default () => {
     searchedUserList,
     changeSearchedUserList,
     handleUserSearch,
+    searchLoading,
     handleUserAdd,
     addLoading,
     handleUsersAddToWorkspace,
