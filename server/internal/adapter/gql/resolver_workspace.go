@@ -9,6 +9,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 )
@@ -119,27 +120,26 @@ func (r *mutationResolver) RemoveUserFromWorkspace(ctx context.Context, input gq
 
 // RemoveMultipleUsersFromWorkspace is the resolver for the removeMultipleUsersFromWorkspace field.
 func (r *mutationResolver) RemoveMultipleUsersFromWorkspace(ctx context.Context, input gqlmodel.RemoveMultipleUsersFromWorkspaceInput) (*gqlmodel.RemoveMultipleMembersFromWorkspacePayload, error) {
-	panic("not implemented")
-	// wId, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	wId, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
+	if err != nil {
+		return nil, err
+	}
 
-	// var userIds id.UserIDList
-	// for _, userID := range input.UserIds {
-	// 	uid, err := gqlmodel.ToID[accountdomain.User](userID)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	userIds = append(userIds, uid)
-	// }
+	var userIds id.UserIDList
+	for _, userID := range input.UserIds {
+		uid, err := gqlmodel.ToID[accountdomain.User](userID)
+		if err != nil {
+			return nil, err
+		}
+		userIds = append(userIds, uid)
+	}
 
-	// res, err := usecases(ctx).Workspace.RemoveMultipleUserMembers(ctx, wId, userIds, getAcOperator(ctx))
-	// if err != nil {
-	// 	return nil, err
-	// }
+	res, err := usecases(ctx).Workspace.RemoveMultipleUserMembers(ctx, wId, userIds, getAcOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
 
-	// return &gqlmodel.RemoveMultipleMembersFromWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
+	return &gqlmodel.RemoveMultipleMembersFromWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
 }
 
 // RemoveIntegrationFromWorkspace is the resolver for the removeIntegrationFromWorkspace field.
