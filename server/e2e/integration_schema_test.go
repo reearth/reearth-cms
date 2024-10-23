@@ -184,18 +184,27 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		JSON().
 		Object()
 
-	res.HasValue("id", mId1.String()).
-		HasValue("name", "m1").
-		HasValue("description", "m1 desc").
-		HasValue("public", true).
-		HasValue("key", ikey1.String()).
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
+	res.ContainsSubset(map[string]any{
+		"name":        "m1",
+		"id":          mId1.String(),
+		"description": "m1 desc",
+		"public":      true,
+		"key":         ikey1.String(),
+		"projectId":   pid,
+		"schemaId":    sid1,
+	})
 
-	res.Value("schema").Object().Value("fields").Array().Length().IsEqual(3)
 	res.Value("createdAt").NotNull()
 	res.Value("updatedAt").NotNull()
 	res.Value("lastModified").NotNull()
+	resf := res.Value("schema").Object().Value("fields").Array()
+	resf.Length().IsEqual(3)
+	resf.Value(2).Object().ContainsSubset(map[string]any{
+		// "id":    "", // generated
+		"key":      "テスト",
+		"type":     "text",
+		"required": false,
+	})
 	// endregion
 
 	//region bool
@@ -229,17 +238,68 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
 
-	res.Value("schema").Object().Value("fields").Array().Length().IsEqual(4)
 	res.Value("createdAt").NotNull()
 	res.Value("updatedAt").NotNull()
 	res.Value("lastModified").NotNull()
+	resf = res.Value("schema").Object().Value("fields").Array()
+	resf.Length().IsEqual(4)
+	resf.Value(3).Object().ContainsSubset(map[string]any{
+		// "id":    "", // generated
+		"key":      "fKey1",
+		"type":     "bool",
+		"required": false,
+	})
+	// endregion
+
+	//region number
+	res = e.POST(endpoint, sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"key":      "fKey2",
+			"type":     "number",
+			"multiple": false,
+			"required": false,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.ContainsKey("id")
+
+	res = e.GET("/api/models/{modelId}", mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.HasValue("id", mId1.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
+		HasValue("public", true).
+		HasValue("key", ikey1.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid1)
+
+	res.Value("createdAt").NotNull()
+	res.Value("updatedAt").NotNull()
+	res.Value("lastModified").NotNull()
+	resf = res.Value("schema").Object().Value("fields").Array()
+	resf.Length().IsEqual(5)
+	resf.Value(4).Object().ContainsSubset(map[string]any{
+		// "id":    "", // generated
+		"key":      "fKey2",
+		"type":     "number",
+		"required": false,
+	})
 	// endregion
 
 	// region GeoObject
 	res = e.POST(endpoint, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
-			"key":      "fKey2",
+			"key":      "fKey3",
 			"type":     "geometryObject",
 			"multiple": false,
 			"required": false,
