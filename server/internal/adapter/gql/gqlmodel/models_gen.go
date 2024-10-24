@@ -816,17 +816,21 @@ type RemoveIntegrationFromWorkspaceInput struct {
 	IntegrationID ID `json:"integrationId"`
 }
 
-type RemoveMemberFromWorkspacePayload struct {
+type RemoveIntegrationFromWorkspacePayload struct {
+	Workspace *Workspace `json:"workspace"`
+}
+
+type RemoveMultipleMembersFromWorkspaceInput struct {
+	WorkspaceID ID   `json:"workspaceId"`
+	UserIds     []ID `json:"userIds"`
+}
+
+type RemoveMultipleMembersFromWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
 type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
-}
-
-type RemoveUserFromWorkspaceInput struct {
-	WorkspaceID ID `json:"workspaceId"`
-	UserID      ID `json:"userId"`
 }
 
 type Request struct {
