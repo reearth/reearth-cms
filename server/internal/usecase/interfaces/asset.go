@@ -61,6 +61,7 @@ type Asset interface {
 	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
 	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
 	FindFileByID(context.Context, id.AssetID, *usecase.Operator) (*asset.File, error)
+	FindFilesByIDs(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]*asset.File, error)
 	DownloadByID(context.Context, id.AssetID, *usecase.Operator) (io.ReadCloser, error)
 	GetURL(*asset.Asset) string
 	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, *asset.File, error)
