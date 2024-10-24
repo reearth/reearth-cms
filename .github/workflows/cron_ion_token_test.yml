@@ -4,19 +4,20 @@ on:
     - cron: "0 0 2 * *"
   workflow_dispatch:
 env:
-  GCS_DOMAIN: gs://cms.test.reearth.dev
-  REEARTH_CONFIG_FILENAME: reearth_config.json
+  CMS_WEB: reearth-cms-web
+  REGION: us-central1
 jobs:
   update_ion_token:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # To checkout
+      id-token: write # To authenticate with Google Cloud using OIDC
     steps:
+      - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-      - name: Download reearth config
-        run: gsutil cp "${{ env.GCS_DOMAIN }}/${{ env.REEARTH_CONFIG_FILENAME }}" .
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER}}
       - name: Get Cesium Ion token
         id: ion_token
         run: |
@@ -35,9 +36,9 @@ jobs:
           " \
           )
           echo "token=${ION_TOKEN}" >> $GITHUB_OUTPUT
-      - name: Update Ion token in reearth config
+      - name: Update Cloud Run
         run: |
-          echo $(cat ${{ env.REEARTH_CONFIG_FILENAME }} | jq -r '.cesiumIonAccessToken |= "${{ steps.ion_token.outputs.token }}"') > ${{ env.REEARTH_CONFIG_FILENAME }}
-          echo $(cat ${{ env.REEARTH_CONFIG_FILENAME }})
-      - name: Upload reearth config
-        run: gsutil -h "Cache-Control:no-store" cp reearth_config.json "${{ env.GCS_DOMAIN }}/${{ env.REEARTH_CONFIG_FILENAME }}"
+          gcloud run services update $CMS_WEB \
+            --update-env-vars REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN=${{ steps.ion_token.outputs.token }} \
+            --region $REGION \
+            --platform managed

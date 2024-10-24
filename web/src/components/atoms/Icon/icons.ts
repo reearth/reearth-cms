@@ -51,6 +51,7 @@ import {
   ReloadOutlined,
   SortAscendingOutlined,
   FilterOutlined,
+  CommentOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -179,4 +180,5 @@ export default {
   editorCopy: EditorCopy,
   circle: Circle,
   rectangle: Rectangle,
+  comment: CommentOutlined,
 };
