@@ -203,16 +203,42 @@ func TestPublicAPI(t *testing.T) {
 			"error": "not found",
 		})
 
+	e.GET("/api/p/{project}/assets", publicAPIProjectAlias).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"hasMore": false,
+			"limit":   50,
+			"offset":  0,
+			"page":    1,
+			"results": []map[string]any{
+				map[string]any{
+					"id":          publicAPIAsset1ID.String(),
+					"type":        "asset",
+					"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+					"contentType": "application/zip",
+					"files": []string{
+						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+					},
+				},
+			},
+			"totalCount": 1,
+		})
+
 	e.GET("/api/p/{project}/assets/{assetid}", publicAPIProjectAlias, publicAPIAsset1ID).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
 		IsEqual(map[string]any{
-			"type": "asset",
-			"id":   publicAPIAsset1ID.String(),
-			"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+			"type":        "asset",
+			"id":          publicAPIAsset1ID.String(),
+			"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+			"contentType": "application/zip",
 			"files": []string{
 				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
 			},
 		})
 
@@ -354,7 +380,8 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 
 	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID()).
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
-	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
+	c := []*asset.File{asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build(), asset.NewFile().Name("ccc.txt").Path("aaa/ccc.txt").Build()}
+	af := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(10).Children(c).Build()
 
 	fid := id.NewFieldID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}

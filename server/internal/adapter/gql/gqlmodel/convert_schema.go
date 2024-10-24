@@ -268,10 +268,10 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 					v, _ = dv.First().ValueNumber()
 				}
 			}
-			res = &SchemaFieldInteger{
+			res = &SchemaFieldNumber{
 				DefaultValue: v,
-				Min:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Min()))),
-				Max:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Max()))),
+				Min:          util.ToPtrIfNotEmpty(float64(lo.FromPtr(f.Min()))),
+				Max:          util.ToPtrIfNotEmpty(float64(lo.FromPtr(f.Max()))),
 			}
 		},
 		Integer: func(f *schema.FieldInteger) {

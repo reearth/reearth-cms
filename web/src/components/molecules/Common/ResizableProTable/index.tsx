@@ -136,9 +136,13 @@ const StyledProTable = styled(ProTable)<{
     overflow: auto !important;
     height: calc(100% - 47px);
   }
+  .ant-pro-table-list-toolbar-container {
+    flex-direction: row;
+  }
   .ant-pro-table-list-toolbar-left {
     flex: 1;
     max-width: calc(100% - 150px);
+    margin: 0;
     .ant-pro-table-list-toolbar-search {
       width: 100%;
     }
