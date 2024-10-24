@@ -40,6 +40,7 @@ import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 type Props = {
+  title: string;
   item?: Item;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
@@ -126,6 +127,7 @@ type Props = {
 };
 
 const ContentForm: React.FC<Props> = ({
+  title,
   item,
   loadingReference,
   linkedItemsModalList,
@@ -488,7 +490,7 @@ const ContentForm: React.FC<Props> = ({
         initialValues={initialFormValues}
         onValuesChange={handleValuesChange}>
         <PageHeader
-          title={model?.name}
+          title={title}
           onBack={onBack}
           extra={
             <>
@@ -728,6 +730,7 @@ const FormItemsWrapper = styled.div`
   max-height: calc(100% - 72px);
   overflow-y: auto;
   padding: 36px;
+  border-top: 1px solid #00000008;
 `;
 
 const SideBarWrapper = styled.div`

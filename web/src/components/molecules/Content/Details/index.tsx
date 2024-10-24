@@ -27,6 +27,7 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
+  title: string;
   item?: Item;
   itemId?: string;
   itemLoading: boolean;
@@ -117,6 +118,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   modelsMenu,
   initialFormValues,
   initialMetaFormValues,
+  title,
   item,
   itemId,
   itemLoading,
@@ -198,6 +200,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           <NotFound />
         ) : (
           <ContentForm
+            title={title}
             item={item}
             linkItemModalTitle={linkItemModalTitle}
             linkItemModalTotalCount={linkItemModalTotalCount}

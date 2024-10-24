@@ -74,13 +74,15 @@ const UnzipFileList: React.FC<Props> = ({
       ) : (
         treeData && (
           <Tree
-            switcherIcon={<Icon icon="caretDown" />}
+            switcherIcon={({ expanded }) => (
+              <SwitcherIcon icon={expanded ? "folderOpen" : "folder"} size={14} />
+            )}
             defaultExpandedKeys={["0-0"]}
             selectedKeys={selectedKeys}
             onSelect={handleSelect}
             treeData={treeData}
             multiple={false}
-            showLine
+            showLine={{ showLeafIcon: true }}
             titleRender={({ title, key, path }) => {
               return (
                 <>
@@ -141,6 +143,12 @@ const CopyIcon = styled(Icon)`
   color: rgb(0, 0, 0, 0.45);
   :hover {
     color: rgba(0, 0, 0, 0.88);
+  }
+`;
+
+const SwitcherIcon = styled(Icon)`
+  svg {
+    transform: none !important;
   }
 `;
 

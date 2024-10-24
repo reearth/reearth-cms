@@ -582,6 +582,16 @@ export default () => {
     [checkIfItemIsReferenced, initialFormValues],
   );
 
+  const title = useMemo(() => {
+    let result = currentModel?.name ?? "";
+    if (currentItem) {
+      const titleField = currentModel?.schema.fields.find(field => field.isTitle);
+      const titleValue = titleField && initialFormValues[titleField.id];
+      result += ` / ${titleValue || currentItem.id}`;
+    }
+    return result;
+  }, [currentItem, currentModel?.name, currentModel?.schema.fields, initialFormValues]);
+
   return {
     loadingReference,
     linkedItemsModalList,
@@ -591,6 +601,7 @@ export default () => {
     itemLoading,
     requestCreationLoading,
     currentModel,
+    title,
     currentItem,
     initialFormValues,
     initialMetaFormValues,
