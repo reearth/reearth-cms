@@ -1,5 +1,6 @@
 import { Comment, FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { User } from "@reearth-cms/components/molecules/Member/types";
+import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
 
@@ -18,11 +19,18 @@ export type Request = {
   closedAt?: Date;
   items: {
     id: string;
+    modelId?: string;
     modelName?: string;
-    schema?: any;
-    initialValues: any;
+    version?: string;
+    schema?: Schema;
+    initialValues: Record<string, unknown>;
     referencedItems: FormItem[];
   }[];
+};
+
+export type RequestItem = {
+  itemId: string;
+  version?: string;
 };
 
 export type RequestUpdatePayload = {
@@ -31,7 +39,5 @@ export type RequestUpdatePayload = {
   description?: string;
   state?: RequestState;
   reviewersId?: string[];
-  items?: {
-    itemId: string;
-  }[];
+  items?: RequestItem[];
 };

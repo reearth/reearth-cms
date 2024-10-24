@@ -18,3 +18,6 @@ export const useProject = () => useAtom(project);
 
 const model = atom<Model | undefined>(undefined);
 export const useModel = () => useAtom(model);
+
+const collapsedModelMenu = atomWithStorage<boolean>("collapsedModelMenu", false);
+export const useCollapsedModelMenu = () => useAtom(collapsedModelMenu);

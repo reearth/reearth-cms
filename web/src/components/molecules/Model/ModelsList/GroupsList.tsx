@@ -5,6 +5,7 @@ import ReactDragListView from "react-drag-listview";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -43,7 +44,15 @@ const GroupsList: React.FC<Props> = ({
         .map(group => ({
           label: (
             <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
-              {collapsed ? <Icon icon="dot" /> : group.name}
+              {collapsed ? (
+                <Tooltip placement="right" title={group.name}>
+                  <span>
+                    <Icon icon="dot" />
+                  </span>
+                </Tooltip>
+              ) : (
+                group.name
+              )}
             </div>
           ),
           key: group.id,
@@ -76,7 +85,7 @@ const GroupsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("Groups")}</SchemaStyledMenuTitle>
+            <SchemaStyledMenuTitle>{t("GROUPS")}</SchemaStyledMenuTitle>
             <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
               {!collapsed && t("Add")}
             </SchemaAddButton>
@@ -132,7 +141,6 @@ const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-right: 1px solid #f0f0f0;
 `;
 
 const MenuWrapper = styled.div`
@@ -141,7 +149,8 @@ const MenuWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid #f0f0f0;
-  padding: 12px 20px;
+  padding: 12px 0;
+  justify-content: center;
 `;
 
 const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`

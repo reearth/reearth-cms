@@ -32,3 +32,5 @@ var IDFrom = id.SchemaIDFrom
 var IDListFrom = id.SchemaIDListFrom
 var IDFromRef = id.SchemaIDFromRef
 var ErrInvalidID = id.ErrInvalidID
+
+type FieldIDOrKey string

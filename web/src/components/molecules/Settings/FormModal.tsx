@@ -1,11 +1,10 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { Rule } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   TileType,
   TerrainType,
@@ -43,16 +42,15 @@ const TerrainTypeFormat: { [key in TerrainType]: string } = {
   CESIUM_ION: "Cesium Ion",
 };
 
-export interface Props {
-  model?: Model;
-  open?: boolean;
+type Props = {
+  open: boolean;
   onClose: () => void;
   tiles: TileInput[];
   terrains: TerrainInput[];
   setSettings: React.Dispatch<React.SetStateAction<WorkspaceSettings | undefined>>;
   isTile: boolean;
   index?: number;
-}
+};
 
 const FormModal: React.FC<Props> = ({
   open,
@@ -95,6 +93,18 @@ const FormModal: React.FC<Props> = ({
       }
     }
   }, [form, index, isTile, open, options, terrains, tiles]);
+
+  const title = useMemo(
+    () =>
+      index === undefined
+        ? isTile
+          ? t("New Tiles")
+          : t("New Terrain")
+        : isTile
+          ? t("Update Tiles")
+          : t("Update Terrain"),
+    [index, isTile, t],
+  );
 
   const handleClose = useCallback(() => {
     onClose();
@@ -162,7 +172,7 @@ const FormModal: React.FC<Props> = ({
     () => [
       {
         message: t("URL is not valid"),
-        validator: async (_: any, value: string) => {
+        validator: async (_: Rule, value: string) => {
           return value && !validateURL(value) ? Promise.reject() : Promise.resolve();
         },
       },
@@ -174,7 +184,7 @@ const FormModal: React.FC<Props> = ({
     <Modal
       open={open}
       onCancel={handleClose}
-      title={isTile ? t("New Tiles") : t("New Terrain")}
+      title={title}
       footer={[
         <Button key="submit" type="primary" onClick={handleSubmit}>
           OK

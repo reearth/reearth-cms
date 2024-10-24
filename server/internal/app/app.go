@@ -16,7 +16,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho" // nolint:staticcheck
 )
 
 func initEcho(cfg *ServerConfig) *echo.Echo {

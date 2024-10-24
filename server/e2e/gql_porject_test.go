@@ -48,7 +48,7 @@ func createProject(e *httpexpect.Expect, wID, name, desc, alias string) (string,
 }
 
 func TestCreateProject(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	_, res := createProject(e, wId.String(), "test", "test", "test-1")
 

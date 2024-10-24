@@ -39,6 +39,7 @@ export const requestFragment = gql`
               }
             }
             status
+            version
             createdAt
             updatedAt
           }

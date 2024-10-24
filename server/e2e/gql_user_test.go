@@ -48,8 +48,20 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 	if err := r.User.Save(ctx, u3); err != nil {
 		return err
 	}
+	u4 := user.New().ID(uId4).
+		Name("e2e4").
+		Workspace(wId).
+		Email("e2e4@e2e.com").
+		MustBuild()
+	if err := r.User.Save(ctx, u4); err != nil {
+		return err
+	}
 	roleOwner := workspace.Member{
 		Role:      workspace.RoleOwner,
+		InvitedBy: uId1,
+	}
+	roleMaintainer := workspace.Member{
+		Role:      workspace.RoleMaintainer,
 		InvitedBy: uId1,
 	}
 	roleReader := workspace.Member{
@@ -61,6 +73,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 		Name("e2e").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
 			uId1: roleOwner,
+			uId4: roleMaintainer,
 		}).
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
 			iId1: roleOwner,
@@ -88,7 +101,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 }
 
 func TestUpdateMe(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 	query := `mutation { updateMe(input: {name: "updated",email:"hoge@test.com",lang: "ja",theme: DEFAULT,password: "Ajsownndww1",passwordConfirmation: "Ajsownndww1"}){ me{ id name email lang theme } }}`
 	request := GraphQLRequest{
 		Query: query,
@@ -109,9 +122,9 @@ func TestUpdateMe(t *testing.T) {
 }
 
 func TestRemoveMyAuth(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederUser)
 
-	u, err := r.User.FindByID(context.Background(), uId1)
+	u, err := ar.User.FindByID(context.Background(), uId1)
 	assert.Nil(t, err)
 	assert.Equal(t, &user.Auth{Provider: "reearth", Sub: "reearth|" + uId1.String()}, u.Auths().GetByProvider("reearth"))
 
@@ -129,15 +142,15 @@ func TestRemoveMyAuth(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
 
-	u, err = r.User.FindByID(context.Background(), uId1)
+	u, err = ar.User.FindByID(context.Background(), uId1)
 	assert.Nil(t, err)
 	assert.Nil(t, u.Auths().Get("sub"))
 }
 
 func TestDeleteMe(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederUser)
 
-	u, err := r.User.FindByID(context.Background(), uId1)
+	u, err := ar.User.FindByID(context.Background(), uId1)
 	assert.Nil(t, err)
 	assert.NotNil(t, u)
 
@@ -155,12 +168,12 @@ func TestDeleteMe(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
 
-	_, err = r.User.FindByID(context.Background(), uId1)
+	_, err = ar.User.FindByID(context.Background(), uId1)
 	assert.Equal(t, rerror.ErrNotFound, err)
 }
 
 func TestMe(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 	query := ` { me{ id name email lang theme myWorkspaceId } }`
 	request := GraphQLRequest{
 		Query: query,
@@ -195,7 +208,7 @@ func TestMe(t *testing.T) {
 }
 
 func TestSearchUser(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 	query := fmt.Sprintf(` { searchUser(nameOrEmail: "%s"){ id name email } }`, "e2e")
 	request := GraphQLRequest{
 		Query: query,
@@ -230,7 +243,7 @@ func TestSearchUser(t *testing.T) {
 }
 
 func TestNode(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 	query := fmt.Sprintf(` { node(id: "%s", type: USER){ id } }`, uId1.String())
 	request := GraphQLRequest{
 		Query: query,
@@ -248,7 +261,7 @@ func TestNode(t *testing.T) {
 }
 
 func TestNodes(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 	query := fmt.Sprintf(` { nodes(id: "%s", type: USER){ id } }`, uId1.String())
 	request := GraphQLRequest{
 		Query: query,

@@ -30,7 +30,7 @@ export default ({ projectId }: Params) => {
   });
 
   const rawProject = useMemo(
-    () => data?.projects.nodes.find((p: any) => p?.id === projectId),
+    () => data?.projects.nodes.find(p => p?.id === projectId),
     [data, projectId],
   );
   const project = useMemo(

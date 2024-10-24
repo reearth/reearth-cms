@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useUpdateRequestMutation,
@@ -43,23 +43,31 @@ export default () => {
 
   const requests: Request[] = useMemo(
     () =>
-      (data?.requests.nodes
-        .map(request => fromGraphQLRequest(request as GQLRequest))
-        .filter(request => !!request) as Request[]) ?? [],
+      data?.requests.nodes
+        .filter((request): request is GQLRequest => !!request)
+        .map(request => fromGraphQLRequest(request)) ?? [],
     [data?.requests.nodes],
   );
 
   const [updateRequest] = useUpdateRequestMutation();
 
   const handleAddItemToRequest = useCallback(
-    async (request: Request, itemIds: string[]) => {
+    async (request: Request, items: RequestItem[]) => {
+      const hasDuplicatedItem = request.items.some(item1 =>
+        items.some(item2 => item1.id === item2.itemId),
+      );
+      if (hasDuplicatedItem) {
+        Notification.error({ message: t("One of the items already exists in the request.") });
+        return;
+      }
       const item = await updateRequest({
         variables: {
           requestId: request.id,
           description: request.description,
           items: [
-            ...new Set([...request.items.map(item => item.id), ...itemIds.map(itemId => itemId)]),
-          ].map(itemId => ({ itemId })),
+            ...request.items.map(item => ({ itemId: item.id, version: item.version })),
+            ...items.map(item => ({ itemId: item.itemId, version: item.version })),
+          ],
           reviewersId: request.reviewers.map(reviewer => reviewer.id),
           title: request.title,
           state: request.state as GQLRequestState,
@@ -75,7 +83,7 @@ export default () => {
     [updateRequest, t],
   );
 
-  const [publishItem] = usePublishItemMutation();
+  const [publishItem, { loading: publishLoading }] = usePublishItemMutation();
 
   const handlePublish = useCallback(
     async (itemIds: string[]) => {
@@ -95,7 +103,7 @@ export default () => {
     [publishItem, t],
   );
 
-  const [unpublishItem] = useUnpublishItemMutation();
+  const [unpublishItem, { loading: unpublishLoading }] = useUnpublishItemMutation();
 
   const handleUnpublish = useCallback(
     async (itemIds: string[]) => {
@@ -157,6 +165,8 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     loading,
+    publishLoading,
+    unpublishLoading,
     totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,

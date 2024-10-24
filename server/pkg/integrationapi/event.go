@@ -9,12 +9,12 @@ import (
 )
 
 type Event struct {
-	ID        string    `json:"eventId"`
-	Type      string    `json:"type"`
-	Timestamp time.Time `json:"timestamp"`
-	Data      any       `json:"data"`
-	Project   *Project  `json:"project"`
-	Operator  Operator  `json:"operator"`
+	ID        string          `json:"eventId"`
+	Type      string          `json:"type"`
+	Timestamp time.Time       `json:"timestamp"`
+	Data      any             `json:"data"`
+	Project   *ProjectIdAlias `json:"project"`
+	Operator  Operator        `json:"operator"`
 }
 
 type Operator struct {
@@ -33,7 +33,7 @@ type OperatorIntegration struct {
 
 type OperatorMachine struct{}
 
-type Project struct {
+type ProjectIdAlias struct {
 	ID    string `json:"id"`
 	Alias string `json:"alias"`
 }
@@ -52,9 +52,9 @@ func NewEventWith(e *event.Event[any], override any, v string, urlResolver asset
 		return Event{}, err
 	}
 
-	var prj *Project
+	var prj *ProjectIdAlias
 	if p := e.Project(); p != nil {
-		prj = &Project{
+		prj = &ProjectIdAlias{
 			ID:    p.ID,
 			Alias: p.Alias,
 		}

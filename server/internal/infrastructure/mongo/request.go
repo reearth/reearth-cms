@@ -65,12 +65,34 @@ func (r *Request) FindByIDs(ctx context.Context, ids id.RequestIDList) (request.
 	return filterRequests(ids, res), nil
 }
 
-func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList) (request.List, error) {
+func (r *Request) FindByItems(ctx context.Context, list id.ItemIDList, uFilter *repo.RequestFilter) (request.List, error) {
 
 	filter := bson.M{
 		"items.item": bson.M{
 			"$in": list.Strings(),
 		},
+	}
+
+	if uFilter != nil && uFilter.Keyword != nil {
+		filter["title"] = bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
+		}
+	}
+
+	if uFilter != nil && uFilter.State != nil {
+		filter["state"] = bson.M{
+			"$in": lo.Map(uFilter.State, func(s request.State, _ int) string {
+				return s.String()
+			}),
+		}
+	}
+
+	if uFilter != nil && uFilter.CreatedBy != nil {
+		filter["createdby"] = uFilter.CreatedBy.String()
+	}
+
+	if uFilter != nil && uFilter.Reviewer != nil {
+		filter["reviewers"] = uFilter.Reviewer.String()
 	}
 
 	return r.find(ctx, filter)
@@ -83,12 +105,6 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 
 	filter := bson.M{
 		"project": id.String(),
-	}
-
-	if uFilter.Keyword != nil {
-		filter["title"] = bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
-		}
 	}
 
 	if uFilter.State != nil {
@@ -107,8 +123,23 @@ func (r *Request) FindByProject(ctx context.Context, id id.ProjectID, uFilter re
 		filter["reviewers"] = uFilter.Reviewer.String()
 	}
 
-	rl, p, err := r.paginate(ctx, &filter, sort, page)
-	return rl, p, err
+	if uFilter.Keyword != nil {
+		keywordRegex := bson.M{"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"}}
+		filter = bson.M{
+			"$and": []bson.M{
+				filter,
+				{
+					"$or": []bson.M{
+						{"title": keywordRegex},
+						{"description": keywordRegex},
+						{"id": *uFilter.Keyword},
+						{"items.item": *uFilter.Keyword},
+					},
+				},
+			},
+		}
+	}
+	return r.paginate(ctx, &filter, sort, page)
 }
 
 func (r *Request) Save(ctx context.Context, request *request.Request) error {

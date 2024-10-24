@@ -1,25 +1,22 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useRef, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import {
   StretchColumn,
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
+import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -38,11 +35,7 @@ type Props = {
   totalCount?: number;
   page?: number;
   pageSize?: number;
-  onAssetTableChange?: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
   onChange?: (value: string) => void;
@@ -81,7 +74,6 @@ const LinkAssetModal: React.FC<Props> = ({
   onUploadAndLink,
 }) => {
   const t = useT();
-  const [hoveredAssetId, setHoveredAssetId] = useState<string>();
   const resetFlag = useRef(false);
 
   const options: OptionConfig = useMemo(
@@ -94,7 +86,7 @@ const LinkAssetModal: React.FC<Props> = ({
 
   const toolbar: ListToolBarProps = {
     search: (
-      <Input.Search
+      <Search
         allowClear
         placeholder={t("input search text")}
         onSearch={(value: string) => {
@@ -134,14 +126,10 @@ const LinkAssetModal: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         render: (_, asset) => {
-          const isLink =
-            (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
-            (asset.id !== linkedAsset?.id && hoveredAssetId === asset.id);
+          const isLink = asset.id !== linkedAsset?.id;
           return (
             <Button
               type="link"
-              onMouseEnter={() => setHoveredAssetId(asset.id)}
-              onMouseLeave={() => setHoveredAssetId(undefined)}
               icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
               onClick={() => onLinkClick(isLink, asset)}
             />
@@ -191,7 +179,31 @@ const LinkAssetModal: React.FC<Props> = ({
         minWidth: 100,
       },
     ],
-    [hoveredAssetId, linkedAsset?.id, onLinkClick, t],
+    [linkedAsset?.id, onLinkClick, t],
+  );
+
+  const handleChange = useCallback(
+    (
+      pagination: TablePaginationConfig,
+      sorter: SorterResult<unknown> | SorterResult<unknown>[],
+    ) => {
+      const page = pagination.current ?? 1;
+      const pageSize = pagination.pageSize ?? 10;
+      let sort: SortType | undefined;
+      if (!Array.isArray(sorter)) {
+        if (
+          sorter.columnKey === "DATE" ||
+          sorter.columnKey === "NAME" ||
+          sorter.columnKey === "SIZE"
+        ) {
+          const direction = sorter.order === "ascend" ? "ASC" : "DESC";
+          const type = sorter.columnKey;
+          sort = { direction, type };
+        }
+      }
+      onAssetTableChange?.(page, pageSize, sort);
+    },
+    [onAssetTableChange],
   );
 
   return (
@@ -225,9 +237,7 @@ const LinkAssetModal: React.FC<Props> = ({
       width="70vw"
       styles={{
         body: {
-          minHeight: "50vh",
-          position: "relative",
-          padding: "12px",
+          height: "70vh",
         },
       }}>
       <ResizableProTable
@@ -238,14 +248,8 @@ const LinkAssetModal: React.FC<Props> = ({
         pagination={pagination}
         toolbar={toolbar}
         loading={loading}
-        onChange={(pagination, _, sorter: any) => {
-          onAssetTableChange?.(
-            pagination.current ?? 1,
-            pagination.pageSize ?? 10,
-            sorter?.order
-              ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
-              : undefined,
-          );
+        onChange={(pagination, _, sorter) => {
+          handleChange(pagination, sorter);
         }}
         heightOffset={0}
       />

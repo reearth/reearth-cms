@@ -11,26 +11,26 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
 
-export type Props = {
+type Props = {
   me?: User;
   currentRequest: Request;
-  emptyText?: string;
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
 };
 
 const RequestThread: React.FC<Props> = ({
   me,
   currentRequest,
-  emptyText,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
   onGetAsset,
   onGroupGet,
+  onNavigateToItemEdit,
 }) => {
   return (
     <ContentWrapper>
@@ -40,6 +40,7 @@ const RequestThread: React.FC<Props> = ({
             currentRequest={currentRequest}
             onGetAsset={onGetAsset}
             onGroupGet={onGroupGet}
+            onNavigateToItemEdit={onNavigateToItemEdit}
           />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList
@@ -50,16 +51,10 @@ const RequestThread: React.FC<Props> = ({
             />
           )}
         </CommentsContainer>
-        <StyledRequestStatus requestState={currentRequest.state} />
+        <RequestStatus requestState={currentRequest.state} />
       </ThreadWrapper>
-
-      {!currentRequest.comments || currentRequest.comments.length === 0 ? (
-        <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
-      ) : null}
-
       <ThreadDivider />
-
-      <AntDComment
+      <StyledAntDComment
         avatar={<UserAvatar username={me?.name} />}
         content={<RequestEditor onCommentCreate={onCommentCreate} />}
       />
@@ -69,23 +64,12 @@ const RequestThread: React.FC<Props> = ({
 
 export default RequestThread;
 
-const StyledRequestStatus = styled(RequestStatus)`
-  display: inline-block;
-`;
-
 const ThreadWrapper = styled.div`
-  padding: 0 12px;
   overflow: auto;
 `;
 
 const CommentsContainer = styled.div`
   overflow: auto;
-`;
-
-const EmptyTextWrapper = styled.div`
-  padding: 12px;
-  color: #00000073;
-  text-align: center;
 `;
 
 const ContentWrapper = styled.div`
@@ -99,4 +83,16 @@ const ThreadDivider = styled.div`
   border-top: 1px solid #d9d9d9;
   width: calc(100% - 12px);
   padding: 0 12px;
+`;
+
+const StyledAntDComment = styled(AntDComment)`
+  margin-top: 16px;
+  background-color: #f5f5f5;
+  .ant-comment-inner {
+    padding: 0;
+  }
+  .ant-comment-avatar {
+    margin-right: 0;
+    padding-right: 12px;
+  }
 `;

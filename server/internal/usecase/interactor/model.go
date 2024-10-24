@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/i18n"
@@ -30,15 +29,19 @@ func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
 	}
 }
 
-func (i Model) FindByID(ctx context.Context, id id.ModelID, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByID(ctx context.Context, id id.ModelID, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByID(ctx, id)
 }
 
-func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecase.Operator) (model.List, error) {
+func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, _ *usecase.Operator) (*model.Model, error) {
+	return i.repos.Model.FindBySchema(ctx, id)
+}
+
+func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, _ *usecase.Operator) (model.List, error) {
 	return i.repos.Model.FindByIDs(ctx, ids)
 }
 
-func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
 	m, p, err := i.repos.Model.FindByProject(ctx, projectID, pagination)
 	if err != nil {
 		return nil, nil, err
@@ -46,11 +49,19 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	return m.Ordered(), p, nil
 }
 
-func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByProjectAndKeyword(ctx context.Context, projectID id.ProjectID, k string, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, projectID, k, pagination)
+	if err != nil {
+		return nil, nil, err
+	}
+	return m.Ordered(), p, nil
+}
+
+func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByKey(ctx, pid, model)
 }
 
-func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, operator *usecase.Operator) (*model.Model, error) {
+func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, _ *usecase.Operator) (*model.Model, error) {
 	return i.repos.Model.FindByIDOrKey(ctx, p, q)
 }
 
@@ -97,9 +108,9 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				mb = mb.Public(*param.Public)
 			}
 			if param.Key != nil {
-				mb = mb.Key(key.New(*param.Key))
+				mb = mb.Key(id.NewKey(*param.Key))
 			} else {
-				mb = mb.Key(key.Random())
+				mb = mb.Key(id.RandomKey())
 			}
 			models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 			if err != nil {
@@ -142,7 +153,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				m.SetDescription(*param.Description)
 			}
 			if param.Key != nil {
-				if err := m.SetKey(key.New(*param.Key)); err != nil {
+				if err := m.SetKey(id.NewKey(*param.Key)); err != nil {
 					return nil, err
 				}
 			}
@@ -160,7 +171,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, error) {
 	return Run1(ctx, nil, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (bool, error) {
-			if k := key.New(s); !k.IsValid() {
+			if k := id.NewKey(s); !k.IsValid() {
 				return false, model.ErrInvalidKey
 			}
 

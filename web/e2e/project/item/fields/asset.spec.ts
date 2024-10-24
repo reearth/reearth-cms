@@ -94,7 +94,7 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("no asset");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(page.locator(".ant-table-row").first()).not.toBeVisible();
+  await expect(page.locator(".ant-table-row").first()).toBeHidden();
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();

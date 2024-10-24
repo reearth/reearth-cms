@@ -32,15 +32,17 @@ export type FieldSelector = {
   id?: string;
 };
 
-export type FieldType =
-  | "ID"
-  | "CREATION_DATE"
-  | "CREATION_USER"
-  | "MODIFICATION_DATE"
-  | "MODIFICATION_USER"
-  | "STATUS"
-  | "FIELD"
-  | "META_FIELD";
+export const metaColumn = [
+  "ID",
+  "STATUS",
+  "CREATION_DATE",
+  "CREATION_USER",
+  "MODIFICATION_DATE",
+  "MODIFICATION_USER",
+] as const;
+type MetaColumnType = (typeof metaColumn)[number];
+
+export type FieldType = MetaColumnType | "FIELD" | "META_FIELD";
 
 export type SortDirection = "ASC" | "DESC";
 
@@ -67,7 +69,7 @@ export type OrConditionInput = {
 export type BasicFieldConditionInput = {
   fieldId: FieldSelector;
   operator: BasicOperator;
-  value: any;
+  value: unknown;
 };
 
 export type NullableFieldConditionInput = {
@@ -78,7 +80,7 @@ export type NullableFieldConditionInput = {
 export type MultipleFieldConditionInput = {
   fieldId: FieldSelector;
   operator: MultipleOperator;
-  value: any[];
+  value: unknown[];
 };
 
 export type BoolFieldConditionInput = {
@@ -127,7 +129,7 @@ export type OrCondition = {
 export type BasicFieldCondition = {
   fieldId: FieldSelector;
   operator: BasicOperator;
-  value: any;
+  value: unknown;
 };
 
 export type NullableFieldCondition = {
@@ -138,7 +140,7 @@ export type NullableFieldCondition = {
 export type MultipleFieldCondition = {
   fieldId: FieldSelector;
   operator: MultipleOperator;
-  value: any[];
+  value: unknown[];
 };
 
 export type BoolFieldCondition = {

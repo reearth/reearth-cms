@@ -6,7 +6,7 @@ import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/Mul
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  multiple?: boolean;
+  multiple: boolean;
 };
 
 const BooleanField: React.FC<Props> = ({ multiple }) => {

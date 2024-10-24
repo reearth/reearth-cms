@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
@@ -18,12 +19,38 @@ type Props = {
   currentRequest: Request;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
 };
 
-export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset, onGroupGet }) => {
+export const RequestDescription: React.FC<Props> = ({
+  currentRequest,
+  onGetAsset,
+  onGroupGet,
+  onNavigateToItemEdit,
+}) => {
   const fromNow = useMemo(
     () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
+  );
+
+  const headerGet = useCallback(
+    (modelName?: string, modelId?: string, itemId?: string) => {
+      if (modelName && modelId && itemId) {
+        return (
+          <>
+            {`${modelName} / `}
+            <StyledButton
+              type="link"
+              onClick={() => {
+                onNavigateToItemEdit(modelId, itemId);
+              }}>
+              {itemId}
+            </StyledButton>
+          </>
+        );
+      }
+    },
+    [onNavigateToItemEdit],
   );
 
   return (
@@ -37,11 +64,11 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
             <RequestText>{currentRequest.description}</RequestText>
           </RequestTextWrapper>
           <RequestItemsWrapper>
-            <Collapse>
-              {currentRequest.items
-                .filter(item => item.schema)
-                .map((item, index) => (
-                  <Panel header={item.modelName} key={index}>
+            {currentRequest.items
+              .filter(item => item.schema)
+              .map((item, index) => (
+                <Collapse key={index}>
+                  <StyledPanel header={headerGet(item.modelName, item.modelId, item.id)} key={1}>
                     <RequestItemForm
                       key={index}
                       schema={item.schema}
@@ -50,9 +77,9 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
                       onGetAsset={onGetAsset}
                       onGroupGet={onGroupGet}
                     />
-                  </Panel>
-                ))}
-            </Collapse>
+                  </StyledPanel>
+                </Collapse>
+              ))}
           </RequestItemsWrapper>
         </>
       }
@@ -80,7 +107,12 @@ const StyledAntDComment = styled(AntDComment)`
     }
   }
   .ant-comment-inner {
-    padding-top: 0;
+    padding: 0;
+  }
+  .ant-comment-avatar {
+    background-color: #f5f5f5;
+    margin-right: 0;
+    padding-right: 12px;
   }
   .ant-comment-content {
     background-color: #fff;
@@ -104,7 +136,28 @@ const RequestText = styled.p`
 
 const RequestItemsWrapper = styled.div`
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   .ant-pro-card-body {
     padding: 0;
   }
+`;
+
+const StyledPanel = styled(Panel)`
+  > .ant-collapse-header {
+    align-items: center !important;
+    > .ant-collapse-header-text {
+      overflow: hidden;
+    }
+  }
+  > .ant-collapse-content {
+    max-height: 640px;
+    overflow: auto;
+  }
+`;
+
+const StyledButton = styled(Button)`
+  height: auto;
+  padding: 0;
 `;

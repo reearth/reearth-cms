@@ -11,7 +11,7 @@ import {
   ItemStatus,
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ConditionInput,
   ItemSort,
@@ -42,6 +42,7 @@ import {
   useGetViewsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useCollapsedModelMenu } from "@reearth-cms/state";
 
 import { fileName } from "./utils";
 
@@ -67,6 +68,7 @@ export default () => {
     handleRequestSearchTerm,
     handleRequestTableReload,
     loading: requestModalLoading,
+    unpublishLoading,
     totalCount: requestModalTotalCount,
     page: requestModalPage,
     pageSize: requestModalPageSize,
@@ -139,12 +141,12 @@ export default () => {
     refetch();
   }, [refetch]);
 
-  const [collapsedModelMenu, collapseModelMenu] = useState(false);
+  const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: string[] }>({
-    selectedRowKeys: [],
-  });
+  const [selectedItems, setSelectedItems] = useState<{
+    selectedRows: { itemId: string; version?: string }[];
+  }>({ selectedRows: [] });
 
   const [updateItemMutation] = useUpdateItemMutation();
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
@@ -184,7 +186,7 @@ export default () => {
           } else {
             field.value = field.value ?? "";
           }
-          return field as typeof field & { value: any };
+          return field as typeof field & { value: unknown };
         });
         const item = await updateItemMutation({
           variables: {
@@ -276,7 +278,8 @@ export default () => {
 
   const fieldsGet = useCallback(
     (item: Item) => {
-      const result: { [key: string]: any } = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: Record<string, any> = {};
       item?.fields?.map(field => {
         result[field.schemaFieldId] = fieldValueGet(field, item);
       });
@@ -286,7 +289,8 @@ export default () => {
   );
 
   const metadataGet = useCallback((fields?: ItemField[]) => {
-    const result: { [key: string]: any } = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: Record<string, any> = {};
     fields?.forEach(field => {
       if (Array.isArray(field.value) && field.value.length > 0) {
         result[field.schemaFieldId] = field.value.map(v => "" + v);
@@ -311,11 +315,11 @@ export default () => {
               comments: item.thread.comments.map(comment =>
                 fromGraphQLComment(comment as GQLComment),
               ),
+              version: item.version,
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
               metadata: metadataGet(item?.metadata?.fields as ItemField[] | undefined),
               metadataId: item.metadata?.id,
-              version: item.metadata?.version,
             }
           : undefined,
       )
@@ -342,7 +346,7 @@ export default () => {
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,
       dataIndex: ["fields", field.id],
-      fieldType: "FIELD",
+      fieldType: "FIELD" as const,
       key: field.id,
       ellipsis: true,
       type: field.type,
@@ -353,6 +357,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (el: any) => renderField(el, field),
     }));
 
@@ -360,7 +365,7 @@ export default () => {
       currentModel?.metadataSchema?.fields?.map(field => ({
         title: renderTitle(field),
         dataIndex: ["metadata", field.id],
-        fieldType: "META_FIELD",
+        fieldType: "META_FIELD" as const,
         key: field.id,
         ellipsis: true,
         type: field.type,
@@ -371,6 +376,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
             handleMetaItemUpdate(record.id, field.id, value, index);
@@ -442,7 +448,7 @@ export default () => {
     ],
   );
 
-  const [deleteItemMutation] = useDeleteItemMutation();
+  const [deleteItemMutation, { loading: deleteLoading }] = useDeleteItemMutation();
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
@@ -459,7 +465,7 @@ export default () => {
         );
         if (results) {
           Notification.success({ message: t("One or more items were successfully deleted!") });
-          setSelection({ selectedRowKeys: [] });
+          setSelectedItems({ selectedRows: [] });
         }
       })(),
     [t, deleteItemMutation],
@@ -505,10 +511,10 @@ export default () => {
   }, []);
 
   const handleBulkAddItemToRequest = useCallback(
-    async (request: Request, itemIds: string[]) => {
-      await handleAddItemToRequest(request, itemIds);
+    async (request: Request, items: RequestItem[]) => {
+      await handleAddItemToRequest(request, items);
       refetch();
-      setSelection({ selectedRowKeys: [] });
+      setSelectedItems({ selectedRows: [] });
     },
     [handleAddItemToRequest, refetch],
   );
@@ -516,12 +522,14 @@ export default () => {
   return {
     currentModel,
     loading,
+    deleteLoading,
+    unpublishLoading,
     contentTableFields,
     contentTableColumns,
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
-    selection,
+    selectedItems,
     totalCount: data?.searchItem.totalCount ?? 0,
     views: viewsRef.current,
     currentView,
@@ -542,7 +550,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelection,
+    setSelectedItems,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,

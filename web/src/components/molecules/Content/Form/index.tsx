@@ -5,14 +5,15 @@ import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import { emptyConvert } from "@reearth-cms/components/molecules/Common/Form/utils";
 import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
@@ -24,13 +25,13 @@ import {
   ItemValue,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import {
+  Request,
+  RequestItem,
+  RequestState,
+} from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 
@@ -38,15 +39,17 @@ import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldCom
 import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
-interface Props {
+type Props = {
+  title: string;
   item?: Item;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
-  showPublishAction?: boolean;
+  showPublishAction: boolean;
   requests: Request[];
   itemId?: string;
-  initialFormValues: any;
-  initialMetaFormValues: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialFormValues: Record<string, any>;
+  initialMetaFormValues: Record<string, unknown>;
   loading: boolean;
   model?: Model;
   assetList: Asset[];
@@ -63,6 +66,7 @@ interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
+  publishLoading: boolean;
   requestModalLoading: boolean;
   requestModalTotalCount: number;
   requestModalPage: number;
@@ -78,11 +82,7 @@ interface Props {
   onRequestTableChange: (page: number, pageSize: number) => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
@@ -109,11 +109,9 @@ interface Props {
     description: string;
     state: RequestState;
     reviewersId: string[];
-    items: {
-      itemId: string;
-    }[];
+    items: RequestItem[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => void;
+  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -121,9 +119,11 @@ interface Props {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
-}
+  onNavigateToRequest: (id: string) => void;
+};
 
 const ContentForm: React.FC<Props> = ({
+  title,
   item,
   loadingReference,
   linkedItemsModalList,
@@ -151,6 +151,7 @@ const ContentForm: React.FC<Props> = ({
   onRequestTableChange,
   onRequestSearchTerm,
   onRequestTableReload,
+  publishLoading,
   requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
@@ -189,11 +190,13 @@ const ContentForm: React.FC<Props> = ({
   onGetAsset,
   onGroupGet,
   onCheckItemReference,
+  onNavigateToRequest,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(!!itemId);
   const changedKeys = useRef(new Set<string>());
   const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
@@ -203,6 +206,7 @@ const ContentForm: React.FC<Props> = ({
   );
 
   const checkIfSingleGroupField = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (key: string, value: any) => {
       return (
         initialFormValues[key] &&
@@ -215,20 +219,26 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
-  const emptyConvert = useCallback((value: any) => {
-    if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
-      return undefined;
-    } else {
-      return value;
-    }
-  }, []);
-
   const handleValuesChange = useCallback(
-    (changedValues: any) => {
+    async (changedValues: Record<string, unknown>) => {
+      try {
+        await form.validateFields();
+      } catch (e) {
+        if ((e as ValidateErrorEntity).errorFields.length > 0) {
+          setIsDisabled(true);
+          return;
+        }
+      }
+
+      if (!itemId) {
+        setIsDisabled(false);
+        return;
+      }
+
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
-        const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
-        const changedFieldValue = (value as any)[groupFieldKey];
+        const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
+        const groupFieldValue = initialFormValues[key][groupFieldKey];
         if (
           JSON.stringify(emptyConvert(changedFieldValue)) ===
           JSON.stringify(emptyConvert(groupFieldValue))
@@ -244,8 +254,9 @@ const ContentForm: React.FC<Props> = ({
       } else {
         changedKeys.current.add(key);
       }
+      setIsDisabled(changedKeys.current.size === 0);
     },
-    [checkIfSingleGroupField, emptyConvert, initialFormValues],
+    [checkIfSingleGroupField, form, initialFormValues, itemId],
   );
 
   useEffect(() => {
@@ -280,8 +291,7 @@ const ContentForm: React.FC<Props> = ({
         btn,
         key,
         placement: "top",
-        // TODO: Change to false when antd is updated
-        closeIcon: <span />,
+        closeIcon: false,
       });
     };
     if (blocker.state === "blocked") {
@@ -293,7 +303,6 @@ const ContentForm: React.FC<Props> = ({
     const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
       if (changedKeys.current.size === 0) return;
       event.preventDefault();
-      event.returnValue = "";
     };
 
     window.addEventListener("beforeunload", handleBeforeUnloadEvent, true);
@@ -321,11 +330,12 @@ const ContentForm: React.FC<Props> = ({
         return [];
       }
     } else {
-      return dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "";
+      return dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? "");
     }
   }, []);
 
   const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
     try {
       const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
       const groupFields = new Map<string, Field>();
@@ -371,7 +381,7 @@ const ContentForm: React.FC<Props> = ({
         const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
         if (type) {
           metaFields.push({
-            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "",
+            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? ""),
             schemaFieldId: key,
             type,
           });
@@ -393,8 +403,8 @@ const ContentForm: React.FC<Props> = ({
           fields,
         });
       }
-    } catch (info) {
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsDisabled(false);
     }
   }, [model, form, metaForm, itemId, onGroupGet, inputValueGet, onItemUpdate, onItemCreate]);
 
@@ -405,7 +415,7 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? "")) as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
@@ -425,11 +435,15 @@ const ContentForm: React.FC<Props> = ({
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
+        disabled: item?.status === "PUBLIC",
       },
       {
         key: "unpublish",
         label: t("Unpublish"),
-        onClick: () => itemId && (onUnpublish([itemId]) as any),
+        onClick: () => {
+          if (itemId) onUnpublish([itemId]);
+        },
+        disabled: item?.status === "DRAFT" || item?.status === "REVIEW",
       },
     ];
     if (showPublishAction) {
@@ -437,10 +451,19 @@ const ContentForm: React.FC<Props> = ({
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
+        disabled: item?.status === "PUBLIC",
       });
     }
     return menuItems;
-  }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
+  }, [
+    t,
+    onAddItemToRequestModalOpen,
+    item?.status,
+    showPublishAction,
+    itemId,
+    onUnpublish,
+    onModalOpen,
+  ]);
 
   const handlePublishSubmit = useCallback(async () => {
     if (!itemId || !unpublishedItems) return;
@@ -463,22 +486,29 @@ const ContentForm: React.FC<Props> = ({
         initialValues={initialFormValues}
         onValuesChange={handleValuesChange}>
         <PageHeader
-          title={model?.name}
+          title={title}
           onBack={onBack}
           extra={
             <>
-              <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
+              <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
                 {t("Save")}
               </Button>
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={handlePublishSubmit}>
+                    <Button
+                      type="primary"
+                      onClick={handlePublishSubmit}
+                      loading={publishLoading}
+                      disabled={item?.status === "PUBLIC"}>
                       {t("Publish")}
                     </Button>
                   )}
                   {!showPublishAction && (
-                    <Button type="primary" onClick={onModalOpen}>
+                    <Button
+                      type="primary"
+                      onClick={onModalOpen}
+                      disabled={item?.status === "PUBLIC"}>
                       {t("New Request")}
                     </Button>
                   )}
@@ -494,20 +524,6 @@ const ContentForm: React.FC<Props> = ({
         />
         <FormItemsWrapper>
           {model?.schema.fields.map(field => {
-            const FieldComponent =
-              FIELD_TYPE_COMPONENT_MAP[
-                field.type as
-                  | "Select"
-                  | "Date"
-                  | "Tag"
-                  | "Bool"
-                  | "Checkbox"
-                  | "URL"
-                  | "TextArea"
-                  | "MarkdownText"
-                  | "Integer"
-              ] || DefaultField;
-
             if (field.type === "Asset") {
               return (
                 <StyledFormItemWrapper key={field.id}>
@@ -561,7 +577,7 @@ const ContentForm: React.FC<Props> = ({
               );
             } else if (field.type === "Group") {
               return (
-                <StyledFormItemWrapper key={field.id}>
+                <StyledFormItemWrapper key={field.id} isFullWidth>
                   <GroupField
                     field={field}
                     form={form}
@@ -604,7 +620,29 @@ const ContentForm: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
+            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+
+              return (
+                <StyledFormItemWrapper key={field.id} isFullWidth>
+                  <FieldComponent field={field} />
+                </StyledFormItemWrapper>
+              );
             } else {
+              const FieldComponent =
+                FIELD_TYPE_COMPONENT_MAP[
+                  field.type as
+                    | "Select"
+                    | "Date"
+                    | "Tag"
+                    | "Bool"
+                    | "Checkbox"
+                    | "URL"
+                    | "TextArea"
+                    | "MarkdownText"
+                    | "Integer"
+                ] || DefaultField;
+
               return (
                 <StyledFormItemWrapper key={field.id}>
                   <FieldComponent field={field} />
@@ -616,7 +654,7 @@ const ContentForm: React.FC<Props> = ({
       </StyledForm>
       <SideBarWrapper>
         <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
-          <ContentSidebarWrapper item={item} />
+          <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
           {model?.metadataSchema?.fields?.map(field => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[
@@ -633,20 +671,19 @@ const ContentForm: React.FC<Props> = ({
       {itemId && (
         <>
           <RequestCreationModal
-            unpublishedItems={unpublishedItems}
-            itemId={itemId}
             open={requestModalShown}
+            requestCreationLoading={requestCreationLoading}
+            item={{ itemId, version: item?.version }}
+            unpublishedItems={unpublishedItems}
+            workspaceUserMembers={workspaceUserMembers}
             onClose={onModalClose}
             onSubmit={onRequestCreate}
-            requestCreationLoading={requestCreationLoading}
-            workspaceUserMembers={workspaceUserMembers}
           />
           <LinkItemRequestModal
-            itemIds={[itemId]}
+            items={[{ itemId, version: item?.version }]}
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
             visible={addItemToRequestModalShown}
-            linkedRequest={undefined}
             requestList={requests}
             onRequestTableChange={onRequestTableChange}
             requestModalLoading={requestModalLoading}
@@ -657,9 +694,10 @@ const ContentForm: React.FC<Props> = ({
             onRequestTableReload={onRequestTableReload}
           />
           <PublishItemModal
-            unpublishedItems={unpublishedItems}
-            itemId={itemId}
             open={publishModalOpen}
+            loading={publishLoading}
+            itemId={itemId}
+            unpublishedItems={unpublishedItems}
             onClose={handlePublishItemClose}
             onSubmit={onPublish}
           />
@@ -669,8 +707,8 @@ const ContentForm: React.FC<Props> = ({
   );
 };
 
-const StyledFormItemWrapper = styled.div`
-  width: 500px;
+const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
+  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
   word-wrap: break-word;
 `;
 
@@ -688,6 +726,7 @@ const FormItemsWrapper = styled.div`
   max-height: calc(100% - 72px);
   overflow-y: auto;
   padding: 36px;
+  border-top: 1px solid #00000008;
 `;
 
 const SideBarWrapper = styled.div`

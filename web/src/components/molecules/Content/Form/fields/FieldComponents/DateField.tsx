@@ -8,12 +8,12 @@ import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-interface DateFieldProps {
+type DateFieldProps = {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => void;
   disabled?: boolean;
-}
+};
 
 const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
   const t = useT();

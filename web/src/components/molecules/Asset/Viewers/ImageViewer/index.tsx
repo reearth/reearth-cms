@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 
-type Props = { url: string };
+type Props = {
+  url: string;
+};
 
 const ImageViewer: React.FC<Props> = ({ url }) => <Image src={url} alt="image-preview" />;
 

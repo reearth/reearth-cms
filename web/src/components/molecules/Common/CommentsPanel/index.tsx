@@ -42,7 +42,7 @@ const CommentsPanel: React.FC<Props> = ({
       trigger={<Icon icon={collapsed ? "panelToggleLeft" : "panelToggleRight"} />}>
       <ContentWrapper>
         {collapsed ? (
-          <StyledIcon icon="message" onClick={() => onCollapse(false)} />
+          <StyledIcon icon="comment" onClick={() => onCollapse(false)} />
         ) : (
           <>
             <ThreadWrapper>
@@ -61,7 +61,7 @@ const CommentsPanel: React.FC<Props> = ({
               <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
             ) : null}
 
-            <Editor disabled={!comments} onCommentCreate={onCommentCreate} />
+            <Editor isInputDisabled={!comments} onCommentCreate={onCommentCreate} />
           </>
         )}
       </ContentWrapper>
@@ -72,7 +72,8 @@ const CommentsPanel: React.FC<Props> = ({
 export default CommentsPanel;
 
 const StyledIcon = styled(Icon)`
-  padding: 12px 20px;
+  padding-top: 12px;
+  justify-content: center;
 `;
 
 const ThreadWrapper = styled.div`
@@ -81,7 +82,8 @@ const ThreadWrapper = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 18px;
+  font-size: 16px;
+  line-height: 1.5;
   cursor: pointer;
 `;
 

@@ -13,6 +13,7 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   RequestUpdatePayload,
   RequestState,
+  RequestItem,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
@@ -40,6 +41,7 @@ import {
   useIsItemReferencedLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useCollapsedModelMenu } from "@reearth-cms/state";
 import { newID } from "@reearth-cms/utils/id";
 
 import { dateConvert } from "./utils";
@@ -60,6 +62,7 @@ export default () => {
     handleRequestSearchTerm,
     handleRequestTableReload,
     loading,
+    publishLoading,
     totalCount,
     page,
     pageSize,
@@ -69,7 +72,7 @@ export default () => {
   const { data: userData } = useGetMeQuery();
 
   const { itemId } = useParams();
-  const [collapsedModelMenu, collapseModelMenu] = useState(false);
+  const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -209,6 +212,13 @@ export default () => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
       );
+    },
+    [navigate, currentWorkspace?.id, currentProject?.id],
+  );
+
+  const handleNavigateToRequest = useCallback(
+    (id: string) => {
+      navigate(`/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/request/${id}`);
     },
     [navigate, currentWorkspace?.id, currentProject?.id],
   );
@@ -378,11 +388,14 @@ export default () => {
     }
   }, []);
 
-  const [initialFormValues, setInitialFormValues] = useState<{ [key: string]: any }>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [initialFormValues, setInitialFormValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
+    if (itemLoading) return;
     const handleInitialValuesSet = async () => {
-      const initialValues: { [key: string]: any } = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const initialValues: Record<string, any> = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
           initialValues[field.id] = {
@@ -427,10 +440,10 @@ export default () => {
       setInitialFormValues(initialValues);
     };
     handleInitialValuesSet();
-  }, [currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
+  }, [itemLoading, currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
 
-  const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
-    const initialValues: { [key: string]: any } = {};
+  const initialMetaFormValues: Record<string, unknown> = useMemo(() => {
+    const initialValues: Record<string, unknown> = {};
     if (!currentItem && !itemLoading) {
       currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {
@@ -476,7 +489,7 @@ export default () => {
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetModalRequests"],
+    refetchQueries: ["GetModalRequests", "GetItem"],
   });
 
   const handleRequestCreate = useCallback(
@@ -485,7 +498,7 @@ export default () => {
       description: string;
       state: RequestState;
       reviewersId: string[];
-      items: { itemId: string }[];
+      items: RequestItem[];
     }) => {
       if (!currentProject?.id) return;
       const request = await createRequestMutation({
@@ -508,7 +521,7 @@ export default () => {
     [createRequestMutation, currentProject?.id, t],
   );
 
-  const [updateRequestMutation] = useUpdateRequestMutation({
+  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation({
     refetchQueries: ["GetRequests"],
   });
 
@@ -563,6 +576,16 @@ export default () => {
     [checkIfItemIsReferenced],
   );
 
+  const title = useMemo(() => {
+    let result = currentModel?.name ?? "";
+    if (currentItem) {
+      const titleField = currentModel?.schema.fields.find(field => field.isTitle);
+      const titleValue = titleField && initialFormValues[titleField.id];
+      result += ` / ${titleValue || currentItem.id}`;
+    }
+    return result;
+  }, [currentItem, currentModel?.name, currentModel?.schema.fields, initialFormValues]);
+
   return {
     loadingReference,
     linkedItemsModalList,
@@ -572,6 +595,7 @@ export default () => {
     itemLoading,
     requestCreationLoading,
     currentModel,
+    title,
     currentItem,
     initialFormValues,
     initialMetaFormValues,
@@ -593,6 +617,7 @@ export default () => {
     handleRequestTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    publishLoading,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,
@@ -606,8 +631,10 @@ export default () => {
     handleItemUpdate,
     handleMetaItemUpdate,
     handleNavigateToModel,
+    handleNavigateToRequest,
     handleBack,
     handleRequestCreate,
+    updateRequestLoading,
     handleRequestUpdate,
     handleModalClose,
     handleModalOpen,

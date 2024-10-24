@@ -30,7 +30,7 @@ const Provider: React.FC<Props> = ({ children }) => {
 
   const uploadLink = createUploadLink({
     uri: endpoint,
-  });
+  }) as unknown as ApolloLink;
 
   const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
     if (!networkError && !graphQLErrors) return;

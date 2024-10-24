@@ -14,7 +14,6 @@ test.afterEach(async ({ page }) => {
 
 test("Update settings on Accesibility page has succeeded", async ({ page }) => {
   await page.getByText("Accessibility").click();
-  await expect(page.getByRole("textbox")).toBeDisabled();
   const alias = await page.getByRole("textbox").inputValue();
   await expect(page.getByRole("button", { name: "Save changes" })).toBeDisabled();
   await page.getByText("Private").click();

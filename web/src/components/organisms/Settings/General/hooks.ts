@@ -23,7 +23,7 @@ export default () => {
 
   const [currentWorkspace] = useWorkspace();
   const workspaceId = currentWorkspace?.id;
-  const { data, refetch } = useGetWorkspaceSettingsQuery({
+  const { data, refetch, loading } = useGetWorkspaceSettingsQuery({
     variables: { workspaceId: workspaceId ?? "" },
   });
 
@@ -47,19 +47,8 @@ export default () => {
       : defaultSettings;
   }, [data?.node, defaultSettings]);
 
-  const tiles: TileInput[] = useMemo(() => {
-    const tiles: TileInput[] = [];
-    workspaceSettings?.tiles?.resources?.map(resource => tiles.push({ tile: resource }));
-    return tiles;
-  }, [workspaceSettings?.tiles?.resources]);
-
-  const terrains: TerrainInput[] = useMemo(() => {
-    const terrains: TerrainInput[] = [];
-    workspaceSettings?.terrains?.resources?.map(resource => terrains.push({ terrain: resource }));
-    return terrains;
-  }, [workspaceSettings?.terrains?.resources]);
-
-  const [updateWorkspaceMutation] = useUpdateWorkspaceSettingsMutation();
+  const [updateWorkspaceMutation, { loading: updateLoading }] =
+    useUpdateWorkspaceSettingsMutation();
 
   const handleWorkspaceSettingsUpdate = useCallback(
     async (tiles: TileInput[], terrains: TerrainInput[], isEnable?: boolean) => {
@@ -89,13 +78,6 @@ export default () => {
     [refetch, t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
   );
 
-  const handleTerrainToggle = useCallback(
-    (isEnable: boolean) => {
-      handleWorkspaceSettingsUpdate(tiles, terrains, isEnable);
-    },
-    [handleWorkspaceSettingsUpdate, tiles, terrains],
-  );
-
   const { data: userData } = useGetMeQuery();
   const hasPrivilege: boolean = useMemo(() => {
     const myRole = currentWorkspace?.members?.find(
@@ -106,10 +88,9 @@ export default () => {
 
   return {
     workspaceSettings,
-    tiles,
-    terrains,
-    handleWorkspaceSettingsUpdate,
-    handleTerrainToggle,
+    loading,
     hasPrivilege,
+    updateLoading,
+    handleWorkspaceSettingsUpdate,
   };
 };

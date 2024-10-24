@@ -5,7 +5,7 @@ import Collapse from "@reearth-cms/components/atoms/Collapse";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import {
   AssetField,
   ReferenceField,
@@ -14,10 +14,6 @@ import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fie
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 type Props = {
   value?: string;
@@ -47,11 +43,7 @@ type Props = {
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
-  onAssetTableChange?: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel?: () => void;
   setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
@@ -181,20 +173,6 @@ const GroupItem: React.FC<Props> = ({
         }>
         <div>
           {fields?.map((field: Field) => {
-            const FieldComponent =
-              FIELD_TYPE_COMPONENT_MAP[
-                field.type as
-                  | "Select"
-                  | "Date"
-                  | "Tag"
-                  | "Bool"
-                  | "Checkbox"
-                  | "URL"
-                  | "TextArea"
-                  | "MarkdownText"
-                  | "Integer"
-              ] || DefaultField;
-
             if (field.type === "Asset") {
               return (
                 <StyledFormItemWrapper key={field.id}>
@@ -250,7 +228,29 @@ const GroupItem: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
+            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+
+              return (
+                <StyledFormItemWrapper key={field.id} isFullWidth>
+                  <FieldComponent field={field} itemGroupId={itemGroupId} disabled={disabled} />
+                </StyledFormItemWrapper>
+              );
             } else {
+              const FieldComponent =
+                FIELD_TYPE_COMPONENT_MAP[
+                  field.type as
+                    | "Select"
+                    | "Date"
+                    | "Tag"
+                    | "Bool"
+                    | "Checkbox"
+                    | "URL"
+                    | "TextArea"
+                    | "MarkdownText"
+                    | "Integer"
+                ] || DefaultField;
+
               return (
                 <StyledFormItemWrapper key={field.id}>
                   <FieldComponent field={field} itemGroupId={itemGroupId} disabled={disabled} />
@@ -265,8 +265,7 @@ const GroupItem: React.FC<Props> = ({
 };
 
 const StyledCollapse = styled(Collapse)`
-  width: 500px;
-  max-width: 100%;
+  width: 100%;
 `;
 
 const IconWrapper = styled.span<{ disabled?: boolean }>`
@@ -274,8 +273,8 @@ const IconWrapper = styled.span<{ disabled?: boolean }>`
   display: ${({ disabled }) => (disabled ? "none" : "inline-block")};
 `;
 
-const StyledFormItemWrapper = styled.div`
-  width: 468px;
+const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
+  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "468px")};
   max-width: 100%;
   word-wrap: break-word;
 `;

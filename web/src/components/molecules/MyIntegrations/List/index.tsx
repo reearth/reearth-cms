@@ -6,7 +6,7 @@ import IntegrationCreationAction from "@reearth-cms/components/molecules/MyInteg
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   integrations?: Integration[];
   onIntegrationModalOpen: () => void;
   onIntegrationNavigate: (integration: Integration) => void;
@@ -37,8 +37,9 @@ const MyIntegrationList: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
+  min-height: calc(100% - 16px);
   background: #fff;
-  min-height: 100%;
+  margin: 16px 16px 0;
 `;
 
 const ListWrapper = styled.div`

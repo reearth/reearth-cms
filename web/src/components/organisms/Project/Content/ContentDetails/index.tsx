@@ -17,6 +17,7 @@ const ContentDetails: React.FC = () => {
     itemId,
     itemLoading,
     currentModel,
+    title,
     currentItem,
     initialFormValues,
     initialMetaFormValues,
@@ -39,6 +40,7 @@ const ContentDetails: React.FC = () => {
     handleRequestTableChange,
     handleRequestTableReload,
     handleRequestSearchTerm,
+    publishLoading,
     requestModalLoading,
     requestModalTotalCount,
     requestModalPage,
@@ -52,6 +54,7 @@ const ContentDetails: React.FC = () => {
     handleItemUpdate,
     handleMetaItemUpdate,
     handleNavigateToModel,
+    handleNavigateToRequest,
     handleBack,
     handleRequestCreate,
     handleModalClose,
@@ -105,10 +108,11 @@ const ContentDetails: React.FC = () => {
       onRequestTableChange={handleRequestTableChange}
       onRequestSearchTerm={handleRequestSearchTerm}
       onRequestTableReload={handleRequestTableReload}
+      publishLoading={publishLoading}
+      requestModalLoading={requestModalLoading}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      requestModalLoading={requestModalLoading}
       collapsed={collapsedModelMenu}
       onCollapse={collapseModelMenu}
       commentsPanel={
@@ -122,6 +126,7 @@ const ContentDetails: React.FC = () => {
           />
         ) : undefined
       }
+      title={title}
       item={currentItem}
       itemId={itemId}
       itemLoading={itemLoading}
@@ -138,8 +143,8 @@ const ContentDetails: React.FC = () => {
           collapsed={collapsedModelMenu}
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
-          displayGroups={false}
           selectedSchemaType="model"
+          titleIcon={"table"}
         />
       }
       onChange={handleAddItemToRequest}
@@ -177,6 +182,7 @@ const ContentDetails: React.FC = () => {
       onGetAsset={handleGetAsset}
       onGroupGet={handleGroupGet}
       onCheckItemReference={handleCheckItemReference}
+      onNavigateToRequest={handleNavigateToRequest}
     />
   );
 };

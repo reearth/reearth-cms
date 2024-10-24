@@ -1,15 +1,14 @@
 import styled from "@emotion/styled";
-import { CSSProperties, ReactNode } from "react";
+import { ReactNode } from "react";
 
 type Props = {
   title: string;
   children?: ReactNode;
-  style?: CSSProperties;
 };
 
-const SidebarCard: React.FC<Props> = ({ title, children, style }) => {
+const SidebarCard: React.FC<Props> = ({ title, children }) => {
   return (
-    <SideBarCardWrapper style={style}>
+    <SideBarCardWrapper>
       <CardTitle>{title}</CardTitle>
       <CardValue>{children}</CardValue>
     </SideBarCardWrapper>
@@ -46,6 +45,7 @@ const CardValue = styled.p`
   line-height: 24px;
   color: rgba(0, 0, 0, 0.85);
   overflow-x: hidden;
+  margin-bottom: 4px;
 `;
 
 export default SidebarCard;

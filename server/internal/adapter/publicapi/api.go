@@ -2,33 +2,33 @@ package publicapi
 
 import (
 	"context"
-	"encoding/csv"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
-var contextKey = struct{}{}
+type contextKey string
+
+func (c contextKey) String() string {
+	return "public_api_" + string(c)
+}
+
+var controllerCK = contextKey("controller")
 
 const defaultLimit = 50
 const maxLimit = 100
 
 func AttachController(ctx context.Context, c *Controller) context.Context {
-	return context.WithValue(ctx, contextKey, c)
+	return context.WithValue(ctx, controllerCK, c)
 }
 
 func GetController(ctx context.Context) *Controller {
-	return ctx.Value(contextKey).(*Controller)
+	return ctx.Value(controllerCK).(*Controller)
 }
 
 func Echo(e *echo.Group) {
@@ -74,22 +74,29 @@ func PublicApiItemList() echo.HandlerFunc {
 		if strings.Contains(m, ".") {
 			m, resType, _ = strings.Cut(m, ".")
 		}
-		if resType != "csv" && resType != "json" {
+		if resType != "csv" && resType != "json" && resType != "geojson" {
 			resType = "json"
 		}
 
-		res, s, err := ctrl.GetItems(ctx, c.Param("project"), m, p)
+		items, _, err := ctrl.GetItems(ctx, c.Param("project"), m, p)
 		if err != nil {
 			return err
 		}
 
+		vi, s, err1 := ctrl.GetVersionedItems(ctx, c.Param("project"), m, p)
+		if err1 != nil {
+			return err1
+		}
+
 		switch resType {
 		case "csv":
-			return toCSV(c, res, s)
+			return toCSV(c, vi, s)
+		case "geojson":
+			return toGeoJSON(c, vi, s)
 		case "json":
-			return c.JSON(http.StatusOK, res)
+			return c.JSON(http.StatusOK, items)
 		default:
-			return c.JSON(http.StatusOK, res)
+			return c.JSON(http.StatusOK, items)
 		}
 	}
 }
@@ -156,47 +163,4 @@ func intParams(c echo.Context, params ...string) (int64, bool) {
 		}
 	}
 	return 0, false
-}
-
-func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
-	pr, pw := io.Pipe()
-
-	go func() {
-		var err error
-		defer func() {
-			_ = pw.CloseWithError(err)
-		}()
-
-		w := csv.NewWriter(pw)
-		keys := lo.Map(s.Fields(), func(f *schema.Field, _ int) string {
-			return f.Key().String()
-		})
-		err = w.Write(append([]string{"id"}, keys...))
-		if err != nil {
-			log.Errorf("filed to write csv headers, err: %+v", err)
-			return
-		}
-
-		for _, itm := range l.Results {
-			values := []string{itm.ID}
-			for _, k := range keys {
-				// values = append(values, fmt.Sprintf("%v", itm.Fields[k]))
-				var v []byte
-				v, err = json.Marshal(itm.Fields[k])
-				if err != nil {
-					log.Errorf("filed to json marshal field value, err: %+v", err)
-					return
-				}
-				values = append(values, fmt.Sprintf("%v", string(v)))
-			}
-			err = w.Write(values)
-			if err != nil {
-				log.Errorf("filed to write csv value, err: %+v", err)
-				return
-			}
-		}
-		w.Flush()
-	}()
-
-	return c.Stream(http.StatusOK, "text/csv", pr)
 }

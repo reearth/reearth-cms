@@ -8,7 +8,7 @@ import { Imagery } from "./Imagery";
 type Props = {
   url: string;
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
-  workspaceSettings?: WorkspaceSettings;
+  workspaceSettings: WorkspaceSettings;
 };
 
 const CsvViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {

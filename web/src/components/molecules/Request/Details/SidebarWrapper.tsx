@@ -8,6 +8,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
+import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -15,7 +16,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 const { Option } = Select;
 
 type Props = {
-  currentRequest?: Request;
+  currentRequest: Request;
   workspaceUserMembers: UserMember[];
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
 };
@@ -57,7 +58,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     }
 
     try {
-      await onRequestUpdate?.({
+      await onRequestUpdate({
         requestId: requestId,
         title: currentRequest?.title,
         description: currentRequest?.description,
@@ -79,23 +80,10 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     selectedReviewers,
   ]);
 
-  const badgeColor = useMemo(() => {
-    switch (currentRequest?.state) {
-      case "APPROVED":
-        return "#52C41A";
-      case "CLOSED":
-        return "#F5222D";
-      case "WAITING":
-        return "#FA8C16";
-      default:
-        return "";
-    }
-  }, [currentRequest?.state]);
-
   return (
     <SideBarWrapper>
       <SidebarCard title={t("State")}>
-        <Badge color={badgeColor} text={currentRequest?.state} />
+        <Badge color={badgeColors[currentRequest.state]} text={t(currentRequest.state)} />
       </SidebarCard>
       <SidebarCard title={t("Created By")}>
         <StyledSpace>
@@ -145,7 +133,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
-  padding: 7px;
+  padding: 8px;
   width: 272px;
 `;
 

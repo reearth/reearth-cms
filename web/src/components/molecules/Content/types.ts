@@ -1,3 +1,4 @@
+import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
@@ -11,7 +12,10 @@ export type ItemField = {
   value: ItemValue;
 };
 
-export type ItemAsset = { id: string; fileName: string };
+export type ItemAsset = {
+  id: string;
+  fileName: string;
+};
 
 export type Item = {
   id: string;
@@ -32,6 +36,7 @@ export type Item = {
   threadId: string;
   comments: Comment[];
   assets: ItemAsset[];
+  requests: Pick<Request, "id" | "state">[];
 };
 
 export type FormItem = {
@@ -40,6 +45,7 @@ export type FormItem = {
   schemaId: string;
   createdBy: string;
   status: ItemStatus;
+  version?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -51,11 +57,11 @@ export type ContentTableField = {
   schemaId: string;
   status: ItemStatus;
   modelId?: string;
-  fields: { [key: string]: any };
+  fields: Record<string, unknown>;
   comments: Comment[];
   createdAt: Date;
   updatedAt: Date;
-  metadata: { [key: string]: any };
+  metadata: Record<string, unknown>;
   metadataId: string;
   version: string;
 };

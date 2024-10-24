@@ -61,7 +61,13 @@ export const renderField = (
         ))}
       </>
     );
-  } else if (items.length > 1 || field.type === "TextArea" || field.type === "MarkdownText") {
+  } else if (
+    items.length > 1 ||
+    field.type === "TextArea" ||
+    field.type === "MarkdownText" ||
+    field.type === "GeometryObject" ||
+    field.type === "GeometryEditor"
+  ) {
     const content = (
       <>
         {items.map((item, index) => {
@@ -74,7 +80,12 @@ export const renderField = (
       </>
     );
     return (
-      <Popover content={content} title={field.title} trigger="click" placement="bottom">
+      <Popover
+        overlayClassName="contentPopover"
+        content={content}
+        title={field.title}
+        trigger="click"
+        placement="bottom">
         <StyledButton>
           <Icon icon={fieldTypes[field.type].icon} size={16} />
           {items.length > 1 && <span>x{items.length}</span>}

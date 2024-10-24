@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import Select, { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
+import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
 export type PreviewType =
@@ -14,10 +14,7 @@ export type PreviewType =
   | "UNKNOWN";
 
 type Props = {
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
+  onTypeChange: (value: PreviewType) => void;
   value?: PreviewType;
 };
 

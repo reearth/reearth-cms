@@ -83,3 +83,19 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 		TotalCount: int(pi.TotalCount),
 	}, nil
 }
+
+func (c *RequestLoader) FindByItem(ctx context.Context, itemId gqlmodel.ID) ([]*gqlmodel.Request, error) {
+	iid, err := gqlmodel.ToID[id.Item](itemId)
+	if err != nil {
+		return nil, err
+	}
+
+	requests, err := c.usecase.FindByItem(ctx, iid, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(requests, func(r *request.Request, _ int) *gqlmodel.Request {
+		return gqlmodel.ToRequest(r)
+	}), nil
+}

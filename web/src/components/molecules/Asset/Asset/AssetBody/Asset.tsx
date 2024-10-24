@@ -5,8 +5,8 @@ import { useCallback, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -45,12 +45,9 @@ type Props = {
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
+  onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-  workspaceSettings?: WorkspaceSettings;
+  workspaceSettings: WorkspaceSettings;
 };
 
 export let viewerRef: CesiumViewer | undefined;
@@ -76,7 +73,7 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer: CesiumViewer | undefined) => {
+  const getViewer = (viewer?: CesiumViewer) => {
     viewerRef = viewer;
   };
 
@@ -126,19 +123,20 @@ const AssetMolecule: React.FC<Props> = ({
     }
   }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
 
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(asset.url);
+  }, [asset.url]);
+
   return (
     <BodyContainer>
       <BodyWrapper>
         <Card
           title={
             <>
-              {asset.fileName}{" "}
-              <CopyIcon
-                icon="copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(asset.url);
-                }}
-              />
+              {asset.fileName}
+              <Tooltip title={t("URL copied!!")} trigger={"click"}>
+                <CopyIcon icon="copy" onClick={handleCopy} />
+              </Tooltip>
             </>
           }
           toolbar={
@@ -180,7 +178,7 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton ghost selected={asset ? [asset] : undefined} displayDefaultIcon />
+        <DownloadButton selected={asset ? [asset] : undefined} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
@@ -207,10 +205,12 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-const CopyIcon = styled(Icon)<{ selected?: boolean }>`
-  margin-left: 16px;
-  &:active {
-    color: #096dd9;
+const CopyIcon = styled(Icon)`
+  margin-left: 10px;
+  transition: all 0.3s;
+  color: rgb(0, 0, 0, 0.45);
+  :hover {
+    color: rgba(0, 0, 0, 0.88);
   }
 `;
 
@@ -223,6 +223,7 @@ const BodyContainer = styled.div`
   flex-direction: row;
   width: 100%;
   height: calc(100% - 72px);
+  border-top: 1px solid #00000008;
   .ant-tree-show-line .ant-tree-switcher {
     background-color: transparent;
   }
@@ -239,6 +240,7 @@ const BodyWrapper = styled.div`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
+  background-color: #fafafa;
 `;
 
 const StyledButton = styled(Button)`

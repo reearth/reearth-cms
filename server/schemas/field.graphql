@@ -9,10 +9,13 @@ enum SchemaFieldType {
   Select
   Tag
   Integer
+  Number
   Reference
   Checkbox
   URL
   Group
+  GeometryObject
+  GeometryEditor
 }
 
 enum SchemaFieldTagColor {
@@ -29,6 +32,22 @@ enum SchemaFieldTagColor {
   PURPLE
 }
 
+enum GeometryObjectSupportedType {
+  POINT
+  MULTIPOINT
+  LINESTRING
+  MULTILINESTRING
+  POLYGON
+  MULTIPOLYGON
+  GEOMETRYCOLLECTION
+}
+
+enum GeometryEditorSupportedType {
+  POINT
+  LINESTRING
+  POLYGON
+  ANY
+}
 
 type SchemaField {
   id: ID!
@@ -53,7 +72,7 @@ type SchemaField {
 }
 
 union SchemaFieldTypeProperty =
-  SchemaFieldText
+    SchemaFieldText
   | SchemaFieldTextArea
   | SchemaFieldRichText
   | SchemaFieldMarkdown
@@ -63,10 +82,13 @@ union SchemaFieldTypeProperty =
   | SchemaFieldSelect
   | SchemaFieldTag
   | SchemaFieldInteger
+  | SchemaFieldNumber
   | SchemaFieldReference
   | SchemaFieldURL
   | SchemaFieldCheckbox
   | SchemaFieldGroup
+  | SchemaFieldGeometryObject
+  | SchemaFieldGeometryEditor
 
 type SchemaFieldText {
   defaultValue: Any
@@ -122,6 +144,12 @@ type SchemaFieldInteger {
   max: Int
 }
 
+type SchemaFieldNumber {
+  defaultValue: Any
+  min: Float
+  max: Float
+}
+
 type SchemaFieldReference {
   modelId: ID!
   schemaId: ID!
@@ -140,6 +168,16 @@ type SchemaFieldCheckbox {
 
 type SchemaFieldGroup {
   groupId: ID!
+}
+
+type SchemaFieldGeometryObject {
+  defaultValue: Any
+  supportedTypes: [GeometryObjectSupportedType!]!
+}
+
+type SchemaFieldGeometryEditor {
+  defaultValue: Any
+  supportedTypes: [GeometryEditorSupportedType!]!
 }
 
 # Inputs
@@ -202,13 +240,19 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input SchemaFieldNumberInput {
+  defaultValue: Any
+  min: Float
+  max: Float
+}
+
 input CorrespondingFieldInput {
   fieldId: ID
   title: String!
   key: String!
   description: String!
   required: Boolean!
-} 
+}
 
 input SchemaFieldReferenceInput {
   modelId: ID!
@@ -224,6 +268,20 @@ input SchemaFieldGroupInput {
   groupId: ID!
 }
 
+input SchemaFieldGeometryObjectInput {
+  defaultValue: Any
+  supportedTypes: [GeometryObjectSupportedType!]!
+}
+
+input SchemaFieldGeometryEditorInput {
+  defaultValue: Any
+  supportedTypes: [GeometryEditorSupportedType!]!
+}
+
+input SchemaFieldLineStringInput {
+  defaultValue: Any
+}
+
 input SchemaFieldTypePropertyInput @onlyOne {
   text: SchemaFieldTextInput
   textArea: SchemaFieldTextAreaInput
@@ -236,9 +294,12 @@ input SchemaFieldTypePropertyInput @onlyOne {
   tag: SchemaFieldTagInput
   checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
+  number: SchemaFieldNumberInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
+  geometryObject: SchemaFieldGeometryObjectInput
+  geometryEditor: SchemaFieldGeometryEditorInput
 }
 
 input CreateFieldInput {

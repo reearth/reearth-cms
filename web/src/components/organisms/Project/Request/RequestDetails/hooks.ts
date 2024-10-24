@@ -28,7 +28,7 @@ export default () => {
   const location = useLocation();
 
   const { data: userData } = useGetMeQuery();
-  const { data: rawRequest, loading: requestLoading } = useGetRequestQuery({
+  const { data: rawRequest, loading } = useGetRequestQuery({
     variables: { requestId: requestId ?? "" },
     skip: !requestId,
     fetchPolicy: "cache-and-network",
@@ -55,8 +55,8 @@ export default () => {
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const currentRequest: Request | undefined = useMemo(() => {
-    if (!rawRequest) return;
-    return fromGraphQLRequest(rawRequest.node as GQLRequest | undefined);
+    if (!rawRequest?.node) return;
+    return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);
 
   const isCloseActionEnabled: boolean = useMemo(
@@ -78,7 +78,7 @@ export default () => {
     [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
   );
 
-  const [deleteRequestMutation] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(
     (requestsId: string[]) =>
       (async () => {
@@ -98,7 +98,7 @@ export default () => {
     [t, projectId, currentWorkspace?.id, navigate, deleteRequestMutation],
   );
 
-  const [approveRequestMutation] = useApproveRequestMutation();
+  const [approveRequestMutation, { loading: approveLoading }] = useApproveRequestMutation();
   const handleRequestApprove = useCallback(
     (requestId: string) =>
       (async () => {
@@ -145,14 +145,13 @@ export default () => {
     });
   }, [navigate, currentWorkspace?.id, projectId, location.state]);
 
-  const handleNavigateToItemEditForm = useCallback(
-    (itemId: string, modelId?: string) => {
-      if (!modelId) return;
-      window.open(
+  const handleNavigateToItemEdit = useCallback(
+    (modelId: string, itemId: string) => {
+      navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}/details/${itemId}`,
       );
     },
-    [currentWorkspace?.id, currentProject?.id],
+    [currentProject?.id, currentWorkspace?.id, navigate],
   );
 
   const [updateComment] = useUpdateCommentMutation({
@@ -203,7 +202,9 @@ export default () => {
   return {
     me,
     isCloseActionEnabled,
-    loading: requestLoading,
+    loading,
+    deleteLoading,
+    approveLoading,
     isApproveActionEnabled,
     currentRequest,
     handleRequestDelete,
@@ -212,6 +213,6 @@ export default () => {
     handleCommentUpdate,
     handleCommentDelete,
     handleNavigateToRequestsList,
-    handleNavigateToItemEditForm,
+    handleNavigateToItemEdit,
   };
 };

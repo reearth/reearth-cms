@@ -69,7 +69,7 @@ func baseSeederHTTPUser(ctx context.Context, r *repo.Container) error {
 }
 
 func TestSignUp(t *testing.T) {
-	e, r := StartGQLServer(t, &app.Config{}, true, baseSeederHTTPUser)
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederHTTPUser)
 	input := &adapterhttp.SignupInput{
 		Name:        "name",
 		Email:       "test@example.com",
@@ -88,7 +88,7 @@ func TestSignUp(t *testing.T) {
 	o.Value("email").String().IsEqual("test@example.com")
 	o.Value("id").String().NotEmpty()
 
-	u, err := r.User.FindByEmail(context.Background(), "test@example.com")
+	u, err := ar.User.FindByEmail(context.Background(), "test@example.com")
 	assert.NoError(t, err)
 	assert.Equal(t, "name", u.Name())
 	assert.Equal(t, wId, u.Workspace())

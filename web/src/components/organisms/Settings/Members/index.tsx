@@ -7,7 +7,8 @@ import useHooks from "./hooks";
 const Members: React.FC = () => {
   const {
     me,
-    owner,
+    isOwner,
+    isAbleToLeave,
     searchedUser,
     handleSearchTerm,
     changeSearchedUser,
@@ -15,46 +16,69 @@ const Members: React.FC = () => {
     changeSearchedUserList,
     handleUserSearch,
     handleUserAdd,
+    addLoading,
     handleUsersAddToWorkspace,
+    updateLoading,
     handleMemberOfWorkspaceUpdate,
     selectedMember,
     roleModalShown,
     handleMemberRemoveFromWorkspace,
+    handleLeave,
     handleRoleModalClose,
     handleRoleModalOpen,
     handleMemberAddModalClose,
     handleMemberAddModalOpen,
     MemberAddModalShown,
     workspaceUserMembers,
+    selection,
+    setSelection,
+    page,
+    pageSize,
+    handleTableChange,
+    loading,
+    handleReload,
   } = useHooks();
 
   return (
     <>
       <MemberTable
         me={me}
-        owner={owner}
+        isOwner={isOwner}
+        isAbleToLeave={isAbleToLeave}
         handleMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
+        onLeave={handleLeave}
         handleSearchTerm={handleSearchTerm}
         handleRoleModalOpen={handleRoleModalOpen}
         handleMemberAddModalOpen={handleMemberAddModalOpen}
         workspaceUserMembers={workspaceUserMembers}
+        selection={selection}
+        setSelection={setSelection}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={handleTableChange}
+        loading={loading}
+        onReload={handleReload}
       />
-      <MemberRoleModal
-        member={selectedMember}
-        open={roleModalShown}
-        onClose={handleRoleModalClose}
-        onSubmit={handleMemberOfWorkspaceUpdate}
-      />
+      {selectedMember && (
+        <MemberRoleModal
+          open={roleModalShown}
+          member={selectedMember}
+          loading={updateLoading}
+          onClose={handleRoleModalClose}
+          onSubmit={handleMemberOfWorkspaceUpdate}
+        />
+      )}
       <MemberAddModal
         open={MemberAddModalShown}
         searchedUser={searchedUser}
         searchedUserList={searchedUserList}
-        changeSearchedUserList={changeSearchedUserList}
-        onClose={handleMemberAddModalClose}
+        addLoading={addLoading}
         onUserSearch={handleUserSearch}
         onUserAdd={handleUserAdd}
-        changeSearchedUser={changeSearchedUser}
+        onClose={handleMemberAddModalClose}
         onSubmit={handleUsersAddToWorkspace}
+        changeSearchedUser={changeSearchedUser}
+        changeSearchedUserList={changeSearchedUserList}
       />
     </>
   );

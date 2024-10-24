@@ -12,7 +12,7 @@ async function deleteField(page: Page, name: string, key = name) {
   await page.getByLabel("delete").locator("svg").click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByText(`${name} #${key}`)).not.toBeVisible();
+  await expect(page.getByText(`${name} #${key}`)).toBeHidden();
 }
 
 test.beforeEach(async ({ reearth, page }) => {
@@ -24,6 +24,7 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
+// eslint-disable-next-line playwright/expect-expect
 test("Model CRUD has succeeded", async ({ page }) => {
   await crudModel(page);
 });
@@ -63,6 +64,7 @@ test("Model reordering has succeeded", async ({ page }) => {
   ).toContainText("model3");
 });
 
+// eslint-disable-next-line playwright/expect-expect
 test("Group CRUD has succeeded", async ({ page }) => {
   await crudGroup(page);
 });
@@ -84,9 +86,9 @@ test("Group creating from adding field has succeeded", async ({ page }) => {
     page.getByRole("menuitem", { name: "e2e group name" }).locator("span"),
   ).toBeVisible();
   await expect(page.getByText("e2e group name#e2e-group-key")).toBeVisible();
-  await expect(page.getByText("FieldsMeta Data")).not.toBeVisible();
-  await expect(page.locator("li").getByText("Reference", { exact: true })).not.toBeVisible();
-  await expect(page.locator("li").getByText("Group", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("FieldsMeta Data")).toBeHidden();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeHidden();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeHidden();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await page.getByText("e2e model name").click();
@@ -132,6 +134,7 @@ test("Group reordering has succeeded", async ({ page }) => {
   ).toContainText("group3");
 });
 
+// eslint-disable-next-line playwright/expect-expect
 test("Text field CRUD has succeeded", async ({ page }) => {
   await createModel(page);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
