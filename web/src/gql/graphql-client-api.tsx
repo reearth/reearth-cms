@@ -804,10 +804,9 @@ export type Mutation = {
   publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
   regenerateToken?: Maybe<IntegrationPayload>;
-  removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
-  removeMultipleUsersFromWorkspace?: Maybe<RemoveMultipleMembersFromWorkspacePayload>;
+  removeIntegrationFromWorkspace?: Maybe<RemoveIntegrationFromWorkspacePayload>;
+  removeMultipleMembersFromWorkspace?: Maybe<RemoveMultipleMembersFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
-  removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   unpublishItem?: Maybe<UnpublishItemPayload>;
   updateAsset?: Maybe<UpdateAssetPayload>;
   updateComment?: Maybe<CommentPayload>;
@@ -1007,18 +1006,13 @@ export type MutationRemoveIntegrationFromWorkspaceArgs = {
 };
 
 
-export type MutationRemoveMultipleUsersFromWorkspaceArgs = {
-  input: RemoveMultipleUsersFromWorkspaceInput;
+export type MutationRemoveMultipleMembersFromWorkspaceArgs = {
+  input: RemoveMultipleMembersFromWorkspaceInput;
 };
 
 
 export type MutationRemoveMyAuthArgs = {
   input: RemoveMyAuthInput;
-};
-
-
-export type MutationRemoveUserFromWorkspaceArgs = {
-  input: RemoveUserFromWorkspaceInput;
 };
 
 
@@ -1437,9 +1431,14 @@ export type RemoveIntegrationFromWorkspaceInput = {
   workspaceId: Scalars['ID']['input'];
 };
 
-export type RemoveMemberFromWorkspacePayload = {
-  __typename?: 'RemoveMemberFromWorkspacePayload';
+export type RemoveIntegrationFromWorkspacePayload = {
+  __typename?: 'RemoveIntegrationFromWorkspacePayload';
   workspace: Workspace;
+};
+
+export type RemoveMultipleMembersFromWorkspaceInput = {
+  userIds: Array<Scalars['ID']['input']>;
+  workspaceId: Scalars['ID']['input'];
 };
 
 export type RemoveMultipleMembersFromWorkspacePayload = {
@@ -1447,18 +1446,8 @@ export type RemoveMultipleMembersFromWorkspacePayload = {
   workspace: Workspace;
 };
 
-export type RemoveMultipleUsersFromWorkspaceInput = {
-  userIds: Array<Scalars['ID']['input']>;
-  workspaceId: Scalars['ID']['input'];
-};
-
 export type RemoveMyAuthInput = {
   auth: Scalars['String']['input'];
-};
-
-export type RemoveUserFromWorkspaceInput = {
-  userId: Scalars['ID']['input'];
-  workspaceId: Scalars['ID']['input'];
 };
 
 export type Request = Node & {
@@ -2960,7 +2949,7 @@ export type RemoveMultipleMembersFromWorkspaceMutationVariables = Exact<{
 }>;
 
 
-export type RemoveMultipleMembersFromWorkspaceMutation = { __typename?: 'Mutation', removeMultipleUsersFromWorkspace?: { __typename?: 'RemoveMultipleMembersFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', integrationId: string, role: Role, active: boolean, invitedById: string, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type RemoveMultipleMembersFromWorkspaceMutation = { __typename?: 'Mutation', removeMultipleMembersFromWorkspace?: { __typename?: 'RemoveMultipleMembersFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', integrationId: string, role: Role, active: boolean, invitedById: string, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
 
 export type AddIntegrationToWorkspaceMutationVariables = Exact<{
   workspaceId: Scalars['ID']['input'];
@@ -2986,7 +2975,7 @@ export type RemoveIntegrationFromWorkspaceMutationVariables = Exact<{
 }>;
 
 
-export type RemoveIntegrationFromWorkspaceMutation = { __typename?: 'Mutation', removeIntegrationFromWorkspace?: { __typename?: 'RemoveMemberFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', integrationId: string, role: Role, active: boolean, invitedById: string, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type RemoveIntegrationFromWorkspaceMutation = { __typename?: 'Mutation', removeIntegrationFromWorkspace?: { __typename?: 'RemoveIntegrationFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', integrationId: string, role: Role, active: boolean, invitedById: string, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
 
 export type CreateWorkspaceMutationVariables = Exact<{
   name: Scalars['String']['input'];
@@ -7370,7 +7359,7 @@ export type UpdateMemberOfWorkspaceMutationResult = Apollo.MutationResult<Update
 export type UpdateMemberOfWorkspaceMutationOptions = Apollo.BaseMutationOptions<UpdateMemberOfWorkspaceMutation, UpdateMemberOfWorkspaceMutationVariables>;
 export const RemoveMultipleMembersFromWorkspaceDocument = gql`
     mutation RemoveMultipleMembersFromWorkspace($workspaceId: ID!, $userIds: [ID!]!) {
-  removeMultipleUsersFromWorkspace(
+  removeMultipleMembersFromWorkspace(
     input: {workspaceId: $workspaceId, userIds: $userIds}
   ) {
     workspace {

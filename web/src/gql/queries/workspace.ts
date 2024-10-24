@@ -74,7 +74,7 @@ export const UPDATE_MEMBER_OF_WORKSPACE = gql`
 
 export const REMOVE_MULTIPLE_MEMBERS_FROM_WORKSPACE = gql`
   mutation RemoveMultipleMembersFromWorkspace($workspaceId: ID!, $userIds: [ID!]!) {
-    removeMultipleUsersFromWorkspace(input: { workspaceId: $workspaceId, userIds: $userIds }) {
+    removeMultipleMembersFromWorkspace(input: { workspaceId: $workspaceId, userIds: $userIds }) {
       workspace {
         id
         ...WorkspaceFragment
