@@ -10,6 +10,7 @@ import {
   Item,
   ItemStatus,
   ItemField,
+  Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -40,6 +41,7 @@ import {
   SchemaFieldType,
   View as GQLView,
   useGetViewsQuery,
+  ItemFieldInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useCollapsedModelMenu } from "@reearth-cms/state";
@@ -152,16 +154,16 @@ export default () => {
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
   const [createNewItem] = useCreateItemMutation();
 
-  const metadataVersion = useMemo(() => new Map<string, string>(), []);
+  const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
     async (id: string) => {
       const { data } = await getItem({ variables: { id } });
       const item = fromGraphQLItem(data?.node as GQLItem);
-      if (item?.metadata.id) {
-        metadataVersion.set(item.metadata.id, item.metadata.version);
+      if (item) {
+        itemIdToMetadata.current.set(id, item.metadata);
       }
     },
-    [getItem, metadataVersion],
+    [getItem],
   );
 
   const handleMetaItemUpdate = useCallback(
@@ -175,61 +177,64 @@ export default () => {
       if (!target || !currentModel?.metadataSchema?.id || !currentModel.metadataSchema.fields) {
         Notification.error({ message: t("Failed to update item.") });
         return;
-      } else if (target.metadata) {
-        const fields = target.metadata.fields.map(field => {
-          if (field.schemaFieldId === key) {
-            if (Array.isArray(field.value) && field.type !== "Tag") {
-              field.value[index ?? 0] = value ?? "";
-            } else {
-              field.value = value ?? "";
-            }
-          } else {
-            field.value = field.value ?? "";
-          }
-          return field as typeof field & { value: unknown };
-        });
-        const item = await updateItemMutation({
-          variables: {
-            itemId: target.metadata.id,
-            fields,
-            version: metadataVersion.get(target.metadata.id) ?? target.metadata.version,
-          },
-        });
-        if (item.errors || !item.data?.updateItem) {
-          Notification.error({ message: t("Failed to update item.") });
-          return;
-        }
       } else {
-        const fields = currentModel.metadataSchema.fields.map(field => ({
-          value: field.id === key ? value : "",
-          schemaFieldId: key,
-          type: field.type as SchemaFieldType,
-        }));
-        const metaItem = await createNewItem({
-          variables: {
-            modelId: currentModel.id,
-            schemaId: currentModel.metadataSchema.id,
-            fields,
-          },
-        });
-        if (metaItem.errors || !metaItem.data?.createItem) {
-          Notification.error({ message: t("Failed to update item.") });
-          return;
-        }
-        const item = await updateItemMutation({
-          variables: {
-            itemId: target.id,
-            fields: target.fields.map(field => ({
-              ...field,
-              value: field.value ?? "",
-            })),
-            metadataId: metaItem?.data.createItem.item.id,
-            version: target?.version ?? "",
-          },
-        });
-        if (item.errors || !item.data?.updateItem) {
-          Notification.error({ message: t("Failed to update item.") });
-          return;
+        const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
+        if (metadata?.fields && metadata.id) {
+          const fields = metadata.fields.map(field => {
+            if (field.schemaFieldId === key) {
+              if (Array.isArray(field.value) && field.type !== "Tag") {
+                field.value[index ?? 0] = value ?? "";
+              } else {
+                field.value = value ?? "";
+              }
+            } else {
+              field.value = field.value ?? "";
+            }
+            return field as ItemFieldInput;
+          });
+          const item = await updateItemMutation({
+            variables: {
+              itemId: metadata.id,
+              fields,
+              version: metadata.version,
+            },
+          });
+          if (item.errors || !item.data?.updateItem) {
+            Notification.error({ message: t("Failed to update item.") });
+            return;
+          }
+        } else {
+          const fields = currentModel.metadataSchema.fields.map(field => ({
+            value: field.id === key ? value : "",
+            schemaFieldId: key,
+            type: field.type as SchemaFieldType,
+          }));
+          const metaItem = await createNewItem({
+            variables: {
+              modelId: currentModel.id,
+              schemaId: currentModel.metadataSchema.id,
+              fields,
+            },
+          });
+          if (metaItem.errors || !metaItem.data?.createItem) {
+            Notification.error({ message: t("Failed to update item.") });
+            return;
+          }
+          const item = await updateItemMutation({
+            variables: {
+              itemId: target.id,
+              fields: target.fields.map(field => ({
+                ...field,
+                value: field.value ?? "",
+              })),
+              metadataId: metaItem?.data.createItem.item.id,
+              version: target?.version ?? "",
+            },
+          });
+          if (item.errors || !item.data?.updateItem) {
+            Notification.error({ message: t("Failed to update item.") });
+            return;
+          }
         }
       }
       metadataVersionSet(updateItemId);
@@ -238,10 +243,9 @@ export default () => {
     [
       createNewItem,
       currentModel?.id,
-      currentModel?.metadataSchema?.fields,
-      currentModel?.metadataSchema?.id,
+      currentModel?.metadataSchema.fields,
+      currentModel?.metadataSchema.id,
       data?.searchItem.nodes,
-      metadataVersion,
       metadataVersionSet,
       t,
       updateItemMutation,
