@@ -169,9 +169,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
       width="70vw"
       styles={{
         body: {
-          minHeight: "50vh",
-          position: "relative",
-          padding: "12px 12px 0",
+          height: "70vh",
         },
       }}
       afterClose={() => {
