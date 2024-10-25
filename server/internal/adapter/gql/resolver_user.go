@@ -83,9 +83,14 @@ func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 	return gqlmodel.ToMe(u), nil
 }
 
-// SearchUser is the resolver for the searchUser field.
-func (r *queryResolver) SearchUser(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error) {
-	return loaders(ctx).User.SearchUser(ctx, nameOrEmail)
+// UserSearch is the resolver for the userSearch field.
+func (r *queryResolver) UserSearch(ctx context.Context, keyword string) ([]*gqlmodel.User, error) {
+	return loaders(ctx).User.Search(ctx, keyword)
+}
+
+// UserByNameOrEmail is the resolver for the userByNameOrEmail field.
+func (r *queryResolver) UserByNameOrEmail(ctx context.Context, nameOrEmail string) (*gqlmodel.User, error) {
+	return loaders(ctx).User.ByNameOrEmail(ctx, nameOrEmail)
 }
 
 // Me returns MeResolver implementation.

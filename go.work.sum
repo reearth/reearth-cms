@@ -2379,6 +2379,10 @@ github.com/redis/go-redis/v9 v9.1.0/go.mod h1:urWj3He21Dj5k4TK1y59xH8Uj6ATueP8AH
 github.com/reearth/reearthx v0.0.0-20221109022045-dd54f4626639/go.mod h1:YZMXO1RhQ5fFL0GIOFvJq2GNskW7w+xoW4Zfu2QUXhw=
 github.com/reearth/reearthx v0.0.0-20230531092445-3bdc26691898 h1:M9m03h+EBR33vxIfBnen5kavaIRRu7gXFkwqHqHU0l4=
 github.com/reearth/reearthx v0.0.0-20230531092445-3bdc26691898/go.mod h1:Rh7MJPKq43f+HZ/PwjZ5vEbGPpllNFvUrxn9sBn2b+s=
+github.com/reearth/reearthx v0.0.0-20241023075926-e29bdd6c4ae3 h1:aFm6QNDFs08EKlrWJN9IBqdxlDUuCBIIgBIcPkLHOZY=
+github.com/reearth/reearthx v0.0.0-20241023075926-e29bdd6c4ae3/go.mod h1:d1WXkdCVzSoc8pl3vW9/9yKfk4fdoZQZhX8Ot8jqgnc=
+github.com/reearth/reearthx v0.0.0-20241025125329-f01a05daf443 h1:r3bAWyEVAMX60W70OPeWd0uA+2sLhXgox41rQb2XKDY=
+github.com/reearth/reearthx v0.0.0-20241025125329-f01a05daf443/go.mod h1:d1WXkdCVzSoc8pl3vW9/9yKfk4fdoZQZhX8Ot8jqgnc=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/robertkrimen/godocdown v0.0.0-20130622164427-0bfa04905481 h1:jMxcLa+VjJKhpCwbLUXAD15wJ+hhvXMLujCl3MkXpfM=
