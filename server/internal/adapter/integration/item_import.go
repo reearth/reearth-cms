@@ -166,8 +166,8 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 	fields := make([]interfaces.CreateFieldParam, 0)
 	for _, o := range jsonObjects {
 		var iId *id.ItemID
-		idStr, _ := o["Id"].(*string)
-		iId = id.ItemIDFromRef(idStr)
+		idStr, _ := o["id"].(string)
+		iId = id.ItemIDFromRef(&idStr)
 		item := interfaces.ImportItemParam{
 			ItemId:     iId,
 			MetadataID: nil,
@@ -207,7 +207,7 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 			o = props
 		}
 		for k, v := range o {
-			if v == nil {
+			if v == nil || k == "id" {
 				continue
 			}
 			key := id.NewKey(k)
