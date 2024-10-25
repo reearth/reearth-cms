@@ -166,8 +166,18 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 	fields := make([]interfaces.CreateFieldParam, 0)
 	for _, o := range jsonObjects {
 		var iId *id.ItemID
-		idStr, _ := o["id"].(string)
-		iId = id.ItemIDFromRef(&idStr)
+		//idStr, _ := o["id"].(string)
+		//iId = id.ItemIDFromRef(&idStr)
+		if idVal, ok := o["id"]; ok {
+			if idStr, ok := idVal.(string); ok {
+				iId = id.ItemIDFromRef(&idStr)
+				if iId.IsEmpty() || iId.IsNil() {
+					return nil, nil, rerror.NewE(i18n.T("invalid id format"))
+				}
+			} else {
+				return nil, nil, rerror.NewE(i18n.T("invalid id format"))
+			}
+		}
 		item := interfaces.ImportItemParam{
 			ItemId:     iId,
 			MetadataID: nil,
