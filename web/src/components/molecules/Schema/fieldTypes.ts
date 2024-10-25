@@ -129,6 +129,9 @@ t("Multiple select");
 t("Int");
 t("Integer");
 
+t("Float");
+t("Fractional");
+
 t("URL");
 t("http/https URL");
 
