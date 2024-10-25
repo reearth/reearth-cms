@@ -172,10 +172,10 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 			if idStr, ok := idVal.(string); ok {
 				iId = id.ItemIDFromRef(&idStr)
 				if iId.IsEmpty() || iId.IsNil() {
-					return nil, nil, rerror.NewE(i18n.T("invalid id format"))
+					return nil, nil, rerror.ErrInvalidParams
 				}
 			} else {
-				return nil, nil, rerror.NewE(i18n.T("invalid id format"))
+				return nil, nil, rerror.ErrInvalidParams
 			}
 		}
 		item := interfaces.ImportItemParam{
