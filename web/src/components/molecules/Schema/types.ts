@@ -28,7 +28,7 @@ export type Field = {
 
 export type GroupField = Field & { type: Exclude<FieldType, "Group"> };
 
-type MetadataField = Field & {
+export type MetadataField = Field & {
   type: Extract<FieldType, "Tag" | "Bool" | "Checkbox" | "Date" | "Text" | "URL">;
 };
 
