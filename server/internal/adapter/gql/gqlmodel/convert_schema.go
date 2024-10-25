@@ -268,10 +268,10 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 					v, _ = dv.First().ValueNumber()
 				}
 			}
-			res = &SchemaFieldInteger{
+			res = &SchemaFieldNumber{
 				DefaultValue: v,
-				Min:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Min()))),
-				Max:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Max()))),
+				Min:          util.ToPtrIfNotEmpty(float64(lo.FromPtr(f.Min()))),
+				Max:          util.ToPtrIfNotEmpty(float64(lo.FromPtr(f.Max()))),
 			}
 		},
 		Integer: func(f *schema.FieldInteger) {
@@ -552,6 +552,28 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			max = lo.ToPtr(int64(*x.Max))
 		}
 		tpi, err2 := schema.NewInteger(min, max)
+		if err2 != nil {
+			err = err2
+		}
+		tpRes = tpi.TypeProperty()
+	case SchemaFieldTypeNumber:
+		x := tp.Number
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeNumber, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeNumber, x.DefaultValue).AsMultiple()
+		}
+		var min, max *float64
+		if x.Min != nil {
+			min = lo.ToPtr(float64(*x.Min))
+		}
+		if x.Max != nil {
+			max = lo.ToPtr(float64(*x.Max))
+		}
+		tpi, err2 := schema.NewNumber(min, max)
 		if err2 != nil {
 			err = err2
 		}

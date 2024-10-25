@@ -3,6 +3,7 @@ package asset
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
@@ -50,4 +51,13 @@ func TestList_Map(t *testing.T) {
 		a.ID(): a,
 	}, List{a, nil}.Map())
 	assert.Equal(t, Map{}, List(nil).Map())
+}
+
+func TestList_IDs(t *testing.T) {
+	pid := NewProjectID()
+	uid := accountdomain.NewUserID()
+	a1 := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
+	a2 := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
+	al := List{a1, a2}
+	assert.Equal(t, al.IDs(), id.AssetIDList{a1.ID(), a2.ID()})
 }
