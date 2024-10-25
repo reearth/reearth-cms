@@ -16,8 +16,14 @@ type DefaultFieldProps = {
 
 const IntegerField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
-  const min = useMemo(() => field.typeProperty?.min, [field.typeProperty?.min]);
-  const max = useMemo(() => field.typeProperty?.max, [field.typeProperty?.max]);
+  const min = useMemo(
+    () => field?.typeProperty?.min ?? field?.typeProperty?.numberMin,
+    [field?.typeProperty?.min, field?.typeProperty?.numberMin],
+  );
+  const max = useMemo(
+    () => field?.typeProperty?.max ?? field?.typeProperty?.numberMax,
+    [field?.typeProperty?.max, field?.typeProperty?.numberMax],
+  );
   const validate = useCallback(
     (value: unknown) => {
       if (typeof value === "number") {

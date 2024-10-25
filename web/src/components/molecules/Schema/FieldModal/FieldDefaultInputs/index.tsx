@@ -93,6 +93,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
     case "MarkdownText":
       return <MarkdownField multiple={multiple} maxLength={maxLength} />;
     case "Integer":
+    case "Number":
       return <IntegerField multiple={multiple} min={min} max={max} />;
     case "Bool":
       return <BooleanField multiple={multiple} />;

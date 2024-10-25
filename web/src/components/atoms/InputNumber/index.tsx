@@ -14,7 +14,7 @@ const InputNumber: <T extends string | number>(
     }
   }, [props.max, props.min, value]);
 
-  return <AntDInputNumber value={value} status={status} {...props} />;
+  return <AntDInputNumber value={value} status={status} style={{ width: "100%" }} {...props} />;
 };
 
 export default InputNumber;

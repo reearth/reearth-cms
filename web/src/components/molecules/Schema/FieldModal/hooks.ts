@@ -137,8 +137,8 @@ export default (
       isTitle: !!selectedField?.isTitle,
       required: !!selectedField?.required,
       defaultValue: selectedField ? defaultValueGet(selectedField) : undefined,
-      min: selectedField?.typeProperty?.min,
-      max: selectedField?.typeProperty?.max,
+      min: selectedField?.typeProperty?.min ?? selectedField?.typeProperty?.numberMin,
+      max: selectedField?.typeProperty?.max ?? selectedField?.typeProperty?.numberMax,
       maxLength: selectedField?.typeProperty?.maxLength,
       values: selectedField?.typeProperty?.values,
       tags: selectedField?.typeProperty?.tags,
@@ -174,12 +174,13 @@ export default (
           select: { defaultValue, values: values.values ?? [] },
         };
       }
-      case "Integer": {
+      case "Integer":
+      case "Number": {
         const defaultValue = Array.isArray(values.defaultValue)
           ? values.defaultValue.filter((value: number | string) => typeof value === "number")
           : (values.defaultValue ?? "");
         return {
-          integer: {
+          [values.type === "Integer" ? "integer" : "number"]: {
             defaultValue,
             min: values.min ?? null,
             max: values.max ?? null,
@@ -249,26 +250,22 @@ export default (
   }, [form, values]);
 
   const handleValuesChange = useCallback(async (changedValues: Record<string, unknown>) => {
-      const [key, value] = Object.entries(changedValues)[0];
-      let changedValue = value;
-      let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
-      if (Array.isArray(value)) {
-        changedValue = [...value].sort();
-      }
-      if (Array.isArray(defaultValue)) {
-        defaultValue = [...defaultValue].sort();
-      }
+    const [key, value] = Object.entries(changedValues)[0];
+    let changedValue = value;
+    let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
+    if (Array.isArray(value)) {
+      changedValue = [...value].sort();
+    }
+    if (Array.isArray(defaultValue)) {
+      defaultValue = [...defaultValue].sort();
+    }
 
-      if (
-        JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))
-      ) {
-        changedKeys.current.delete(key);
-      } else {
-        changedKeys.current.add(key);
-      }
-    },
-    [],
-  );
+    if (JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))) {
+      changedKeys.current.delete(key);
+    } else {
+      changedKeys.current.add(key);
+    }
+  }, []);
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

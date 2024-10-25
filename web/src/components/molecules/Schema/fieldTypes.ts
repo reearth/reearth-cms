@@ -52,6 +52,12 @@ export const fieldTypes: {
     description: "Integer",
     color: "#36CFC9",
   },
+  Number: {
+    icon: "infinity",
+    title: "Float",
+    description: "Fractional",
+    color: "#36CFC9",
+  },
   URL: {
     icon: "link",
     title: "URL",

@@ -46,7 +46,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
       },
       {
         title: t("Number"),
-        fields: ["Integer"],
+        fields: ["Integer", "Number"],
       },
       {
         title: t("URL"),

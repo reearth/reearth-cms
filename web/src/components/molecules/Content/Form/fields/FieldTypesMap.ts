@@ -1,4 +1,11 @@
-import { TagField, DateField, BoolField, CheckboxField, URLField } from "./FieldComponents";
+import {
+  DefaultField,
+  TagField,
+  DateField,
+  BoolField,
+  CheckboxField,
+  URLField,
+} from "./FieldComponents";
 import GeometryField from "./FieldComponents/GeometryField";
 import IntegerField from "./FieldComponents/IntegerField";
 import MarkdownField from "./FieldComponents/MarkdownField";
@@ -6,6 +13,7 @@ import SelectField from "./FieldComponents/SelectField";
 import TextareaField from "./FieldComponents/TextareaField";
 
 export const FIELD_TYPE_COMPONENT_MAP = {
+  Text: DefaultField,
   Tag: TagField,
   Date: DateField,
   Bool: BoolField,
@@ -14,6 +22,7 @@ export const FIELD_TYPE_COMPONENT_MAP = {
   TextArea: TextareaField,
   MarkdownText: MarkdownField,
   Integer: IntegerField,
+  Number: IntegerField,
   Select: SelectField,
   GeometryObject: GeometryField,
   GeometryEditor: GeometryField,
