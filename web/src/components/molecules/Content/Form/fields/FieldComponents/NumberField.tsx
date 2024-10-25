@@ -14,7 +14,7 @@ type DefaultFieldProps = {
   disabled?: boolean;
 };
 
-const IntegerField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
+const NumberField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
   const min = useMemo(
     () => field?.typeProperty?.min ?? field?.typeProperty?.numberMin,
@@ -72,4 +72,4 @@ const IntegerField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disable
   );
 };
 
-export default IntegerField;
+export default NumberField;
