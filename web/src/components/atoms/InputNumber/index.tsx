@@ -5,10 +5,10 @@ const InputNumber: <T extends string | number>(
   props: React.PropsWithChildren<InputNumberProps<T>> & React.RefAttributes<HTMLInputElement>,
 ) => React.ReactElement = ({ value, ...props }) => {
   const status = useMemo(() => {
-    if (value) {
-      if (props.max && Number(value) > Number(props.max)) {
+    if (typeof value === "number") {
+      if (typeof props.max === "number" && value > props.max) {
         return "error";
-      } else if (props.min && Number(value) < Number(props.min)) {
+      } else if (typeof props.min === "number" && value < props.min) {
         return "error";
       }
     }
