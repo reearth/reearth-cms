@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import React, { useCallback, useState, useEffect } from "react";
 
-import AutoComplete, { AutoCompleteProps } from "@reearth-cms/components/atoms/AutoComplete";
+import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -15,16 +15,16 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   open: boolean;
-  searchedUser?: User & { isMember: boolean };
-  searchedUserList: User[];
+  searchedUsers: User[];
+  selectedUsers: User[];
   searchLoading: boolean;
   addLoading: boolean;
   onUserSearch: (nameOrEmail: string) => Promise<void>;
-  onUserAdd: () => void;
+  onUserAdd: (user: User) => void;
   onClose: () => void;
   onSubmit: (users: MemberInput[]) => Promise<void>;
-  changeSearchedUser: (user?: User & { isMember: boolean }) => void;
-  changeSearchedUserList: React.Dispatch<React.SetStateAction<User[]>>;
+  setSearchedUsers: (user: User[]) => void;
+  setSelectedUsers: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
 type FormValues = Record<string, Role>;
@@ -35,20 +35,26 @@ let timeout: ReturnType<typeof setTimeout> | null;
 
 const MemberAddModal: React.FC<Props> = ({
   open,
-  searchedUser,
-  searchedUserList,
+  searchedUsers,
+  selectedUsers,
   searchLoading,
   addLoading,
   onUserSearch,
   onUserAdd,
   onClose,
   onSubmit,
-  changeSearchedUser,
-  changeSearchedUserList,
+  setSearchedUsers,
+  setSelectedUsers,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
-  const [options, setOptions] = useState<AutoCompleteProps["options"]>([]);
+  const [options, setOptions] = useState<
+    {
+      value: string;
+      user: User;
+      label: JSX.Element;
+    }[]
+  >([]);
   const [isResultOpen, setIsResultOpen] = useState(false);
 
   const resultClear = useCallback(() => {
@@ -76,62 +82,63 @@ const MemberAddModal: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (searchedUser) {
-      setOptions([
-        {
-          value: "",
-          label: (
-            <UserWrapper>
-              <UserAvatar username={searchedUser.name} size={24} />
-              <UserInfo>
-                <UserName>{searchedUser.name}</UserName>
-                <Email>{searchedUser.email}</Email>
-              </UserInfo>
-            </UserWrapper>
-          ),
-        },
-      ]);
+    if (searchedUsers.length) {
+      const options = searchedUsers.map(user => ({
+        value: "",
+        user,
+        label: (
+          <UserWrapper>
+            <UserAvatar username={user.name} size={24} />
+            <UserInfo>
+              <UserName>{user.name}</UserName>
+              <Email>{user.email}</Email>
+            </UserInfo>
+          </UserWrapper>
+        ),
+      }));
+      setOptions(options);
     } else {
       setOptions([]);
     }
-  }, [searchedUser]);
+  }, [searchedUsers]);
 
-  const handleSelect = useCallback(() => {
-    onUserAdd();
-    resultClear();
-  }, [resultClear, onUserAdd]);
+  const handleSelect = useCallback(
+    (user: User) => {
+      onUserAdd(user);
+      resultClear();
+    },
+    [resultClear, onUserAdd],
+  );
 
   const handleMemberRemove = useCallback(
     (userId: string) => {
-      changeSearchedUserList((oldList: User[]) =>
-        oldList.filter((user: User) => user.id !== userId),
-      );
+      setSelectedUsers(prev => prev.filter(user => user.id !== userId));
     },
-    [changeSearchedUserList],
+    [setSelectedUsers],
   );
 
   const handleSubmit = useCallback(async () => {
-    if (searchedUserList.length === 0) return;
+    if (selectedUsers.length === 0) return;
     const values = form.getFieldsValue();
     try {
       await onSubmit(
-        searchedUserList.map(user => ({
+        selectedUsers.map(user => ({
           userId: user.id,
           role: values[user.id] ?? "READER",
         })),
       );
-      changeSearchedUser(undefined);
-      changeSearchedUserList([]);
+      setSearchedUsers([]);
+      setSelectedUsers([]);
       onClose();
     } catch (error) {
       console.error(error);
     }
-  }, [changeSearchedUser, changeSearchedUserList, form, onClose, onSubmit, searchedUserList]);
+  }, [setSelectedUsers, form, onClose, onSubmit, selectedUsers, setSearchedUsers]);
 
   const handleClose = useCallback(() => {
-    changeSearchedUser(undefined);
+    setSearchedUsers([]);
     onClose();
-  }, [onClose, changeSearchedUser]);
+  }, [onClose, setSearchedUsers]);
 
   return (
     <StyledModal
@@ -147,13 +154,13 @@ const MemberAddModal: React.FC<Props> = ({
           type="primary"
           onClick={handleSubmit}
           loading={addLoading}
-          disabled={searchedUserList.length === 0}>
+          disabled={selectedUsers.length === 0}>
           {t("Add to workspace")}
         </Button>,
       ]}>
       {open && (
         <Form form={form} layout="vertical">
-          <Form.Item label={t("Email address or user name")}>
+          <Form.Item label={t("Search user")}>
             <AutoComplete
               open={isResultOpen}
               options={options}
@@ -168,12 +175,19 @@ const MemberAddModal: React.FC<Props> = ({
               onBlur={() => {
                 setIsResultOpen(false);
               }}
-              onSelect={handleSelect}>
-              <Search size="large" allowClear loading={searchLoading} />
+              onSelect={(_, option) => {
+                handleSelect(option.user);
+              }}>
+              <Search
+                size="large"
+                allowClear
+                loading={searchLoading}
+                placeholder={t("Email address or user name")}
+              />
             </AutoComplete>
           </Form.Item>
-          <StyledFormItem label={`${t("Selected Members")} (${searchedUserList.length})`}>
-            {searchedUserList.map(user => (
+          <StyledFormItem label={`${t("Selected Members")} (${selectedUsers.length})`}>
+            {selectedUsers.map(user => (
               <SelectedUser key={user.id}>
                 <UserWrapperShrinked>
                   <UserAvatar username={user.name} size={24} />

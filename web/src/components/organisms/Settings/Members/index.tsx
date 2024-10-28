@@ -9,11 +9,11 @@ const Members: React.FC = () => {
     me,
     isOwner,
     isAbleToLeave,
-    searchedUser,
+    searchedUsers,
     handleSearchTerm,
-    changeSearchedUser,
-    searchedUserList,
-    changeSearchedUserList,
+    setSearchedUsers,
+    selectedUsers,
+    setSelectedUsers,
     handleUserSearch,
     searchLoading,
     handleUserAdd,
@@ -71,16 +71,16 @@ const Members: React.FC = () => {
       )}
       <MemberAddModal
         open={MemberAddModalShown}
-        searchedUser={searchedUser}
-        searchedUserList={searchedUserList}
+        searchedUsers={searchedUsers}
+        selectedUsers={selectedUsers}
         searchLoading={searchLoading}
         addLoading={addLoading}
         onUserSearch={handleUserSearch}
         onUserAdd={handleUserAdd}
         onClose={handleMemberAddModalClose}
         onSubmit={handleUsersAddToWorkspace}
-        changeSearchedUser={changeSearchedUser}
-        changeSearchedUserList={changeSearchedUserList}
+        setSearchedUsers={setSearchedUsers}
+        setSelectedUsers={setSelectedUsers}
       />
     </>
   );
