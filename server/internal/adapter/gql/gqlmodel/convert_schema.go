@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -270,8 +269,8 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 			res = &SchemaFieldNumber{
 				DefaultValue: v,
-				Min:          util.ToPtrIfNotEmpty(float64(lo.FromPtr(f.Min()))),
-				Max:          util.ToPtrIfNotEmpty(float64(lo.FromPtr(f.Max()))),
+				Min:          f.Min(),
+				Max:          f.Max(),
 			}
 		},
 		Integer: func(f *schema.FieldInteger) {
@@ -285,8 +284,8 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 			res = &SchemaFieldInteger{
 				DefaultValue: v,
-				Min:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Min()))),
-				Max:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Max()))),
+				Min:          intPtr(f.Min()),
+				Max:          intPtr(f.Max()),
 			}
 		},
 		Reference: func(f *schema.FieldReference) {
@@ -672,4 +671,11 @@ func unpackArray(s any) []any {
 		}
 	}
 	return r
+}
+
+func intPtr(v *int64) *int {
+	if v == nil {
+		return nil
+	}
+	return lo.ToPtr((int)(*v))
 }
