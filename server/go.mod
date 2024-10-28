@@ -1,6 +1,6 @@
 module github.com/reearth/reearth-cms/server
 
-go 1.23.1
+go 1.23.2
 
 require (
 	cloud.google.com/go/pubsub v1.45.1
