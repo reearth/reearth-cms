@@ -1671,6 +1671,7 @@ components:
         - bool
         - select
         - integer
+        - number
         - reference
         - url
         - group

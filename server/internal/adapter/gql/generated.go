@@ -412,64 +412,64 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddComment                     func(childComplexity int, input gqlmodel.AddCommentInput) int
-		AddIntegrationToWorkspace      func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
-		AddUsersToWorkspace            func(childComplexity int, input gqlmodel.AddUsersToWorkspaceInput) int
-		ApproveRequest                 func(childComplexity int, input gqlmodel.ApproveRequestInput) int
-		CreateAsset                    func(childComplexity int, input gqlmodel.CreateAssetInput) int
-		CreateAssetUpload              func(childComplexity int, input gqlmodel.CreateAssetUploadInput) int
-		CreateField                    func(childComplexity int, input gqlmodel.CreateFieldInput) int
-		CreateGroup                    func(childComplexity int, input gqlmodel.CreateGroupInput) int
-		CreateIntegration              func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
-		CreateItem                     func(childComplexity int, input gqlmodel.CreateItemInput) int
-		CreateModel                    func(childComplexity int, input gqlmodel.CreateModelInput) int
-		CreateProject                  func(childComplexity int, input gqlmodel.CreateProjectInput) int
-		CreateRequest                  func(childComplexity int, input gqlmodel.CreateRequestInput) int
-		CreateThread                   func(childComplexity int, input gqlmodel.CreateThreadInput) int
-		CreateView                     func(childComplexity int, input gqlmodel.CreateViewInput) int
-		CreateWebhook                  func(childComplexity int, input gqlmodel.CreateWebhookInput) int
-		CreateWorkspace                func(childComplexity int, input gqlmodel.CreateWorkspaceInput) int
-		DecompressAsset                func(childComplexity int, input gqlmodel.DecompressAssetInput) int
-		DeleteAsset                    func(childComplexity int, input gqlmodel.DeleteAssetInput) int
-		DeleteComment                  func(childComplexity int, input gqlmodel.DeleteCommentInput) int
-		DeleteField                    func(childComplexity int, input gqlmodel.DeleteFieldInput) int
-		DeleteGroup                    func(childComplexity int, input gqlmodel.DeleteGroupInput) int
-		DeleteIntegration              func(childComplexity int, input gqlmodel.DeleteIntegrationInput) int
-		DeleteItem                     func(childComplexity int, input gqlmodel.DeleteItemInput) int
-		DeleteMe                       func(childComplexity int, input gqlmodel.DeleteMeInput) int
-		DeleteModel                    func(childComplexity int, input gqlmodel.DeleteModelInput) int
-		DeleteProject                  func(childComplexity int, input gqlmodel.DeleteProjectInput) int
-		DeleteRequest                  func(childComplexity int, input gqlmodel.DeleteRequestInput) int
-		DeleteView                     func(childComplexity int, input gqlmodel.DeleteViewInput) int
-		DeleteWebhook                  func(childComplexity int, input gqlmodel.DeleteWebhookInput) int
-		DeleteWorkspace                func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
-		PublishItem                    func(childComplexity int, input gqlmodel.PublishItemInput) int
-		PublishModel                   func(childComplexity int, input gqlmodel.PublishModelInput) int
-		RegenerateToken                func(childComplexity int, input gqlmodel.RegenerateTokenInput) int
-		RemoveIntegrationFromWorkspace func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
-		RemoveMyAuth                   func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
-		RemoveUserFromWorkspace        func(childComplexity int, input gqlmodel.RemoveUserFromWorkspaceInput) int
-		UnpublishItem                  func(childComplexity int, input gqlmodel.UnpublishItemInput) int
-		UpdateAsset                    func(childComplexity int, input gqlmodel.UpdateAssetInput) int
-		UpdateComment                  func(childComplexity int, input gqlmodel.UpdateCommentInput) int
-		UpdateField                    func(childComplexity int, input gqlmodel.UpdateFieldInput) int
-		UpdateFields                   func(childComplexity int, input []*gqlmodel.UpdateFieldInput) int
-		UpdateGroup                    func(childComplexity int, input gqlmodel.UpdateGroupInput) int
-		UpdateGroupsOrder              func(childComplexity int, input gqlmodel.UpdateGroupsOrderInput) int
-		UpdateIntegration              func(childComplexity int, input gqlmodel.UpdateIntegrationInput) int
-		UpdateIntegrationOfWorkspace   func(childComplexity int, input gqlmodel.UpdateIntegrationOfWorkspaceInput) int
-		UpdateItem                     func(childComplexity int, input gqlmodel.UpdateItemInput) int
-		UpdateMe                       func(childComplexity int, input gqlmodel.UpdateMeInput) int
-		UpdateModel                    func(childComplexity int, input gqlmodel.UpdateModelInput) int
-		UpdateModelsOrder              func(childComplexity int, input gqlmodel.UpdateModelsOrderInput) int
-		UpdateProject                  func(childComplexity int, input gqlmodel.UpdateProjectInput) int
-		UpdateRequest                  func(childComplexity int, input gqlmodel.UpdateRequestInput) int
-		UpdateUserOfWorkspace          func(childComplexity int, input gqlmodel.UpdateUserOfWorkspaceInput) int
-		UpdateView                     func(childComplexity int, input gqlmodel.UpdateViewInput) int
-		UpdateViewsOrder               func(childComplexity int, input gqlmodel.UpdateViewsOrderInput) int
-		UpdateWebhook                  func(childComplexity int, input gqlmodel.UpdateWebhookInput) int
-		UpdateWorkspace                func(childComplexity int, input gqlmodel.UpdateWorkspaceInput) int
-		UpdateWorkspaceSettings        func(childComplexity int, input gqlmodel.UpdateWorkspaceSettingsInput) int
+		AddComment                         func(childComplexity int, input gqlmodel.AddCommentInput) int
+		AddIntegrationToWorkspace          func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
+		AddUsersToWorkspace                func(childComplexity int, input gqlmodel.AddUsersToWorkspaceInput) int
+		ApproveRequest                     func(childComplexity int, input gqlmodel.ApproveRequestInput) int
+		CreateAsset                        func(childComplexity int, input gqlmodel.CreateAssetInput) int
+		CreateAssetUpload                  func(childComplexity int, input gqlmodel.CreateAssetUploadInput) int
+		CreateField                        func(childComplexity int, input gqlmodel.CreateFieldInput) int
+		CreateGroup                        func(childComplexity int, input gqlmodel.CreateGroupInput) int
+		CreateIntegration                  func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
+		CreateItem                         func(childComplexity int, input gqlmodel.CreateItemInput) int
+		CreateModel                        func(childComplexity int, input gqlmodel.CreateModelInput) int
+		CreateProject                      func(childComplexity int, input gqlmodel.CreateProjectInput) int
+		CreateRequest                      func(childComplexity int, input gqlmodel.CreateRequestInput) int
+		CreateThread                       func(childComplexity int, input gqlmodel.CreateThreadInput) int
+		CreateView                         func(childComplexity int, input gqlmodel.CreateViewInput) int
+		CreateWebhook                      func(childComplexity int, input gqlmodel.CreateWebhookInput) int
+		CreateWorkspace                    func(childComplexity int, input gqlmodel.CreateWorkspaceInput) int
+		DecompressAsset                    func(childComplexity int, input gqlmodel.DecompressAssetInput) int
+		DeleteAsset                        func(childComplexity int, input gqlmodel.DeleteAssetInput) int
+		DeleteComment                      func(childComplexity int, input gqlmodel.DeleteCommentInput) int
+		DeleteField                        func(childComplexity int, input gqlmodel.DeleteFieldInput) int
+		DeleteGroup                        func(childComplexity int, input gqlmodel.DeleteGroupInput) int
+		DeleteIntegration                  func(childComplexity int, input gqlmodel.DeleteIntegrationInput) int
+		DeleteItem                         func(childComplexity int, input gqlmodel.DeleteItemInput) int
+		DeleteMe                           func(childComplexity int, input gqlmodel.DeleteMeInput) int
+		DeleteModel                        func(childComplexity int, input gqlmodel.DeleteModelInput) int
+		DeleteProject                      func(childComplexity int, input gqlmodel.DeleteProjectInput) int
+		DeleteRequest                      func(childComplexity int, input gqlmodel.DeleteRequestInput) int
+		DeleteView                         func(childComplexity int, input gqlmodel.DeleteViewInput) int
+		DeleteWebhook                      func(childComplexity int, input gqlmodel.DeleteWebhookInput) int
+		DeleteWorkspace                    func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
+		PublishItem                        func(childComplexity int, input gqlmodel.PublishItemInput) int
+		PublishModel                       func(childComplexity int, input gqlmodel.PublishModelInput) int
+		RegenerateToken                    func(childComplexity int, input gqlmodel.RegenerateTokenInput) int
+		RemoveIntegrationFromWorkspace     func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
+		RemoveMultipleMembersFromWorkspace func(childComplexity int, input gqlmodel.RemoveMultipleMembersFromWorkspaceInput) int
+		RemoveMyAuth                       func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
+		UnpublishItem                      func(childComplexity int, input gqlmodel.UnpublishItemInput) int
+		UpdateAsset                        func(childComplexity int, input gqlmodel.UpdateAssetInput) int
+		UpdateComment                      func(childComplexity int, input gqlmodel.UpdateCommentInput) int
+		UpdateField                        func(childComplexity int, input gqlmodel.UpdateFieldInput) int
+		UpdateFields                       func(childComplexity int, input []*gqlmodel.UpdateFieldInput) int
+		UpdateGroup                        func(childComplexity int, input gqlmodel.UpdateGroupInput) int
+		UpdateGroupsOrder                  func(childComplexity int, input gqlmodel.UpdateGroupsOrderInput) int
+		UpdateIntegration                  func(childComplexity int, input gqlmodel.UpdateIntegrationInput) int
+		UpdateIntegrationOfWorkspace       func(childComplexity int, input gqlmodel.UpdateIntegrationOfWorkspaceInput) int
+		UpdateItem                         func(childComplexity int, input gqlmodel.UpdateItemInput) int
+		UpdateMe                           func(childComplexity int, input gqlmodel.UpdateMeInput) int
+		UpdateModel                        func(childComplexity int, input gqlmodel.UpdateModelInput) int
+		UpdateModelsOrder                  func(childComplexity int, input gqlmodel.UpdateModelsOrderInput) int
+		UpdateProject                      func(childComplexity int, input gqlmodel.UpdateProjectInput) int
+		UpdateRequest                      func(childComplexity int, input gqlmodel.UpdateRequestInput) int
+		UpdateUserOfWorkspace              func(childComplexity int, input gqlmodel.UpdateUserOfWorkspaceInput) int
+		UpdateView                         func(childComplexity int, input gqlmodel.UpdateViewInput) int
+		UpdateViewsOrder                   func(childComplexity int, input gqlmodel.UpdateViewsOrderInput) int
+		UpdateWebhook                      func(childComplexity int, input gqlmodel.UpdateWebhookInput) int
+		UpdateWorkspace                    func(childComplexity int, input gqlmodel.UpdateWorkspaceInput) int
+		UpdateWorkspaceSettings            func(childComplexity int, input gqlmodel.UpdateWorkspaceSettingsInput) int
 	}
 
 	NullableFieldCondition struct {
@@ -563,7 +563,11 @@ type ComplexityRoot struct {
 		View                      func(childComplexity int, modelID gqlmodel.ID) int
 	}
 
-	RemoveMemberFromWorkspacePayload struct {
+	RemoveIntegrationFromWorkspacePayload struct {
+		Workspace func(childComplexity int) int
+	}
+
+	RemoveMultipleMembersFromWorkspacePayload struct {
 		Workspace func(childComplexity int) int
 	}
 
@@ -686,6 +690,12 @@ type ComplexityRoot struct {
 	SchemaFieldMarkdown struct {
 		DefaultValue func(childComplexity int) int
 		MaxLength    func(childComplexity int) int
+	}
+
+	SchemaFieldNumber struct {
+		DefaultValue func(childComplexity int) int
+		Max          func(childComplexity int) int
+		Min          func(childComplexity int) int
 	}
 
 	SchemaFieldReference struct {
@@ -985,8 +995,8 @@ type MutationResolver interface {
 	UpdateWorkspace(ctx context.Context, input gqlmodel.UpdateWorkspaceInput) (*gqlmodel.UpdateWorkspacePayload, error)
 	AddUsersToWorkspace(ctx context.Context, input gqlmodel.AddUsersToWorkspaceInput) (*gqlmodel.AddUsersToWorkspacePayload, error)
 	AddIntegrationToWorkspace(ctx context.Context, input gqlmodel.AddIntegrationToWorkspaceInput) (*gqlmodel.AddUsersToWorkspacePayload, error)
-	RemoveUserFromWorkspace(ctx context.Context, input gqlmodel.RemoveUserFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error)
-	RemoveIntegrationFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error)
+	RemoveMultipleMembersFromWorkspace(ctx context.Context, input gqlmodel.RemoveMultipleMembersFromWorkspaceInput) (*gqlmodel.RemoveMultipleMembersFromWorkspacePayload, error)
+	RemoveIntegrationFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationFromWorkspaceInput) (*gqlmodel.RemoveIntegrationFromWorkspacePayload, error)
 	UpdateUserOfWorkspace(ctx context.Context, input gqlmodel.UpdateUserOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
 	UpdateIntegrationOfWorkspace(ctx context.Context, input gqlmodel.UpdateIntegrationOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
 	UpdateWorkspaceSettings(ctx context.Context, input gqlmodel.UpdateWorkspaceSettingsInput) (*gqlmodel.UpdateWorkspaceSettingsPayload, error)
@@ -2781,6 +2791,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveIntegrationFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveIntegrationFromWorkspaceInput)), true
 
+	case "Mutation.removeMultipleMembersFromWorkspace":
+		if e.complexity.Mutation.RemoveMultipleMembersFromWorkspace == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeMultipleMembersFromWorkspace_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveMultipleMembersFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveMultipleMembersFromWorkspaceInput)), true
+
 	case "Mutation.removeMyAuth":
 		if e.complexity.Mutation.RemoveMyAuth == nil {
 			break
@@ -2792,18 +2814,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveMyAuth(childComplexity, args["input"].(gqlmodel.RemoveMyAuthInput)), true
-
-	case "Mutation.removeUserFromWorkspace":
-		if e.complexity.Mutation.RemoveUserFromWorkspace == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_removeUserFromWorkspace_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RemoveUserFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveUserFromWorkspaceInput)), true
 
 	case "Mutation.unpublishItem":
 		if e.complexity.Mutation.UnpublishItem == nil {
@@ -3506,12 +3516,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.View(childComplexity, args["modelId"].(gqlmodel.ID)), true
 
-	case "RemoveMemberFromWorkspacePayload.workspace":
-		if e.complexity.RemoveMemberFromWorkspacePayload.Workspace == nil {
+	case "RemoveIntegrationFromWorkspacePayload.workspace":
+		if e.complexity.RemoveIntegrationFromWorkspacePayload.Workspace == nil {
 			break
 		}
 
-		return e.complexity.RemoveMemberFromWorkspacePayload.Workspace(childComplexity), true
+		return e.complexity.RemoveIntegrationFromWorkspacePayload.Workspace(childComplexity), true
+
+	case "RemoveMultipleMembersFromWorkspacePayload.workspace":
+		if e.complexity.RemoveMultipleMembersFromWorkspacePayload.Workspace == nil {
+			break
+		}
+
+		return e.complexity.RemoveMultipleMembersFromWorkspacePayload.Workspace(childComplexity), true
 
 	case "Request.approvedAt":
 		if e.complexity.Request.ApprovedAt == nil {
@@ -4002,6 +4019,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SchemaFieldMarkdown.MaxLength(childComplexity), true
+
+	case "SchemaFieldNumber.defaultValue":
+		if e.complexity.SchemaFieldNumber.DefaultValue == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldNumber.DefaultValue(childComplexity), true
+
+	case "SchemaFieldNumber.max":
+		if e.complexity.SchemaFieldNumber.Max == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldNumber.Max(childComplexity), true
+
+	case "SchemaFieldNumber.min":
+		if e.complexity.SchemaFieldNumber.Min == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldNumber.Min(childComplexity), true
 
 	case "SchemaFieldReference.correspondingField":
 		if e.complexity.SchemaFieldReference.CorrespondingField == nil {
@@ -4744,8 +4782,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPublishModelInput,
 		ec.unmarshalInputRegenerateTokenInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
+		ec.unmarshalInputRemoveMultipleMembersFromWorkspaceInput,
 		ec.unmarshalInputRemoveMyAuthInput,
-		ec.unmarshalInputRemoveUserFromWorkspaceInput,
 		ec.unmarshalInputRequestItemInput,
 		ec.unmarshalInputResourceInput,
 		ec.unmarshalInputResourcesListInput,
@@ -4758,6 +4796,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldGroupInput,
 		ec.unmarshalInputSchemaFieldIntegerInput,
 		ec.unmarshalInputSchemaFieldLineStringInput,
+		ec.unmarshalInputSchemaFieldNumberInput,
 		ec.unmarshalInputSchemaFieldReferenceInput,
 		ec.unmarshalInputSchemaFieldRichTextInput,
 		ec.unmarshalInputSchemaFieldSelectInput,
@@ -5159,6 +5198,7 @@ extend type Mutation {
   Select
   Tag
   Integer
+  Number
   Reference
   Checkbox
   URL
@@ -5231,6 +5271,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldSelect
   | SchemaFieldTag
   | SchemaFieldInteger
+  | SchemaFieldNumber
   | SchemaFieldReference
   | SchemaFieldURL
   | SchemaFieldCheckbox
@@ -5290,6 +5331,12 @@ type SchemaFieldInteger {
   defaultValue: Any
   min: Int
   max: Int
+}
+
+type SchemaFieldNumber {
+  defaultValue: Any
+  min: Float
+  max: Float
 }
 
 type SchemaFieldReference {
@@ -5382,6 +5429,12 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input SchemaFieldNumberInput {
+  defaultValue: Any
+  min: Float
+  max: Float
+}
+
 input CorrespondingFieldInput {
   fieldId: ID
   title: String!
@@ -5430,6 +5483,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   tag: SchemaFieldTagInput
   checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
+  number: SchemaFieldNumberInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
@@ -6384,6 +6438,7 @@ input CreateRequestInput {
   items: [RequestItemInput!]!
 }
 
+
 input UpdateRequestInput {
   requestId: ID!
   title: String
@@ -6633,9 +6688,9 @@ input AddIntegrationToWorkspaceInput {
     role: Role!
 }
 
-input RemoveUserFromWorkspaceInput {
+input RemoveMultipleMembersFromWorkspaceInput {
     workspaceId: ID!
-    userId: ID!
+    userIds: [ID!]!
 }
 
 input RemoveIntegrationFromWorkspaceInput {
@@ -6673,7 +6728,11 @@ type AddUsersToWorkspacePayload {
     workspace: Workspace!
 }
 
-type RemoveMemberFromWorkspacePayload {
+type RemoveIntegrationFromWorkspacePayload {
+    workspace: Workspace!
+}
+
+type RemoveMultipleMembersFromWorkspacePayload {
     workspace: Workspace!
 }
 
@@ -6691,8 +6750,8 @@ extend type Mutation {
     updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
     addUsersToWorkspace(input: AddUsersToWorkspaceInput!): AddUsersToWorkspacePayload
     addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddUsersToWorkspacePayload
-    removeUserFromWorkspace(input: RemoveUserFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
-    removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
+    removeMultipleMembersFromWorkspace(input: RemoveMultipleMembersFromWorkspaceInput!): RemoveMultipleMembersFromWorkspacePayload
+    removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveIntegrationFromWorkspacePayload
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }
@@ -7936,6 +7995,38 @@ func (ec *executionContext) field_Mutation_removeIntegrationFromWorkspace_argsIn
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_removeMultipleMembersFromWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_removeMultipleMembersFromWorkspace_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_removeMultipleMembersFromWorkspace_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal gqlmodel.RemoveMultipleMembersFromWorkspaceInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRemoveMultipleMembersFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspaceInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.RemoveMultipleMembersFromWorkspaceInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_removeMyAuth_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -7965,38 +8056,6 @@ func (ec *executionContext) field_Mutation_removeMyAuth_argsInput(
 	}
 
 	var zeroVal gqlmodel.RemoveMyAuthInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_removeUserFromWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_removeUserFromWorkspace_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_removeUserFromWorkspace_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (gqlmodel.RemoveUserFromWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
-		var zeroVal gqlmodel.RemoveUserFromWorkspaceInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNRemoveUserFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveUserFromWorkspaceInput(ctx, tmp)
-	}
-
-	var zeroVal gqlmodel.RemoveUserFromWorkspaceInput
 	return zeroVal, nil
 }
 
@@ -22081,8 +22140,8 @@ func (ec *executionContext) fieldContext_Mutation_addIntegrationToWorkspace(ctx 
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_removeUserFromWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_removeUserFromWorkspace(ctx, field)
+func (ec *executionContext) _Mutation_removeMultipleMembersFromWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeMultipleMembersFromWorkspace(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -22095,7 +22154,7 @@ func (ec *executionContext) _Mutation_removeUserFromWorkspace(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RemoveUserFromWorkspace(rctx, fc.Args["input"].(gqlmodel.RemoveUserFromWorkspaceInput))
+		return ec.resolvers.Mutation().RemoveMultipleMembersFromWorkspace(rctx, fc.Args["input"].(gqlmodel.RemoveMultipleMembersFromWorkspaceInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22104,12 +22163,12 @@ func (ec *executionContext) _Mutation_removeUserFromWorkspace(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.RemoveMemberFromWorkspacePayload)
+	res := resTmp.(*gqlmodel.RemoveMultipleMembersFromWorkspacePayload)
 	fc.Result = res
-	return ec.marshalORemoveMemberFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMemberFromWorkspacePayload(ctx, field.Selections, res)
+	return ec.marshalORemoveMultipleMembersFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspacePayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_removeUserFromWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_removeMultipleMembersFromWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -22118,9 +22177,9 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromWorkspace(ctx co
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "workspace":
-				return ec.fieldContext_RemoveMemberFromWorkspacePayload_workspace(ctx, field)
+				return ec.fieldContext_RemoveMultipleMembersFromWorkspacePayload_workspace(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type RemoveMemberFromWorkspacePayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type RemoveMultipleMembersFromWorkspacePayload", field.Name)
 		},
 	}
 	defer func() {
@@ -22130,7 +22189,7 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromWorkspace(ctx co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_removeUserFromWorkspace_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_removeMultipleMembersFromWorkspace_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -22160,9 +22219,9 @@ func (ec *executionContext) _Mutation_removeIntegrationFromWorkspace(ctx context
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.RemoveMemberFromWorkspacePayload)
+	res := resTmp.(*gqlmodel.RemoveIntegrationFromWorkspacePayload)
 	fc.Result = res
-	return ec.marshalORemoveMemberFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMemberFromWorkspacePayload(ctx, field.Selections, res)
+	return ec.marshalORemoveIntegrationFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationFromWorkspacePayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_removeIntegrationFromWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -22174,9 +22233,9 @@ func (ec *executionContext) fieldContext_Mutation_removeIntegrationFromWorkspace
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "workspace":
-				return ec.fieldContext_RemoveMemberFromWorkspacePayload_workspace(ctx, field)
+				return ec.fieldContext_RemoveIntegrationFromWorkspacePayload_workspace(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type RemoveMemberFromWorkspacePayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type RemoveIntegrationFromWorkspacePayload", field.Name)
 		},
 	}
 	defer func() {
@@ -25302,8 +25361,8 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _RemoveMemberFromWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RemoveMemberFromWorkspacePayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RemoveMemberFromWorkspacePayload_workspace(ctx, field)
+func (ec *executionContext) _RemoveIntegrationFromWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RemoveIntegrationFromWorkspacePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemoveIntegrationFromWorkspacePayload_workspace(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -25333,9 +25392,63 @@ func (ec *executionContext) _RemoveMemberFromWorkspacePayload_workspace(ctx cont
 	return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RemoveMemberFromWorkspacePayload_workspace(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RemoveIntegrationFromWorkspacePayload_workspace(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "RemoveMemberFromWorkspacePayload",
+		Object:     "RemoveIntegrationFromWorkspacePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Workspace_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Workspace_name(ctx, field)
+			case "members":
+				return ec.fieldContext_Workspace_members(ctx, field)
+			case "personal":
+				return ec.fieldContext_Workspace_personal(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Workspace", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RemoveMultipleMembersFromWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RemoveMultipleMembersFromWorkspacePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemoveMultipleMembersFromWorkspacePayload_workspace(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Workspace, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Workspace)
+	fc.Result = res
+	return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RemoveMultipleMembersFromWorkspacePayload_workspace(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemoveMultipleMembersFromWorkspacePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -28696,6 +28809,129 @@ func (ec *executionContext) fieldContext_SchemaFieldMarkdown_maxLength(_ context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldNumber_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldNumber) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldNumber_defaultValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(any)
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldNumber_defaultValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldNumber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Any does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldNumber_min(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldNumber) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldNumber_min(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Min, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldNumber_min(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldNumber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldNumber_max(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldNumber) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldNumber_max(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Max, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldNumber_max(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldNumber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -37687,6 +37923,40 @@ func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ct
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
+	var it gqlmodel.RemoveMultipleMembersFromWorkspaceInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"workspaceId", "userIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "workspaceId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.WorkspaceID = data
+		case "userIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userIds"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserIds = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRemoveMyAuthInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveMyAuthInput, error) {
 	var it gqlmodel.RemoveMyAuthInput
 	asMap := map[string]interface{}{}
@@ -37708,40 +37978,6 @@ func (ec *executionContext) unmarshalInputRemoveMyAuthInput(ctx context.Context,
 				return it, err
 			}
 			it.Auth = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputRemoveUserFromWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveUserFromWorkspaceInput, error) {
-	var it gqlmodel.RemoveUserFromWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"workspaceId", "userId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "workspaceId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.WorkspaceID = data
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UserID = data
 		}
 	}
 
@@ -38185,6 +38421,47 @@ func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSchemaFieldNumberInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldNumberInput, error) {
+	var it gqlmodel.SchemaFieldNumberInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"defaultValue", "min", "max"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "defaultValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
+			data, err := ec.unmarshalOAny2interface(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DefaultValue = data
+		case "min":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("min"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Min = data
+		case "max":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Max = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldReferenceInput, error) {
 	var it gqlmodel.SchemaFieldReferenceInput
 	asMap := map[string]interface{}{}
@@ -38444,7 +38721,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url", "group", "geometryObject", "geometryEditor"}
+	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "number", "reference", "url", "group", "geometryObject", "geometryEditor"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -38735,6 +39012,32 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 				it.Integer = nil
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldIntegerInput`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "number":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx, v)
+			}
+
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.OnlyOne == nil {
+					var zeroVal *gqlmodel.SchemaFieldNumberInput
+					return zeroVal, errors.New("directive onlyOne is not implemented")
+				}
+				return ec.directives.OnlyOne(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*gqlmodel.SchemaFieldNumberInput); ok {
+				it.Number = data
+			} else if tmp == nil {
+				it.Number = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldNumberInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "reference":
@@ -40644,6 +40947,13 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldInteger(ctx, sel, obj)
+	case gqlmodel.SchemaFieldNumber:
+		return ec._SchemaFieldNumber(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldNumber:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldNumber(ctx, sel, obj)
 	case gqlmodel.SchemaFieldReference:
 		return ec._SchemaFieldReference(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldReference:
@@ -44374,9 +44684,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_addIntegrationToWorkspace(ctx, field)
 			})
-		case "removeUserFromWorkspace":
+		case "removeMultipleMembersFromWorkspace":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_removeUserFromWorkspace(ctx, field)
+				return ec._Mutation_removeMultipleMembersFromWorkspace(ctx, field)
 			})
 		case "removeIntegrationFromWorkspace":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -45445,19 +45755,58 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var removeMemberFromWorkspacePayloadImplementors = []string{"RemoveMemberFromWorkspacePayload"}
+var removeIntegrationFromWorkspacePayloadImplementors = []string{"RemoveIntegrationFromWorkspacePayload"}
 
-func (ec *executionContext) _RemoveMemberFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.RemoveMemberFromWorkspacePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, removeMemberFromWorkspacePayloadImplementors)
+func (ec *executionContext) _RemoveIntegrationFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.RemoveIntegrationFromWorkspacePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removeIntegrationFromWorkspacePayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("RemoveMemberFromWorkspacePayload")
+			out.Values[i] = graphql.MarshalString("RemoveIntegrationFromWorkspacePayload")
 		case "workspace":
-			out.Values[i] = ec._RemoveMemberFromWorkspacePayload_workspace(ctx, field, obj)
+			out.Values[i] = ec._RemoveIntegrationFromWorkspacePayload_workspace(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var removeMultipleMembersFromWorkspacePayloadImplementors = []string{"RemoveMultipleMembersFromWorkspacePayload"}
+
+func (ec *executionContext) _RemoveMultipleMembersFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.RemoveMultipleMembersFromWorkspacePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removeMultipleMembersFromWorkspacePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RemoveMultipleMembersFromWorkspacePayload")
+		case "workspace":
+			out.Values[i] = ec._RemoveMultipleMembersFromWorkspacePayload_workspace(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -46569,6 +46918,46 @@ func (ec *executionContext) _SchemaFieldMarkdown(ctx context.Context, sel ast.Se
 			out.Values[i] = ec._SchemaFieldMarkdown_defaultValue(ctx, field, obj)
 		case "maxLength":
 			out.Values[i] = ec._SchemaFieldMarkdown_maxLength(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var schemaFieldNumberImplementors = []string{"SchemaFieldNumber", "SchemaFieldTypeProperty"}
+
+func (ec *executionContext) _SchemaFieldNumber(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldNumber) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldNumberImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldNumber")
+		case "defaultValue":
+			out.Values[i] = ec._SchemaFieldNumber_defaultValue(ctx, field, obj)
+		case "min":
+			out.Values[i] = ec._SchemaFieldNumber_min(ctx, field, obj)
+		case "max":
+			out.Values[i] = ec._SchemaFieldNumber_max(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -50345,13 +50734,13 @@ func (ec *executionContext) unmarshalNRemoveIntegrationFromWorkspaceInput2github
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRemoveMyAuthInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMyAuthInput(ctx context.Context, v interface{}) (gqlmodel.RemoveMyAuthInput, error) {
-	res, err := ec.unmarshalInputRemoveMyAuthInput(ctx, v)
+func (ec *executionContext) unmarshalNRemoveMultipleMembersFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
+	res, err := ec.unmarshalInputRemoveMultipleMembersFromWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRemoveUserFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveUserFromWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.RemoveUserFromWorkspaceInput, error) {
-	res, err := ec.unmarshalInputRemoveUserFromWorkspaceInput(ctx, v)
+func (ec *executionContext) unmarshalNRemoveMyAuthInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMyAuthInput(ctx context.Context, v interface{}) (gqlmodel.RemoveMyAuthInput, error) {
+	res, err := ec.unmarshalInputRemoveMyAuthInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -52132,6 +52521,22 @@ func (ec *executionContext) marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋre
 	return ec._FieldsPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalFloatContext(*v)
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
 func (ec *executionContext) marshalOGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Group) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -52518,11 +52923,18 @@ func (ec *executionContext) marshalOPublishModelPayload2ᚖgithubᚗcomᚋreeart
 	return ec._PublishModelPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalORemoveMemberFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMemberFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveMemberFromWorkspacePayload) graphql.Marshaler {
+func (ec *executionContext) marshalORemoveIntegrationFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveIntegrationFromWorkspacePayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._RemoveMemberFromWorkspacePayload(ctx, sel, v)
+	return ec._RemoveIntegrationFromWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORemoveMultipleMembersFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveMultipleMembersFromWorkspacePayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RemoveMultipleMembersFromWorkspacePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORequest2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Request) graphql.Marshaler {
@@ -52846,6 +53258,14 @@ func (ec *executionContext) unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputSchemaFieldIntegerInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldNumberInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSchemaFieldNumberInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

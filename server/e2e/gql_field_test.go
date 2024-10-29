@@ -134,6 +134,7 @@ type fIds struct {
 	boolFId           string
 	selectFId         string
 	integerFId        string
+	numberFId         string
 	urlFId            string
 	dateFId           string
 	tagFID            string
@@ -192,6 +193,16 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 			},
 		})
 
+	numberFId, _ := createField(e, mId, "number", "number", "number",
+		false, false, false, false, "Number",
+		map[string]any{
+			"number": map[string]any{
+				"defaultValue": nil,
+				"min":          nil,
+				"max":          nil,
+			},
+		})
+
 	urlFId, _ := createField(e, mId, "url", "url", "url",
 		false, false, false, false, "URL",
 		map[string]any{
@@ -202,7 +213,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		false, false, false, false, "Date",
 		map[string]any{
 			"date": map[string]any{
-				"defaultValue": "2024-01-01T18:06:09+09:00",
+				"defaultValue": nil,
 			},
 		})
 	tagFId, _ := createField(e, mId, "tag", "tag", "m_tag",
@@ -260,6 +271,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		boolFId,
 		selectFId,
 		integerFId,
+		numberFId,
 		urlFId,
 		dateFId,
 		tagFId,
@@ -276,6 +288,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		boolFId:           boolFId,
 		selectFId:         selectFId,
 		integerFId:        integerFId,
+		numberFId:         numberFId,
 		urlFId:            urlFId,
 		dateFId:           dateFId,
 		tagFID:            tagFId,
