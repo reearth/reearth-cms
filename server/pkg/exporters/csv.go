@@ -1,8 +1,6 @@
 package exporters
 
 import (
-	"encoding/csv"
-	"io"
 	"strconv"
 	"time"
 
@@ -11,58 +9,23 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 )
 
 var (
-	noPointFieldError             = rerror.NewE(i18n.T("no point field in this model"))
-	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
+	noPointFieldError = rerror.NewE(i18n.T("no point field in this model"))
 )
 
-func CSVFromItems(pw *io.PipeWriter, items item.VersionedList, s *schema.Schema) error {
-	if !s.IsPointFieldSupported() {
-		return pointFieldIsNotSupportedError
-	}
-
-	w := csv.NewWriter(pw)
-	go func() {
-		defer pw.Close()
-
-		keys, nonGeoFields := buildCSVHeaders(s)
-		if err := w.Write(keys); err != nil {
-			pw.CloseWithError(err)
-			return
-		}
-		for _, ver := range items {
-			row, ok := rowFromItem(ver.Value(), nonGeoFields)
-			if ok {
-				if err := w.Write(row); err != nil {
-					pw.CloseWithError(err)
-					return
-				}
-			}
-		}
-		w.Flush()
-		if err := w.Error(); err != nil {
-			pw.CloseWithError(err)
-		}
-	}()
-
-	return nil
-}
-
-func buildCSVHeaders(s *schema.Schema) ([]string, []*schema.Field) {
+func BuildCSVHeaders(s *schema.Schema) []string {
 	keys := []string{"id", "location_lat", "location_lng"}
-	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return !f.IsGeometryField()
-	})
-	for _, f := range nonGeoFields {
-		keys = append(keys, f.Name())
+	for _, f := range s.Fields() {
+		if !f.IsGeometryField() {
+			keys = append(keys, f.Name())
+		}
 	}
-	return keys, nonGeoFields
+	return keys
 }
 
-func rowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
+func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
 	geoField, err := extractFirstPointField(itm)
 	if err != nil {
 		return nil, false
@@ -74,7 +37,7 @@ func rowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) 
 
 	for _, sf := range nonGeoFields {
 		f := itm.Field(sf.ID())
-		v := ToCSVProp(f)
+		v := toCSVProp(f)
 		row = append(row, v)
 	}
 
@@ -82,20 +45,16 @@ func rowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) 
 }
 
 func extractFirstPointField(itm *item.Item) ([]float64, error) {
-	geoFields := lo.Filter(itm.Fields(), func(f *item.Field, _ int) bool {
-		return f.Type().IsGeometryFieldType()
-	})
-
-	for _, f := range geoFields {
+	for _, f := range itm.Fields() {
+		if !f.Type().IsGeometryFieldType() {
+			continue
+		}
 		ss, ok := f.Value().First().ValueString()
 		if !ok {
 			continue
 		}
-		g, err := StringToGeometry(ss)
-		if err != nil || g == nil {
-			continue
-		}
-		if *g.Type != GeometryTypePoint {
+		g, err := stringToGeometry(ss)
+		if err != nil || g == nil || g.Type == nil || *g.Type != GeometryTypePoint {
 			continue
 		}
 		return g.Coordinates.AsPoint()
@@ -107,18 +66,15 @@ func float64ToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
-func ToCSVProp(f *item.Field) string {
+func toCSVProp(f *item.Field) string {
 	if f == nil {
 		return ""
 	}
 	vv := f.Value().First()
-	if vv == nil {
-		return ""
-	}
-	return ToCSVValue(vv)
+	return toCSVValue(vv)
 }
 
-func ToCSVValue(vv *value.Value) string {
+func toCSVValue(vv *value.Value) string {
 	if vv == nil {
 		return ""
 	}
