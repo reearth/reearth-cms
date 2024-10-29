@@ -149,7 +149,7 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 	if !ok {
 		return Feature{}, false
 	}
-	geometry, ok := ExtractGeometry(geoField)
+	geometry, ok := extractGeometry(geoField)
 	if !ok {
 		return Feature{}, false
 	}
@@ -167,33 +167,31 @@ func extractProperties(itm *item.Item, s *schema.Schema) *map[string]any {
 		return nil
 	}
 	properties := make(map[string]any)
-	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return f.Type() != value.TypeGeometryObject && f.Type() != value.TypeGeometryEditor
-	})
-	for _, field := range nonGeoFields {
-		key := field.Name()
-		itmField := itm.Field(field.ID())
-		val, ok := ToGeoJSONProp(itmField)
-		if ok {
-			properties[key] = val
+	for _, field := range s.Fields() {
+		if field.Type() != value.TypeGeometryObject && field.Type() != value.TypeGeometryEditor {
+			key := field.Name()
+			itmField := itm.Field(field.ID())
+			if val, ok := toGeoJSONProp(itmField); ok {
+				properties[key] = val
+			}
 		}
 	}
 	return &properties
 }
 
-func ExtractGeometry(field *item.Field) (*Geometry, bool) {
+func extractGeometry(field *item.Field) (*Geometry, bool) {
 	geoStr, ok := field.Value().First().ValueString()
 	if !ok {
 		return nil, false
 	}
-	geometry, err := StringToGeometry(geoStr)
+	geometry, err := stringToGeometry(geoStr)
 	if err != nil {
 		return nil, false
 	}
 	return geometry, true
 }
 
-func StringToGeometry(geoString string) (*Geometry, error) {
+func stringToGeometry(geoString string) (*Geometry, error) {
 	var geometry Geometry
 	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
 		return nil, err
@@ -201,28 +199,27 @@ func StringToGeometry(geoString string) (*Geometry, error) {
 	return &geometry, nil
 }
 
-func ToGeoJSONProp(f *item.Field) (any, bool) {
+func toGeoJSONProp(f *item.Field) (any, bool) {
 	if f == nil {
 		return nil, false
 	}
-	if len(f.Value().Values()) == 1 {
-		return ToGeoJsonSingleValue(f.Value().First())
+	if f.Value().Len() == 1 {
+		return toGeoJsonSingleValue(f.Value().First())
 	}
-	f.Type()
 	m := value.MultipleFrom(f.Type(), f.Value().Values())
-	return ToGeoJSONMultipleValues(m)
+	return toGeoJSONMultipleValues(m)
 }
 
-func ToGeoJSONMultipleValues(m *value.Multiple) ([]any, bool) {
-	if len(m.Values()) == 0 {
+func toGeoJSONMultipleValues(m *value.Multiple) ([]any, bool) {
+	if m.Len() == 0 {
 		return nil, false
 	}
 	return lo.FilterMap(m.Values(), func(v *value.Value, _ int) (any, bool) {
-		return ToGeoJsonSingleValue(v)
+		return toGeoJsonSingleValue(v)
 	}), true
 }
 
-func ToGeoJsonSingleValue(vv *value.Value) (any, bool) {
+func toGeoJsonSingleValue(vv *value.Value) (any, bool) {
 	if vv == nil {
 		return "", false
 	}
