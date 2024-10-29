@@ -213,7 +213,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		false, false, false, false, "Date",
 		map[string]any{
 			"date": map[string]any{
-				"defaultValue": "2024-01-01T18:06:09+09:00",
+				"defaultValue": nil,
 			},
 		})
 	tagFId, _ := createField(e, mId, "tag", "tag", "m_tag",
