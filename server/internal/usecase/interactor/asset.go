@@ -69,6 +69,20 @@ func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Ope
 	return files, nil
 }
 
+func (i *Asset) FindFilesByIDs(ctx context.Context, ids id.AssetIDList, _ *usecase.Operator) (map[id.AssetID]*asset.File, error) {
+	_, err := i.repos.Asset.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	files, err := i.repos.AssetFile.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
+}
+
 func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (io.ReadCloser, error) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {

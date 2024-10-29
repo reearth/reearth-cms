@@ -178,7 +178,7 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton ghost selected={asset ? [asset] : undefined} displayDefaultIcon />
+        <DownloadButton selected={asset ? [asset] : undefined} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
@@ -223,6 +223,7 @@ const BodyContainer = styled.div`
   flex-direction: row;
   width: 100%;
   height: calc(100% - 72px);
+  border-top: 1px solid #00000008;
   .ant-tree-show-line .ant-tree-switcher {
     background-color: transparent;
   }
@@ -239,6 +240,7 @@ const BodyWrapper = styled.div`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
+  background-color: #fafafa;
 `;
 
 const StyledButton = styled(Button)`

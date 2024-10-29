@@ -231,7 +231,7 @@ export default () => {
   }, [currentModel?.id, currentProject?.id, currentWorkspace?.id, location.state, navigate]);
 
   const [createItem, { loading: itemCreationLoading }] = useCreateItemMutation({
-    refetchQueries: ["SearchItem", "GetRequests"],
+    refetchQueries: ["GetRequests"],
   });
 
   const handleItemCreate = useCallback(
@@ -567,14 +567,30 @@ export default () => {
   });
 
   const handleCheckItemReference = useCallback(
-    async (value: string, correspondingFieldId: string) => {
+    async (itemId: string, correspondingFieldId: string, groupId?: string) => {
+      const initialValue = groupId
+        ? initialFormValues[groupId][correspondingFieldId]
+        : initialFormValues[correspondingFieldId];
+      if (initialValue === itemId) {
+        return false;
+      }
       const res = await checkIfItemIsReferenced({
-        variables: { itemId: value ?? "", correspondingFieldId },
+        variables: { itemId, correspondingFieldId },
       });
       return res.data?.isItemReferenced ?? false;
     },
-    [checkIfItemIsReferenced],
+    [checkIfItemIsReferenced, initialFormValues],
   );
+
+  const title = useMemo(() => {
+    let result = currentModel?.name ?? "";
+    if (currentItem) {
+      const titleField = currentModel?.schema.fields.find(field => field.isTitle);
+      const titleValue = titleField && initialFormValues[titleField.id];
+      result += ` / ${titleValue || currentItem.id}`;
+    }
+    return result;
+  }, [currentItem, currentModel?.name, currentModel?.schema.fields, initialFormValues]);
 
   return {
     loadingReference,
@@ -585,6 +601,7 @@ export default () => {
     itemLoading,
     requestCreationLoading,
     currentModel,
+    title,
     currentItem,
     initialFormValues,
     initialMetaFormValues,

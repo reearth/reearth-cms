@@ -64,7 +64,7 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 			if len(p.RequestRoles) > 0 {
 				pb = pb.RequestRoles(p.RequestRoles)
 			} else {
-				pb = pb.RequestRoles([]workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer, workspace.RoleWriter, workspace.RoleReader})
+				pb = pb.RequestRoles([]workspace.Role{})
 			}
 
 			proj, err := pb.Build()

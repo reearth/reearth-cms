@@ -148,19 +148,21 @@ const AssetItem: React.FC<Props> = ({
         <>
           <AssetDetailsWrapper>
             <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
-              <div>
-                <Icon icon="folder" size={24} />
-                <AssetName>{asset?.fileName ?? value}</AssetName>
-              </div>
+              <Icon icon="folder" size={24} />
+              <AssetName>{asset?.fileName ?? value}</AssetName>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
-              <Link
-                to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
-                target="_blank">
-                <AssetLinkedName enabled={!!asset} type="link">
-                  {asset?.fileName ?? value + " (removed)"}
+              {asset ? (
+                <Link
+                  to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
+                  target="_blank">
+                  <AssetLinkedName type="link">{asset.fileName}</AssetLinkedName>
+                </Link>
+              ) : (
+                <AssetLinkedName type="link" disabled>
+                  {`${value} (removed)`}
                 </AssetLinkedName>
-              </Link>
+              )}
             </Tooltip>
           </AssetDetailsWrapper>
           <Space />
@@ -181,10 +183,8 @@ const AssetItem: React.FC<Props> = ({
         </>
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
-          <div>
-            <Icon icon="linkSolid" size={14} />
-            <AssetButtonTitle>{t("Asset")}</AssetButtonTitle>
-          </div>
+          <Icon icon="linkSolid" size={14} />
+          <AssetButtonTitle>{t("Asset")}</AssetButtonTitle>
         </AssetButton>
       )}
       {uploadUrl && setUploadUrl && (
@@ -225,6 +225,8 @@ const AssetButton = styled(Button)<{ enabled?: boolean }>`
   border: 1px dashed;
   border-color: ${({ enabled }) => (enabled ? "#d9d9d9" : "#00000040")};
   color: ${({ enabled }) => (enabled ? "#000000D9" : "#00000040")};
+  padding: 0 5px;
+  flex-flow: column;
 `;
 
 const Space = styled.div`
@@ -247,9 +249,8 @@ const AssetLink = styled(Button)`
   }
 `;
 
-const AssetLinkedName = styled(Button)<{ enabled?: boolean }>`
-  color: #1890ff;
-  color: ${({ enabled }) => (enabled ? "#1890ff" : "#00000040")};
+const AssetLinkedName = styled(Button)<{ disabled?: boolean }>`
+  color: ${({ disabled }) => (disabled ? "#00000040" : "#1890ff")};
   margin-left: 12px;
   span {
     text-align: start;
@@ -268,8 +269,10 @@ const AssetDetailsWrapper = styled.div`
 `;
 
 const AssetName = styled.div`
-  margin-top: 8px;
+  width: 100%;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const AssetButtonTitle = styled.div`

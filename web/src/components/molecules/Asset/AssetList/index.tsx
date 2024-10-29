@@ -179,5 +179,5 @@ const Wrapper = styled.div`
 `;
 
 const StyledPageHeader = styled(PageHeader)`
-  margin: 0 8px;
+  border-bottom: 1px solid #00000008;
 `;

@@ -8,21 +8,22 @@ import (
 	"github.com/samber/lo"
 )
 
+// GeoJSON
 func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
 	fc, err := exporters.FeatureCollectionFromItems(ver, s)
 	if err != nil {
 		return nil, err
 	}
-	return NewFeatureCollection(fc), nil
+	return newFeatureCollection(fc), nil
 }
 
-func NewFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
+func newFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
 	if fc == nil || fc.Features == nil {
 		return nil
 	}
 
 	features := lo.Map(*fc.Features, func(f exporters.Feature, _ int) Feature {
-		return *NewFeature(&f)
+		return newFeature(f)
 	})
 
 	return &FeatureCollection{
@@ -31,32 +32,31 @@ func NewFeatureCollection(fc *exporters.FeatureCollection) *FeatureCollection {
 	}
 }
 
-func NewFeature(f *exporters.Feature) *Feature {
-	if f == nil {
-		return nil
-	}
-
-	return &Feature{
+func newFeature(f exporters.Feature) Feature {
+	return Feature{
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         id.ItemIDFromRef(f.Id),
-		Geometry:   NewGeometry(f.Geometry),
+		Geometry:   newGeometry(f.Geometry),
 		Properties: f.Properties,
 	}
 }
 
-func NewGeometry(g *exporters.Geometry) *Geometry {
+func newGeometry(g *exporters.Geometry) *Geometry {
 	if g == nil {
 		return nil
 	}
 
 	return &Geometry{
-		Type:        toGeometryType(*g.Type),
-		Coordinates: toCoordinates(*g.Coordinates),
+		Type:        toGeometryType(g.Type),
+		Coordinates: toCoordinates(g.Coordinates),
 	}
 }
 
-func toGeometryType(t exporters.GeometryType) *GeometryType {
-	switch t {
+func toGeometryType(t *exporters.GeometryType) *GeometryType {
+	if t == nil {
+		return nil
+	}
+	switch *t {
 	case exporters.GeometryTypePoint:
 		return lo.ToPtr(GeometryTypePoint)
 	case exporters.GeometryTypeMultiPoint:
@@ -76,7 +76,10 @@ func toGeometryType(t exporters.GeometryType) *GeometryType {
 	}
 }
 
-func toCoordinates(c exporters.Geometry_Coordinates) *Geometry_Coordinates {
+func toCoordinates(c *exporters.Geometry_Coordinates) *Geometry_Coordinates {
+	if c == nil {
+		return nil
+	}
 	union, err := c.MarshalJSON()
 	if err != nil {
 		return nil
@@ -84,4 +87,13 @@ func toCoordinates(c exporters.Geometry_Coordinates) *Geometry_Coordinates {
 	return &Geometry_Coordinates{
 		union: union,
 	}
+}
+
+// CSV
+func BuildCSVHeaders(s *schema.Schema) []string {
+	return exporters.BuildCSVHeaders(s)
+}
+
+func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) {
+	return exporters.RowFromItem(itm, nonGeoFields)
 }

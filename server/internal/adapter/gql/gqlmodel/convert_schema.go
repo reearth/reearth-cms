@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -268,10 +267,10 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 					v, _ = dv.First().ValueNumber()
 				}
 			}
-			res = &SchemaFieldInteger{
+			res = &SchemaFieldNumber{
 				DefaultValue: v,
-				Min:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Min()))),
-				Max:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Max()))),
+				Min:          f.Min(),
+				Max:          f.Max(),
 			}
 		},
 		Integer: func(f *schema.FieldInteger) {
@@ -285,8 +284,8 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 			res = &SchemaFieldInteger{
 				DefaultValue: v,
-				Min:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Min()))),
-				Max:          util.ToPtrIfNotEmpty(int(lo.FromPtr(f.Max()))),
+				Min:          intPtr(f.Min()),
+				Max:          intPtr(f.Max()),
 			}
 		},
 		Reference: func(f *schema.FieldReference) {
@@ -556,6 +555,28 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			err = err2
 		}
 		tpRes = tpi.TypeProperty()
+	case SchemaFieldTypeNumber:
+		x := tp.Number
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeNumber, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeNumber, x.DefaultValue).AsMultiple()
+		}
+		var min, max *float64
+		if x.Min != nil {
+			min = lo.ToPtr(float64(*x.Min))
+		}
+		if x.Max != nil {
+			max = lo.ToPtr(float64(*x.Max))
+		}
+		tpi, err2 := schema.NewNumber(min, max)
+		if err2 != nil {
+			err = err2
+		}
+		tpRes = tpi.TypeProperty()
 	case SchemaFieldTypeReference:
 		x := tp.Reference
 		if x == nil {
@@ -650,4 +671,11 @@ func unpackArray(s any) []any {
 		}
 	}
 	return r
+}
+
+func intPtr(v *int64) *int {
+	if v == nil {
+		return nil
+	}
+	return lo.ToPtr((int)(*v))
 }

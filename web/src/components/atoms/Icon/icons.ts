@@ -5,6 +5,7 @@ import {
   SearchOutlined,
   SettingOutlined,
   UsergroupAddOutlined,
+  UsergroupDeleteOutlined,
   UserSwitchOutlined,
   CaretDownOutlined,
   CaretRightOutlined,
@@ -33,6 +34,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   FolderOutlined,
+  FolderOpenOutlined,
   LinkOutlined,
   UserAddOutlined,
   ClearOutlined,
@@ -50,10 +52,12 @@ import {
   ReloadOutlined,
   SortAscendingOutlined,
   FilterOutlined,
+  CommentOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import ArrowUpRight from "./Icons/arrowUpRight.svg";
+import ArrowUpRightSlash from "./Icons/arrowUpRightSlash.svg";
 import Asset from "./Icons/asset.svg";
 import Boolean from "./Icons/boolean.svg";
 import CheckSquare from "./Icons/checkSquare.svg";
@@ -95,6 +99,7 @@ export default {
   search: SearchOutlined,
   settings: SettingOutlined,
   userGroupAdd: UsergroupAddOutlined,
+  userGroupDelete: UsergroupDeleteOutlined,
   userSwitch: UserSwitchOutlined,
   caretDown: CaretDownOutlined,
   caretRight: CaretRightOutlined,
@@ -122,6 +127,7 @@ export default {
   asset: Asset,
   listBullets: ListBullets,
   arrowUpRight: ArrowUpRight,
+  arrowUpRightSlash: ArrowUpRightSlash,
   numberNine: NumberNine,
   link: Link,
   linkSolid: LinkSolid,
@@ -137,6 +143,7 @@ export default {
   panelToggleLeft: MenuFoldOutlined,
   panelToggleRight: MenuUnfoldOutlined,
   folder: FolderOutlined,
+  folderOpen: FolderOpenOutlined,
   dot: Dot,
   userAdd: UserAddOutlined,
   clear: ClearOutlined,
@@ -175,4 +182,5 @@ export default {
   editorCopy: EditorCopy,
   circle: Circle,
   rectangle: Rectangle,
+  comment: CommentOutlined,
 };

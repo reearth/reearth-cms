@@ -177,9 +177,9 @@ func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asse
 		base, _ := url.Parse(u)
 		base.Path = path.Dir(base.Path)
 
-		files = lo.Map(f.FlattenChildren(), func(f *asset.File, _ int) string {
+		files = lo.Map(f.FilePaths(), func(p string, _ int) string {
 			b := *base
-			b.Path = path.Join(b.Path, f.Path())
+			b.Path = path.Join(b.Path, p)
 			return b.String()
 		})
 	}
