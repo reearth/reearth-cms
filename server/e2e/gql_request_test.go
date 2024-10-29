@@ -297,3 +297,129 @@ func TestCloseRequest(t *testing.T) {
 	_, itm_closed := getItem(e, iid1)
 	itm_closed.Path("$.data.node").Object().Value("version").IsEqual(ver1)
 }
+
+func TestRequestFlow(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	// 1- create public project
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	updateProject(e, pId, "test", "test", "test-1", "PUBLIC", true)
+
+	// 2- create public model
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+	updateModel(e, mId, lo.ToPtr("test"), lo.ToPtr("test"), lo.ToPtr("test-1"), true)
+
+	fid, _ := createField(e, mId, "text", "text", "text",
+		false, false, false, false, "Text",
+		map[string]any{
+			"text": map[string]any{},
+		})
+	sId, _, _ := getModel(e, mId)
+
+	// 3- create item with version 1
+	iid1, i1 := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fid, "value": "v1", "type": "Text"},
+	})
+	ver1 := i1.Path("$.data.createItem.item.version").Raw().(string)
+
+	// 4- update item to version 2
+	iid1, i1 = updateItem(e, iid1, ver1, []map[string]any{
+		{"schemaFieldId": fid, "value": "v2", "type": "Text"},
+	})
+	ver2 := i1.Path("$.data.updateItem.item.version").Raw().(string)
+
+	// check public item: should return no results
+	res := e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+	res.IsEqual(map[string]any{
+		"results":    []map[string]any{},
+		"totalCount": 0,
+		"hasMore":    false,
+		"limit":      50,
+		"offset":     0,
+		"page":       1,
+	})
+
+	// 5- create request with version 2
+	res = createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver2}})
+	req := res.Path("$.data.createRequest.request").Object()
+	rid := req.Value("id").String().Raw()
+
+	// 6- update item to version 3
+	iid1, i1 = updateItem(e, iid1, ver2, []map[string]any{
+		{"schemaFieldId": fid, "value": "v3", "type": "Text"},
+	})
+	ver3 := i1.Path("$.data.updateItem.item.version").Raw().(string)
+
+	// 7- approve request
+	res = approveRequest(e, rid)
+	req = res.Path("$.data.approveRequest.request").Object()
+	req.Value("id").IsEqual(rid)
+	req.Value("state").IsEqual("APPROVED")
+
+	// check item and its status
+	_, itm := getItem(e, iid1)
+	itm.Path("$.data.node").Object().Value("version").IsEqual(ver3)
+	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC_DRAFT")
+
+	// check public item: should return version 2
+	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+	res.IsEqual(map[string]any{
+		"results": []map[string]any{
+			{
+				"id":   iid1,
+				"text": "v2",
+			},
+		},
+		"totalCount": 1,
+		"hasMore":    false,
+		"limit":      50,
+		"offset":     0,
+		"page":       1,
+	})
+
+	// 8- create request with version 3
+	res = createRequest(e, pId, "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId1.String()}, []any{map[string]any{"itemId": iid1, "version": ver3}})
+	req = res.Path("$.data.createRequest.request").Object()
+	rid = req.Value("id").String().Raw()
+
+	// check item and its status
+	_, itm = getItem(e, iid1)
+	itm.Path("$.data.node").Object().Value("version").IsEqual(ver3)
+	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC_REVIEW")
+
+	// 9- approve request
+	res = approveRequest(e, rid)
+	req = res.Path("$.data.approveRequest.request").Object()
+	req.Value("id").IsEqual(rid)
+	req.Value("state").IsEqual("APPROVED")
+
+	// check item and its status
+	_, itm = getItem(e, iid1)
+	itm.Path("$.data.node").Object().Value("version").IsEqual(ver3)
+	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC")
+
+	// check public item: should return version 3
+	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+	res.IsEqual(map[string]any{
+		"results": []map[string]any{
+			{
+				"id":   iid1,
+				"text": "v3",
+			},
+		},
+		"totalCount": 1,
+		"hasMore":    false,
+		"limit":      50,
+		"offset":     0,
+		"page":       1,
+	})
+}
