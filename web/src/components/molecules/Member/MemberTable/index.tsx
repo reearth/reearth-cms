@@ -73,7 +73,7 @@ const MemberTable: React.FC<Props> = ({
           <>
             <RemoveUsers>
               {users.map(user => (
-                <RemoveUser>
+                <RemoveUser key={user.id}>
                   <UserAvatar username={user.name} />
                   <UserInfoWrapper>
                     <UserInfo>{user.name}</UserInfo>
