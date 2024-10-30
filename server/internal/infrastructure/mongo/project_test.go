@@ -931,6 +931,15 @@ func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
 			want:    p1,
 			wantErr: nil,
 		},
+		{
+			name: "Project exists but not public",
+			seeds: project.List{
+				project.New().ID(id.NewProjectID()).Workspace(tid1).UpdatedAt(now).MustBuild(),
+			},
+			arg:     "some_token",
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
 	}
 
 	initDB := mongotest.Connect(t)

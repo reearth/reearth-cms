@@ -17,10 +17,7 @@ type Publication struct {
 }
 
 func NewPublication(scope PublicationScope, assetPublic bool) *Publication {
-	p := &Publication{}
-	p.SetScope(scope)
-	p.SetAssetPublic(assetPublic)
-	return p
+	return NewPublicationWithToken(scope, assetPublic, "")
 }
 
 func NewPublicationWithToken(scope PublicationScope, assetPublic bool, token string) *Publication {
@@ -51,8 +48,7 @@ func (p *Publication) SetToken(t string) {
 }
 
 func (p *Publication) GenerateToken() {
-	t, _ := token.New().GenerateValue().Build()
-	p.token = t.String()
+	p.token = token.New(nil, nil, nil).Value()
 }
 
 func (p *Publication) SetScope(scope PublicationScope) {
