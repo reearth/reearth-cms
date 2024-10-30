@@ -213,7 +213,7 @@ func TestPublicAPI(t *testing.T) {
 			"offset":  0,
 			"page":    1,
 			"results": []map[string]any{
-				map[string]any{
+				{
 					"id":          publicAPIAsset1ID.String(),
 					"type":        "asset",
 					"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
