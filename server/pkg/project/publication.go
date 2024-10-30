@@ -1,12 +1,16 @@
 package project
 
-import "github.com/reearth/reearth-cms/server/pkg/token"
+import (
+	"github.com/samber/lo"
+)
 
 const (
 	PublicationScopePrivate PublicationScope = "private"
 	PublicationScopeLimited PublicationScope = "limited"
 	PublicationScopePublic  PublicationScope = "public"
 )
+
+const charSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 type PublicationScope string
 
@@ -51,7 +55,7 @@ func (p *Publication) SetToken(t string) {
 }
 
 func (p *Publication) GenerateToken() {
-	p.token = token.New(nil, nil, nil).Value()
+	p.token = "secret_" + lo.RandomString(43, []rune(charSet))
 }
 
 func (p *Publication) SetScope(scope PublicationScope) {
