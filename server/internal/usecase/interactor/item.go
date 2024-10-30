@@ -678,6 +678,12 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		// re-fetch item so the new version is returned
+		itm, err = i.repos.Item.FindByID(ctx, param.ItemID, nil)
+		if err != nil {
+			return nil, err
+		}
+
 		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return nil, err
 		}
