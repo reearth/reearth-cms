@@ -10,6 +10,7 @@ auth0 is not set up: Auth0が設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
 can't delete a group as it's used by some models: いくつかのモデルで使用されているため、グループを削除できません。
 can't update by approve: このメソッドで承認することはできません
+charset cannot be empty: ""
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
 comment not found: コメントが見つかりませんでした。
@@ -83,11 +84,13 @@ referenced field key exists: 参照フィールドのキーがすでに存在し
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。
+token length must be positive: ""
 unauthorized: 未認証
 unsupported entity: サポートされていないエンティティ
 unsupported geometry type: サポートされていないジオメトリタイプ
 unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
+value cannot be empty: ""
 value is required: 値は必須です。
 views are not in the same model: ビューが同じモデルに存在していません。
 views length mismatch: ビューの総数が正しくありません。

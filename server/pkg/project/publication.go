@@ -51,7 +51,8 @@ func (p *Publication) SetToken(t string) {
 }
 
 func (p *Publication) GenerateToken() {
-	p.token = token.Random()
+	t, _ := token.New().GenerateValue().Build()
+	p.token = t.String()
 }
 
 func (p *Publication) SetScope(scope PublicationScope) {
