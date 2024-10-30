@@ -1,6 +1,7 @@
 package token
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -76,9 +77,19 @@ func TestToken_Setters(t *testing.T) {
 }
 
 func TestToken_Value(t *testing.T) {
-	tk := &Token{
-		prefix: "example_",
-		value:  "example_123456",
+	// test generated value
+	tk := New(nil, nil, nil)
+	value1 := tk.Value()
+	assert.True(t, strings.HasPrefix(value1, tk.Prefix()))
+	assert.Equal(t, tk.Length()+len(tk.Prefix()), len(value1))
+
+	// test uniqueness
+	value2 := New(nil, nil, nil).Value()
+	assert.NotEqual(t, value1, value2)
+
+	// test charset compliance
+	valueWithoutPrefix := strings.TrimPrefix(value1, tk.Prefix())
+	for _, c := range valueWithoutPrefix {
+		assert.Contains(t, tk.Charset(), string(c))
 	}
-	assert.Equal(t, "example_123456", tk.Value())
 }
