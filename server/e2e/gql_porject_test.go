@@ -60,7 +60,26 @@ func TestCreateProject(t *testing.T) {
 		HasValue("name", "test")
 }
 
-func updateProject(e *httpexpect.Expect, pId string, name, desc, alias *string, publication *map[string]any, requestRoles []string,) (string, *httpexpect.Value) {
+func updateProject(e *httpexpect.Expect, pId string, name, desc, alias *string, publication *map[string]any, requestRoles []string) (string, *httpexpect.Value) {
+	variables := map[string]any{
+		"projectId": pId,
+	}
+	if name != nil {
+		variables["name"] = name
+	}
+	if desc != nil {
+		variables["description"] = desc
+	}
+	if alias != nil {
+		variables["alias"] = alias
+	}
+	if publication != nil {
+		variables["publication"] = publication
+	}
+	if requestRoles != nil {
+		variables["requestRoles"] = requestRoles
+	}
+
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateProject(
     $projectId: ID!
@@ -94,14 +113,7 @@ func updateProject(e *httpexpect.Expect, pId string, name, desc, alias *string, 
     }
   }
 `,
-		Variables: map[string]any{
-			"projectId": pId,
-			"name":        name,
-			"description": desc,
-			"alias":       alias,
-			"publication": publication,
-			"requestRoles": requestRoles,
-		},
+		Variables: variables,
 	}
 
 	res := e.POST("/api/graphql").
@@ -121,34 +133,30 @@ func TestUpdateProject(t *testing.T) {
 
 	pId, p := createProject(e, wId.String(), "test", "test", "test-1")
 	p.Object().
-	Value("data").Object().
-	Value("createProject").Object().
-	Value("project").Object().
-	HasValue("name", "test")
+		Value("data").Object().
+		Value("createProject").Object().
+		Value("project").Object().
+		HasValue("name", "test")
 
 	_, res := updateProject(e, pId, lo.ToPtr("test1"), nil, nil, nil, nil)
 	res.Object().
-	Value("data").Object().
-	Value("updateProject").Object().
-	Value("project").Object().
-	HasValue("name", "test1")
+		Value("data").Object().
+		Value("updateProject").Object().
+		Value("project").Object().
+		HasValue("name", "test1")
 }
 
-func regeneratePublicApiToken(e *httpexpect.Expect, pId string) (*httpexpect.Value) {
+func regeneratePublicApiToken(e *httpexpect.Expect, pId string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
 		Query: `mutation RegeneratePublicApiToken($projectId: ID!) {
 							regeneratePublicApiToken(input: { projectId: $projectId }) {
 								project {
 									id
-									name
-									description
-									alias
 									publication {
 										scope
 										assetPublic
 										token
 									}
-									requestRoles
 								}
 							}
 						}`,
@@ -174,16 +182,16 @@ func TestRegeneratePublicApiToken(t *testing.T) {
 
 	pId, p := createProject(e, wId.String(), "test", "test", "test-1")
 	p.Object().
-	Value("data").Object().
-	Value("createProject").Object().
-	Value("project").Object().
-	HasValue("name", "test")
+		Value("data").Object().
+		Value("createProject").Object().
+		Value("project").Object().
+		HasValue("name", "test")
 
-	updateProject(e, pId, nil, nil, nil, lo.ToPtr(map[string]any{
+	publication := map[string]any{
 		"scope":       "LIMITED",
 		"assetPublic": true,
-		
-	}), nil)
+	}
+	updateProject(e, pId, nil, nil, nil, &publication, nil)
 
 	res1 := regeneratePublicApiToken(e, pId)
 	token := res1.Path("$.data.regeneratePublicApiToken.project.publication.token")
