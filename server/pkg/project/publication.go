@@ -17,7 +17,10 @@ type Publication struct {
 }
 
 func NewPublication(scope PublicationScope, assetPublic bool) *Publication {
-	return NewPublicationWithToken(scope, assetPublic, "")
+	p := &Publication{}
+	p.SetScope(scope)
+	p.SetAssetPublic(assetPublic)
+	return p
 }
 
 func NewPublicationWithToken(scope PublicationScope, assetPublic bool, token string) *Publication {
