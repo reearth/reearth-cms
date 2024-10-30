@@ -36,7 +36,8 @@ func New(prefix *string, length *int, charset *string) *Token {
 	if charset != nil && len(*charset) > 0 {
 		tk.charset = *charset
 	}
-	tk.value = tk.generate()
+	v, _ := tk.generate()
+	tk.value = v
 
 	return tk
 }
@@ -77,22 +78,22 @@ func (r *Token) SetCharset(c string) error {
 	return nil
 }
 
-func (t *Token) generate() string {
+func (t *Token) generate() (string, error) {
 	if t.length <= 0 {
-		return ""
+		return "", ErrTokenLength
 	}
 	if len(t.charset) == 0 {
-		return ""
+		return "", ErrEmptyCharset
 	}
 
 	result := make([]byte, t.length)
 	for i := 0; i < t.length; i++ {
 		randIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(t.charset))))
 		if err != nil {
-			return ""
+			return "", err
 		}
 		result[i] = t.charset[randIndex.Int64()]
 	}
 
-	return t.prefix + string(result)
+	return t.prefix + string(result), nil
 }
