@@ -6,7 +6,6 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
-	"github.com/samber/lo"
 )
 
 func createProject(e *httpexpect.Expect, wID, name, desc, alias string) (string, *httpexpect.Value) {
@@ -60,26 +59,7 @@ func TestCreateProject(t *testing.T) {
 		HasValue("name", "test")
 }
 
-func updateProject(e *httpexpect.Expect, pId string, name, desc, alias *string, publication *map[string]any, requestRoles *[]string) (string, *httpexpect.Value) {
-	variables := map[string]any{
-		"projectId": pId,
-	}
-	if name != nil {
-		variables["name"] = *name
-	}
-	if desc != nil {
-		variables["description"] = *desc
-	}
-	if alias != nil {
-		variables["alias"] = *alias
-	}
-	if publication != nil {
-		variables["publication"] = *publication
-	}
-	if requestRoles != nil {
-		variables["requestRoles"] = *requestRoles
-	}
-
+func updateProject(e *httpexpect.Expect, pId string, name string, publication map[string]any) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateProject(
     $projectId: ID!
@@ -113,7 +93,11 @@ func updateProject(e *httpexpect.Expect, pId string, name, desc, alias *string, 
     }
   }
 `,
-		Variables: variables,
+		Variables:  map[string]any{
+			"projectId": pId,
+			"name":      name,
+			"publication": publication,
+		},
 	}
 
 	res := e.POST("/api/graphql").
@@ -138,12 +122,18 @@ func TestUpdateProject(t *testing.T) {
 		Value("project").Object().
 		HasValue("name", "test")
 
-	_, res := updateProject(e, pId, lo.ToPtr("test1"), nil, nil, nil, nil)
-	res.Object().
+		_, res := updateProject(e, pId, "test1", map[string]any{
+			"scope":       "LIMITED",
+			"assetPublic": true,
+		})
+		pp := res.Object().
 		Value("data").Object().
 		Value("updateProject").Object().
-		Value("project").Object().
-		HasValue("name", "test1")
+		Value("project").Object()
+
+		pp.HasValue("name", "test1")
+		pp.Value("publication").Object().HasValue("scope", "LIMITED")
+		pp.Value("publication").Object().HasValue("assetPublic", true)
 }
 
 func regeneratePublicApiToken(e *httpexpect.Expect, pId string) *httpexpect.Value {
@@ -187,17 +177,14 @@ func TestRegeneratePublicApiToken(t *testing.T) {
 		Value("project").Object().
 		HasValue("name", "test")
 
-	publication := map[string]any{
+	updateProject(e, pId, "test1", map[string]any{
 		"scope":       "LIMITED",
 		"assetPublic": true,
-	}
-	updateProject(e, pId, nil, nil, nil, &publication, nil)
+	})
 
 	res1 := regeneratePublicApiToken(e, pId)
 	token := res1.Path("$.data.regeneratePublicApiToken.project.publication.token")
-
 	res2 := regeneratePublicApiToken(e, pId)
 	newToken := res2.Path("$.data.regeneratePublicApiToken.project.publication.token")
-
 	token.NotEqual(newToken)
 }
