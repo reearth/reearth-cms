@@ -14,8 +14,8 @@ import CheckboxField from "./CheckboxField";
 import DateField from "./DateField";
 import GeometryField from "./GeometryField";
 import GroupField from "./GroupField";
-import IntegerField from "./IntegerField";
 import MarkdownField from "./Markdown";
+import NumberField from "./NumberField";
 import SelectField from "./SelectField";
 import TagField from "./TagField";
 import TextAreaField from "./TextArea";
@@ -94,7 +94,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
       return <MarkdownField multiple={multiple} maxLength={maxLength} />;
     case "Integer":
     case "Number":
-      return <IntegerField multiple={multiple} min={min} max={max} />;
+      return <NumberField multiple={multiple} min={min} max={max} />;
     case "Bool":
       return <BooleanField multiple={multiple} />;
     case "Date":

@@ -11,7 +11,7 @@ type Props = {
   max?: number;
 };
 
-const IntegerField: React.FC<Props> = ({ multiple, min, max }) => {
+const NumberField: React.FC<Props> = ({ multiple, min, max }) => {
   const t = useT();
 
   const validate = useCallback(
@@ -52,4 +52,4 @@ const IntegerField: React.FC<Props> = ({ multiple, min, max }) => {
   );
 };
 
-export default IntegerField;
+export default NumberField;
