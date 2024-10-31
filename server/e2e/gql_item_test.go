@@ -300,6 +300,7 @@ func updateItem(e *httpexpect.Expect, iID, version string, fields []map[string]a
 					item {
 					  id
 					  schemaId
+					  version
 					  fields {
 						value
 						type
