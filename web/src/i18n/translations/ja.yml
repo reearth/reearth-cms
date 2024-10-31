@@ -209,8 +209,11 @@ Email address or user name: Emailアドレスもしくはユーザー名
 Selected Members: 選択中のメンバー
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
-Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
+Are you sure to remove these members?: 本当にこれらのメンバーをワークスペースから削除してもよろしいですか？
+Are you sure to remove this member?: 本当にこのメンバーをワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
+'Yes': はい
+'No': いいえ
 Are you sure to leave this workspace?: 本当にこのワークスペースを離れてもよろしいですか？
 Leave this workspace means you will not view any content of this workspace.: ワークスペースを離れると、ワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Thumbnail: サムネイル
