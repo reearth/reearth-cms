@@ -103,19 +103,27 @@ export default () => {
   const handleUserSearch = useCallback(
     async (keyword: string) => {
       if (keyword) {
-        const res = await getUsersQuery({ variables: { keyword } });
-        const users = res.data?.userSearch;
-        if (users?.length) {
-          const newUsers: User[] = [];
-          users.forEach(user => {
-            const isMember = !!workspaceUserMembers?.some(member => member.userId === user.id);
-            const isSelected = selectedUsers.some(selectedUser => selectedUser.id === user.id);
-            if (!isMember && !isSelected) {
-              newUsers.push(user);
-            }
-          });
-          setSearchedUsers(newUsers);
-        } else {
+        try {
+          const res = await getUsersQuery({ variables: { keyword } });
+          if (res.error) {
+            throw new Error(res.error.message);
+          }
+          const users = res.data?.userSearch;
+          if (users?.length) {
+            const newUsers: User[] = [];
+            users.forEach(user => {
+              const isMember = !!workspaceUserMembers?.some(member => member.userId === user.id);
+              const isSelected = selectedUsers.some(selectedUser => selectedUser.id === user.id);
+              if (!isMember && !isSelected) {
+                newUsers.push(user);
+              }
+            });
+            setSearchedUsers(newUsers);
+          } else {
+            setSearchedUsers([]);
+          }
+        } catch (error) {
+          console.error(error);
           setSearchedUsers([]);
         }
       }

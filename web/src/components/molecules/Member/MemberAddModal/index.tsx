@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -31,8 +31,6 @@ type FormValues = Record<string, Role>;
 
 const { Option } = Select;
 
-let timeout: ReturnType<typeof setTimeout> | null;
-
 const MemberAddModal: React.FC<Props> = ({
   open,
   searchedUsers,
@@ -62,18 +60,20 @@ const MemberAddModal: React.FC<Props> = ({
     setOptions([]);
   }, []);
 
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>();
+
   const handleMemberNameChange = useCallback(
     (value: string) => {
-      if (timeout) {
-        clearTimeout(timeout);
-        timeout = null;
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+        timeout.current = null;
       }
       const search = () => {
         onUserSearch(value);
         setIsResultOpen(true);
       };
       if (value) {
-        timeout = setTimeout(search, 300);
+        timeout.current = setTimeout(search, 300);
       } else {
         resultClear();
       }
