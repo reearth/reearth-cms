@@ -60,24 +60,24 @@ func TestCreateProject(t *testing.T) {
 		HasValue("name", "test")
 }
 
-func updateProject(e *httpexpect.Expect, pId string, name, desc, alias *string, publication *map[string]any, requestRoles []string) (string, *httpexpect.Value) {
+func updateProject(e *httpexpect.Expect, pId string, name, desc, alias *string, publication *map[string]any, requestRoles *[]string) (string, *httpexpect.Value) {
 	variables := map[string]any{
 		"projectId": pId,
 	}
 	if name != nil {
-		variables["name"] = name
+		variables["name"] = *name
 	}
 	if desc != nil {
-		variables["description"] = desc
+		variables["description"] = *desc
 	}
 	if alias != nil {
-		variables["alias"] = alias
+		variables["alias"] = *alias
 	}
 	if publication != nil {
-		variables["publication"] = publication
+		variables["publication"] = *publication
 	}
 	if requestRoles != nil {
-		variables["requestRoles"] = requestRoles
+		variables["requestRoles"] = *requestRoles
 	}
 
 	requestBody := GraphQLRequest{
