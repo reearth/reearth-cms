@@ -991,8 +991,22 @@ func TestWorkFlow(t *testing.T) {
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
 	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
-	ri, _ := request.NewItem(i.ID(), lo.ToPtr(version.New().String()))
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	err := db.Project.Save(ctx, prj)
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s)
+	assert.NoError(t, err)
+	err = db.Model.Save(ctx, m)
+	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i)
+	assert.NoError(t, err)
+
+	vi, err := db.Item.FindByID(ctx, i.ID(), nil)
+	assert.NoError(t, err)
+	ri, _ := request.NewItem(i.ID(), lo.ToPtr(vi.Version().String()))
 	req1 := request.New().
 		NewID().
 		Workspace(wid).
@@ -1009,17 +1023,6 @@ func TestWorkFlow(t *testing.T) {
 			OwningWorkspaces: id.WorkspaceIDList{wid},
 		},
 	}
-	ctx := context.Background()
-
-	db := memory.New()
-	err := db.Project.Save(ctx, prj)
-	assert.NoError(t, err)
-	err = db.Schema.Save(ctx, s)
-	assert.NoError(t, err)
-	err = db.Model.Save(ctx, m)
-	assert.NoError(t, err)
-	err = db.Item.Save(ctx, i)
-	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
 
