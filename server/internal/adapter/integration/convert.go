@@ -114,7 +114,7 @@ func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFiel
 		}
 		igID := id.NewItemGroupID()
 		var v any
-		v = []id.ItemGroupID{id.NewItemGroupID()}
+		v = []any{igID}
 		if !gsf.Multiple() {
 			v = igID
 		}
