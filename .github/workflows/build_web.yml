@@ -1,14 +1,10 @@
 name: build-web
 on:
-  push:
-    branches: [ main, release ]
-    paths: [ web/**, .github/workflows/build_web.yml ]
-
+  workflow_call:
 jobs:
   info:
     name: Collect information
     runs-on: ubuntu-latest
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && (github.ref_name == 'release' || !startsWith(github.event.head_commit.message, 'v'))
     outputs:
       sha_short: ${{ steps.info.outputs.sha_short }}
       new_tag: ${{ steps.info.outputs.new_tag }}

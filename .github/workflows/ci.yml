@@ -10,6 +10,7 @@ jobs:
       web: ${{ steps.web.outputs.any_modified }}
       server: ${{ steps.server.outputs.any_modified }}
       worker: ${{ steps.worker.outputs.any_modified }}
+      build: ${{ github.repository == 'reearth/reearth-cms' && github.event_name == 'push' && (github.ref_name == 'release' || !startsWith(github.event.head_commit.message, 'v')) }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -43,19 +44,16 @@ jobs:
             .github/workflows/build_worker.yml
 
   ci-web:
-    name: web
     needs: prepare
     if: needs.prepare.outputs.web == 'true'
     uses: ./.github/workflows/ci_web.yml
 
   ci-server:
-    name: server
     needs: prepare
     if: needs.prepare.outputs.server == 'true'
     uses: ./.github/workflows/ci_server.yml
 
   ci-worker:
-    name: worker
     needs: prepare
     if: needs.prepare.outputs.worker == 'true'
     uses: ./.github/workflows/ci_worker.yml
@@ -69,3 +67,39 @@ jobs:
     if: '!failure()'
     steps:
       - run: echo OK
+
+  build-web:
+    needs: prepare
+    if: needs.prepare.outputs.web == 'true' && needs.prepare.outputs.build == 'true'
+    uses: ./.github/workflows/build_web.yml
+
+  build-server:
+    needs: prepare
+    if: needs.prepare.outputs.server == 'true' && needs.prepare.outputs.build == 'true'
+    uses: ./.github/workflows/build_server.yml
+
+  build-worker:
+    needs: prepare
+    if: needs.prepare.outputs.worker == 'true' && needs.prepare.outputs.build == 'true'
+    uses: ./.github/workflows/build_worker.yml
+
+  deploy-web:
+    needs: [build-web, ci-web]
+    if: needs.ci-web.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: web
+
+  deploy-server:
+    needs: [build-server, ci-server]
+    if: needs.ci-server.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: server
+
+  deploy-worker:
+    needs: [build-worker, ci-worker]
+    if: needs.ci-worker.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: worker
