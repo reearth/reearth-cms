@@ -1,17 +1,14 @@
-name: web-build
+name: build-web
 on:
   push:
     branches: [ main, release ]
     paths: [ web/**, .github/workflows/build_web.yml ]
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
-  cancel-in-progress: true
 
 jobs:
   info:
     name: Collect information
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion != 'failure' && github.event.repository.full_name == 'reearth/reearth-cms' && (github.event.workflow_run.head_branch == 'release' || !startsWith(github.event.head_commit.message, 'v'))
+    if: github.event.repository.full_name == 'reearth/reearth-cms' && (github.ref_name == 'release' || !startsWith(github.event.head_commit.message, 'v'))
     outputs:
       sha_short: ${{ steps.info.outputs.sha_short }}
       new_tag: ${{ steps.info.outputs.new_tag }}
@@ -32,13 +29,13 @@ jobs:
           if [[ "$BRANCH" = "release" ]]; then
             TAG=$(git tag --points-at HEAD)
             if [[ ! -z "$TAG" ]]; then
-              echo "::set-output name=new_tag::$TAG"
-              echo "::set-output name=new_tag_short::${TAG#v}"
+              echo "new_tag=$TAG" >> $GITHUB_ENV
+              echo "new_tag_short=${TAG#v}" >> $GITHUB_ENV
             else
-              echo "::set-output name=name::rc"
+              echo "name=rc" >> $GITHUB_ENV
             fi
           else
-            echo "::set-output name=name::nightly"
+            echo "name=nightly" >> $GITHUB_ENV
           fi
       - name: Show info
         env:
@@ -71,7 +68,7 @@ jobs:
       - name: Get options
         id: options
         env:
-          TAG: ${{ needs.info.outputs.tag_short }}
+          TAG: ${{ needs.info.outputs.new_tag_short }}
           NAME: ${{ needs.info.outputs.name }}
           SHA: ${{ needs.info.outputs.sha_short }}
         run: |
