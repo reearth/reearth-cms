@@ -21,6 +21,7 @@ jobs:
             web/**
             .github/workflows/ci.yml
             .github/workflows/ci_web.yml
+            .github/workflows/build_web.yml
 
       - name: changed files for server
         id: server
