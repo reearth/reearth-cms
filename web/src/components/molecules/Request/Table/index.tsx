@@ -261,13 +261,6 @@ const RequestListTable: React.FC<Props> = ({
           <Button
             type="link"
             size="small"
-            icon={<Icon icon="clear" />}
-            onClick={props.onCleanSelected}>
-            {t("Deselect")}
-          </Button>
-          <Button
-            type="link"
-            size="small"
             icon={<Icon icon="delete" />}
             onClick={() => onRequestDelete(props.selectedRowKeys)}
             danger

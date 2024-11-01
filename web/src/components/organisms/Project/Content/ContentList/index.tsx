@@ -19,6 +19,7 @@ const ContentList: React.FC = () => {
     selectedItems,
     loading,
     deleteLoading,
+    publishLoading,
     unpublishLoading,
     totalCount,
     views,
@@ -35,6 +36,7 @@ const ContentList: React.FC = () => {
     requestModalPage,
     requestModalPageSize,
     handleBulkAddItemToRequest: handleAddItemToRequest,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
@@ -97,6 +99,7 @@ const ContentList: React.FC = () => {
       collapsed={collapsedModelMenu}
       loading={loading}
       deleteLoading={deleteLoading}
+      publishLoading={publishLoading}
       unpublishLoading={unpublishLoading}
       currentView={currentView}
       setCurrentView={setCurrentView}
@@ -118,6 +121,7 @@ const ContentList: React.FC = () => {
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
+      onPublish={handlePublish}
       onUnpublish={handleUnpublish}
       onItemDelete={handleItemDelete}
       onItemAdd={handleNavigateToItemForm}
