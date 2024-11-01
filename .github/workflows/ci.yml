@@ -72,16 +72,25 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.web == 'true' && needs.prepare.outputs.build == 'true'
     uses: ./.github/workflows/build_web.yml
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   build-server:
     needs: prepare
     if: needs.prepare.outputs.server == 'true' && needs.prepare.outputs.build == 'true'
     uses: ./.github/workflows/build_server.yml
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   build-worker:
     needs: prepare
     if: needs.prepare.outputs.worker == 'true' && needs.prepare.outputs.build == 'true'
     uses: ./.github/workflows/build_worker.yml
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   deploy-web:
     needs: [build-web, ci-web]
