@@ -58,7 +58,8 @@ func TestCreateProject(t *testing.T) {
 		Value("project").Object().
 		HasValue("name", "test")
 }
-func updateProject(e *httpexpect.Expect, pId, name, desc, alias, scope string, assetPublic bool) (string, *httpexpect.Value) {
+
+func update(e *httpexpect.Expect, pId, name, desc, alias, scope string, assetPublic bool) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateProject(
     $projectId: ID!
@@ -113,7 +114,7 @@ func updateProject(e *httpexpect.Expect, pId, name, desc, alias, scope string, a
 	return res.Path("$.data.updateProject.project.id").Raw().(string), res
 }
 
-func TestUpdateProject(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, p := createProject(e, wId.String(), "test", "test", "test-1")
@@ -123,7 +124,7 @@ func TestUpdateProject(t *testing.T) {
 		Value("project").Object().
 		HasValue("name", "test")
 
-	_, res := updateProject(e, pId, "test1", "test1", "test-2", "LIMITED", true)
+	_, res := update(e, pId, "test1", "test1", "test-2", "LIMITED", true)
 	pp := res.Object().
 		Value("data").Object().
 		Value("updateProject").Object().
@@ -175,7 +176,7 @@ func TestRegeneratePublicApiToken(t *testing.T) {
 		Value("project").Object().
 		HasValue("name", "test")
 
-	updateProject(e, pId, "test1", "test1", "test-2", "LIMITED", true)
+	update(e, pId, "test1", "test1", "test-2", "LIMITED", true)
 
 	res1 := regeneratePublicApiToken(e, pId)
 	token := res1.Path("$.data.regeneratePublicApiToken.project.publication.token")
