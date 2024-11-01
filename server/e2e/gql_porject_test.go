@@ -58,8 +58,7 @@ func TestCreateProject(t *testing.T) {
 		Value("project").Object().
 		HasValue("name", "test")
 }
-
-func updateProject(e *httpexpect.Expect, pId string, name string, publication map[string]any) (string, *httpexpect.Value) {
+func updateProject(e *httpexpect.Expect, pId, name, desc, alias, scope string, assetPublic bool) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateProject(
     $projectId: ID!
@@ -93,10 +92,12 @@ func updateProject(e *httpexpect.Expect, pId string, name string, publication ma
     }
   }
 `,
-		Variables:  map[string]any{
-			"projectId": pId,
-			"name":      name,
-			"publication": publication,
+		Variables: map[string]any{
+			"projectId":   pId,
+			"name":        name,
+			"description": desc,
+			"alias":       alias,
+			"publication": map[string]any{"scope": scope, "assetPublic": assetPublic},
 		},
 	}
 
@@ -122,18 +123,15 @@ func TestUpdateProject(t *testing.T) {
 		Value("project").Object().
 		HasValue("name", "test")
 
-		_, res := updateProject(e, pId, "test1", map[string]any{
-			"scope":       "LIMITED",
-			"assetPublic": true,
-		})
-		pp := res.Object().
+	_, res := updateProject(e, pId, "test1", "test1", "test-2", "LIMITED", true)
+	pp := res.Object().
 		Value("data").Object().
 		Value("updateProject").Object().
 		Value("project").Object()
 
-		pp.HasValue("name", "test1")
-		pp.Value("publication").Object().HasValue("scope", "LIMITED")
-		pp.Value("publication").Object().HasValue("assetPublic", true)
+	pp.HasValue("name", "test1")
+	pp.Value("publication").Object().HasValue("scope", "LIMITED")
+	pp.Value("publication").Object().HasValue("assetPublic", true)
 }
 
 func regeneratePublicApiToken(e *httpexpect.Expect, pId string) *httpexpect.Value {
@@ -177,10 +175,7 @@ func TestRegeneratePublicApiToken(t *testing.T) {
 		Value("project").Object().
 		HasValue("name", "test")
 
-	updateProject(e, pId, "test1", map[string]any{
-		"scope":       "LIMITED",
-		"assetPublic": true,
-	})
+	updateProject(e, pId, "test1", "test1", "test-2", "LIMITED", true)
 
 	res1 := regeneratePublicApiToken(e, pId)
 	token := res1.Path("$.data.regeneratePublicApiToken.project.publication.token")
