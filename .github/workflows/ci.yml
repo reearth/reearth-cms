@@ -10,7 +10,6 @@ jobs:
       web: ${{ steps.web.outputs.any_modified }}
       server: ${{ steps.server.outputs.any_modified }}
       worker: ${{ steps.worker.outputs.any_modified }}
-      build: ${{ github.repository == 'reearth/reearth-cms' && github.event_name == 'push' && (github.ref_name == 'release' || !startsWith(github.event.head_commit.message, 'v')) }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -70,12 +69,12 @@ jobs:
 
   build-prepare:
     needs: prepare
-    if: needs.prepare.outputs.build == 'true'
+    if: ${{ github.repository == 'reearth/reearth-cms' && github.event_name == 'push' && (github.ref_name == 'release' || !startsWith(github.event.head_commit.message, 'v')) }}
     uses: ./.github/workflows/build_prepare.yml
 
   build-web:
     needs: [prepare, build-prepare]
-    if: needs.prepare.outputs.web == 'true' && needs.prepare.outputs.build == 'true'
+    if: needs.prepare.outputs.web == 'true'
     uses: ./.github/workflows/build_web.yml
     with:
       name: ${{ needs.build-prepare.outputs.name }}
@@ -88,7 +87,7 @@ jobs:
 
   build-server:
     needs: [prepare, build-prepare]
-    if: needs.prepare.outputs.server == 'true' && needs.prepare.outputs.build == 'true'
+    if: needs.prepare.outputs.server == 'true'
     uses: ./.github/workflows/build_server.yml
     with:
       name: ${{ needs.build-prepare.outputs.name }}
@@ -101,7 +100,7 @@ jobs:
 
   build-worker:
     needs: [prepare, build-prepare]
-    if: needs.prepare.outputs.worker == 'true' && needs.prepare.outputs.build == 'true'
+    if: needs.prepare.outputs.worker == 'true'
     uses: ./.github/workflows/build_worker.yml
     with:
       name: ${{ needs.build-prepare.outputs.name }}

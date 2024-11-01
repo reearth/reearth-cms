@@ -23,10 +23,8 @@ on:
         required: true
 
 env:
+  # TODO: use environment variables
   GCP_REGION: us-central1
-
-  # TODO: Remove after dockerizing the web.
-  GCS_DEST: gs://cms.test.reearth.dev
 
   # server
   SERVER_IMAGE: reearth/reearth-cms:nightly
@@ -45,7 +43,6 @@ env:
 
 jobs:
   deploy_server:
-    name: Deploy server to test env
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'server')
     permissions:
@@ -75,7 +72,6 @@ jobs:
             --quiet
 
   deploy_web:
-    name: Deploy web to test env
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'web')
     permissions:
@@ -105,7 +101,6 @@ jobs:
             --quiet
 
   deploy_worker:
-    name: Deploy worker to test env
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.ref_name == 'main' && (inputs.target == 'all' || inputs.target == 'worker')
     permissions:
