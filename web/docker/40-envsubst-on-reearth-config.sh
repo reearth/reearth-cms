@@ -26,7 +26,7 @@ wrap_reearth_cms_variables() {
         if [ -z "$value" ]; then
             eval "export $var='\"\"'"
         elif [ "$value" != "null" ] && ! echo "$value" | grep -qE '^\{.*\}$'; then
-            eval "export $var='${value}'"
+            eval "export $var='\"${value}\"'"
         fi
     done
 }
