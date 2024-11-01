@@ -21,10 +21,10 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     yarn build
 
 FROM nginx:1.27-alpine
-WORKDIR /app
+WORKDIR /usr/share/nginx/html
 
 # Quite the Nginx startup logs.
-ENV  NGINX_ENTRYPOINT_QUIET_LOGS=true
+ENV NGINX_ENTRYPOINT_QUIET_LOGS=true
 
 # Default to Cloud Run port.
 # Ref: https://cloud.google.com/run/docs/reference/container-contract#port
@@ -35,18 +35,20 @@ ENV PORT=8080
 ENV REAL_IP_HEADER=X-Forwarded-For
 
 # Default values.
-# Cesium Ion access token is not a secret.
-ENV REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN=null
-
-# All values in reearth_config.json must have a default value.
+ENV REEARTH_CMS_TITLE=
+ENV REEARTH_CMS_FAVICON_URL=
 ENV REEARTH_CMS_API=null
+ENV REEARTH_CMS_AUTH0_AUDIENCE=
+ENV REEARTH_CMS_AUTH0_CLIENT_ID=
+ENV REEARTH_CMS_AUTH0_DOMAIN=
+ENV REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN=null
 ENV REEARTH_CMS_COVER_IMAGE_URL=null
 ENV REEARTH_CMS_EDITOR_URL=null
 ENV REEARTH_CMS_LOGO_URL=null
 ENV REEARTH_CMS_MULTI_TENANT=null
 
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
-COPY --chown=nginx:nginx docker/nginx.conf.template /etc/nginx/templates/nginx.conf.template 
+COPY --chown=nginx:nginx docker/nginx.conf.template /etc/nginx/templates/nginx.conf.template
 COPY --chown=nginx:nginx docker/40-envsubst-on-reearth-config.sh /docker-entrypoint.d
 COPY --chown=nginx:nginx docker/reearth_config.json.template /opt/reearth-cms/reearth_config.json.template
 
