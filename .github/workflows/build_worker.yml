@@ -86,7 +86,7 @@ jobs:
             VERSION=$SHA
             TAGS=$IMAGE_NAME:$NAME
           fi
-          ehoc "platforms=$PLATFORMS" >> "$GITHUB_OUTPUT"
+          ehoo "platforms=$PLATFORMS" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
       - name: Build and push docker image
