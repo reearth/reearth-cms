@@ -1,4 +1,5 @@
 name: deploy-test
+
 on:
   workflow_dispatch:
     inputs:
@@ -13,6 +14,13 @@ on:
         type: string
         default: 'all'
         description: 'Target to deploy'
+    secrets:
+      GCP_PROJECT_ID:
+        required: true
+      GCP_SA_EMAIL:
+        required: true
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
 
 env:
   GCP_REGION: us-central1

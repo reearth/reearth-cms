@@ -2,6 +2,15 @@ name: build-web
 
 on:
   workflow_call:
+    inputs:
+      sha_short:
+        type: string
+      new_tag:
+        type: string
+      new_tag_short:
+        type: string
+      name:
+        type: string
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -9,51 +18,10 @@ on:
         required: true
 
 jobs:
-  info:
-    name: Collect information
-    runs-on: ubuntu-latest
-    outputs:
-      sha_short: ${{ steps.info.outputs.sha_short }}
-      new_tag: ${{ steps.info.outputs.new_tag }}
-      new_tag_short: ${{ steps.info.outputs.new_tag_short }}
-      name: ${{ steps.info.outputs.name }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: Fetch tags
-        run: git fetch --prune --unshallow --tags
-      - name: Get info
-        id: info
-        # The tag name should be retrieved lazily, as tagging may be delayed.
-        env:
-          BRANCH: ${{ github.head_ref || github.ref_name }}
-        run: |
-          echo "sha_short=$(git rev-parse --short HEAD))" >> "$GITHUB_OUTPUT"
-          if [[ "$BRANCH" = "release" ]]; then
-            TAG=$(git tag --points-at HEAD)
-            if [[ ! -z "$TAG" ]]; then
-              echo "new_tag=$TAG" >> "$GITHUB_OUTPUT"
-              echo "new_tag_short=${TAG#v}" >> "$GITHUB_OUTPUT"
-            else
-              echo "name=rc" >> "$GITHUB_OUTPUT"
-            fi
-          else
-            echo "name=nightly" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Show info
-        env:
-          SHA_SHORT: ${{ steps.info.outputs.sha_short }}
-          NEW_TAG: ${{ steps.info.outputs.new_tag }}
-          NEW_TAG_SHORT: ${{ steps.info.outputs.new_tag_short }}
-          NAME: ${{ steps.info.outputs.name }}
-        run: echo "sha_short=$SHA_SHORT, new_tag=$NEW_TAG, new_tag_short=$NEW_TAG_SHORT, name=$NAME"
-
   docker:
     name: Build and push Docker image
     runs-on: ubuntu-latest
-    needs:
-      - info
-    if: needs.info.outputs.name || needs.info.outputs.new_tag
+    if: inputs.name || inputs.new_tag
     env:
       IMAGE_NAME: reearth/reearth-cms-web
     steps:
@@ -71,9 +39,9 @@ jobs:
       - name: Get options
         id: options
         env:
-          TAG: ${{ needs.info.outputs.new_tag_short }}
-          NAME: ${{ needs.info.outputs.name }}
-          SHA: ${{ needs.info.outputs.sha_short }}
+          TAG: ${{ inputs.new_tag_short }}
+          NAME: ${{ inputs.name }}
+          SHA: ${{ inputs.sha_short }}
         run: |
           if [[ -n $TAG ]]; then
             PLATFORMS=linux/amd64,linux/arm64
@@ -99,7 +67,7 @@ jobs:
           platforms: ${{ steps.options.outputs.platforms }}
           push: true
           build-args: |
-            GITHUB_SHA=${{ needs.info.outputs.sha_short }}
+            GITHUB_SHA=${{ inputs.sha_short }}
             VERSION=${{ steps.options.outputs.version }}
           tags: ${{ steps.options.outputs.tags }}
           cache-from: type=gha

@@ -68,26 +68,46 @@ jobs:
     steps:
       - run: echo OK
 
-  build-web:
+  build-prepare:
     needs: prepare
+    if: needs.prepare.outputs.build == 'true'
+    uses: ./.github/workflows/build_prepare.yml
+
+  build-web:
+    needs: [prepare, build-prepare]
     if: needs.prepare.outputs.web == 'true' && needs.prepare.outputs.build == 'true'
     uses: ./.github/workflows/build_web.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   build-server:
-    needs: prepare
+    needs: [prepare, build-prepare]
     if: needs.prepare.outputs.server == 'true' && needs.prepare.outputs.build == 'true'
     uses: ./.github/workflows/build_server.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   build-worker:
-    needs: prepare
+    needs: [prepare, build-prepare]
     if: needs.prepare.outputs.worker == 'true' && needs.prepare.outputs.build == 'true'
     uses: ./.github/workflows/build_worker.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -98,6 +118,10 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: web
+    secrets:
+      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
   deploy-server:
     needs: [build-server, ci-server]
@@ -105,6 +129,10 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: server
+    secrets:
+      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
   deploy-worker:
     needs: [build-worker, ci-worker]
@@ -112,3 +140,7 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: worker
+    secrets:
+      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
