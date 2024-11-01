@@ -67,7 +67,6 @@ Status: ステータス
 Created At: 作成日時
 ID: ''
 input search text: 検索
-Deselect: 選択解除
 Delete: 削除
 Upload Asset: アセットをアップロード
 Auto Unzip: 自動解凍
@@ -176,6 +175,10 @@ is not empty: 空でない
 Ascending: 昇順
 Descending: 降順
 Confirm: 確認
+Publish items: アイテムを公開
+All selected items will be published. You can unpublish them anytime.: 選択したアイテムはすべて公開されます。アイテムはいつでも非公開にすることができます。
+'No': いいえ
+'Yes': はい
 Filter: フィルター
 Add Filter: 絞り込む
 Add Sort: 並び替える
@@ -210,8 +213,6 @@ Please input the appropriate role for this member!: このメンバーに付与�
 Are you sure to remove these members?: 本当にこれらのメンバーをワークスペースから削除してもよろしいですか？
 Are you sure to remove this member?: 本当にこのメンバーをワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
-'Yes': はい
-'No': いいえ
 Are you sure to leave this workspace?: 本当にこのワークスペースを離れてもよろしいですか？
 Leave this workspace means you will not view any content of this workspace.: ワークスペースを離れると、ワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Thumbnail: サムネイル

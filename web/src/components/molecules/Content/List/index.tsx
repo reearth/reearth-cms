@@ -26,6 +26,7 @@ type Props = {
   contentTableFields?: ContentTableField[];
   loading: boolean;
   deleteLoading: boolean;
+  publishLoading: boolean;
   unpublishLoading: boolean;
   contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
@@ -45,6 +46,7 @@ type Props = {
   onSearchTerm: (term?: string) => void;
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
   setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
@@ -72,6 +74,7 @@ const ContentListMolecule: React.FC<Props> = ({
   modelsMenu,
   loading,
   deleteLoading,
+  publishLoading,
   unpublishLoading,
   selectedItem,
   selectedItems,
@@ -88,6 +91,7 @@ const ContentListMolecule: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  onPublish,
   onUnpublish,
   onAddItemToRequest,
   onAddItemToRequestModalClose,
@@ -145,9 +149,11 @@ const ContentListMolecule: React.FC<Props> = ({
                 pageSize={pageSize}
                 loading={loading}
                 deleteLoading={deleteLoading}
+                publishLoading={publishLoading}
                 unpublishLoading={unpublishLoading}
                 selectedItem={selectedItem}
                 selectedItems={selectedItems}
+                onPublish={onPublish}
                 onUnpublish={onUnpublish}
                 onSearchTerm={onSearchTerm}
                 onFilterChange={onFilterChange}

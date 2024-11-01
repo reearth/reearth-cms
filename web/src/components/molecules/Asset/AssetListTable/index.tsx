@@ -284,13 +284,6 @@ const AssetListTable: React.FC<Props> = ({
     (props: any) => {
       return (
         <Space size={4}>
-          <Button
-            type="link"
-            size="small"
-            icon={<Icon icon="clear" />}
-            onClick={props.onCleanSelected}>
-            {t("Deselect")}
-          </Button>
           <DownloadButton
             displayDefaultIcon
             size="small"
