@@ -78,7 +78,7 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item, onNavigateToRequest }) =
                         onClick={() => {
                           onNavigateToRequest(request.id);
                         }}>
-                        {request.id}
+                        {request.title}
                       </StyledButton>
                     }
                   />

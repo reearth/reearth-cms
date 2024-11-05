@@ -38,7 +38,7 @@ export type Item = {
   threadId: string;
   comments: Comment[];
   assets: ItemAsset[];
-  requests: Pick<Request, "id" | "state">[];
+  requests: Pick<Request, "id" | "state" | "title">[];
 };
 
 export type FormItem = {
