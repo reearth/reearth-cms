@@ -925,6 +925,35 @@ paths:
           description: Not found
         '500':
           description: Internal server error
+  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: SchemaByIDAsJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a JSON that has schema.
+      tags:
+        - Schema
+        - JSON
+      description: Returns a JSON that has schema.
+      responses:
+        '200':
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schema'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/items/{itemId}':
     parameters:
       - $ref: '#/components/parameters/itemIdParam'
@@ -1658,6 +1687,57 @@ components:
         createdAt:
           type: string
           format: date-time
+    schemaJSON:
+      type: object
+      properties:
+        $schema:
+          type: string
+          description: "The schema URL."
+        $id:
+          type: string
+          description: "The identifier for the model or schema."
+        title:
+          type: string
+          description: "The name of the model."  # model only
+        description:
+          type: string
+          description: "The description of the model."  # model only
+        type:
+          type: string
+          description: "The type of the model."
+        properties:
+          type: object
+          properties:
+            id:
+              type: string  # note that it is not always the same as CMS's field type.
+              title: "ID"
+              description: "The unique identifier for the project."
+            workspaceId:
+              type: string
+              title: "Workspace ID"
+              description: "The unique identifier for the workspace."
+            name:
+              type: string
+              title: "Name"
+              description: "The name of the project."
+            description:
+              type: string
+              title: "Description"
+              description: "A brief description of the project."
+            alias:
+              type: string
+              title: "Alias"
+              description: "An alias for the project."
+            createdAt:
+              type: string
+              format: date-time
+              title: "Created At"
+              description: "The timestamp when the project was created."
+            updatedAt:
+              type: string
+              format: date-time
+              title: "Updated At"
+              description: "The timestamp when the project was last updated."
     valueType:
       type: string
       enum:
