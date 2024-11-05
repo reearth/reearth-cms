@@ -72,6 +72,7 @@ export default () => {
           title: request.title,
           state: request.state as GQLRequestState,
         },
+        refetchQueries: ["GetItem"],
       });
       if (item.errors || !item.data?.updateRequest) {
         Notification.error({ message: t("Failed to update request.") });
@@ -91,7 +92,7 @@ export default () => {
         variables: {
           itemIds: itemIds,
         },
-        refetchQueries: ["SearchItem", "GetItem", "GetItemsByIds"],
+        refetchQueries: ["SearchItem", "GetItem"],
       });
       if (item.errors || !item.data?.publishItem) {
         Notification.error({ message: t("Failed to publish items.") });
