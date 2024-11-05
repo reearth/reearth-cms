@@ -142,11 +142,7 @@ func publicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				}
 
 				defaultLang := req.Header.Get("Accept-Language")
-				op, err := generatePublicApiOperator(p, token, defaultLang)
-				if err != nil {
-					return err
-				}
-
+				op := generatePublicApiOperator(p, token, defaultLang)
 				ctx = adapter.AttachOperator(ctx, op)
 				c.SetRequest(req.WithContext(ctx))
 			}
@@ -293,9 +289,9 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}, nil
 }
 
-func generatePublicApiOperator(p *project.Project, token string, lang string) (*usecase.Operator, error) {
+func generatePublicApiOperator(p *project.Project, token string, lang string) *usecase.Operator {
 	if p == nil {
-		return nil, nil
+		return nil
 	}
 
 	return &usecase.Operator{
@@ -313,7 +309,7 @@ func generatePublicApiOperator(p *project.Project, token string, lang string) (*
 		WritableProjects:     nil,
 		MaintainableProjects: nil,
 		OwningProjects:       nil,
-	}, nil
+	}
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {
