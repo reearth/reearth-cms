@@ -16,6 +16,7 @@ import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import {
   TableRowSelection,
   ListToolBarProps,
@@ -56,6 +57,7 @@ type Props = {
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
   deleteLoading: boolean;
+  publishLoading: boolean;
   unpublishLoading: boolean;
   selectedItem?: Item;
   selectedItems: { selectedRows: { itemId: string; version?: string }[] };
@@ -77,6 +79,7 @@ type Props = {
   setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
   requests: Request[];
@@ -94,6 +97,7 @@ const ContentTable: React.FC<Props> = ({
   contentTableColumns,
   loading,
   deleteLoading,
+  publishLoading,
   unpublishLoading,
   selectedItem,
   selectedItems,
@@ -113,6 +117,7 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onPublish,
   onUnpublish,
   onSearchTerm,
   onFilterChange,
@@ -289,11 +294,37 @@ const ContentTable: React.FC<Props> = ({
     [selectedItems, setSelectedItems],
   );
 
+  const publishConfirm = useCallback(
+    (itemIds: string[]) => {
+      Modal.confirm({
+        title: t("Publish items"),
+        content: t("All selected items will be published. You can unpublish them anytime."),
+        icon: <Icon icon="exclamationCircle" />,
+        cancelText: t("No"),
+        okText: t("Yes"),
+        async onOk() {
+          await onPublish(itemIds);
+        },
+      });
+    },
+    [onPublish, t],
+  );
+
   const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
         <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="upload" />}
+            onClick={() => {
+              publishConfirm(props.selectedRowKeys);
+            }}
+            loading={publishLoading}>
+            {t("Publish")}
+          </Button>
           <Button
             type="link"
             size="small"
@@ -312,13 +343,6 @@ const ContentTable: React.FC<Props> = ({
           <Button
             type="link"
             size="small"
-            icon={<Icon icon="clear" />}
-            onClick={props.onCleanSelected}>
-            {t("Deselect")}
-          </Button>
-          <Button
-            type="link"
-            size="small"
             icon={<Icon icon="delete" />}
             onClick={() => onItemDelete(props.selectedRowKeys)}
             danger
@@ -328,7 +352,16 @@ const ContentTable: React.FC<Props> = ({
         </Space>
       );
     },
-    [deleteLoading, onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t, unpublishLoading],
+    [
+      deleteLoading,
+      onAddItemToRequestModalOpen,
+      onItemDelete,
+      onUnpublish,
+      publishConfirm,
+      publishLoading,
+      t,
+      unpublishLoading,
+    ],
   );
 
   const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
