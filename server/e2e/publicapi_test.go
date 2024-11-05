@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
 )
 
@@ -370,11 +371,97 @@ func TestPublicAPI(t *testing.T) {
 		IsEqual(map[string]any{
 			"error": "not found",
 		})
+
+	// make the project limited
+	prj.Publication().SetScope(project.PublicationScopeLimited)
+	prj.Publication().SetAssetPublic(true)
+	prj.Publication().GenerateToken()
+	token := prj.Publication().Token()
+	lo.Must0(repos.Project.Save(ctx, prj))
+
+	// invalid token
+	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("Authorization", "secret_abc").
+		WithHeader("Content-Type", "application/json").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	// valid token
+	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("Authorization", token).
+		WithHeader("Content-Type", "application/json").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"results": []map[string]any{
+				{
+					"id":               publicAPIItem1ID.String(),
+					publicAPIField1Key: "aaa",
+					publicAPIField2Key: map[string]any{
+						"type": "asset",
+						"id":   publicAPIAsset1ID.String(),
+						"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+					},
+				},
+				{
+					"id":               publicAPIItem2ID.String(),
+					publicAPIField1Key: "bbb",
+				},
+				{
+					"id":               publicAPIItem3ID.String(),
+					publicAPIField1Key: "ccc",
+					publicAPIField3Key: []string{"aaa", "bbb", "ccc"},
+					publicAPIField4Key: []any{
+						map[string]any{
+							"type": "asset",
+							"id":   publicAPIAsset1ID.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+						},
+					},
+				},
+				{
+					"id":               publicAPIItem6ID.String(),
+					publicAPIField1Key: "ccc",
+					publicAPIField3Key: []string{"aaa", "bbb", "ccc"},
+					publicAPIField4Key: []any{
+						map[string]any{
+							"type": "asset",
+							"id":   publicAPIAsset1ID.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+						},
+					},
+					publicAPIField5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+					publicAPIField6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+				},
+				{
+					"id":               publicAPIItem7ID.String(),
+					publicAPIField1Key: "ccc",
+				},
+			},
+			"totalCount": 5,
+			"hasMore":    false,
+			"limit":      50,
+			"offset":     0,
+			"page":       1,
+		})
 }
 
 func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	uid := accountdomain.NewUserID()
-	p1 := project.New().ID(publicAPIProjectID).Workspace(accountdomain.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
+	w := workspace.New().ID(wId).
+		Name("test-workspace").
+		Members(map[accountdomain.UserID]workspace.Member{
+			uId: {
+				Role:      workspace.RoleOwner,
+				InvitedBy: uId,
+			},
+		}).
+		MustBuild()
+
+	p1 := project.New().ID(publicAPIProjectID).Workspace(w.ID()).Alias(publicAPIProjectAlias).Publication(
 		project.NewPublication(project.PublicationScopePublic, true),
 	).MustBuild()
 
@@ -443,6 +530,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
 	}).MustBuild()
 
+	lo.Must0(r.Workspace.Save(ctx, w))
 	lo.Must0(r.Project.Save(ctx, p1))
 	lo.Must0(r.Asset.Save(ctx, a))
 	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af))

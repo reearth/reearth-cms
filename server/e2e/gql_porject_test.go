@@ -47,18 +47,6 @@ func createProject(e *httpexpect.Expect, wID, name, desc, alias string) (string,
 	return res.Path("$.data.createProject.project.id").Raw().(string), res
 }
 
-func TestCreateProject(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	_, res := createProject(e, wId.String(), "test", "test", "test-1")
-
-	res.Object().
-		Value("data").Object().
-		Value("createProject").Object().
-		Value("project").Object().
-		HasValue("name", "test")
-}
-
 func update(e *httpexpect.Expect, pId, name, desc, alias, scope string, assetPublic bool) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateProject(
@@ -114,27 +102,6 @@ func update(e *httpexpect.Expect, pId, name, desc, alias, scope string, assetPub
 	return res.Path("$.data.updateProject.project.id").Raw().(string), res
 }
 
-func TestUpdate(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	pId, p := createProject(e, wId.String(), "test", "test", "test-1")
-	p.Object().
-		Value("data").Object().
-		Value("createProject").Object().
-		Value("project").Object().
-		HasValue("name", "test")
-
-	_, res := update(e, pId, "test1", "test1", "test-2", "LIMITED", true)
-	pp := res.Object().
-		Value("data").Object().
-		Value("updateProject").Object().
-		Value("project").Object()
-
-	pp.HasValue("name", "test1")
-	pp.Value("publication").Object().HasValue("scope", "LIMITED")
-	pp.Value("publication").Object().HasValue("assetPublic", true)
-}
-
 func regeneratePublicApiToken(e *httpexpect.Expect, pId string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
 		Query: `mutation RegeneratePublicApiToken($projectId: ID!) {
@@ -166,18 +133,32 @@ func regeneratePublicApiToken(e *httpexpect.Expect, pId string) *httpexpect.Valu
 	return res
 }
 
-func TestRegeneratePublicApiToken(t *testing.T) {
+func TestProject(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
-	pId, p := createProject(e, wId.String(), "test", "test", "test-1")
-	p.Object().
+	// create project
+	pId, p := createProject(e, wId.String(), "test1", "test1", "test1")
+	pp := p.Object().
 		Value("data").Object().
 		Value("createProject").Object().
-		Value("project").Object().
-		HasValue("name", "test")
+		Value("project").Object()
+	pp.HasValue("name", "test1")
+	pp.HasValue("description", "test1")
+	pp.HasValue("alias", "test1")
 
-	update(e, pId, "test1", "test1", "test-2", "LIMITED", true)
+	// update project
+	_, res := update(e, pId, "test2", "test2", "test2", "LIMITED", true)
+	pp = res.Object().
+		Value("data").Object().
+		Value("updateProject").Object().
+		Value("project").Object()
+	pp.HasValue("name", "test2")
+	pp.HasValue("description", "test2")
+	pp.HasValue("alias", "test2")
+	pp.Value("publication").Object().HasValue("scope", "LIMITED")
+	pp.Value("publication").Object().HasValue("assetPublic", true)
 
+	// regenerate public api token
 	res1 := regeneratePublicApiToken(e, pId)
 	token := res1.Path("$.data.regeneratePublicApiToken.project.publication.token")
 	res2 := regeneratePublicApiToken(e, pId)
