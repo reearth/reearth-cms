@@ -40,16 +40,24 @@ const ProjectCreationModal: React.FC<Props> = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const prevAlias = useRef<{ alias: string; isSuccess: boolean }>();
 
-  const values = Form.useWatch([], form);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>();
+  const values = Form.useWatch<FormValues | undefined>([], form);
   useEffect(() => {
-    if (form.getFieldValue("name") && form.getFieldValue("alias")) {
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+      timeout.current = null;
+    }
+    if (!values?.name && !values?.alias) {
+      setIsDisabled(true);
+      return;
+    }
+    const validate = () => {
       form
         .validateFields()
         .then(() => setIsDisabled(false))
         .catch(() => setIsDisabled(true));
-    } else {
-      setIsDisabled(true);
-    }
+    };
+    timeout.current = setTimeout(validate, 300);
   }, [form, values]);
 
   const handleNameChange = useCallback(
@@ -119,7 +127,7 @@ const ProjectCreationModal: React.FC<Props> = ({
           {t("OK")}
         </Button>,
       ]}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+      <Form form={form} layout="vertical" initialValues={initialValues} validateTrigger="">
         <Form.Item
           name="name"
           label={t("Project name")}
