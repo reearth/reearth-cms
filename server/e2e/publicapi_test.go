@@ -18,7 +18,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
 )
 
@@ -385,7 +384,11 @@ func TestPublicAPI(t *testing.T) {
 		WithHeader("Authorization", "secret_abc").
 		WithHeader("Content-Type", "application/json").
 		Expect().
-		Status(http.StatusUnauthorized)
+		Status(http.StatusUnauthorized).
+		JSON().
+		IsEqual(map[string]interface{}{
+			"error": "invalid token",
+		})
 
 	// valid token
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
@@ -451,17 +454,7 @@ func TestPublicAPI(t *testing.T) {
 
 func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	uid := accountdomain.NewUserID()
-	w := workspace.New().ID(wId).
-		Name("test-workspace").
-		Members(map[accountdomain.UserID]workspace.Member{
-			uId: {
-				Role:      workspace.RoleOwner,
-				InvitedBy: uId,
-			},
-		}).
-		MustBuild()
-
-	p1 := project.New().ID(publicAPIProjectID).Workspace(w.ID()).Alias(publicAPIProjectAlias).Publication(
+	p1 := project.New().ID(publicAPIProjectID).Workspace(accountdomain.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
 		project.NewPublication(project.PublicationScopePublic, true),
 	).MustBuild()
 
@@ -530,7 +523,6 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
 	}).MustBuild()
 
-	lo.Must0(r.Workspace.Save(ctx, w))
 	lo.Must0(r.Project.Save(ctx, p1))
 	lo.Must0(r.Asset.Save(ctx, a))
 	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af))

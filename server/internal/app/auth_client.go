@@ -142,7 +142,7 @@ func publicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 				}
 
 				defaultLang := req.Header.Get("Accept-Language")
-				op, err := generatePublicApiOperator(ctx, cfg, p, token, defaultLang)
+				op, err := generatePublicApiOperator(p, token, defaultLang)
 				if err != nil {
 					return err
 				}
@@ -293,20 +293,15 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}, nil
 }
 
-func generatePublicApiOperator(ctx context.Context, cfg *ServerConfig, p *project.Project, token string, lang string) (*usecase.Operator, error) {
+func generatePublicApiOperator(p *project.Project, token string, lang string) (*usecase.Operator, error) {
 	if p == nil {
 		return nil, nil
 	}
 
-	w, err := cfg.Repos.Workspace.FindByID(ctx, p.Workspace())
-	if err != nil {
-		return nil, err
-	}
-
 	return &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
-			User: nil,
-			ReadableWorkspaces:     id.WorkspaceIDList{w.ID()},
+			User:                   nil,
+			ReadableWorkspaces:     id.WorkspaceIDList{p.Workspace()},
 			WritableWorkspaces:     nil,
 			MaintainableWorkspaces: nil,
 			OwningWorkspaces:       nil,
