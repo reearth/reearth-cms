@@ -141,8 +141,12 @@ func publicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 					return err
 				}
 
+				if p.Publication().Scope() == project.PublicationScopePrivate {
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "private project"})
+				}
+
 				defaultLang := req.Header.Get("Accept-Language")
-				op := generatePublicApiOperator(p, token, defaultLang)
+				op := generatePublicApiOperator(p, true, defaultLang)
 				ctx = adapter.AttachOperator(ctx, op)
 				c.SetRequest(req.WithContext(ctx))
 			}
@@ -289,7 +293,7 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}, nil
 }
 
-func generatePublicApiOperator(p *project.Project, token string, lang string) *usecase.Operator {
+func generatePublicApiOperator(p *project.Project, auth bool, lang string) *usecase.Operator {
 	if p == nil {
 		return nil
 	}
@@ -304,7 +308,7 @@ func generatePublicApiOperator(p *project.Project, token string, lang string) *u
 		},
 		Integration:          nil,
 		Lang:                 lang,
-		PublicAPIToken:       token,
+		PublicAPIAuth:        auth,
 		ReadableProjects:     id.ProjectIDList{p.ID()},
 		WritableProjects:     nil,
 		MaintainableProjects: nil,

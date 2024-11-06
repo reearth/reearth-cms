@@ -38,6 +38,7 @@ type UpdateProjectPublicationParam struct {
 var (
 	ErrProjectAliasIsNotSet    error = rerror.NewE(i18n.T("project alias is not set"))
 	ErrProjectAliasAlreadyUsed error = rerror.NewE(i18n.T("project alias is already used by another project"))
+	ErrInvalidProject                = rerror.NewE(i18n.T("invalid project"))
 )
 
 type Project interface {

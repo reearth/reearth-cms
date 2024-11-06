@@ -44,7 +44,7 @@ func (c *Controller) checkProject(ctx context.Context, prj string) (*project.Pro
 
 	if pr.Publication().Scope() == project.PublicationScopeLimited {
 		t := pr.Publication().Token()
-		if op := adapter.Operator(ctx); op == nil || t == "" || op.PublicAPIToken != t {
+		if op := adapter.Operator(ctx); op == nil || t == "" || !op.PublicAPIAuth {
 			return nil, ErrInvalidProject
 		}
 	}

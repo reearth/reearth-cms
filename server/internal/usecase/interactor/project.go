@@ -182,9 +182,12 @@ func (i *Project) RegenerateToken(ctx context.Context, pId id.ProjectID, operato
 				return nil, interfaces.ErrOperationDenied
 			}
 
+			if p.Publication() == nil || p.Publication().Scope() == project.PublicationScopePrivate || p.Publication().Scope() == project.PublicationScopePublic {
+				return nil, interfaces.ErrInvalidProject
+			}
+
 			p.Publication().GenerateToken()
 			p.SetUpdatedAt(time.Now())
-
 			if err := i.repos.Project.Save(ctx, p); err != nil {
 				return nil, err
 			}
