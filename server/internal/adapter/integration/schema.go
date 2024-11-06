@@ -388,14 +388,13 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 		return SchemaByModelWithProjectAsJSON400Response{}, err
 	}
 
-	var pp *map[string]interface{}
 	return SchemaByModelWithProjectAsJSON200JSONResponse{
 		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
-		Id:          sch.Schema().ID().Ref().StringRef(),
+		Id:          m.ID().Ref().StringRef(),
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),
 		Type:        lo.ToPtr("object"),
-		Properties:  pp,
+		Properties:  toProperties(sch.Schema()),
 	}, nil
 }
 
@@ -411,13 +410,16 @@ func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONR
 		return SchemaByIDAsJSON400Response{}, err
 	}
 
-	var pp *map[string]interface{}
 	return SchemaByIDAsJSON200JSONResponse{
 		Schema:     lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
 		Id:         sch.ID().Ref().StringRef(),
 		Type:       lo.ToPtr("object"),
-		Properties: pp,
+		Properties: toProperties(sch),
 	}, nil
+}
+
+func toProperties(sch *schema.Schema) *map[string]interface{} {
+	return nil
 }
 
 func FromSchemaTypeProperty(t integrationapi.ValueType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
