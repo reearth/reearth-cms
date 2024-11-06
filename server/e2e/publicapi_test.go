@@ -461,7 +461,11 @@ func TestPublicAPI(t *testing.T) {
 		WithHeader("Authorization", token).
 		WithHeader("Content-Type", "application/json").
 		Expect().
-		Status(http.StatusNotFound)
+		Status(http.StatusBadRequest).
+		JSON().
+		IsEqual(map[string]any{
+			"error": "invalid project",
+		})
 }
 
 func publicAPISeeder(ctx context.Context, r *repo.Container) error {
