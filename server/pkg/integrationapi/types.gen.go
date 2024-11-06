@@ -553,42 +553,12 @@ type SchemaField struct {
 
 // SchemaJSON defines model for schemaJSON.
 type SchemaJSON struct {
-	// Id The identifier for the model or schema.
-	Id *string `json:"$id,omitempty"`
-
-	// Schema The schema URL.
-	Schema *string `json:"$schema,omitempty"`
-
-	// Description The description of the model.
-	Description *string `json:"description,omitempty"`
-	Properties  *struct {
-		// Alias An alias for the project.
-		Alias *string `json:"alias,omitempty"`
-
-		// CreatedAt The timestamp when the project was created.
-		CreatedAt *time.Time `json:"createdAt,omitempty"`
-
-		// Description A brief description of the project.
-		Description *string `json:"description,omitempty"`
-
-		// Id The unique identifier for the project.
-		Id *string `json:"id,omitempty"`
-
-		// Name The name of the project.
-		Name *string `json:"name,omitempty"`
-
-		// UpdatedAt The timestamp when the project was last updated.
-		UpdatedAt *time.Time `json:"updatedAt,omitempty"`
-
-		// WorkspaceId The unique identifier for the workspace.
-		WorkspaceId *string `json:"workspaceId,omitempty"`
-	} `json:"properties,omitempty"`
-
-	// Title The name of the model.
-	Title *string `json:"title,omitempty"`
-
-	// Type The type of the model.
-	Type *string `json:"type,omitempty"`
+	Id          *string                 `json:"$id,omitempty"`
+	Schema      *string                 `json:"$schema,omitempty"`
+	Description *string                 `json:"description,omitempty"`
+	Properties  *map[string]interface{} `json:"properties,omitempty"`
+	Title       *string                 `json:"title,omitempty"`
+	Type        *string                 `json:"type,omitempty"`
 }
 
 // TagResponse defines model for tagResponse.

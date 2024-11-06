@@ -361,11 +361,63 @@ func (s *Server) FieldDeleteWithProject(ctx context.Context, request FieldDelete
 }
 
 func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request SchemaByModelWithProjectAsJSONRequestObject) (SchemaByModelWithProjectAsJSONResponseObject, error) {
-	panic("not implemented")
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaByModelWithProjectAsJSON400Response{}, err
+		}
+		return SchemaByModelWithProjectAsJSON400Response{}, err
+	}
+
+	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaByModelWithProjectAsJSON400Response{}, err
+		}
+		return SchemaByModelWithProjectAsJSON400Response{}, err
+	}
+
+	sch, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaByModelWithProjectAsJSON400Response{}, err
+		}
+		return SchemaByModelWithProjectAsJSON400Response{}, err
+	}
+
+	var pp *map[string]interface{}
+	return SchemaByModelWithProjectAsJSON200JSONResponse{
+		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Id:          sch.Schema().ID().Ref().StringRef(),
+		Title:       lo.ToPtr(m.Name()),
+		Description: lo.ToPtr(m.Description()),
+		Type:        lo.ToPtr("object"),
+		Properties:  pp,
+	}, nil
 }
 
 func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error) {
-	panic("not implemented")
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaByIDAsJSON400Response{}, err
+		}
+		return SchemaByIDAsJSON400Response{}, err
+	}
+
+	var pp *map[string]interface{}
+	return SchemaByIDAsJSON200JSONResponse{
+		Schema:     lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Id:         sch.ID().Ref().StringRef(),
+		Type:       lo.ToPtr("object"),
+		Properties: pp,
+	}, nil
 }
 
 func FromSchemaTypeProperty(t integrationapi.ValueType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
