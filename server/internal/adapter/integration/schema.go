@@ -360,6 +360,14 @@ func (s *Server) FieldDeleteWithProject(ctx context.Context, request FieldDelete
 	}, err
 }
 
+func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request SchemaByModelWithProjectAsJSONRequestObject) (SchemaByModelWithProjectAsJSONResponseObject, error) {
+	panic("not implemented")
+}
+
+func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error) {
+	panic("not implemented")
+}
+
 func FromSchemaTypeProperty(t integrationapi.ValueType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
 	switch t {
 	case integrationapi.ValueTypeText:
