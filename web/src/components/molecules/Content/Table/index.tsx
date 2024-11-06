@@ -93,6 +93,7 @@ type Props = {
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
   hasRequestUpdateRight: boolean;
+  showPublishAction: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -136,6 +137,7 @@ const ContentTable: React.FC<Props> = ({
   hasDeleteRight,
   hasPublishRight,
   hasRequestUpdateRight,
+  showPublishAction,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -323,7 +325,8 @@ const ContentTable: React.FC<Props> = ({
             onClick={() => {
               publishConfirm(props.selectedRowKeys);
             }}
-            loading={publishLoading}>
+            loading={publishLoading}
+            disabled={!hasPublishRight || !showPublishAction}>
             {t("Publish")}
           </Button>
           <Button
@@ -366,6 +369,7 @@ const ContentTable: React.FC<Props> = ({
       onUnpublish,
       publishConfirm,
       publishLoading,
+      showPublishAction,
       t,
       unpublishLoading,
     ],

@@ -57,6 +57,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
           onWorkspaceModalOpen={onWorkspaceModalOpen}
         />
         <ProjectList
+          hasCreateRight={hasCreateRight}
           projects={projects}
           loading={loadingProjects}
           onProjectModalOpen={onProjectModalOpen}

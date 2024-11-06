@@ -76,6 +76,7 @@ export default () => {
     totalCount: requestModalTotalCount,
     page: requestModalPage,
     pageSize: requestModalPageSize,
+    showPublishAction,
   } = useContentHooks();
   const t = useT();
 
@@ -590,6 +591,7 @@ export default () => {
     hasDeleteRight,
     hasPublishRight,
     hasRequestUpdateRight,
+    showPublishAction,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,

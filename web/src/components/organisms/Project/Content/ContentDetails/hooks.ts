@@ -66,6 +66,7 @@ export default () => {
     totalCount,
     page,
     pageSize,
+    showPublishAction,
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
@@ -74,7 +75,6 @@ export default () => {
   const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
   const [userRights] = useUserRights();
-  const myRole = useMemo(() => userRights?.role, [userRights?.role]);
   const hasRequestCreateRight = useMemo(
     () => !!userRights?.request.create,
     [userRights?.request.create],
@@ -188,11 +188,6 @@ export default () => {
         }
       : undefined;
   }, [userData]);
-
-  const showPublishAction = useMemo(
-    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
-    [currentProject?.requestRoles, myRole],
-  );
 
   const currentItem: Item | undefined = useMemo(
     () => fromGraphQLItem(data?.node as GQLItem),

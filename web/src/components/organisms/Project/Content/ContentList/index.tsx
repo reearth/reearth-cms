@@ -33,6 +33,7 @@ const ContentList: React.FC = () => {
     hasDeleteRight,
     hasPublishRight,
     hasRequestUpdateRight,
+    showPublishAction,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
@@ -139,6 +140,7 @@ const ContentList: React.FC = () => {
       hasDeleteRight={hasDeleteRight}
       hasPublishRight={hasPublishRight}
       hasRequestUpdateRight={hasRequestUpdateRight}
+      showPublishAction={showPublishAction}
     />
   );
 };

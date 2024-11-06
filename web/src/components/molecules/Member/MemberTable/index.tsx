@@ -22,7 +22,6 @@ type Props = {
     id?: string;
     myWorkspace?: string;
   };
-  isOwner: boolean;
   isAbleToLeave: boolean;
   handleMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
   onLeave: (userId: string) => Promise<void>;
@@ -41,11 +40,11 @@ type Props = {
   onReload: () => void;
   hasInviteRight: boolean;
   hasRemoveRight: boolean;
+  hasChangeRoleRight: boolean;
 };
 
 const MemberTable: React.FC<Props> = ({
   me,
-  isOwner,
   isAbleToLeave,
   handleMemberRemoveFromWorkspace,
   onLeave,
@@ -62,6 +61,7 @@ const MemberTable: React.FC<Props> = ({
   onReload,
   hasInviteRight,
   hasRemoveRight,
+  hasChangeRoleRight,
 }) => {
   const t = useT();
 
@@ -171,7 +171,7 @@ const MemberTable: React.FC<Props> = ({
             <ActionButton
               type="link"
               onClick={() => handleRoleModalOpen(member)}
-              disabled={!isOwner || member.userId === me.id}>
+              disabled={!hasChangeRoleRight || member.userId === me.id}>
               {t("Change Role?")}
             </ActionButton>
             <Divider type="vertical" />
@@ -189,7 +189,8 @@ const MemberTable: React.FC<Props> = ({
                 type="link"
                 onClick={() => {
                   handleMemberDelete([member.user]);
-                }}>
+                }}
+                disabled={!hasRemoveRight}>
                 {t("Remove")}
               </ActionButton>
             )}
@@ -199,9 +200,10 @@ const MemberTable: React.FC<Props> = ({
     [
       workspaceUserMembers,
       t,
-      isOwner,
+      hasChangeRoleRight,
       me.id,
       isAbleToLeave,
+      hasRemoveRight,
       handleRoleModalOpen,
       leaveConfirm,
       handleMemberDelete,
@@ -255,7 +257,7 @@ const MemberTable: React.FC<Props> = ({
         type="link"
         size="small"
         icon={<Icon icon="userGroupDelete" />}
-        onClick={() => handleMemberDelete(props.selectedRowKeys)}
+        onClick={() => handleMemberDelete(props.selectedRows)}
         danger
         disabled={!hasRemoveRight}>
         {t("Remove")}

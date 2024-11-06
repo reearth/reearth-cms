@@ -29,6 +29,10 @@ export default () => {
   const [userRights] = useUserRights();
   const hasInviteRight = useMemo(() => !!userRights?.members.invite, [userRights?.members.invite]);
   const hasRemoveRight = useMemo(() => !!userRights?.members.remove, [userRights?.members.remove]);
+  const hasChangeRoleRight = useMemo(
+    () => !!userRights?.members.changeRole,
+    [userRights?.members.changeRole],
+  );
 
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
@@ -87,11 +91,11 @@ export default () => {
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [searchTerm, workspaceData?.node]);
 
-  const isOwner = useMemo(() => userRights?.role === "OWNER", [userRights?.role]);
-
   const isAbleToLeave = useMemo(
-    () => !isOwner || !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId !== me.id),
-    [isOwner, me.id, workspaceUserMembers],
+    () =>
+      userRights?.role !== "OWNER" ||
+      !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId !== me.id),
+    [me.id, userRights?.role, workspaceUserMembers],
   );
 
   const [searchUserQuery] = useGetUserBySearchLazyQuery({
@@ -255,7 +259,6 @@ export default () => {
 
   return {
     me,
-    isOwner,
     isAbleToLeave,
     searchedUser,
     handleSearchTerm,
@@ -287,5 +290,6 @@ export default () => {
     handleReload,
     hasInviteRight,
     hasRemoveRight,
+    hasChangeRoleRight,
   };
 };

@@ -66,6 +66,7 @@ type Props = {
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
   hasRequestUpdateRight: boolean;
+  showPublishAction: boolean;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -116,6 +117,7 @@ const ContentListMolecule: React.FC<Props> = ({
   hasDeleteRight,
   hasPublishRight,
   hasRequestUpdateRight,
+  showPublishAction,
 }) => {
   const t = useT();
 
@@ -190,6 +192,7 @@ const ContentListMolecule: React.FC<Props> = ({
                 hasDeleteRight={hasDeleteRight}
                 hasPublishRight={hasPublishRight}
                 hasRequestUpdateRight={hasRequestUpdateRight}
+                showPublishAction={showPublishAction}
               />
             </>
           )}

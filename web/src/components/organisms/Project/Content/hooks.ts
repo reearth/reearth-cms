@@ -20,6 +20,11 @@ export default () => {
   const [currentProject] = useProject();
   const [userId] = useUserId();
   const [userRights] = useUserRights();
+  const myRole = useMemo(() => userRights?.role, [userRights?.role]);
+  const showPublishAction = useMemo(
+    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
+    [currentProject?.requestRoles, myRole],
+  );
 
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
@@ -174,5 +179,6 @@ export default () => {
     totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,
+    showPublishAction,
   };
 };
