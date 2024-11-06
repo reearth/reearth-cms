@@ -141,8 +141,8 @@ func publicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 					return err
 				}
 
-				if p.Publication().Scope() == project.PublicationScopePrivate {
-					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "private project"})
+				if p.Publication() == nil || p.Publication().Scope() == project.PublicationScopePrivate {
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid project"})
 				}
 
 				defaultLang := req.Header.Get("Accept-Language")
