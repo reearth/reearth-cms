@@ -182,7 +182,7 @@ func (i *Project) RegenerateToken(ctx context.Context, pId id.ProjectID, operato
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			if p.Publication() == nil || p.Publication().Scope() == project.PublicationScopePrivate || p.Publication().Scope() == project.PublicationScopePublic {
+			if p.Publication() == nil || p.Publication().Scope() != project.PublicationScopeLimited  {
 				return nil, interfaces.ErrInvalidProject
 			}
 
