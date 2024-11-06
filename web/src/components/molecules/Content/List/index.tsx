@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, Key } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -49,7 +49,7 @@ type Props = {
   onPublish: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
-  setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
   onCollapse?: (collapse: boolean) => void;
   onItemAdd: () => void;
   onItemsReload: () => void;
@@ -62,6 +62,11 @@ type Props = {
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasPublishRight: boolean;
+  hasRequestUpdateRight: boolean;
+  showPublishAction: boolean;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -99,7 +104,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onSearchTerm,
   onFilterChange,
   onContentTableChange,
-  setSelectedItems,
+  onSelect,
   onItemSelect,
   onCollapse,
   onItemAdd,
@@ -108,6 +113,11 @@ const ContentListMolecule: React.FC<Props> = ({
   onItemDelete,
   onRequestSearchTerm,
   onRequestTableReload,
+  hasCreateRight,
+  hasDeleteRight,
+  hasPublishRight,
+  hasRequestUpdateRight,
+  showPublishAction,
 }) => {
   const t = useT();
 
@@ -135,7 +145,7 @@ const ContentListMolecule: React.FC<Props> = ({
                     type="primary"
                     onClick={onItemAdd}
                     icon={<Icon icon="plus" />}
-                    disabled={!model}>
+                    disabled={!model || !hasCreateRight}>
                     {t("New Item")}
                   </Button>
                 }
@@ -158,7 +168,7 @@ const ContentListMolecule: React.FC<Props> = ({
                 onSearchTerm={onSearchTerm}
                 onFilterChange={onFilterChange}
                 onContentTableChange={onContentTableChange}
-                setSelectedItems={setSelectedItems}
+                onSelect={onSelect}
                 onItemSelect={onItemSelect}
                 onItemsReload={onItemsReload}
                 onItemEdit={onItemEdit}
@@ -179,6 +189,10 @@ const ContentListMolecule: React.FC<Props> = ({
                 modelKey={model?.key}
                 onRequestSearchTerm={onRequestSearchTerm}
                 onRequestTableReload={onRequestTableReload}
+                hasDeleteRight={hasDeleteRight}
+                hasPublishRight={hasPublishRight}
+                hasRequestUpdateRight={hasRequestUpdateRight}
+                showPublishAction={showPublishAction}
               />
             </>
           )}

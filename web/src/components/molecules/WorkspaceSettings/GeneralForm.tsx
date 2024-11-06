@@ -9,6 +9,7 @@ import { useT } from "@reearth-cms/i18n";
 type Props = {
   workspaceName?: string;
   updateWorkspaceLoading: boolean;
+  hasUpdateRight: boolean;
   onWorkspaceUpdate: (name: string) => Promise<void>;
 };
 
@@ -19,6 +20,7 @@ type FormType = {
 const WorkspaceGeneralForm: React.FC<Props> = ({
   workspaceName,
   updateWorkspaceLoading,
+  hasUpdateRight,
   onWorkspaceUpdate,
 }) => {
   const t = useT();
@@ -73,7 +75,7 @@ const WorkspaceGeneralForm: React.FC<Props> = ({
             message: t("Please input a new workspace name!"),
           },
         ]}>
-        <Input />
+        <Input disabled={!hasUpdateRight} />
       </Form.Item>
       <Button
         onClick={handleSubmit}

@@ -11,12 +11,20 @@ export type Props = {
   isTile: boolean;
   onDelete: (isTile: boolean, index: number) => void;
   onDragEnd: (fromIndex: number, toIndex: number, isTile: boolean) => void;
+  hasUpdateRight: boolean;
 };
 
 const { DragColumn } = ReactDragListView;
 const { Meta } = Card;
 
-const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete, onDragEnd }) => {
+const Cards: React.FC<Props> = ({
+  resources,
+  onModalOpen,
+  isTile,
+  onDelete,
+  onDragEnd,
+  hasUpdateRight,
+}) => {
   return (
     <DragColumn
       nodeSelector=".ant-card"
@@ -28,16 +36,25 @@ const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete, onDr
           return (
             <StyledCard
               actions={[
-                <Icon icon="delete" key="delete" onClick={() => onDelete(isTile, index)} />,
-                <Icon icon="edit" key="edit" onClick={() => onModalOpen(index)} />,
+                <Icon
+                  icon="delete"
+                  key="delete"
+                  onClick={hasUpdateRight ? () => onDelete(isTile, index) : undefined}
+                />,
+                <Icon
+                  icon="edit"
+                  key="edit"
+                  onClick={hasUpdateRight ? () => onModalOpen(index) : undefined}
+                />,
               ]}
-              key={resource.id}>
+              key={resource.id}
+              hasUpdateRight={hasUpdateRight}>
               <TitleWrapper>
                 <StyledMeta
                   avatar={resource.props?.image ? <img src={resource.props?.image} /> : null}
                   title={resource.props?.name ? resource.props.name : resource.type}
                 />
-                <DragIcon icon="menu" className="grabbable" />
+                {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
               </TitleWrapper>
             </StyledCard>
           );
@@ -56,7 +73,17 @@ const GridArea = styled.div`
   padding-bottom: 12px;
 `;
 
-const StyledCard = styled(Card)`
+const StyledCard = styled(Card)<{ hasUpdateRight: boolean }>`
+  .ant-card-actions > li > span {
+    ${({ hasUpdateRight }) => !hasUpdateRight && "cursor: not-allowed;"}
+    > .anticon {
+      ${({ hasUpdateRight }) =>
+        !hasUpdateRight && "cursor: not-allowed; color: rgba(0, 0, 0, 0.25);"}
+      :hover {
+        ${({ hasUpdateRight }) => !hasUpdateRight && "color: rgba(0, 0, 0, 0.25);"}
+      }
+    }
+  }
   .ant-card-body {
     padding: 16px;
   }
@@ -82,4 +109,7 @@ const StyledMeta = styled(Meta)`
 
 const DragIcon = styled(Icon)`
   cursor: grab;
+  :active {
+    cursor: grabbing;
+  }
 `;

@@ -100,9 +100,11 @@ export const GET_ITEM_NODE = gql`
         }
         createdBy {
           ... on Integration {
+            id
             name
           }
           ... on User {
+            id
             name
           }
         }
@@ -187,9 +189,11 @@ export const SEARCH_ITEM = gql`
         }
         createdBy {
           ... on Integration {
+            id
             name
           }
           ... on User {
+            id
             name
           }
         }

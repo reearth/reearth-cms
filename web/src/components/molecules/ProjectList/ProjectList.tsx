@@ -8,6 +8,7 @@ import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  hasCreateRight: boolean;
   projects?: Project[];
   loading: boolean;
   onProjectModalOpen: () => void;
@@ -15,6 +16,7 @@ type Props = {
 };
 
 const ProjectList: React.FC<Props> = ({
+  hasCreateRight,
   projects,
   loading,
   onProjectModalOpen,
@@ -31,7 +33,11 @@ const ProjectList: React.FC<Props> = ({
           <Title>{t("No Projects Yet")}</Title>
           <Wrapper>
             <Suggestion>{t("Create a new project")}</Suggestion>
-            <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
+            <Button
+              onClick={onProjectModalOpen}
+              type="primary"
+              icon={<Icon icon="plus" />}
+              disabled={!hasCreateRight}>
               {t("New Project")}
             </Button>
           </Wrapper>
