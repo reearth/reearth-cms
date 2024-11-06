@@ -33,11 +33,12 @@ func GetController(ctx context.Context) *Controller {
 
 func Echo(e *echo.Group) {
 	e.Use(middleware.CORS())
-	e.GET("/:project/:model", PublicApiItemOrAssetList())
-	e.GET("/:project/:model/:item", PublicApiItemOrAsset())
+	e.GET("/:project/:model", publicApiItemOrAssetList())
+	e.GET("/:project/:model/:item", publicApiItemOrAsset())
+	e.GET("/:project/:model/:schema", publicApiSchema())
 }
 
-func PublicApiItemOrAsset() echo.HandlerFunc {
+func publicApiItemOrAsset() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())
@@ -59,7 +60,26 @@ func PublicApiItemOrAsset() echo.HandlerFunc {
 	}
 }
 
-func PublicApiItemOrAssetList() echo.HandlerFunc {
+func publicApiSchema() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(c.Request().Context())
+
+		p, m, s := c.Param("project"), c.Param("model"), c.Param("schema")
+		var res any
+		var err error
+		if s == "schema.json" {
+			res, err = ctrl.getSchema(ctx, p, m)
+		}
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func publicApiItemOrAssetList() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(ctx)

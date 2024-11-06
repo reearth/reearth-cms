@@ -212,6 +212,24 @@ func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
 	}
 }
 
+type SchemaJSON struct {
+	Id          *string                 `json:"$id,omitempty"`
+	Schema      *string                 `json:"$schema,omitempty"`
+	Description *string                 `json:"description,omitempty"`
+	Properties  *map[string]interface{} `json:"properties,omitempty"`
+	Title       *string                 `json:"title,omitempty"`
+	Type        *string                 `json:"type,omitempty"`
+}
+
+func (s SchemaJSON) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s)
+}
+
+func NewSchemaJSON(s *schema.Schema) SchemaJSON {
+	return SchemaJSON{}
+}
+
+
 // GeoJSON
 type GeoJSON = FeatureCollection
 
