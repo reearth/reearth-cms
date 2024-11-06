@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	// TODO: the `publication.token` should be unique, this should be fixed in the future
 	projectIndexes       = []string{"workspace", "publication.token"}
 	projectUniqueIndexes = []string{"id"}
 )
