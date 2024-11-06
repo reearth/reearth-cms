@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	projectIndexes       = []string{"workspace"}
-	projectUniqueIndexes = []string{"id", "publication.token"}
+	projectIndexes       = []string{"workspace", "publication.token"}
+	projectUniqueIndexes = []string{"id"}
 )
 
 type ProjectRepo struct {
