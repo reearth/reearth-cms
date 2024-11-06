@@ -1,8 +1,6 @@
 package integration
 
 import (
-	"crypto/rand"
-	"math/big"
 	"net/url"
 	"time"
 
@@ -10,6 +8,8 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
+
+const charSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 type Integration struct {
 	id          ID
@@ -68,11 +68,7 @@ func (i *Integration) SetToken(token string) {
 }
 
 func (i *Integration) RandomToken() {
-	t, err := randomString(43)
-	if err != nil {
-		return
-	}
-	i.token = "secret_" + t
+	i.token = "secret_" + lo.RandomString(43, []rune(charSet))
 }
 
 func (i *Integration) Developer() UserID {
@@ -158,18 +154,4 @@ func (i *Integration) Clone() *Integration {
 		webhooks:    util.Map(i.webhooks, func(w *Webhook) *Webhook { return w.Clone() }),
 		updatedAt:   i.updatedAt,
 	}
-}
-
-func randomString(n int) (string, error) {
-	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-	result := make([]byte, n)
-	for i := 0; i < n; i++ {
-		randIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
-		if err != nil {
-			return "", err
-		}
-		result[i] = letters[randIndex.Int64()]
-	}
-
-	return string(result), nil
 }
