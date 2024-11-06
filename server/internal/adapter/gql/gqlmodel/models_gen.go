@@ -816,17 +816,21 @@ type RemoveIntegrationFromWorkspaceInput struct {
 	IntegrationID ID `json:"integrationId"`
 }
 
-type RemoveMemberFromWorkspacePayload struct {
+type RemoveIntegrationFromWorkspacePayload struct {
+	Workspace *Workspace `json:"workspace"`
+}
+
+type RemoveMultipleMembersFromWorkspaceInput struct {
+	WorkspaceID ID   `json:"workspaceId"`
+	UserIds     []ID `json:"userIds"`
+}
+
+type RemoveMultipleMembersFromWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
 type RemoveMyAuthInput struct {
 	Auth string `json:"auth"`
-}
-
-type RemoveUserFromWorkspaceInput struct {
-	WorkspaceID ID `json:"workspaceId"`
-	UserID      ID `json:"userId"`
 }
 
 type Request struct {
@@ -1030,6 +1034,20 @@ type SchemaFieldMarkdown struct {
 
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldNumber struct {
+	DefaultValue any      `json:"defaultValue,omitempty"`
+	Min          *float64 `json:"min,omitempty"`
+	Max          *float64 `json:"max,omitempty"`
+}
+
+func (SchemaFieldNumber) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldNumberInput struct {
+	DefaultValue any      `json:"defaultValue,omitempty"`
+	Min          *float64 `json:"min,omitempty"`
+	Max          *float64 `json:"max,omitempty"`
+}
+
 type SchemaFieldReference struct {
 	ModelID              ID           `json:"modelId"`
 	SchemaID             ID           `json:"schemaId"`
@@ -1130,6 +1148,7 @@ type SchemaFieldTypePropertyInput struct {
 	Tag            *SchemaFieldTagInput            `json:"tag,omitempty"`
 	Checkbox       *SchemaFieldCheckboxInput       `json:"checkbox,omitempty"`
 	Integer        *SchemaFieldIntegerInput        `json:"integer,omitempty"`
+	Number         *SchemaFieldNumberInput         `json:"number,omitempty"`
 	Reference      *SchemaFieldReferenceInput      `json:"reference,omitempty"`
 	URL            *SchemaFieldURLInput            `json:"url,omitempty"`
 	Group          *SchemaFieldGroupInput          `json:"group,omitempty"`
@@ -2430,6 +2449,7 @@ const (
 	SchemaFieldTypeSelect         SchemaFieldType = "Select"
 	SchemaFieldTypeTag            SchemaFieldType = "Tag"
 	SchemaFieldTypeInteger        SchemaFieldType = "Integer"
+	SchemaFieldTypeNumber         SchemaFieldType = "Number"
 	SchemaFieldTypeReference      SchemaFieldType = "Reference"
 	SchemaFieldTypeCheckbox       SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL            SchemaFieldType = "URL"
@@ -2449,6 +2469,7 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeSelect,
 	SchemaFieldTypeTag,
 	SchemaFieldTypeInteger,
+	SchemaFieldTypeNumber,
 	SchemaFieldTypeReference,
 	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
@@ -2459,7 +2480,7 @@ var AllSchemaFieldType = []SchemaFieldType{
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypeGeometryObject, SchemaFieldTypeGeometryEditor:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeNumber, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypeGeometryObject, SchemaFieldTypeGeometryEditor:
 		return true
 	}
 	return false

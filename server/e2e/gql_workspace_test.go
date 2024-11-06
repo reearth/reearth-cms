@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/app"
@@ -270,7 +271,8 @@ func TestRemoveUserFromWorkspace(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, w.Members().HasUser(uId3))
 
-	query := fmt.Sprintf(`mutation { removeUserFromWorkspace(input: {workspaceId: "%s", userId: "%s"}){ workspace{ id } }}`, wId2, uId3)
+	uIds := accountdomain.UserIDList{uId2, uId3}
+	query := fmt.Sprintf(`mutation { removeMultipleMembersFromWorkspace(input: {workspaceId: "%s", userIds: ["%s"]}){ workspace{ id } }}`, wId2, strings.Join(uIds.Strings(), "\", \""))
 	request := GraphQLRequest{
 		Query: query,
 	}

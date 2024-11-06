@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,6 +13,7 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -23,7 +24,9 @@ import useHooks from "./hooks";
 type Props = {
   visible: boolean;
   loading: boolean;
-  correspondingFieldId: string;
+  fieldId: string;
+  itemGroupId?: string;
+  correspondingField?: CorrespondingField;
   linkedItemsModalList?: FormItem[];
   linkedItem?: string;
   linkItemModalTitle?: string;
@@ -35,13 +38,19 @@ type Props = {
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
   onChange?: (value: string) => void;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
 };
 
 const LinkItemModal: React.FC<Props> = ({
   visible,
   loading,
-  correspondingFieldId,
+  fieldId,
+  itemGroupId,
+  correspondingField,
   linkedItemsModalList,
   linkedItem,
   linkItemModalTitle,
@@ -55,7 +64,6 @@ const LinkItemModal: React.FC<Props> = ({
   onChange,
   onCheckItemReference,
 }) => {
-  const [hoveredAssetId, setHoveredItemId] = useState<string>();
   const t = useT();
   const { confirm } = Modal;
   const { value, pagination, handleInput } = useHooks(
@@ -72,16 +80,27 @@ const LinkItemModal: React.FC<Props> = ({
     [onLinkItemTableReload],
   );
 
+  const handleChange = useCallback(
+    (value: string) => {
+      onChange?.(value);
+      onLinkItemModalCancel();
+    },
+    [onChange, onLinkItemModalCancel],
+  );
+
   const handleClick = useCallback(
     async (link: boolean, item: FormItem) => {
       if (!link) {
-        onChange?.("");
-        onLinkItemModalCancel();
+        handleChange("");
         return;
       }
 
-      const isReferenced = await onCheckItemReference(item.id, correspondingFieldId);
+      if (!correspondingField) {
+        handleChange(item.id);
+        return;
+      }
 
+      const isReferenced = await onCheckItemReference(item.id, fieldId, itemGroupId);
       if (isReferenced) {
         confirm({
           title: t("This item has been referenced"),
@@ -90,16 +109,14 @@ const LinkItemModal: React.FC<Props> = ({
           ),
           icon: <Icon icon="exclamationCircle" />,
           onOk() {
-            onChange?.(item.id);
-            onLinkItemModalCancel();
+            handleChange(item.id);
           },
         });
       } else {
-        onChange?.(item.id);
-        onLinkItemModalCancel();
+        handleChange(item.id);
       }
     },
-    [confirm, correspondingFieldId, onChange, onCheckItemReference, onLinkItemModalCancel, t],
+    [confirm, correspondingField, fieldId, handleChange, itemGroupId, onCheckItemReference, t],
   );
 
   const columns: StretchColumn<FormItem>[] = useMemo(
@@ -112,16 +129,12 @@ const LinkItemModal: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         render: (_, item) => {
-          const link =
-            (item.id === linkedItem && hoveredAssetId !== item.id) ||
-            (item.id !== linkedItem && hoveredAssetId === item.id);
+          const isLink = item.id !== linkedItem;
           return (
             <Button
               type="link"
-              onMouseEnter={() => setHoveredItemId(item.id)}
-              onMouseLeave={() => setHoveredItemId(undefined)}
-              icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
-              onClick={() => handleClick(link, item)}
+              icon={<Icon icon={isLink ? "arrowUpRight" : "arrowUpRightSlash"} size={18} />}
+              onClick={() => handleClick(isLink, item)}
             />
           );
         },
@@ -166,7 +179,7 @@ const LinkItemModal: React.FC<Props> = ({
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
     ],
-    [t, linkedItem, hoveredAssetId, handleClick],
+    [t, linkedItem, handleClick],
   );
 
   const toolbar: ListToolBarProps = useMemo(
@@ -196,9 +209,7 @@ const LinkItemModal: React.FC<Props> = ({
       onCancel={onLinkItemModalCancel}
       styles={{
         body: {
-          minHeight: "50vh",
-          position: "relative",
-          padding: "12px",
+          height: "70vh",
         },
       }}>
       <ResizableProTable

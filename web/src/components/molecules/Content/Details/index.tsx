@@ -31,6 +31,7 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
+  title: string;
   item?: Item;
   itemId?: string;
   itemLoading: boolean;
@@ -103,7 +104,11 @@ type Props = {
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
   onNavigateToRequest: (id: string) => void;
 };
 
@@ -121,6 +126,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   modelsMenu,
   initialFormValues,
   initialMetaFormValues,
+  title,
   item,
   itemId,
   itemLoading,
@@ -202,6 +208,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           <NotFound />
         ) : (
           <ContentForm
+            title={title}
             item={item}
             hasRequestCreateRight={hasRequestCreateRight}
             hasRequestUpdateRight={hasRequestUpdateRight}

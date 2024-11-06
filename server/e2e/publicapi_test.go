@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -204,16 +203,42 @@ func TestPublicAPI(t *testing.T) {
 			"error": "not found",
 		})
 
+	e.GET("/api/p/{project}/assets", publicAPIProjectAlias).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"hasMore": false,
+			"limit":   50,
+			"offset":  0,
+			"page":    1,
+			"results": []map[string]any{
+				map[string]any{
+					"id":          publicAPIAsset1ID.String(),
+					"type":        "asset",
+					"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+					"contentType": "application/zip",
+					"files": []string{
+						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+					},
+				},
+			},
+			"totalCount": 1,
+		})
+
 	e.GET("/api/p/{project}/assets/{assetid}", publicAPIProjectAlias, publicAPIAsset1ID).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
 		IsEqual(map[string]any{
-			"type": "asset",
-			"id":   publicAPIAsset1ID.String(),
-			"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+			"type":        "asset",
+			"id":          publicAPIAsset1ID.String(),
+			"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+			"contentType": "application/zip",
 			"files": []string{
 				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
+				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
 			},
 		})
 
@@ -355,28 +380,29 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 
 	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID()).
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
-	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
+	c := []*asset.File{asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build(), asset.NewFile().Name("ccc.txt").Path("aaa/ccc.txt").Build()}
+	af := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(10).Children(c).Build()
 
 	fid := id.NewFieldID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 	s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(key.New(publicAPIField1Key)).MustBuild(),
-		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(publicAPIField2Key).Key(key.New(publicAPIField2Key)).MustBuild(),
-		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name(publicAPIField3Key).Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
-		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(publicAPIField4Key).Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
-		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name(publicAPIField5Key).Key(key.New(publicAPIField5Key)).MustBuild(),
-		schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name(publicAPIField6Key).Key(key.New(publicAPIField6Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(id.NewKey(publicAPIField1Key)).MustBuild(),
+		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(publicAPIField2Key).Key(id.NewKey(publicAPIField2Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name(publicAPIField3Key).Key(id.NewKey(publicAPIField3Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(publicAPIField4Key).Key(id.NewKey(publicAPIField4Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name(publicAPIField5Key).Key(id.NewKey(publicAPIField5Key)).MustBuild(),
+		schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name(publicAPIField6Key).Key(id.NewKey(publicAPIField6Key)).MustBuild(),
 	}).TitleField(fid.Ref()).MustBuild()
 
 	s2 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(key.New(publicAPIField1Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(id.NewKey(publicAPIField1Key)).MustBuild(),
 	}).MustBuild()
 
-	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
+	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(id.NewKey(publicAPIModelKey)).MustBuild()
 	// m2 is not a public model
-	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Name(publicAPIModelKey2).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
-	m3 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s2.ID()).Name(publicAPIModelKey3).Key(key.New(publicAPIModelKey3)).Public(true).MustBuild()
+	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Name(publicAPIModelKey2).Key(id.NewKey(publicAPIModelKey2)).Public(false).MustBuild()
+	m3 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s2.ID()).Name(publicAPIModelKey3).Key(id.NewKey(publicAPIModelKey3)).Public(true).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),

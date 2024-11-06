@@ -43,12 +43,22 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 			Object().
 			HasValue("page", 1).
 			HasValue("perPage", 10).
-			HasValue("totalCount", 5).
+			HasValue("totalCount", 6).
 			Value("models").
 			Array()
-		models.Length().IsEqual(5)
+		models.Length().IsEqual(6)
 
-		obj1 := models.Value(0).Object()
+		obj0 := models.Value(0).Object()
+		obj0.
+			HasValue("id", mId0.String()).
+			HasValue("name", "m0").
+			HasValue("description", "m0 desc").
+			HasValue("public", true).
+			HasValue("key", ikey0.String()).
+			HasValue("projectId", pid).
+			HasValue("schemaId", sid0)
+
+		obj1 := models.Value(1).Object()
 		obj1.
 			HasValue("id", mId1.String()).
 			HasValue("name", "m1").
@@ -62,7 +72,7 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 		obj1.Value("updatedAt").NotNull()
 		obj1.Value("lastModified").NotNull()
 
-		obj2 := models.Value(1).Object()
+		obj2 := models.Value(2).Object()
 		obj2.
 			HasValue("id", mId2.String()).
 			HasValue("name", "m2").
@@ -151,8 +161,54 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusBadRequest)
 
-	// region bool
+	// region text
 	res := e.POST(endpoint, sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"key":      "テスト",
+			"type":     "text",
+			"multiple": false,
+			"required": false,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.ContainsKey("id")
+
+	res = e.GET("/api/models/{modelId}", mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.ContainsSubset(map[string]any{
+		"name":        "m1",
+		"id":          mId1.String(),
+		"description": "m1 desc",
+		"public":      true,
+		"key":         ikey1.String(),
+		"projectId":   pid,
+		"schemaId":    sid1,
+	})
+
+	res.Value("createdAt").NotNull()
+	res.Value("updatedAt").NotNull()
+	res.Value("lastModified").NotNull()
+	resf := res.Value("schema").Object().Value("fields").Array()
+	resf.Length().IsEqual(3)
+	resf.Value(2).Object().ContainsSubset(map[string]any{
+		// "id":    "", // generated
+		"key":      "テスト",
+		"type":     "text",
+		"required": false,
+	})
+	// endregion
+
+	//region bool
+	res = e.POST(endpoint, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"key":      "fKey1",
@@ -185,13 +241,65 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	res.Value("createdAt").NotNull()
 	res.Value("updatedAt").NotNull()
 	res.Value("lastModified").NotNull()
+	resf = res.Value("schema").Object().Value("fields").Array()
+	resf.Length().IsEqual(4)
+	resf.Value(3).Object().ContainsSubset(map[string]any{
+		// "id":    "", // generated
+		"key":      "fKey1",
+		"type":     "bool",
+		"required": false,
+	})
+	// endregion
+
+	//region number
+	res = e.POST(endpoint, sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"key":      "fKey2",
+			"type":     "number",
+			"multiple": false,
+			"required": false,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.ContainsKey("id")
+
+	res = e.GET("/api/models/{modelId}", mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.HasValue("id", mId1.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
+		HasValue("public", true).
+		HasValue("key", ikey1.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid1)
+
+	res.Value("createdAt").NotNull()
+	res.Value("updatedAt").NotNull()
+	res.Value("lastModified").NotNull()
+	resf = res.Value("schema").Object().Value("fields").Array()
+	resf.Length().IsEqual(5)
+	resf.Value(4).Object().ContainsSubset(map[string]any{
+		// "id":    "", // generated
+		"key":      "fKey2",
+		"type":     "number",
+		"required": false,
+	})
 	// endregion
 
 	// region GeoObject
 	res = e.POST(endpoint, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
-			"key":      "fKey2",
+			"key":      "fKey3",
 			"type":     "geometryObject",
 			"multiple": false,
 			"required": false,

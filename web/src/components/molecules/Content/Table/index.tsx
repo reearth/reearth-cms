@@ -16,6 +16,7 @@ import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import {
   TableRowSelection,
   ListToolBarProps,
@@ -56,6 +57,7 @@ type Props = {
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
   deleteLoading: boolean;
+  publishLoading: boolean;
   unpublishLoading: boolean;
   selectedItem?: Item;
   selectedItems: { selectedRows: { itemId: string; version?: string }[] };
@@ -77,6 +79,7 @@ type Props = {
   onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
   requests: Request[];
@@ -97,6 +100,7 @@ const ContentTable: React.FC<Props> = ({
   contentTableColumns,
   loading,
   deleteLoading,
+  publishLoading,
   unpublishLoading,
   selectedItem,
   selectedItems,
@@ -116,6 +120,7 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onPublish,
   onUnpublish,
   onSearchTerm,
   onFilterChange,
@@ -290,11 +295,37 @@ const ContentTable: React.FC<Props> = ({
     [onSelect, selectedItems.selectedRows],
   );
 
+  const publishConfirm = useCallback(
+    (itemIds: string[]) => {
+      Modal.confirm({
+        title: t("Publish items"),
+        content: t("All selected items will be published. You can unpublish them anytime."),
+        icon: <Icon icon="exclamationCircle" />,
+        cancelText: t("No"),
+        okText: t("Yes"),
+        async onOk() {
+          await onPublish(itemIds);
+        },
+      });
+    },
+    [onPublish, t],
+  );
+
   const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
         <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="upload" />}
+            onClick={() => {
+              publishConfirm(props.selectedRowKeys);
+            }}
+            loading={publishLoading}>
+            {t("Publish")}
+          </Button>
           <Button
             type="link"
             size="small"
@@ -311,13 +342,6 @@ const ContentTable: React.FC<Props> = ({
             loading={unpublishLoading}
             disabled={!hasPublishRight}>
             {t("Unpublish")}
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            icon={<Icon icon="clear" />}
-            onClick={props.onCleanSelected}>
-            {t("Deselect")}
           </Button>
           <Button
             type="link"
@@ -340,6 +364,8 @@ const ContentTable: React.FC<Props> = ({
       onAddItemToRequestModalOpen,
       onItemDelete,
       onUnpublish,
+      publishConfirm,
+      publishLoading,
       t,
       unpublishLoading,
     ],
@@ -540,7 +566,7 @@ const ContentTable: React.FC<Props> = ({
   const sharedProps = useMemo(
     () => ({
       menu: { items },
-      dropdownRender: (menu: React.ReactNode): React.ReactNode => (
+      dropdownRender: (menu: React.ReactNode) => (
         <Wrapper>
           <InputWrapper>
             <Input
@@ -549,7 +575,7 @@ const ContentTable: React.FC<Props> = ({
               onChange={handleChange}
             />
           </InputWrapper>
-          {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
+          {React.cloneElement(menu as React.ReactElement)}
         </Wrapper>
       ),
       arrow: false,
@@ -894,10 +920,15 @@ const Wrapper = styled.div`
     0 3px 6px -4px rgba(0, 0, 0, 0.12),
     0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  .ant-dropdown-menu {
+    box-shadow: none;
+    overflow-y: auto;
+    max-height: 256px;
+    max-width: 332px;
+    .ant-dropdown-menu-title-content {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 `;
-
-const menuStyle: React.CSSProperties = {
-  boxShadow: "none",
-  overflowY: "auto",
-  maxHeight: "256px",
-};

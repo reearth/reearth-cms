@@ -1,22 +1,6 @@
 name: ci-web
 on:
-  push:
-    branches: [main, release]
-    paths:
-      - web/**
-      - .github/workflows/ci_web.yml
-      - .github/workflows/deploy_test.yml
-      - .github/workflows/pr_title.yml
-      - .github/workflows/stage.yml
-      - .github/workflows/release.yml
-  pull_request:
-    paths:
-      - web/**
-      - .github/workflows/ci_web.yml
-      - .github/workflows/deploy_test.yml
-      - .github/workflows/pr_title.yml
-      - .github/workflows/stage.yml
-      - .github/workflows/release.yml
+  workflow_call:
 jobs:
   ci:
     name: ci
@@ -25,20 +9,12 @@ jobs:
       run:
         working-directory: web
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - uses: actions/checkout@v4
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v4
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
       - name: Install
         run: yarn install
       - name: Lint
@@ -54,10 +30,10 @@ jobs:
       - name: Build
         run: yarn build
       - name: Pack
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
+        if: github.ref_name == 'main' || github.ref_name == 'release'
         run: mv dist reearth-cms-web && tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
       - uses: actions/upload-artifact@v4
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
+        if: github.ref_name == 'main' || github.ref_name == 'release'
         with:
           name: reearth-cms-web
           path: web/reearth-cms-web.tar.gz

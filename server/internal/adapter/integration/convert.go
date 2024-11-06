@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/usecasex"
@@ -53,9 +52,9 @@ func fromItemFieldParam(f integrationapi.Field, sf *schema.Field) interfaces.Ite
 		v = *f.Value
 	}
 
-	var k *key.Key
+	var k *id.Key
 	if f.Key != nil {
-		k = key.New(*f.Key).Ref()
+		k = id.NewKey(*f.Key).Ref()
 	}
 
 	return interfaces.ItemFieldParam{
@@ -114,10 +113,9 @@ func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFiel
 			continue
 		}
 		igID := id.NewItemGroupID()
-		var v any
-		v = []id.ItemGroupID{id.NewItemGroupID()}
-		if !gsf.Multiple() {
-			v = igID
+		var v any = igID
+		if gsf.Multiple() {
+			v = []any{igID}
 		}
 		res = append(res, interfaces.ItemFieldParam{
 			Field: gsf.ID().Ref(),

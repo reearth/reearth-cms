@@ -43,6 +43,7 @@
       "SchemaFieldGroup",
       "SchemaFieldInteger",
       "SchemaFieldMarkdown",
+      "SchemaFieldNumber",
       "SchemaFieldReference",
       "SchemaFieldRichText",
       "SchemaFieldSelect",

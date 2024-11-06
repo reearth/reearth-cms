@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import dayjs from "dayjs";
 import { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -77,7 +76,7 @@ const DropdownRender: React.FC<Props> = ({
             style={{ width: 160 }}
             options={options}
             onSelect={onFilterSelect}
-            defaultValue={defaultValue?.operator ?? options[0].value}
+            defaultValue={options[0].value}
             getPopupContainer={trigger => trigger.parentNode}
           />
         </StyledFormItem>
@@ -91,7 +90,6 @@ const DropdownRender: React.FC<Props> = ({
               <Select
                 placeholder="Select the value"
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value?.toString()}
                 getPopupContainer={trigger => trigger.parentNode}>
                 {valueOptions.map(option => (
                   <Option key={option.value} value={option.value} label={option.label}>
@@ -107,7 +105,6 @@ const DropdownRender: React.FC<Props> = ({
               <InputNumber
                 onChange={onNumberChange}
                 stringMode
-                defaultValue={defaultValue?.value}
                 style={{ width: "100%" }}
                 placeholder="Enter the value"
               />
@@ -117,16 +114,9 @@ const DropdownRender: React.FC<Props> = ({
                 style={{ width: "100%" }}
                 placeholder="Select the date"
                 showNow={false}
-                defaultValue={
-                  defaultValue && defaultValue.value !== "" ? dayjs(defaultValue.value) : undefined
-                }
               />
             ) : (
-              <Input
-                onChange={onInputChange}
-                defaultValue={defaultValue?.value}
-                placeholder="Enter the value"
-              />
+              <Input onChange={onInputChange} placeholder="Enter the value" />
             )}
           </StyledFormItem>
         )}
@@ -166,6 +156,10 @@ const StyledFormItem = styled(Form.Item)`
 
 const TextWrapper = styled.span`
   min-width: 137px;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-align: left;
 `;
 

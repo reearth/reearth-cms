@@ -11,7 +11,7 @@ import {
   useAddUsersToWorkspaceMutation,
   useUpdateMemberOfWorkspaceMutation,
   Role as GQLRole,
-  useRemoveMemberFromWorkspaceMutation,
+  useRemoveMultipleMembersFromWorkspaceMutation,
   Workspace as GQLWorkspace,
   useGetUserBySearchLazyQuery,
   MemberInput as GQLMemberInput,
@@ -173,38 +173,34 @@ export default () => {
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
 
-  const [removeMemberFromWorkspaceMutation] = useRemoveMemberFromWorkspaceMutation();
+  const [RemoveMultipleMembersFromWorkspaceMutation] =
+    useRemoveMultipleMembersFromWorkspaceMutation();
 
   const handleMemberRemoveFromWorkspace = useCallback(
     async (userIds: string[]) => {
       if (!workspaceId) return;
-      const results = await Promise.all(
-        userIds.map(async userId => {
-          const result = await removeMemberFromWorkspaceMutation({
-            variables: { workspaceId, userId },
-          });
-          if (result.errors) {
-            Notification.error({
-              message: t("Failed to remove member(s) from the workspace."),
-            });
-          }
-        }),
-      );
-      if (results) {
+      const result = await RemoveMultipleMembersFromWorkspaceMutation({
+        variables: { workspaceId, userIds },
+      });
+      if (result.errors) {
+        Notification.error({
+          message: t("Failed to remove member(s) from the workspace."),
+        });
+      } else {
         Notification.success({
           message: t("Successfully removed member(s) from the workspace!"),
         });
         setSelection({ selectedRowKeys: [] });
       }
     },
-    [workspaceId, removeMemberFromWorkspaceMutation, t],
+    [workspaceId, RemoveMultipleMembersFromWorkspaceMutation, t],
   );
 
   const handleLeave = useCallback(
     async (userId: string) => {
       if (!workspaceId) return;
-      const result = await removeMemberFromWorkspaceMutation({
-        variables: { workspaceId, userId },
+      const result = await RemoveMultipleMembersFromWorkspaceMutation({
+        variables: { workspaceId, userIds: [userId] },
       });
       if (result.errors) {
         Notification.error({
@@ -218,7 +214,14 @@ export default () => {
         navigate(`/workspace/${me.myWorkspace}`);
       }
     },
-    [workspaceId, removeMemberFromWorkspaceMutation, t, refetchMe, navigate, me.myWorkspace],
+    [
+      workspaceId,
+      RemoveMultipleMembersFromWorkspaceMutation,
+      t,
+      refetchMe,
+      navigate,
+      me.myWorkspace,
+    ],
   );
 
   const handleRoleModalClose = useCallback(() => {

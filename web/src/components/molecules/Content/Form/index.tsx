@@ -40,6 +40,7 @@ import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 type Props = {
+  title: string;
   item?: Item;
   hasRequestCreateRight: boolean;
   hasRequestUpdateRight: boolean;
@@ -121,11 +122,16 @@ type Props = {
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
   onNavigateToRequest: (id: string) => void;
 };
 
 const ContentForm: React.FC<Props> = ({
+  title,
   item,
   hasRequestCreateRight,
   hasRequestUpdateRight,
@@ -500,7 +506,7 @@ const ContentForm: React.FC<Props> = ({
         initialValues={initialFormValues}
         onValuesChange={handleValuesChange}>
         <PageHeader
-          title={model?.name}
+          title={title}
           onBack={onBack}
           extra={
             <>
@@ -747,6 +753,7 @@ const FormItemsWrapper = styled.div`
   max-height: calc(100% - 72px);
   overflow-y: auto;
   padding: 36px;
+  border-top: 1px solid #00000008;
 `;
 
 const SideBarWrapper = styled.div`

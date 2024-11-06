@@ -1,5 +1,6 @@
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { User } from "@reearth-cms/components/molecules/Member/types";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 
 export type Project = {
@@ -12,18 +13,10 @@ export type Project = {
   requestRoles?: Role[];
 };
 
-export type User = {
-  name: string;
-};
-
 export type UserMember = {
   userId: string;
   role: Role;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  user: User;
 };
 
 export type Member = UserMember | IntegrationMember;
