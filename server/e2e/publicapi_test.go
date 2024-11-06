@@ -22,27 +22,31 @@ import (
 )
 
 var (
-	publicAPIProjectID    = id.NewProjectID()
-	publicAPIModelID      = id.NewModelID()
-	publicAPIItem1ID      = id.NewItemID()
-	publicAPIItem2ID      = id.NewItemID()
-	publicAPIItem3ID      = id.NewItemID()
-	publicAPIItem4ID      = id.NewItemID()
-	publicAPIItem6ID      = id.NewItemID()
-	publicAPIItem7ID      = id.NewItemID()
-	publicAPIAsset1ID     = id.NewAssetID()
-	publicAPIAsset2ID     = id.NewAssetID()
-	publicAPIAssetUUID    = uuid.NewString()
-	publicAPIProjectAlias = "test-project"
-	publicAPIModelKey     = "test-model"
-	publicAPIModelKey2    = "test-model-2"
-	publicAPIModelKey3    = "test-model-3"
-	publicAPIField1Key    = "test-field-1"
-	publicAPIField2Key    = "asset"
-	publicAPIField3Key    = "test-field-2"
-	publicAPIField4Key    = "asset2"
-	publicAPIField5Key    = "geometry-object"
-	publicAPIField6Key    = "geometry-editor"
+	publicAPIProjectID     = id.NewProjectID()
+	publicAPIProjectID2    = id.NewProjectID()
+	publicAPIModelID       = id.NewModelID()
+	publicAPIModelID2      = id.NewModelID()
+	publicAPIItem1ID       = id.NewItemID()
+	publicAPIItem2ID       = id.NewItemID()
+	publicAPIItem3ID       = id.NewItemID()
+	publicAPIItem4ID       = id.NewItemID()
+	publicAPIItem6ID       = id.NewItemID()
+	publicAPIItem7ID       = id.NewItemID()
+	publicAPIAsset1ID      = id.NewAssetID()
+	publicAPIAsset2ID      = id.NewAssetID()
+	publicAPIAssetUUID     = uuid.NewString()
+	publicAPIProjectAlias  = "test-project"
+	publicAPIProjectAlias2 = "test-project-2"
+	publicAPIModelKey      = "test-model"
+	publicAPIModelKey2     = "test-model-2"
+	publicAPIModelKey3     = "test-model-3"
+	publicAPIModelKey4     = "test-model-4"
+	publicAPIField1Key     = "test-field-1"
+	publicAPIField2Key     = "asset"
+	publicAPIField3Key     = "test-field-2"
+	publicAPIField4Key     = "asset2"
+	publicAPIField5Key     = "geometry-object"
+	publicAPIField6Key     = "geometry-editor"
 )
 
 func TestPublicAPI(t *testing.T) {
@@ -450,12 +454,24 @@ func TestPublicAPI(t *testing.T) {
 			"offset":     0,
 			"page":       1,
 		})
+
+	// different project in the same workspace
+	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias2, publicAPIModelKey2).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("Authorization", token).
+		WithHeader("Content-Type", "application/json").
+		Expect().
+		Status(http.StatusNotFound)
 }
 
 func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	uid := accountdomain.NewUserID()
-	p1 := project.New().ID(publicAPIProjectID).Workspace(accountdomain.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
+	wid := accountdomain.NewWorkspaceID()
+	p1 := project.New().ID(publicAPIProjectID).Workspace(wid).Alias(publicAPIProjectAlias).Publication(
 		project.NewPublication(project.PublicationScopePublic, true),
+	).MustBuild()
+	p2 := project.New().ID(publicAPIProjectID2).Workspace(wid).Alias(publicAPIProjectAlias2).Publication(
+		project.NewPublicationWithToken(project.PublicationScopeLimited, true, "secret_abcdefghijklmnopqrstuvwxyz"),
 	).MustBuild()
 
 	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID()).
@@ -483,6 +499,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	// m2 is not a public model
 	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Name(publicAPIModelKey2).Key(id.NewKey(publicAPIModelKey2)).Public(false).MustBuild()
 	m3 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s2.ID()).Name(publicAPIModelKey3).Key(id.NewKey(publicAPIModelKey3)).Public(true).MustBuild()
+	m4 := model.New().ID(publicAPIModelID2).Project(p2.ID()).Schema(id.NewSchemaID()).Key(id.NewKey(publicAPIModelKey4)).Public(true).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
@@ -524,10 +541,12 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	}).MustBuild()
 
 	lo.Must0(r.Project.Save(ctx, p1))
+	lo.Must0(r.Project.Save(ctx, p2))
 	lo.Must0(r.Asset.Save(ctx, a))
 	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af))
 	lo.Must0(r.Schema.Save(ctx, s))
 	lo.Must0(r.Model.Save(ctx, m))
+	lo.Must0(r.Model.Save(ctx, m4))
 	lo.Must0(r.Item.Save(ctx, i1))
 	lo.Must0(r.Item.Save(ctx, i2))
 	lo.Must0(r.Item.Save(ctx, i3))
