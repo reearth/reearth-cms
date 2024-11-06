@@ -23,10 +23,13 @@ import { useT } from "@reearth-cms/i18n";
 type Props = {
   data?: Model | Group;
   collapsed: boolean;
+  selectedSchemaType: SelectedSchemaType;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   onModalOpen: () => void;
   onDeletionModalOpen: () => void;
   modelsMenu: JSX.Element;
-  selectedSchemaType: SelectedSchemaType;
   setIsMeta: (isMeta: boolean) => void;
   onCollapse: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void>;
@@ -38,10 +41,13 @@ type Props = {
 const Schema: React.FC<Props> = ({
   data,
   collapsed,
+  selectedSchemaType,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   onModalOpen,
   onDeletionModalOpen,
   modelsMenu,
-  selectedSchemaType,
   setIsMeta,
   onCollapse,
   onFieldReorder,
@@ -59,6 +65,7 @@ const Schema: React.FC<Props> = ({
         label: t("Edit"),
         icon: <StyledIcon icon="edit" />,
         onClick: onModalOpen,
+        disabled: !hasUpdateRight,
       },
       {
         key: "delete",
@@ -66,9 +73,10 @@ const Schema: React.FC<Props> = ({
         icon: <StyledIcon icon="delete" />,
         onClick: onDeletionModalOpen,
         danger: true,
+        disabled: !hasDeleteRight,
       },
     ],
-    [onDeletionModalOpen, onModalOpen, t],
+    [hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
   );
 
   const DropdownMenu = useCallback(
@@ -88,6 +96,8 @@ const Schema: React.FC<Props> = ({
         <div>
           <ModelFieldList
             fields={data?.schema.fields}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -103,6 +113,8 @@ const Schema: React.FC<Props> = ({
           <ModelFieldList
             isMeta={true}
             fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -148,6 +160,8 @@ const Schema: React.FC<Props> = ({
                 <GroupFieldsWrapper>
                   <ModelFieldList
                     fields={data?.schema?.fields}
+                    hasUpdateRight={hasUpdateRight}
+                    hasDeleteRight={hasDeleteRight}
                     handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
                     onFieldReorder={onFieldReorder}
                     onFieldDelete={onFieldDelete}
@@ -163,6 +177,7 @@ const Schema: React.FC<Props> = ({
           <FieldList
             currentTab={tab}
             selectedSchemaType={selectedSchemaType}
+            hasCreateRight={hasCreateRight}
             addField={onFieldCreationModalOpen}
           />
         </FieldListWrapper>

@@ -63,6 +63,10 @@ const ContentDetails: React.FC = () => {
     handleAddItemToRequestModalOpen,
     handleGroupGet,
     handleCheckItemReference,
+    hasRequestCreateRight,
+    hasRequestUpdateRight,
+    hasPublishRight,
+    hasItemUpdateRight,
   } = useHooks();
 
   const {
@@ -92,6 +96,10 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      hasRequestCreateRight={hasRequestCreateRight}
+      hasRequestUpdateRight={hasRequestUpdateRight}
+      hasPublishRight={hasPublishRight}
+      hasItemUpdateRight={hasItemUpdateRight}
       linkItemModalTitle={linkItemModalTitle}
       linkItemModalTotalCount={linkItemModalTotalCount}
       linkItemModalPage={linkItemModalPage}

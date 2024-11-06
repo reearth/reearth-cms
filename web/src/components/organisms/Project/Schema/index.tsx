@@ -77,6 +77,9 @@ const ProjectSchema: React.FC = () => {
     groupDeletionModalShown,
     modelModalShown,
     modelDeletionModalShown,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
   } = useHooks();
 
   return (
@@ -85,6 +88,9 @@ const ProjectSchema: React.FC = () => {
         data={data}
         collapsed={collapsed}
         selectedSchemaType={selectedSchemaType}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         onModalOpen={handleModalOpen}
         onDeletionModalOpen={handleDeletionModalOpen}
         modelsMenu={
@@ -92,10 +98,10 @@ const ProjectSchema: React.FC = () => {
             title={t("Schema")}
             collapsed={collapsed}
             selectedSchemaType={selectedSchemaType}
-            onModelSelect={handleModelSelect}
-            onGroupSelect={handleGroupSelect}
             displayGroups
             titleIcon={"unorderedList"}
+            onModelSelect={handleModelSelect}
+            onGroupSelect={handleGroupSelect}
           />
         }
         setIsMeta={setIsMeta}

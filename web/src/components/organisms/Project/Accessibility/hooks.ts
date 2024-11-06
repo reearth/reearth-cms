@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
@@ -12,11 +12,16 @@ import {
   useUpdateProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject } from "@reearth-cms/state";
+import { useProject, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const [currentProject] = useProject();
+  const [userRights] = useUserRights();
+  const hasPublishRight = useMemo(
+    () => !!userRights?.project.publish,
+    [userRights?.project.publish],
+  );
 
   const [models, setModels] = useState<Model[]>();
   const [scope, setScope] = useState(currentProject?.scope);
@@ -150,6 +155,7 @@ export default () => {
     aliasState,
     assetState,
     isSaveDisabled,
+    hasPublishRight,
     handlePublicUpdate,
     handleUpdatedAssetState,
     handleUpdatedModels,

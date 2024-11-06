@@ -24,6 +24,8 @@ const AssetList: React.FC = () => {
     sort,
     searchTerm,
     columns,
+    hasCreateRight,
+    hasDeleteRight,
     handleColumnsChange,
     handleToggleCommentMenu,
     handleAssetItemSelect,
@@ -31,7 +33,7 @@ const AssetList: React.FC = () => {
     handleUploadModalCancel,
     setUploadUrl,
     setUploadType,
-    setSelection,
+    handleSelect,
     setFileList,
     setUploadModalVisibility,
     handleAssetsCreate,
@@ -76,6 +78,8 @@ const AssetList: React.FC = () => {
       deleteLoading={deleteLoading}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      hasCreateRight={hasCreateRight}
+      hasDeleteRight={hasDeleteRight}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetSelect={handleAssetSelect}
       onUploadModalCancel={handleUploadModalCancel}
@@ -88,7 +92,7 @@ const AssetList: React.FC = () => {
       onAssetsReload={handleAssetsReload}
       onSearchTerm={handleSearchTerm}
       onEdit={handleNavigateToAsset}
-      setSelection={setSelection}
+      onSelect={handleSelect}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
     />
