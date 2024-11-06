@@ -13,6 +13,8 @@ type Props = {
   selectedKey?: string;
   models?: Model[];
   collapsed: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
   onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
@@ -22,6 +24,8 @@ const ModelsList: React.FC<Props> = ({
   selectedKey,
   models,
   collapsed,
+  hasCreateRight,
+  hasUpdateRight,
   onModalOpen,
   onModelSelect,
   onUpdateModelsOrder,
@@ -91,7 +95,11 @@ const ModelsList: React.FC<Props> = ({
         <Header>
           <SchemaAction>
             <SchemaStyledMenuTitle>{t("MODELS")}</SchemaStyledMenuTitle>
-            <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
+            <SchemaAddButton
+              onClick={onModalOpen}
+              icon={<Icon icon="plus" />}
+              type="link"
+              disabled={!hasCreateRight}>
               {!collapsed && t("Add")}
             </SchemaAddButton>
           </SchemaAction>
@@ -99,7 +107,7 @@ const ModelsList: React.FC<Props> = ({
       )}
       <MenuWrapper>
         <ReactDragListView
-          nodeSelector=".ant-menu-item"
+          nodeSelector={hasUpdateRight ? ".ant-menu-item" : undefined}
           lineClassName="dragLine"
           onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
           <StyledMenu
@@ -126,13 +134,7 @@ const SchemaAction = styled.div<{ collapsed?: boolean }>`
 `;
 
 const SchemaAddButton = styled(Button)`
-  color: #1890ff;
   padding: 4px;
-  &:hover,
-  &:active,
-  &:focus {
-    color: #1890ff;
-  }
 `;
 
 const SchemaStyledMenuTitle = styled.h1`

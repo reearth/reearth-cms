@@ -22,7 +22,6 @@ type Props = {
     id?: string;
     myWorkspace?: string;
   };
-  isOwner: boolean;
   isAbleToLeave: boolean;
   handleMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
   onLeave: (userId: string) => Promise<void>;
@@ -39,11 +38,13 @@ type Props = {
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
   onReload: () => void;
+  hasInviteRight: boolean;
+  hasRemoveRight: boolean;
+  hasChangeRoleRight: boolean;
 };
 
 const MemberTable: React.FC<Props> = ({
   me,
-  isOwner,
   isAbleToLeave,
   handleMemberRemoveFromWorkspace,
   onLeave,
@@ -58,6 +59,9 @@ const MemberTable: React.FC<Props> = ({
   onTableChange,
   loading,
   onReload,
+  hasInviteRight,
+  hasRemoveRight,
+  hasChangeRoleRight,
 }) => {
   const t = useT();
 
@@ -167,7 +171,7 @@ const MemberTable: React.FC<Props> = ({
             <ActionButton
               type="link"
               onClick={() => handleRoleModalOpen(member)}
-              disabled={!isOwner || member.userId === me.id}>
+              disabled={!hasChangeRoleRight || member.userId === me.id}>
               {t("Change Role?")}
             </ActionButton>
             <Divider type="vertical" />
@@ -185,7 +189,8 @@ const MemberTable: React.FC<Props> = ({
                 type="link"
                 onClick={() => {
                   handleMemberDelete([member.user]);
-                }}>
+                }}
+                disabled={!hasRemoveRight}>
                 {t("Remove")}
               </ActionButton>
             )}
@@ -195,9 +200,10 @@ const MemberTable: React.FC<Props> = ({
     [
       workspaceUserMembers,
       t,
-      isOwner,
+      hasChangeRoleRight,
       me.id,
       isAbleToLeave,
+      hasRemoveRight,
       handleRoleModalOpen,
       leaveConfirm,
       handleMemberDelete,
@@ -247,11 +253,17 @@ const MemberTable: React.FC<Props> = ({
   const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => (
-      <DeleteButton onClick={() => handleMemberDelete(props.selectedRows)}>
-        <Icon icon="userGroupDelete" /> {t("Remove")}
-      </DeleteButton>
+      <Button
+        type="link"
+        size="small"
+        icon={<Icon icon="userGroupDelete" />}
+        onClick={() => handleMemberDelete(props.selectedRows)}
+        danger
+        disabled={!hasRemoveRight}>
+        {t("Remove")}
+      </Button>
     ),
-    [handleMemberDelete, t],
+    [handleMemberDelete, t, hasRemoveRight],
   );
 
   const options = useMemo(
@@ -269,7 +281,8 @@ const MemberTable: React.FC<Props> = ({
           <Button
             type="primary"
             onClick={handleMemberAddModalOpen}
-            icon={<Icon icon="userGroupAdd" />}>
+            icon={<Icon icon="userGroupAdd" />}
+            disabled={!hasInviteRight}>
             {t("New Member")}
           </Button>
         }
@@ -338,13 +351,6 @@ const TableWrapper = styled.div`
 const ActionButton = styled(Button)`
   padding-left: 0;
   padding-right: 0;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
-  :hover {
-    color: #ff7875b3;
-  }
 `;
 
 export default MemberTable;

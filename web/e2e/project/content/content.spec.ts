@@ -51,7 +51,11 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
 test("Publishing and Unpublishing item has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await page.getByText("Content").click();
+  await page.getByText("Settings").first().click();
+  await page.getByRole("row", { name: "Owner" }).getByRole("switch").click();
+  await page.getByRole("button", { name: "Save changes" }).last().click();
+  await closeNotification(page);
+  await page.getByText("Content").first().click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text");

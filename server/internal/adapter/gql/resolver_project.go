@@ -85,6 +85,21 @@ func (r *mutationResolver) DeleteProject(ctx context.Context, input gqlmodel.Del
 	return &gqlmodel.DeleteProjectPayload{ProjectID: input.ProjectID}, nil
 }
 
+// RegeneratePublicAPIToken is the resolver for the regeneratePublicApiToken field.
+func (r *mutationResolver) RegeneratePublicAPIToken(ctx context.Context, input gqlmodel.RegeneratePublicAPITokenInput) (*gqlmodel.ProjectPayload, error) {
+	pid, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := usecases(ctx).Project.RegenerateToken(ctx, pid, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.ProjectPayload{Project: gqlmodel.ToProject(p)}, nil
+}
+
 // Workspace is the resolver for the workspace field.
 func (r *projectResolver) Workspace(ctx context.Context, obj *gqlmodel.Project) (*gqlmodel.Workspace, error) {
 	return dataloaders(ctx).Workspace.Load(obj.WorkspaceID)

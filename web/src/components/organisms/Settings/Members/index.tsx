@@ -7,7 +7,6 @@ import useHooks from "./hooks";
 const Members: React.FC = () => {
   const {
     me,
-    isOwner,
     isAbleToLeave,
     searchedUser,
     handleSearchTerm,
@@ -37,13 +36,15 @@ const Members: React.FC = () => {
     handleTableChange,
     loading,
     handleReload,
+    hasInviteRight,
+    hasRemoveRight,
+    hasChangeRoleRight,
   } = useHooks();
 
   return (
     <>
       <MemberTable
         me={me}
-        isOwner={isOwner}
         isAbleToLeave={isAbleToLeave}
         handleMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
         onLeave={handleLeave}
@@ -58,6 +59,9 @@ const Members: React.FC = () => {
         onTableChange={handleTableChange}
         loading={loading}
         onReload={handleReload}
+        hasInviteRight={hasInviteRight}
+        hasRemoveRight={hasRemoveRight}
+        hasChangeRoleRight={hasChangeRoleRight}
       />
       {selectedMember && (
         <MemberRoleModal
