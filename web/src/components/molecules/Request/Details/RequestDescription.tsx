@@ -66,11 +66,10 @@ export const RequestDescription: React.FC<Props> = ({
           <RequestItemsWrapper>
             {currentRequest.items
               .filter(item => item.schema)
-              .map((item, index) => (
-                <Collapse key={index}>
+              .map(item => (
+                <Collapse key={item.id}>
                   <StyledPanel header={headerGet(item)} key={1}>
                     <RequestItemForm
-                      key={index}
                       schema={item.schema}
                       initialFormValues={item.initialValues}
                       referencedItems={item.referencedItems}
