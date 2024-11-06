@@ -10,6 +10,7 @@ const Accessibility: React.FC = () => {
     aliasState,
     assetState,
     isSaveDisabled,
+    hasPublishRight,
     handlePublicUpdate,
     handleUpdatedAssetState,
     handleUpdatedModels,
@@ -24,6 +25,7 @@ const Accessibility: React.FC = () => {
       aliasState={aliasState}
       assetState={assetState}
       isSaveDisabled={isSaveDisabled}
+      hasPublishRight={hasPublishRight}
       handlePublicUpdate={handlePublicUpdate}
       handleUpdatedAssetState={handleUpdatedAssetState}
       handleUpdatedModels={handleUpdatedModels}

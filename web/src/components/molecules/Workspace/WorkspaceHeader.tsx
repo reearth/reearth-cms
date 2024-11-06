@@ -7,12 +7,14 @@ import Search from "@reearth-cms/components/atoms/Search";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  hasCreateRight: boolean;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
   onWorkspaceModalOpen: () => void;
 };
 
 const WorkspaceHeader: React.FC<Props> = ({
+  hasCreateRight,
   onProjectSearch,
   onProjectModalOpen,
   onWorkspaceModalOpen,
@@ -29,7 +31,11 @@ const WorkspaceHeader: React.FC<Props> = ({
       />
       <ButtonWrapper>
         <Button onClick={onWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
-        <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
+        <Button
+          onClick={onProjectModalOpen}
+          type="primary"
+          icon={<Icon icon="plus" />}
+          disabled={!hasCreateRight}>
           {t("New Project")}
         </Button>
       </ButtonWrapper>

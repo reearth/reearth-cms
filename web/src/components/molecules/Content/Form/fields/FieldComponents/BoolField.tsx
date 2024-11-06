@@ -9,7 +9,7 @@ type BoolFieldProps = {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => void;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {

@@ -76,7 +76,7 @@ type Props = {
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
-  setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
@@ -90,6 +90,10 @@ type Props = {
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
+  hasDeleteRight: boolean;
+  hasPublishRight: boolean;
+  hasRequestUpdateRight: boolean;
+  showPublishAction: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -123,13 +127,17 @@ const ContentTable: React.FC<Props> = ({
   onFilterChange,
   onContentTableChange,
   onItemSelect,
-  setSelectedItems,
+  onSelect,
   onItemEdit,
   onItemDelete,
   onItemsReload,
   modelKey,
   onRequestSearchTerm,
   onRequestTableReload,
+  hasDeleteRight,
+  hasPublishRight,
+  hasRequestUpdateRight,
+  showPublishAction,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -226,8 +234,8 @@ const ContentTable: React.FC<Props> = ({
         sortOrder: sortOrderGet("CREATION_USER"),
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.createdBy} size={"small"} />
-            {item.createdBy}
+            <UserAvatar username={item.createdBy.name} size={"small"} />
+            {item.createdBy.name}
           </Space>
         ),
         sorter: true,
@@ -284,14 +292,9 @@ const ContentTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
-      onChange: (_selectedRowKeys: Key[], selectedRows: Item[]) => {
-        setSelectedItems({
-          ...selectedItems,
-          selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
-        });
-      },
+      onChange: onSelect,
     }),
-    [selectedItems, setSelectedItems],
+    [onSelect, selectedItems.selectedRows],
   );
 
   const publishConfirm = useCallback(
@@ -322,14 +325,16 @@ const ContentTable: React.FC<Props> = ({
             onClick={() => {
               publishConfirm(props.selectedRowKeys);
             }}
-            loading={publishLoading}>
+            loading={publishLoading}
+            disabled={!hasPublishRight || !showPublishAction}>
             {t("Publish")}
           </Button>
           <Button
             type="link"
             size="small"
             icon={<Icon icon="plus" />}
-            onClick={() => onAddItemToRequestModalOpen()}>
+            onClick={() => onAddItemToRequestModalOpen()}
+            disabled={!hasRequestUpdateRight}>
             {t("Add to Request")}
           </Button>
           <Button
@@ -337,7 +342,8 @@ const ContentTable: React.FC<Props> = ({
             size="small"
             icon={<Icon icon="eyeInvisible" />}
             onClick={() => onUnpublish(props.selectedRowKeys)}
-            loading={unpublishLoading}>
+            loading={unpublishLoading}
+            disabled={!hasPublishRight}>
             {t("Unpublish")}
           </Button>
           <Button
@@ -346,7 +352,8 @@ const ContentTable: React.FC<Props> = ({
             icon={<Icon icon="delete" />}
             onClick={() => onItemDelete(props.selectedRowKeys)}
             danger
-            loading={deleteLoading}>
+            loading={deleteLoading}
+            disabled={!hasDeleteRight}>
             {t("Delete")}
           </Button>
         </Space>
@@ -354,11 +361,15 @@ const ContentTable: React.FC<Props> = ({
     },
     [
       deleteLoading,
+      hasDeleteRight,
+      hasPublishRight,
+      hasRequestUpdateRight,
       onAddItemToRequestModalOpen,
       onItemDelete,
       onUnpublish,
       publishConfirm,
       publishLoading,
+      showPublishAction,
       t,
       unpublishLoading,
     ],

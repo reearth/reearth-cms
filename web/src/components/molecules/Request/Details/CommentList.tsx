@@ -7,6 +7,8 @@ import ThreadCommentMolecule from "@reearth-cms/components/molecules/Request/Det
 
 type Props = {
   me?: User;
+  hasCommentUpdateRight: boolean | null;
+  hasCommentDeleteRight: boolean | null;
   comments: Comment[];
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
@@ -14,6 +16,8 @@ type Props = {
 
 export const RequestCommentList: React.FC<Props> = ({
   me,
+  hasCommentUpdateRight,
+  hasCommentDeleteRight,
   comments,
   onCommentUpdate,
   onCommentDelete,
@@ -24,8 +28,10 @@ export const RequestCommentList: React.FC<Props> = ({
       itemLayout="horizontal"
       renderItem={props => (
         <ThreadCommentMolecule
-          comment={props}
           me={me}
+          hasCommentUpdateRight={hasCommentUpdateRight}
+          hasCommentDeleteRight={hasCommentDeleteRight}
+          comment={props}
           onCommentUpdate={onCommentUpdate}
           onCommentDelete={onCommentDelete}
         />

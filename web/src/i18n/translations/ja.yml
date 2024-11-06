@@ -211,7 +211,7 @@ Selected Members: 選択中のメンバー
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
 Are you sure to remove these members?: 本当にこれらのメンバーをワークスペースから削除してもよろしいですか？
-Are you sure to remove this member?: 本当にこのメンバーをワークスペースから削除してもよろしいですか？
+Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Are you sure to leave this workspace?: 本当にこのワークスペースを離れてもよろしいですか？
 Leave this workspace means you will not view any content of this workspace.: ワークスペースを離れると、ワークスペース内のいかなるコンテンツも閲覧することができなくなります。
@@ -221,6 +221,10 @@ Action: 操作
 Change Role?: ロールを変更
 Members: メンバー
 New Member: メンバーを追加
+WRITER: 編集者
+READER: 閲覧者
+MAINTAINER: メンテナー
+OWNER: オーナー
 GROUPS: グループ
 Add: 追加
 MODELS: モデル
@@ -271,7 +275,7 @@ Alias: エイリアス
 Write something here to describe this record.: このレコードの説明を入力してください。
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
-If this option is chosen, all new model within the project will default follow it: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
+If this option is chosen, all new model within the project will default follow it.: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
 Leave your comment...: コメントを入力してください。
 Add Comment: コメントを追加
 Close: クローズ
@@ -421,10 +425,6 @@ Deleting the view is a permanent action. However, the contents will remain unaff
 Please proceed with caution as this action cannot be undone.: この操作は元に戻せませんので、注意して行ってください。
 Save as new view: 新しいビューとして保存します
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
-WRITER: 編集者
-READER: 閲覧者
-MAINTAINER: メンテナー
-OWNER: オーナー
 search projects: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this workspace?: このワークスペースを削除します。よろしいですか？
