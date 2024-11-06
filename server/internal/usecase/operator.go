@@ -19,7 +19,6 @@ type Operator struct {
 	WritableProjects     project.IDList
 	OwningProjects       project.IDList
 	MaintainableProjects project.IDList
-	PublicAPIAuth        bool
 
 	AcOperator *accountusecase.Operator
 }

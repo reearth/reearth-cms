@@ -455,7 +455,7 @@ func TestPublicAPI(t *testing.T) {
 			"page":       1,
 		})
 
-	// different project in the same workspace
+	// different project in the same workspace with the same token
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias2, publicAPIModelKey2).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("Authorization", token).

@@ -28,10 +28,11 @@ func NewPublication(scope PublicationScope, assetPublic bool) *Publication {
 }
 
 func NewPublicationWithToken(scope PublicationScope, assetPublic bool, token string) *Publication {
-	p := &Publication{}
+	p := &Publication{
+		token: token,
+	}
 	p.SetScope(scope)
 	p.SetAssetPublic(assetPublic)
-	p.SetToken(token)
 	return p
 }
 
@@ -48,10 +49,6 @@ func (p *Publication) AssetPublic() bool {
 
 func (p *Publication) Token() string {
 	return p.token
-}
-
-func (p *Publication) SetToken(t string) {
-	p.token = t
 }
 
 func (p *Publication) GenerateToken() {
