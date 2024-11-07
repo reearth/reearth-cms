@@ -99,14 +99,17 @@ const LinkItemRequestModal: React.FC<Props> = ({
       },
       {
         title: t("Created By"),
-        dataIndex: "createdBy.name",
+        dataIndex: ["createdBy", "name"],
         key: "createdBy",
         ellipsis: true,
         width: 100,
         minWidth: 100,
-        render: (_, request) => {
-          return request.createdBy?.name;
-        },
+        render: (_, request) => (
+          <Space>
+            <UserAvatar username={request.createdBy?.name} size="small" />
+            {request.createdBy?.name}
+          </Space>
+        ),
       },
       {
         title: t("Reviewers"),
@@ -169,9 +172,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
       width="70vw"
       styles={{
         body: {
-          minHeight: "50vh",
-          position: "relative",
-          padding: "12px 12px 0",
+          height: "70vh",
         },
       }}
       afterClose={() => {

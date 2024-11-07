@@ -9,6 +9,7 @@ const Accessibility: React.FC = () => {
     modelsState,
     assetState,
     isSaveDisabled,
+    hasPublishRight,
     loading,
     apiUrl,
     handleValuesChange,
@@ -22,6 +23,7 @@ const Accessibility: React.FC = () => {
       modelsState={modelsState}
       assetState={assetState}
       isSaveDisabled={isSaveDisabled}
+      hasPublishRight={hasPublishRight}
       loading={loading}
       apiUrl={apiUrl}
       handleValuesChange={handleValuesChange}

@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	key2 "github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
@@ -167,8 +166,18 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 	fields := make([]interfaces.CreateFieldParam, 0)
 	for _, o := range jsonObjects {
 		var iId *id.ItemID
-		idStr, _ := o["Id"].(*string)
-		iId = id.ItemIDFromRef(idStr)
+		//idStr, _ := o["id"].(string)
+		//iId = id.ItemIDFromRef(&idStr)
+		if idVal, ok := o["id"]; ok {
+			if idStr, ok := idVal.(string); ok {
+				iId = id.ItemIDFromRef(&idStr)
+				if iId.IsEmpty() || iId.IsNil() {
+					return nil, nil, rerror.ErrInvalidParams
+				}
+			} else {
+				return nil, nil, rerror.ErrInvalidParams
+			}
+		}
 		item := interfaces.ImportItemParam{
 			ItemId:     iId,
 			MetadataID: nil,
@@ -179,7 +188,7 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 				return nil, nil, rerror.ErrInvalidParams
 			}
 
-			geoFieldKey := key2.New(*geoField)
+			geoFieldKey := id.NewKey(*geoField)
 			if !geoFieldKey.IsValid() {
 				return nil, nil, rerror.ErrInvalidParams
 			}
@@ -208,10 +217,10 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 			o = props
 		}
 		for k, v := range o {
-			if v == nil {
+			if v == nil || k == "id" {
 				continue
 			}
-			key := key2.New(k)
+			key := id.NewKey(k)
 			if !key.IsValid() {
 				return nil, nil, rerror.ErrInvalidParams
 			}
@@ -252,6 +261,10 @@ func isAssignable(vt1, vt2 value.Type) bool {
 		return true
 	}
 	if vt1 == value.TypeInteger &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown || vt2 == value.TypeNumber) {
+		return true
+	}
+	if vt1 == value.TypeNumber &&
 		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
 		return true
 	}
@@ -283,7 +296,7 @@ func FieldFrom(k string, v any, sp schema.Package) interfaces.CreateFieldParam {
 	case reflect.Uint64:
 	case reflect.Float32:
 	case reflect.Float64:
-		t = value.TypeInteger
+		t = value.TypeNumber
 	case reflect.String:
 		t = value.TypeText
 	default:

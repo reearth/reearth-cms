@@ -15,12 +15,16 @@ type ReferenceFieldProps = {
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  disabled?: boolean;
+  disabled: boolean;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm?: (term?: string) => void;
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
-  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference?: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
 };
 
 const ReferenceField: React.FC<ReferenceFieldProps> = ({
@@ -55,18 +59,20 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       <ReferenceFormItem
         key={field.id}
+        linkedItemsModalList={linkedItemsModalList}
         disabled={disabled}
         loading={loading}
-        correspondingFieldId={field.id}
+        fieldId={field.id}
+        itemGroupId={itemGroupId}
         formItemsData={formItemsData}
+        correspondingField={field.typeProperty?.correspondingField}
         modelId={field.typeProperty?.modelId}
         titleFieldId={field.typeProperty?.schema?.titleFieldId}
-        onReferenceModelUpdate={onReferenceModelUpdate}
         linkItemModalTitle={linkItemModalTitle}
-        linkedItemsModalList={linkedItemsModalList}
         linkItemModalTotalCount={linkItemModalTotalCount}
         linkItemModalPage={linkItemModalPage}
         linkItemModalPageSize={linkItemModalPageSize}
+        onReferenceModelUpdate={onReferenceModelUpdate}
         onSearchTerm={onSearchTerm}
         onLinkItemTableReload={onLinkItemTableReload}
         onLinkItemTableChange={onLinkItemTableChange}

@@ -19,6 +19,9 @@ type Props = {
   onViewCreateModalOpen: () => void;
   onViewSelect: (key: string) => void;
   onUpdateViewsOrder: (viewIds: string[]) => Promise<void>;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
 };
 
 const ViewsMenuMolecule: React.FC<Props> = ({
@@ -30,6 +33,9 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   currentView,
   onViewSelect,
   onUpdateViewsOrder,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
 }) => {
   const t = useT();
 
@@ -51,6 +57,8 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         label: (
           <ViewsMenuItem
             view={view}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
             onViewRenameModalOpen={onViewRenameModalOpen}
             onDelete={onDelete}
             onUpdate={onUpdate}
@@ -64,12 +72,12 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   return (
     <Wrapper>
       <DragColumn
-        nodeSelector=".ant-tabs-tab"
+        nodeSelector={hasUpdateRight ? ".ant-tabs-tab" : undefined}
         lineClassName="dragLineColumn"
         onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
         <StyledTabs
           tabBarExtraContent={
-            <NewViewButton type="text" onClick={onViewCreateModalOpen}>
+            <NewViewButton type="text" onClick={onViewCreateModalOpen} disabled={!hasCreateRight}>
               {t("Save as new view")}
             </NewViewButton>
           }

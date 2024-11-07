@@ -41,7 +41,7 @@ type Props = {
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  disabled?: boolean;
+  disabled: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -59,7 +59,11 @@ type Props = {
   setUploadModalVisibility?: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference?: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({

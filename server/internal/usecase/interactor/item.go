@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -391,7 +390,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 					Required(fieldParam.Required).
 					Name(fieldParam.Name).
 					Description(lo.FromPtr(fieldParam.Description)).
-					Key(key.New(fieldParam.Key)).
+					Key(id.NewKey(fieldParam.Key)).
 					DefaultValue(fieldParam.DefaultValue).
 					Build()
 				if err != nil {
@@ -676,6 +675,12 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
+			return nil, err
+		}
+
+		// re-fetch item so the new version is returned
+		itm, err = i.repos.Item.FindByID(ctx, param.ItemID, nil)
+		if err != nil {
 			return nil, err
 		}
 

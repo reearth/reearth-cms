@@ -41,7 +41,7 @@ import {
   useIsItemReferencedLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useCollapsedModelMenu } from "@reearth-cms/state";
+import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 import { newID } from "@reearth-cms/utils/id";
 
 import { dateConvert } from "./utils";
@@ -66,6 +66,7 @@ export default () => {
     totalCount,
     page,
     pageSize,
+    showPublishAction,
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,6 +74,20 @@ export default () => {
 
   const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
+  const [userRights] = useUserRights();
+  const hasRequestCreateRight = useMemo(
+    () => !!userRights?.request.create,
+    [userRights?.request.create],
+  );
+  const hasRequestUpdateRight = useMemo(
+    () => userRights?.request.update === null || !!userRights?.request.update,
+    [userRights?.request.update],
+  );
+  const hasPublishRight = useMemo(
+    () => !!userRights?.content.publish,
+    [userRights?.content.publish],
+  );
+
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -174,21 +189,17 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const myRole = useMemo(
-    () =>
-      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
-        ?.role,
-    [currentWorkspace?.members, me?.id],
-  );
-
-  const showPublishAction = useMemo(
-    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
-    [currentProject?.requestRoles, myRole],
-  );
-
   const currentItem: Item | undefined = useMemo(
     () => fromGraphQLItem(data?.node as GQLItem),
     [data?.node],
+  );
+
+  const hasItemUpdateRight = useMemo(
+    () =>
+      userRights?.content.update === null
+        ? currentItem?.createdBy?.id === me?.id
+        : !!userRights?.content.update,
+    [currentItem?.createdBy?.id, me?.id, userRights?.content.update],
   );
 
   const [getGroup] = useGetGroupLazyQuery({
@@ -231,7 +242,7 @@ export default () => {
   }, [currentModel?.id, currentProject?.id, currentWorkspace?.id, location.state, navigate]);
 
   const [createItem, { loading: itemCreationLoading }] = useCreateItemMutation({
-    refetchQueries: ["SearchItem", "GetRequests"],
+    refetchQueries: ["GetRequests"],
   });
 
   const handleItemCreate = useCallback(
@@ -567,14 +578,30 @@ export default () => {
   });
 
   const handleCheckItemReference = useCallback(
-    async (value: string, correspondingFieldId: string) => {
+    async (itemId: string, correspondingFieldId: string, groupId?: string) => {
+      const initialValue = groupId
+        ? initialFormValues[groupId][correspondingFieldId]
+        : initialFormValues[correspondingFieldId];
+      if (initialValue === itemId) {
+        return false;
+      }
       const res = await checkIfItemIsReferenced({
-        variables: { itemId: value ?? "", correspondingFieldId },
+        variables: { itemId, correspondingFieldId },
       });
       return res.data?.isItemReferenced ?? false;
     },
-    [checkIfItemIsReferenced],
+    [checkIfItemIsReferenced, initialFormValues],
   );
+
+  const title = useMemo(() => {
+    let result = currentModel?.name ?? "";
+    if (currentItem) {
+      const titleField = currentModel?.schema.fields.find(field => field.isTitle);
+      const titleValue = titleField && initialFormValues[titleField.id];
+      result += ` / ${titleValue || currentItem.id}`;
+    }
+    return result;
+  }, [currentItem, currentModel?.name, currentModel?.schema.fields, initialFormValues]);
 
   return {
     loadingReference,
@@ -585,6 +612,7 @@ export default () => {
     itemLoading,
     requestCreationLoading,
     currentModel,
+    title,
     currentItem,
     initialFormValues,
     initialMetaFormValues,
@@ -631,5 +659,9 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleGroupGet,
     handleCheckItemReference,
+    hasRequestCreateRight,
+    hasRequestUpdateRight,
+    hasPublishRight,
+    hasItemUpdateRight,
   };
 };

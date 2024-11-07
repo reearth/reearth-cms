@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
@@ -22,8 +21,8 @@ func Test_convertMetaFields(t *testing.T) {
 	tag2 := schema.NewTag("日本語", schema.TagColorOrange)
 	tf, _ := schema.NewFieldTag(schema.TagList{tag1, tag2})
 
-	sf1 := schema.NewField(tf.TypeProperty()).NewID().Key(key.New("sf-1")).MustBuild()
-	sf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("sf-1")).MustBuild()
+	sf1 := schema.NewField(tf.TypeProperty()).NewID().Key(id.NewKey("sf-1")).MustBuild()
+	sf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("sf-1")).MustBuild()
 	var vi any = "日本語"
 	var vi2 any = "xyz"
 	s := schema.New().NewID().Fields(schema.FieldList{sf1, sf2}).Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).MustBuild()

@@ -45,12 +45,13 @@ type Props = {
   sort?: SortType;
   searchTerm: string;
   columns: Record<string, ColumnsState>;
+  hasDeleteRight: boolean;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onEdit: (assetId: string) => void;
   onSearchTerm: (term?: string) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
@@ -68,12 +69,13 @@ const AssetListTable: React.FC<Props> = ({
   sort,
   searchTerm,
   columns: columnsState,
+  hasDeleteRight,
   onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
   onEdit,
   onSearchTerm,
-  setSelection,
+  onSelect,
   onAssetsReload,
   onAssetDelete,
   onAssetTableChange,
@@ -176,8 +178,8 @@ const AssetListTable: React.FC<Props> = ({
         key: "createdBy",
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.createdBy} size={"small"} />
-            {item.createdBy}
+            <UserAvatar username={item.createdBy.name} size={"small"} />
+            {item.createdBy.name}
           </Space>
         ),
         width: 105,
@@ -253,14 +255,9 @@ const AssetListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys,
-        });
-      },
+      onChange: onSelect,
     }),
-    [selection, setSelection],
+    [onSelect, selection.selectedRowKeys],
   );
 
   const toolbar: ListToolBarProps = useMemo(
@@ -284,27 +281,26 @@ const AssetListTable: React.FC<Props> = ({
     (props: any) => {
       return (
         <Space size={4}>
-          <Button
-            type="link"
+          <DownloadButton
+            displayDefaultIcon
             size="small"
-            icon={<Icon icon="clear" />}
-            onClick={props.onCleanSelected}>
-            {t("Deselect")}
-          </Button>
-          <DownloadButton displayDefaultIcon type="link" selected={props.selectedRows} />
+            type="link"
+            selected={props.selectedRows}
+          />
           <Button
             type="link"
             size="small"
             icon={<Icon icon="delete" />}
             onClick={() => onAssetDelete(props.selectedRowKeys)}
             danger
-            loading={deleteLoading}>
+            loading={deleteLoading}
+            disabled={!hasDeleteRight}>
             {t("Delete")}
           </Button>
         </Space>
       );
     },
-    [deleteLoading, onAssetDelete, t],
+    [deleteLoading, hasDeleteRight, onAssetDelete, t],
   );
 
   const handleChange = useCallback(

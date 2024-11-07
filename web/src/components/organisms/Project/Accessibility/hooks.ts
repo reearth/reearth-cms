@@ -13,11 +13,16 @@ import {
   useUpdateProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject } from "@reearth-cms/state";
+import { useProject, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const [currentProject] = useProject();
+  const [userRights] = useUserRights();
+  const hasPublishRight = useMemo(
+    () => !!userRights?.project.publish,
+    [userRights?.project.publish],
+  );
   const [form] = Form.useForm<FormType>();
   const modelsState = Form.useWatch("models", form) ?? {};
   const assetState = !!Form.useWatch("assetPublic", form);
@@ -152,6 +157,7 @@ export default () => {
     modelsState,
     assetState,
     isSaveDisabled,
+    hasPublishRight,
     loading,
     apiUrl,
     handleValuesChange,

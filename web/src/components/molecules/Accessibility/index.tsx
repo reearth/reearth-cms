@@ -29,6 +29,7 @@ type Props = {
   modelsState: Record<string, boolean>;
   assetState: boolean;
   isSaveDisabled: boolean;
+  hasPublishRight: boolean;
   loading: boolean;
   apiUrl: string;
   handleValuesChange: (changedValues: Partial<FormType>, values: FormType) => void;
@@ -41,6 +42,7 @@ const Accessibility: React.FC<Props> = ({
   modelsState,
   assetState,
   isSaveDisabled,
+  hasPublishRight,
   loading,
   apiUrl,
   handleValuesChange,
@@ -92,7 +94,7 @@ const Accessibility: React.FC<Props> = ({
         publicState: modelsState[m.id],
         public: (
           <StyledFormItem name={["models", m.id]}>
-            <Switch />
+            <Switch disabled={!hasPublishRight} />
           </StyledFormItem>
         ),
       });
@@ -104,12 +106,12 @@ const Accessibility: React.FC<Props> = ({
       publicState: assetState,
       public: (
         <StyledFormItem name="assetPublic">
-          <Switch />
+          <Switch disabled={!hasPublishRight} />
         </StyledFormItem>
       ),
     });
     return columns;
-  }, [assetState, models, modelsState, t]);
+  }, [assetState, models, modelsState, t, hasPublishRight]);
 
   const publicScopeList = useMemo(
     () => [
@@ -134,7 +136,7 @@ const Accessibility: React.FC<Props> = ({
               extra={t(
                 "Choose the scope of your project. This affects all the models shown below that are switched on.",
               )}>
-              <Select>
+              <Select disabled={!hasPublishRight}>
                 {publicScopeList.map(({ value, name }) => (
                   <Select.Option key={value} value={value}>
                     {name}

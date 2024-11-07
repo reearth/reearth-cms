@@ -1,4 +1,4 @@
-name: worker-build
+name: decompressor-build
 on:
   workflow_run:
     workflows: [ci-worker]
@@ -12,7 +12,7 @@ jobs:
   info:
     name: Collect information
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion != 'failure' && github.event.repository.full_name == 'reearth/reearth-cms' && (github.event.workflow_run.head_branch == 'release' || !startsWith(github.event.head_commit.message, 'v'))
+    if: github.event.workflow_run.conclusion != 'failure' && github.event.repository.full_name == 'reearth/reearth-cms' && (github.event.workflow_run.head_branch == 'release' || !startsWith(github.event.workflow_run.head_commit.message, 'v'))
     outputs:
       sha_short: ${{ steps.info.outputs.sha_short }}
       new_tag: ${{ steps.info.outputs.new_tag }}
@@ -29,17 +29,17 @@ jobs:
         env:
           BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
-          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+          echo "sha_short=$(git rev-parse --short HEAD))" >> "$GITHUB_OUTPUT"
           if [[ "$BRANCH" = "release" ]]; then
             TAG=$(git tag --points-at HEAD)
             if [[ ! -z "$TAG" ]]; then
-              echo "::set-output name=new_tag::$TAG"
-              echo "::set-output name=new_tag_short::${TAG#v}"
+              echo "new_tag=$TAG" >> "$GITHUB_OUTPUT"
+              echo "new_tag_short=${TAG#v}" >> "$GITHUB_OUTPUT"
             else
-              echo "::set-output name=name::rc"
+              echo "name=rc" >> "$GITHUB_OUTPUT"
             fi
           else
-            echo "::set-output name=name::nightly"
+            echo "name=nightly" >> "$GITHUB_OUTPUT"
           fi
       - name: Show info
         env:
@@ -56,7 +56,7 @@ jobs:
       - info
     if: needs.info.outputs.name || needs.info.outputs.new_tag
     env:
-      IMAGE_NAME: reearth/reearth-cms-worker
+      IMAGE_NAME: reearth/reearth-cms-decompressor
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,7 +72,7 @@ jobs:
       - name: Get options
         id: options
         env:
-          TAG: ${{ needs.info.outputs.tag_short }}
+          TAG: ${{ needs.info.outputs.new_tag_short }}
           NAME: ${{ needs.info.outputs.name }}
           SHA: ${{ needs.info.outputs.sha_short }}
         run: |
@@ -90,13 +90,14 @@ jobs:
             VERSION=$SHA
             TAGS=$IMAGE_NAME:$NAME
           fi
-          echo "::set-output name=platforms::$PLATFORMS"
-          echo "::set-output name=version::$VERSION"
-          echo "::set-output name=tags::$TAGS"
+          echo "platforms=$PLATFORMS" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
       - name: Build and push docker image
         uses: docker/build-push-action@v6
         with:
           context: ./worker
+          file: ./worker/decompressor.Dockerfile
           platforms: ${{ steps.options.outputs.platforms }}
           push: true
           build-args: VERSION=${{ steps.options.outputs.version }}

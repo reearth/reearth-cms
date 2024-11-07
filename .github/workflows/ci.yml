@@ -1,0 +1,146 @@
+name: ci
+on:
+  push:
+    branches: [main, release]
+  pull_request:
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.web.outputs.any_modified }}
+      server: ${{ steps.server.outputs.any_modified }}
+      worker: ${{ steps.worker.outputs.any_modified }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: changed files for web
+        id: web
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            web/**
+            .github/workflows/ci.yml
+            .github/workflows/ci_web.yml
+            .github/workflows/build_web.yml
+
+      - name: changed files for server
+        id: server
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            server/**
+            .github/workflows/ci.yml
+            .github/workflows/ci_server.yml
+            .github/workflows/build_server.yml
+
+      - name: changed files for worker
+        id: worker
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            worker/**
+            .github/workflows/ci.yml
+            .github/workflows/ci_worker.yml
+            .github/workflows/build_worker.yml
+
+  ci-web:
+    needs: prepare
+    if: needs.prepare.outputs.web == 'true'
+    uses: ./.github/workflows/ci_web.yml
+
+  ci-server:
+    needs: prepare
+    if: needs.prepare.outputs.server == 'true'
+    uses: ./.github/workflows/ci_server.yml
+
+  ci-worker:
+    needs: prepare
+    if: needs.prepare.outputs.worker == 'true'
+    uses: ./.github/workflows/ci_worker.yml
+
+  ci:
+    runs-on: ubuntu-latest
+    needs:
+      - ci-web
+      - ci-server
+      - ci-worker
+    if: '!failure()'
+    steps:
+      - run: echo OK
+
+  build-prepare:
+    needs: prepare
+    if: ${{ github.repository == 'reearth/reearth-cms' && github.event_name == 'push' && (github.ref_name == 'release' || !startsWith(github.event.head_commit.message, 'v')) }}
+    uses: ./.github/workflows/build_prepare.yml
+
+  build-web:
+    needs: [prepare, build-prepare]
+    if: needs.prepare.outputs.web == 'true'
+    uses: ./.github/workflows/build_web.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  build-server:
+    needs: [prepare, build-prepare]
+    if: needs.prepare.outputs.server == 'true'
+    uses: ./.github/workflows/build_server.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  build-worker:
+    needs: [prepare, build-prepare]
+    if: needs.prepare.outputs.worker == 'true'
+    uses: ./.github/workflows/build_worker.yml
+    with:
+      name: ${{ needs.build-prepare.outputs.name }}
+      new_tag: ${{ needs.build-prepare.outputs.new_tag }}
+      new_tag_short: ${{ needs.build-prepare.outputs.new_tag_short }}
+      sha_short: ${{ needs.build-prepare.outputs.sha_short }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  deploy-web:
+    needs: [build-web, ci-web]
+    if: needs.ci-web.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: web
+    secrets:
+      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+  deploy-server:
+    needs: [build-server, ci-server]
+    if: needs.ci-server.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: server
+    secrets:
+      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+  deploy-worker:
+    needs: [build-worker, ci-worker]
+    if: needs.ci-worker.result == 'success'
+    uses: ./.github/workflows/deploy_test.yml
+    with:
+      target: worker
+    secrets:
+      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}

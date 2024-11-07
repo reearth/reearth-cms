@@ -11,6 +11,9 @@ import Thread from "./Thread";
 
 type Props = {
   me?: User;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean | null;
+  hasDeleteRight: boolean | null;
   comments?: Comment[];
   emptyText?: string;
   collapsed: boolean;
@@ -22,6 +25,9 @@ type Props = {
 
 const CommentsPanel: React.FC<Props> = ({
   me,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   comments,
   emptyText,
   collapsed,
@@ -42,7 +48,7 @@ const CommentsPanel: React.FC<Props> = ({
       trigger={<Icon icon={collapsed ? "panelToggleLeft" : "panelToggleRight"} />}>
       <ContentWrapper>
         {collapsed ? (
-          <StyledIcon icon="message" onClick={() => onCollapse(false)} />
+          <StyledIcon icon="comment" onClick={() => onCollapse(false)} />
         ) : (
           <>
             <ThreadWrapper>
@@ -50,6 +56,8 @@ const CommentsPanel: React.FC<Props> = ({
               <CommentsContainer>
                 <Thread
                   me={me}
+                  hasUpdateRight={hasUpdateRight}
+                  hasDeleteRight={hasDeleteRight}
                   comments={comments}
                   onCommentUpdate={onCommentUpdate}
                   onCommentDelete={onCommentDelete}
@@ -61,7 +69,10 @@ const CommentsPanel: React.FC<Props> = ({
               <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
             ) : null}
 
-            <Editor isInputDisabled={!comments} onCommentCreate={onCommentCreate} />
+            <Editor
+              isInputDisabled={!comments || !hasCreateRight}
+              onCommentCreate={onCommentCreate}
+            />
           </>
         )}
       </ContentWrapper>
@@ -72,7 +83,8 @@ const CommentsPanel: React.FC<Props> = ({
 export default CommentsPanel;
 
 const StyledIcon = styled(Icon)`
-  padding: 12px 20px;
+  padding-top: 12px;
+  justify-content: center;
 `;
 
 const ThreadWrapper = styled.div`
@@ -81,7 +93,8 @@ const ThreadWrapper = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 18px;
+  font-size: 16px;
+  line-height: 1.5;
   cursor: pointer;
 `;
 

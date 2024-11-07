@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useRef, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -10,8 +10,10 @@ import {
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
+import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
@@ -35,6 +37,7 @@ type Props = {
   totalCount?: number;
   page?: number;
   pageSize?: number;
+  hasCreateRight: boolean;
   onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
@@ -62,6 +65,7 @@ const LinkAssetModal: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  hasCreateRight,
   onAssetTableChange,
   setUploadUrl,
   setUploadType,
@@ -74,7 +78,6 @@ const LinkAssetModal: React.FC<Props> = ({
   onUploadAndLink,
 }) => {
   const t = useT();
-  const [hoveredAssetId, setHoveredAssetId] = useState<string>();
   const resetFlag = useRef(false);
 
   const options: OptionConfig = useMemo(
@@ -127,14 +130,10 @@ const LinkAssetModal: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         render: (_, asset) => {
-          const isLink =
-            (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
-            (asset.id !== linkedAsset?.id && hoveredAssetId === asset.id);
+          const isLink = asset.id !== linkedAsset?.id;
           return (
             <Button
               type="link"
-              onMouseEnter={() => setHoveredAssetId(asset.id)}
-              onMouseLeave={() => setHoveredAssetId(undefined)}
               icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
               onClick={() => onLinkClick(isLink, asset)}
             />
@@ -177,14 +176,20 @@ const LinkAssetModal: React.FC<Props> = ({
       },
       {
         title: t("Created By"),
-        dataIndex: "createdBy",
+        dataIndex: ["createdBy", "name"],
         key: "createdBy",
         ellipsis: true,
         width: 100,
         minWidth: 100,
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.createdBy.name} size="small" />
+            {item.createdBy.name}
+          </Space>
+        ),
       },
     ],
-    [hoveredAssetId, linkedAsset?.id, onLinkClick, t],
+    [linkedAsset?.id, onLinkClick, t],
   );
 
   const handleChange = useCallback(
@@ -231,6 +236,7 @@ const LinkAssetModal: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          hasCreateRight={hasCreateRight}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
           displayUploadModal={displayUploadModal}
@@ -242,9 +248,7 @@ const LinkAssetModal: React.FC<Props> = ({
       width="70vw"
       styles={{
         body: {
-          minHeight: "50vh",
-          position: "relative",
-          padding: "12px",
+          height: "70vh",
         },
       }}>
       <ResizableProTable

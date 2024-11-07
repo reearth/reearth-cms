@@ -17,6 +17,7 @@ type Props = {
   projectModal: boolean;
   workspaceModal: boolean;
   loadingProjects: boolean;
+  hasCreateRight: boolean;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
   onProjectNavigation: (project: Project) => void;
@@ -34,6 +35,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   projectModal,
   workspaceModal,
   loadingProjects,
+  hasCreateRight,
   onProjectSearch,
   onProjectModalOpen,
   onProjectNavigation,
@@ -49,11 +51,13 @@ const WorkspaceWrapper: React.FC<Props> = ({
       <Greeting coverImageUrl={coverImageUrl} />
       <Content>
         <WorkspaceHeader
+          hasCreateRight={hasCreateRight}
           onProjectSearch={onProjectSearch}
           onProjectModalOpen={onProjectModalOpen}
           onWorkspaceModalOpen={onWorkspaceModalOpen}
         />
         <ProjectList
+          hasCreateRight={hasCreateRight}
           projects={projects}
           loading={loadingProjects}
           onProjectModalOpen={onProjectModalOpen}

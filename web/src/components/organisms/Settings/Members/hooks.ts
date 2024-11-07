@@ -2,7 +2,7 @@ import { Key, useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User, RoleUnion } from "@reearth-cms/components/molecules/Member/types";
+import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -10,20 +10,30 @@ import {
   useGetMeQuery,
   useAddUsersToWorkspaceMutation,
   useUpdateMemberOfWorkspaceMutation,
-  Role,
-  useRemoveMemberFromWorkspaceMutation,
+  Role as GQLRole,
+  useRemoveMultipleMembersFromWorkspaceMutation,
   Workspace as GQLWorkspace,
   useGetUserBySearchLazyQuery,
   MemberInput as GQLMemberInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export default () => {
+  const t = useT();
   const navigate = useNavigate();
+
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const workspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
+  const [userRights] = useUserRights();
+  const hasInviteRight = useMemo(() => !!userRights?.members.invite, [userRights?.members.invite]);
+  const hasRemoveRight = useMemo(() => !!userRights?.members.remove, [userRights?.members.remove]);
+  const hasChangeRoleRight = useMemo(
+    () => !!userRights?.members.changeRole,
+    [userRights?.members.changeRole],
+  );
+
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<UserMember>();
@@ -33,7 +43,6 @@ export default () => {
   });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const t = useT();
 
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
@@ -82,14 +91,11 @@ export default () => {
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [searchTerm, workspaceData?.node]);
 
-  const isOwner = useMemo(
-    () => !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId === me.id),
-    [me.id, workspaceUserMembers],
-  );
-
   const isAbleToLeave = useMemo(
-    () => !isOwner || !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId !== me.id),
-    [isOwner, me.id, workspaceUserMembers],
+    () =>
+      userRights?.role !== "OWNER" ||
+      !!workspaceUserMembers?.some(m => m.role === "OWNER" && m.userId !== me.id),
+    [me.id, userRights?.role, workspaceUserMembers],
   );
 
   const [searchUserQuery] = useGetUserBySearchLazyQuery({
@@ -146,17 +152,17 @@ export default () => {
     useUpdateMemberOfWorkspaceMutation();
 
   const handleMemberOfWorkspaceUpdate = useCallback(
-    async (userId: string, role: RoleUnion) => {
+    async (userId: string, role: Role) => {
       if (!workspaceId) return;
       const result = await updateMemberOfWorkspaceMutation({
         variables: {
           workspaceId,
           userId,
           role: {
-            READER: Role.Reader,
-            WRITER: Role.Writer,
-            MAINTAINER: Role.Maintainer,
-            OWNER: Role.Owner,
+            READER: GQLRole.Reader,
+            WRITER: GQLRole.Writer,
+            MAINTAINER: GQLRole.Maintainer,
+            OWNER: GQLRole.Owner,
           }[role],
         },
       });
@@ -171,38 +177,34 @@ export default () => {
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
 
-  const [removeMemberFromWorkspaceMutation] = useRemoveMemberFromWorkspaceMutation();
+  const [RemoveMultipleMembersFromWorkspaceMutation] =
+    useRemoveMultipleMembersFromWorkspaceMutation();
 
   const handleMemberRemoveFromWorkspace = useCallback(
     async (userIds: string[]) => {
       if (!workspaceId) return;
-      const results = await Promise.all(
-        userIds.map(async userId => {
-          const result = await removeMemberFromWorkspaceMutation({
-            variables: { workspaceId, userId },
-          });
-          if (result.errors) {
-            Notification.error({
-              message: t("Failed to remove member(s) from the workspace."),
-            });
-          }
-        }),
-      );
-      if (results) {
+      const result = await RemoveMultipleMembersFromWorkspaceMutation({
+        variables: { workspaceId, userIds },
+      });
+      if (result.errors) {
+        Notification.error({
+          message: t("Failed to remove member(s) from the workspace."),
+        });
+      } else {
         Notification.success({
           message: t("Successfully removed member(s) from the workspace!"),
         });
         setSelection({ selectedRowKeys: [] });
       }
     },
-    [workspaceId, removeMemberFromWorkspaceMutation, t],
+    [workspaceId, RemoveMultipleMembersFromWorkspaceMutation, t],
   );
 
   const handleLeave = useCallback(
     async (userId: string) => {
       if (!workspaceId) return;
-      const result = await removeMemberFromWorkspaceMutation({
-        variables: { workspaceId, userId },
+      const result = await RemoveMultipleMembersFromWorkspaceMutation({
+        variables: { workspaceId, userIds: [userId] },
       });
       if (result.errors) {
         Notification.error({
@@ -216,7 +218,14 @@ export default () => {
         navigate(`/workspace/${me.myWorkspace}`);
       }
     },
-    [workspaceId, removeMemberFromWorkspaceMutation, t, refetchMe, navigate, me.myWorkspace],
+    [
+      workspaceId,
+      RemoveMultipleMembersFromWorkspaceMutation,
+      t,
+      refetchMe,
+      navigate,
+      me.myWorkspace,
+    ],
   );
 
   const handleRoleModalClose = useCallback(() => {
@@ -250,7 +259,6 @@ export default () => {
 
   return {
     me,
-    isOwner,
     isAbleToLeave,
     searchedUser,
     handleSearchTerm,
@@ -280,5 +288,8 @@ export default () => {
     handleTableChange,
     loading,
     handleReload,
+    hasInviteRight,
+    hasRemoveRight,
+    hasChangeRoleRight,
   };
 };

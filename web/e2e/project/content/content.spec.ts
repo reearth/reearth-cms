@@ -51,7 +51,11 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
 test("Publishing and Unpublishing item has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await page.getByText("Content").click();
+  await page.getByText("Settings").first().click();
+  await page.getByRole("row", { name: "Owner" }).getByRole("switch").click();
+  await page.getByRole("button", { name: "Save changes" }).last().click();
+  await closeNotification(page);
+  await page.getByText("Content").first().click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text");
@@ -77,6 +81,45 @@ test("Publishing and Unpublishing item has succeeded", async ({ page }) => {
   await expect(page.getByText("DRAFT")).toBeVisible();
   await page.getByLabel("Back").click();
   await expect(page.getByText("DRAFT")).toBeVisible();
+});
+
+test("Showing item title has succeeded", async ({ page }) => {
+  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
+  await handleFieldForm(page, "text");
+  await page.getByText("Content").click();
+  await page.getByRole("button", { name: "plus New Item" }).click();
+  await expect(page.getByTitle("e2e model name", { exact: true })).toBeVisible();
+  await page.getByLabel("text").click();
+  await page.getByLabel("text").fill("text");
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
+  const itemId = await page
+    .getByRole("main")
+    .locator("p")
+    .filter({ hasText: "ID" })
+    .locator("div > span")
+    .innerText();
+  await expect(page.getByTitle(`e2e model name / ${itemId}`, { exact: true })).toBeVisible();
+
+  await page.getByText("Schema").click();
+  await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
+  await page.getByLabel("Use as title").check();
+  await page.getByRole("tab", { name: "Default value" }).click();
+  await page.getByLabel("Set default value").click();
+  await page.getByLabel("Set default value").fill("default text");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+
+  await page.getByText("Content").click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  await expect(page.getByTitle(`e2e model name / text`, { exact: true })).toBeVisible();
+  await page.getByLabel("Back").click();
+
+  await page.getByRole("button", { name: "plus New Item" }).click();
+  await expect(page.getByTitle("e2e model name", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
+  await expect(page.getByTitle(`e2e model name / default text`, { exact: true })).toBeVisible();
 });
 
 test("Comment CRUD on Content page has succeeded", async ({ page }) => {

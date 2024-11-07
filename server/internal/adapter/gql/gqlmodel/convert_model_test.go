@@ -1,10 +1,11 @@
 package gqlmodel
 
 import (
-	"github.com/samber/lo"
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
+
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -15,7 +16,7 @@ func TestToModel(t *testing.T) {
 	mId := model.NewID()
 	pId := project.NewID()
 	sId := schema.NewID()
-	k := key.Random()
+	k := id.RandomKey()
 	tests := []struct {
 		name  string
 		model *model.Model

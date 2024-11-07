@@ -38,7 +38,7 @@ type Props = {
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  disabled?: boolean;
+  disabled: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -61,7 +61,11 @@ type Props = {
   disableMoveDown?: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference?: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
 };
 
 const GroupItem: React.FC<Props> = ({

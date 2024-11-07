@@ -41,7 +41,7 @@ input DeleteIntegrationInput {
   integrationId: ID!
 }
 
-input RegenerateTokenInput {
+input RegenerateIntegrationTokenInput {
   integrationId: ID!
 }
 
@@ -60,5 +60,5 @@ extend type Mutation {
   createIntegration(input: CreateIntegrationInput!): IntegrationPayload
   updateIntegration(input: UpdateIntegrationInput!): IntegrationPayload
   deleteIntegration(input: DeleteIntegrationInput!): DeleteIntegrationPayload
-  regenerateToken(input: RegenerateTokenInput!): IntegrationPayload
+  regenerateIntegrationToken(input: RegenerateIntegrationTokenInput!): IntegrationPayload
 }

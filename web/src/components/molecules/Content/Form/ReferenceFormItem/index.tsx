@@ -6,6 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import LinkItemModal from "@reearth-cms/components/molecules/Content/LinkItemModal";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
+import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../../types";
@@ -15,10 +16,12 @@ type Props = {
   value?: string;
   disabled?: boolean;
   loading?: boolean;
-  correspondingFieldId: string;
+  fieldId: string;
+  itemGroupId?: string;
+  formItemsData?: FormItem[];
+  correspondingField?: CorrespondingField;
   modelId?: string;
   titleFieldId?: string | null;
-  formItemsData?: FormItem[];
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
@@ -27,7 +30,11 @@ type Props = {
   onSearchTerm?: (term?: string) => void;
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
-  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference?: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
   onChange?: (value?: string) => void;
 };
 
@@ -36,7 +43,9 @@ const ReferenceFormItem: React.FC<Props> = ({
   value,
   disabled,
   loading,
-  correspondingFieldId,
+  fieldId,
+  itemGroupId,
+  correspondingField,
   modelId,
   titleFieldId,
   formItemsData,
@@ -89,9 +98,9 @@ const ReferenceFormItem: React.FC<Props> = ({
             disabled={disabled}
           />
           {!disabled && (
-            <Button
+            <UnreferButton
               type="link"
-              icon={<Icon icon={"unlinkSolid"} size={16} />}
+              icon={<Icon icon={"arrowUpRightSlash"} size={16} />}
               onClick={() => {
                 onChange?.();
               }}
@@ -101,7 +110,7 @@ const ReferenceFormItem: React.FC<Props> = ({
       )}
       {!disabled && (
         <StyledButton onClick={handleClick} type="primary">
-          <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
+          <Icon icon="arrowUpRight" size={14} /> {value ? t("Replace item") : t("Refer to item")}
         </StyledButton>
       )}
       {!!onSearchTerm &&
@@ -111,7 +120,9 @@ const ReferenceFormItem: React.FC<Props> = ({
           <LinkItemModal
             visible={visible}
             loading={!!loading}
-            correspondingFieldId={correspondingFieldId}
+            fieldId={fieldId}
+            itemGroupId={itemGroupId}
+            correspondingField={correspondingField}
             linkedItemsModalList={linkedItemsModalList}
             linkedItem={value}
             linkItemModalTitle={linkItemModalTitle}
@@ -130,13 +141,14 @@ const ReferenceFormItem: React.FC<Props> = ({
   );
 };
 
+const UnreferButton = styled(Button)`
+  color: #000000d9;
+`;
+
 const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
   margin-top: 8px;
-  > span {
-    padding: 4px;
-  }
 `;
 
 const ReferenceItemWrapper = styled.div`

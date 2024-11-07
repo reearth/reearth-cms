@@ -17,6 +17,7 @@ const ContentDetails: React.FC = () => {
     itemId,
     itemLoading,
     currentModel,
+    title,
     currentItem,
     initialFormValues,
     initialMetaFormValues,
@@ -62,6 +63,10 @@ const ContentDetails: React.FC = () => {
     handleAddItemToRequestModalOpen,
     handleGroupGet,
     handleCheckItemReference,
+    hasRequestCreateRight,
+    hasRequestUpdateRight,
+    hasPublishRight,
+    hasItemUpdateRight,
   } = useHooks();
 
   const {
@@ -91,6 +96,10 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      hasRequestCreateRight={hasRequestCreateRight}
+      hasRequestUpdateRight={hasRequestUpdateRight}
+      hasPublishRight={hasPublishRight}
+      hasItemUpdateRight={hasItemUpdateRight}
       linkItemModalTitle={linkItemModalTitle}
       linkItemModalTotalCount={linkItemModalTotalCount}
       linkItemModalPage={linkItemModalPage}
@@ -125,6 +134,7 @@ const ContentDetails: React.FC = () => {
           />
         ) : undefined
       }
+      title={title}
       item={currentItem}
       itemId={itemId}
       itemLoading={itemLoading}

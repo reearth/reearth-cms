@@ -9,9 +9,9 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ListToolBarProps, TableRowSelection } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
-import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -22,7 +22,6 @@ type Props = {
     id?: string;
     myWorkspace?: string;
   };
-  isOwner: boolean;
   isAbleToLeave: boolean;
   handleMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
   onLeave: (userId: string) => Promise<void>;
@@ -39,11 +38,13 @@ type Props = {
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
   onReload: () => void;
+  hasInviteRight: boolean;
+  hasRemoveRight: boolean;
+  hasChangeRoleRight: boolean;
 };
 
 const MemberTable: React.FC<Props> = ({
   me,
-  isOwner,
   isAbleToLeave,
   handleMemberRemoveFromWorkspace,
   onLeave,
@@ -58,19 +59,44 @@ const MemberTable: React.FC<Props> = ({
   onTableChange,
   loading,
   onReload,
+  hasInviteRight,
+  hasRemoveRight,
+  hasChangeRoleRight,
 }) => {
   const t = useT();
 
   const handleMemberDelete = useCallback(
-    (userIds: string[]) => {
+    (users: User[]) => {
       confirm({
-        title: t("Are you sure to remove this member?"),
+        title:
+          users.length > 1
+            ? t("Are you sure to remove these members?")
+            : t("Are you sure to remove this member?"),
         icon: <Icon icon="exclamationCircle" />,
-        content: t(
-          "Remove this member from workspace means this member will not view any content of this workspace.",
+        content: (
+          <>
+            <RemoveUsers>
+              {users.map(user => (
+                <RemoveUser key={user.id}>
+                  <UserAvatar username={user.name} />
+                  <UserInfoWrapper>
+                    <UserInfo>{user.name}</UserInfo>
+                    <Email>{user.email}</Email>
+                  </UserInfoWrapper>
+                </RemoveUser>
+              ))}
+            </RemoveUsers>
+            <div>
+              {t(
+                "Remove this member from workspace means this member will not view any content of this workspace.",
+              )}
+            </div>
+          </>
         ),
+        okText: t("Yes"),
+        cancelText: t("No"),
         async onOk() {
-          await handleMemberRemoveFromWorkspace(userIds);
+          await handleMemberRemoveFromWorkspace(users.map(user => user.id));
         },
       });
     },
@@ -125,8 +151,8 @@ const MemberTable: React.FC<Props> = ({
         title: t("Action"),
         dataIndex: "action",
         key: "action",
-        width: 128,
-        minWidth: 128,
+        width: 150,
+        minWidth: 150,
       },
     ],
     [t],
@@ -145,26 +171,43 @@ const MemberTable: React.FC<Props> = ({
             <ActionButton
               type="link"
               onClick={() => handleRoleModalOpen(member)}
-              disabled={!isOwner || member.userId === me.id}>
+              disabled={!hasChangeRoleRight || member.userId === me.id}>
               {t("Change Role?")}
             </ActionButton>
-            {member.userId === me.id && (
-              <>
-                <Divider type="vertical" />
-                <ActionButton
-                  type="link"
-                  onClick={() => {
-                    leaveConfirm(member.userId);
-                  }}
-                  disabled={!isAbleToLeave}>
-                  {t("Leave")}
-                </ActionButton>
-              </>
+            <Divider type="vertical" />
+            {member.userId === me.id ? (
+              <ActionButton
+                type="link"
+                onClick={() => {
+                  leaveConfirm(member.userId);
+                }}
+                disabled={!isAbleToLeave}>
+                {t("Leave")}
+              </ActionButton>
+            ) : (
+              <ActionButton
+                type="link"
+                onClick={() => {
+                  handleMemberDelete([member.user]);
+                }}
+                disabled={!hasRemoveRight}>
+                {t("Remove")}
+              </ActionButton>
             )}
           </>
         ),
       })),
-    [workspaceUserMembers, t, isOwner, me.id, isAbleToLeave, handleRoleModalOpen, leaveConfirm],
+    [
+      workspaceUserMembers,
+      t,
+      hasChangeRoleRight,
+      me.id,
+      isAbleToLeave,
+      hasRemoveRight,
+      handleRoleModalOpen,
+      leaveConfirm,
+      handleMemberDelete,
+    ],
   );
 
   const toolbar: ListToolBarProps = useMemo(
@@ -210,21 +253,21 @@ const MemberTable: React.FC<Props> = ({
   const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => (
-      <Space size={16}>
-        <DeselectButton onClick={props.onCleanSelected}>
-          <Icon icon="clear" /> {t("Deselect")}
-        </DeselectButton>
-        <DeleteButton onClick={() => handleMemberDelete(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Remove")}
-        </DeleteButton>
-      </Space>
+      <Button
+        type="link"
+        size="small"
+        icon={<Icon icon="userGroupDelete" />}
+        onClick={() => handleMemberDelete(props.selectedRows)}
+        danger
+        disabled={!hasRemoveRight}>
+        {t("Remove")}
+      </Button>
     ),
-    [handleMemberDelete, t],
+    [handleMemberDelete, t, hasRemoveRight],
   );
 
   const options = useMemo(
     () => ({
-      fullScreen: true,
       reload: onReload,
     }),
     [onReload],
@@ -238,7 +281,8 @@ const MemberTable: React.FC<Props> = ({
           <Button
             type="primary"
             onClick={handleMemberAddModalOpen}
-            icon={<Icon icon="userGroupAdd" />}>
+            icon={<Icon icon="userGroupAdd" />}
+            disabled={!hasInviteRight}>
             {t("New Member")}
           </Button>
         }
@@ -263,6 +307,36 @@ const MemberTable: React.FC<Props> = ({
   );
 };
 
+const RemoveUsers = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8px;
+`;
+
+const RemoveUser = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+`;
+
+const UserInfoWrapper = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const UserInfo = styled.p`
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const Email = styled(UserInfo)`
+  color: #00000073;
+`;
+
 const PaddedContent = styled(Content)`
   padding: 16px 16px 0;
   height: 100%;
@@ -277,19 +351,6 @@ const TableWrapper = styled.div`
 const ActionButton = styled(Button)`
   padding-left: 0;
   padding-right: 0;
-`;
-
-const DeselectButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
-  :hover {
-    color: #ff7875b3;
-  }
 `;
 
 export default MemberTable;

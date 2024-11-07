@@ -1,3 +1,4 @@
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
@@ -17,22 +18,24 @@ export type ItemAsset = {
   fileName: string;
 };
 
+export type Metadata = {
+  id?: string;
+  version: string;
+  fields: ItemField[] | undefined | null;
+};
+
 export type Item = {
   id: string;
   version: string;
   schemaId: string;
-  createdBy?: string;
-  updatedBy?: string;
+  createdBy?: Partial<User>;
+  updatedBy?: Partial<User>;
   createdAt: Date;
   updatedAt: Date;
   status: ItemStatus;
   referencedItems: FormItem[];
   fields: ItemField[] | undefined | null;
-  metadata: {
-    id?: string;
-    version: string;
-    fields: ItemField[] | undefined | null;
-  };
+  metadata: Metadata;
   threadId: string;
   comments: Comment[];
   assets: ItemAsset[];
@@ -52,7 +55,7 @@ export type FormItem = {
 
 export type ContentTableField = {
   id: string;
-  createdBy: string;
+  createdBy: { id: string; name: string };
   updatedBy: string;
   schemaId: string;
   status: ItemStatus;

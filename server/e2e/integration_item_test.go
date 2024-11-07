@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 	"time"
 
@@ -18,7 +17,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -39,6 +37,7 @@ var (
 	wId0   = accountdomain.NewWorkspaceID()
 	uId    = accountdomain.NewUserID()
 	iId    = id.NewIntegrationID()
+	mId0   = id.NewModelID()
 	mId1   = id.NewModelID()
 	mId2   = id.NewModelID()
 	mId3   = id.NewModelID()
@@ -68,24 +67,26 @@ var (
 	thId4  = id.NewThreadID()
 	thId5  = id.NewThreadID()
 	icId   = id.NewCommentID()
-	ikey1  = key.Random()
-	ikey2  = key.Random()
-	ikey3  = key.Random()
-	ikey4  = key.Random()
+	ikey0  = id.RandomKey()
+	ikey1  = id.RandomKey()
+	ikey2  = id.RandomKey()
+	ikey3  = id.RandomKey()
+	ikey4  = id.RandomKey()
 	pid    = id.NewProjectID()
+	sid0   = id.NewSchemaID()
 	sid1   = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
 	sid3   = id.NewSchemaID()
 	palias = "PROJECT_ALIAS"
-	sfKey1 = key.Random()
+	sfKey1 = id.RandomKey()
 	sfKey2 = id.NewKey("asset")
-	sfKey3 = key.Random()
-	sfKey4 = key.Random()
+	sfKey3 = id.RandomKey()
+	sfKey4 = id.RandomKey()
 	sfKey5 = id.NewKey("asset-key")
 	sfKey6 = id.NewKey("group-key")
 	sfKey7 = id.NewKey("geometry-key")
 	sfKey8 = id.NewKey("geometry-editor-key")
-	gKey1  = key.Random()
+	gKey1  = id.RandomKey()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
 	gId3   = id.NewItemGroupID()
@@ -153,6 +154,11 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	sf3 := schema.NewField(schema.NewReference(mId1, sid1, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId4).Key(sfKey4).MustBuild()
 
+	s0 := schema.New().ID(sid0).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{}).MustBuild()
+	if err := r.Schema.Save(ctx, s0); err != nil {
+		return err
+	}
+
 	s1 := schema.New().ID(sid1).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf1, sf2}).TitleField(sf1.ID().Ref()).MustBuild()
 	if err := r.Schema.Save(ctx, s1); err != nil {
 		return err
@@ -165,6 +171,19 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 
 	s3 := schema.New().ID(sid3).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf4}).MustBuild()
 	if err := r.Schema.Save(ctx, s3); err != nil {
+		return err
+	}
+
+	m0 := model.New().
+		ID(mId0).
+		Name("m0").
+		Description("m0 desc").
+		Public(true).
+		Key(ikey0).
+		Project(p.ID()).
+		Schema(s0.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m0); err != nil {
 		return err
 	}
 
@@ -326,7 +345,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	f := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
+	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
+	f2 := asset.NewFile().Name("bbb.jpg").Size(1000).ContentType("image/jpg").Build()
 	a1 := asset.New().ID(aid1).
 		Project(p.ID()).
 		CreatedByUser(u.ID()).
@@ -350,37 +370,37 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Asset.Save(ctx, a2); err != nil {
 		return err
 	}
-	if err := r.AssetFile.Save(ctx, a1.ID(), f); err != nil {
+	if err := r.AssetFile.Save(ctx, a1.ID(), f1); err != nil {
 		return err
 	}
-	if err := r.AssetFile.Save(ctx, a2.ID(), f); err != nil {
+	if err := r.AssetFile.Save(ctx, a2.ID(), f2); err != nil {
 		return err
 	}
 	// endregion
 
 	// Default value
-	msf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewBool().TypeProperty().Type().Value(true).AsMultiple()).MustBuild()
+	msf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewBool().TypeProperty().Type().Value(true).AsMultiple()).MustBuild()
 	sm := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{msf1}).MustBuild()
 	if err := r.Schema.Save(ctx, sm); err != nil {
 		return err
 	}
-	gsf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default group").AsMultiple()).MustBuild()
+	gsf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default group").AsMultiple()).MustBuild()
 	gs := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{gsf}).MustBuild()
 	if err := r.Schema.Save(ctx, gs); err != nil {
 		return err
 	}
-	gp := group.New().NewID().Name("group2").Project(pid).Key(key.Random()).Schema(gs.ID()).MustBuild()
+	gp := group.New().NewID().Name("group2").Project(pid).Key(id.RandomKey()).Schema(gs.ID()).MustBuild()
 	if err := r.Group.Save(ctx, gp); err != nil {
 		return err
 	}
-	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(key.Random()).MustBuild()
-	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
-	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(id.RandomKey()).MustBuild()
+	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
+	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 
 	gst2 := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 
 	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
@@ -391,7 +411,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Name("dvm").
 		Description("dvm desc").
 		Public(true).
-		Key(key.Random()).
+		Key(id.RandomKey()).
 		Project(pid).
 		Schema(dvs1.ID()).
 		Metadata(sm.ID().Ref()).
@@ -424,7 +444,7 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
-func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.Value {
 	res := e.GET("/api/models/{modelId}/items.geojson", mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -438,57 +458,7 @@ func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage i
 	return res
 }
 
-func IntegrationModelImportMultiPart(e *httpexpect.Expect, mId string, format string, strategy string, mutateSchema bool, geometryFieldKey string, content string) *httpexpect.Value {
-	res := e.PUT("/api/models/{modelId}/import", mId).
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		//WithHeader("Content-Type", "multipart/form-data").
-		WithMultipart().
-		WithFile("file", "./test.geojson", strings.NewReader(content)).
-		WithFormField("format", format).
-		WithFormField("strategy", strategy).
-		WithFormField("mutateSchema", fmt.Sprintf("%t", mutateSchema)).
-		WithFormField("geometryFieldKey", geometryFieldKey).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
-
-	return res
-}
-
-func IntegrationModelImportJSON(e *httpexpect.Expect, mId string, assetId string, format string, strategy string, mutateSchema bool, geometryFieldKey *string) *httpexpect.Value {
-	res := e.PUT("/api/models/{modelId}/import", mId).
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(map[string]any{
-			"assetId":          assetId,
-			"format":           format,
-			"strategy":         strategy,
-			"mutateSchema":     mutateSchema,
-			"geometryFieldKey": geometryFieldKey,
-		}).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
-
-	return res
-}
-
-func UploadAsset(e *httpexpect.Expect, pId string, path string, content string) *httpexpect.Value {
-	res := e.POST("/api/projects/{projectId}/assets", pId).
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithMultipart().
-		WithFile("file", path, strings.NewReader(content)).
-		WithForm(map[string]any{"skipDecompression": true}).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
-
-	return res
-}
-
-func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.Value {
 	res := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson", pId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -502,7 +472,7 @@ func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId 
 	return res
 }
 
-func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.String {
+func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.String {
 	res := e.GET("/api/models/{modelId}/items.csv", mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -516,7 +486,7 @@ func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
-func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId string, page, perPage int, query string, sort, sortDir string, filter map[string]any) *httpexpect.String {
+func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.String {
 	res := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv", pId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -1297,7 +1267,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10, i1Id, "", "", nil)
+	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1308,206 +1278,6 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	g := f.Value("geometry").Object()
 	g.Value("type").String().IsEqual("Point")
 	g.Value("coordinates").Array().IsEqual([]float64{139.28179282584915, 36.58570985749664})
-}
-
-// POST /models/{modelId}/import //body: multipart
-func TestIntegrationModelImportMultiPart(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
-	mId, _ := createModel(e, pId, "test", "test", "test-1")
-	fids := createFieldOfEachType(t, e, mId)
-
-	// strategy="insert" and mutateSchema=false
-	fileContent1 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	res1 := IntegrationModelImportMultiPart(e, mId, "geoJson", "insert", false, fids.geometryObjectFid, fileContent1)
-	res1.Object().Value("modelId").String().IsEqual(mId)
-	res1.Object().Value("itemsCount").Number().IsEqual(1)
-	res1.Object().Value("insertedCount").Number().IsEqual(1)
-	res1.Object().Value("updatedCount").Number().IsEqual(0)
-	res1.Object().Value("ignoredCount").Number().IsEqual(0)
-	//newFields1 := res1.Object().Value("newFields").Array()
-	//newFields1.Length().IsEqual(1)
-	//field1 := newFields1.Value(0).Object()
-	//field1.Value("key").String().IsEqual(fids.geometryObjectFid)
-	items1 := IntegrationSearchItem(e, mId, 1, 10, "", "", "", nil)
-	items1.Object().Value("items").Array().Length().IsEqual(1)
-
-	// 	// strategy="insert" and mutateSchema=true
-	// fileContent2 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res2 := IntegrationModelImport(e, mId, "geoJson", "insert", true, fids.geometryObjectFid, fileContent2)
-
-	// // strategy="update" and mutateSchema=false
-	// fileContent3 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res3 := IntegrationModelImport(e, mId, "geoJson", "update", false, fids.geometryObjectFid, fileContent3)
-
-	// // strategy="update" and mutateSchema=true
-	// fileContent4 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res4 := IntegrationModelImport(e, mId, "geoJson", "update", true, fids.geometryObjectFid, fileContent4)
-
-	// // strategy="upsert" and mutateSchema=false
-	// fileContent5 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res5 := IntegrationModelImport(e, mId, "geoJson", "upsert", false, fids.geometryObjectFid, fileContent5)
-
-	// // strategy="upsert" and mutateSchema=true
-	// fileContent6 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// res6 := IntegrationModelImport(e, mId, "geoJson", "upsert", true, fids.geometryObjectFid, fileContent6)
-}
-
-// POST /models/{modelId}/import //body: json, content: geoJson
-func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
-	mId, _ := createModel(e, pId, "test", "test", "test-1")
-	fids := createFieldOfEachType(t, e, mId)
-
-	// strategy="insert" and mutateSchema=false
-	fileContent1 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	aId := UploadAsset(e, pId, "./test1.geojson", fileContent1).Object().Value("id").String().Raw()
-	res := IntegrationModelImportJSON(e, mId, aId, "geoJson", "insert", false, &fids.geometryObjectFid)
-	res.Object().Value("modelId").String().IsEqual(mId)
-	res.Object().IsEqual(map[string]any{
-		"modelId":       mId,
-		"itemsCount":    1,
-		"insertedCount": 1,
-		"updatedCount":  0,
-		"ignoredCount":  0,
-		"newFields":     []any{},
-	})
-
-	obj := e.GET("/api/models/{modelId}/items", mId).
-		// WithHeader("authorization", "Bearer "+secret).
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("page", 1).
-		HasValue("perPage", 5).
-		HasValue("totalCount", 1)
-
-	a := obj.Value("items").Array()
-	a.Length().IsEqual(1)
-	i := a.Value(0).Object()
-	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(2)
-
-	// // strategy="insert" and mutateSchema=true
-	// fileContent2 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [239.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// id2 := UploadAsset(e, pId, "./test2.geojson", fileContent2).Object().Value("id").String().Raw()
-	// res2 := IntegrationModelImportJSON(e, mId, id2, "geoJson", "insert", true, fids.geometryObjectFid)
-
-	// // strategy="update" and mutateSchema=false
-	// fileContent3 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// id3 := UploadAsset(e, pId, "./test3.geojson", fileContent3).Object().Value("id").String().Raw()
-	// res3 := IntegrationModelImportJSON(e, mId, id3, "geoJson", "update", false, fids.geometryObjectFid)
-
-	// // strategy="update" and mutateSchema=true
-	// fileContent4 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// id4 := UploadAsset(e, pId, "./test4.geojson", fileContent4).Object().Value("id").String().Raw()
-	// res4 := IntegrationModelImportJSON(e, mId, id4, "geoJson", "update", true, fids.geometryObjectFid)
-
-	// // strategy="upsert" and mutateSchema=false
-	// fileContent5 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// id5 := UploadAsset(e, pId, "./test5.geojson", fileContent5).Object().Value("id").String().Raw()
-	// res5 := IntegrationModelImportJSON(e, mId, id5, "geoJson", "upsert", false, fids.geometryObjectFid)
-
-	// // strategy="upsert" and mutateSchema=true
-	// fileContent6 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	// id6 := UploadAsset(e, pId, "./test6.geojson", fileContent6).Object().Value("id").String().Raw()
-	// res6 := IntegrationModelImportJSON(e, mId, id6, "geoJson", "upsert", true, fids.geometryObjectFid)
-}
-
-// POST /models/{modelId}/import //body: json, content: json
-func TestIntegrationModelImportJSONWithJsonInput(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	// region strategy="insert" and mutateSchema=false
-	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
-	mId, _ := createModel(e, pId, "test", "test", "test-1")
-	createFieldOfEachType(t, e, mId)
-
-	jsonContent := `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2},{"text": "test3", "bool": null, "integer": null}]`
-	aId := UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
-	res := IntegrationModelImportJSON(e, mId, aId, "json", "insert", false, nil)
-	res.Object().IsEqual(map[string]any{
-		"modelId":       mId,
-		"itemsCount":    3,
-		"insertedCount": 3,
-		"updatedCount":  0,
-		"ignoredCount":  0,
-		"newFields":     []any{},
-	})
-
-	obj := e.GET("/api/models/{modelId}/items", mId).
-		// WithHeader("authorization", "Bearer "+secret).
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("page", 1).
-		HasValue("perPage", 5).
-		HasValue("totalCount", 3)
-
-	a := obj.Value("items").Array()
-	a.Length().IsEqual(3)
-	i := a.Value(0).Object()
-	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
-	i = a.Value(1).Object()
-	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
-	i = a.Value(2).Object()
-	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(1)
-	// endregion
-
-	// region strategy="insert" and mutateSchema=true
-	mId, _ = createModel(e, pId, "test-2", "test-2", "test-2")
-
-	// jsonContent = `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2}]`
-	// aId = UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
-	res = IntegrationModelImportJSON(e, mId, aId, "json", "insert", true, nil)
-	res.Object().ContainsSubset(map[string]any{
-		"modelId":       mId,
-		"itemsCount":    3,
-		"insertedCount": 3,
-		"updatedCount":  0,
-		"ignoredCount":  0,
-	})
-	res.Object().Value("newFields").Array().Length().IsEqual(3)
-
-	obj = e.GET("/api/models/{modelId}/items", mId).
-		// WithHeader("authorization", "Bearer "+secret).
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("page", 1).
-		HasValue("perPage", 5).
-		HasValue("totalCount", 3)
-
-	a = obj.Value("items").Array()
-	a.Length().IsEqual(3)
-	i = a.Value(0).Object()
-	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
-	i = a.Value(1).Object()
-	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
-	i = a.Value(2).Object()
-	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(1)
-	// endregion
 }
 
 // GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson
@@ -1525,7 +1295,7 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}", "type": "GeometryEditor"},
 	})
 
-	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10, i1Id, "", "", nil)
+	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1552,8 +1322,8 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsCSV(e, mId, 1, 10, i1Id, "", "", nil)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,,,,,\n", i1Id)
+	res := IntegrationItemsAsCSV(e, mId, 1, 10)
+	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
@@ -1572,8 +1342,8 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryEditor"},
 	})
 
-	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10, i1Id, "", "", nil)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,30,,,,\n", i1Id)
+	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10)
+	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,139.28179282584915,36.58570985749664,test1,,,,,,30,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 

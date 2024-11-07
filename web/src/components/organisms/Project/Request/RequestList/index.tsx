@@ -13,7 +13,7 @@ const RequestList: React.FC = () => {
     collapsedCommentsPanel,
     selectedRequest,
     selection,
-    setSelection,
+    handleSelect,
     collapseCommentsPanel,
     handleRequestSelect,
     handleRequestsReload,
@@ -31,6 +31,7 @@ const RequestList: React.FC = () => {
     handleRequestTableChange,
     columns,
     handleColumnsChange,
+    hasCloseRight,
   } = useHooks();
 
   return (
@@ -59,7 +60,7 @@ const RequestList: React.FC = () => {
       searchTerm={searchTerm}
       onSearchTerm={handleSearchTerm}
       selection={selection}
-      setSelection={setSelection}
+      onSelect={handleSelect}
       onEdit={handleNavigateToRequest}
       totalCount={totalCount}
       reviewedByMe={reviewedByMe}
@@ -70,6 +71,7 @@ const RequestList: React.FC = () => {
       pageSize={pageSize}
       columns={columns}
       onColumnsChange={handleColumnsChange}
+      hasCloseRight={hasCloseRight}
     />
   );
 };

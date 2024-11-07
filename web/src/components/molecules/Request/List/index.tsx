@@ -20,7 +20,7 @@ type Props = {
   selection: {
     selectedRowKeys: Key[];
   };
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Request[]) => void;
   onRequestsReload: () => void;
   deleteLoading: boolean;
   onRequestDelete: (requestIds: string[]) => void;
@@ -39,6 +39,7 @@ type Props = {
   pageSize: number;
   columns: Record<string, ColumnsState>;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
+  hasCloseRight: boolean;
 };
 
 const RequestListMolecule: React.FC<Props> = ({
@@ -51,7 +52,7 @@ const RequestListMolecule: React.FC<Props> = ({
   searchTerm,
   onSearchTerm,
   selection,
-  setSelection,
+  onSelect,
   onRequestsReload,
   deleteLoading,
   onRequestDelete,
@@ -64,6 +65,7 @@ const RequestListMolecule: React.FC<Props> = ({
   pageSize,
   columns,
   onColumnsChange,
+  hasCloseRight,
 }) => {
   const t = useT();
 
@@ -82,7 +84,7 @@ const RequestListMolecule: React.FC<Props> = ({
             deleteLoading={deleteLoading}
             onRequestDelete={onRequestDelete}
             onRequestsReload={onRequestsReload}
-            setSelection={setSelection}
+            onSelect={onSelect}
             onRequestSelect={onRequestSelect}
             selectedRequest={selectedRequest}
             onRequestTableChange={onRequestTableChange}
@@ -94,6 +96,7 @@ const RequestListMolecule: React.FC<Props> = ({
             pageSize={pageSize}
             columns={columns}
             onColumnsChange={onColumnsChange}
+            hasCloseRight={hasCloseRight}
           />
         </Content>
       }
@@ -108,7 +111,7 @@ const Content = styled.div`
 `;
 
 const StyledPageHeader = styled(PageHeader)`
-  margin: 0 8px;
+  border-bottom: 1px solid #00000008;
 `;
 
 export default RequestListMolecule;

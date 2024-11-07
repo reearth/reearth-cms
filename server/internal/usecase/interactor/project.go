@@ -3,6 +3,8 @@ package interactor
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -62,7 +64,7 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 			if len(p.RequestRoles) > 0 {
 				pb = pb.RequestRoles(p.RequestRoles)
 			} else {
-				pb = pb.RequestRoles([]workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer, workspace.RoleWriter, workspace.RoleReader})
+				pb = pb.RequestRoles([]workspace.Role{})
 			}
 
 			proj, err := pb.Build()
@@ -161,5 +163,35 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, operator *
 				return err
 			}
 			return nil
+		})
+}
+
+func (i *Project) RegenerateToken(ctx context.Context, pId id.ProjectID, operator *usecase.Operator) (*project.Project, error) {
+	if operator.AcOperator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (*project.Project, error) {
+			p, err := i.repos.Project.FindByID(ctx, pId)
+			if err != nil {
+				return nil, err
+			}
+
+			// check if the user is the owner of the project
+			if !operator.IsOwningProject(p.ID()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			if p.Publication() == nil || p.Publication().Scope() != project.PublicationScopeLimited  {
+				return nil, interfaces.ErrInvalidProject
+			}
+
+			p.Publication().GenerateToken()
+			p.SetUpdatedAt(time.Now())
+			if err := i.repos.Project.Save(ctx, p); err != nil {
+				return nil, err
+			}
+
+			return p, nil
 		})
 }
