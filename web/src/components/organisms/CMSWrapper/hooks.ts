@@ -4,6 +4,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import {
   fromGraphQLMember,
   fromGraphQLWorkspace,
@@ -14,6 +15,7 @@ import {
   useGetProjectQuery,
   WorkspaceMember,
   Workspace as GQLWorkspace,
+  Project as GQLProject,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import {
@@ -145,16 +147,7 @@ export default () => {
     if (projectId) {
       const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
       if (project) {
-        setCurrentProject({
-          id: project.id,
-          name: project.name,
-          description: project.description,
-          scope: project.publication?.scope ?? "PRIVATE",
-          alias: project.alias,
-          assetPublic: project.publication?.assetPublic ?? false,
-          requestRoles: project.requestRoles ?? [],
-          token: project.publication?.token ?? "",
-        });
+        setCurrentProject(fromGraphQLProject(project as GQLProject));
       }
     } else {
       setCurrentProject(undefined);
