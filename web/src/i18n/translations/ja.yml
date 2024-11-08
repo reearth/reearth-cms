@@ -520,8 +520,8 @@ Successfully updated field!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
 Group cannot be deleted: グループを削除できません。
-is used in: ''
-If you want to delete it, please delete the field that uses it first.: 削除したい場合は、まずそれを使っているフィールドを削除してください。
+is used in: は {{modelNames}} にて使用されています。
+If you want to delete it, please delete the field that uses it first.: 削除したい場合は、このグループを使用しているフィールドを先に削除してください。
 Failed to delete group.: グループの削除に失敗しました
 Successfully deleted group!: グループの削除に成功しました！
 Failed to update group.: グループの更新に失敗しました。
@@ -541,7 +541,7 @@ Failed to connect integration.: インテグレーションの接続に失敗し
 Successfully connected integration to the workspace!: インテグレーションの接続に成功しました。
 Failed to update workspace integration.: ワークスペースのインテグレーションの更新に失敗しました。
 Successfully updated workspace integration!: ワークスペースのインテグレーションの更新に成功しました。
-Failed to delete one or more intagrations.: インテグレーションの削除に失敗しました。
+Failed to delete one or more integrations.: インテグレーションの削除に失敗しました。
 One or more integrations were successfully deleted!: インテグレーションの削除に成功しました。
 Failed to add one or more members.: メンバーの追加に失敗しました。
 Successfully added member(s) to the workspace!: メンバーの追加に成功しました。
