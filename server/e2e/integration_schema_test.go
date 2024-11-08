@@ -10,7 +10,7 @@ import (
 )
 
 // GET /projects/{projectIdOrKey}/schemata
-func TestIntegrationScemaFilterAPI(t *testing.T) {
+func TestIntegrationSchemaFilterAPI(t *testing.T) {
 	endpoint := "/api/projects/{projectIdOrKey}/schemata"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 

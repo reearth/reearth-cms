@@ -1312,6 +1312,91 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
+  '/assets/{assetId}/publish':
+    parameters:
+      - $ref: '#/components/parameters/assetIdParam'
+    post:
+      operationId: AssetPublish
+      summary: publish asset
+      tags:
+        - Assets
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/assets/{assetId}/unpublish':
+    parameters:
+      - $ref: '#/components/parameters/assetIdParam'
+    post:
+      operationId: AssetUnpublish
+      summary: publish asset
+      tags:
+        - Assets
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/assets/{uuid1}/{uuid2}/{filename}':
+    parameters:
+      - name: uuid1
+        in: path
+        description: UUID of the asset
+        required: true
+        schema:
+          type: string
+      - name: uuid2
+        in: path
+        description: UUID of the asset
+        required: true
+        schema:
+          type: string
+      - name: filename
+        in: path
+        description: Filename of the asset
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: AssetContentGet
+      summary: get asset content
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/assets/{assetId}/comments':
     parameters:
       - $ref: '#/components/parameters/assetIdParam'
@@ -1907,6 +1992,7 @@ components:
         - url
         - createdAt
         - updatedAt
+        - public
       properties:
         id:
           x-go-type: id.AssetID
@@ -1948,6 +2034,8 @@ components:
         updatedAt:
           type: string
           format: date-time
+        public:
+          type: boolean
     comment:
       type: object
       properties:

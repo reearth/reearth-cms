@@ -25,7 +25,7 @@ var (
 		"project,size,id",
 		"!createdat,!id",
 	}
-	assetUniqueIndexes = []string{"id"}
+	assetUniqueIndexes = []string{"id", "uuid"}
 )
 
 type Asset struct {
@@ -58,6 +58,12 @@ func (r *Asset) Filtered(f repo.ProjectFilter) repo.Asset {
 func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, error) {
 	return r.findOne(ctx, bson.M{
 		"id": id.String(),
+	})
+}
+
+func (r *Asset) FindByUUID(ctx context.Context, uuid string) (*asset.Asset, error) {
+	return r.findOne(ctx, bson.M{
+		"uuid": uuid,
 	})
 }
 

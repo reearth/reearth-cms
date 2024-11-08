@@ -330,6 +330,7 @@ func TestCreateModel(t *testing.T) {
 		HasValue("key", "test-1")
 
 }
+
 func TestUpdateModel(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
