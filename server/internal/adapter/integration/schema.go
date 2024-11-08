@@ -360,6 +360,14 @@ func (s *Server) FieldDeleteWithProject(ctx context.Context, request FieldDelete
 	}, err
 }
 
+func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelAsJSONRequestObject) (SchemaByModelAsJSONResponseObject, error) {
+	panic("not implemented")
+}
+
+func (s *Server) MetadataSchemaByModelAsJSON(ctx context.Context, request MetadataSchemaByModelAsJSONRequestObject) (MetadataSchemaByModelAsJSONResponseObject, error) {
+	panic("not implemented")
+}
+
 func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request SchemaByModelWithProjectAsJSONRequestObject) (SchemaByModelWithProjectAsJSONResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
@@ -396,6 +404,10 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 		Type:        lo.ToPtr("object"),
 		Properties:  toProperties(sch.Schema()),
 	}, nil
+}
+
+func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, request MetadataSchemaByModelWithProjectAsJSONRequestObject) (MetadataSchemaByModelWithProjectAsJSONResponseObject, error) {
+	panic("not implemented")
 }
 
 func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error) {
