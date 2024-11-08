@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
+import useHooks from "@reearth-cms/components/organisms/Workspace/hooks";
 import {
   useUpdateProjectMutation,
   useDeleteProjectMutation,
@@ -17,6 +18,7 @@ type Params = {
 };
 
 export default ({ projectId }: Params) => {
+  const { projectsRefetch } = useHooks();
   const t = useT();
   const navigate = useNavigate();
 
@@ -80,9 +82,10 @@ export default ({ projectId }: Params) => {
       Notification.error({ message: t("Failed to delete project.") });
     } else {
       Notification.success({ message: t("Successfully deleted project!") });
+      projectsRefetch();
       navigate(`/workspace/${workspaceId}`);
     }
-  }, [projectId, deleteProjectMutation, navigate, workspaceId, t]);
+  }, [projectId, deleteProjectMutation, t, projectsRefetch, navigate, workspaceId]);
 
   const [assetModalOpened, setOpenAssets] = useState(false);
 
