@@ -2,9 +2,9 @@ import styled from "@emotion/styled";
 import { Key } from "rc-table/lib/interface";
 import { useCallback, useEffect, useState } from "react";
 
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
@@ -51,13 +51,6 @@ const UnzipFileList: React.FC<Props> = ({
     [previewFile, selectedKeys],
   );
 
-  const handleCopy = useCallback(
-    (path: string) => {
-      navigator.clipboard.writeText(assetBaseUrl + path);
-    },
-    [assetBaseUrl],
-  );
-
   return (
     <UnzipFileListWrapper>
       {archiveExtractionStatus === "IN_PROGRESS" || archiveExtractionStatus === "PENDING" ? (
@@ -84,16 +77,21 @@ const UnzipFileList: React.FC<Props> = ({
             multiple={false}
             showLine={{ showLeafIcon: true }}
             titleRender={({ title, key, path }) => {
-              return (
-                <>
-                  {title}
-                  {selectedKeys[0] === key && (
-                    <Tooltip title={t("URL copied!!")} trigger={"click"}>
-                      <CopyIcon icon="copy" onClick={() => handleCopy(path)} />
-                    </Tooltip>
-                  )}
-                </>
-              );
+              if (typeof title !== "function") {
+                return (
+                  <TitleWrapper>
+                    <Title>{title}</Title>
+                    {selectedKeys[0] === key && (
+                      <CopyButton
+                        copyable={{
+                          text: assetBaseUrl + path,
+                          tooltips: [t("URL copy"), t("URL copied!!")],
+                        }}
+                      />
+                    )}
+                  </TitleWrapper>
+                );
+              }
             }}
           />
         )
@@ -106,6 +104,12 @@ const UnzipFileListWrapper = styled.div`
   height: 250px;
   overflow-y: scroll;
   background-color: #f5f5f5;
+  .ant-tree-treenode {
+    max-width: 100%;
+  }
+  .ant-tree-node-content-wrapper {
+    min-width: 0;
+  }
 `;
 
 const ExtractionInProgressWrapper = styled.div`
@@ -137,13 +141,15 @@ const ExtractionFailedText = styled.p`
   color: rgba(0, 0, 0, 0.85);
 `;
 
-const CopyIcon = styled(Icon)`
-  margin-left: 6px;
-  transition: all 0.3s;
-  color: rgb(0, 0, 0, 0.45);
-  :hover {
-    color: rgba(0, 0, 0, 0.88);
-  }
+const TitleWrapper = styled.span`
+  display: flex;
+  gap: 6px;
+`;
+
+const Title = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const SwitcherIcon = styled(Icon)`
