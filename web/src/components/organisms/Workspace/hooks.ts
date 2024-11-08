@@ -43,7 +43,7 @@ export default () => {
 
   const projects = useMemo(() => {
     return data?.projects.nodes
-      .map<Project | undefined>(project =>
+      .map<Pick<Project, "id" | "description" | "name"> | undefined>(project =>
         project
           ? {
               id: project.id,

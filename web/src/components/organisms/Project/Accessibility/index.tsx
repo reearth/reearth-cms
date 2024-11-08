@@ -10,10 +10,14 @@ const Accessibility: React.FC = () => {
     assetState,
     isSaveDisabled,
     hasPublishRight,
-    loading,
+    updateLoading,
+    regenerateLoading,
     apiUrl,
+    alias,
+    token,
     handleValuesChange,
     handlePublicUpdate,
+    handleRegenerateToken,
   } = useHooks();
 
   return (
@@ -24,10 +28,14 @@ const Accessibility: React.FC = () => {
       assetState={assetState}
       isSaveDisabled={isSaveDisabled}
       hasPublishRight={hasPublishRight}
-      loading={loading}
+      updateLoading={updateLoading}
+      regenerateLoading={regenerateLoading}
       apiUrl={apiUrl}
-      handleValuesChange={handleValuesChange}
-      handlePublicUpdate={handlePublicUpdate}
+      alias={alias}
+      token={token}
+      onValuesChange={handleValuesChange}
+      onPublicUpdate={handlePublicUpdate}
+      onRegenerateToken={handleRegenerateToken}
     />
   );
 };

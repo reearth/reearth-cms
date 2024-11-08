@@ -3,7 +3,6 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   fromGraphQLMember,
@@ -13,7 +12,6 @@ import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
   useGetProjectQuery,
-  ProjectPublicationScope,
   WorkspaceMember,
   Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -151,10 +149,11 @@ export default () => {
           id: project.id,
           name: project.name,
           description: project.description,
-          scope: convertScope(project.publication?.scope),
+          scope: project.publication?.scope ?? "PRIVATE",
           alias: project.alias,
-          assetPublic: project.publication?.assetPublic,
-          requestRoles: project.requestRoles ?? undefined,
+          assetPublic: project.publication?.assetPublic ?? false,
+          requestRoles: project.requestRoles ?? [],
+          token: project.publication?.token ?? "",
         });
       }
     } else {
@@ -219,6 +218,3 @@ export default () => {
     logoUrl,
   };
 };
-
-const convertScope = (scope?: ProjectPublicationScope): PublicScope =>
-  !scope || scope === "LIMITED" ? "PRIVATE" : scope;

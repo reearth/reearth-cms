@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
+import { FormType, PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import {
@@ -11,6 +11,7 @@ import {
   Model as GQLModel,
   ProjectPublicationScope,
   useUpdateProjectMutation,
+  useRegeneratePublicApiTokenMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
@@ -27,7 +28,7 @@ export default () => {
   const modelsState = Form.useWatch("models", form) ?? {};
   const assetState = !!Form.useWatch("assetPublic", form);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   const { data: modelsData } = useGetModelsQuery({
     variables: {
@@ -45,6 +46,9 @@ export default () => {
     [modelsData?.models.nodes],
   );
 
+  const alias = useMemo(() => currentProject?.alias ?? "", [currentProject?.alias]);
+  const token = useMemo(() => currentProject?.token ?? "", [currentProject?.token]);
+
   const initialValues = useMemo(() => {
     const modelsObj: Record<string, boolean> = {};
     models?.forEach(model => {
@@ -52,11 +56,12 @@ export default () => {
     });
     return {
       scope: currentProject?.scope,
-      alias: currentProject?.alias,
+      alias,
+      token,
       assetPublic: !!currentProject?.assetPublic,
       models: modelsObj,
     };
-  }, [currentProject?.alias, currentProject?.assetPublic, currentProject?.scope, models]);
+  }, [alias, currentProject?.assetPublic, currentProject?.scope, models, token]);
 
   useEffect(() => {
     form.setFieldsValue(initialValues);
@@ -87,6 +92,16 @@ export default () => {
     [initialValues],
   );
 
+  const scopeConvert = useCallback((scope?: PublicScope) => {
+    if (scope === "PUBLIC") {
+      return ProjectPublicationScope.Public;
+    } else if (scope === "LIMITED") {
+      return ProjectPublicationScope.Limited;
+    } else {
+      return ProjectPublicationScope.Private;
+    }
+  }, []);
+
   const [updateProjectMutation] = useUpdateProjectMutation();
   const [updateModelMutation] = useUpdateModelMutation({
     refetchQueries: ["GetModels"],
@@ -94,7 +109,7 @@ export default () => {
 
   const handlePublicUpdate = useCallback(async () => {
     if (!currentProject?.id) return;
-    setLoading(true);
+    setUpdateLoading(true);
     try {
       const { alias, scope, assetPublic } = form.getFieldsValue();
       if (initialValues.scope !== scope || initialValues.assetPublic !== assetPublic) {
@@ -103,10 +118,7 @@ export default () => {
             alias,
             projectId: currentProject.id,
             publication: {
-              scope:
-                scope === "PUBLIC"
-                  ? ProjectPublicationScope.Public
-                  : ProjectPublicationScope.Private,
+              scope: scopeConvert(scope),
               assetPublic,
             },
           },
@@ -134,17 +146,41 @@ export default () => {
       Notification.error({ message: t("Failed to update publication settings.") });
       setIsSaveDisabled(false);
     } finally {
-      setLoading(false);
+      setUpdateLoading(false);
     }
   }, [
     currentProject?.id,
     form,
     initialValues.assetPublic,
     initialValues.scope,
+    scopeConvert,
     t,
     updateModelMutation,
     updateProjectMutation,
   ]);
+
+  const [regeneratePublicApiToken, { loading: regenerateLoading }] =
+    useRegeneratePublicApiTokenMutation({
+      refetchQueries: ["GetProject"],
+    });
+
+  const handleRegenerateToken = useCallback(async () => {
+    if (!currentProject?.id) return;
+    const result = await regeneratePublicApiToken({
+      variables: {
+        projectId: currentProject.id,
+      },
+    });
+    if (result.errors) {
+      Notification.error({
+        message: t("The attempt to re-generate the Public API Token has failed."),
+      });
+    } else {
+      Notification.success({
+        message: t("Public API Token has been re-generated!"),
+      });
+    }
+  }, [currentProject?.id, regeneratePublicApiToken, t]);
 
   const apiUrl = useMemo(
     () => `${window.REEARTH_CONFIG?.api}/p/${currentProject?.alias}/`,
@@ -158,9 +194,13 @@ export default () => {
     assetState,
     isSaveDisabled,
     hasPublishRight,
-    loading,
+    updateLoading,
+    regenerateLoading,
     apiUrl,
+    alias,
+    token,
     handleValuesChange,
     handlePublicUpdate,
+    handleRegenerateToken,
   };
 };

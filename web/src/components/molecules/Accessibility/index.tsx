@@ -1,16 +1,17 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Input from "@reearth-cms/components/atoms/Input";
+import Password from "@reearth-cms/components/atoms/Password";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
@@ -30,10 +31,14 @@ type Props = {
   assetState: boolean;
   isSaveDisabled: boolean;
   hasPublishRight: boolean;
-  loading: boolean;
+  updateLoading: boolean;
+  regenerateLoading: boolean;
   apiUrl: string;
-  handleValuesChange: (changedValues: Partial<FormType>, values: FormType) => void;
-  handlePublicUpdate: () => Promise<void>;
+  alias: string;
+  token: string;
+  onValuesChange: (changedValues: Partial<FormType>, values: FormType) => void;
+  onPublicUpdate: () => Promise<void>;
+  onRegenerateToken: () => Promise<void>;
 };
 
 const Accessibility: React.FC<Props> = ({
@@ -43,12 +48,17 @@ const Accessibility: React.FC<Props> = ({
   assetState,
   isSaveDisabled,
   hasPublishRight,
-  loading,
+  updateLoading,
+  regenerateLoading,
   apiUrl,
-  handleValuesChange,
-  handlePublicUpdate,
+  alias,
+  token,
+  onValuesChange,
+  onPublicUpdate,
+  onRegenerateToken,
 }) => {
   const t = useT();
+  const [visible, setVisible] = useState(false);
 
   const columns: TableColumnsType<ModelDataType> = useMemo(
     () => [
@@ -70,14 +80,12 @@ const Accessibility: React.FC<Props> = ({
         dataIndex: "endpoint",
         key: "endpoint",
         render: (_, modelData) => {
-          if (modelData.publicState) {
-            const url = apiUrl + modelData.key;
-            return (
-              <StyledAnchor target="_blank" href={url} rel="noreferrer">
-                {url}
-              </StyledAnchor>
-            );
-          }
+          const url = apiUrl + modelData.key;
+          return (
+            <StyledAnchor target="_blank" href={url} rel="noreferrer">
+              {url}
+            </StyledAnchor>
+          );
         },
       },
     ],
@@ -116,53 +124,68 @@ const Accessibility: React.FC<Props> = ({
   const publicScopeList = useMemo(
     () => [
       { name: t("Private"), value: "PRIVATE" },
+      { name: t("Limited"), value: "LIMITED" },
       { name: t("Public"), value: "PUBLIC" },
     ],
     [t],
   );
 
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(form.getFieldValue("alias"));
-  }, [form]);
-
   return (
-    <InnerContent title={t("Accessibility")} flexChildren>
+    <InnerContent
+      title={t("Accessibility")}
+      flexChildren
+      subtitle={t("Control the visibility scope of the Content API")}>
       <ContentSection title="">
-        <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-          <ItemsWrapper>
-            <Form.Item
-              name="scope"
-              label={t("Public Scope")}
-              extra={t(
-                "Choose the scope of your project. This affects all the models shown below that are switched on.",
-              )}>
-              <Select disabled={!hasPublishRight}>
-                {publicScopeList.map(({ value, name }) => (
-                  <Select.Option key={value} value={value}>
-                    {name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item name="alias" label={t("Project Alias")}>
-              <StyledInput
-                suffix={
-                  <Tooltip title={t("Alias copied!!")} trigger={"click"}>
-                    <StyledIcon icon="copy" onClick={handleCopy} />
-                  </Tooltip>
-                }
+        <Form form={form} layout="vertical" onValuesChange={onValuesChange}>
+          <Form.Item
+            name="scope"
+            label={t("Public Scope")}
+            extra={t("Choose your project public method.")}>
+            <StyledSelect disabled={!hasPublishRight}>
+              {publicScopeList.map(({ value, name }) => (
+                <Select.Option key={value} value={value}>
+                  {name}
+                </Select.Option>
+              ))}
+            </StyledSelect>
+          </Form.Item>
+          <Form.Item
+            name="alias"
+            label={t("Project Alias")}
+            extra={t("Edit Project Alias in Project Setting.")}>
+            <StyledInput suffix={<CopyButton copyable={{ text: alias }} />} disabled />
+          </Form.Item>
+          {token && (
+            <TokenFormItem
+              label={t("Token")}
+              extra={t("This is your secret token, please use as your env value.")}>
+              <StyledTokenInput
+                value={token}
                 disabled
+                visibilityToggle={{ visible }}
+                iconRender={() => <CopyButton copyable={{ text: token }} />}
+                prefix={
+                  <Icon
+                    icon={visible ? "eye" : "eyeInvisible"}
+                    onClick={() => {
+                      setVisible(prev => !prev);
+                    }}
+                  />
+                }
               />
-            </Form.Item>
-          </ItemsWrapper>
+              <Button onClick={onRegenerateToken} loading={regenerateLoading}>
+                {t("Re-generate")}
+              </Button>
+            </TokenFormItem>
+          )}
           <TableWrapper>
             <Table dataSource={dataSource} columns={columns} pagination={false} />
           </TableWrapper>
           <Button
             type="primary"
             disabled={isSaveDisabled}
-            onClick={handlePublicUpdate}
-            loading={loading}>
+            onClick={onPublicUpdate}
+            loading={updateLoading}>
             {t("Save changes")}
           </Button>
         </Form>
@@ -173,8 +196,37 @@ const Accessibility: React.FC<Props> = ({
 
 export default Accessibility;
 
-const ItemsWrapper = styled.div`
-  max-width: 304px;
+const maxWidth = "316px";
+
+const StyledSelect = styled(Select)`
+  max-width: ${maxWidth};
+`;
+
+const StyledInput = styled(Input)`
+  max-width: ${maxWidth};
+`;
+
+const TokenFormItem = styled(Form.Item)`
+  .ant-form-item-control-input-content {
+    display: flex;
+    gap: 4px;
+  }
+`;
+
+const StyledTokenInput = styled(Password)`
+  max-width: ${maxWidth};
+  .ant-input-prefix {
+    order: 1;
+    margin-left: 4px;
+    color: rgb(0, 0, 0, 0.45);
+    transition: all 0.3s;
+    :hover {
+      color: rgba(0, 0, 0, 0.88);
+    }
+  }
+  .ant-input-suffix {
+    order: 2;
+  }
 `;
 
 const TableWrapper = styled.div`
@@ -186,19 +238,6 @@ const StyledAnchor = styled.a`
   color: #000000d9;
 `;
 
-const StyledIcon = styled(Icon)`
-  transition: all 0.3s;
-  color: rgb(0, 0, 0, 0.45);
-  :hover {
-    color: rgba(0, 0, 0, 0.88);
-  }
-`;
-
 const StyledFormItem = styled(Form.Item)`
   margin: 0;
-`;
-
-const StyledInput = styled(Input)`
-  color: inherit !important;
-  background-color: inherit !important;
 `;
