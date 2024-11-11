@@ -133,7 +133,7 @@ const AssetMolecule: React.FC<Props> = ({
             <>
               <AssetName>{asset.fileName}</AssetName>
               <CopyButton
-                copyable={{ text: asset.url, tooltips: [t("URL copy"), t("URL copied!!")] }}
+                copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
               />
             </>
           }

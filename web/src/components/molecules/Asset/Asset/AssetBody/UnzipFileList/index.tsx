@@ -85,7 +85,7 @@ const UnzipFileList: React.FC<Props> = ({
                       <CopyButton
                         copyable={{
                           text: assetBaseUrl + path,
-                          tooltips: [t("URL copy"), t("URL copied!!")],
+                          tooltips: [t("Copy URL"), t("URL copied!!")],
                         }}
                       />
                     )}
