@@ -383,7 +383,7 @@ func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelA
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),
 		Type:        lo.ToPtr("object"),
-		Properties:  toJSONSchemaProperties(sp.Schema().Fields()),
+		Properties:  toSchemaJSONProperties(sp.Schema().Fields()),
 	}, nil
 }
 
@@ -410,7 +410,7 @@ func (s *Server) MetadataSchemaByModelAsJSON(ctx context.Context, request Metada
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),
 		Type:        lo.ToPtr("object"),
-		Properties:  toJSONSchemaProperties(sp.MetaSchema().Fields()),
+		Properties:  toSchemaJSONProperties(sp.MetaSchema().Fields()),
 	}, nil
 }
 
@@ -448,7 +448,7 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),
 		Type:        lo.ToPtr("object"),
-		Properties:  toJSONSchemaProperties(sch.Schema().Fields()),
+		Properties:  toSchemaJSONProperties(sch.Schema().Fields()),
 	}, nil
 }
 
@@ -486,7 +486,7 @@ func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, req
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),
 		Type:        lo.ToPtr("object"),
-		Properties:  toJSONSchemaProperties(sch.MetaSchema().Fields()),
+		Properties:  toSchemaJSONProperties(sch.MetaSchema().Fields()),
 	}, nil
 }
 
@@ -506,7 +506,7 @@ func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONR
 		Schema:     lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
 		Id:         sch.ID().Ref().StringRef(),
 		Type:       lo.ToPtr("object"),
-		Properties: toJSONSchemaProperties(sch.Fields()),
+		Properties: toSchemaJSONProperties(sch.Fields()),
 	}, nil
 }
 
@@ -552,14 +552,14 @@ func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request Schema
 		Schema:     lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
 		Id:         sch.ID().Ref().StringRef(),
 		Type:       lo.ToPtr("object"),
-		Properties: toJSONSchemaProperties(sch.Fields()),
+		Properties: toSchemaJSONProperties(sch.Fields()),
 	}, nil
 }
 
-func toJSONSchemaProperties(f schema.FieldList) *map[string]interface{} {
+func toSchemaJSONProperties(f schema.FieldList) *map[string]interface{} {
 	properties := make(map[string]interface{})
 	for _, field := range f {
-		fieldType, format := toJSONSchemaTypeAndFormat(field.Type())
+		fieldType, format := toSchemaJSONTypeAndFormat(field.Type())
 		fieldSchema := map[string]interface{}{
 			"type":        fieldType,
 			"title":       field.Name(),
@@ -573,7 +573,7 @@ func toJSONSchemaProperties(f schema.FieldList) *map[string]interface{} {
 	return &properties
 }
 
-func toJSONSchemaTypeAndFormat(t value.Type) (string, string) {
+func toSchemaJSONTypeAndFormat(t value.Type) (string, string) {
 	switch t {
 	case "text", "textArea", "richText", "markdown", "select", "tag", "asset", "reference":
 		return "string", ""
