@@ -47,14 +47,9 @@ func PublicApiItemOrAsset() echo.HandlerFunc {
 		var err error
 		if m == "assets" {
 			res, err = ctrl.GetAsset(ctx, p, i)
+		} else if i == "schema.json" {
+			res, err = ctrl.getSchema(ctx, p, m)
 		} else {
-			if i == "schema.json" {
-				res, err := ctrl.getSchema(ctx, p, m)
-				if err != nil {
-					return err
-				}
-				return c.JSON(http.StatusOK, res)
-			}
 			res, err = ctrl.GetItem(ctx, p, m, i)
 		}
 
