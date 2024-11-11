@@ -249,26 +249,21 @@ export default (
   }, [form, values]);
 
   const handleValuesChange = useCallback(async (changedValues: Record<string, unknown>) => {
-      const [key, value] = Object.entries(changedValues)[0];
-      let changedValue = value;
-      let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
-      if (Array.isArray(value)) {
-        changedValue = [...value].sort();
-      }
-      if (Array.isArray(defaultValue)) {
-        defaultValue = [...defaultValue].sort();
-      }
-
-      if (
-        JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))
-      ) {
-        changedKeys.current.delete(key);
-      } else {
-        changedKeys.current.add(key);
-      }
-    },
-    [],
-  );
+    const [key, value] = Object.entries(changedValues)[0];
+    let changedValue = value;
+    let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
+    if (Array.isArray(value)) {
+      changedValue = [...value].sort();
+    }
+    if (Array.isArray(defaultValue)) {
+      defaultValue = [...defaultValue].sort();
+    }
+    if (JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))) {
+      changedKeys.current.delete(key);
+    } else {
+      changedKeys.current.add(key);
+    }
+  }, []);
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,11 +331,8 @@ export default (
 
   const isTitleDisabled = useMemo(
     () =>
-      isMeta ||
-      selectedType === "Group" ||
-      selectedType === "GeometryObject" ||
-      selectedType === "GeometryEditor",
-    [isMeta, selectedType],
+      !(selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText"),
+    [selectedType],
   );
 
   const ObjectSupportType = useMemo(

@@ -20,6 +20,7 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
   return {
     id: GQLItem.id,
     version: GQLItem.version,
+    title: GQLItem.title ?? "",
     fields: GQLItem.fields.map(
       field =>
         ({

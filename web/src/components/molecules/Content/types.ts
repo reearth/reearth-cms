@@ -27,6 +27,7 @@ export type Metadata = {
 export type Item = {
   id: string;
   version: string;
+  title: string;
   schemaId: string;
   createdBy?: Partial<User>;
   updatedBy?: Partial<User>;
