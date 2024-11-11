@@ -162,12 +162,40 @@ paths:
           description: Not found
         '500':
           description: Internal server error
+  '/schemata/{schemaId}/schema.json':
+    parameters:
+      - $ref: '#/components/parameters/schemaIdParam'
+    get:
+      operationId: SchemaByIDAsJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a JSON that has schema.
+      tags:
+        - Schema
+        - JSON
+      description: Returns a JSON that has schema.
+      responses:
+        '200':
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaJSON'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/schemaIdParam'
     get:
-      operationId: SchemaByIDAsJSON
+      operationId: SchemaByIDWithProjectAsJSON
       security:
         - bearerAuth: []
       summary: Returns a JSON that has schema.
@@ -299,7 +327,6 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-
   /models/{modelId}/metadata_schema.json:
     parameters:
       - $ref: '#/components/parameters/modelIdParam'

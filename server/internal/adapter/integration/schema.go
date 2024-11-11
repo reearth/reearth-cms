@@ -361,11 +361,57 @@ func (s *Server) FieldDeleteWithProject(ctx context.Context, request FieldDelete
 }
 
 func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelAsJSONRequestObject) (SchemaByModelAsJSONResponseObject, error) {
-	panic("not implemented")
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaByModelAsJSON400Response{}, err
+		}
+		return SchemaByModelAsJSON400Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return SchemaByModelAsJSON400Response{}, err
+	}
+
+	return SchemaByModelAsJSON200JSONResponse{
+		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Id:          m.ID().Ref().StringRef(),
+		Title:       lo.ToPtr(m.Name()),
+		Description: lo.ToPtr(m.Description()),
+		Type:        lo.ToPtr("object"),
+		Properties:  toProperties(sp.Schema()),
+	}, nil
 }
 
 func (s *Server) MetadataSchemaByModelAsJSON(ctx context.Context, request MetadataSchemaByModelAsJSONRequestObject) (MetadataSchemaByModelAsJSONResponseObject, error) {
-	panic("not implemented")
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return MetadataSchemaByModelAsJSON400Response{}, err
+		}
+		return MetadataSchemaByModelAsJSON400Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	if err != nil {
+		return MetadataSchemaByModelAsJSON400Response{}, err
+	}
+
+	return MetadataSchemaByModelAsJSON200JSONResponse{
+		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Id:          m.ID().Ref().StringRef(),
+		Title:       lo.ToPtr(m.Name()),
+		Description: lo.ToPtr(m.Description()),
+		Type:        lo.ToPtr("object"),
+		Properties:  toProperties(sp.MetaSchema()),
+	}, nil
 }
 
 func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request SchemaByModelWithProjectAsJSONRequestObject) (SchemaByModelWithProjectAsJSONResponseObject, error) {
@@ -407,7 +453,41 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 }
 
 func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, request MetadataSchemaByModelWithProjectAsJSONRequestObject) (MetadataSchemaByModelWithProjectAsJSONResponseObject, error) {
-	panic("not implemented")
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+		}
+		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+	}
+
+	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+		}
+		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+	}
+
+	sch, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+		}
+		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+	}
+
+	return MetadataSchemaByModelWithProjectAsJSON200JSONResponse{
+		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Id:          m.ID().Ref().StringRef(),
+		Title:       lo.ToPtr(m.Name()),
+		Description: lo.ToPtr(m.Description()),
+		Type:        lo.ToPtr("object"),
+		Properties:  toProperties(sch.MetaSchema()),
+	}, nil
 }
 
 func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error) {
@@ -423,6 +503,52 @@ func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONR
 	}
 
 	return SchemaByIDAsJSON200JSONResponse{
+		Schema:     lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Id:         sch.ID().Ref().StringRef(),
+		Type:       lo.ToPtr("object"),
+		Properties: toProperties(sch),
+	}, nil
+}
+
+func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request SchemaByIDWithProjectAsJSONRequestObject) (SchemaByIDWithProjectAsJSONResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	// prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	// if err != nil {
+	// 	if errors.Is(err, rerror.ErrNotFound) {
+	// 		return SchemaByIDWithProjectAsJSON400Response{}, err
+	// 	}
+	// 	return SchemaByIDWithProjectAsJSON400Response{}, err
+	// }
+
+	// ms, _, err := uc.Model.FindByProjectAndKeyword(ctx, prj.ID(), lo.FromPtrOr(request.Params.Keyword, ""), p, op)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// models := make([]integrationapi.Model, 0, len(ms))
+	// for _, m := range ms {
+	// 	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
+	// 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+	// 		return nil, err
+	// 	}
+	// 	models = append(models, integrationapi.NewModel(m, sp, lastModified))
+	// }
+
+	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaByIDWithProjectAsJSON400Response{}, err
+		}
+		return SchemaByIDWithProjectAsJSON400Response{}, err
+	}
+
+	return SchemaByIDWithProjectAsJSON200JSONResponse{
 		Schema:     lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
 		Id:         sch.ID().Ref().StringRef(),
 		Type:       lo.ToPtr("object"),

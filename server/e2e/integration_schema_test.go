@@ -800,3 +800,37 @@ func TestIntegrationFieldDeleteWithProjectAPI(t *testing.T) {
 	obj1.Value("updatedAt").NotNull()
 	obj1.Value("lastModified").NotNull()
 }
+
+func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.GET("/api/schemata/{schemaId}/schema.json", sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+
+	e.GET("/api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json", pid, sid1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+
+	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/schema.json", pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+
+	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json", pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+
+	e.GET("/api/models/{modelId}/schema.json", mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+
+	e.GET("/api/models/{modelId}/metadata_schema.json", mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+}

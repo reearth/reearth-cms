@@ -143,7 +143,7 @@ type ServerInterface interface {
 	SchemaFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params SchemaFilterParams) error
 	// Returns a JSON that has schema.
 	// (GET /projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json)
-	SchemaByIDAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error
+	SchemaByIDWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx echo.Context, projectId ProjectIdParam, params AssetFilterParams) error
@@ -162,6 +162,9 @@ type ServerInterface interface {
 	// update a field
 	// (PATCH /schemata/{schemaId}/fields/{fieldIdOrKey})
 	FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error
+	// Returns a JSON that has schema.
+	// (GET /schemata/{schemaId}/schema.json)
+	SchemaByIDAsJSON(ctx echo.Context, schemaId SchemaIdParam) error
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error
@@ -1254,8 +1257,8 @@ func (w *ServerInterfaceWrapper) SchemaFilter(ctx echo.Context) error {
 	return err
 }
 
-// SchemaByIDAsJSON converts echo context to params.
-func (w *ServerInterfaceWrapper) SchemaByIDAsJSON(ctx echo.Context) error {
+// SchemaByIDWithProjectAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) SchemaByIDWithProjectAsJSON(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
@@ -1276,7 +1279,7 @@ func (w *ServerInterfaceWrapper) SchemaByIDAsJSON(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.SchemaByIDAsJSON(ctx, projectIdOrAlias, schemaId)
+	err = w.Handler.SchemaByIDWithProjectAsJSON(ctx, projectIdOrAlias, schemaId)
 	return err
 }
 
@@ -1441,6 +1444,24 @@ func (w *ServerInterfaceWrapper) FieldUpdate(ctx echo.Context) error {
 	return err
 }
 
+// SchemaByIDAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) SchemaByIDAsJSON(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "schemaId" -------------
+	var schemaId SchemaIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SchemaByIDAsJSON(ctx, schemaId)
+	return err
+}
+
 // ProjectFilter converts echo context to params.
 func (w *ServerInterfaceWrapper) ProjectFilter(ctx echo.Context) error {
 	var err error
@@ -1541,13 +1562,14 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/metadata_schema.json", wrapper.MetadataSchemaByModelWithProjectAsJSON)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/schema.json", wrapper.SchemaByModelWithProjectAsJSON)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/schemata", wrapper.SchemaFilter)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/schemata/:schemaId/schema.json", wrapper.SchemaByIDAsJSON)
+	router.GET(baseURL+"/projects/:projectIdOrAlias/schemata/:schemaId/schema.json", wrapper.SchemaByIDWithProjectAsJSON)
 	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
 	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
 	router.POST(baseURL+"/projects/:projectId/assets/uploads", wrapper.AssetUploadCreate)
 	router.POST(baseURL+"/schemata/:schemaId/fields", wrapper.FieldCreate)
 	router.DELETE(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldDelete)
 	router.PATCH(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
+	router.GET(baseURL+"/schemata/:schemaId/schema.json", wrapper.SchemaByIDAsJSON)
 	router.GET(baseURL+"/:workspaceId/projects", wrapper.ProjectFilter)
 
 }
@@ -3282,51 +3304,51 @@ func (response SchemaFilter500Response) VisitSchemaFilterResponse(w http.Respons
 	return nil
 }
 
-type SchemaByIDAsJSONRequestObject struct {
+type SchemaByIDWithProjectAsJSONRequestObject struct {
 	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
 	SchemaId         SchemaIdParam         `json:"schemaId"`
 }
 
-type SchemaByIDAsJSONResponseObject interface {
-	VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error
+type SchemaByIDWithProjectAsJSONResponseObject interface {
+	VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error
 }
 
-type SchemaByIDAsJSON200JSONResponse SchemaJSON
+type SchemaByIDWithProjectAsJSON200JSONResponse SchemaJSON
 
-func (response SchemaByIDAsJSON200JSONResponse) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+func (response SchemaByIDWithProjectAsJSON200JSONResponse) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type SchemaByIDAsJSON400Response struct {
+type SchemaByIDWithProjectAsJSON400Response struct {
 }
 
-func (response SchemaByIDAsJSON400Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+func (response SchemaByIDWithProjectAsJSON400Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
 	w.WriteHeader(400)
 	return nil
 }
 
-type SchemaByIDAsJSON401Response = UnauthorizedErrorResponse
+type SchemaByIDWithProjectAsJSON401Response = UnauthorizedErrorResponse
 
-func (response SchemaByIDAsJSON401Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+func (response SchemaByIDWithProjectAsJSON401Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
 	return nil
 }
 
-type SchemaByIDAsJSON404Response struct {
+type SchemaByIDWithProjectAsJSON404Response struct {
 }
 
-func (response SchemaByIDAsJSON404Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+func (response SchemaByIDWithProjectAsJSON404Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type SchemaByIDAsJSON500Response struct {
+type SchemaByIDWithProjectAsJSON500Response struct {
 }
 
-func (response SchemaByIDAsJSON500Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+func (response SchemaByIDWithProjectAsJSON500Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
@@ -3568,6 +3590,54 @@ func (response FieldUpdate401Response) VisitFieldUpdateResponse(w http.ResponseW
 	return nil
 }
 
+type SchemaByIDAsJSONRequestObject struct {
+	SchemaId SchemaIdParam `json:"schemaId"`
+}
+
+type SchemaByIDAsJSONResponseObject interface {
+	VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error
+}
+
+type SchemaByIDAsJSON200JSONResponse SchemaJSON
+
+func (response SchemaByIDAsJSON200JSONResponse) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type SchemaByIDAsJSON400Response struct {
+}
+
+func (response SchemaByIDAsJSON400Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type SchemaByIDAsJSON401Response = UnauthorizedErrorResponse
+
+func (response SchemaByIDAsJSON401Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type SchemaByIDAsJSON404Response struct {
+}
+
+func (response SchemaByIDAsJSON404Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type SchemaByIDAsJSON500Response struct {
+}
+
+func (response SchemaByIDAsJSON500Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type ProjectFilterRequestObject struct {
 	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
 	Params      ProjectFilterParams
@@ -3739,7 +3809,7 @@ type StrictServerInterface interface {
 	SchemaFilter(ctx context.Context, request SchemaFilterRequestObject) (SchemaFilterResponseObject, error)
 	// Returns a JSON that has schema.
 	// (GET /projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json)
-	SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error)
+	SchemaByIDWithProjectAsJSON(ctx context.Context, request SchemaByIDWithProjectAsJSONRequestObject) (SchemaByIDWithProjectAsJSONResponseObject, error)
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error)
@@ -3758,6 +3828,9 @@ type StrictServerInterface interface {
 	// update a field
 	// (PATCH /schemata/{schemaId}/fields/{fieldIdOrKey})
 	FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error)
+	// Returns a JSON that has schema.
+	// (GET /schemata/{schemaId}/schema.json)
+	SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error)
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error)
@@ -4845,26 +4918,26 @@ func (sh *strictHandler) SchemaFilter(ctx echo.Context, projectIdOrAlias Project
 	return nil
 }
 
-// SchemaByIDAsJSON operation middleware
-func (sh *strictHandler) SchemaByIDAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error {
-	var request SchemaByIDAsJSONRequestObject
+// SchemaByIDWithProjectAsJSON operation middleware
+func (sh *strictHandler) SchemaByIDWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error {
+	var request SchemaByIDWithProjectAsJSONRequestObject
 
 	request.ProjectIdOrAlias = projectIdOrAlias
 	request.SchemaId = schemaId
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SchemaByIDAsJSON(ctx.Request().Context(), request.(SchemaByIDAsJSONRequestObject))
+		return sh.ssi.SchemaByIDWithProjectAsJSON(ctx.Request().Context(), request.(SchemaByIDWithProjectAsJSONRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SchemaByIDAsJSON")
+		handler = middleware(handler, "SchemaByIDWithProjectAsJSON")
 	}
 
 	response, err := handler(ctx, request)
 
 	if err != nil {
 		return err
-	} else if validResponse, ok := response.(SchemaByIDAsJSONResponseObject); ok {
-		return validResponse.VisitSchemaByIDAsJSONResponse(ctx.Response())
+	} else if validResponse, ok := response.(SchemaByIDWithProjectAsJSONResponseObject); ok {
+		return validResponse.VisitSchemaByIDWithProjectAsJSONResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -5056,6 +5129,31 @@ func (sh *strictHandler) FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, f
 	return nil
 }
 
+// SchemaByIDAsJSON operation middleware
+func (sh *strictHandler) SchemaByIDAsJSON(ctx echo.Context, schemaId SchemaIdParam) error {
+	var request SchemaByIDAsJSONRequestObject
+
+	request.SchemaId = schemaId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.SchemaByIDAsJSON(ctx.Request().Context(), request.(SchemaByIDAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SchemaByIDAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(SchemaByIDAsJSONResponseObject); ok {
+		return validResponse.VisitSchemaByIDAsJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ProjectFilter operation middleware
 func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error {
 	var request ProjectFilterRequestObject
@@ -5148,14 +5246,14 @@ var swaggerSpec = []string{
 	"S4hQ83Mpuy3o7YzebHyqGHDgw9dzRiztnaqf/214yUjNaXthzN4Gv04bnNmAZWAb/KQVi2XA74sXt3uu",
 	"yL78b58O6Fr+l5ebPH92wKxcyqw4yQvAzmtPXdnewmZfb/jG6g2rcKvTlg287tNUJjr6sC9S3Bcpvqwi",
 	"xUF9xyaq+KQ1kCWV3JdD7ssht1YO6Sjo+mWRL0BJB6m6NH27VVuWdHRfBvdCy+AOBqyDewEw3wa696je",
-	"o/qpUK3J16chtIC3Ga77stCBMl96NkbL3nD2q06xBNqRotDeb7J31dXRo/1O5Xb9z/np3uPsPU7jpo3B",
-	"YQuCl+YbJD02rcw3onrtWqmjjt7cQRue4zCeaQfKfPBrx/zvTnyNbP3NIz29g+rnNwbYPuq6BRQQuDOf",
-	"OJEazBSRqiTIfIhT36zR6IFfn+A3eHEKcmYMuP2YYwITlKUiPJqglEMUkixN0TiFlW+uuhUW9Ab8ZacZ",
-	"S7tVl27zWLJOs1yd1TZOtNngC4G7r47FplSuAY2a2OI/R9kipcjUqno17pzzTCrc1/98UqqGAoXTQNBA",
-	"982/iFWjbF9Vq1zlNjYMgx7G/AnItPSFf8cpxBnjlG1a770c+GsH7WTrJtf+DzVHIYF74f+Y7eb2p+Zj",
-	"jBoor+HQ6ArgGxXPt7xatzZ8NTDuUN69ryfc1xMOUNNdj+LGqu3aeuyXX4S9i7JMSgXUQ9RPr1ic7ZVA",
-	"7+3U3k4NUPf8eEfZDV+gGKSFskFvjwxR3mU1jjW7ZdvYkBg4keHOulOGxQYsnhzLdjclckqfMyps7vmF",
-	"ijMZJG79+OF6KLoh5qXlWH9T7mjGkxxesVwu/xcAAP//GFXWURetAAA=",
+	"o/qpUK3J16chtIC3Ga77stCBMl96NkbL3nD2q06xBNqRotDeb7J31dXRo/1O5Xb9z/np3vnsnU/X/RsD",
+	"yRYwL83nSHrsX5nPRfXawFKnHr25Mzc8J2M802aU+fbXjrninfgw2fr7SHp6B9UvcQywk9R1NyggcGe+",
+	"diI1mCkiVXWQ+Sanvlmj0QO/ScFv8OIU5MwYcPtdxwQmKEtFeDRBKYcoJFmaonEKK59fdYst6A34K1Az",
+	"lnYrNN3mCWWdZrk6q20cbrPBxwJ3Xx2L/alcAxo1scV/jrJFSpEpW/Vq3DnnmVS4r//5pFQNBQqngaCB",
+	"7pt/HKtG2b6qVrnKbWwYBj2X+ROQaelj/45TiDPGKdu09Hs58IcP2snWTa7932yOQgL3wv9d283tT813",
+	"GTVQXsP50RXANyqeb6W1bpn4amDcodJ7X1q4Ly0coLy7HsWNBdy1pdkvvx57F2WZlGqphyilXrE426uG",
+	"3tupvZ0aoAT66fOa+2Tmm0hm+nKSj3eU3fAFikHCzK6weqQj8y6r8DKJ8m1shA2cNXNn3SmdZ6NjT0Jv",
+	"u5thOaXPqSPNPb9QcSZVZuvHXtdD0dWZS8ux/uriaMaTHJqyXC7/FwAA//99LJUzj68AAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
