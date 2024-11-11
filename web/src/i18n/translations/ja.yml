@@ -406,7 +406,6 @@ Update Terrain: 地形を更新
 Tiles type: タイルの種類
 Terrain type: 地形の種類
 Name of tiles: タイルの名前
-example: ''
 Image URL: イメージURL
 Name of terrain: 地形の名前
 Terrain Cesium Ion asset ID: Terrain Cesium Ion アセットID
