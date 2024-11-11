@@ -8,6 +8,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/usecasex"
@@ -213,22 +214,24 @@ func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
 }
 
 type SchemaJSON struct {
-	Id          *string                 `json:"$id,omitempty"`
-	Schema      *string                 `json:"$schema,omitempty"`
-	Description *string                 `json:"description,omitempty"`
-	Properties  *map[string]interface{} `json:"properties,omitempty"`
+	Schema      *string                 `json:"schema,omitempty"`
+	Id          *string                 `json:"id,omitempty"`
 	Title       *string                 `json:"title,omitempty"`
+	Description *string                 `json:"description,omitempty"`
 	Type        *string                 `json:"type,omitempty"`
+	Properties  *map[string]interface{} `json:"properties,omitempty"`
 }
 
-func (s SchemaJSON) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s)
+func NewSchemaJSON(m *model.Model, s *schema.Schema) SchemaJSON {
+	return SchemaJSON{
+		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Id:          m.ID().Ref().StringRef(),
+		Title:       lo.ToPtr(m.Name()),
+		Description: lo.ToPtr(m.Description()),
+		Type:        lo.ToPtr("object"),
+		Properties:  toSchemaJSONProperties(s.Fields()),
+	}
 }
-
-func NewSchemaJSON(s *schema.Schema) SchemaJSON {
-	return SchemaJSON{}
-}
-
 
 // GeoJSON
 type GeoJSON = FeatureCollection

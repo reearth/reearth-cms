@@ -355,6 +355,51 @@ func TestPublicAPI(t *testing.T) {
 			// publicAPIField2Key should be removed
 		})
 
+	// schema.json
+	e.GET("/api/p/{project}/{model}/schema.json", publicAPIProjectAlias, publicAPIModelKey).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"description": "",
+			"id":          publicAPIModelID,
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"description": "",
+					"title":       "asset",
+					"type":        "string",
+				},
+				"asset2": map[string]any{
+					"description": "",
+					"title":       "asset2",
+					"type":        "string",
+				},
+				"geometry-editor": map[string]any{
+					"description": "",
+					"title":       "geometry-editor",
+					"type":        "object",
+				},
+				"geometry-object": map[string]any{
+					"description": "",
+					"title":       "geometry-object",
+					"type":        "object",
+				},
+				"test-field-1": map[string]any{
+					"description": "",
+					"title":       "test-field-1",
+					"type":        "string",
+				},
+				"test-field-2": map[string]any{
+					"description": "",
+					"title":       "test-field-2",
+					"type":        "string",
+				},
+			},
+			"schema": "https://json-schema.org/draft/2020-12/schema",
+			"title":  "",
+			"type":   "object",
+		})
+
 	// make the project private
 	prj.Publication().SetScope(project.PublicationScopePrivate)
 	lo.Must0(repos.Project.Save(ctx, prj))
