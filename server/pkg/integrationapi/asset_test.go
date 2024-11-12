@@ -1,9 +1,14 @@
 package integrationapi
 
 import (
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -46,4 +51,183 @@ func TestToAssetFile(t *testing.T) {
 		ContentType: lo.ToPtr(""),
 	}
 	assert.Equal(t, e, a)
+
+	assert.Nil(t, ToAssetFile(nil, true))
+}
+
+func Test_NewAsset(t *testing.T) {
+	timeNow := time.Now()
+	name := "aaa"
+	path := "a/aaa"
+	uid := user.NewID()
+	pid := project.NewID()
+	a := asset.New().NewID().Project(pid).Size(100).NewUUID().
+		CreatedByUser(uid).Thread(id.NewThreadID()).CreatedAt(timeNow).MustBuild()
+
+	f1 := asset.NewFile().Name(name).Path(path).ContentType("s").Size(10).Build()
+
+	tests := []struct {
+		name string
+		a    *asset.Asset
+		f    *asset.File
+		url  string
+		all  bool
+		want *Asset
+	}{
+		{
+			name: "success",
+			a:    a,
+			f:    f1,
+			url:  "www.",
+			all:  true,
+			want: &Asset{
+				Name:      lo.ToPtr("aaa"),
+				Id:        a.ID(),
+				Url:       "www.",
+				CreatedAt: timeNow,
+				File: &File{
+					Name:        lo.ToPtr("aaa"),
+					Path:        lo.ToPtr("/a/aaa"),
+					ContentType: lo.ToPtr("s"),
+					Size:        lo.ToPtr(float32(10)),
+				},
+				ContentType: lo.ToPtr("s"),
+				TotalSize:   lo.ToPtr(float32(100)),
+				PreviewType: lo.ToPtr(Unknown),
+				ProjectId:   pid,
+			},
+		},
+		{
+			name: "asset and file input is nil",
+			a:    nil,
+			f:    nil,
+			url:  "www.",
+			all:  false,
+			want: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := NewAsset(tt.a, tt.f, tt.url, tt.all)
+
+			if !reflect.DeepEqual(result, tt.want) {
+				t.Errorf("want %+v, got %+v", tt.want, result)
+			}
+		})
+	}
+}
+
+func TestToAssetArchiveExtractionStatus(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *asset.ArchiveExtractionStatus
+		expected *AssetArchiveExtractionStatus
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name:     "Status done",
+			input:    lo.ToPtr(asset.ArchiveExtractionStatusDone),
+			expected: lo.ToPtr(AssetArchiveExtractionStatus("done")),
+		},
+		{
+			name:     "Status failed",
+			input:    lo.ToPtr(asset.ArchiveExtractionStatusFailed),
+			expected: lo.ToPtr(AssetArchiveExtractionStatus("failed")),
+		},
+		{
+			name:     "Status in progress",
+			input:    lo.ToPtr(asset.ArchiveExtractionStatusInProgress),
+			expected: lo.ToPtr(AssetArchiveExtractionStatus("in_progress")),
+		},
+		{
+			name:     "Status pending",
+			input:    lo.ToPtr(asset.ArchiveExtractionStatusPending),
+			expected: lo.ToPtr(AssetArchiveExtractionStatus("pending")),
+		},
+		{
+			name:     "Unknown status",
+			input:    lo.ToPtr(asset.ArchiveExtractionStatus("unknown")),
+			expected: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ToAssetArchiveExtractionStatus(tt.input)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("expected %v, got %v", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestToPreviewType(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *asset.PreviewType
+		expected *AssetPreviewType
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: lo.ToPtr(Unknown),
+		},
+		{
+			name:     "PreviewTypeGeo",
+			input:    lo.ToPtr(asset.PreviewTypeGeo),
+			expected: lo.ToPtr(Geo),
+		},
+		{
+			name:     "PreviewTypeGeo3dTiles",
+			input:    lo.ToPtr(asset.PreviewTypeGeo3dTiles),
+			expected: lo.ToPtr(Geo3dTiles),
+		},
+		{
+			name:     "PreviewTypeGeoMvt",
+			input:    lo.ToPtr(asset.PreviewTypeGeoMvt),
+			expected: lo.ToPtr(GeoMvt),
+		},
+		{
+			name:     "PreviewTypeModel3d",
+			input:    lo.ToPtr(asset.PreviewTypeModel3d),
+			expected: lo.ToPtr(Model3d),
+		},
+		{
+			name:     "PreviewTypeImage",
+			input:    lo.ToPtr(asset.PreviewTypeImage),
+			expected: lo.ToPtr(Image),
+		},
+		{
+			name:     "PreviewTypeImageSvg",
+			input:    lo.ToPtr(asset.PreviewTypeImageSvg),
+			expected: lo.ToPtr(ImageSvg),
+		},
+		{
+			name:     "PreviewTypeCSV",
+			input:    lo.ToPtr(asset.PreviewTypeCSV),
+			expected: lo.ToPtr(Csv),
+		},
+		{
+			name:     "PreviewTypeUnknown",
+			input:    lo.ToPtr(asset.PreviewTypeUnknown),
+			expected: lo.ToPtr(Unknown),
+		},
+		{
+			name:     "Unrecognized PreviewType",
+			input:    lo.ToPtr(asset.PreviewType("unrecognized")),
+			expected: lo.ToPtr(Unknown),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ToPreviewType(tt.input)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }
