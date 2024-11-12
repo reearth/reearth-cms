@@ -30,10 +30,16 @@ type TagColor = (typeof colors)[number];
 type Props = {
   value?: { id?: string; name: string; color: TagColor }[];
   onChange?: (value: { id?: string; name: string; color: TagColor }[]) => void;
+  errorIndexes: Set<number>;
 } & TextAreaProps &
   InputProps;
 
-const MultiValueColoredTag: React.FC<Props> = ({ value = [], onChange, ...props }) => {
+const MultiValueColoredTag: React.FC<Props> = ({
+  value = [],
+  onChange,
+  errorIndexes,
+  ...props
+}) => {
   const t = useT();
   const [lastColorIndex, setLastColorIndex] = useState(0);
   const [focusedTagIndex, setFocusedTagIndex] = useState<number | null>(null); // New State to hold the focused tag index
@@ -140,11 +146,13 @@ const MultiValueColoredTag: React.FC<Props> = ({ value = [], onChange, ...props 
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
                 value={valueItem.name}
                 onBlur={() => handleInputBlur()}
+                status={errorIndexes?.has(key) ? "error" : undefined}
               />
             </StyledDiv>
             <StyledTagContainer
               hidden={focusedTagIndex === key} // Hide tag when it is focused
-              onClick={() => handleTagClick(key)}>
+              onClick={() => handleTagClick(key)}
+              isError={errorIndexes?.has(key)}>
               <StyledTag color={valueItem.color.toLowerCase()}>{valueItem.name}</StyledTag>
             </StyledTagContainer>
             <Dropdown menu={{ items: generateMenuItems(key) }} trigger={["click"]}>
@@ -188,9 +196,9 @@ const StyledInput = styled(Input)`
   flex: 1;
 `;
 
-const StyledTagContainer = styled.div`
+const StyledTagContainer = styled.div<{ isError?: boolean }>`
   cursor: pointer;
-  border: 1px solid #d9d9d9;
+  border: 1px solid ${({ isError }) => (isError ? "#ff4d4f" : "#d9d9d9")};
   padding: 4px 11px;
   overflow: auto;
   height: 100%;
