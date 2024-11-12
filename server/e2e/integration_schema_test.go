@@ -807,30 +807,136 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 	e.GET("/api/schemata/{schemaId}/schema.json", sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusOK)
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id":     sid1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "string",
+				},
+				sfKey1.String(): map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "string",
+				},
+			},
+			"type": "object",
+		})
 
 	e.GET("/api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json", pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusOK)
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id":     sid1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "string",
+				},
+				sfKey1.String(): map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "string",
+				},
+			},
+			"type": "object",
+		})
 
 	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/schema.json", pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusOK)
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id":     mId1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "string",
+				},
+				sfKey1.String(): map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "string",
+				},
+			},
+			"type":        "object",
+			"description": "m1 desc",
+			"title":       "m1",
+		})
 
 	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json", pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusOK)
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id":     mId1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				sfKey4.String(): map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "boolean",
+				},
+			},
+			"type":        "object",
+			"description": "m1 desc",
+			"title":       "m1",
+		})
 
 	e.GET("/api/models/{modelId}/schema.json", mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusOK)
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id":     mId1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "string",
+				},
+				sfKey1.String(): map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "string",
+				},
+			},
+			"type":        "object",
+			"description": "m1 desc",
+			"title":       "m1",
+		})
 
 	e.GET("/api/models/{modelId}/metadata_schema.json", mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusOK)
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id":     mId1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				sfKey4.String(): map[string]any{
+					"description": "",
+					"title":       "",
+					"type":        "boolean",
+				},
+			},
+			"type":        "object",
+			"description": "m1 desc",
+			"title":       "m1",
+		})
 }
