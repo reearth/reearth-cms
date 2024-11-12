@@ -169,11 +169,11 @@ paths:
       operationId: SchemaByIDAsJSON
       security:
         - bearerAuth: []
-      summary: Returns a JSON that has schema.
+      summary: Returns a schema as json by schema ID
       tags:
         - Schema
         - JSON
-      description: Returns a JSON that has schema.
+      description: Returns a schema as json by schema ID
       responses:
         '200':
           description: A JSON object
@@ -198,11 +198,11 @@ paths:
       operationId: SchemaByIDWithProjectAsJSON
       security:
         - bearerAuth: []
-      summary: Returns a JSON that has schema.
+      summary: Returns a schema as json by project and schema ID
       tags:
         - Schema
         - JSON
-      description: Returns a JSON that has schema.
+      description: Returns a schema as json by project and schema ID
       responses:
         '200':
           description: A JSON object
@@ -306,11 +306,11 @@ paths:
       operationId: SchemaByModelAsJSON
       security:
         - bearerAuth: []
-      summary: Returns a JSON that has schema
+      summary: Returns a schema as json by model ID
       tags:
         - Schema
         - JSON
-      description: Returns a JSON that has schema
+      description: Returns a schema as json by model ID
       responses:
         '200':
           description: A JSON object
@@ -334,11 +334,11 @@ paths:
       operationId: MetadataSchemaByModelAsJSON
       security:
         - bearerAuth: []
-      summary: Returns a JSON that has schema
+      summary: Returns a metadata schema as json by model ID
       tags:
         - MetadataSchema
         - JSON
-      description: Returns a JSON that has metadata schema
+      description: Returns a metadata schema as json by model ID
       responses:
         '200':
           description: A JSON object
@@ -1046,11 +1046,11 @@ paths:
       operationId: SchemaByModelWithProjectAsJSON
       security:
         - bearerAuth: []
-      summary: Returns a JSON that has schema.
+      summary: Returns a schema as json by project and model ID
       tags:
         - Schema
         - JSON
-      description: Returns a JSON that has schema.
+      description: Returns a schema as json by project and model ID
       responses:
         '200':
           description: A JSON object
@@ -1075,11 +1075,11 @@ paths:
       operationId: MetadataSchemaByModelWithProjectAsJSON
       security:
         - bearerAuth: []
-      summary: Returns a JSON that has schema.
+      summary: Returns a metadata schema as json by project and model ID
       tags:
-        - Schema
+        - MetadataSchema
         - JSON
-      description: Returns a JSON that has schema.
+      description: Returns a metadata schema as json by project and model ID
       responses:
         '200':
           description: A JSON object
