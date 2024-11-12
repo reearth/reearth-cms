@@ -73,7 +73,7 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new boolean1 description");
   await page.getByLabel("Support multiple values").check();
-  await page.getByLabel("Use as title").check();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(
     page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
@@ -90,7 +90,7 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByText("new boolean1#new-boolean1Title")).toBeVisible();
+  await expect(page.getByText("new boolean1#new-boolean1")).toBeVisible();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new boolean1");
   await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
