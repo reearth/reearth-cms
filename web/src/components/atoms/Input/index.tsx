@@ -8,12 +8,14 @@ type Props = {
   value?: string;
 } & InputProps;
 
-const Input = forwardRef<InputRef, Props>(({ value, maxLength, ...props }, ref) => {
-  const status = useMemo(() => {
+const Input = forwardRef<InputRef, Props>(({ value, maxLength, status, ...props }, ref) => {
+  const _status = useMemo(() => {
     if (maxLength && value && runes(value).length > maxLength) {
       return "error";
+    } else {
+      return status;
     }
-  }, [maxLength, value]);
+  }, [maxLength, status, value]);
 
   return (
     <AntDInput
@@ -23,7 +25,7 @@ const Input = forwardRef<InputRef, Props>(({ value, maxLength, ...props }, ref) 
       }}
       value={value}
       ref={ref}
-      status={status}
+      status={_status}
       {...props}
     />
   );
