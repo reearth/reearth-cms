@@ -6,16 +6,15 @@ export type { SearchProps } from "antd/lib/input";
 
 type Props = {
   value?: string;
+  isError?: boolean;
 } & InputProps;
 
-const Input = forwardRef<InputRef, Props>(({ value, maxLength, status, ...props }, ref) => {
-  const _status = useMemo(() => {
-    if (maxLength && value && runes(value).length > maxLength) {
+const Input = forwardRef<InputRef, Props>(({ value, isError, maxLength, ...props }, ref) => {
+  const status = useMemo(() => {
+    if (isError || (maxLength && value && runes(value).length > maxLength)) {
       return "error";
-    } else {
-      return status;
     }
-  }, [maxLength, status, value]);
+  }, [isError, maxLength, value]);
 
   return (
     <AntDInput
@@ -25,7 +24,7 @@ const Input = forwardRef<InputRef, Props>(({ value, maxLength, status, ...props 
       }}
       value={value}
       ref={ref}
-      status={_status}
+      status={status}
       {...props}
     />
   );

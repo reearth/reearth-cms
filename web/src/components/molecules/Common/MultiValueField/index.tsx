@@ -93,7 +93,7 @@ const MultiValueField: React.FC<Props> = ({
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
               onBlur={() => onBlur?.()}
               value={valueItem}
-              status={errorIndexes?.has(key) ? "error" : undefined}
+              isError={errorIndexes?.has(key)}
             />
             {!props.disabled && (
               <FieldButton
