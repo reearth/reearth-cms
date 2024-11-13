@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -13,23 +14,23 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewSchemaJSON(s *schema.Schema) integrationapi.SchemaJSON {
+func NewSchemaJSON(s *schema.Schema, pp *map[string]interface{}) integrationapi.SchemaJSON {
 	return integrationapi.SchemaJSON{
 		Schema:     lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
 		Id:         s.ID().Ref().StringRef(),
 		Type:       lo.ToPtr("object"),
-		Properties: toSchemaJSONProperties(s.Fields()),
+		Properties: pp,
 	}
 }
 
-func NewSchemaJSONWitModel(m *model.Model, s *schema.Schema) integrationapi.SchemaJSON {
+func NewSchemaJSONWitModel(m *model.Model, pp *map[string]interface{}) integrationapi.SchemaJSON {
 	return integrationapi.SchemaJSON{
 		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
 		Id:          m.ID().Ref().StringRef(),
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),
 		Type:        lo.ToPtr("object"),
-		Properties:  toSchemaJSONProperties(s.Fields()),
+		Properties:  pp,
 	}
 }
 
@@ -40,17 +41,17 @@ func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelA
 	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByModelAsJSON400Response{}, err
+			return SchemaByModelAsJSON404Response{}, err
 		}
 		return SchemaByModelAsJSON400Response{}, err
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
-		return SchemaByModelAsJSON400Response{}, err
+		return SchemaByModelAsJSON404Response{}, err
 	}
 
-	res := NewSchemaJSONWitModel(m, sp.Schema())
+	res := NewSchemaJSONWitModel(m, buildProperties(uc, sp.Schema().Fields(), ctx))
 	return SchemaByModelAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -68,17 +69,17 @@ func (s *Server) MetadataSchemaByModelAsJSON(ctx context.Context, request Metada
 	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return MetadataSchemaByModelAsJSON400Response{}, err
+			return MetadataSchemaByModelAsJSON404Response{}, err
 		}
 		return MetadataSchemaByModelAsJSON400Response{}, err
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
 	if err != nil {
-		return MetadataSchemaByModelAsJSON400Response{}, err
+		return MetadataSchemaByModelAsJSON404Response{}, err
 	}
 
-	res := NewSchemaJSONWitModel(m, sp.MetaSchema())
+	res := NewSchemaJSONWitModel(m, buildProperties(uc, sp.MetaSchema().Fields(), ctx))
 	return MetadataSchemaByModelAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -96,7 +97,7 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByModelWithProjectAsJSON400Response{}, err
+			return SchemaByModelWithProjectAsJSON404Response{}, err
 		}
 		return SchemaByModelWithProjectAsJSON400Response{}, err
 	}
@@ -104,7 +105,7 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByModelWithProjectAsJSON400Response{}, err
+			return SchemaByModelWithProjectAsJSON404Response{}, err
 		}
 		return SchemaByModelWithProjectAsJSON400Response{}, err
 	}
@@ -112,12 +113,12 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 	sch, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByModelWithProjectAsJSON400Response{}, err
+			return SchemaByModelWithProjectAsJSON404Response{}, err
 		}
 		return SchemaByModelWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSONWitModel(m, sch.Schema())
+	res := NewSchemaJSONWitModel(m, buildProperties(uc, sch.Schema().Fields(), ctx))
 	return SchemaByModelWithProjectAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -135,7 +136,7 @@ func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, req
 	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+			return MetadataSchemaByModelWithProjectAsJSON404Response{}, err
 		}
 		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
 	}
@@ -143,7 +144,7 @@ func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, req
 	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+			return MetadataSchemaByModelWithProjectAsJSON404Response{}, err
 		}
 		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
 	}
@@ -151,12 +152,12 @@ func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, req
 	sch, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
+			return MetadataSchemaByModelWithProjectAsJSON404Response{}, err
 		}
 		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSONWitModel(m, sch.MetaSchema())
+	res := NewSchemaJSONWitModel(m, buildProperties(uc, sch.MetaSchema().Fields(), ctx))
 	return MetadataSchemaByModelWithProjectAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -174,12 +175,12 @@ func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONR
 	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByIDAsJSON400Response{}, err
+			return SchemaByIDAsJSON404Response{}, err
 		}
 		return SchemaByIDAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSON(sch)
+	res := NewSchemaJSON(sch, buildProperties(uc, sch.Fields(), ctx))
 	return SchemaByIDAsJSON200JSONResponse{
 		Schema:     res.Schema,
 		Id:         res.Id,
@@ -192,41 +193,23 @@ func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request Schema
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	// prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	// if err != nil {
-	// 	if errors.Is(err, rerror.ErrNotFound) {
-	// 		return SchemaByIDWithProjectAsJSON400Response{}, err
-	// 	}
-	// 	return SchemaByIDWithProjectAsJSON400Response{}, err
-	// }
-
-	// ms, _, err := uc.Model.FindByProjectAndKeyword(ctx, prj.ID(), lo.FromPtrOr(request.Params.Keyword, ""), p, op)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// models := make([]integrationapi.Model, 0, len(ms))
-	// for _, m := range ms {
-	// 	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
-	// 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-	// 		return nil, err
-	// 	}
-	// 	models = append(models, integrationapi.NewModel(m, sp, lastModified))
-	// }
-
-	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
+	_, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByIDWithProjectAsJSON400Response{}, err
+			return SchemaByIDWithProjectAsJSON404Response{}, err
 		}
 		return SchemaByIDWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSON(sch)
+	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaByIDWithProjectAsJSON404Response{}, err
+		}
+		return SchemaByIDWithProjectAsJSON400Response{}, err
+	}
+
+	res := NewSchemaJSON(sch, buildProperties(uc, sch.Fields(), ctx))
 	return SchemaByIDWithProjectAsJSON200JSONResponse{
 		Schema:     res.Schema,
 		Id:         res.Id,
@@ -235,10 +218,10 @@ func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request Schema
 	}, nil
 }
 
-func toSchemaJSONProperties(f schema.FieldList) *map[string]interface{} {
+func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.Context) *map[string]interface{} {
 	properties := make(map[string]interface{})
 	for _, field := range f {
-		fieldType, format := toSchemaJSONTypeAndFormat(field.Type())
+		fieldType, format := determineTypeAndFormat(field.Type())
 		fieldSchema := map[string]interface{}{
 			"type":        fieldType,
 			"title":       field.Name(),
@@ -247,12 +230,59 @@ func toSchemaJSONProperties(f schema.FieldList) *map[string]interface{} {
 		if format != "" {
 			fieldSchema["format"] = format
 		}
+
+		var maxLength *int
+		field.TypeProperty().Match(schema.TypePropertyMatch{
+			Text: func(f *schema.FieldText) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			TextArea: func(f *schema.FieldTextArea) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			RichText: func(f *schema.FieldRichText) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			Markdown: func(f *schema.FieldMarkdown) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			Integer: func(f *schema.FieldInteger) {
+				if min := f.Min(); min != nil {
+					fieldSchema["minimum"] = *min
+				}
+				if max := f.Max(); max != nil {
+					fieldSchema["maximum"] = *max
+				}
+			},
+			Number: func(f *schema.FieldNumber) {
+				if min := f.Min(); min != nil {
+					fieldSchema["minimum"] = *min
+				}
+				if max := f.Max(); max != nil {
+					fieldSchema["maximum"] = *max
+				}
+			},
+			Group: func(f *schema.FieldGroup) {
+				gs, _ := uc.Schema.FindByGroup(ctx, f.Group(), nil)
+				if gs != nil {
+					fieldSchema["items"] = buildProperties(uc, gs.Fields(), ctx)
+				}
+			},
+		})
+
 		properties[field.Key().String()] = fieldSchema
 	}
 	return &properties
 }
 
-func toSchemaJSONTypeAndFormat(t value.Type) (string, string) {
+func determineTypeAndFormat(t value.Type) (string, string) {
 	switch t {
 	case "text", "textArea", "richText", "markdown", "select", "tag", "asset", "reference":
 		return "string", ""
