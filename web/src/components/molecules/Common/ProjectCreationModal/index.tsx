@@ -40,7 +40,7 @@ const ProjectCreationModal: React.FC<Props> = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const prevAlias = useRef<{ alias: string; isSuccess: boolean }>();
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>();
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const values = Form.useWatch<FormValues | undefined>([], form);
   useEffect(() => {
     if (timeout.current) {
@@ -58,6 +58,11 @@ const ProjectCreationModal: React.FC<Props> = ({
         .catch(() => setIsDisabled(true));
     };
     timeout.current = setTimeout(validate, 300);
+    return () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+    };
   }, [form, values]);
 
   const handleNameChange = useCallback(

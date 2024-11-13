@@ -42,7 +42,7 @@ const FormModal: React.FC<Props> = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>();
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const values = Form.useWatch<FormType | undefined>([], form);
   useEffect(() => {
     if (timeout.current) {
@@ -64,6 +64,11 @@ const FormModal: React.FC<Props> = ({
         .catch(() => setIsDisabled(true));
     };
     timeout.current = setTimeout(validate, 300);
+    return () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+    };
   }, [data, form, values]);
 
   useEffect(() => {

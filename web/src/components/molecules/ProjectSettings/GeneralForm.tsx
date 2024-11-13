@@ -42,7 +42,7 @@ const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProje
     }
   }, [form, onProjectUpdate]);
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>();
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleValuesChange = useCallback(
     async (_: unknown, values: FormType) => {
       if (timeout.current) {
