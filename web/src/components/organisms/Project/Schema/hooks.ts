@@ -134,10 +134,14 @@ export default () => {
     [navigate, projectId, workspaceId],
   );
 
-  const keyUniqueCheck = useCallback((key: string, fieldId?: string, model?: Model) => {
-    const sameKeyField = model?.schema.fields.find(field => field.key === key);
-    return !sameKeyField || sameKeyField.id === fieldId;
-  }, []);
+  const keyUniqueCheck = useCallback(
+    (key: string, fieldId?: string, model?: Model) => {
+      const schema = isMeta ? model?.metadataSchema : model?.schema;
+      const sameKeyField = schema?.fields?.find(field => field.key === key);
+      return !sameKeyField || sameKeyField.id === fieldId;
+    },
+    [isMeta],
+  );
 
   const handleFieldKeyUnique = useCallback(
     (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),

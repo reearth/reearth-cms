@@ -15,7 +15,7 @@ const URLField: React.FC<Props> = ({ multiple }) => {
   return (
     <Form.Item
       name="defaultValue"
-      label="Set default value"
+      label={t("Set default value")}
       extra={t("Default value must be a valid URL and start with 'http://' or 'https://'.")}
       rules={[
         {

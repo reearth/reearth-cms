@@ -333,7 +333,6 @@ Please input the display name of field!: このフィールドの表示名を入
 Field Key: フィールドキー
 Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: フィールドキーは1文字以上かつ一意である必要があります。半角英数字、アンダースコア、ダッシュのみを含むことができます。
 Key is not valid: 無効なキーです
-Set Options: オプションを設定
 Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
 Support multiple values: 複数値の設定を許可
 Only one field can be used as the title: タイトルとして使用できるフィールドは1つだけです。
@@ -348,7 +347,13 @@ Default value must be a valid URL and start with 'http://' or 'https://'.: デ�
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
+Set Options: オプションを設定
+At least 1 option: 最低一つのオプションが必要です
+Empty values are not allowed: 空の値は使用できません
+Option must be unique: オプションは一意である必要があります
 Set Tags: タグを設定する
+At least 1 tag: 最低一つのタグが必要です
+Labels must be unique: ラベルは一意である必要があります
 Select Group: グループを選択
 Please select the group!: グループを選択してください！
 Support Type: サポートタイプ

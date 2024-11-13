@@ -43,7 +43,7 @@ export type FieldType =
   | "GeometryObject"
   | "GeometryEditor";
 
-type Tag = {
+export type Tag = {
   id: string;
   name: string;
   color: string;

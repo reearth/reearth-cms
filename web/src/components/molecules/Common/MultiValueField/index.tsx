@@ -16,6 +16,7 @@ type Props = {
   onBlur?: () => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
+  errorIndexes?: Set<number>;
 } & TextAreaProps &
   InputProps;
 
@@ -24,6 +25,7 @@ const MultiValueField: React.FC<Props> = ({
   onChange,
   onBlur,
   FieldInput,
+  errorIndexes,
   ...props
 }) => {
   const t = useT();
@@ -91,6 +93,7 @@ const MultiValueField: React.FC<Props> = ({
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
               onBlur={() => onBlur?.()}
               value={valueItem}
+              isError={errorIndexes?.has(key)}
             />
             {!props.disabled && (
               <FieldButton
