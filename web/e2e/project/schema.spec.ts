@@ -94,7 +94,7 @@ test("Group creating from adding field has succeeded", async ({ page }) => {
   await page.getByText("e2e model name").click();
   await page.locator("li").getByText("Group", { exact: true }).click();
   await expect(page.getByText("Create Group Field")).toBeVisible();
-  await page.getByLabel("Select Group").click();
+  await page.locator(".ant-select-selector").click();
   await expect(page.getByText("e2e group name #e2e-group-key")).toBeVisible();
   await page.getByRole("button", { name: "Cancel" }).click();
 });
