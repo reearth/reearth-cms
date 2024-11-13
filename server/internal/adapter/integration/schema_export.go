@@ -14,9 +14,11 @@ import (
 	"github.com/samber/lo"
 )
 
+const defaultJSONSchemaVersion = "https://json-schema.org/draft/2020-12/schema"
+
 func NewSchemaJSON(s *schema.Schema, pp *map[string]interface{}) integrationapi.SchemaJSON {
 	return integrationapi.SchemaJSON{
-		Schema:     lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Schema:     lo.ToPtr(defaultJSONSchemaVersion),
 		Id:         s.ID().Ref().StringRef(),
 		Type:       lo.ToPtr("object"),
 		Properties: pp,
@@ -25,7 +27,7 @@ func NewSchemaJSON(s *schema.Schema, pp *map[string]interface{}) integrationapi.
 
 func NewSchemaJSONWitModel(m *model.Model, pp *map[string]interface{}) integrationapi.SchemaJSON {
 	return integrationapi.SchemaJSON{
-		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Schema:      lo.ToPtr(defaultJSONSchemaVersion),
 		Id:          m.ID().Ref().StringRef(),
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),

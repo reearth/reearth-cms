@@ -213,6 +213,8 @@ func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
 	}
 }
 
+const defaultJSONSchemaVersion = "https://json-schema.org/draft/2020-12/schema"
+
 type SchemaJSON struct {
 	Schema      *string                 `json:"schema,omitempty"`
 	Id          *string                 `json:"id,omitempty"`
@@ -224,7 +226,7 @@ type SchemaJSON struct {
 
 func NewSchemaJSON(m *model.Model, pp *map[string]interface{}) SchemaJSON {
 	return SchemaJSON{
-		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
+		Schema:      lo.ToPtr(defaultJSONSchemaVersion),
 		Id:          m.ID().Ref().StringRef(),
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),
