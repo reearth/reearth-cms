@@ -220,3 +220,33 @@ func TestToValueType(t *testing.T) {
 		})
 	}
 }
+
+// func TestToValues(t *testing.T) {
+// 	type args struct {
+// 		valueMultiple *value.Multiple
+// 		schemaField   *schema.Field
+// 		assets        *AssetContext
+// 	}
+// 	pid := id.NewProjectID()
+// 	uid := accountdomain.NewUserID()
+
+// 	asset1 := asset.New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).NewUUID().MustBuild()
+// 	tests := []struct {
+// 		name string
+// 		args args
+// 		want any
+// 	}{
+// 		{
+// 			name: "success",
+// 			args: args{
+// 				valueMultiple: value.NewMultiple(value.TypeBool, []any{true, false}),
+// 				schemaField:   schema.New().MustBuild().Field(schema.NewFieldID()),
+// 				assets: &AssetContext{
+// 					Map: asset.Map{
+// 						asset1.ID(): asset1,
+// 					},
+// 				},
+// 			},
+// 		},
+// 	}
+// }
