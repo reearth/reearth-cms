@@ -16,26 +16,22 @@ func (c *Controller) GetSchemaJSON(ctx context.Context, pKey, mKey string) (Sche
 	}
 
 	m, err := c.usecases.Model.FindByIDOrKey(ctx, pr.ID(), model.IDOrKey(mKey), nil)
-	if err != nil {
-		return SchemaJSON{}, err
-	}
-
-	if !m.Public() {
+	if err != nil || !m.Public() {
 		return SchemaJSON{}, rerror.ErrNotFound
 	}
 
 	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 	if err != nil {
-		return SchemaJSON{}, err
+		return SchemaJSON{}, rerror.ErrNotFound
 	}
 
-	return NewSchemaJSON(m, sp.Schema()), nil
+	return NewSchemaJSON(m, buildProperties(c, sp.Schema().Fields(), ctx)), nil
 }
 
-func toSchemaJSONProperties(f schema.FieldList) *map[string]interface{} {
+func buildProperties(c *Controller, f schema.FieldList, ctx context.Context) *map[string]interface{} {
 	properties := make(map[string]interface{})
 	for _, field := range f {
-		fieldType, format := toSchemaJSONTypeAndFormat(field.Type())
+		fieldType, format := determineTypeAndFormat(field.Type())
 		fieldSchema := map[string]interface{}{
 			"type":        fieldType,
 			"title":       field.Name(),
@@ -44,12 +40,59 @@ func toSchemaJSONProperties(f schema.FieldList) *map[string]interface{} {
 		if format != "" {
 			fieldSchema["format"] = format
 		}
+
+		var maxLength *int
+		field.TypeProperty().Match(schema.TypePropertyMatch{
+			Text: func(f *schema.FieldText) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			TextArea: func(f *schema.FieldTextArea) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			RichText: func(f *schema.FieldRichText) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			Markdown: func(f *schema.FieldMarkdown) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			Integer: func(f *schema.FieldInteger) {
+				if min := f.Min(); min != nil {
+					fieldSchema["minimum"] = *min
+				}
+				if max := f.Max(); max != nil {
+					fieldSchema["maximum"] = *max
+				}
+			},
+			Number: func(f *schema.FieldNumber) {
+				if min := f.Min(); min != nil {
+					fieldSchema["minimum"] = *min
+				}
+				if max := f.Max(); max != nil {
+					fieldSchema["maximum"] = *max
+				}
+			},
+			Group: func(f *schema.FieldGroup) {
+				gs, _ := c.usecases.Schema.FindByGroup(ctx, f.Group(), nil)
+				if gs != nil {
+					fieldSchema["items"] = buildProperties(c, gs.Fields(), ctx)
+				}
+			},
+		})
+
 		properties[field.Key().String()] = fieldSchema
 	}
 	return &properties
 }
 
-func toSchemaJSONTypeAndFormat(t value.Type) (string, string) {
+func determineTypeAndFormat(t value.Type) (string, string) {
 	switch t {
 	case "text", "textArea", "richText", "markdown", "select", "tag", "asset", "reference":
 		return "string", ""

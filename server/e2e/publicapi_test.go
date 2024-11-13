@@ -355,7 +355,11 @@ func TestPublicAPI(t *testing.T) {
 			// publicAPIField2Key should be removed
 		})
 
-	// schema.json
+	// schema export json
+	e.GET("/api/p/{project}/{model}/schema.json", publicAPIProjectAlias, id.RandomKey()).
+		Expect().
+		Status(http.StatusNotFound)
+
 	e.GET("/api/p/{project}/{model}/schema.json", publicAPIProjectAlias, publicAPIModelKey).
 		Expect().
 		Status(http.StatusOK).

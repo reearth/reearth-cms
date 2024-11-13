@@ -222,14 +222,14 @@ type SchemaJSON struct {
 	Properties  *map[string]interface{} `json:"properties,omitempty"`
 }
 
-func NewSchemaJSON(m *model.Model, s *schema.Schema) SchemaJSON {
+func NewSchemaJSON(m *model.Model, pp *map[string]interface{}) SchemaJSON {
 	return SchemaJSON{
 		Schema:      lo.ToPtr("https://json-schema.org/draft/2020-12/schema"),
 		Id:          m.ID().Ref().StringRef(),
 		Title:       lo.ToPtr(m.Name()),
 		Description: lo.ToPtr(m.Description()),
 		Type:        lo.ToPtr("object"),
-		Properties:  toSchemaJSONProperties(s.Fields()),
+		Properties:  pp,
 	}
 }
 
