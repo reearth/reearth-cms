@@ -206,11 +206,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     setField1FormValues(initialValues);
   }, [initialValues, setCurrentStep]);
 
-  const handleCancel = useCallback(() => {
-    onClose();
+  const handleAfterClose = useCallback(() => {
     formReset();
     modalReset();
-  }, [formReset, modalReset, onClose]);
+  }, [formReset, modalReset]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
@@ -340,8 +339,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      onCancel={handleCancel}
-      afterClose={modalReset}
+      onCancel={onClose}
+      afterClose={handleAfterClose}
       width={572}
       open={open}
       footer={

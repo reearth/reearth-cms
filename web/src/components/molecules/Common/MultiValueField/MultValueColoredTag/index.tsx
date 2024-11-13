@@ -146,7 +146,7 @@ const MultiValueColoredTag: React.FC<Props> = ({
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
                 value={valueItem.name}
                 onBlur={() => handleInputBlur()}
-                status={errorIndexes?.has(key) ? "error" : undefined}
+                isError={errorIndexes?.has(key)}
               />
             </StyledDiv>
             <StyledTagContainer
