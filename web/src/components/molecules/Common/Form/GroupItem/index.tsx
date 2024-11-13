@@ -278,8 +278,7 @@ const IconWrapper = styled.span<{ disabled?: boolean }>`
 `;
 
 const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
-  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "468px")};
-  max-width: 100%;
+  max-width: ${({ isFullWidth }) => (isFullWidth ? undefined : "468px")};
   word-wrap: break-word;
 `;
 

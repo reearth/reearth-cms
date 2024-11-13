@@ -735,12 +735,13 @@ const ContentForm: React.FC<Props> = ({
 };
 
 const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
-  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
+  max-width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
   word-wrap: break-word;
 `;
 
 const StyledForm = styled(Form)`
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   height: 100%;
   background: #fff;
   label {
@@ -759,7 +760,7 @@ const FormItemsWrapper = styled.div`
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
   padding: 8px;
-  width: 400px;
+  min-width: 272px;
   max-height: 100%;
   overflow-y: auto;
 `;

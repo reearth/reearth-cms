@@ -154,7 +154,7 @@ export default (workspaceId?: string) => {
             refetchQueries: ["GetMe"],
           });
           if (result.errors) {
-            Notification.error({ message: t("Failed to delete one or more intagrations.") });
+            Notification.error({ message: t("Failed to delete one or more integrations.") });
           }
         }),
       );
