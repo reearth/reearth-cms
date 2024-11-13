@@ -284,7 +284,7 @@ func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.C
 
 func determineTypeAndFormat(t value.Type) (string, string) {
 	switch t {
-	case "text", "textArea", "richText", "markdown", "select", "tag", "asset", "reference":
+	case "text", "textArea", "richText", "markdown", "select", "tag", "reference":
 		return "string", ""
 	case "integer":
 		return "integer", ""
@@ -296,6 +296,8 @@ func determineTypeAndFormat(t value.Type) (string, string) {
 		return "string", "date"
 	case "url":
 		return "string", "uri"
+	case "asset":
+		return "string", "binary"
 	case "group":
 		return "array", ""
 	case "geometryObject", "geometryEditor":

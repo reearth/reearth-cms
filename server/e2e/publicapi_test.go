@@ -372,11 +372,13 @@ func TestPublicAPI(t *testing.T) {
 					"description": "",
 					"title":       "asset",
 					"type":        "string",
+					"format":      "binary",
 				},
 				"asset2": map[string]any{
 					"description": "",
 					"title":       "asset2",
 					"type":        "string",
+					"format":      "binary",
 				},
 				"geometry-editor": map[string]any{
 					"description": "",

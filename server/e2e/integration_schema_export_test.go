@@ -35,6 +35,7 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 					"description": "",
 					"title":       "",
 					"type":        "string",
+					"format":      "binary",
 				},
 				sfKey1.String(): map[string]any{
 					"description": "",
@@ -69,6 +70,7 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 					"description": "",
 					"title":       "",
 					"type":        "string",
+					"format":      "binary",
 				},
 				sfKey1.String(): map[string]any{
 					"description": "",
@@ -103,6 +105,7 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 					"description": "",
 					"title":       "",
 					"type":        "string",
+					"format":      "binary",
 				},
 				sfKey1.String(): map[string]any{
 					"description": "",
@@ -170,6 +173,7 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 					"description": "",
 					"title":       "",
 					"type":        "string",
+					"format":      "binary",
 				},
 				sfKey1.String(): map[string]any{
 					"description": "",
