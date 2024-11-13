@@ -1,0 +1,155 @@
+package integrationapi
+
+import (
+	"testing"
+	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/event"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/operator"
+	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/stretchr/testify/assert"
+)
+
+func Test_NewOperator(t *testing.T) {
+
+	uid := accountdomain.NewUserID()
+	integrationID := id.NewIntegrationID()
+	// machineID :=
+	opUser := operator.OperatorFromUser(uid)
+	opIntegration := operator.OperatorFromIntegration(integrationID)
+	opMachine := operator.OperatorFromMachine()
+	tests := []struct {
+		name  string
+		input operator.Operator
+		want  Operator
+	}{
+		{
+			name:  "success user operator",
+			input: opUser,
+			want: Operator{
+				User: &OperatorUser{
+					ID: uid.String(),
+				},
+			},
+		},
+		{
+			name:  "success integration operator",
+			input: opIntegration,
+			want: Operator{
+				Integration: &OperatorIntegration{
+					ID: integrationID.String(),
+				},
+			},
+		},
+		{
+			name:  "success machine operator",
+			input: opMachine,
+			want: Operator{
+				Machine: &OperatorMachine{},
+			},
+		},
+		{
+			name:  "success unknown operator",
+			input: operator.Operator{},
+			want:  Operator{},
+		},
+	}
+	for _, test := range tests {
+		result := NewOperator(test.input)
+		if !assert.Equal(t, result, test.want) {
+			t.Errorf("expected %+v but got %+v", test.want, result)
+		}
+	}
+}
+
+func TestNewEventWith(t *testing.T) {
+	now := time.Now()
+	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
+	a := asset.New().NewID().Project(project.NewID()).Size(100).NewUUID().
+		CreatedByUser(u.ID()).Thread(id.NewThreadID()).MustBuild()
+	eID1 := event.NewID()
+	prj := event.Project{
+		ID:    "testID",
+		Alias: "testAlias",
+	}
+
+	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).Project(&prj).MustBuild()
+	d1, _ := New(ev, "test", func(a *asset.Asset) string {
+		return "test.com"
+	})
+	d2, _ := New(ev.Object(), "test", func(a *asset.Asset) string {
+		return "test.com"
+	})
+	type args struct {
+		event       *event.Event[any]
+		override    any
+		v           string
+		urlResolver asset.URLResolver
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    Event
+		wantErr error
+	}{
+		{
+			name: "success",
+			args: args{
+				event:    ev,
+				override: ev,
+				v:        "test",
+				urlResolver: func(a *asset.Asset) string {
+					return "test.com"
+				},
+			},
+			want: Event{
+				ID:        ev.ID().String(),
+				Type:      string(ev.Type()),
+				Timestamp: ev.Timestamp(),
+				Data:      d1,
+				Project: &ProjectIdAlias{
+					ID:    ev.Project().ID,
+					Alias: ev.Project().Alias,
+				},
+				Operator: NewOperator(ev.Operator()),
+			},
+			wantErr: nil,
+		},
+		{
+			name: "success when override is nil",
+			args: args{
+				event:    ev,
+				override: nil,
+				v:        "test",
+				urlResolver: func(a *asset.Asset) string {
+					return "test.com"
+				},
+			},
+			want: Event{
+				ID:        ev.ID().String(),
+				Type:      string(ev.Type()),
+				Timestamp: ev.Timestamp(),
+				Data:      d2,
+				Project: &ProjectIdAlias{
+					ID:    ev.Project().ID,
+					Alias: ev.Project().Alias,
+				},
+				Operator: NewOperator(ev.Operator()),
+			},
+			wantErr: nil,
+		},
+	}
+	for _, test := range tests {
+		result, err := NewEventWith(test.args.event, test.args.override, test.args.v, test.args.urlResolver)
+		if !assert.Equal(t, result, test.want) {
+			t.Errorf("expected %+v but got %+v", test.want, result)
+		}
+		if !assert.Equal(t, err, test.wantErr) {
+			t.Errorf("expected %+v but got %+v", test.wantErr, err)
+		}
+	}
+}
