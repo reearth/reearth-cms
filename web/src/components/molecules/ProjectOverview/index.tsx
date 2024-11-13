@@ -51,20 +51,41 @@ const ProjectOverview: React.FC<Props> = ({
             {t("New Model")}
           </Button>
         }>
-        <GridArea>
-          {models?.map(m => (
-            <ModelCard
-              key={m.id}
-              model={m}
-              hasUpdateRight={hasUpdateRight}
-              hasDeleteRight={hasDeleteRight}
-              onSchemaNavigate={onSchemaNavigate}
-              onContentNavigate={onContentNavigate}
-              onModelDeletionModalOpen={onModelDeletionModalOpen}
-              onModelUpdateModalOpen={onModelUpdateModalOpen}
-            />
-          ))}
-        </GridArea>
+        {models?.length ? (
+          <GridArea>
+            {models.map(m => (
+              <ModelCard
+                key={m.id}
+                model={m}
+                hasUpdateRight={hasUpdateRight}
+                hasDeleteRight={hasDeleteRight}
+                onSchemaNavigate={onSchemaNavigate}
+                onContentNavigate={onContentNavigate}
+                onModelDeletionModalOpen={onModelDeletionModalOpen}
+                onModelUpdateModalOpen={onModelUpdateModalOpen}
+              />
+            ))}
+          </GridArea>
+        ) : (
+          <Placeholder>
+            <Heading>{t("No Models yet")}</Heading>
+            <Content>
+              <Actions>
+                {t("Create a new model")}
+                <Button
+                  type="primary"
+                  icon={<Icon icon="plus" />}
+                  onClick={onModelModalOpen}
+                  disabled={!hasCreateRight}>
+                  {t("New Model")}
+                </Button>
+              </Actions>
+              <span>
+                {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+              </span>
+            </Content>
+          </Placeholder>
+        )}
       </ContentSection>
     </InnerContent>
   );
@@ -77,4 +98,31 @@ const GridArea = styled.div`
   gap: 24px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   justify-content: space-between;
+`;
+
+const Placeholder = styled.div`
+  padding: 64px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+`;
+
+const Heading = styled.span`
+  font-size: 16px;
+  font-weight: 500;
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: rgba(0, 0, 0, 0.45);
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
 `;
