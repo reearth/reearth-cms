@@ -803,7 +803,8 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
-  regenerateToken?: Maybe<IntegrationPayload>;
+  regenerateIntegrationToken?: Maybe<IntegrationPayload>;
+  regeneratePublicApiToken?: Maybe<ProjectPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveIntegrationFromWorkspacePayload>;
   removeMultipleMembersFromWorkspace?: Maybe<RemoveMultipleMembersFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
@@ -996,8 +997,13 @@ export type MutationPublishModelArgs = {
 };
 
 
-export type MutationRegenerateTokenArgs = {
-  input: RegenerateTokenInput;
+export type MutationRegenerateIntegrationTokenArgs = {
+  input: RegenerateIntegrationTokenInput;
+};
+
+
+export type MutationRegeneratePublicApiTokenArgs = {
+  input: RegeneratePublicApiTokenInput;
 };
 
 
@@ -1270,6 +1276,7 @@ export type ProjectPublication = {
   __typename?: 'ProjectPublication';
   assetPublic: Scalars['Boolean']['output'];
   scope: ProjectPublicationScope;
+  token?: Maybe<Scalars['String']['output']>;
 };
 
 export enum ProjectPublicationScope {
@@ -1422,8 +1429,12 @@ export type QueryViewArgs = {
   modelId: Scalars['ID']['input'];
 };
 
-export type RegenerateTokenInput = {
+export type RegenerateIntegrationTokenInput = {
   integrationId: Scalars['ID']['input'];
+};
+
+export type RegeneratePublicApiTokenInput = {
+  projectId: Scalars['ID']['input'];
 };
 
 export type RemoveIntegrationFromWorkspaceInput = {
@@ -2517,12 +2528,12 @@ export type DeleteIntegrationMutationVariables = Exact<{
 
 export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration?: { __typename?: 'DeleteIntegrationPayload', integrationId: string } | null };
 
-export type RegenerateTokenMutationVariables = Exact<{
+export type RegenerateIntegrationTokenMutationVariables = Exact<{
   integrationId: Scalars['ID']['input'];
 }>;
 
 
-export type RegenerateTokenMutation = { __typename?: 'Mutation', regenerateToken?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
+export type RegenerateIntegrationTokenMutation = { __typename?: 'Mutation', regenerateIntegrationToken?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
 
 export type GetItemsQueryVariables = Exact<{
   query: ItemQueryInput;
@@ -2658,7 +2669,7 @@ export type GetProjectQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean, token?: string | null } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID']['input'];
@@ -2703,6 +2714,13 @@ export type UpdateProjectMutationVariables = Exact<{
 
 
 export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
+
+export type RegeneratePublicApiTokenMutationVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+}>;
+
+
+export type RegeneratePublicApiTokenMutation = { __typename?: 'Mutation', regeneratePublicApiToken?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string } } | null };
 
 export type GetRequestsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -4495,9 +4513,9 @@ export function useDeleteIntegrationMutation(baseOptions?: Apollo.MutationHookOp
 export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteIntegrationMutation>;
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
 export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
-export const RegenerateTokenDocument = gql`
-    mutation regenerateToken($integrationId: ID!) {
-  regenerateToken(input: {integrationId: $integrationId}) {
+export const RegenerateIntegrationTokenDocument = gql`
+    mutation regenerateIntegrationToken($integrationId: ID!) {
+  regenerateIntegrationToken(input: {integrationId: $integrationId}) {
     integration {
       id
       name
@@ -4508,32 +4526,32 @@ export const RegenerateTokenDocument = gql`
   }
 }
     `;
-export type RegenerateTokenMutationFn = Apollo.MutationFunction<RegenerateTokenMutation, RegenerateTokenMutationVariables>;
+export type RegenerateIntegrationTokenMutationFn = Apollo.MutationFunction<RegenerateIntegrationTokenMutation, RegenerateIntegrationTokenMutationVariables>;
 
 /**
- * __useRegenerateTokenMutation__
+ * __useRegenerateIntegrationTokenMutation__
  *
- * To run a mutation, you first call `useRegenerateTokenMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRegenerateTokenMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRegenerateIntegrationTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegenerateIntegrationTokenMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [regenerateTokenMutation, { data, loading, error }] = useRegenerateTokenMutation({
+ * const [regenerateIntegrationTokenMutation, { data, loading, error }] = useRegenerateIntegrationTokenMutation({
  *   variables: {
  *      integrationId: // value for 'integrationId'
  *   },
  * });
  */
-export function useRegenerateTokenMutation(baseOptions?: Apollo.MutationHookOptions<RegenerateTokenMutation, RegenerateTokenMutationVariables>) {
+export function useRegenerateIntegrationTokenMutation(baseOptions?: Apollo.MutationHookOptions<RegenerateIntegrationTokenMutation, RegenerateIntegrationTokenMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RegenerateTokenMutation, RegenerateTokenMutationVariables>(RegenerateTokenDocument, options);
+        return Apollo.useMutation<RegenerateIntegrationTokenMutation, RegenerateIntegrationTokenMutationVariables>(RegenerateIntegrationTokenDocument, options);
       }
-export type RegenerateTokenMutationHookResult = ReturnType<typeof useRegenerateTokenMutation>;
-export type RegenerateTokenMutationResult = Apollo.MutationResult<RegenerateTokenMutation>;
-export type RegenerateTokenMutationOptions = Apollo.BaseMutationOptions<RegenerateTokenMutation, RegenerateTokenMutationVariables>;
+export type RegenerateIntegrationTokenMutationHookResult = ReturnType<typeof useRegenerateIntegrationTokenMutation>;
+export type RegenerateIntegrationTokenMutationResult = Apollo.MutationResult<RegenerateIntegrationTokenMutation>;
+export type RegenerateIntegrationTokenMutationOptions = Apollo.BaseMutationOptions<RegenerateIntegrationTokenMutation, RegenerateIntegrationTokenMutationVariables>;
 export const GetItemsDocument = gql`
     query GetItems($query: ItemQueryInput!, $pagination: Pagination) {
   searchItem(input: {query: $query, pagination: $pagination}) {
@@ -5585,6 +5603,7 @@ export const GetProjectDocument = gql`
       publication {
         scope
         assetPublic
+        token
       }
       requestRoles
     }
@@ -5846,6 +5865,41 @@ export function useUpdateProjectMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProjectMutation>;
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
+export const RegeneratePublicApiTokenDocument = gql`
+    mutation RegeneratePublicApiToken($projectId: ID!) {
+  regeneratePublicApiToken(input: {projectId: $projectId}) {
+    project {
+      id
+    }
+  }
+}
+    `;
+export type RegeneratePublicApiTokenMutationFn = Apollo.MutationFunction<RegeneratePublicApiTokenMutation, RegeneratePublicApiTokenMutationVariables>;
+
+/**
+ * __useRegeneratePublicApiTokenMutation__
+ *
+ * To run a mutation, you first call `useRegeneratePublicApiTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegeneratePublicApiTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [regeneratePublicApiTokenMutation, { data, loading, error }] = useRegeneratePublicApiTokenMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useRegeneratePublicApiTokenMutation(baseOptions?: Apollo.MutationHookOptions<RegeneratePublicApiTokenMutation, RegeneratePublicApiTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RegeneratePublicApiTokenMutation, RegeneratePublicApiTokenMutationVariables>(RegeneratePublicApiTokenDocument, options);
+      }
+export type RegeneratePublicApiTokenMutationHookResult = ReturnType<typeof useRegeneratePublicApiTokenMutation>;
+export type RegeneratePublicApiTokenMutationResult = Apollo.MutationResult<RegeneratePublicApiTokenMutation>;
+export type RegeneratePublicApiTokenMutationOptions = Apollo.BaseMutationOptions<RegeneratePublicApiTokenMutation, RegeneratePublicApiTokenMutationVariables>;
 export const GetRequestsDocument = gql`
     query GetRequests($projectId: ID!, $key: String, $state: [RequestState!], $pagination: Pagination, $createdBy: ID, $reviewer: ID, $sort: Sort) {
   requests(

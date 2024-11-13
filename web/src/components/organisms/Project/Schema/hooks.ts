@@ -328,7 +328,7 @@ export default () => {
         Modal.error({
           title: t("Group cannot be deleted"),
           content: `
-          ${group?.name} ${t("is used in")} ${modelNames}. 
+          ${group?.name}${t("is used in", { modelNames })}  
           ${t("If you want to delete it, please delete the field that uses it first.")}`,
         });
         return;

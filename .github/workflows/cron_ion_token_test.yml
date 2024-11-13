@@ -36,9 +36,17 @@ jobs:
           " \
           )
           echo "token=${ION_TOKEN}" >> $GITHUB_OUTPUT
+      - name: Update Secret Manager secret
+        run: |
+          echo -n "${{ steps.ion_token.outputs.token }}" | gcloud secrets versions add ${{ secrets.CESIUM_ION_TOKEN_SECRET_NAME }} \
+            --data-file=-
       - name: Update Cloud Run
         run: |
           gcloud run services update $CMS_WEB \
-            --update-env-vars REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN=${{ steps.ion_token.outputs.token }} \
-            --region $REGION \
-            --platform managed
+            --update-secrets REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN=${{ secrets.CESIUM_ION_TOKEN_SECRET_NAME }}:latest \
+            --region $REGION
+      - name: Update Cloud Run traffic
+        run: |
+          gcloud run services update-traffic $CMS_WEB \
+            --to-latest \
+            --region $REGION
