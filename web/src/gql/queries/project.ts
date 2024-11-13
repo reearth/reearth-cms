@@ -11,6 +11,7 @@ export const GET_PROJECT = gql`
         publication {
           scope
           assetPublic
+          token
         }
         requestRoles
       }
@@ -106,6 +107,16 @@ export const UPDATE_PROJECT = gql`
           assetPublic
         }
         requestRoles
+      }
+    }
+  }
+`;
+
+export const REGENERATE_PUBLIC_API_TOKEN = gql`
+  mutation RegeneratePublicApiToken($projectId: ID!) {
+    regeneratePublicApiToken(input: { projectId: $projectId }) {
+      project {
+        id
       }
     }
   }

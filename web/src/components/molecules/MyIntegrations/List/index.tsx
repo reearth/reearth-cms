@@ -21,7 +21,10 @@ const MyIntegrationList: React.FC<Props> = ({
 
   return (
     <Wrapper>
-      <PageHeader title={t("My Integrations")} />
+      <PageHeader
+        title={t("My Integrations")}
+        subTitle={t("Create and test your own integration.")}
+      />
       <ListWrapper>
         {integrations?.map((integration: Integration) => (
           <MyIntegrationCard

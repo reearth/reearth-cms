@@ -83,6 +83,7 @@ const ProjectGeneralForm: React.FC<Props> = ({
       <Form.Item
         name="alias"
         label={t("Alias")}
+        extra={t("A simpler way to access to the project.")}
         rules={[
           {
             required: true,

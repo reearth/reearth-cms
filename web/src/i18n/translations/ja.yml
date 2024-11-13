@@ -1,3 +1,5 @@
+Copy: コピー
+Copied: コピーしました
 Download: ダウンロード
 Loading: ローディング中
 Oops!: ''
@@ -9,12 +11,17 @@ Switch: 切り替え
 End point: エンドポイント
 Assets: アセット
 Private: 非公開
+Limited: 限定公開
 Public: 公開
 Accessibility: 公開設定
+Control the visibility scope of the Content API: コンテンツAPIの公開範囲を制御
 Public Scope: 公開範囲
-Choose the scope of your project. This affects all the models shown below that are switched on.: プロジェクトの公開範囲を選択してください。この操作は以下のすべてのモデルに影響します。
+Choose your project public method.: プロジェクトの公開範囲を選択してください。
 Project Alias: プロジェクトエイリアス
-Alias copied!!: エイリアスをコピーしました！
+Edit Project Alias in Project Setting.: プロジェクト設定にてプロジェクトエイリアスを編集することができます。
+Token: トークン
+This is your secret token, please use as your env value.: これは秘密のトークンです。環境変数の値として使用してください。
+Re-generate: 再生成
 Save changes: 変更を保存
 Are you sure you want to delete your account?: 本当にアカウントを削除してよろしいですか？
 Cancel: キャンセル
@@ -35,6 +42,7 @@ Auto: 自動
 Service Language: 利用言語
 This will change the UI language: UIの言語設定を変更します。
 Language: 言語
+Copy URL: URLをコピー
 URL copied!!: URLをコピーしました！
 Unzip: ''
 Asset Type: アセットの種類
@@ -235,17 +243,16 @@ Create: 作成
 Integration Name: インテグレーション名
 Please input the title of the integration!: インテグレーションの名前を入力してください
 Create new integration: 新規インテグレーション作成
+Create and test your own integration.: 独自のインテグレーションの作成とテストをすることができます。
 Are you sure to remove this integration?: 本当にこのインテグレーションを削除してよろしいですか？
 Permanently remove your Integration and all of its contents from the Re:Earth CMS.: インテグレーションを削除します。
 Once the integration is removed, it will disappear from all workspaces.: インテグレーション削除すると、このインテグレーションを利用しているすべてのワークスペースから取り除かれます。
 Remove Integration: インテグレーションを削除
 Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.: インテグレーションを削除します。この操作は取り消すことができません。
-Regenerate The Integration Token?: インテグレーショントークンを再生成しますか？
-If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?: インテグレーショントークンを再生成すると、以前のトークンは無効になり、この操作は元に戻せません。本当に続行しますか？
+Re-generate The Integration Token?: インテグレーショントークンを再生成しますか？
+If you re-generate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?: インテグレーショントークンを再生成すると、以前のトークンは無効になり、この操作は元に戻せません。本当に続行しますか？
 Reset: リセット
 Integration Token: インテグレーショントークン
-Token copied!!: トークンをコピーしました！
-Regenerate: 再生成
 Code Example: コード例
 your model id here: モデルIDをここに入力してください
 your Integration Token here: インテグレーショントークンをここに入力してください
@@ -272,6 +279,7 @@ Are you sure you want to delete this project?: 本当にプロジェクトを削
 Delete Project: プロジェクトを削除
 Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。
 Alias: エイリアス
+A simpler way to access to the project.: プロジェクトにアクセスするためのシンプルな方法です。
 Write something here to describe this record.: このレコードの説明を入力してください。
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
@@ -403,7 +411,6 @@ Update Terrain: 地形を更新
 Tiles type: タイルの種類
 Terrain type: 地形の種類
 Name of tiles: タイルの名前
-example: ''
 Image URL: イメージURL
 Name of terrain: 地形の名前
 Terrain Cesium Ion asset ID: Terrain Cesium Ion アセットID
@@ -452,8 +459,10 @@ Failed to update comment.: コメントの更新に失敗しました。
 Successfully updated comment!: コメントの更新に成功しました。
 Failed to delete comment.: コメントの削除に失敗しました。
 Successfully deleted comment!: コメントの削除に成功しました。
+Successfully updated publication settings!: 公開設定の更新に成功しました。
 Failed to update publication settings.: 公開設定の更新に失敗しました。
-Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
+The attempt to re-generate the Public API Token has failed.: 公開APIトークンの再生成に失敗しました。
+Public API Token has been re-generated!: 公開APIトークンの再生成に成功しました！
 Failed to update asset.: アセットの更新に失敗しました。
 Asset was successfully updated!: アセットの更新に成功しました。
 Failed to decompress asset.: アセットの解凍に失敗しました。
@@ -515,8 +524,8 @@ Successfully updated field!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
 Group cannot be deleted: グループを削除できません。
-is used in: ''
-If you want to delete it, please delete the field that uses it first.: 削除したい場合は、まずそれを使っているフィールドを削除してください。
+is used in: は {{modelNames}} にて使用されています。
+If you want to delete it, please delete the field that uses it first.: 削除したい場合は、このグループを使用しているフィールドを先に削除してください。
 Failed to delete group.: グループの削除に失敗しました
 Successfully deleted group!: グループの削除に成功しました！
 Failed to update group.: グループの更新に失敗しました。
@@ -536,7 +545,7 @@ Failed to connect integration.: インテグレーションの接続に失敗し
 Successfully connected integration to the workspace!: インテグレーションの接続に成功しました。
 Failed to update workspace integration.: ワークスペースのインテグレーションの更新に失敗しました。
 Successfully updated workspace integration!: ワークスペースのインテグレーションの更新に成功しました。
-Failed to delete one or more intagrations.: インテグレーションの削除に失敗しました。
+Failed to delete one or more integrations.: インテグレーションの削除に失敗しました。
 One or more integrations were successfully deleted!: インテグレーションの削除に成功しました。
 Failed to add one or more members.: メンバーの追加に失敗しました。
 Successfully added member(s) to the workspace!: メンバーの追加に成功しました。
@@ -550,8 +559,8 @@ Failed to update integration.: インテグレーションの更新に失敗し�
 Successfully updated integration!: インテグレーションの更新に成功しました。
 Failed to delete integration.: インテグレーションの削除に失敗しました。
 Successfully deleted integration!: インテグレーションの削除に成功しました。
-The attempt to regenerate the integration token has failed.: インテグレーショントークンの再生成に失敗しました。
-The integration token has been successfully regenerated!: インテグレーショントークンの再生成に成功しました！
+The attempt to re-generate the integration token has failed.: インテグレーショントークンの再生成に失敗しました。
+Integration Token has been re-generated!: インテグレーショントークンの再生成に成功しました！
 Failed to create webhook.: Webhookの作成に失敗しました。
 Successfully created webhook!: Webhookの作成に成功しました。
 Failed to delete webhook.: Webhookの削除に失敗しました。
