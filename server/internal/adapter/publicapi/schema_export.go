@@ -3,6 +3,7 @@ package publicapi
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -25,10 +26,10 @@ func (c *Controller) GetSchemaJSON(ctx context.Context, pKey, mKey string) (Sche
 		return SchemaJSON{}, rerror.ErrNotFound
 	}
 
-	return NewSchemaJSON(m, buildProperties(c, sp.Schema().Fields(), ctx)), nil
+	return NewSchemaJSON(m, buildProperties(c.usecases, sp.Schema().Fields(), ctx)), nil
 }
 
-func buildProperties(c *Controller, f schema.FieldList, ctx context.Context) *map[string]interface{} {
+func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.Context) *map[string]interface{} {
 	properties := make(map[string]interface{})
 	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
@@ -80,9 +81,9 @@ func buildProperties(c *Controller, f schema.FieldList, ctx context.Context) *ma
 				}
 			},
 			Group: func(f *schema.FieldGroup) {
-				gs, _ := c.usecases.Schema.FindByGroup(ctx, f.Group(), nil)
+				gs, _ := uc.Schema.FindByGroup(ctx, f.Group(), nil)
 				if gs != nil {
-					fieldSchema["items"] = buildProperties(c, gs.Fields(), ctx)
+					fieldSchema["items"] = buildProperties(uc, gs.Fields(), ctx)
 				}
 			},
 		})
