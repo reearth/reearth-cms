@@ -45,8 +45,8 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"type": "object",
 		})
 
-		// /api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json
-		e.GET("/api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json", pid, sid1).
+	// /api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json
+	e.GET("/api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json", pid, sid1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
@@ -79,8 +79,8 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"type": "object",
 		})
 
-		// /api/projects/{projectIdOrKey}/models/{modelId}/schema.json
-		e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/schema.json", pid, mId1).
+	// /api/projects/{projectIdOrKey}/models/{modelId}/schema.json
+	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/schema.json", pid, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
@@ -115,8 +115,8 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"title":       "m1",
 		})
 
-		// /api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json
-		e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json", pid, mId1).
+	// /api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json
+	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json", pid, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
@@ -146,8 +146,8 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"title":       "m1",
 		})
 
-		// /api/models/{modelId}/schema.json
-		e.GET("/api/models/{modelId}/schema.json", mId1).
+	// /api/models/{modelId}/schema.json
+	e.GET("/api/models/{modelId}/schema.json", mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
@@ -182,8 +182,8 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"title":       "m1",
 		})
 
-		// /api/models/{modelId}/metadata_schema.json
-		e.GET("/api/models/{modelId}/metadata_schema.json", mId1).
+	// /api/models/{modelId}/metadata_schema.json
+	e.GET("/api/models/{modelId}/metadata_schema.json", mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
