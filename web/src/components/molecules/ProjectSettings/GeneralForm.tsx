@@ -1,12 +1,13 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { validateKey, MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
 
 import { Project } from "../Workspace/types";
 
@@ -47,8 +48,13 @@ const ProjectGeneralForm: React.FC<Props> = ({
     }
   }, [form, onProjectUpdate]);
 
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleValuesChange = useCallback(
     async (_: unknown, values: FormType) => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+        timeout.current = null;
+      }
       if (
         project.name === values.name &&
         project.alias === values.alias &&
@@ -57,13 +63,41 @@ const ProjectGeneralForm: React.FC<Props> = ({
         setIsDisabled(true);
         return;
       }
-      const hasError = await form
-        .validateFields()
-        .then(() => false)
-        .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
-      setIsDisabled(hasError);
+      const validate = async () => {
+        const hasError = await form
+          .validateFields()
+          .then(() => false)
+          .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+        setIsDisabled(hasError);
+      };
+      timeout.current = setTimeout(validate, 300);
     },
     [form, project.alias, project.description, project.name],
+  );
+
+  const prevAlias = useRef<{ alias: string; isSuccess: boolean }>();
+  const aliasValidate = useCallback(
+    async (value: string) => {
+      if (project.alias === value) {
+        return Promise.resolve();
+      } else if (prevAlias.current?.alias === value) {
+        return prevAlias.current?.isSuccess ? Promise.resolve() : Promise.reject();
+      } else if (value.length >= 5 && validateKey(value) && (await onProjectAliasCheck(value))) {
+        prevAlias.current = { alias: value, isSuccess: true };
+        return Promise.resolve();
+      } else {
+        prevAlias.current = { alias: value, isSuccess: false };
+        return Promise.reject();
+      }
+    },
+    [onProjectAliasCheck, project.alias],
+  );
+
+  const handleAliasChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      keyReplace(e, { form, key: "alias" });
+    },
+    [form],
   );
 
   return (
@@ -73,7 +107,8 @@ const ProjectGeneralForm: React.FC<Props> = ({
       autoComplete="off"
       initialValues={project}
       onFinish={handleSubmit}
-      onValuesChange={handleValuesChange}>
+      onValuesChange={handleValuesChange}
+      validateTrigger="">
       <Form.Item
         name="name"
         label={t("Name")}
@@ -89,17 +124,16 @@ const ProjectGeneralForm: React.FC<Props> = ({
             required: true,
             message: t("Project alias is not valid"),
             validator: async (_, value) => {
-              if (!validateKey(value) || value.length <= 4) {
-                return Promise.reject();
-              }
-              const isProjectAliasAvailable = await onProjectAliasCheck(value);
-              return isProjectAliasAvailable || project?.alias === value
-                ? Promise.resolve()
-                : Promise.reject();
+              await aliasValidate(value);
             },
           },
         ]}>
-        <Input disabled={!hasUpdateRight} />
+        <Input
+          disabled={!hasUpdateRight}
+          onChange={handleAliasChange}
+          showCount
+          maxLength={MAX_KEY_LENGTH}
+        />
       </Form.Item>
       <Form.Item
         name="description"
