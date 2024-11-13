@@ -10,6 +10,8 @@ import {
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
+import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -160,6 +162,12 @@ const LinkItemModal: React.FC<Props> = ({
         ellipsis: true,
         width: 100,
         minWidth: 100,
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.createdBy} size="small" />
+            {item.createdBy}
+          </Space>
+        ),
       },
       {
         title: t("Created At"),

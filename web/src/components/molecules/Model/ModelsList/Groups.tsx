@@ -8,6 +8,8 @@ type Props = {
   selectedKey?: string;
   groups?: Group[];
   open: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
   onModalOpen: () => void;
   onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onClose: () => void;
@@ -21,6 +23,8 @@ const Groups: React.FC<Props> = ({
   selectedKey,
   groups,
   open,
+  hasCreateRight,
+  hasUpdateRight,
   onModalOpen,
   onGroupKeyCheck,
   onClose,
@@ -34,6 +38,8 @@ const Groups: React.FC<Props> = ({
         selectedKey={selectedKey}
         groups={groups}
         collapsed={collapsed}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
         onGroupSelect={onGroupSelect}
         onModalOpen={onModalOpen}
         onUpdateGroupsOrder={onUpdateGroupsOrder}

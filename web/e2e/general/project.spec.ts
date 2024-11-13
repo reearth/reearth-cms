@@ -47,7 +47,7 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Save changes" }).nth(1).click();
   await expect(page.getByRole("row", { name: "Owner" }).getByRole("switch")).toHaveAttribute(
     "aria-checked",
-    "false",
+    "true",
   );
   await closeNotification(page);
 

@@ -88,14 +88,66 @@ func updateProject(e *httpexpect.Expect, pID, name, desc, alias, publicationScop
 	return res.Path("$.data.updateProject.project.id").Raw().(string), res
 }
 
-func TestCreateProject(t *testing.T) {
+func regeneratePublicApiToken(e *httpexpect.Expect, pId string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation RegeneratePublicApiToken($projectId: ID!) {
+							regeneratePublicApiToken(input: { projectId: $projectId }) {
+								project {
+									id
+									publication {
+										scope
+										assetPublic
+										token
+									}
+								}
+							}
+						}`,
+		Variables: map[string]any{
+			"projectId": pId,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func TestProject(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
-	_, res := createProject(e, wId.String(), "test", "test", "test-1")
-
-	res.Object().
+	// create project
+	pId, p := createProject(e, wId.String(), "test1", "test1", "test1")
+	pp := p.Object().
 		Value("data").Object().
 		Value("createProject").Object().
-		Value("project").Object().
-		HasValue("name", "test")
+		Value("project").Object()
+	pp.HasValue("name", "test1")
+	pp.HasValue("description", "test1")
+	pp.HasValue("alias", "test1")
+
+	// update project
+	_, res := updateProject(e, pId, "test2", "test2", "test2", "LIMITED", true)
+	pp = res.Object().
+		Value("data").Object().
+		Value("updateProject").Object().
+		Value("project").Object()
+	pp.HasValue("name", "test2")
+	pp.HasValue("description", "test2")
+	pp.HasValue("alias", "test2")
+	pp.Value("publication").Object().HasValue("scope", "LIMITED")
+	pp.Value("publication").Object().HasValue("assetPublic", true)
+
+	// regenerate public api token
+	res1 := regeneratePublicApiToken(e, pId)
+	token := res1.Path("$.data.regeneratePublicApiToken.project.publication.token")
+	res2 := regeneratePublicApiToken(e, pId)
+	newToken := res2.Path("$.data.regeneratePublicApiToken.project.publication.token")
+	token.NotEqual(newToken)
 }

@@ -93,7 +93,7 @@ test("Group creating from adding field has succeeded", async ({ page }) => {
   await handleFieldForm(page, "text");
   await page.getByText("e2e model name").click();
   await page.locator("li").getByText("Group", { exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Create Group" })).toBeVisible();
+  await expect(page.getByText("Create Group Field")).toBeVisible();
   await page.getByLabel("Select Group").click();
   await expect(page.getByText("e2e group name #e2e-group-key")).toBeVisible();
   await page.getByRole("button", { name: "Cancel" }).click();
@@ -158,7 +158,7 @@ test("Schema reordering has succeeded", async ({ page }) => {
   );
   await page
     .getByLabel("Fields")
-    .locator(".draggable-item")
+    .locator(".grabbable")
     .nth(1)
     .dragTo(page.getByLabel("Fields").locator(".draggable-item").nth(0));
   await closeNotification(page);

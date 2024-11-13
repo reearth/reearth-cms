@@ -3,10 +3,10 @@ import { Viewer as CesiumViewer } from "cesium";
 import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -42,6 +42,7 @@ type Props = {
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
+  hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
@@ -60,6 +61,7 @@ const AssetMolecule: React.FC<Props> = ({
   viewerType,
   displayUnzipFileList,
   decompressing,
+  hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
   onTypeChange,
@@ -123,20 +125,16 @@ const AssetMolecule: React.FC<Props> = ({
     }
   }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
 
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(asset.url);
-  }, [asset.url]);
-
   return (
     <BodyContainer>
       <BodyWrapper>
         <Card
           title={
             <>
-              {asset.fileName}
-              <Tooltip title={t("URL copied!!")} trigger={"click"}>
-                <CopyIcon icon="copy" onClick={handleCopy} />
-              </Tooltip>
+              <AssetName>{asset.fileName}</AssetName>
+              <CopyButton
+                copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
+              />
             </>
           }
           toolbar={
@@ -182,13 +180,17 @@ const AssetMolecule: React.FC<Props> = ({
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
-          <PreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
+          <PreviewTypeSelect
+            value={selectedPreviewType}
+            onTypeChange={onTypeChange}
+            hasUpdateRight={hasUpdateRight}
+          />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
           <Space>
-            <UserAvatar username={asset.createdBy} shadow />
-            {asset.createdBy}
+            <UserAvatar username={asset.createdBy.name} shadow />
+            {asset.createdBy.name}
           </Space>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>
@@ -205,13 +207,9 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-const CopyIcon = styled(Icon)`
-  margin-left: 10px;
-  transition: all 0.3s;
-  color: rgb(0, 0, 0, 0.45);
-  :hover {
-    color: rgba(0, 0, 0, 0.88);
-  }
+const AssetName = styled.span`
+  min-width: 0;
+  word-wrap: break-word;
 `;
 
 const UnzipButton = styled(Button)`

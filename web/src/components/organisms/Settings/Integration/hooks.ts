@@ -16,6 +16,7 @@ import {
   Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { useUserRights } from "@reearth-cms/state";
 
 export default (workspaceId?: string) => {
   const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
@@ -32,6 +33,19 @@ export default (workspaceId?: string) => {
     notifyOnNetworkStatusChange: true,
   });
   const t = useT();
+  const [userRights] = useUserRights();
+  const hasConnectRight = useMemo(
+    () => !!userRights?.integrations.connect,
+    [userRights?.integrations.connect],
+  );
+  const hasUpdateRight = useMemo(
+    () => !!userRights?.integrations.update,
+    [userRights?.integrations.update],
+  );
+  const hasDeleteRight = useMemo(
+    () => !!userRights?.integrations.delete,
+    [userRights?.integrations.delete],
+  );
 
   const workspace = useMemo(() => {
     const foundWorkspace = data?.me?.workspaces?.find(workspace => workspace.id === workspaceId);
@@ -140,7 +154,7 @@ export default (workspaceId?: string) => {
             refetchQueries: ["GetMe"],
           });
           if (result.errors) {
-            Notification.error({ message: t("Failed to delete one or more intagrations.") });
+            Notification.error({ message: t("Failed to delete one or more integrations.") });
           }
         }),
       );
@@ -192,5 +206,8 @@ export default (workspaceId?: string) => {
     handleTableChange,
     loading,
     handleReload,
+    hasConnectRight,
+    hasUpdateRight,
+    hasDeleteRight,
   };
 };
