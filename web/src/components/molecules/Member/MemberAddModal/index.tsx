@@ -9,8 +9,8 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { User } from "@reearth-cms/components/molecules/Member/types";
-import { MemberInput, Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { User , Role } from "@reearth-cms/components/molecules/Member/types";
+import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
