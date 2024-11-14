@@ -15,6 +15,7 @@ export const requestFragment = gql`
         refs
         value {
           id
+          title
           schemaId
           modelId
           model {

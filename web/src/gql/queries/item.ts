@@ -137,6 +137,7 @@ export const GET_ITEM_NODE = gql`
         requests {
           id
           state
+          title
         }
       }
     }

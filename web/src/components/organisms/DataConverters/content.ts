@@ -64,7 +64,12 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
     assets: GQLItem.assets
       ?.map(asset => asset && { id: asset.id, fileName: asset.fileName })
       .filter((asset): asset is ItemAsset => asset !== null),
-    requests: GQLItem.requests?.map(request => ({ id: request.id, state: request.state })) ?? [],
+    requests:
+      GQLItem.requests?.map(request => ({
+        id: request.id,
+        state: request.state,
+        title: request.title,
+      })) ?? [],
   };
 };
 
@@ -102,6 +107,7 @@ export const fromGraphQLRequest = (request: GQLRequest): Request => ({
   closedAt: request.closedAt ?? undefined,
   items: request.items?.map(item => ({
     id: item.itemId,
+    title: item.item?.value.title ?? "",
     modelId: item?.item?.value.modelId,
     modelName: item?.item?.value.model.name,
     version: item?.version ?? "",
