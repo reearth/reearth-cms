@@ -107,6 +107,11 @@ export const GET_MODEL_NODE = gql`
                 min
                 max
               }
+              ... on SchemaFieldNumber {
+                defaultValue
+                numberMin: min
+                numberMax: max
+              }
               ... on SchemaFieldBool {
                 defaultValue
               }
