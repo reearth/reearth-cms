@@ -10,10 +10,9 @@ import {
   AssetField,
   ReferenceField,
 } from "@reearth-cms/components/molecules/Content/Form/fields/ComplexFieldComponents";
-import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, Group, GroupField } from "@reearth-cms/components/molecules/Schema/types";
 
 type Props = {
   value?: string;
@@ -117,7 +116,7 @@ const GroupItem: React.FC<Props> = ({
 }) => {
   const { Panel } = Collapse;
 
-  const [fields, setFields] = useState<Field[]>();
+  const [fields, setFields] = useState<GroupField[]>();
 
   useEffect(() => {
     const handleFieldsSet = async (id: string) => {
@@ -176,7 +175,7 @@ const GroupItem: React.FC<Props> = ({
           )
         }>
         <div>
-          {fields?.map((field: Field) => {
+          {fields?.map(field => {
             if (field.type === "Asset") {
               return (
                 <StyledFormItemWrapper key={field.id}>
@@ -232,31 +231,12 @@ const GroupItem: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
-            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
-              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-
-              return (
-                <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <FieldComponent field={field} itemGroupId={itemGroupId} disabled={disabled} />
-                </StyledFormItemWrapper>
-              );
             } else {
-              const FieldComponent =
-                FIELD_TYPE_COMPONENT_MAP[
-                  field.type as
-                    | "Select"
-                    | "Date"
-                    | "Tag"
-                    | "Bool"
-                    | "Checkbox"
-                    | "URL"
-                    | "TextArea"
-                    | "MarkdownText"
-                    | "Integer"
-                ] || DefaultField;
-
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
               return (
-                <StyledFormItemWrapper key={field.id}>
+                <StyledFormItemWrapper
+                  key={field.id}
+                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
                   <FieldComponent field={field} itemGroupId={itemGroupId} disabled={disabled} />
                 </StyledFormItemWrapper>
               );
