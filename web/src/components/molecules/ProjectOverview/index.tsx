@@ -5,7 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { useT } from "@reearth-cms/i18n";
+import { useT, Trans } from "@reearth-cms/i18n";
 
 import ModelCard from "./ModelCard";
 
@@ -81,7 +81,7 @@ const ProjectOverview: React.FC<Props> = ({
                 </Button>
               </Actions>
               <span>
-                {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+                <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
               </span>
             </Content>
           </Placeholder>
