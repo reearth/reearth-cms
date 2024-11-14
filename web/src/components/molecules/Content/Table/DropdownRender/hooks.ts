@@ -168,8 +168,8 @@ export default (
           );
           break;
       }
-      // add nullable operator to all non required columns
-      if (!filter.required) {
+      // add nullable operator to all non required columns except boolean
+      if (!filter.required && filter.type !== "Bool" && filter.type !== "Checkbox") {
         result.push(
           { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
           {
