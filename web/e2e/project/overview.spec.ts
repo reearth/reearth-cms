@@ -13,7 +13,9 @@ test.afterEach(async ({ page }) => {
 });
 
 test("Model CRUD on Overview page has succeeded", async ({ page }) => {
-  await page.getByRole("button", { name: "plus New Model" }).click();
+  await expect(page.getByText("No Models yet")).toBeVisible();
+  await page.getByRole("button", { name: "plus New Model" }).first().click();
+  await expect(page.getByLabel("New Model").getByText("New Model")).toBeVisible();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("model name");
   await page.getByLabel("Model description").click();
@@ -43,4 +45,17 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Delete Model" }).click();
   await closeNotification(page);
   await expect(page.locator("#root")).not.toContainText("new model name");
+  await expect(page.getByText("No Models yet")).toBeVisible();
+});
+
+test("Creating Model by using the button on placeholder has succeeded", async ({ page }) => {
+  await page.getByRole("button", { name: "plus New Model" }).last().click();
+  await expect(page.getByLabel("New Model").getByText("New Model")).toBeVisible();
+  await page.getByLabel("Model name").click();
+  await page.getByLabel("Model name").fill("model name");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+  await expect(page.getByTitle("model name")).toBeVisible();
+  await expect(page.getByText("#model-name")).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "model name" }).locator("span")).toBeVisible();
 });
