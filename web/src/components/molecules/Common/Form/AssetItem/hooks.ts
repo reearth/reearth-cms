@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default (
   fileList?: UploadFile[],
@@ -17,6 +17,9 @@ export default (
 ) => {
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.asset.create, [userRights?.asset.create]);
+
   const [visible, setVisible] = useState(false);
   const handleClick = useCallback(() => {
     setVisible(true);
@@ -49,6 +52,7 @@ export default (
     visible,
     workspaceId: currentWorkspace?.id,
     projectId: currentProject?.id,
+    hasCreateRight,
     handleClick,
     handleLinkAssetModalCancel,
     displayUploadModal,

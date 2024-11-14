@@ -41,7 +41,7 @@ import {
   useIsItemReferencedLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useCollapsedModelMenu } from "@reearth-cms/state";
+import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 import { newID } from "@reearth-cms/utils/id";
 
 import { dateConvert } from "./utils";
@@ -66,6 +66,7 @@ export default () => {
     totalCount,
     page,
     pageSize,
+    showPublishAction,
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,6 +74,20 @@ export default () => {
 
   const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
+  const [userRights] = useUserRights();
+  const hasRequestCreateRight = useMemo(
+    () => !!userRights?.request.create,
+    [userRights?.request.create],
+  );
+  const hasRequestUpdateRight = useMemo(
+    () => userRights?.request.update === null || !!userRights?.request.update,
+    [userRights?.request.update],
+  );
+  const hasPublishRight = useMemo(
+    () => !!userRights?.content.publish,
+    [userRights?.content.publish],
+  );
+
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -174,21 +189,17 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const myRole = useMemo(
-    () =>
-      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
-        ?.role,
-    [currentWorkspace?.members, me?.id],
-  );
-
-  const showPublishAction = useMemo(
-    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
-    [currentProject?.requestRoles, myRole],
-  );
-
   const currentItem: Item | undefined = useMemo(
     () => fromGraphQLItem(data?.node as GQLItem),
     [data?.node],
+  );
+
+  const hasItemUpdateRight = useMemo(
+    () =>
+      userRights?.content.update === null
+        ? currentItem?.createdBy?.id === me?.id
+        : !!userRights?.content.update,
+    [currentItem?.createdBy?.id, me?.id, userRights?.content.update],
   );
 
   const [getGroup] = useGetGroupLazyQuery({
@@ -648,5 +659,9 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleGroupGet,
     handleCheckItemReference,
+    hasRequestCreateRight,
+    hasRequestUpdateRight,
+    hasPublishRight,
+    hasItemUpdateRight,
   };
 };

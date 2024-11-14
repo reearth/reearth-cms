@@ -29,6 +29,11 @@ const ContentList: React.FC = () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    hasCreateRight,
+    hasDeleteRight,
+    hasPublishRight,
+    hasRequestUpdateRight,
+    showPublishAction,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
@@ -42,7 +47,7 @@ const ContentList: React.FC = () => {
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelectedItems,
+    handleSelect,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -117,7 +122,7 @@ const ContentList: React.FC = () => {
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      setSelectedItems={setSelectedItems}
+      onSelect={handleSelect}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
@@ -131,6 +136,11 @@ const ContentList: React.FC = () => {
       addItemToRequestModalShown={addItemToRequestModalShown}
       onRequestSearchTerm={handleRequestSearchTerm}
       onRequestTableReload={handleRequestTableReload}
+      hasCreateRight={hasCreateRight}
+      hasDeleteRight={hasDeleteRight}
+      hasPublishRight={hasPublishRight}
+      hasRequestUpdateRight={hasRequestUpdateRight}
+      showPublishAction={showPublishAction}
     />
   );
 };

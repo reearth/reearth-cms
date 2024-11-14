@@ -10,7 +10,8 @@ const ProjectSettings: React.FC = () => {
 
   const {
     project,
-    loading,
+    hasUpdateRight,
+    hasDeleteRight,
     handleProjectDelete,
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
@@ -19,11 +20,13 @@ const ProjectSettings: React.FC = () => {
     projectId,
   });
 
-  return !project || loading ? (
+  return !project ? (
     <Loading minHeight="400px" />
   ) : (
     <ProjectSettingsMolecule
       project={project}
+      hasUpdateRight={hasUpdateRight}
+      hasDeleteRight={hasDeleteRight}
       onProjectDelete={handleProjectDelete}
       onProjectUpdate={handleProjectUpdate}
       onProjectRequestRolesUpdate={handleProjectRequestRolesUpdate}

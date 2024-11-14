@@ -18,7 +18,7 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   workspaceSettings: WorkspaceSettings;
-  hasPrivilege: boolean;
+  hasUpdateRight: boolean;
   loading: boolean;
   onWorkspaceSettingsUpdate: (
     tiles: TileInput[],
@@ -29,7 +29,7 @@ type Props = {
 
 const Settings: React.FC<Props> = ({
   workspaceSettings,
-  hasPrivilege,
+  hasUpdateRight,
   loading,
   onWorkspaceSettingsUpdate,
 }) => {
@@ -136,9 +136,14 @@ const Settings: React.FC<Props> = ({
             isTile={true}
             onDelete={handleDelete}
             onDragEnd={handleDragEnd}
+            hasUpdateRight={hasUpdateRight}
           />
         ) : null}
-        <Button type="link" onClick={() => onTileModalOpen()} icon={<Icon icon="plus" />}>
+        <Button
+          type="link"
+          onClick={() => onTileModalOpen()}
+          icon={<Icon icon="plus" />}
+          disabled={!hasUpdateRight}>
           {t("Add new Tiles option")}
         </Button>
         <Divider />
@@ -148,7 +153,7 @@ const Settings: React.FC<Props> = ({
           <Switch
             checked={settings?.terrains?.enabled}
             onChange={onChange}
-            disabled={!hasPrivilege}
+            disabled={!hasUpdateRight}
           />
           <Text>{t("Enable")}</Text>
         </SwitchWrapper>
@@ -161,9 +166,14 @@ const Settings: React.FC<Props> = ({
                 isTile={false}
                 onDelete={handleDelete}
                 onDragEnd={handleDragEnd}
+                hasUpdateRight={hasUpdateRight}
               />
             ) : null}
-            <Button type="link" onClick={() => onTerrainModalOpen()} icon={<Icon icon="plus" />}>
+            <Button
+              type="link"
+              onClick={() => onTerrainModalOpen()}
+              icon={<Icon icon="plus" />}
+              disabled={!hasUpdateRight}>
               {t("Add new Terrain option")}
             </Button>
           </>

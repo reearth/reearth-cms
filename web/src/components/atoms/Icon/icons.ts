@@ -47,6 +47,7 @@ import {
   FileTwoTone,
   PictureTwoTone,
   LoadingOutlined,
+  EyeOutlined,
   EyeInvisibleOutlined,
   CopyOutlined,
   ReloadOutlined,
@@ -69,6 +70,7 @@ import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
 import Group from "./Icons/group.svg";
+import InfinityIcon from "./Icons/infinity.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
 import LineString from "./Icons/lineString.svg";
@@ -128,6 +130,7 @@ export default {
   listBullets: ListBullets,
   arrowUpRight: ArrowUpRight,
   arrowUpRightSlash: ArrowUpRightSlash,
+  infinity: InfinityIcon,
   numberNine: NumberNine,
   link: Link,
   linkSolid: LinkSolid,
@@ -159,6 +162,7 @@ export default {
   loading: LoadingOutlined,
   linked: Linked,
   unzip: Unzip,
+  eye: EyeOutlined,
   eyeInvisible: EyeInvisibleOutlined,
   copy: CopyOutlined,
   terminalWindow: TerminalWindow,

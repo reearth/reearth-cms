@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project, Role } from "../Workspace/types";
+import { Project } from "../Workspace/types";
 
 type RequestOptionsData = {
   id: string;
@@ -16,10 +17,15 @@ type RequestOptionsData = {
 
 type Props = {
   project: Project;
+  hasUpdateRight: boolean;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
 };
 
-const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRolesUpdate }) => {
+const ProjectRequestOptions: React.FC<Props> = ({
+  project,
+  hasUpdateRight,
+  onProjectRequestRolesUpdate,
+}) => {
   const t = useT();
   const [requestRoles, setRequestRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +74,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
                 setRequestRoles(requestRoles?.filter(role => role !== "OWNER"));
               }
             }}
+            disabled={!hasUpdateRight}
           />
         ),
       },
@@ -88,6 +95,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
                 setRequestRoles(requestRoles?.filter(role => role !== "MAINTAINER"));
               }
             }}
+            disabled={!hasUpdateRight}
           />
         ),
       },
@@ -108,6 +116,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
                 setRequestRoles(requestRoles?.filter(role => role !== "WRITER"));
               }
             }}
+            disabled={!hasUpdateRight}
           />
         ),
       },
@@ -135,7 +144,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
     ];
 
     return columns;
-  }, [requestRoles]);
+  }, [hasUpdateRight, requestRoles]);
 
   const handleSave = useCallback(async () => {
     setIsLoading(true);
@@ -149,7 +158,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
   return (
     <>
       <SeondaryText>
-        {t("If this option is chosen, all new model within the project will default follow it")}
+        {t("If this option is chosen, all new model within the project will default follow it.")}
       </SeondaryText>
       <TableWrapper>
         <Table dataSource={dataSource} columns={columns} pagination={false} />

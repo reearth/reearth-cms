@@ -21,7 +21,6 @@ FROM scratch
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /etc/mime.types /etc/mime.types
 COPY --from=build /app/reearth-cms /app/reearth-cms
-COPY web* /app/web/
 
 WORKDIR /app
 

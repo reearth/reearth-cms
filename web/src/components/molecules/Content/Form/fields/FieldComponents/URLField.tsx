@@ -11,7 +11,7 @@ type URLFieldProps = {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => Promise<void>;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {

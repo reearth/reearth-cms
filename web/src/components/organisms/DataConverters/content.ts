@@ -41,8 +41,8 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
       })) ?? [],
-    createdBy: GQLItem.createdBy?.name,
-    updatedBy: GQLItem.updatedBy?.name,
+    createdBy: { id: GQLItem.createdBy?.id, name: GQLItem.createdBy?.name },
+    updatedBy: { id: GQLItem.updatedBy?.id, name: GQLItem.updatedBy?.name },
     createdAt: GQLItem.createdAt,
     updatedAt: GQLItem.updatedAt,
     schemaId: GQLItem.schemaId,
@@ -63,7 +63,12 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
     assets: GQLItem.assets
       ?.map(asset => asset && { id: asset.id, fileName: asset.fileName })
       .filter((asset): asset is ItemAsset => asset !== null),
-    requests: GQLItem.requests?.map(request => ({ id: request.id, state: request.state })) ?? [],
+    requests:
+      GQLItem.requests?.map(request => ({
+        id: request.id,
+        state: request.state,
+        title: request.title,
+      })) ?? [],
   };
 };
 
@@ -73,7 +78,7 @@ export const fromGraphQLAsset = (asset: GQLAsset | undefined): Asset | undefined
     id: asset.id,
     fileName: asset.fileName,
     createdAt: asset.createdAt.toString(),
-    createdBy: asset.createdBy?.name ?? "",
+    createdBy: { id: asset.createdBy.id, name: asset.createdBy.name },
     createdByType: asset.createdByType,
     previewType: asset.previewType || "UNKNOWN",
     projectId: asset.projectId,
@@ -101,6 +106,7 @@ export const fromGraphQLRequest = (request: GQLRequest): Request => ({
   closedAt: request.closedAt ?? undefined,
   items: request.items?.map(item => ({
     id: item.itemId,
+    title: item.item?.value.title ?? "",
     modelId: item?.item?.value.modelId,
     modelName: item?.item?.value.model.name,
     version: item?.version ?? "",

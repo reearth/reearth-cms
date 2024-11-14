@@ -24,6 +24,7 @@ import {
   FieldType,
   Group,
   FormValues,
+  Tag,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
@@ -37,7 +38,7 @@ type Props = {
   open: boolean;
   fieldLoading: boolean;
   selectedField: Field | null;
-  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
+  handleFieldKeyUnique: (key: string) => boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   assetList: Asset[];
@@ -139,6 +140,9 @@ const FieldModal: React.FC<Props> = ({
     isTitleDisabled,
     ObjectSupportType,
     EditorSupportType,
+    emptyValidator,
+    duplicatedValidator,
+    errorIndexes,
   } = useHooks(selectedType, isMeta, selectedField, open, onClose, onSubmit, handleFieldKeyUnique);
 
   const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
@@ -215,43 +219,50 @@ const FieldModal: React.FC<Props> = ({
               <Form.Item
                 name="values"
                 label={t("Set Options")}
+                validateStatus={"success"}
                 rules={[
                   {
-                    validator: async (_, values) => {
-                      if (!values || values.length < 1) {
-                        return Promise.reject(new Error("At least 1 option"));
-                      }
-                      if (values.some((value: string) => value.length === 0)) {
-                        return Promise.reject(new Error("Empty values are not allowed"));
-                      }
-                    },
+                    required: true,
+                    message: t("At least 1 option"),
+                  },
+                  {
+                    validator: async (_, values?: string[]) => emptyValidator(values),
+                    message: t("Empty values are not allowed"),
+                  },
+                  {
+                    validator: async (_, values?: string[]) => duplicatedValidator(values),
+                    message: t("Option must be unique"),
                   },
                 ]}>
-                <MultiValueField FieldInput={Input} />
+                <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
               </Form.Item>
             )}
             {selectedType === "Tag" && (
               <Form.Item
                 name="tags"
                 label={t("Set Tags")}
+                validateStatus={"success"}
                 rules={[
                   {
-                    validator: async (_, values) => {
-                      if (!values || values.length < 1) {
-                        return Promise.reject(new Error("At least 1 option"));
-                      }
-                      if (values.some((value: string) => value.length === 0)) {
-                        return Promise.reject(new Error("Empty values are not allowed"));
-                      }
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
-                      if (uniqueNames.size !== values.length) {
-                        return Promise.reject(new Error("Labels must be unique"));
-                      }
+                    required: true,
+                    message: t("At least 1 tag"),
+                  },
+                  {
+                    validator: async (_, values?: Tag[]) => {
+                      const names = values?.map(value => value.name);
+                      return emptyValidator(names);
                     },
+                    message: t("Empty values are not allowed"),
+                  },
+                  {
+                    validator: async (_, values?: Tag[]) => {
+                      const names = values?.map(value => value.name);
+                      return duplicatedValidator(names);
+                    },
+                    message: t("Labels must be unique"),
                   },
                 ]}>
-                <MultiValueColoredTag />
+                <MultiValueColoredTag errorIndexes={errorIndexes} />
               </Form.Item>
             )}
             {selectedType === "Group" && (

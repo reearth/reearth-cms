@@ -9,6 +9,8 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   model: Model;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
@@ -17,6 +19,8 @@ type Props = {
 
 const ModelCard: React.FC<Props> = ({
   model,
+  hasUpdateRight,
+  hasDeleteRight,
   onSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
@@ -31,15 +35,17 @@ const ModelCard: React.FC<Props> = ({
         key: "edit",
         label: t("Edit"),
         onClick: () => onModelUpdateModalOpen(model),
+        disabled: !hasUpdateRight,
       },
       {
         key: "delete",
         label: t("Delete"),
         onClick: () => onModelDeletionModalOpen(model),
         danger: true,
+        disabled: !hasDeleteRight,
       },
     ],
-    [t, model, onModelUpdateModalOpen, onModelDeletionModalOpen],
+    [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelDeletionModalOpen],
   );
 
   return (

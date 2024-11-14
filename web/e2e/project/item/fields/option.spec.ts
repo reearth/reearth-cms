@@ -25,7 +25,12 @@ test("Option field creating and updating has succeeded", async ({ page }) => {
   await page.locator("#values").nth(0).click();
   await page.locator("#values").nth(0).fill("first");
   await page.getByRole("button", { name: "plus New" }).click();
+  await expect(page.getByText("Empty values are not allowed")).toBeVisible();
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.locator("#values").nth(1).click();
+  await page.locator("#values").nth(1).fill("first");
+  await expect(page.getByText("Option must be unique")).toBeVisible();
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.locator("#values").nth(1).fill("second");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);

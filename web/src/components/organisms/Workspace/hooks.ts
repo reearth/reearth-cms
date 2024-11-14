@@ -5,6 +5,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetProjectsQuery,
@@ -12,9 +13,10 @@ import {
   useCreateWorkspaceMutation,
   Workspace as GQLWorkspace,
   useCheckProjectAliasLazyQuery,
+  Project as GQLProject,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -24,6 +26,8 @@ export default () => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.project.create, [userRights?.project.create]);
 
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [projectModalShown, setProjectModalShown] = useState(false);
@@ -33,31 +37,29 @@ export default () => {
   const {
     data,
     loading: loadingProjects,
-    refetch,
+    refetch: projectsRefetch,
   } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
     skip: !workspaceId,
   });
 
-  const projects = useMemo(() => {
-    return data?.projects.nodes
-      .map<Project | undefined>(project =>
-        project
-          ? {
-              id: project.id,
-              description: project.description,
-              name: project.name,
-            }
-          : undefined,
-      )
-      .filter(
-        (project): project is Project =>
-          !!project &&
-          (!searchedProjectName ||
-            (!!searchedProjectName &&
-              project.name.toLocaleLowerCase().includes(searchedProjectName.toLocaleLowerCase()))),
-      );
-  }, [data?.projects.nodes, searchedProjectName]);
+  const allProjects = useMemo(
+    () =>
+      data?.projects.nodes
+        .map(project => (project ? fromGraphQLProject(project as GQLProject) : undefined))
+        .filter(project => !!project),
+    [data?.projects.nodes],
+  );
+
+  const projects = useMemo(
+    () =>
+      searchedProjectName
+        ? allProjects?.filter(project =>
+            project.name.toLocaleLowerCase().includes(searchedProjectName.toLocaleLowerCase()),
+          )
+        : allProjects,
+    [allProjects, searchedProjectName],
+  );
 
   const [createNewProject] = useCreateProjectMutation({
     refetchQueries: ["GetProjects"],
@@ -65,7 +67,7 @@ export default () => {
 
   const handleProjectSearch = useCallback(
     (value: string) => {
-      setSearchedProjectName?.(value);
+      setSearchedProjectName(value);
     },
     [setSearchedProjectName],
   );
@@ -87,9 +89,9 @@ export default () => {
       }
       Notification.success({ message: t("Successfully created project!") });
       setProjectModalShown(false);
-      refetch();
+      projectsRefetch();
     },
-    [createNewProject, workspaceId, refetch, t],
+    [createNewProject, workspaceId, projectsRefetch, t],
   );
 
   const handleProjectModalClose = useCallback(() => {
@@ -120,9 +122,9 @@ export default () => {
         );
         navigate(`/workspace/${results.data.createWorkspace.workspace.id}`);
       }
-      refetch();
+      projectsRefetch();
     },
-    [createWorkspaceMutation, setCurrentWorkspace, refetch, navigate, t],
+    [createWorkspaceMutation, setCurrentWorkspace, projectsRefetch, navigate, t],
   );
 
   const handleWorkspaceModalClose = useCallback(() => {
@@ -151,6 +153,7 @@ export default () => {
     projectModalShown,
     loadingProjects,
     workspaceModalShown,
+    hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,
     handleProjectModalOpen,
@@ -160,5 +163,6 @@ export default () => {
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleProjectAliasCheck,
+    projectsRefetch,
   };
 };

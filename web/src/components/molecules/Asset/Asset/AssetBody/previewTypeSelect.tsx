@@ -16,6 +16,7 @@ export type PreviewType =
 type Props = {
   onTypeChange: (value: PreviewType) => void;
   value?: PreviewType;
+  hasUpdateRight: boolean;
 };
 
 type PreviewTypeListItem = {
@@ -23,7 +24,7 @@ type PreviewTypeListItem = {
   value: PreviewType;
 };
 
-export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value }) => {
+export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value, hasUpdateRight }) => {
   const t = useT();
   const previewTypeList: PreviewTypeListItem[] = [
     { name: t("PNG/JPEG/TIFF/GIF"), value: "IMAGE" },
@@ -39,7 +40,7 @@ export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value }) => {
     { name: t("Unknown Type"), value: "UNKNOWN" },
   ];
   return (
-    <StyledSelect value={value} onChange={onTypeChange}>
+    <StyledSelect value={value} onChange={onTypeChange} disabled={!hasUpdateRight}>
       {previewTypeList.map((type, index) => (
         <Select.Option key={index} value={type.value}>
           {type.name}
