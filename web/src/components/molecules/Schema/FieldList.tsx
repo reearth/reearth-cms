@@ -11,6 +11,7 @@ import { FieldType, Tab, SelectedSchemaType } from "./types";
 type Props = {
   currentTab: Tab;
   selectedSchemaType: SelectedSchemaType;
+  hasCreateRight: boolean;
   addField: (fieldType: FieldType) => void;
 };
 
@@ -19,7 +20,12 @@ type FieldListItem = {
   fields: FieldType[];
 };
 
-const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
+const FieldList: React.FC<Props> = ({
+  currentTab,
+  selectedSchemaType,
+  hasCreateRight,
+  addField,
+}) => {
   const t = useT();
 
   const common: FieldListItem[] = useMemo(
@@ -46,7 +52,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
       },
       {
         title: t("Number"),
-        fields: ["Integer"],
+        fields: ["Integer", "Number"],
       },
       {
         title: t("URL"),
@@ -103,11 +109,12 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={dataSource}
+        hasCreateRight={hasCreateRight}
         renderItem={item => (
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
             {item.fields.map(field => (
-              <List.Item key={field} onClick={() => addField(field)}>
+              <List.Item key={field} onClick={hasCreateRight ? () => addField(field) : undefined}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}
@@ -135,13 +142,13 @@ const FieldCategoryTitle = styled.h2`
   color: rgba(0, 0, 0, 0.45);
 `;
 
-const FieldStyledList = styled(List<FieldListItem>)`
+const FieldStyledList = styled(List<FieldListItem>)<{ hasCreateRight: boolean }>`
   max-height: calc(100% - 34px);
   overflow-y: auto;
   padding-bottom: 24px;
   .ant-list-item {
     background-color: #fff;
-    cursor: pointer;
+    cursor: ${({ hasCreateRight }) => (hasCreateRight ? "pointer" : "not-allowed")};
     + .ant-list-item {
       margin-top: 12px;
     }

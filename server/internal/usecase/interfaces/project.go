@@ -38,6 +38,7 @@ type UpdateProjectPublicationParam struct {
 var (
 	ErrProjectAliasIsNotSet    error = rerror.NewE(i18n.T("project alias is not set"))
 	ErrProjectAliasAlreadyUsed error = rerror.NewE(i18n.T("project alias is already used by another project"))
+	ErrInvalidProject                = rerror.NewE(i18n.T("invalid project"))
 )
 
 type Project interface {
@@ -48,4 +49,5 @@ type Project interface {
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
 	CheckAlias(context.Context, string) (bool, error)
 	Delete(context.Context, id.ProjectID, *usecase.Operator) error
+	RegenerateToken(context.Context, id.ProjectID, *usecase.Operator) (*project.Project, error)
 }

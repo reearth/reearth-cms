@@ -42,28 +42,38 @@ const FormModal: React.FC<Props> = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
-  const values = Form.useWatch([], form);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const values = Form.useWatch<FormType | undefined>([], form);
   useEffect(() => {
-    if (form.getFieldValue("name") && form.getFieldValue("key")) {
-      if (
-        data?.name === values.name &&
-        data.description === values.description &&
-        data.key === values.key
-      ) {
-        setIsDisabled(true);
-      } else {
-        form
-          .validateFields()
-          .then(() => setIsDisabled(false))
-          .catch(() => setIsDisabled(true));
-      }
-    } else {
-      setIsDisabled(true);
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+      timeout.current = null;
     }
-  }, [data?.description, data?.key, data?.name, form, values]);
+    if (
+      data?.name === values?.name &&
+      data?.description === values?.description &&
+      data?.key === values?.key
+    ) {
+      setIsDisabled(true);
+      return;
+    }
+    const validate = () => {
+      form
+        .validateFields()
+        .then(() => setIsDisabled(false))
+        .catch(() => setIsDisabled(true));
+    };
+    timeout.current = setTimeout(validate, 300);
+    return () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+    };
+  }, [data, form, values]);
 
   useEffect(() => {
     if (open) {
+      setIsDisabled(true);
       if (data) {
         form.setFieldsValue(data);
       } else {
@@ -183,7 +193,7 @@ const FormModal: React.FC<Props> = ({
           {t("OK")}
         </Button>,
       ]}>
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" validateTrigger="">
         <Form.Item
           name="name"
           label={nameLabel}

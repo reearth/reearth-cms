@@ -21,6 +21,7 @@ const Asset: React.FC = () => {
     decompressing,
     isSaveDisabled,
     updateLoading,
+    hasUpdateRight,
     handleAssetDecompress,
     handleAssetItemSelect,
     handleToggleCommentMenu,
@@ -55,6 +56,7 @@ const Asset: React.FC = () => {
       decompressing={decompressing}
       isSaveDisabled={isSaveDisabled}
       updateLoading={updateLoading}
+      hasUpdateRight={hasUpdateRight}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
       onTypeChange={handleTypeChange}

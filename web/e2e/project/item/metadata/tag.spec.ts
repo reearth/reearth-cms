@@ -27,6 +27,12 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Set Tags").fill("Tag1");
   await page.getByRole("button", { name: "plus New" }).click();
   await page.locator("div").filter({ hasText: /^Tag$/ }).click();
+  await page.locator("#tags").nth(1).fill("");
+  await expect(page.getByText("Empty values are not allowed")).toBeVisible();
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
+  await page.locator("#tags").nth(1).fill("Tag1");
+  await expect(page.getByText("Labels must be unique")).toBeVisible();
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.locator("#tags").nth(1).fill("Tag2");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);

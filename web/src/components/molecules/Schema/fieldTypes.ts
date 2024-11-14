@@ -52,6 +52,12 @@ export const fieldTypes: {
     description: "Integer",
     color: "#36CFC9",
   },
+  Number: {
+    icon: "infinity",
+    title: "Float",
+    description: "Fractional",
+    color: "#36CFC9",
+  },
   URL: {
     icon: "link",
     title: "URL",
@@ -122,6 +128,9 @@ t("Multiple select");
 
 t("Int");
 t("Integer");
+
+t("Float");
+t("Fractional");
 
 t("URL");
 t("http/https URL");

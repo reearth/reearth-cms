@@ -7,7 +7,7 @@ import Collapse from "@reearth-cms/components/atoms/Collapse";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, ItemInRequest } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -34,8 +34,8 @@ export const RequestDescription: React.FC<Props> = ({
   );
 
   const headerGet = useCallback(
-    (modelName?: string, modelId?: string, itemId?: string) => {
-      if (modelName && modelId && itemId) {
+    ({ modelName, modelId, id: itemId, title }: ItemInRequest) => {
+      if (modelName && modelId) {
         return (
           <>
             {`${modelName} / `}
@@ -44,7 +44,7 @@ export const RequestDescription: React.FC<Props> = ({
               onClick={() => {
                 onNavigateToItemEdit(modelId, itemId);
               }}>
-              {itemId}
+              {title || itemId}
             </StyledButton>
           </>
         );
@@ -66,11 +66,10 @@ export const RequestDescription: React.FC<Props> = ({
           <RequestItemsWrapper>
             {currentRequest.items
               .filter(item => item.schema)
-              .map((item, index) => (
-                <Collapse key={index}>
-                  <StyledPanel header={headerGet(item.modelName, item.modelId, item.id)} key={1}>
+              .map(item => (
+                <Collapse key={item.id}>
+                  <StyledPanel header={headerGet(item)} key={1}>
                     <RequestItemForm
-                      key={index}
                       schema={item.schema}
                       initialFormValues={item.initialValues}
                       referencedItems={item.referencedItems}

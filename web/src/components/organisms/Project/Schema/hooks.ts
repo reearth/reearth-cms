@@ -9,6 +9,8 @@ import {
   FieldType,
   Group,
   SelectedSchemaType,
+  Schema,
+  MetaDataSchema,
 } from "@reearth-cms/components/molecules/Schema/types";
 import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
@@ -36,7 +38,7 @@ import {
   useModelsByGroupQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useCollapsedModelMenu } from "@reearth-cms/state";
+import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -44,7 +46,15 @@ export default () => {
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId: schemaId } = useParams();
   const [currentModel, setCurrentModel] = useModel();
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.schema.create, [userRights?.schema.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.schema.update, [userRights?.schema.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.schema.delete, [userRights?.schema.delete]);
 
+  const [modelModalShown, setModelModalShown] = useState(false);
+  const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
+  const [groupModalShown, setGroupModalShown] = useState(false);
+  const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
   const [fieldModalShown, setFieldModalShown] = useState(false);
   const [isMeta, setIsMeta] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
@@ -110,6 +120,13 @@ export default () => {
     [group],
   );
 
+  const isGroup = useMemo(
+    () => groupModalShown || selectedSchemaType === "group",
+    [groupModalShown, selectedSchemaType],
+  );
+
+  const data = useMemo(() => (isGroup ? group : currentModel), [currentModel, group, isGroup]);
+
   useEffect(() => {
     if (!schemaId && currentModel) {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
@@ -130,20 +147,28 @@ export default () => {
     [navigate, projectId, workspaceId],
   );
 
-  const keyUniqueCheck = useCallback((key: string, fieldId?: string, model?: Model) => {
-    const sameKeyField = model?.schema.fields.find(field => field.key === key);
-    return !sameKeyField || sameKeyField.id === fieldId;
-  }, []);
+  const keyUniqueCheck = useCallback(
+    (key: string, fieldId?: string, schema?: Schema | MetaDataSchema) => {
+      const sameKeyField = schema?.fields?.find(field => field.key === key);
+      return !sameKeyField || sameKeyField.id === fieldId;
+    },
+    [],
+  );
 
   const handleFieldKeyUnique = useCallback(
-    (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),
-    [keyUniqueCheck, selectedField?.id, currentModel],
+    (key: string) =>
+      keyUniqueCheck(key, selectedField?.id, isMeta ? currentModel?.metadataSchema : data?.schema),
+    [keyUniqueCheck, selectedField?.id, isMeta, currentModel?.metadataSchema, data?.schema],
   );
 
   const handleCorrespondingFieldKeyUnique = useCallback(
     (key: string) =>
-      keyUniqueCheck(key, selectedField?.typeProperty?.correspondingField?.id, referencedModel),
-    [keyUniqueCheck, selectedField?.typeProperty?.correspondingField?.id, referencedModel],
+      keyUniqueCheck(
+        key,
+        selectedField?.typeProperty?.correspondingField?.id,
+        referencedModel?.schema,
+      ),
+    [keyUniqueCheck, referencedModel?.schema, selectedField?.typeProperty?.correspondingField?.id],
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
@@ -283,9 +308,6 @@ export default () => {
   );
 
   // group hooks
-  const [groupModalShown, setGroupModalShown] = useState(false);
-  const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
-
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
   const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupDeletionModalOpen = useCallback(
@@ -324,7 +346,7 @@ export default () => {
         Modal.error({
           title: t("Group cannot be deleted"),
           content: `
-          ${group?.name} ${t("is used in")} ${modelNames}. 
+          ${group?.name}${t("is used in", { modelNames })}  
           ${t("If you want to delete it, please delete the field that uses it first.")}`,
         });
         return;
@@ -428,9 +450,6 @@ export default () => {
   );
 
   // model hooks
-  const [modelModalShown, setModelModalShown] = useState(false);
-  const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
-
   const [CheckModelKeyAvailability] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
@@ -501,13 +520,6 @@ export default () => {
     },
     [updateNewModel, handleModelModalClose, t],
   );
-
-  const isGroup = useMemo(
-    () => groupModalShown || selectedSchemaType === "group",
-    [groupModalShown, selectedSchemaType],
-  );
-
-  const data = useMemo(() => (isGroup ? group : currentModel), [currentModel, group, isGroup]);
 
   const handleKeyCheck = useCallback(
     async (key: string, ignoredKey?: string) => {
@@ -600,5 +612,8 @@ export default () => {
     groupDeletionModalShown,
     modelModalShown,
     modelDeletionModalShown,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
   };
 };

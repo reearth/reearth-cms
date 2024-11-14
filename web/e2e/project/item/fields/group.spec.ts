@@ -41,7 +41,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#key").fill("group1");
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("group1 description");
-  await page.getByLabel("Select Group").click();
+  await page.locator(".ant-select-selector").click();
   await page.getByText("e2e group name #e2e-group-key").click();
   await expect(page.getByLabel("Settings")).toContainText("e2e group name #e2e-group-key");
   await page.getByRole("tab", { name: "Validation" }).click();
@@ -171,7 +171,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#key").fill("group1");
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("group1 description");
-  await page.getByLabel("Select Group").click();
+  await page.locator(".ant-select-selector").click();
   await page.getByText("e2e group name #e2e-group-key").click();
   await expect(page.getByLabel("Settings")).toContainText("e2e group name #e2e-group-key");
   await page.getByRole("tab", { name: "Validation" }).click();

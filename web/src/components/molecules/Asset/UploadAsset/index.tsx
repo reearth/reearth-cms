@@ -14,6 +14,7 @@ type Props = {
   uploadModalVisibility?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType?: UploadType;
+  hasCreateRight: boolean;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
   onUploadModalClose?: () => void;
@@ -28,11 +29,12 @@ const UploadAsset: React.FC<Props> = ({
   fileList,
   uploading,
   uploadModalVisibility,
+  uploadUrl,
+  uploadType,
+  hasCreateRight,
   onUploadModalClose,
   displayUploadModal,
   onUploadModalCancel,
-  uploadUrl,
-  uploadType,
   setUploadUrl,
   setUploadType,
   onUpload,
@@ -40,7 +42,11 @@ const UploadAsset: React.FC<Props> = ({
   const t = useT();
   return (
     <>
-      <Button type="primary" icon={<Icon icon="upload" />} onClick={displayUploadModal}>
+      <Button
+        type="primary"
+        icon={<Icon icon="upload" />}
+        onClick={displayUploadModal}
+        disabled={!hasCreateRight}>
         {t("Upload Asset")}
       </Button>
       <UploadModal

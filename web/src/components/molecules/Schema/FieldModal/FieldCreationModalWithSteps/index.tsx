@@ -14,13 +14,11 @@ import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
-import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
   FieldModalTabs,
-  FieldType,
   FormValues,
   CorrespondingField,
 } from "@reearth-cms/components/molecules/Schema/types";
@@ -32,7 +30,7 @@ const { TabPane } = Tabs;
 
 type Props = {
   models?: Model[];
-  selectedType: FieldType;
+  selectedType: "Reference";
   selectedField: Field | null;
   open: boolean;
   isLoading: boolean;
@@ -208,11 +206,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     setField1FormValues(initialValues);
   }, [initialValues, setCurrentStep]);
 
-  const handleCancel = useCallback(() => {
-    onClose();
+  const handleAfterClose = useCallback(() => {
     formReset();
     modalReset();
-  }, [formReset, modalReset, onClose]);
+  }, [formReset, modalReset]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
@@ -342,8 +339,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      onCancel={handleCancel}
-      afterClose={modalReset}
+      onCancel={onClose}
+      afterClose={handleAfterClose}
       width={572}
       open={open}
       footer={
@@ -475,25 +472,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
               </Form.Item>
-              {selectedType === "Select" && (
-                <Form.Item
-                  name="values"
-                  label={t("Set Options")}
-                  rules={[
-                    {
-                      validator: async (_, values) => {
-                        if (!values || values.length < 1) {
-                          return Promise.reject(new Error("At least 1 option"));
-                        }
-                        if (values.some((value: string) => value.length === 0)) {
-                          return Promise.reject(new Error("Empty values are not allowed"));
-                        }
-                      },
-                    },
-                  ]}>
-                  <MultiValueField FieldInput={Input} />
-                </Form.Item>
-              )}
               <Form.Item
                 name="multiple"
                 valuePropName="checked"
@@ -550,7 +528,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               </Form.Item>
               <Form.Item
                 name="key"
-                label="Field Key"
+                label={t("Field Key")}
                 extra={t(
                   "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
                 )}
@@ -578,25 +556,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
               </Form.Item>
-              {selectedType === "Select" && (
-                <Form.Item
-                  name="values"
-                  label={t("Set Options")}
-                  rules={[
-                    {
-                      validator: async (_, values) => {
-                        if (!values || values.length < 1) {
-                          return Promise.reject(new Error("At least 1 option"));
-                        }
-                        if (values.some((value: string) => value.length === 0)) {
-                          return Promise.reject(new Error("Empty values are not allowed"));
-                        }
-                      },
-                    },
-                  ]}>
-                  <MultiValueField FieldInput={Input} />
-                </Form.Item>
-              )}
             </TabPane>
             <TabPane tab={t("Validation")} key="validation" forceRender>
               <Form.Item

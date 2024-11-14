@@ -16,6 +16,7 @@ import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import {
   TableRowSelection,
   ListToolBarProps,
@@ -56,6 +57,7 @@ type Props = {
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
   deleteLoading: boolean;
+  publishLoading: boolean;
   unpublishLoading: boolean;
   selectedItem?: Item;
   selectedItems: { selectedRows: { itemId: string; version?: string }[] };
@@ -74,9 +76,10 @@ type Props = {
   onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
-  setSelectedItems: (input: { selectedRows: { itemId: string; version?: string }[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
   requests: Request[];
@@ -87,6 +90,10 @@ type Props = {
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
+  hasDeleteRight: boolean;
+  hasPublishRight: boolean;
+  hasRequestUpdateRight: boolean;
+  showPublishAction: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -94,6 +101,7 @@ const ContentTable: React.FC<Props> = ({
   contentTableColumns,
   loading,
   deleteLoading,
+  publishLoading,
   unpublishLoading,
   selectedItem,
   selectedItems,
@@ -113,18 +121,23 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onPublish,
   onUnpublish,
   onSearchTerm,
   onFilterChange,
   onContentTableChange,
   onItemSelect,
-  setSelectedItems,
+  onSelect,
   onItemEdit,
   onItemDelete,
   onItemsReload,
   modelKey,
   onRequestSearchTerm,
   onRequestTableReload,
+  hasDeleteRight,
+  hasPublishRight,
+  hasRequestUpdateRight,
+  showPublishAction,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -221,8 +234,8 @@ const ContentTable: React.FC<Props> = ({
         sortOrder: sortOrderGet("CREATION_USER"),
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.createdBy} size={"small"} />
-            {item.createdBy}
+            <UserAvatar username={item.createdBy.name} size={"small"} />
+            {item.createdBy.name}
           </Space>
         ),
         sorter: true,
@@ -279,14 +292,25 @@ const ContentTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
-      onChange: (_selectedRowKeys: Key[], selectedRows: Item[]) => {
-        setSelectedItems({
-          ...selectedItems,
-          selectedRows: selectedRows.map(row => ({ itemId: row.id, version: row.version })),
-        });
-      },
+      onChange: onSelect,
     }),
-    [selectedItems, setSelectedItems],
+    [onSelect, selectedItems.selectedRows],
+  );
+
+  const publishConfirm = useCallback(
+    (itemIds: string[]) => {
+      Modal.confirm({
+        title: t("Publish items"),
+        content: t("All selected items will be published. You can unpublish them anytime."),
+        icon: <Icon icon="exclamationCircle" />,
+        cancelText: t("No"),
+        okText: t("Yes"),
+        async onOk() {
+          await onPublish(itemIds);
+        },
+      });
+    },
+    [onPublish, t],
   );
 
   const alertOptions = useCallback(
@@ -297,8 +321,20 @@ const ContentTable: React.FC<Props> = ({
           <Button
             type="link"
             size="small"
+            icon={<Icon icon="upload" />}
+            onClick={() => {
+              publishConfirm(props.selectedRowKeys);
+            }}
+            loading={publishLoading}
+            disabled={!hasPublishRight || !showPublishAction}>
+            {t("Publish")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
             icon={<Icon icon="plus" />}
-            onClick={() => onAddItemToRequestModalOpen()}>
+            onClick={() => onAddItemToRequestModalOpen()}
+            disabled={!hasRequestUpdateRight}>
             {t("Add to Request")}
           </Button>
           <Button
@@ -306,15 +342,9 @@ const ContentTable: React.FC<Props> = ({
             size="small"
             icon={<Icon icon="eyeInvisible" />}
             onClick={() => onUnpublish(props.selectedRowKeys)}
-            loading={unpublishLoading}>
+            loading={unpublishLoading}
+            disabled={!hasPublishRight}>
             {t("Unpublish")}
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            icon={<Icon icon="clear" />}
-            onClick={props.onCleanSelected}>
-            {t("Deselect")}
           </Button>
           <Button
             type="link"
@@ -322,13 +352,27 @@ const ContentTable: React.FC<Props> = ({
             icon={<Icon icon="delete" />}
             onClick={() => onItemDelete(props.selectedRowKeys)}
             danger
-            loading={deleteLoading}>
+            loading={deleteLoading}
+            disabled={!hasDeleteRight}>
             {t("Delete")}
           </Button>
         </Space>
       );
     },
-    [deleteLoading, onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t, unpublishLoading],
+    [
+      deleteLoading,
+      hasDeleteRight,
+      hasPublishRight,
+      hasRequestUpdateRight,
+      onAddItemToRequestModalOpen,
+      onItemDelete,
+      onUnpublish,
+      publishConfirm,
+      publishLoading,
+      showPublishAction,
+      t,
+      unpublishLoading,
+    ],
   );
 
   const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);

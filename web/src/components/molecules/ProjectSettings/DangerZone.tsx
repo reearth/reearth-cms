@@ -8,10 +8,11 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  hasDeleteRight: boolean;
   onProjectDelete: () => Promise<void>;
 };
 
-const DangerZone: React.FC<Props> = ({ onProjectDelete }) => {
+const DangerZone: React.FC<Props> = ({ hasDeleteRight, onProjectDelete }) => {
   const t = useT();
   const { confirm } = Modal;
 
@@ -34,7 +35,11 @@ const DangerZone: React.FC<Props> = ({ onProjectDelete }) => {
           "Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
-      <Button onClick={handleProjectDeleteConfirmation} type="primary" danger>
+      <Button
+        onClick={handleProjectDeleteConfirmation}
+        type="primary"
+        danger
+        disabled={!hasDeleteRight}>
         {t("Delete Project")}
       </Button>
     </ContentSection>

@@ -127,7 +127,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await expect(page.getByRole("cell", { name: "text1" }).locator("span").first()).toBeVisible();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.locator("#root").getByText("text1")).toBeVisible();
-  await page.getByRole("button", { name: "Refer to item" }).click();
+  await page.getByRole("button", { name: "Replace item" }).click();
   await page.getByRole("row").getByRole("button").nth(1).hover();
   await page.getByRole("row").getByRole("button").nth(1).click();
   await expect(page.locator("#root").getByText("text2")).toBeVisible();
