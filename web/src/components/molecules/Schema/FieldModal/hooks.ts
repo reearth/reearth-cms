@@ -237,6 +237,7 @@ export default (
     if (form.getFieldValue("title") && form.getFieldValue("key")) {
       if (
         form.getFieldValue("values")?.length === 0 ||
+        form.getFieldValue("group")?.length === 0 ||
         form.getFieldValue("supportedTypes")?.length === 0 ||
         form.getFieldValue("tags")?.length === 0
       ) {
@@ -370,6 +371,8 @@ export default (
     if (open && !selectedField) {
       if (selectedType === "Select") {
         form.setFieldValue("values", []);
+      } else if (selectedType === "Group") {
+        form.setFieldValue("group", "");
       } else if (selectedType === "GeometryObject") {
         form.setFieldValue("supportedTypes", []);
       } else if (selectedType === "GeometryEditor") {

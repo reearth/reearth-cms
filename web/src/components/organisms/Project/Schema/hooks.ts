@@ -9,6 +9,8 @@ import {
   FieldType,
   Group,
   SelectedSchemaType,
+  Schema,
+  MetaDataSchema,
 } from "@reearth-cms/components/molecules/Schema/types";
 import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
@@ -49,6 +51,10 @@ export default () => {
   const hasUpdateRight = useMemo(() => !!userRights?.schema.update, [userRights?.schema.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.schema.delete, [userRights?.schema.delete]);
 
+  const [modelModalShown, setModelModalShown] = useState(false);
+  const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
+  const [groupModalShown, setGroupModalShown] = useState(false);
+  const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
   const [fieldModalShown, setFieldModalShown] = useState(false);
   const [isMeta, setIsMeta] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
@@ -114,6 +120,13 @@ export default () => {
     [group],
   );
 
+  const isGroup = useMemo(
+    () => groupModalShown || selectedSchemaType === "group",
+    [groupModalShown, selectedSchemaType],
+  );
+
+  const data = useMemo(() => (isGroup ? group : currentModel), [currentModel, group, isGroup]);
+
   useEffect(() => {
     if (!schemaId && currentModel) {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
@@ -135,23 +148,27 @@ export default () => {
   );
 
   const keyUniqueCheck = useCallback(
-    (key: string, fieldId?: string, model?: Model) => {
-      const schema = isMeta ? model?.metadataSchema : model?.schema;
+    (key: string, fieldId?: string, schema?: Schema | MetaDataSchema) => {
       const sameKeyField = schema?.fields?.find(field => field.key === key);
       return !sameKeyField || sameKeyField.id === fieldId;
     },
-    [isMeta],
+    [],
   );
 
   const handleFieldKeyUnique = useCallback(
-    (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),
-    [keyUniqueCheck, selectedField?.id, currentModel],
+    (key: string) =>
+      keyUniqueCheck(key, selectedField?.id, isMeta ? currentModel?.metadataSchema : data?.schema),
+    [keyUniqueCheck, selectedField?.id, isMeta, currentModel?.metadataSchema, data?.schema],
   );
 
   const handleCorrespondingFieldKeyUnique = useCallback(
     (key: string) =>
-      keyUniqueCheck(key, selectedField?.typeProperty?.correspondingField?.id, referencedModel),
-    [keyUniqueCheck, selectedField?.typeProperty?.correspondingField?.id, referencedModel],
+      keyUniqueCheck(
+        key,
+        selectedField?.typeProperty?.correspondingField?.id,
+        referencedModel?.schema,
+      ),
+    [keyUniqueCheck, referencedModel?.schema, selectedField?.typeProperty?.correspondingField?.id],
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
@@ -291,9 +308,6 @@ export default () => {
   );
 
   // group hooks
-  const [groupModalShown, setGroupModalShown] = useState(false);
-  const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
-
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
   const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupDeletionModalOpen = useCallback(
@@ -436,9 +450,6 @@ export default () => {
   );
 
   // model hooks
-  const [modelModalShown, setModelModalShown] = useState(false);
-  const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
-
   const [CheckModelKeyAvailability] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
@@ -509,13 +520,6 @@ export default () => {
     },
     [updateNewModel, handleModelModalClose, t],
   );
-
-  const isGroup = useMemo(
-    () => groupModalShown || selectedSchemaType === "group",
-    [groupModalShown, selectedSchemaType],
-  );
-
-  const data = useMemo(() => (isGroup ? group : currentModel), [currentModel, group, isGroup]);
 
   const handleKeyCheck = useCallback(
     async (key: string, ignoredKey?: string) => {
