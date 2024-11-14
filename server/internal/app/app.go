@@ -80,7 +80,7 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 	)
 	api.POST("/signup", Signup(), usecaseMiddleware)
 
-	publicapi.Echo(api.Group("/p", PublicAPIAuthMiddleware(cfg), usecaseMiddleware))
+	publicapi.Echo(api.Group("/p", publicAPIAuthMiddleware(cfg), usecaseMiddleware))
 	integration.RegisterHandlers(api.Group(
 		"",
 		authMiddleware(cfg),

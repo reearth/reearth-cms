@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	projectIndexes       = []string{"workspace"}
+	// TODO: the `publication.token` should be unique, this should be fixed in the future
+	projectIndexes       = []string{"workspace", "publication.token"}
 	projectUniqueIndexes = []string{"id"}
 )
 
@@ -95,6 +96,15 @@ func (r *ProjectRepo) FindByPublicName(ctx context.Context, name string) (*proje
 	}
 	return r.findOne(ctx, bson.M{
 		"alias": name,
+	})
+}
+
+func (r *ProjectRepo) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
+	if token == "" {
+		return nil, rerror.ErrNotFound
+	}
+	return r.findOne(ctx, bson.M{
+		"publication.token": token,
 	})
 }
 

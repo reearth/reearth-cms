@@ -37,7 +37,7 @@ type Props = {
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  disabled?: boolean;
+  disabled: boolean;
   onSearchTerm?: (term?: string) => void;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
@@ -258,8 +258,7 @@ const IconWrapper = styled.span<{ disabled?: boolean }>`
 `;
 
 const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
-  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "468px")};
-  max-width: 100%;
+  max-width: ${({ isFullWidth }) => (isFullWidth ? undefined : "468px")};
   word-wrap: break-word;
 `;
 

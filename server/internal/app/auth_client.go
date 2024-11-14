@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -89,7 +90,7 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 
 func attachIntegrationOperator(ctx context.Context, req *http.Request, cfg *ServerConfig) (context.Context, error) {
 	var i *integration.Integration
-	if token := getIntegrationToken(req); token != "" {
+	if token := getToken(req); token != "" {
 		var err error
 		i, err = cfg.Repos.Integration.FindByToken(ctx, token)
 		if err != nil {
@@ -126,37 +127,36 @@ func attachIntegrationOperator(ctx context.Context, req *http.Request, cfg *Serv
 	return ctx, nil
 }
 
-func PublicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
+func publicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// TODO: support limit publication scope
+			req := c.Request()
+			ctx := req.Context()
+			if token := getToken(req); token != "" {
+				p, err := cfg.Repos.Project.FindByPublicAPIToken(ctx, token)
+				if err != nil {
+					if errors.Is(err, rerror.ErrNotFound) {
+						return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
+					}
+					return err
+				}
 
-			// req := c.Request()
-			// ctx := req.Context()
-			// if token := req.Header.Get("Reearth-Token"); token != "" {
-			// 	ws, err := cfg.Repos.Project.FindByPublicAPIToken(ctx, token)
-			// 	if err != nil {
-			// 		if errors.Is(err, rerror.ErrNotFound) {
-			// 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
-			// 		}
-			// 		return err
-			// 	}
+				if p.Publication() == nil || p.Publication().Scope() == project.PublicationScopePrivate {
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid project"})
+				}
 
-			// 	if !ws.IsPublic() {
-			// 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
-			// 	}
-
-			// 	c.SetRequest(req.WithContext(adapter.AttachOperator(ctx, &usecase.Operator{
-			// 		PublicAPIProject: ws.ID(),
-			// 	})))
-			// }
+				defaultLang := req.Header.Get("Accept-Language")
+				op := generatePublicApiOperator(p, defaultLang)
+				ctx = adapter.AttachOperator(ctx, op)
+				c.SetRequest(req.WithContext(ctx))
+			}
 
 			return next(c)
 		}
 	}
 }
 
-func getIntegrationToken(req *http.Request) string {
+func getToken(req *http.Request) string {
 	token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer ")
 	if strings.HasPrefix(token, "secret_") {
 		return token
@@ -291,6 +291,28 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 		MaintainableProjects: mp,
 		OwningProjects:       op,
 	}, nil
+}
+
+func generatePublicApiOperator(p *project.Project, lang string) *usecase.Operator {
+	if p == nil {
+		return nil
+	}
+
+	return &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:                   nil,
+			ReadableWorkspaces:     id.WorkspaceIDList{p.Workspace()},
+			WritableWorkspaces:     nil,
+			MaintainableWorkspaces: nil,
+			OwningWorkspaces:       nil,
+		},
+		Integration:          nil,
+		Lang:                 lang,
+		ReadableProjects:     id.ProjectIDList{p.ID()},
+		WritableProjects:     nil,
+		MaintainableProjects: nil,
+		OwningProjects:       nil,
+	}
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {

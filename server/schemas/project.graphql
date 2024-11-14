@@ -12,6 +12,7 @@ enum ProjectPublicationScope {
 type ProjectPublication {
   scope: ProjectPublicationScope!
   assetPublic: Boolean!
+  token: String
 }
 
 type Project implements Node {
@@ -54,6 +55,10 @@ input DeleteProjectInput {
   projectId: ID!
 }
 
+input RegeneratePublicApiTokenInput {
+  projectId: ID!
+}
+
 # Payload
 type ProjectPayload {
   project: Project!
@@ -84,4 +89,5 @@ extend type Mutation {
   createProject(input: CreateProjectInput!): ProjectPayload
   updateProject(input: UpdateProjectInput!): ProjectPayload
   deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
+  regeneratePublicApiToken(input: RegeneratePublicApiTokenInput!): ProjectPayload
 }

@@ -19,6 +19,7 @@ const ContentList: React.FC = () => {
     selectedItems,
     loading,
     deleteLoading,
+    publishLoading,
     unpublishLoading,
     totalCount,
     views,
@@ -28,6 +29,11 @@ const ContentList: React.FC = () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    hasCreateRight,
+    hasDeleteRight,
+    hasPublishRight,
+    hasRequestUpdateRight,
+    showPublishAction,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
@@ -35,12 +41,13 @@ const ContentList: React.FC = () => {
     requestModalPage,
     requestModalPageSize,
     handleBulkAddItemToRequest: handleAddItemToRequest,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelectedItems,
+    handleSelect,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
@@ -97,6 +104,7 @@ const ContentList: React.FC = () => {
       collapsed={collapsedModelMenu}
       loading={loading}
       deleteLoading={deleteLoading}
+      publishLoading={publishLoading}
       unpublishLoading={unpublishLoading}
       currentView={currentView}
       setCurrentView={setCurrentView}
@@ -114,10 +122,11 @@ const ContentList: React.FC = () => {
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      setSelectedItems={setSelectedItems}
+      onSelect={handleSelect}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
+      onPublish={handlePublish}
       onUnpublish={handleUnpublish}
       onItemDelete={handleItemDelete}
       onItemAdd={handleNavigateToItemForm}
@@ -127,6 +136,11 @@ const ContentList: React.FC = () => {
       addItemToRequestModalShown={addItemToRequestModalShown}
       onRequestSearchTerm={handleRequestSearchTerm}
       onRequestTableReload={handleRequestTableReload}
+      hasCreateRight={hasCreateRight}
+      hasDeleteRight={hasDeleteRight}
+      hasPublishRight={hasPublishRight}
+      hasRequestUpdateRight={hasRequestUpdateRight}
+      showPublishAction={showPublishAction}
     />
   );
 };

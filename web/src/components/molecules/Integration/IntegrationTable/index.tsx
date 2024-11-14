@@ -12,6 +12,7 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
@@ -32,6 +33,9 @@ type Props = {
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
   onReload: () => void;
+  hasConnectRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
 };
 
 const IntegrationTable: React.FC<Props> = ({
@@ -48,6 +52,9 @@ const IntegrationTable: React.FC<Props> = ({
   onTableChange,
   loading,
   onReload,
+  hasConnectRight,
+  hasUpdateRight,
+  hasDeleteRight,
 }) => {
   const t = useT();
 
@@ -75,20 +82,33 @@ const IntegrationTable: React.FC<Props> = ({
         key: "creator",
         width: 250,
         minWidth: 100,
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.integration?.developer.name} size="small" />
+            {item.integration?.developer.name}
+          </Space>
+        ),
       },
       {
         key: "action",
         render: (_, integrationMember) => (
-          <StyledIcon
-            onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
-            icon="settings"
+          <Button
+            type="link"
+            icon={
+              <Icon
+                size={18}
+                onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
+                icon="settings"
+              />
+            }
+            disabled={!hasUpdateRight}
           />
         ),
         width: 48,
         minWidth: 48,
       },
     ],
-    [onIntegrationSettingsModalOpen, t],
+    [hasUpdateRight, onIntegrationSettingsModalOpen, t],
   );
 
   const toolbar: ListToolBarProps = useMemo(
@@ -135,22 +155,16 @@ const IntegrationTable: React.FC<Props> = ({
         <Button
           type="link"
           size="small"
-          icon={<Icon icon="clear" />}
-          onClick={props.onCleanSelected}>
-          {t("Deselect")}
-        </Button>
-        <Button
-          type="link"
-          size="small"
           icon={<Icon icon="delete" />}
           onClick={() => onIntegrationRemove(props.selectedRowKeys)}
           danger
-          loading={deleteLoading}>
+          loading={deleteLoading}
+          disabled={!hasDeleteRight}>
           {t("Remove")}
         </Button>
       </Space>
     ),
-    [deleteLoading, onIntegrationRemove, t],
+    [deleteLoading, hasDeleteRight, onIntegrationRemove, t],
   );
 
   const options = useMemo(
@@ -166,7 +180,11 @@ const IntegrationTable: React.FC<Props> = ({
       <PageHeader
         title={t("Integrations")}
         extra={
-          <Button type="primary" onClick={onIntegrationConnectModalOpen} icon={<Icon icon="api" />}>
+          <Button
+            type="primary"
+            onClick={onIntegrationConnectModalOpen}
+            icon={<Icon icon="api" />}
+            disabled={!hasConnectRight}>
             {t("Connect Integration")}
           </Button>
         }
@@ -180,7 +198,8 @@ const IntegrationTable: React.FC<Props> = ({
               <Button
                 onClick={onIntegrationConnectModalOpen}
                 type="primary"
-                icon={<Icon icon="api" />}>
+                icon={<Icon icon="api" />}
+                disabled={!hasConnectRight}>
                 {t("Connect Integration")}
               </Button>
             </Suggestion>
@@ -240,11 +259,6 @@ const Title = styled.h1`
   font-size: 16px;
   line-height: 24px;
   color: #000;
-`;
-
-const StyledIcon = styled(Icon)`
-  color: #1890ff;
-  font-size: 18px;
 `;
 
 const TableWrapper = styled.div`

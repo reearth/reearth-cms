@@ -10,8 +10,10 @@ import {
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
+import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
@@ -35,6 +37,7 @@ type Props = {
   totalCount?: number;
   page?: number;
   pageSize?: number;
+  hasCreateRight: boolean;
   onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
@@ -62,6 +65,7 @@ const LinkAssetModal: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  hasCreateRight,
   onAssetTableChange,
   setUploadUrl,
   setUploadType,
@@ -172,11 +176,17 @@ const LinkAssetModal: React.FC<Props> = ({
       },
       {
         title: t("Created By"),
-        dataIndex: "createdBy",
+        dataIndex: ["createdBy", "name"],
         key: "createdBy",
         ellipsis: true,
         width: 100,
         minWidth: 100,
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.createdBy.name} size="small" />
+            {item.createdBy.name}
+          </Space>
+        ),
       },
     ],
     [linkedAsset?.id, onLinkClick, t],
@@ -226,6 +236,7 @@ const LinkAssetModal: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          hasCreateRight={hasCreateRight}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
           displayUploadModal={displayUploadModal}
