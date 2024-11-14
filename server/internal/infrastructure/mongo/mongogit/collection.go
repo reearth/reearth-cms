@@ -46,7 +46,11 @@ func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (in
 }
 
 func (c *Collection) PaginateAggregation(ctx context.Context, pipeline []any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.client.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer)
+	opt := options.Aggregate().SetCollation(&options.Collation{
+		Locale:   "simple",
+		Strength: 1,
+	})
+	return c.client.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer, opt)
 }
 
 func (c *Collection) CountAggregation(ctx context.Context, pipeline []any, q version.Query) (int64, error) {
