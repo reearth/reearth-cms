@@ -42,6 +42,7 @@ var (
 	mId2   = id.NewModelID()
 	mId3   = id.NewModelID()
 	mId4   = id.NewModelID()
+	mId5   = id.NewModelID()
 	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
@@ -52,6 +53,7 @@ var (
 	itmId3 = id.NewItemID()
 	itmId4 = id.NewItemID()
 	itmId5 = id.NewItemID()
+	itmId6 = id.NewItemID()
 	fId1   = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
@@ -60,6 +62,7 @@ var (
 	fId6   = id.NewFieldID()
 	fId7   = id.NewFieldID()
 	fId8   = id.NewFieldID()
+	fId9   = id.NewFieldID()
 	dvsfId = id.NewFieldID()
 	thId1  = id.NewThreadID()
 	thId2  = id.NewThreadID()
@@ -72,6 +75,8 @@ var (
 	ikey2  = id.RandomKey()
 	ikey3  = id.RandomKey()
 	ikey4  = id.RandomKey()
+	ikey5  = id.RandomKey()
+	ikey6  = id.RandomKey()
 	pid    = id.NewProjectID()
 	sid0   = id.NewSchemaID()
 	sid1   = id.NewSchemaID()
@@ -86,6 +91,7 @@ var (
 	sfKey6 = id.NewKey("group-key")
 	sfKey7 = id.NewKey("geometry-key")
 	sfKey8 = id.NewKey("geometry-editor-key")
+	sfkey9 = id.NewKey("number-key")
 	gKey1  = id.RandomKey()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
@@ -263,6 +269,25 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Model.Save(ctx, m4); err != nil {
 		return err
 	}
+
+	float1 := float64(1.2)
+	float2 := float64(123.4)
+	sn1, _ := schema.NewNumber(&float1, &float2)
+	sf9 := schema.NewField(sn1.TypeProperty()).ID(fId9).Key(sfkey9).Type(sn1.TypeProperty()).MustBuild()
+	s8 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf9}).MustBuild()
+	m5 := model.New().
+		ID((mId5)).
+		Name("m5").
+		Description("m5 desc").
+		Public(true).
+		Key(ikey6).
+		Project(p.ID()).
+		Schema(s8.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m5); err != nil {
+		return err
+	}
+
 	// endregion
 
 	// region items
@@ -611,6 +636,65 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		HasValue("page", 1).
 		HasValue("perPage", 5).
 		HasValue("totalCount", 1)
+	r2.
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId3.String(),
+				"type":  "reference",
+				"value": itmId1.String(),
+				"key":   sfKey3.String(),
+			},
+		})
+	r3 := e.POST("/api/models/{modelId}/items", mId5).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfkey9.String(),
+					"type":  "number",
+					"value": "21.2",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r3.
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId3.String(),
+				"type":  "number",
+				"value": "21.2",
+				"key":   sfkey9.String(),
+			},
+		})
+
+	e.GET("/api/models/{modelId}/items", mId5).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("asset", "true").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
+	r3.
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId3.String(),
+				"type":  "number",
+				"value": "21.2",
+				"key":   sfkey9.String(),
+			},
+		})
 }
 
 // GET /models/{modelId}/items
@@ -1996,6 +2080,10 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
+}
+
+func TestIntegrationItemForNumberAndIntegerType(t *testing.T) {
+
 }
 
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {
