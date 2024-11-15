@@ -53,7 +53,6 @@ var (
 	itmId3 = id.NewItemID()
 	itmId4 = id.NewItemID()
 	itmId5 = id.NewItemID()
-	itmId6 = id.NewItemID()
 	fId1   = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
@@ -76,7 +75,6 @@ var (
 	ikey3  = id.RandomKey()
 	ikey4  = id.RandomKey()
 	ikey5  = id.RandomKey()
-	ikey6  = id.RandomKey()
 	pid    = id.NewProjectID()
 	sid0   = id.NewSchemaID()
 	sid1   = id.NewSchemaID()
@@ -280,7 +278,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Name("m5").
 		Description("m5 desc").
 		Public(true).
-		Key(ikey6).
+		Key(ikey5).
 		Project(p.ID()).
 		Schema(s8.ID()).
 		MustBuild()
