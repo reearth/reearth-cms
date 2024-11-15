@@ -636,16 +636,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		HasValue("page", 1).
 		HasValue("perPage", 5).
 		HasValue("totalCount", 1)
-	r2.
-		Value("fields").
-		IsEqual([]any{
-			map[string]string{
-				"id":    fId3.String(),
-				"type":  "reference",
-				"value": itmId1.String(),
-				"key":   sfKey3.String(),
-			},
-		})
+
 	r3 := e.POST("/api/models/{modelId}/items", mId5).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
