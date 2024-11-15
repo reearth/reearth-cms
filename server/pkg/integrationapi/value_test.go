@@ -1,11 +1,11 @@
 package integrationapi
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFromValueType(t *testing.T) {
@@ -106,12 +106,10 @@ func TestFromValueType(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := FromValueType(tt.input)
-			if !reflect.DeepEqual(result, tt.expected) {
-				t.Errorf("FromValueType() expected %v, got %v", tt.expected, result)
-			}
+			assert.Equal(t, tt.expected, FromValueType(tt.input))
 		})
 	}
 }
@@ -215,12 +213,10 @@ func TestToValueType(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := ToValueType(tt.input)
-			if !reflect.DeepEqual(result, tt.expected) {
-				t.Errorf("ToValueType() expected %v, got %v", tt.expected, result)
-			}
+			assert.Equal(t, tt.expected, ToValueType(tt.input))
 		})
 	}
 }
