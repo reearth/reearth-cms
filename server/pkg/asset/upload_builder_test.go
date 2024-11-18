@@ -163,6 +163,7 @@ func TestUploadBuilderExpiresAt(t *testing.T) {
 }
 
 func TestUploadBuilderBuild(t *testing.T) {
+	now := time.Now()
 	projectID := NewProjectID()
 	ubWithData := &UploadBuilder{
 		u: &Upload{
@@ -170,10 +171,10 @@ func TestUploadBuilderBuild(t *testing.T) {
 			project:       projectID,
 			fileName:      "file.test",
 			contentLength: int64(1),
-			expiresAt:     time.Now(),
+			expiresAt:     now,
 		},
 	}
-	now := time.Now()
+
 	tests := []struct {
 		name  string
 		input time.Time
@@ -187,7 +188,7 @@ func TestUploadBuilderBuild(t *testing.T) {
 				project:       projectID,
 				fileName:      "file.test",
 				contentLength: int64(1),
-				expiresAt:     time.Now(),
+				expiresAt:     now,
 			},
 		},
 	}
