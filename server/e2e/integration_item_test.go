@@ -53,6 +53,7 @@ var (
 	itmId3 = id.NewItemID()
 	itmId4 = id.NewItemID()
 	itmId5 = id.NewItemID()
+	itmId6 = id.NewItemID()
 	fId1   = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
@@ -68,6 +69,7 @@ var (
 	thId3  = id.NewThreadID()
 	thId4  = id.NewThreadID()
 	thId5  = id.NewThreadID()
+	thId6  = id.NewThreadID()
 	icId   = id.NewCommentID()
 	ikey0  = id.RandomKey()
 	ikey1  = id.RandomKey()
@@ -357,6 +359,22 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm5); err != nil {
+		return err
+	}
+
+	itm6 := item.New().ID(itmId6).
+		Schema(s8.ID()).
+		Model(m5.ID()).
+		Project(p.ID()).
+		Thread(thId6).
+		IsMetadata(false).
+		Fields([]*item.Field{
+			item.NewField(fId9, value.MultipleFrom(value.TypeNumber, []*value.Value{
+				value.TypeNumber.Value(21.2),
+			}), nil),
+		}).
+		MustBuild()
+	if err := r.Item.Save(ctx, itm6); err != nil {
 		return err
 	}
 	// endregion
