@@ -2,7 +2,6 @@ package integrationapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
@@ -135,8 +134,10 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := FeatureCollectionFromItems(tt.inputVer, tt.inputSchema)
 			assert.Equal(t, tt.expected, result, "FeatureCollectionFromItems() expected %v but got %v", tt.expected, result)
-			if (err != nil) == tt.expectError {
-				fmt.Printf("Error is not matched")
+			if tt.expectError {
+				assert.Error(t, err, "Expected an error but got none")
+			} else {
+				assert.NoError(t, err, "Expected no error but got: %v", err)
 			}
 		})
 	}
