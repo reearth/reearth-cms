@@ -210,7 +210,7 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 			HasValue("totalCount", 7).
 			Value("models").
 			Array()
-		models.Length().IsEqual(6)
+		models.Length().IsEqual(7)
 
 		obj0 := models.Value(0).Object()
 		obj0.
