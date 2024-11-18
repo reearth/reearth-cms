@@ -694,14 +694,14 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Object().
 		HasValue("page", 1).
 		HasValue("perPage", 5).
-		HasValue("totalCount", 1)
+		HasValue("totalCount", 2)
 	r3.
 		Value("fields").
 		IsEqual([]any{
-			map[string]string{
-				"id":    fId3.String(),
+			map[string]any{
+				"id":    fId9.String(),
 				"type":  "number",
-				"value": "21.2",
+				"value": float64(21.2),
 				"key":   sfkey9.String(),
 			},
 		})
