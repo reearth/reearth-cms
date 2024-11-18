@@ -13,7 +13,7 @@ import {
   Role as GQLRole,
   useRemoveMultipleMembersFromWorkspaceMutation,
   Workspace as GQLWorkspace,
-  useGetUserBySearchLazyQuery,
+  useGetUsersLazyQuery,
   MemberInput as GQLMemberInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
@@ -49,8 +49,8 @@ export default () => {
     setPage(1);
   }, []);
 
-  const [searchedUser, changeSearchedUser] = useState<User & { isMember: boolean }>();
-  const [searchedUserList, changeSearchedUserList] = useState<User[]>([]);
+  const [searchedUsers, setSearchedUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   const {
     data: workspaceData,
@@ -98,35 +98,43 @@ export default () => {
     [me.id, userRights?.role, workspaceUserMembers],
   );
 
-  const [searchUserQuery] = useGetUserBySearchLazyQuery({
+  const [getUsersQuery, { loading: searchLoading }] = useGetUsersLazyQuery({
     fetchPolicy: "no-cache",
   });
 
-  const handleUserAdd = useCallback(() => {
-    if (
-      searchedUser &&
-      searchedUser.id !== data?.me?.id &&
-      !searchedUserList.find(user => user.id === searchedUser.id)
-    ) {
-      changeSearchedUserList([...searchedUserList, searchedUser]);
-    }
-  }, [data?.me?.id, searchedUser, searchedUserList]);
+  const handleUserAdd = useCallback((user: User) => {
+    setSelectedUsers(prev => [...prev, user]);
+  }, []);
 
   const handleUserSearch = useCallback(
-    async (nameOrEmail: string) => {
-      if (nameOrEmail) {
-        const res = await searchUserQuery({ variables: { nameOrEmail } });
-        if (res.data?.searchUser && res.data.searchUser?.id !== data?.me?.id) {
-          const isMember = !!workspaceUserMembers?.some(
-            member => member.userId === res.data?.searchUser?.id,
-          );
-          changeSearchedUser({ ...res.data?.searchUser, isMember });
-        } else {
-          changeSearchedUser(undefined);
+    async (keyword: string) => {
+      if (keyword) {
+        try {
+          const res = await getUsersQuery({ variables: { keyword } });
+          if (res.error) {
+            throw new Error(res.error.message);
+          }
+          const users = res.data?.userSearch;
+          if (users?.length) {
+            const newUsers: User[] = [];
+            users.forEach(user => {
+              const isMember = !!workspaceUserMembers?.some(member => member.userId === user.id);
+              const isSelected = selectedUsers.some(selectedUser => selectedUser.id === user.id);
+              if (!isMember && !isSelected) {
+                newUsers.push(user);
+              }
+            });
+            setSearchedUsers(newUsers);
+          } else {
+            setSearchedUsers([]);
+          }
+        } catch (error) {
+          console.error(error);
+          setSearchedUsers([]);
         }
       }
     },
-    [data?.me?.id, searchUserQuery, workspaceUserMembers],
+    [getUsersQuery, selectedUsers, workspaceUserMembers],
   );
 
   const [addUsersToWorkspaceMutation, { loading: addLoading }] = useAddUsersToWorkspaceMutation();
@@ -260,12 +268,13 @@ export default () => {
   return {
     me,
     isAbleToLeave,
-    searchedUser,
+    searchedUsers,
     handleSearchTerm,
-    changeSearchedUser,
-    searchedUserList,
-    changeSearchedUserList,
+    setSearchedUsers,
+    selectedUsers,
+    setSelectedUsers,
     handleUserSearch,
+    searchLoading,
     handleUserAdd,
     addLoading,
     handleUsersAddToWorkspace,

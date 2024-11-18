@@ -207,10 +207,10 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 			Object().
 			HasValue("page", 1).
 			HasValue("perPage", 10).
-			HasValue("totalCount", 6).
+			HasValue("totalCount", 7).
 			Value("models").
 			Array()
-		models.Length().IsEqual(6)
+		models.Length().IsEqual(7)
 
 		obj0 := models.Value(0).Object()
 		obj0.

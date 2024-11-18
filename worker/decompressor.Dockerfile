@@ -1,4 +1,4 @@
-FROM golang:1.23.2 AS build
+FROM golang:1.23.3 AS build
 WORKDIR /app
 COPY . .
 RUN CGO_ENABLED=0 go build ./cmd/decompressor
