@@ -1322,7 +1322,8 @@ export type Query = {
   projects: ProjectConnection;
   requests: RequestConnection;
   searchItem: ItemConnection;
-  searchUser?: Maybe<User>;
+  userByNameOrEmail?: Maybe<User>;
+  userSearch: Array<User>;
   versionsByItem: Array<VersionedItem>;
   view: Array<View>;
 };
@@ -1415,8 +1416,13 @@ export type QuerySearchItemArgs = {
 };
 
 
-export type QuerySearchUserArgs = {
+export type QueryUserByNameOrEmailArgs = {
   nameOrEmail: Scalars['String']['input'];
+};
+
+
+export type QueryUserSearchArgs = {
+  keyword: Scalars['String']['input'];
 };
 
 
@@ -2619,7 +2625,7 @@ export type GetModelQueryVariables = Exact<{
 }>;
 
 
-export type GetModelQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, order?: number | null, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset' } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger' } | { __typename?: 'SchemaFieldMarkdown' } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect' } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea' } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGeometryEditor', defaultValue?: any | null, editorSupportedTypes: Array<GeometryEditorSupportedType> } | { __typename?: 'SchemaFieldGeometryObject', defaultValue?: any | null, objectSupportedTypes: Array<GeometryObjectSupportedType> } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference', modelId: string, schema: { __typename?: 'Schema', id: string, titleFieldId?: string | null }, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
+export type GetModelQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, order?: number | null, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset' } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger' } | { __typename?: 'SchemaFieldMarkdown' } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect' } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea' } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGeometryEditor', defaultValue?: any | null, editorSupportedTypes: Array<GeometryEditorSupportedType> } | { __typename?: 'SchemaFieldGeometryObject', defaultValue?: any | null, objectSupportedTypes: Array<GeometryObjectSupportedType> } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber', defaultValue?: any | null, numberMin?: number | null, numberMax?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, schema: { __typename?: 'Schema', id: string, titleFieldId?: string | null }, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2794,12 +2800,19 @@ export type DeleteRequestMutationVariables = Exact<{
 
 export type DeleteRequestMutation = { __typename?: 'Mutation', deleteRequest?: { __typename?: 'DeleteRequestPayload', requests: Array<string> } | null };
 
-export type GetUserBySearchQueryVariables = Exact<{
+export type GetUserByNameOrEmailQueryVariables = Exact<{
   nameOrEmail: Scalars['String']['input'];
 }>;
 
 
-export type GetUserBySearchQuery = { __typename?: 'Query', searchUser?: { __typename?: 'User', id: string, name: string, email: string } | null };
+export type GetUserByNameOrEmailQuery = { __typename?: 'Query', userByNameOrEmail?: { __typename?: 'User', id: string, name: string, email: string } | null };
+
+export type GetUsersQueryVariables = Exact<{
+  keyword: Scalars['String']['input'];
+}>;
+
+
+export type GetUsersQuery = { __typename?: 'Query', userSearch: Array<{ __typename?: 'User', id: string, name: string, email: string }> };
 
 export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5319,6 +5332,11 @@ export const GetModelDocument = gql`
               min
               max
             }
+            ... on SchemaFieldNumber {
+              defaultValue
+              numberMin: min
+              numberMax: max
+            }
             ... on SchemaFieldBool {
               defaultValue
             }
@@ -6249,9 +6267,9 @@ export function useDeleteRequestMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteRequestMutationHookResult = ReturnType<typeof useDeleteRequestMutation>;
 export type DeleteRequestMutationResult = Apollo.MutationResult<DeleteRequestMutation>;
 export type DeleteRequestMutationOptions = Apollo.BaseMutationOptions<DeleteRequestMutation, DeleteRequestMutationVariables>;
-export const GetUserBySearchDocument = gql`
-    query GetUserBySearch($nameOrEmail: String!) {
-  searchUser(nameOrEmail: $nameOrEmail) {
+export const GetUserByNameOrEmailDocument = gql`
+    query GetUserByNameOrEmail($nameOrEmail: String!) {
+  userByNameOrEmail(nameOrEmail: $nameOrEmail) {
     id
     name
     email
@@ -6260,37 +6278,79 @@ export const GetUserBySearchDocument = gql`
     `;
 
 /**
- * __useGetUserBySearchQuery__
+ * __useGetUserByNameOrEmailQuery__
  *
- * To run a query within a React component, call `useGetUserBySearchQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUserBySearchQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetUserByNameOrEmailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserByNameOrEmailQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetUserBySearchQuery({
+ * const { data, loading, error } = useGetUserByNameOrEmailQuery({
  *   variables: {
  *      nameOrEmail: // value for 'nameOrEmail'
  *   },
  * });
  */
-export function useGetUserBySearchQuery(baseOptions: Apollo.QueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables> & ({ variables: GetUserBySearchQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetUserByNameOrEmailQuery(baseOptions: Apollo.QueryHookOptions<GetUserByNameOrEmailQuery, GetUserByNameOrEmailQueryVariables> & ({ variables: GetUserByNameOrEmailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(GetUserBySearchDocument, options);
+        return Apollo.useQuery<GetUserByNameOrEmailQuery, GetUserByNameOrEmailQueryVariables>(GetUserByNameOrEmailDocument, options);
       }
-export function useGetUserBySearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables>) {
+export function useGetUserByNameOrEmailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserByNameOrEmailQuery, GetUserByNameOrEmailQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(GetUserBySearchDocument, options);
+          return Apollo.useLazyQuery<GetUserByNameOrEmailQuery, GetUserByNameOrEmailQueryVariables>(GetUserByNameOrEmailDocument, options);
         }
-export function useGetUserBySearchSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables>) {
+export function useGetUserByNameOrEmailSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUserByNameOrEmailQuery, GetUserByNameOrEmailQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(GetUserBySearchDocument, options);
+          return Apollo.useSuspenseQuery<GetUserByNameOrEmailQuery, GetUserByNameOrEmailQueryVariables>(GetUserByNameOrEmailDocument, options);
         }
-export type GetUserBySearchQueryHookResult = ReturnType<typeof useGetUserBySearchQuery>;
-export type GetUserBySearchLazyQueryHookResult = ReturnType<typeof useGetUserBySearchLazyQuery>;
-export type GetUserBySearchSuspenseQueryHookResult = ReturnType<typeof useGetUserBySearchSuspenseQuery>;
-export type GetUserBySearchQueryResult = Apollo.QueryResult<GetUserBySearchQuery, GetUserBySearchQueryVariables>;
+export type GetUserByNameOrEmailQueryHookResult = ReturnType<typeof useGetUserByNameOrEmailQuery>;
+export type GetUserByNameOrEmailLazyQueryHookResult = ReturnType<typeof useGetUserByNameOrEmailLazyQuery>;
+export type GetUserByNameOrEmailSuspenseQueryHookResult = ReturnType<typeof useGetUserByNameOrEmailSuspenseQuery>;
+export type GetUserByNameOrEmailQueryResult = Apollo.QueryResult<GetUserByNameOrEmailQuery, GetUserByNameOrEmailQueryVariables>;
+export const GetUsersDocument = gql`
+    query GetUsers($keyword: String!) {
+  userSearch(keyword: $keyword) {
+    id
+    name
+    email
+  }
+}
+    `;
+
+/**
+ * __useGetUsersQuery__
+ *
+ * To run a query within a React component, call `useGetUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUsersQuery({
+ *   variables: {
+ *      keyword: // value for 'keyword'
+ *   },
+ * });
+ */
+export function useGetUsersQuery(baseOptions: Apollo.QueryHookOptions<GetUsersQuery, GetUsersQueryVariables> & ({ variables: GetUsersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUsersQuery, GetUsersQueryVariables>(GetUsersDocument, options);
+      }
+export function useGetUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUsersQuery, GetUsersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUsersQuery, GetUsersQueryVariables>(GetUsersDocument, options);
+        }
+export function useGetUsersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetUsersQuery, GetUsersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUsersQuery, GetUsersQueryVariables>(GetUsersDocument, options);
+        }
+export type GetUsersQueryHookResult = ReturnType<typeof useGetUsersQuery>;
+export type GetUsersLazyQueryHookResult = ReturnType<typeof useGetUsersLazyQuery>;
+export type GetUsersSuspenseQueryHookResult = ReturnType<typeof useGetUsersSuspenseQuery>;
+export type GetUsersQueryResult = Apollo.QueryResult<GetUsersQuery, GetUsersQueryVariables>;
 export const GetMeDocument = gql`
     query GetMe {
   me {

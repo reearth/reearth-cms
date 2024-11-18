@@ -2,13 +2,15 @@ import { Key } from "react";
 
 export type MetaDataSchema = {
   id?: string;
-  fields?: Field[];
+  fields?: MetadataField[];
 };
 
 export type Schema = {
   id: string;
   fields: Field[];
 };
+
+type GroupSchema = Schema & { fields: GroupField[] };
 
 export type Field = {
   id: string;
@@ -24,6 +26,12 @@ export type Field = {
   typeProperty?: TypeProperty;
 };
 
+export type GroupField = Field & { type: Exclude<FieldType, "Group"> };
+
+export type MetadataField = Field & {
+  type: Extract<FieldType, "Tag" | "Bool" | "Checkbox" | "Date" | "Text" | "URL">;
+};
+
 export type FieldType =
   | "Text"
   | "TextArea"
@@ -35,7 +43,7 @@ export type FieldType =
   | "Select"
   | "Tag"
   | "Integer"
-  // | "Float"
+  | "Number"
   | "Reference"
   | "Checkbox"
   | "URL"
@@ -80,6 +88,8 @@ export type TypeProperty = {
   integerDefaultValue?: number;
   min?: number;
   max?: number;
+  numberMin?: number;
+  numberMax?: number;
   correspondingField?: CorrespondingField;
   modelId?: string;
   groupId?: string;
@@ -129,7 +139,7 @@ export type Group = {
   name: string;
   description: string;
   key: string;
-  schema: Schema;
+  schema: GroupSchema;
   order: number;
 };
 

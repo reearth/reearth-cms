@@ -137,8 +137,8 @@ export default (
       isTitle: !!selectedField?.isTitle,
       required: !!selectedField?.required,
       defaultValue: selectedField ? defaultValueGet(selectedField) : undefined,
-      min: selectedField?.typeProperty?.min,
-      max: selectedField?.typeProperty?.max,
+      min: selectedField?.typeProperty?.min ?? selectedField?.typeProperty?.numberMin,
+      max: selectedField?.typeProperty?.max ?? selectedField?.typeProperty?.numberMax,
       maxLength: selectedField?.typeProperty?.maxLength,
       values: selectedField?.typeProperty?.values,
       tags: selectedField?.typeProperty?.tags,
@@ -174,12 +174,13 @@ export default (
           select: { defaultValue, values: values.values ?? [] },
         };
       }
-      case "Integer": {
+      case "Integer":
+      case "Number": {
         const defaultValue = Array.isArray(values.defaultValue)
           ? values.defaultValue.filter((value: number | string) => typeof value === "number")
           : (values.defaultValue ?? "");
         return {
-          integer: {
+          [values.type === "Integer" ? "integer" : "number"]: {
             defaultValue,
             min: values.min ?? null,
             max: values.max ?? null,

@@ -31,6 +31,8 @@ func FromValueType(t *ValueType) value.Type {
 		return value.TypeSelect
 	case ValueTypeInteger:
 		return value.TypeInteger
+	case ValueTypeNumber:
+		return value.TypeNumber
 	case ValueTypeReference:
 		return value.TypeReference
 	case ValueTypeUrl:
@@ -68,6 +70,8 @@ func ToValueType(t value.Type) ValueType {
 		return ValueTypeSelect
 	case value.TypeInteger:
 		return ValueTypeInteger
+	case value.TypeNumber:
+		return ValueTypeNumber
 	case value.TypeReference:
 		return ValueTypeReference
 	case value.TypeURL:

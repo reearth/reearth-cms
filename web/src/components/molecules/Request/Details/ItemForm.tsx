@@ -6,7 +6,6 @@ import {
   GroupField,
   ReferenceField,
 } from "@reearth-cms/components/molecules/Content/Form/fields/ComplexFieldComponents";
-import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
@@ -55,29 +54,8 @@ const RequestItemForm: React.FC<Props> = ({
                 />
               </div>
             );
-          } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
-            const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-
-            return (
-              <div key={field.id}>
-                <FieldComponent field={field} disabled />
-              </div>
-            );
           } else {
-            const FieldComponent =
-              FIELD_TYPE_COMPONENT_MAP[
-                field.type as
-                  | "Select"
-                  | "Date"
-                  | "Tag"
-                  | "Bool"
-                  | "Checkbox"
-                  | "URL"
-                  | "TextArea"
-                  | "MarkdownText"
-                  | "Integer"
-              ] || DefaultField;
-
+            const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
             return (
               <div key={field.id}>
                 <FieldComponent field={field} disabled />

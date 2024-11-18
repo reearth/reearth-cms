@@ -101,13 +101,8 @@ const DropdownRender: React.FC<Props> = ({
                   </Option>
                 ))}
               </Select>
-            ) : filter.type === "Integer" /*|| filter.type === "Float"*/ ? (
-              <InputNumber
-                onChange={onNumberChange}
-                stringMode
-                style={{ width: "100%" }}
-                placeholder="Enter the value"
-              />
+            ) : filter.type === "Integer" || filter.type === "Number" ? (
+              <InputNumber onChange={onNumberChange} stringMode placeholder="Enter the value" />
             ) : filter.type === "Date" ? (
               <DatePicker
                 onChange={onDateChange}
