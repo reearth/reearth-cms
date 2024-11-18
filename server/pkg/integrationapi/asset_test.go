@@ -132,22 +132,22 @@ func TestToAssetArchiveExtractionStatus(t *testing.T) {
 		{
 			name:     "Status done",
 			input:    lo.ToPtr(asset.ArchiveExtractionStatusDone),
-			expected: lo.ToPtr(AssetArchiveExtractionStatus("done")),
+			expected: lo.ToPtr(Done),
 		},
 		{
 			name:     "Status failed",
 			input:    lo.ToPtr(asset.ArchiveExtractionStatusFailed),
-			expected: lo.ToPtr(AssetArchiveExtractionStatus("failed")),
+			expected: lo.ToPtr(Failed),
 		},
 		{
 			name:     "Status in progress",
 			input:    lo.ToPtr(asset.ArchiveExtractionStatusInProgress),
-			expected: lo.ToPtr(AssetArchiveExtractionStatus("in_progress")),
+			expected: lo.ToPtr(InProgress),
 		},
 		{
 			name:     "Status pending",
 			input:    lo.ToPtr(asset.ArchiveExtractionStatusPending),
-			expected: lo.ToPtr(AssetArchiveExtractionStatus("pending")),
+			expected: lo.ToPtr(Pending),
 		},
 		{
 			name:     "Unknown status",
@@ -158,9 +158,10 @@ func TestToAssetArchiveExtractionStatus(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := ToAssetArchiveExtractionStatus(tt.input)
 			if !reflect.DeepEqual(result, tt.expected) {
-				t.Errorf("expected %v, got %v", tt.expected, result)
+				t.Errorf("ToAssetArchiveExtractionStatus() expected %v, got %v", tt.expected, result)
 			}
 		})
 	}
@@ -226,6 +227,7 @@ func TestToPreviewType(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := ToPreviewType(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})

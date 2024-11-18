@@ -65,6 +65,7 @@ func TestFieldSelectorTypeInto(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.input.Into()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -116,6 +117,7 @@ func TestStringOperatorInto(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.input.Into()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -157,6 +159,7 @@ func TestNumberOperatorInto(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.input.Into()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -188,6 +191,7 @@ func TestBasicOperatorInto(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.input.Into()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -244,6 +248,7 @@ func TestTimeOperatorInto(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.input.Into()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -275,6 +280,7 @@ func TestBoolOperatorInto(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.input.Into()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -283,39 +289,43 @@ func TestBoolOperatorInto(t *testing.T) {
 
 func TestConditionNullableOperator_Into(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    ConditionNullableOperator
 		expected view.NullableOperator
 	}{
-		{Empty, view.NullableOperatorEmpty},
-		{NotEmpty, view.NullableOperatorNotEmpty},
-		{ConditionNullableOperator("99"), ""}, // Test for default case
+		{"success nullable operator", Empty, view.NullableOperatorEmpty},
+		{"success nullable operator not empty", NotEmpty, view.NullableOperatorNotEmpty},
+		{"success default case", ConditionNullableOperator("99"), ""}, // Test for default case
 	}
 
 	for _, test := range tests {
-		result := test.input.Into()
-		if result != test.expected {
-			t.Errorf("For input %v, expected %v but got %v", test.input, test.expected, result)
-		}
+		t.Run(string(test.name), func(t *testing.T) {
+			t.Parallel()
+			result := test.input.Into()
+			assert.Equal(t, test.expected, result)
+		})
 	}
 }
 
 func TestConditionMultipleOperator_Into(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    ConditionMultipleOperator
 		expected view.MultipleOperator
 	}{
-		{IncludesAny, view.MultipleOperatorIncludesAny},
-		{NotIncludesAny, view.MultipleOperatorNotIncludesAny},
-		{IncludesAll, view.MultipleOperatorIncludesAll},
-		{NotIncludesAll, view.MultipleOperatorNotIncludesAll},
-		{ConditionMultipleOperator("99"), ""}, // Test for default case
+		{"success IncludeAny", IncludesAny, view.MultipleOperatorIncludesAny},
+		{"success NotIncludesAny", NotIncludesAny, view.MultipleOperatorNotIncludesAny},
+		{"success IncludesAll", IncludesAll, view.MultipleOperatorIncludesAll},
+		{"success NotIncludesAll", NotIncludesAll, view.MultipleOperatorNotIncludesAll},
+		{"success default case", ConditionMultipleOperator("99"), ""}, // Test for default case
 	}
 
 	for _, test := range tests {
-		result := test.input.Into()
-		if result != test.expected {
-			t.Errorf("For input %v, expected %v but got %v", test.input, test.expected, result)
-		}
+		t.Run(string(test.name), func(t *testing.T) {
+			t.Parallel()
+			result := test.input.Into()
+			assert.Equal(t, test.expected, result)
+		})
 	}
 }
 
@@ -343,10 +353,11 @@ func TestFieldSelector_Into(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := test.input.Into()
-		if result != test.expected {
-			t.Errorf("For input %v, expected %v but got %v", test.input, test.expected, result)
-		}
+		t.Run(string(test.name), func(t *testing.T) {
+			t.Parallel()
+			result := test.input.Into()
+			assert.Equal(t, test.expected, result)
+		})
 	}
 }
 
@@ -699,10 +710,11 @@ func TestConditionInto(t *testing.T) {
 			want:      nil,
 		},
 	}
-	for _, test := range tests {
-		result := test.condition.Into()
-		if !assert.Equal(t, result, test.want) {
-			t.Errorf("expected %+v but got %+v", test.want, result)
-		}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, tc.condition.Into())
+		})
 	}
 }
