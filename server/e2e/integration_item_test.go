@@ -660,10 +660,10 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
-				map[string]string{
+				map[string]any{
 					"key":   sfkey9.String(),
 					"type":  "number",
-					"value": "21.2",
+					"value": float64(21.2),
 				},
 			},
 		}).
@@ -675,10 +675,10 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	r3.
 		Value("fields").
 		IsEqual([]any{
-			map[string]string{
-				"id":    fId3.String(),
+			map[string]any{
+				"id":    fId9.String(),
 				"type":  "number",
-				"value": "21.2",
+				"value": float64(21.2),
 				"key":   sfkey9.String(),
 			},
 		})
