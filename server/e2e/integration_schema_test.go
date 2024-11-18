@@ -43,7 +43,7 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 			Object().
 			HasValue("page", 1).
 			HasValue("perPage", 10).
-			HasValue("totalCount", 6).
+			HasValue("totalCount", 7).
 			Value("models").
 			Array()
 		models.Length().IsEqual(6)
