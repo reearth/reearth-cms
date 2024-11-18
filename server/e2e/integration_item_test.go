@@ -275,6 +275,9 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	sn1, _ := schema.NewNumber(&float1, &float2)
 	sf9 := schema.NewField(sn1.TypeProperty()).ID(fId9).Key(sfkey9).Type(sn1.TypeProperty()).MustBuild()
 	s8 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf9}).MustBuild()
+	if err := r.Schema.Save(ctx, s8); err != nil {
+		return err
+	}
 	m5 := model.New().
 		ID((mId5)).
 		Name("m5").
