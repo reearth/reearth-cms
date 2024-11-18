@@ -148,7 +148,7 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await page.getByLabel("message").click();
+  await page.getByLabel("comment").click();
   await expect(page.getByText("Comments0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });

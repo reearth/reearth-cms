@@ -2,21 +2,20 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { crudComment } from "./utils/comment";
-import { createRequest } from "./utils/item";
-import { createModel } from "./utils/model";
+import { createTitleField, itemTitle, titleFieldName } from "./utils/field";
+import { createItem, createRequest, requestTitle } from "./utils/item";
+import { createModel, modelName } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 
-const requestTitle = "title";
-
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  const username = await page.locator("a").nth(1).locator("div").nth(2).locator("p").innerText();
-
   await createWorkspace(page);
   await createProject(page);
   await createModel(page);
-  await createRequest(page, username, requestTitle);
+  await createTitleField(page);
+  await createItem(page);
+  await createRequest(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -78,7 +77,7 @@ test("Request closing and reopening has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Reopen" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-  await expect(page.locator("tbody").getByText("title", { exact: true })).toBeVisible();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
   await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
   await page.getByLabel("", { exact: true }).check();
   await page.getByText("Close").click();
@@ -137,15 +136,30 @@ test("Creating a new request and adding to request has succeeded", async ({ page
   await expect(page.getByRole("button", { name: "collapsed e2e model name" }).nth(1)).toBeVisible();
 });
 
-test("Navigating from request to item has succeeded", async ({ page }) => {
-  await page.getByText("Request", { exact: true }).click();
-  await page.getByLabel("edit").locator("svg").click();
-  const itemLink = page
-    .getByRole("button", { name: "collapsed e2e model name /" })
-    .getByRole("button");
-  const itemId = await itemLink.innerText();
-  await itemLink.click();
-  await expect(page.getByRole("main")).toContainText("Content");
-  await expect(page.getByRole("main")).toContainText("e2e model name");
-  await expect(page.getByRole("main")).toContainText(itemId);
+test("Navigating between item and request has succeeded", async ({ page }) => {
+  await page.getByRole("button", { name: requestTitle }).first().click();
+  await expect(page.getByText(`Request / ${requestTitle}`)).toBeVisible();
+  await expect(page.getByRole("heading", { name: requestTitle })).toBeVisible();
+  await page.getByRole("button", { name: itemTitle }).last().click();
+  await page.getByLabel(`${titleFieldName}Title`).click();
+  await page.getByLabel(`${titleFieldName}Title`).fill("");
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
+  const itemId = await page
+    .getByRole("main")
+    .locator("p")
+    .filter({ hasText: "ID" })
+    .locator("div > span")
+    .innerText();
+  await expect(page.getByText(`${modelName} / ${itemId}`)).toBeVisible();
+  const newRequestTitle = "newRequestTitle";
+  await createRequest(page, newRequestTitle);
+  await page.getByLabel(`${titleFieldName}Title`).click();
+  await page.getByLabel(`${titleFieldName}Title`).fill("newItemTitle");
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
+  await page.getByRole("button", { name: newRequestTitle }).first().click();
+  await expect(
+    page.getByRole("button", { name: `collapsed ${modelName} / ${itemId}` }),
+  ).toBeVisible();
 });

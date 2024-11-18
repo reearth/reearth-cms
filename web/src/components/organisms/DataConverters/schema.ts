@@ -1,4 +1,4 @@
-import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { GroupField, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { Maybe, Group as GQLGroup } from "@reearth-cms/gql/graphql-client-api";
 
 export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
@@ -27,7 +27,7 @@ export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
             multiple: field.multiple,
             required: field.required,
             typeProperty: field.typeProperty,
-          }) as Field,
+          }) as GroupField,
       ),
     },
   };
