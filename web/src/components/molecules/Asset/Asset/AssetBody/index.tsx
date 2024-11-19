@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Viewer as CesiumViewer } from "cesium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
@@ -29,6 +30,7 @@ type Props = {
   onChangeToFullScreen: () => void;
   onBack: () => void;
   onSave: () => void;
+  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -51,6 +53,7 @@ const AssetWrapper: React.FC<Props> = ({
   onChangeToFullScreen,
   onBack,
   onSave,
+  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -82,6 +85,7 @@ const AssetWrapper: React.FC<Props> = ({
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}
             onChangeToFullScreen={onChangeToFullScreen}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         </Wrapper>
