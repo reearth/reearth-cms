@@ -1,12 +1,8 @@
 package publicapi
 
 import (
-	"context"
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -17,10 +13,6 @@ import (
 )
 
 func TestBuildProperties(t *testing.T) {
-	ctx := context.Background()
-	r := memory.New()
-	uc := &interfaces.Container{Schema: interactor.NewSchema(r, nil)}
-
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()
 
@@ -43,13 +35,12 @@ func TestBuildProperties(t *testing.T) {
 
 	// group schema
 	gs := schema.New().ID(id.NewSchemaID()).Workspace(wid).Project(pid).Fields([]*schema.Field{gsf}).MustBuild()
-	lo.Must0(r.Schema.Save(ctx, gs))
 
 	// group
 	gid := id.NewGroupID()
 	gkey := id.RandomKey()
 	g := group.New().ID(gid).Name("group").Project(pid).Key(gkey).Schema(gs.ID()).MustBuild()
-	lo.Must0(r.Group.Save(ctx, g))
+	gsMap := map[id.GroupID]*schema.Schema{g.ID(): gs}
 
 	// group field
 	fId3 := id.NewFieldID()
@@ -72,8 +63,6 @@ func TestBuildProperties(t *testing.T) {
 	sf6 := schema.NewField(schema.NewURL().TypeProperty()).ID(fId6).Key(sfKey6).MustBuild()
 
 	fieldList := schema.FieldList{sf1, sf2, sf3, sf4, sf5, sf6}
-	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf2}).MustBuild()
-	lo.Must0(r.Schema.Save(ctx, s1))
 
 	expectedProperties := &map[string]interface{}{
 		sfKey1.String(): map[string]interface{}{
@@ -121,7 +110,7 @@ func TestBuildProperties(t *testing.T) {
 		},
 	}
 
-	properties := buildProperties(uc, fieldList, ctx)
+	properties := buildProperties(fieldList, gsMap)
 	assert.Equal(t, expectedProperties, properties)
 }
 
