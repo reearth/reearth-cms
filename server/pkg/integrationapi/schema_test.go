@@ -86,6 +86,7 @@ func TestNewModel(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := NewModel(tt.args.m, tt.args.sp, tt.args.lastModified)
 			assert.Equal(t, tt.want, result)
 		})
