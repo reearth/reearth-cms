@@ -18,7 +18,6 @@ func Test_NewOperator(t *testing.T) {
 
 	uid := accountdomain.NewUserID()
 	integrationID := id.NewIntegrationID()
-	// machineID :=
 	opUser := operator.OperatorFromUser(uid)
 	opIntegration := operator.OperatorFromIntegration(integrationID)
 	opMachine := operator.OperatorFromMachine()
@@ -67,7 +66,7 @@ func Test_NewOperator(t *testing.T) {
 }
 
 func TestNewEventWith(t *testing.T) {
-	now := time.Now()
+	mockTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).NewUUID().
 		CreatedByUser(u.ID()).Thread(id.NewThreadID()).MustBuild()
@@ -77,7 +76,7 @@ func TestNewEventWith(t *testing.T) {
 		Alias: "testAlias",
 	}
 
-	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).Project(&prj).MustBuild()
+	ev := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).Project(&prj).MustBuild()
 	d1, _ := New(ev, "test", func(a *asset.Asset) string {
 		return "test.com"
 	})

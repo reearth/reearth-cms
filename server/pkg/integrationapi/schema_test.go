@@ -21,7 +21,7 @@ func TestNewModel(t *testing.T) {
 		sp           *schema.Package
 		lastModified time.Time
 	}
-	timeNow := time.Now()
+	mockTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	pID := id.NewProjectID()
 	sf1 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().RandomKey().MustBuild()
 	sf2 := schema.NewField(lo.Must1(schema.NewInteger(nil, nil)).TypeProperty()).NewID().RandomKey().MustBuild()
@@ -29,8 +29,8 @@ func TestNewModel(t *testing.T) {
 	s2 := schema.New().NewID().Project(pID).Workspace(accountdomain.NewWorkspaceID()).Fields([]*schema.Field{sf1, sf2}).TitleField(sf1.ID().Ref()).MustBuild()
 	schemaPackage1 := schema.NewPackage(s1, nil, nil, nil)
 	schemaPackage2 := schema.NewPackage(s2, nil, nil, nil)
-	model1 := model.New().ID(id.NewModelID()).Metadata(s1.ID().Ref()).Project(pID).Schema(s1.ID()).Key(id.NewKey("mmm123")).UpdatedAt(timeNow).MustBuild()
-	model2 := model.New().ID(id.NewModelID()).Metadata(s2.ID().Ref()).Project(pID).Schema(s2.ID()).Key(id.NewKey("mmm123")).UpdatedAt(timeNow).MustBuild()
+	model1 := model.New().ID(id.NewModelID()).Metadata(s1.ID().Ref()).Project(pID).Schema(s1.ID()).Key(id.NewKey("mmm123")).UpdatedAt(mockTime).MustBuild()
+	model2 := model.New().ID(id.NewModelID()).Metadata(s2.ID().Ref()).Project(pID).Schema(s2.ID()).Key(id.NewKey("mmm123")).UpdatedAt(mockTime).MustBuild()
 
 	tests := []struct {
 		name string
@@ -42,7 +42,7 @@ func TestNewModel(t *testing.T) {
 			args: args{
 				m:            model1,
 				sp:           schemaPackage1,
-				lastModified: timeNow,
+				lastModified: mockTime,
 			},
 			want: Model{
 				Id:               model1.ID().Ref(),
@@ -57,7 +57,7 @@ func TestNewModel(t *testing.T) {
 				MetadataSchema:   util.ToPtrIfNotEmpty(NewSchema(schemaPackage1.MetaSchema())),
 				CreatedAt:        lo.ToPtr(model1.ID().Timestamp()),
 				UpdatedAt:        lo.ToPtr(model1.UpdatedAt()),
-				LastModified:     util.ToPtrIfNotEmpty(timeNow),
+				LastModified:     util.ToPtrIfNotEmpty(mockTime),
 			},
 		},
 		{
@@ -65,7 +65,7 @@ func TestNewModel(t *testing.T) {
 			args: args{
 				m:            model2,
 				sp:           schemaPackage2,
-				lastModified: timeNow,
+				lastModified: mockTime,
 			},
 			want: Model{
 				Id:               model2.ID().Ref(),
@@ -80,7 +80,7 @@ func TestNewModel(t *testing.T) {
 				MetadataSchema:   util.ToPtrIfNotEmpty(NewSchema(schemaPackage2.MetaSchema())),
 				CreatedAt:        lo.ToPtr(model2.ID().Timestamp()),
 				UpdatedAt:        lo.ToPtr(model2.UpdatedAt()),
-				LastModified:     util.ToPtrIfNotEmpty(timeNow),
+				LastModified:     util.ToPtrIfNotEmpty(mockTime),
 			},
 		},
 	}
