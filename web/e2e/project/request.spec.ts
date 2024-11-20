@@ -45,7 +45,6 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await page.locator(".ant-select-selection-overflow").click();
   await page.locator(".ant-select-item").click();
   await page.getByRole("heading", { name: "Reviewer" }).click();
-  await closeNotification(page);
   await page.getByRole("button", { name: "Approve" }).click();
   await closeNotification(page);
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
