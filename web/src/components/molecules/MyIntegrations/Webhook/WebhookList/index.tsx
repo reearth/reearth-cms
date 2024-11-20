@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { useT } from "@reearth-cms/i18n";
+import { useT, Trans } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
@@ -59,7 +59,7 @@ const WebhookList: React.FC<Props> = ({
             </Button>
           </Suggestion>
           <Suggestion>
-            {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+            <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
           </Suggestion>
         </EmptyListWrapper>
       )}

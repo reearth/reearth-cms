@@ -209,11 +209,11 @@ Creator: 作成者
 Remove: 削除
 No Integration yet: まだインテグレーションはありません
 Create a new: 新規作成
-Or read: 読む
-how to use Re:Earth CMS: CMSの使い方
-first: はじめに
+readDocument: または<l>Re:Earth CMSの使い方</l>をまずお読みください
 Add member: メンバー追加
 Add to workspace: ワークスペースに追加
+Search user: ユーザー検索
+No result: 見つかりませんでした
 Email address or user name: Emailアドレスもしくはユーザー名
 Selected Members: 選択中のメンバー
 Role Settings: ロール設定
@@ -274,6 +274,8 @@ Create a new project: 新規プロジェクトを作成
 New Project: 新規プロジェクト
 Models: モデル
 New Model: 新規モデル
+No Models yet: モデルはまだありません
+Create a new model: 新しいモデルを作成する
 Edit: 編集
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Delete Project: プロジェクトを削除

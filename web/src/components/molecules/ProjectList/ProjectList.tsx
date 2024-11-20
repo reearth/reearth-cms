@@ -5,7 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
-import { useT } from "@reearth-cms/i18n";
+import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
   hasCreateRight: boolean;
@@ -42,7 +42,7 @@ const ProjectList: React.FC<Props> = ({
             </Button>
           </Wrapper>
           <Suggestion>
-            {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+            <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
           </Suggestion>
         </EmptyListWrapper>
       ) : (

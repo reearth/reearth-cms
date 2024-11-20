@@ -124,7 +124,7 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new asset1 description");
   await page.getByLabel("Support multiple values").check();
-  await page.getByLabel("Use as title").check();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
@@ -148,12 +148,12 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText(
-    "new asset1 *#new-asset1(unique)Title",
+    "new asset1 *#new-asset1(unique)",
   );
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new asset1");
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator("label")).toContainText("new asset1(unique)Title");
+  await expect(page.locator("label")).toContainText("new asset1(unique)");
   await expect(page.getByRole("main")).toContainText("new asset1 description");
   await expect(page.locator(".css-7g0azd").nth(0)).toContainText(uploadFileName_2);
   await expect(page.locator(".css-7g0azd").nth(1)).toContainText(uploadFileName_1);

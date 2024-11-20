@@ -596,12 +596,10 @@ export default () => {
   const title = useMemo(() => {
     let result = currentModel?.name ?? "";
     if (currentItem) {
-      const titleField = currentModel?.schema.fields.find(field => field.isTitle);
-      const titleValue = titleField && initialFormValues[titleField.id];
-      result += ` / ${titleValue || currentItem.id}`;
+      result += ` / ${currentItem.title || currentItem.id}`;
     }
     return result;
-  }, [currentItem, currentModel?.name, currentModel?.schema.fields, initialFormValues]);
+  }, [currentItem, currentModel?.name]);
 
   return {
     loadingReference,

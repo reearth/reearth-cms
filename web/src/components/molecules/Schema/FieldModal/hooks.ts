@@ -264,7 +264,6 @@ export default (
     if (Array.isArray(defaultValue)) {
       defaultValue = [...defaultValue].sort();
     }
-
     if (JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))) {
       changedKeys.current.delete(key);
     } else {
@@ -338,11 +337,8 @@ export default (
 
   const isTitleDisabled = useMemo(
     () =>
-      isMeta ||
-      selectedType === "Group" ||
-      selectedType === "GeometryObject" ||
-      selectedType === "GeometryEditor",
-    [isMeta, selectedType],
+      !(selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText"),
+    [selectedType],
   );
 
   const ObjectSupportType = useMemo(
