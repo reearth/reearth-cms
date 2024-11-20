@@ -365,8 +365,8 @@ github.com/posener/complete v1.2.3/go.mod h1:WZIdtGGp+qx0sLrYKtIRAruyNpv6hFCicSg
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/ravilushqa/otelgqlgen v0.17.0 h1:bLwQfKqtj9P24QpjM2sc1ipBm5Fqv2u7DKN5LIpj3g8=
 github.com/ravilushqa/otelgqlgen v0.17.0/go.mod h1:orOIikuYsay1y3CmLgd5gsHcT9EsnXwNKmkAplzzYXQ=
-github.com/reearth/reearthx v0.0.0-20241025125329-f01a05daf443 h1:r3bAWyEVAMX60W70OPeWd0uA+2sLhXgox41rQb2XKDY=
-github.com/reearth/reearthx v0.0.0-20241025125329-f01a05daf443/go.mod h1:d1WXkdCVzSoc8pl3vW9/9yKfk4fdoZQZhX8Ot8jqgnc=
+github.com/reearth/reearthx v0.0.0-20241120070128-4c4377743b26 h1:vww2kw1q6as/FZ0SJwdD8o2URCeEw7HcIQWtI3ezMLY=
+github.com/reearth/reearthx v0.0.0-20241120070128-4c4377743b26/go.mod h1:/ByvE9o0WANHL2nhOyZjOXWwY8cCgze0OmwyNzxcYoA=
 github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68 h1:Jknsfy5cqCH6qAuoU1qNZ51hfBJfMSJYwsH9j9mdVnw=
 github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68/go.mod h1:9CDhL7uDVy8vEVDNPJzxq89dPaPBWP6hxQcC8woBHus=
 github.com/rogpeppe/go-internal v1.12.0 h1:exVL4IDcn6na9z1rAb56Vxr+CgyK3nn3O+epU5NdKM8=
