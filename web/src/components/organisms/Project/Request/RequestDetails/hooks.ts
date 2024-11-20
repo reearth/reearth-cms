@@ -98,9 +98,7 @@ export default () => {
     [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.update],
   );
 
-  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation({
-    refetchQueries: ["GetRequest"],
-  });
+  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation();
 
   const handleRequestUpdate = useCallback(
     async (data: RequestUpdatePayload) => {
