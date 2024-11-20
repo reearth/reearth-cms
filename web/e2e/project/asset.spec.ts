@@ -83,7 +83,7 @@ test.describe.parallel("Json file tests", () => {
     await page.goBack();
   });
 
-  test("Donwloading asset has succeeded", async ({ page }) => {
+  test("Downloading asset has succeeded", async ({ page }) => {
     await page.getByLabel("", { exact: true }).check();
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "download Download" }).click();
