@@ -5,8 +5,10 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -85,28 +87,57 @@ func TestNewModel(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := NewModel(tt.args.m, tt.args.sp, tt.args.lastModified)
-			if result != tt.want {
-				assert.Equal(t, result, tt.want)
-			}
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }
 
-// func TestNewItemFieldChanges(t *testing.T) {
-// 	type args struct {
-// 		change item.FieldChange
-// 	}
+func TestNewItemFieldChanges(t *testing.T) {
 
-// 	tests := []struct{
-// 		name string
-// 		args args
-// 		want  []FieldChange
-// 	}{
-// 		{
-// 			name: "success",
-// 			args: args{
-// 				change:  item.FieldChanges{},
-// 			},
-// 		},
-// 	}
-// }
+	fID := id.NewFieldID()
+	v0 := value.MultipleFrom(value.TypeBool, []*value.Value{
+		value.New(value.TypeBool, false),
+	})
+	v1 := value.MultipleFrom(value.TypeBool, []*value.Value{
+		value.New(value.TypeBool, true),
+	})
+
+	type args struct {
+		change item.FieldChanges
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want []FieldChange
+	}{
+		{
+			name: "success",
+			args: args{
+				change: item.FieldChanges{
+					item.FieldChange{
+						ID:            fID,
+						Type:          item.FieldChangeTypeAdd,
+						CurrentValue:  value.MultipleFrom(v1.Type(), []*value.Value{v1.First()}),
+						PreviousValue: value.MultipleFrom(v0.Type(), []*value.Value{v0.First()}),
+					},
+				},
+			},
+			want: []FieldChange{
+				{
+					ID:            fID,
+					Type:          item.FieldChangeTypeAdd,
+					CurrentValue:  v1.Interface(),
+					PreviousValue: v0.Interface(),
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(string(test.name), func(t *testing.T) {
+			t.Parallel()
+			result := NewItemFieldChanges(test.args.change)
+			assert.Equal(t, test.want, result)
+		})
+	}
+}
