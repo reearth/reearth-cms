@@ -81,6 +81,7 @@ func TestNewEventWith(t *testing.T) {
 	}
 
 	ev := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).Project(&prj).MustBuild()
+	ev1 := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.Type("test")).Operator(operator.OperatorFromUser(u.ID())).Object("test").Project(&prj).MustBuild()
 	d1, _ := New(ev, "test", func(a *asset.Asset) string {
 		return "test.com"
 	})
@@ -144,6 +145,17 @@ func TestNewEventWith(t *testing.T) {
 				Operator: NewOperator(ev.Operator()),
 			},
 			wantErr: nil,
+		},
+		{
+			name: "error new returns error",
+			args: args{
+				event:       ev,
+				override:    ev1,
+				v:           "",
+				urlResolver: nil,
+			},
+			want:    Event{},
+			wantErr: ErrUnsupportedEntity,
 		},
 	}
 	for _, test := range tests {
