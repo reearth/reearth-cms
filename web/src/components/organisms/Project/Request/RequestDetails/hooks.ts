@@ -3,9 +3,10 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
+  useUpdateRequestMutation,
   useDeleteRequestMutation,
   useApproveRequestMutation,
   useAddCommentMutation,
@@ -14,6 +15,7 @@ import {
   useDeleteCommentMutation,
   useGetRequestQuery,
   Request as GQLRequest,
+  RequestState as GQLRequestState,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -94,6 +96,32 @@ export default () => {
         ? currentRequest.createdBy?.id === me?.id
         : !!userRights?.request.update),
     [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.update],
+  );
+
+  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation({
+    refetchQueries: ["GetRequest"],
+  });
+
+  const handleRequestUpdate = useCallback(
+    async (data: RequestUpdatePayload) => {
+      if (!data.requestId) return;
+      const request = await updateRequestMutation({
+        variables: {
+          requestId: data.requestId,
+          title: data.title,
+          description: data.description,
+          state: data.state as GQLRequestState,
+          reviewersId: data.reviewersId,
+          items: data.items,
+        },
+      });
+      if (request.errors || !request.data?.updateRequest) {
+        Notification.error({ message: t("Failed to update request.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated request!") });
+    },
+    [updateRequestMutation, t],
   );
 
   const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
@@ -227,9 +255,11 @@ export default () => {
     isApproveActionEnabled,
     isAssignActionEnabled,
     loading,
+    updateRequestLoading,
     deleteLoading,
     approveLoading,
     currentRequest,
+    handleRequestUpdate,
     handleRequestDelete,
     handleRequestApprove,
     handleCommentCreate,
