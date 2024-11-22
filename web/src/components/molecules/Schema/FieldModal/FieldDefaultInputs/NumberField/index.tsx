@@ -11,13 +11,13 @@ type Props = {
   max?: number;
 };
 
-const IntegerField: React.FC<Props> = ({ multiple, min, max }) => {
+const NumberField: React.FC<Props> = ({ multiple, min, max }) => {
   const t = useT();
 
   const validate = useCallback(
     (value: unknown) => {
       if (typeof value === "number") {
-        if ((min && value < min) || (max && value > max)) {
+        if ((typeof min === "number" && value < min) || (typeof max === "number" && value > max)) {
           return true;
         }
       }
@@ -52,4 +52,4 @@ const IntegerField: React.FC<Props> = ({ multiple, min, max }) => {
   );
 };
 
-export default IntegerField;
+export default NumberField;

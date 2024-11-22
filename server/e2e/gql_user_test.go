@@ -207,9 +207,9 @@ func TestMe(t *testing.T) {
 	o.Value("myWorkspaceId").String().IsEqual(wId2.String())
 }
 
-func TestSearchUser(t *testing.T) {
+func TestUserByNameOrEmail(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := fmt.Sprintf(` { searchUser(nameOrEmail: "%s"){ id name email } }`, "e2e")
+	query := fmt.Sprintf(` { userByNameOrEmail(nameOrEmail: "%s"){ id name email } }`, "e2e")
 	request := GraphQLRequest{
 		Query: query,
 	}
@@ -221,12 +221,12 @@ func TestSearchUser(t *testing.T) {
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("searchUser").Object()
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("userByNameOrEmail").Object()
 	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("e2e")
 	o.Value("email").String().IsEqual("e2e@e2e.com")
 
-	query = fmt.Sprintf(` { searchUser(nameOrEmail: "%s"){ id name email } }`, "notfound")
+	query = fmt.Sprintf(` { userByNameOrEmail(nameOrEmail: "%s"){ id name email } }`, "notfound")
 	request = GraphQLRequest{
 		Query: query,
 	}
@@ -239,7 +239,65 @@ func TestSearchUser(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
-		Value("data").Object().Value("searchUser").IsNull()
+		Value("data").Object().Value("userByNameOrEmail").IsNull()
+}
+
+func TestUserSearch(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	query := fmt.Sprintf(` { userSearch(keyword: "%s"){ id name email } }`, "e2e")
+	request := GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	res := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
+	ul := res.Value("data").Object().Value("userSearch").Array()
+	ul.Length().IsEqual(4)
+	o := ul.Value(0).Object()
+	o.Value("id").String().IsEqual(uId1.String())
+	o.Value("name").String().IsEqual("e2e")
+	o.Value("email").String().IsEqual("e2e@e2e.com")
+
+	query = fmt.Sprintf(` { userSearch(keyword: "%s"){ id name email } }`, "e2e2")
+	request = GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err = json.Marshal(request)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	res = e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
+	ul = res.Value("data").Object().Value("userSearch").Array()
+	ul.Length().IsEqual(1)
+	o = ul.Value(0).Object()
+	o.Value("id").String().IsEqual(uId2.String())
+	o.Value("name").String().IsEqual("e2e2")
+	o.Value("email").String().IsEqual("e2e2@e2e.com")
+
+	query = fmt.Sprintf(` { userSearch(keyword: "%s"){ id name email } }`, "notfound")
+	request = GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err = json.Marshal(request)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+		Value("data").Object().Value("userSearch").Array().IsEmpty()
 }
 
 func TestNode(t *testing.T) {

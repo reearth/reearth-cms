@@ -48,38 +48,52 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await expect(page.getByRole("cell", { name: "new text" })).toBeHidden();
 });
 
-test("Publishing and Unpublishing item has succeeded", async ({ page }) => {
+test("Publishing and Unpublishing item from edit page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await page.getByText("Settings").first().click();
-  await page.getByRole("row", { name: "Owner" }).getByRole("switch").click();
-  await page.getByRole("button", { name: "Save changes" }).last().click();
-  await closeNotification(page);
   await page.getByText("Content").first().click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
+  await expect(page.getByText("DRAFT")).toBeVisible();
   await page.getByRole("button", { name: "Publish" }).click();
   await closeNotification(page);
   await expect(page.getByText("PUBLIC")).toBeVisible();
   await page.getByLabel("Back").click();
   await expect(page.getByText("PUBLIC")).toBeVisible();
-  await page.getByLabel("", { exact: true }).check();
-  await page.getByText("Unpublish").click();
-  await closeNotification(page);
-  await expect(page.getByText("DRAFT")).toBeVisible();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByText("DRAFT")).toBeVisible();
-  await page.getByRole("button", { name: "Publish" }).click();
-  await closeNotification(page);
   await expect(page.getByText("PUBLIC")).toBeVisible();
   await page.getByRole("button", { name: "ellipsis" }).click();
   await page.getByText("Unpublish").click();
   await closeNotification(page);
   await expect(page.getByText("DRAFT")).toBeVisible();
   await page.getByLabel("Back").click();
+  await expect(page.getByText("DRAFT")).toBeVisible();
+});
+
+test("Publishing and Unpublishing item from table has succeeded", async ({ page }) => {
+  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
+  await handleFieldForm(page, "text");
+  await page.getByText("Content").first().click();
+  await page.getByRole("button", { name: "plus New Item" }).click();
+  await page.getByLabel("text").click();
+  await page.getByLabel("text").fill("text");
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
+  await expect(page.getByText("DRAFT")).toBeVisible();
+  await page.getByLabel("Back").click();
+  await expect(page.getByText("DRAFT")).toBeVisible();
+  await page.getByLabel("", { exact: true }).check();
+  await page.getByText("Publish", { exact: true }).click();
+  await page.getByRole("button", { name: "Yes" }).click();
+  await closeNotification(page);
+  await expect(page.getByText("PUBLIC")).toBeVisible();
+  await page.getByText("Unpublish").click();
+  await closeNotification(page);
+  await expect(page.getByText("DRAFT")).toBeVisible();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByText("DRAFT")).toBeVisible();
 });
 
@@ -148,7 +162,7 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await page.getByLabel("message").click();
+  await page.getByLabel("comment").click();
   await expect(page.getByText("Comments0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });

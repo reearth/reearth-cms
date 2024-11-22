@@ -52,7 +52,7 @@ const FieldList: React.FC<Props> = ({
       },
       {
         title: t("Number"),
-        fields: ["Integer"],
+        fields: ["Integer", "Number"],
       },
       {
         title: t("URL"),

@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -11,7 +12,6 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -43,6 +43,7 @@ const MyIntegrationForm: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   const handleValuesChange = useCallback(
     async (_: unknown, values: FormType) => {
@@ -74,9 +75,9 @@ const MyIntegrationForm: React.FC<Props> = ({
 
   const handleRegenerateToken = useCallback(() => {
     Modal.confirm({
-      title: t("Regenerate The Integration Token?"),
+      title: t("Re-generate The Integration Token?"),
       content: t(
-        "If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
+        "If you re-generate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
       ),
       cancelText: t("Cancel"),
       okText: t("Reset"),
@@ -85,10 +86,6 @@ const MyIntegrationForm: React.FC<Props> = ({
       },
     });
   }, [t, onRegenerateToken]);
-
-  const handleCopy = useCallback(() => {
-    if (integration.config.token) navigator.clipboard.writeText(integration.config.token);
-  }, [integration.config.token]);
 
   return (
     <Form
@@ -112,23 +109,27 @@ const MyIntegrationForm: React.FC<Props> = ({
           <Form.Item name="description" label={t("Description")}>
             <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
-          <Form.Item label={t("Integration Token")}>
+          <StyledFormItem
+            label={t("Integration Token")}
+            extra={t("This is your secret token, please use as your env value.")}>
             <StyledTokenInput
               value={integration.config.token}
               contentEditable={false}
+              visibilityToggle={{ visible }}
+              iconRender={() => <CopyButton copyable={{ text: integration.config.token }} />}
               prefix={
-                <Tooltip title={t("Token copied!!")} trigger={"click"}>
-                  <Icon icon="copy" onClick={handleCopy} />
-                </Tooltip>
+                <Icon
+                  icon={visible ? "eye" : "eyeInvisible"}
+                  onClick={() => {
+                    setVisible(prev => !prev);
+                  }}
+                />
               }
             />
-            <StyledRegenerateTokenButton
-              type="primary"
-              onClick={handleRegenerateToken}
-              loading={regenerateLoading}>
-              {t("Regenerate")}
-            </StyledRegenerateTokenButton>
-          </Form.Item>
+            <Button onClick={handleRegenerateToken} loading={regenerateLoading}>
+              {t("Re-generate")}
+            </Button>
+          </StyledFormItem>
           <Form.Item>
             <Button
               type="primary"
@@ -182,8 +183,15 @@ const StyledDivider = styled(Divider)`
   height: 100%;
 `;
 
+const StyledFormItem = styled(Form.Item)`
+  .ant-form-item-control-input-content {
+    display: flex;
+    gap: 4px;
+  }
+`;
+
 const StyledTokenInput = styled(Password)`
-  width: calc(100% - 120px);
+  flex: 1;
   .ant-input-prefix {
     order: 1;
     margin-left: 4px;
@@ -196,11 +204,6 @@ const StyledTokenInput = styled(Password)`
   .ant-input-suffix {
     order: 2;
   }
-`;
-
-const StyledRegenerateTokenButton = styled(Button)`
-  width: 115px;
-  margin-left: 5px;
 `;
 
 export default MyIntegrationForm;

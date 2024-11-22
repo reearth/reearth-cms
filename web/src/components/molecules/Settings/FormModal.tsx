@@ -198,31 +198,31 @@ const FormModal: React.FC<Props> = ({
           isTile ? (
             <>
               <Form.Item name="name" label={t("Name")} extra={t("Name of tiles")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="url" label={t("URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
             </>
           ) : (
             <>
               <Form.Item name="name" label={t("Name")} extra={t("Name of terrain")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="cesiumIonAssetId" label={t("Terrain Cesium Ion asset ID")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="cesiumIonAccessToken" label={t("Terrain Cesium Ion access token")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="url" label={t("Terrain URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
             </>
           )

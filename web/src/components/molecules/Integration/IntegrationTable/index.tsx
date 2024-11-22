@@ -15,7 +15,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
-import { useT } from "@reearth-cms/i18n";
+import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
   integrationMembers?: IntegrationMember[];
@@ -204,7 +204,7 @@ const IntegrationTable: React.FC<Props> = ({
               </Button>
             </Suggestion>
             <Suggestion>
-              {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+              <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
             </Suggestion>
           </EmptyTableWrapper>
         )}>

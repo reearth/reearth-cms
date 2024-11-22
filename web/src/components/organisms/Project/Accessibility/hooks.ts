@@ -1,7 +1,8 @@
-import { useCallback, useState, useEffect, useMemo } from "react";
+import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 
+import Form from "@reearth-cms/components/atoms/Form";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import { FormType, PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import {
@@ -10,6 +11,7 @@ import {
   Model as GQLModel,
   ProjectPublicationScope,
   useUpdateProjectMutation,
+  useRegeneratePublicApiTokenMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
@@ -22,13 +24,11 @@ export default () => {
     () => !!userRights?.project.publish,
     [userRights?.project.publish],
   );
-
-  const [models, setModels] = useState<Model[]>();
-  const [scope, setScope] = useState(currentProject?.scope);
-  const [aliasState, setAlias] = useState(currentProject?.alias);
-  const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
-  const [assetState, setAssetState] = useState<boolean | undefined>(currentProject?.assetPublic);
-  const [isSaveDisabled, setIsSaveDisabled] = useState(false);
+  const [form] = Form.useForm<FormType>();
+  const modelsState = Form.useWatch("models", form) ?? {};
+  const assetState = !!Form.useWatch("assetPublic", form);
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   const { data: modelsData } = useGetModelsQuery({
     variables: {
@@ -38,41 +38,69 @@ export default () => {
     skip: !currentProject?.id,
   });
 
-  useEffect(() => {
-    const filteredModel = modelsData?.models.nodes
-      ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
-      .filter((model): model is Model => !!model);
-    setModels(filteredModel);
-  }, [modelsData]);
+  const models = useMemo(
+    () =>
+      modelsData?.models.nodes
+        ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
+        .filter((model): model is Model => !!model) ?? [],
+    [modelsData?.models.nodes],
+  );
+
+  const alias = useMemo(() => currentProject?.alias ?? "", [currentProject?.alias]);
+  const token = useMemo(() => currentProject?.token ?? "", [currentProject?.token]);
+
+  const initialValues = useMemo(() => {
+    const modelsObj: Record<string, boolean> = {};
+    models?.forEach(model => {
+      modelsObj[model.id] = !!model.public;
+    });
+    return {
+      scope: currentProject?.scope,
+      alias,
+      token,
+      assetPublic: !!currentProject?.assetPublic,
+      models: modelsObj,
+    };
+  }, [alias, currentProject?.assetPublic, currentProject?.scope, models, token]);
 
   useEffect(() => {
-    setScope(currentProject?.scope);
-  }, [currentProject?.scope]);
+    form.setFieldsValue(initialValues);
+  }, [form, initialValues]);
 
-  useEffect(() => {
-    setAlias(currentProject?.alias);
-  }, [currentProject?.alias]);
+  const changedModels = useRef(new Map<string, boolean>());
 
-  useEffect(() => {
-    setAssetState(currentProject?.assetPublic);
-  }, [currentProject?.assetPublic]);
+  const handleValuesChange = useCallback(
+    (changedValues: Partial<FormType>, values: FormType) => {
+      if (changedValues?.models) {
+        const modelId = Object.keys(changedValues.models)[0];
+        if (changedModels.current.has(modelId)) {
+          changedModels.current.delete(modelId);
+        } else {
+          changedModels.current.set(modelId, changedValues.models[modelId]);
+        }
+      }
+      if (
+        initialValues.scope === values.scope &&
+        initialValues.assetPublic === values.assetPublic &&
+        changedModels.current.size === 0
+      ) {
+        setIsSaveDisabled(true);
+      } else {
+        setIsSaveDisabled(false);
+      }
+    },
+    [initialValues],
+  );
 
-  useEffect(() => {
-    setIsSaveDisabled(
-      updatedModels.length === 0 &&
-        currentProject?.scope === scope &&
-        currentProject?.alias === aliasState &&
-        currentProject?.assetPublic === assetState,
-    );
-  }, [
-    aliasState,
-    assetState,
-    currentProject?.alias,
-    currentProject?.assetPublic,
-    currentProject?.scope,
-    scope,
-    updatedModels.length,
-  ]);
+  const scopeConvert = useCallback((scope?: PublicScope) => {
+    if (scope === "PUBLIC") {
+      return ProjectPublicationScope.Public;
+    } else if (scope === "LIMITED") {
+      return ProjectPublicationScope.Limited;
+    } else {
+      return ProjectPublicationScope.Private;
+    }
+  }, []);
 
   const [updateProjectMutation] = useUpdateProjectMutation();
   const [updateModelMutation] = useUpdateModelMutation({
@@ -80,85 +108,99 @@ export default () => {
   });
 
   const handlePublicUpdate = useCallback(async () => {
-    if (!currentProject?.id || (!scope && updatedModels.length === 0)) return;
-    let errors = false;
-
-    if ((scope && scope !== currentProject.scope) || aliasState) {
-      const gqlScope =
-        scope === "public" ? ProjectPublicationScope.Public : ProjectPublicationScope.Private;
-      const projRes = await updateProjectMutation({
-        variables: {
-          alias: aliasState,
-          projectId: currentProject.id,
-          publication: { scope: gqlScope, assetPublic: assetState },
-        },
-      });
-      if (projRes.errors) {
-        errors = true;
-      }
-    }
-
-    if (updatedModels) {
-      updatedModels.forEach(async model => {
-        const modelRes = await updateModelMutation({
-          variables: { modelId: model.id, public: model.public },
+    if (!currentProject?.id) return;
+    setUpdateLoading(true);
+    try {
+      const { alias, scope, assetPublic } = form.getFieldsValue();
+      if (initialValues.scope !== scope || initialValues.assetPublic !== assetPublic) {
+        const projRes = await updateProjectMutation({
+          variables: {
+            alias,
+            projectId: currentProject.id,
+            publication: {
+              scope: scopeConvert(scope),
+              assetPublic,
+            },
+          },
         });
-        if (modelRes.errors) {
-          errors = true;
+        if (projRes.errors) {
+          throw new Error();
         }
-      });
-    }
-    if (errors) {
-      Notification.error({ message: t("Failed to update publication settings.") });
-    } else {
+      }
+      if (changedModels.current.size) {
+        changedModels.current.forEach(async (value, modelId) => {
+          const modelRes = await updateModelMutation({
+            variables: { modelId, public: value },
+          });
+          if (modelRes.errors) {
+            throw new Error();
+          }
+        });
+      }
       Notification.success({
         message: t("Successfully updated publication settings!"),
       });
+      changedModels.current.clear();
+      setIsSaveDisabled(true);
+    } catch (_) {
+      Notification.error({ message: t("Failed to update publication settings.") });
+      setIsSaveDisabled(false);
+    } finally {
+      setUpdateLoading(false);
     }
-    setUpdatedModels([]);
   }, [
     currentProject?.id,
-    currentProject?.scope,
-    scope,
-    updatedModels,
-    aliasState,
-    updateProjectMutation,
-    assetState,
-    updateModelMutation,
+    form,
+    initialValues.assetPublic,
+    initialValues.scope,
+    scopeConvert,
     t,
+    updateModelMutation,
+    updateProjectMutation,
   ]);
 
-  const handleUpdatedAssetState = useCallback((state: boolean) => {
-    setAssetState(state);
-  }, []);
+  const [regeneratePublicApiToken, { loading: regenerateLoading }] =
+    useRegeneratePublicApiTokenMutation({
+      refetchQueries: ["GetProject"],
+    });
 
-  const handleUpdatedModels = useCallback(
-    (model: Model) => {
-      if (updatedModels.find(um => um.id === model.id)) {
-        setUpdatedModels(ums => ums.filter(um => um.id !== model.id));
-      } else {
-        setUpdatedModels(ums => [...ums, model]);
-      }
-      setModels(ms => ms?.map(m => (m.id === model.id ? { ...m, public: model.public } : m)));
-    },
-    [updatedModels],
+  const handleRegenerateToken = useCallback(async () => {
+    if (!currentProject?.id) return;
+    const result = await regeneratePublicApiToken({
+      variables: {
+        projectId: currentProject.id,
+      },
+    });
+    if (result.errors) {
+      Notification.error({
+        message: t("The attempt to re-generate the Public API Token has failed."),
+      });
+    } else {
+      Notification.success({
+        message: t("Public API Token has been re-generated!"),
+      });
+    }
+  }, [currentProject?.id, regeneratePublicApiToken, t]);
+
+  const apiUrl = useMemo(
+    () => `${window.REEARTH_CONFIG?.api}/p/${currentProject?.alias}/`,
+    [currentProject?.alias],
   );
 
-  const handleSetScope = (projectScope: PublicScope) => {
-    setScope(projectScope);
-  };
-
   return {
+    form,
     models,
-    scope,
-    alias: currentProject?.alias,
-    aliasState,
+    modelsState,
     assetState,
     isSaveDisabled,
     hasPublishRight,
+    updateLoading,
+    regenerateLoading,
+    apiUrl,
+    alias,
+    token,
+    handleValuesChange,
     handlePublicUpdate,
-    handleUpdatedAssetState,
-    handleUpdatedModels,
-    handleSetScope,
+    handleRegenerateToken,
   };
 };
