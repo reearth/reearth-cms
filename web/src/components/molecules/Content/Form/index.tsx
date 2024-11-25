@@ -440,6 +440,19 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [itemId, item, metaForm, onMetaItemUpdate, model?.metadataSchema?.fields]);
 
+  const handleMetaValuesChange = useCallback(async () => {
+    if (itemId) return;
+    try {
+      await metaForm.validateFields();
+    } catch (e) {
+      if ((e as ValidateErrorEntity).errorFields.length > 0) {
+        setIsDisabled(true);
+        return;
+      }
+    }
+    setIsDisabled(false);
+  }, [itemId, metaForm]);
+
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
       {
@@ -656,7 +669,11 @@ const ContentForm: React.FC<Props> = ({
         </FormItemsWrapper>
       </StyledForm>
       <SideBarWrapper>
-        <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
+        <Form
+          form={metaForm}
+          layout="vertical"
+          initialValues={initialMetaFormValues}
+          onValuesChange={handleMetaValuesChange}>
           <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
           {model?.metadataSchema?.fields?.map(field => {
             const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
