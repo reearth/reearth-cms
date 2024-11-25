@@ -24,7 +24,13 @@ type Item struct {
 	err  error
 }
 
-func (r *Item) FindByAssets(ctx context.Context, list id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
+func NewItem() repo.Item {
+	return &Item{
+		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
+	}
+}
+
+func (r *Item) FindByAssets(_ context.Context, list id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -39,12 +45,6 @@ func (r *Item) FindByAssets(ctx context.Context, list id.AssetIDList, ref *versi
 		return true
 	})
 	return res, nil
-}
-
-func NewItem() repo.Item {
-	return &Item{
-		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
-	}
 }
 
 func (r *Item) Filtered(filter repo.ProjectFilter) repo.Item {
@@ -109,7 +109,7 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 	return r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), nil
 }
 
-func (r *Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
+func (r *Item) FindVersionByID(_ context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -133,7 +133,7 @@ func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.Versio
 	}), nil
 }
 
-func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+func (r *Item) FindAllVersionsByIDs(_ context.Context, ids id.ItemIDList) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -145,7 +145,7 @@ func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (ite
 	}), nil
 }
 
-func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {
+func (r *Item) LastModifiedByModel(_ context.Context, modelID id.ModelID) (time.Time, error) {
 	if r.err != nil {
 		return time.Time{}, r.err
 	}
@@ -175,7 +175,21 @@ func (r *Item) Save(_ context.Context, t *item.Item) error {
 	return nil
 }
 
-func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
+func (r *Item) SaveAll(_ context.Context, il item.List) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, t := range il {
+		if !r.f.CanWrite(t.Project()) {
+			return repo.ErrOperationDenied
+		}
+	}
+	r.data.SaveAll(il.IDs(), il, nil)
+	return nil
+}
+
+func (r *Item) UpdateRef(_ context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
 	if r.err != nil {
 		return r.err
 	}

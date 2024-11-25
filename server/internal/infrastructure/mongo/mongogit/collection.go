@@ -105,6 +105,27 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *vers
 	return nil
 }
 
+func (c *Collection) SaveAll(ctx context.Context, ids []string, docs []any, parents []*version.VersionOrRef) error {
+	// TODO: optimize to use bulk write
+	if len(ids) != len(docs) || (parents != nil && len(ids) != len(parents)) {
+		return rerror.ErrInvalidParams
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	for i := 0; i < len(ids); i++ {
+		var parent *version.VersionOrRef = nil
+		if parents != nil {
+			parent = parents[i]
+		}
+		err := c.SaveOne(ctx, ids[i], docs[i], parent)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
 	if _, err := c.client.Client().UpdateMany(ctx, bson.M{
 		"id":    id,
