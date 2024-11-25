@@ -45,13 +45,15 @@ const CommentMolecule: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     try {
-      await onCommentUpdate?.(comment.id, value);
+      if (comment.content !== value) {
+        await onCommentUpdate?.(comment.id, value);
+      }
     } catch (info) {
       console.log("Validate Failed:", info);
     } finally {
       setShowEditor(false);
     }
-  }, [value, comment.id, onCommentUpdate]);
+  }, [comment.content, comment.id, value, onCommentUpdate]);
 
   const fromNow = useMemo(
     () => dayjs(comment.createdAt?.toString()).fromNow(),
