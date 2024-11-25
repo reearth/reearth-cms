@@ -1,9 +1,8 @@
-import { Ion } from "cesium";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Ion, Viewer as CesiumViewer } from "cesium";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
   Asset,
   AssetItem,
@@ -183,6 +182,12 @@ export default (assetId?: string) => {
     [assetFileExt],
   );
 
+  const viewerRef = useRef<CesiumViewer>();
+
+  const handleGetViewer = (viewer?: CesiumViewer) => {
+    viewerRef.current = viewer;
+  };
+
   const handleFullScreen = useCallback(() => {
     if (
       viewerType === "geo" ||
@@ -190,7 +195,7 @@ export default (assetId?: string) => {
       viewerType === "model_3d" ||
       viewerType === "geo_mvt"
     ) {
-      viewerRef?.canvas.requestFullscreen();
+      viewerRef.current?.canvas.requestFullscreen();
     } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
     }
@@ -256,5 +261,6 @@ export default (assetId?: string) => {
     handleFullScreen,
     handleSave,
     handleBack,
+    handleGetViewer,
   };
 };

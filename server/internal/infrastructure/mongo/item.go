@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -226,6 +227,20 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	}
 	doc, id := mongodoc.NewItem(item)
 	return r.client.SaveOne(ctx, id, doc, nil)
+}
+
+func (r *Item) SaveAll(ctx context.Context, items item.List) error {
+	if len(items) == 0 {
+		return nil
+	}
+
+	for _, itm := range items {
+		if !r.f.CanWrite(itm.Project()) {
+			return repo.ErrOperationDenied
+		}
+	}
+	docs, ids := mongodoc.NewItems(items)
+	return r.client.SaveAll(ctx, ids, lo.ToAnySlice(docs), nil)
 }
 
 func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {

@@ -15,6 +15,7 @@ var (
 
 type Thread interface {
 	Save(context.Context, *thread.Thread) error
+	SaveAll(context.Context, thread.List) error
 	Filtered(filter WorkspaceFilter) Thread
 	FindByID(ctx context.Context, id id.ThreadID) (*thread.Thread, error)
 	FindByIDs(context.Context, id.ThreadIDList) ([]*thread.Thread, error)
