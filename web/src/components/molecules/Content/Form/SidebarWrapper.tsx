@@ -69,7 +69,7 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item, onNavigateToRequest }) =
             <SidebarCard title={t("Linked Request")}>
               <Requests>
                 {item.requests.map(request => (
-                  <Badge
+                  <LinkedRequestBadge
                     key={request.id}
                     color={badgeColors[request.state]}
                     text={
@@ -129,6 +129,16 @@ const Requests = styled.div`
 
 const StyledButton = styled(Button)`
   padding: 0;
+  width: calc(100% - 14px);
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+`;
+
+const LinkedRequestBadge = styled(Badge)`
+  width: 100%;
 `;
 
 export default ContentSidebarWrapper;
