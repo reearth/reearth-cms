@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -27,13 +26,12 @@ func (c *Controller) GetSchemaJSON(ctx context.Context, pKey, mKey string) (Sche
 		return SchemaJSON{}, rerror.ErrNotFound
 	}
 
-	gsMap := buildGroupSchemaMap(ctx, sp.Schema(), c.usecases)
-	return NewSchemaJSON(m, buildProperties(sp.Schema().Fields(), gsMap)), nil
+	return NewSchemaJSON(m, buildProperties(c.usecases, sp.Schema().Fields(), ctx)), nil
 }
 
-func buildProperties(fields schema.FieldList, gsMap map[id.GroupID]*schema.Schema) *map[string]interface{} {
+func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.Context) *map[string]interface{} {
 	properties := make(map[string]interface{})
-	for _, field := range fields {
+	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
 		fieldSchema := map[string]interface{}{
 			"type":        fieldType,
@@ -43,53 +41,56 @@ func buildProperties(fields schema.FieldList, gsMap map[id.GroupID]*schema.Schem
 		if format != "" {
 			fieldSchema["format"] = format
 		}
+
+		var maxLength *int
 		field.TypeProperty().Match(schema.TypePropertyMatch{
-			Text:     func(f *schema.FieldText) { addMaxLength(fieldSchema, f.MaxLength()) },
-			TextArea: func(f *schema.FieldTextArea) { addMaxLength(fieldSchema, f.MaxLength()) },
-			RichText: func(f *schema.FieldRichText) { addMaxLength(fieldSchema, f.MaxLength()) },
-			Markdown: func(f *schema.FieldMarkdown) { addMaxLength(fieldSchema, f.MaxLength()) },
-			Integer:  func(f *schema.FieldInteger) { addMinMax(fieldSchema, f.Min(), f.Max()) },
-			Number:   func(f *schema.FieldNumber) { addMinMax(fieldSchema, f.Min(), f.Max()) },
-			Group:    func(f *schema.FieldGroup) { addGroupItems(fieldSchema, gsMap[f.Group()]) },
+			Text: func(f *schema.FieldText) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			TextArea: func(f *schema.FieldTextArea) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			RichText: func(f *schema.FieldRichText) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			Markdown: func(f *schema.FieldMarkdown) {
+				if maxLength = f.MaxLength(); maxLength != nil {
+					fieldSchema["maxLength"] = *maxLength
+				}
+			},
+			Integer: func(f *schema.FieldInteger) {
+				if min := f.Min(); min != nil {
+					fieldSchema["minimum"] = *min
+				}
+				if max := f.Max(); max != nil {
+					fieldSchema["maximum"] = *max
+				}
+			},
+			Number: func(f *schema.FieldNumber) {
+				if min := f.Min(); min != nil {
+					fieldSchema["minimum"] = *min
+				}
+				if max := f.Max(); max != nil {
+					fieldSchema["maximum"] = *max
+				}
+			},
+			Group: func(f *schema.FieldGroup) {
+				gs, _ := uc.Schema.FindByGroup(ctx, f.Group(), nil)
+				if gs != nil {
+					fieldSchema["items"] = buildProperties(uc, gs.Fields(), ctx)
+				}
+			},
 		})
+
 		properties[field.Key().String()] = fieldSchema
 	}
 	return &properties
-}
-
-func addMaxLength(schemaMap map[string]interface{}, maxLength *int) {
-	if maxLength != nil {
-		schemaMap["maxLength"] = *maxLength
-	}
-}
-
-func addMinMax(schemaMap map[string]interface{}, min, max interface{}) {
-	switch minVal := min.(type) {
-	case *int64:
-		if minVal != nil {
-			schemaMap["minimum"] = *minVal
-		}
-	case *float64:
-		if minVal != nil {
-			schemaMap["minimum"] = *minVal
-		}
-	}
-	switch maxVal := max.(type) {
-	case *int64:
-		if maxVal != nil {
-			schemaMap["maximum"] = *maxVal
-		}
-	case *float64:
-		if maxVal != nil {
-			schemaMap["maximum"] = *maxVal
-		}
-	}
-}
-
-func addGroupItems(fieldSchema map[string]interface{}, gs *schema.Schema) {
-	if gs != nil {
-		fieldSchema["items"] = buildProperties(gs.Fields(), nil)
-	}
 }
 
 func determineTypeAndFormat(t value.Type) (string, string) {
@@ -115,19 +116,4 @@ func determineTypeAndFormat(t value.Type) (string, string) {
 	default:
 		return "string", ""
 	}
-}
-
-func buildGroupSchemaMap(ctx context.Context, sch *schema.Schema, uc *interfaces.Container) map[id.GroupID]*schema.Schema {
-	groupSchemaMap := make(map[id.GroupID]*schema.Schema)
-	for _, field := range sch.Fields() {
-		field.TypeProperty().Match(schema.TypePropertyMatch{
-			Group: func(fg *schema.FieldGroup) {
-				groupSchema, err := uc.Schema.FindByGroup(ctx, fg.Group(), nil)
-				if err == nil {
-					groupSchemaMap[fg.Group()] = groupSchema
-				}
-			},
-		})
-	}
-	return groupSchemaMap
 }
