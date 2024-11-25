@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
+import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
@@ -27,7 +27,6 @@ const ResiumViewer: React.FC<Props> = ({
   onSelect,
   workspaceSettings,
 }) => {
-  const viewer = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const [properties, setProperties] = useState<Property>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
@@ -81,12 +80,6 @@ const ResiumViewer: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    if (viewer.current) {
-      onGetViewer(viewer.current?.cesiumElement);
-    }
-  }, [onGetViewer]);
-
-  useEffect(() => {
     if (passedProps) {
       setSortedProperties(passedProps);
       setInfoBoxVisibility(true);
@@ -124,7 +117,7 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        ref={viewer}>
+        ref={node => onGetViewer(node?.cesiumElement)}>
         {children}
       </StyledViewer>
       <InfoBox
