@@ -6,6 +6,7 @@ import (
 )
 
 type ID = id.ItemID
+type IDList = id.ItemIDList
 type ProjectID = id.ProjectID
 type SchemaID = id.SchemaID
 type FieldID = id.FieldID
