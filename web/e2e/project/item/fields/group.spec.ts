@@ -75,6 +75,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.locator("span").filter({ hasText: "Schema" }).click();
+  await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.getByRole("menuitem", { name: "e2e group name" }).locator("span").click();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await page.getByLabel("Display name").click();
