@@ -46,7 +46,11 @@ func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (in
 }
 
 func (c *Collection) PaginateAggregation(ctx context.Context, pipeline []any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.client.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer)
+	opt := options.Aggregate().SetCollation(&options.Collation{
+		Locale:   "simple",
+		Strength: 1,
+	})
+	return c.client.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer, opt)
 }
 
 func (c *Collection) CountAggregation(ctx context.Context, pipeline []any, q version.Query) (int64, error) {
@@ -98,6 +102,27 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *vers
 		return rerror.ErrInternalBy(err)
 	}
 
+	return nil
+}
+
+func (c *Collection) SaveAll(ctx context.Context, ids []string, docs []any, parents []*version.VersionOrRef) error {
+	// TODO: optimize to use bulk write
+	if len(ids) != len(docs) || (parents != nil && len(ids) != len(parents)) {
+		return rerror.ErrInvalidParams
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	for i := 0; i < len(ids); i++ {
+		var parent *version.VersionOrRef = nil
+		if parents != nil {
+			parent = parents[i]
+		}
+		err := c.SaveOne(ctx, ids[i], docs[i], parent)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

@@ -20,7 +20,6 @@ const BasicInnerContents: React.FC<Props> = ({ title, subtitle, flexChildren, ch
           {subtitle && <Subtitle>{subtitle}</Subtitle>}
         </Header>
       )}
-
       {childrenArray.map((child, idx) => (
         <Section key={idx} flex={flexChildren} lastChild={childrenArray.length - 1 === idx}>
           {child}
@@ -42,16 +41,22 @@ const Header = styled.div`
   margin-bottom: 16px;
 `;
 
-const Title = styled.p`
+const Title = styled.h2`
   font-weight: 500;
   font-size: 20px;
   line-height: 28px;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Subtitle = styled.p`
   margin: 16px 0 0 0;
   color: rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Section = styled.div<{ flex?: boolean; lastChild?: boolean }>`

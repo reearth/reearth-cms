@@ -36,7 +36,6 @@ import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 
 import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldComponents";
-import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 type Props = {
@@ -643,31 +642,12 @@ const ContentForm: React.FC<Props> = ({
                   />
                 </StyledFormItemWrapper>
               );
-            } else if (field.type === "GeometryObject" || field.type === "GeometryEditor") {
-              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-
-              return (
-                <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <FieldComponent field={field} disabled={fieldDisabled} />
-                </StyledFormItemWrapper>
-              );
             } else {
-              const FieldComponent =
-                FIELD_TYPE_COMPONENT_MAP[
-                  field.type as
-                    | "Select"
-                    | "Date"
-                    | "Tag"
-                    | "Bool"
-                    | "Checkbox"
-                    | "URL"
-                    | "TextArea"
-                    | "MarkdownText"
-                    | "Integer"
-                ] || DefaultField;
-
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
               return (
-                <StyledFormItemWrapper key={field.id}>
+                <StyledFormItemWrapper
+                  key={field.id}
+                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
                   <FieldComponent field={field} disabled={fieldDisabled} />
                 </StyledFormItemWrapper>
               );
@@ -679,10 +659,7 @@ const ContentForm: React.FC<Props> = ({
         <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
           <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
           {model?.metadataSchema?.fields?.map(field => {
-            const FieldComponent =
-              FIELD_TYPE_COMPONENT_MAP[
-                field.type as "Tag" | "Date" | "Bool" | "Checkbox" | "URL"
-              ] || DefaultField;
+            const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
             return (
               <MetaFormItemWrapper key={field.id}>
                 <FieldComponent
@@ -735,12 +712,13 @@ const ContentForm: React.FC<Props> = ({
 };
 
 const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
-  width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
+  max-width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
   word-wrap: break-word;
 `;
 
 const StyledForm = styled(Form)`
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   height: 100%;
   background: #fff;
   label {
@@ -759,7 +737,7 @@ const FormItemsWrapper = styled.div`
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
   padding: 8px;
-  width: 400px;
+  min-width: 272px;
   max-height: 100%;
   overflow-y: auto;
 `;

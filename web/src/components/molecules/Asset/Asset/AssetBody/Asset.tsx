@@ -3,10 +3,10 @@ import { Viewer as CesiumViewer } from "cesium";
 import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -48,10 +48,9 @@ type Props = {
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
+  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
-
-export let viewerRef: CesiumViewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
@@ -67,6 +66,7 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
+  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -75,10 +75,6 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer?: CesiumViewer) => {
-    viewerRef = viewer;
-  };
-
   const renderPreview = useCallback(() => {
     switch (viewerType) {
       case "geo":
@@ -86,7 +82,7 @@ const AssetMolecule: React.FC<Props> = ({
           <GeoViewer
             url={assetUrl}
             assetFileExt={assetFileExt}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -95,13 +91,17 @@ const AssetMolecule: React.FC<Props> = ({
           <Geo3dViewer
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
       case "geo_mvt":
         return (
-          <MvtViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+          <MvtViewer
+            url={assetUrl}
+            onGetViewer={onGetViewer}
+            workspaceSettings={workspaceSettings}
+          />
         );
       case "image":
         return <ImageViewer url={assetUrl} />;
@@ -111,23 +111,23 @@ const AssetMolecule: React.FC<Props> = ({
         return (
           <GltfViewer
             url={assetUrl}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
       case "csv":
         return (
-          <CsvViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+          <CsvViewer
+            url={assetUrl}
+            onGetViewer={onGetViewer}
+            workspaceSettings={workspaceSettings}
+          />
         );
       case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(asset.url);
-  }, [asset.url]);
+  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
@@ -135,10 +135,10 @@ const AssetMolecule: React.FC<Props> = ({
         <Card
           title={
             <>
-              {asset.fileName}
-              <Tooltip title={t("URL copied!!")} trigger={"click"}>
-                <CopyIcon icon="copy" onClick={handleCopy} />
-              </Tooltip>
+              <AssetName>{asset.fileName}</AssetName>
+              <CopyButton
+                copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
+              />
             </>
           }
           toolbar={
@@ -211,13 +211,9 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-const CopyIcon = styled(Icon)`
-  margin-left: 10px;
-  transition: all 0.3s;
-  color: rgb(0, 0, 0, 0.45);
-  :hover {
-    color: rgba(0, 0, 0, 0.88);
-  }
+const AssetName = styled.span`
+  min-width: 0;
+  word-wrap: break-word;
 `;
 
 const UnzipButton = styled(Button)`

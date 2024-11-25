@@ -39,6 +39,9 @@ const Title = styled.p`
   margin: 0;
   font-size: 14px;
   font-weight: 500;
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
 `;
 
 const Toolbar = styled.div`

@@ -79,7 +79,7 @@ test("URL field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new url1 description");
   await page.getByLabel("Support multiple values").check();
-  await page.getByLabel("Use as title").check();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
@@ -96,7 +96,7 @@ test("URL field editing has succeeded", async ({ page }) => {
   await expect(page.locator("thead")).toContainText("new url1");
   await expect(page.getByRole("cell", { name: "http://test1.com", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByText("new url1(unique)Title")).toBeVisible();
+  await expect(page.getByText("new url1(unique)")).toBeVisible();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://test1.com");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://test2.com");
   await page.getByRole("button", { name: "Save" }).click();

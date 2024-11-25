@@ -17,15 +17,18 @@ export type Request = {
   updatedAt: Date;
   approvedAt?: Date;
   closedAt?: Date;
-  items: {
-    id: string;
-    modelId?: string;
-    modelName?: string;
-    version?: string;
-    schema?: Schema;
-    initialValues: Record<string, unknown>;
-    referencedItems: FormItem[];
-  }[];
+  items: ItemInRequest[];
+};
+
+export type ItemInRequest = {
+  id: string;
+  title: string;
+  modelId?: string;
+  modelName?: string;
+  version?: string;
+  schema?: Schema;
+  initialValues: Record<string, unknown>;
+  referencedItems: FormItem[];
 };
 
 export type RequestItem = {

@@ -10,7 +10,7 @@ import {
   useUpdateWebhookMutation,
   useDeleteWebhookMutation,
   useDeleteIntegrationMutation,
-  useRegenerateTokenMutation,
+  useRegenerateIntegrationTokenMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -77,9 +77,10 @@ export default () => {
     }
   }, [currentWorkspace, integrationId, deleteIntegrationMutation, navigate, t]);
 
-  const [regenerateTokenMutation, { loading: regenerateLoading }] = useRegenerateTokenMutation({
-    refetchQueries: ["GetMe"],
-  });
+  const [regenerateTokenMutation, { loading: regenerateLoading }] =
+    useRegenerateIntegrationTokenMutation({
+      refetchQueries: ["GetMe"],
+    });
 
   const handleRegenerateToken = useCallback(async () => {
     if (!integrationId) return;
@@ -90,11 +91,11 @@ export default () => {
     });
     if (result.errors) {
       Notification.error({
-        message: t("The attempt to regenerate the integration token has failed."),
+        message: t("The attempt to re-generate the integration token has failed."),
       });
     } else {
       Notification.success({
-        message: t("The integration token has been successfully regenerated!"),
+        message: t("Integration Token has been re-generated!"),
       });
     }
   }, [integrationId, regenerateTokenMutation, t]);

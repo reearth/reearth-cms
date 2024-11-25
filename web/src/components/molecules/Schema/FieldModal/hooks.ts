@@ -27,7 +27,7 @@ export default (
   open: boolean,
   onClose: () => void,
   onSubmit: (values: FormValues) => Promise<void>,
-  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean,
+  handleFieldKeyUnique: (key: string) => boolean,
 ) => {
   const [form] = Form.useForm<FormTypes>();
   const [buttonDisabled, setButtonDisabled] = useState(true);
@@ -137,8 +137,8 @@ export default (
       isTitle: !!selectedField?.isTitle,
       required: !!selectedField?.required,
       defaultValue: selectedField ? defaultValueGet(selectedField) : undefined,
-      min: selectedField?.typeProperty?.min,
-      max: selectedField?.typeProperty?.max,
+      min: selectedField?.typeProperty?.min ?? selectedField?.typeProperty?.numberMin,
+      max: selectedField?.typeProperty?.max ?? selectedField?.typeProperty?.numberMax,
       maxLength: selectedField?.typeProperty?.maxLength,
       values: selectedField?.typeProperty?.values,
       tags: selectedField?.typeProperty?.tags,
@@ -174,12 +174,13 @@ export default (
           select: { defaultValue, values: values.values ?? [] },
         };
       }
-      case "Integer": {
+      case "Integer":
+      case "Number": {
         const defaultValue = Array.isArray(values.defaultValue)
           ? values.defaultValue.filter((value: number | string) => typeof value === "number")
           : (values.defaultValue ?? "");
         return {
-          integer: {
+          [values.type === "Integer" ? "integer" : "number"]: {
             defaultValue,
             min: values.min ?? null,
             max: values.max ?? null,
@@ -235,7 +236,12 @@ export default (
   const values = Form.useWatch([], form);
   useEffect(() => {
     if (form.getFieldValue("title") && form.getFieldValue("key")) {
-      if (form.getFieldValue("supportedTypes")?.length === 0) {
+      if (
+        form.getFieldValue("values")?.length === 0 ||
+        form.getFieldValue("group")?.length === 0 ||
+        form.getFieldValue("supportedTypes")?.length === 0 ||
+        form.getFieldValue("tags")?.length === 0
+      ) {
         setButtonDisabled(true);
       } else {
         form
@@ -249,26 +255,21 @@ export default (
   }, [form, values]);
 
   const handleValuesChange = useCallback(async (changedValues: Record<string, unknown>) => {
-      const [key, value] = Object.entries(changedValues)[0];
-      let changedValue = value;
-      let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
-      if (Array.isArray(value)) {
-        changedValue = [...value].sort();
-      }
-      if (Array.isArray(defaultValue)) {
-        defaultValue = [...defaultValue].sort();
-      }
-
-      if (
-        JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))
-      ) {
-        changedKeys.current.delete(key);
-      } else {
-        changedKeys.current.add(key);
-      }
-    },
-    [],
-  );
+    const [key, value] = Object.entries(changedValues)[0];
+    let changedValue = value;
+    let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
+    if (Array.isArray(value)) {
+      changedValue = [...value].sort();
+    }
+    if (Array.isArray(defaultValue)) {
+      defaultValue = [...defaultValue].sort();
+    }
+    if (JSON.stringify(emptyConvert(changedValue)) === JSON.stringify(emptyConvert(defaultValue))) {
+      changedKeys.current.delete(key);
+    } else {
+      changedKeys.current.add(key);
+    }
+  }, []);
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -323,7 +324,7 @@ export default (
     (value: string) => {
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
+      } else if (validateKey(value) && handleFieldKeyUnique(value)) {
         prevKey.current = { key: value, isSuccess: true };
         return Promise.resolve();
       } else {
@@ -331,16 +332,13 @@ export default (
         return Promise.reject();
       }
     },
-    [handleFieldKeyUnique, selectedField?.id],
+    [handleFieldKeyUnique],
   );
 
   const isTitleDisabled = useMemo(
     () =>
-      isMeta ||
-      selectedType === "Group" ||
-      selectedType === "GeometryObject" ||
-      selectedType === "GeometryEditor",
-    [isMeta, selectedType],
+      !(selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText"),
+    [selectedType],
   );
 
   const ObjectSupportType = useMemo(
@@ -368,13 +366,54 @@ export default (
 
   useEffect(() => {
     if (open && !selectedField) {
-      if (selectedType === "GeometryObject") {
+      if (selectedType === "Select") {
+        form.setFieldValue("values", []);
+      } else if (selectedType === "Group") {
+        form.setFieldValue("group", "");
+      } else if (selectedType === "GeometryObject") {
         form.setFieldValue("supportedTypes", []);
       } else if (selectedType === "GeometryEditor") {
         form.setFieldValue("supportedTypes", EditorSupportType[0].value);
+      } else if (selectedType === "Tag") {
+        form.setFieldValue("tags", []);
       }
     }
   }, [EditorSupportType, form, open, selectedField, selectedType]);
+
+  const [emptyIndexes, setEmptyIndexes] = useState<number[]>([]);
+  const emptyValidator = useCallback(async (values?: string[]) => {
+    if (values) {
+      const indexes = values
+        .map((value: string, index: number) => value.length === 0 && index)
+        .filter(value => typeof value === "number");
+      setEmptyIndexes(indexes);
+      if (indexes.length) {
+        return Promise.reject();
+      }
+    }
+  }, []);
+
+  const [duplicatedIndexes, setDuplicatedIndexes] = useState<number[]>([]);
+  const duplicatedValidator = useCallback(async (values?: string[]) => {
+    if (values) {
+      const indexes = values
+        .map((value: string, selfIndex: number) => {
+          if (!value) return;
+          const index = values.findIndex(v => v === value);
+          return index < selfIndex && selfIndex;
+        })
+        .filter(value => typeof value === "number");
+      setDuplicatedIndexes(indexes);
+      if (indexes.length) {
+        return Promise.reject();
+      }
+    }
+  }, []);
+
+  const errorIndexes = useMemo(
+    () => new Set([...emptyIndexes, ...duplicatedIndexes]),
+    [duplicatedIndexes, emptyIndexes],
+  );
 
   return {
     form,
@@ -400,5 +439,8 @@ export default (
     isTitleDisabled,
     ObjectSupportType,
     EditorSupportType,
+    emptyValidator,
+    duplicatedValidator,
+    errorIndexes,
   };
 };

@@ -35,6 +35,20 @@ func (r *Thread) Save(_ context.Context, th *thread.Thread) error {
 	return nil
 }
 
+func (r *Thread) SaveAll(_ context.Context, th thread.List) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, t := range th {
+		if !r.f.CanWrite(t.Workspace()) {
+			return repo.ErrOperationDenied
+		}
+	}
+	r.data.StoreAll(th.ToMap())
+	return nil
+}
+
 func (r *Thread) Filtered(f repo.WorkspaceFilter) repo.Thread {
 	return &Thread{
 		data: r.data,

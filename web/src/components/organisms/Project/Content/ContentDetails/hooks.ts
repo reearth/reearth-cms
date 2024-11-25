@@ -10,11 +10,7 @@ import {
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import {
-  RequestUpdatePayload,
-  RequestState,
-  RequestItem,
-} from "@reearth-cms/components/molecules/Request/types";
+import { RequestState, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
@@ -32,7 +28,6 @@ import {
   useGetModelLazyQuery,
   useGetMeQuery,
   useUpdateItemMutation,
-  useUpdateRequestMutation,
   useSearchItemQuery,
   useGetGroupLazyQuery,
   FieldType as GQLFieldType,
@@ -532,32 +527,6 @@ export default () => {
     [createRequestMutation, currentProject?.id, t],
   );
 
-  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation({
-    refetchQueries: ["GetRequests"],
-  });
-
-  const handleRequestUpdate = useCallback(
-    async (data: RequestUpdatePayload) => {
-      if (!data.requestId) return;
-      const request = await updateRequestMutation({
-        variables: {
-          requestId: data.requestId,
-          title: data.title,
-          description: data.description,
-          state: data.state as GQLRequestState,
-          reviewersId: data.reviewersId,
-          items: data.items,
-        },
-      });
-      if (request.errors || !request.data?.updateRequest) {
-        Notification.error({ message: t("Failed to update request.") });
-        return;
-      }
-      Notification.success({ message: t("Successfully updated request!") });
-      setRequestModalShown(false);
-    },
-    [updateRequestMutation, t],
-  );
   const handleModalClose = useCallback(() => setRequestModalShown(false), []);
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
@@ -596,12 +565,10 @@ export default () => {
   const title = useMemo(() => {
     let result = currentModel?.name ?? "";
     if (currentItem) {
-      const titleField = currentModel?.schema.fields.find(field => field.isTitle);
-      const titleValue = titleField && initialFormValues[titleField.id];
-      result += ` / ${titleValue || currentItem.id}`;
+      result += ` / ${currentItem.title || currentItem.id}`;
     }
     return result;
-  }, [currentItem, currentModel?.name, currentModel?.schema.fields, initialFormValues]);
+  }, [currentItem, currentModel?.name]);
 
   return {
     loadingReference,
@@ -651,8 +618,6 @@ export default () => {
     handleNavigateToRequest,
     handleBack,
     handleRequestCreate,
-    updateRequestLoading,
-    handleRequestUpdate,
     handleModalClose,
     handleModalOpen,
     handleAddItemToRequestModalClose,

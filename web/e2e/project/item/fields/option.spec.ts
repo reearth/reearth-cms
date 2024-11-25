@@ -25,7 +25,12 @@ test("Option field creating and updating has succeeded", async ({ page }) => {
   await page.locator("#values").nth(0).click();
   await page.locator("#values").nth(0).fill("first");
   await page.getByRole("button", { name: "plus New" }).click();
+  await expect(page.getByText("Empty values are not allowed")).toBeVisible();
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.locator("#values").nth(1).click();
+  await page.locator("#values").nth(1).fill("first");
+  await expect(page.getByText("Option must be unique")).toBeVisible();
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
   await page.locator("#values").nth(1).fill("second");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
@@ -122,7 +127,7 @@ test("Option field editing has succeeded", async ({ page }) => {
   await page.locator("#values").nth(3).click();
   await page.locator("#values").nth(3).fill("fifth");
   await page.getByLabel("Support multiple values").check();
-  await page.getByLabel("Use as title").check();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
@@ -167,7 +172,7 @@ test("Option field editing has succeeded", async ({ page }) => {
   await expect(page.locator("thead")).toContainText("option1");
   await expect(page.getByText("third")).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByText("new option1(unique)Title")).toBeVisible();
+  await expect(page.getByText("new option1(unique)")).toBeVisible();
   await expect(page.getByText("new first")).toBeVisible();
   await expect(page.getByText("new third")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
