@@ -18,46 +18,58 @@ import (
 
 func TestToGeometryType(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    *exporters.GeometryType
 		expected *GeometryType
 	}{
 		{
+			name:     "success type point",
 			input:    lo.ToPtr(exporters.GeometryTypePoint),
 			expected: lo.ToPtr(GeometryTypePoint),
 		},
 		{
+			name:     "success type multi point",
 			input:    lo.ToPtr(exporters.GeometryTypeMultiPoint),
 			expected: lo.ToPtr(GeometryTypeMultiPoint),
 		},
 		{
+			name:     "success type line string",
 			input:    lo.ToPtr(exporters.GeometryTypeLineString),
 			expected: lo.ToPtr(GeometryTypeLineString),
 		},
 		{
+			name:     "success type multi line string",
 			input:    lo.ToPtr(exporters.GeometryTypeMultiLineString),
 			expected: lo.ToPtr(GeometryTypeMultiLineString),
 		},
 		{
+			name:     "success type polygon",
 			input:    lo.ToPtr(exporters.GeometryTypePolygon),
 			expected: lo.ToPtr(GeometryTypePolygon),
 		},
 		{
+			name:     "success type multi polygon",
 			input:    lo.ToPtr(exporters.GeometryTypeMultiPolygon),
 			expected: lo.ToPtr(GeometryTypeMultiPolygon),
 		},
 		{
+			name:     "success type geometry collection",
 			input:    lo.ToPtr(exporters.GeometryTypeGeometryCollection),
 			expected: lo.ToPtr(GeometryTypeGeometryCollection),
 		},
 		{
+			name:     "success nil",
 			input:    nil,
 			expected: nil,
 		},
 	}
 
 	for _, tt := range tests {
-		result := toGeometryType(tt.input)
-		assert.Equal(t, tt.expected, result, "For input %v, expected %v but got %v", tt.input, tt.expected, result)
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			result := toGeometryType(tt.input)
+			assert.Equal(t, tt.expected, result)
+		})
 	}
 }
 
@@ -132,6 +144,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result, err := FeatureCollectionFromItems(tt.inputVer, tt.inputSchema)
 			assert.Equal(t, tt.expected, result, "FeatureCollectionFromItems() expected %v but got %v", tt.expected, result)
 			if tt.expectError {

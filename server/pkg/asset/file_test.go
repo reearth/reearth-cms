@@ -1,7 +1,6 @@
 package asset
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -93,10 +92,9 @@ func TestFile_Files(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			flatten := tt.files.FlattenChildren()
-			if !reflect.DeepEqual(flatten, tt.want) {
-				t.Errorf("expected %v, got %v", tt.want, flatten)
-			}
+			assert.Equal(t, flatten, tt.want)
 		})
 	}
 }
@@ -246,10 +244,9 @@ func Test_File_RootPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.file.RootPath(tt.uuid)
-			if result != tt.want {
-				t.Errorf("expected %q, got %q", tt.want, result)
-			}
+			assert.Equal(t, result, tt.want)
 		})
 	}
 }
@@ -291,15 +288,15 @@ func Test_Clone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cloned := tt.file.Clone()
-			if !reflect.DeepEqual(cloned, tt.want) {
-				t.Errorf("expected %v, got %v", tt.want, cloned)
-			}
+			assert.Equal(t, cloned, tt.want)
 		})
 	}
 }
 
 func Test_FilePath(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t,
 		[]string{
 			"/hello/c.txt",

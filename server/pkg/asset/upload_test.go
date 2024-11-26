@@ -8,7 +8,7 @@ import (
 )
 
 func TestUpload_Upload(t *testing.T) {
-
+	t.Parallel()
 	projectID := NewProjectID()
 	timeNow := time.Now()
 	uploadWithData := &Upload{

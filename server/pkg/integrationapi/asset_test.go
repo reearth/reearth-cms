@@ -1,7 +1,6 @@
 package integrationapi
 
 import (
-	"reflect"
 	"testing"
 	"time"
 
@@ -109,11 +108,10 @@ func Test_NewAsset(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := NewAsset(tt.a, tt.f, tt.url, tt.all)
 
-			if !reflect.DeepEqual(result, tt.want) {
-				t.Errorf("want %+v, got %+v", tt.want, result)
-			}
+			assert.Equal(t, result, tt.want)
 		})
 	}
 }
@@ -160,9 +158,7 @@ func TestToAssetArchiveExtractionStatus(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			result := ToAssetArchiveExtractionStatus(tt.input)
-			if !reflect.DeepEqual(result, tt.expected) {
-				t.Errorf("ToAssetArchiveExtractionStatus() expected %v, got %v", tt.expected, result)
-			}
+			assert.Equal(t, result, tt.expected)
 		})
 	}
 }
