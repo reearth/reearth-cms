@@ -72,18 +72,6 @@ func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Oper
 	return schema.NewPackage(s, sList.Schema(m.Metadata()), gsm, rs), nil
 }
 
-func (i Schema) FindByGroup(ctx context.Context, gID id.GroupID, _ *usecase.Operator) (*schema.Schema, error) {
-	g, err := i.repos.Group.FindByID(ctx, gID)
-	if err != nil {
-		return nil, err
-	}
-	s, err := i.repos.Schema.FindByID(ctx, g.Schema())
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
-}
-
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, op *usecase.Operator) (*schema.Field, error) {
 	return Run1(ctx, op, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)

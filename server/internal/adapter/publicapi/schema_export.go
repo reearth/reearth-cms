@@ -3,11 +3,8 @@ package publicapi
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
@@ -28,9 +25,8 @@ func (c *Controller) GetSchemaJSON(ctx context.Context, pKey, mKey string) (Sche
 		return SchemaJSON{}, rerror.ErrNotFound
 	}
 
-	gsMap := buildGroupSchemaMap(ctx, sp.Schema(), c.usecases)
-	res := exporters.NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), exporters.BuildProperties(ctx, sp.Schema().Fields(), gsMap))
-
+	gsMap := exporters.BuildGroupSchemaMap(sp)
+	res := exporters.NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), exporters.BuildProperties(sp.Schema().Fields(), gsMap))
 	return toSchemaJSON(res), nil
 }
 
@@ -43,20 +39,4 @@ func toSchemaJSON(s exporters.SchemaJSON) SchemaJSON {
 		Type:        s.Type,
 		Properties:  s.Properties,
 	}
-}
-
-func buildGroupSchemaMap(ctx context.Context, sch *schema.Schema, uc *interfaces.Container) map[id.GroupID]*schema.Schema {
-	groupSchemaMap := make(map[id.GroupID]*schema.Schema)
-
-	for _, field := range sch.Fields() {
-		field.TypeProperty().Match(schema.TypePropertyMatch{
-			Group: func(fg *schema.FieldGroup) {
-				groupSchema, err := uc.Schema.FindByGroup(ctx, fg.Group(), nil)
-				if err == nil {
-					groupSchemaMap[fg.Group()] = groupSchema
-				}
-			},
-		})
-	}
-	return groupSchemaMap
 }

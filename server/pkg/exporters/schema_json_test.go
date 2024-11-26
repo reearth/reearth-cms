@@ -1,7 +1,6 @@
 package exporters
 
 import (
-	"context"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/group"
@@ -14,8 +13,6 @@ import (
 )
 
 func TestBuildProperties(t *testing.T) {
-	ctx := context.Background()
-
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()
 
@@ -65,7 +62,7 @@ func TestBuildProperties(t *testing.T) {
 	sf6 := schema.NewField(schema.NewURL().TypeProperty()).ID(fId6).Key(sfKey6).MustBuild()
 
 	fieldList := schema.FieldList{sf1, sf2, sf3, sf4, sf5, sf6}
-	gsMap :=  map[id.GroupID]*schema.Schema{gid: gs}
+	gsMap := map[id.GroupID]*schema.Schema{gid: gs}
 
 	expectedProperties := map[string]interface{}{
 		sfKey1.String(): map[string]interface{}{
@@ -113,9 +110,7 @@ func TestBuildProperties(t *testing.T) {
 		},
 	}
 
-
-
-	properties := BuildProperties(ctx, fieldList, gsMap)
+	properties := BuildProperties(fieldList, gsMap)
 	assert.Equal(t, expectedProperties, properties)
 }
 
@@ -151,4 +146,42 @@ func TestDetermineTypeAndFormat(t *testing.T) {
 			assert.Equal(t, tt.wantFmt, gotFmt)
 		})
 	}
+}
+
+func TestBuildGroupSchemaMap(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+
+	textFieldID := id.NewFieldID()
+	textFieldKey := id.RandomKey()
+	textField := schema.NewField(schema.NewText(lo.ToPtr(100)).TypeProperty()).ID(textFieldID).Key(textFieldKey).MustBuild()
+
+	assetField1 := schema.NewField(schema.NewAsset().TypeProperty()).ID(id.NewFieldID()).Key(id.NewKey("asset-key-1")).Multiple(true).MustBuild()
+	groupSchema1 := schema.New().ID(id.NewSchemaID()).Workspace(wid).Project(pid).Fields([]*schema.Field{assetField1}).MustBuild()
+
+	groupID1 := id.NewGroupID()
+	groupKey1 := id.RandomKey()
+	group1 := group.New().ID(groupID1).Name("group-1").Project(pid).Key(groupKey1).Schema(groupSchema1.ID()).MustBuild()
+
+	groupFieldID1 := id.NewFieldID()
+	groupFieldKey1 := id.NewKey("group-key-1")
+	groupField1 := schema.NewField(schema.NewGroup(group1.ID()).TypeProperty()).ID(groupFieldID1).Key(groupFieldKey1).Multiple(true).MustBuild()
+
+	textField2 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(id.NewFieldID()).Key(id.NewKey("text-key-2")).Multiple(false).MustBuild()
+	groupSchema2 := schema.New().ID(id.NewSchemaID()).Workspace(wid).Project(pid).Fields([]*schema.Field{textField2}).MustBuild()
+
+	groupID2 := id.NewGroupID()
+	groupKey2 := id.RandomKey()
+	group2 := group.New().ID(groupID2).Name("group-2").Project(pid).Key(groupKey2).Schema(groupSchema2.ID()).MustBuild()
+
+	groupFieldID2 := id.NewFieldID()
+	groupFieldKey2 := id.NewKey("group-key-2")
+	groupField2 := schema.NewField(schema.NewGroup(group2.ID()).TypeProperty()).ID(groupFieldID2).Key(groupFieldKey2).Multiple(false).MustBuild()
+
+	mainSchema := schema.New().ID(id.NewSchemaID()).Workspace(wid).Project(pid).Fields([]*schema.Field{textField, groupField1, groupField2}).MustBuild()
+	schemaPackage := schema.NewPackage(mainSchema, nil, map[id.GroupID]*schema.Schema{groupID1: groupSchema1, groupID2: groupSchema2}, nil)
+
+	expected := map[id.GroupID]*schema.Schema{groupID1: groupSchema1, groupID2: groupSchema2}
+	result := BuildGroupSchemaMap(schemaPackage)
+	assert.Equal(t, expected, result)
 }

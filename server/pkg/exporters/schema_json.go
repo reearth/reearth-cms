@@ -1,8 +1,6 @@
 package exporters
 
 import (
-	"context"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -30,7 +28,7 @@ func NewSchemaJSON(id string, title, description *string, pp map[string]interfac
 	}
 }
 
-func BuildProperties(ctx context.Context, f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]interface{} {
+func BuildProperties(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]interface{} {
 	properties := make(map[string]interface{})
 	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
@@ -84,7 +82,7 @@ func BuildProperties(ctx context.Context, f schema.FieldList, gsMap map[id.Group
 				if gsMap != nil {
 					gs := gsMap[f.Group()]
 					if gs != nil {
-						fieldSchema["items"] = BuildProperties(ctx, gs.Fields(), nil)
+						fieldSchema["items"] = BuildProperties(gs.Fields(), nil)
 					}
 				}
 			},
@@ -118,4 +116,19 @@ func determineTypeAndFormat(t value.Type) (string, string) {
 	default:
 		return "string", ""
 	}
+}
+
+func BuildGroupSchemaMap(sp *schema.Package) map[id.GroupID]*schema.Schema {
+	groupSchemaMap := make(map[id.GroupID]*schema.Schema)
+	for _, field := range sp.Schema().Fields() {
+		field.TypeProperty().Match(schema.TypePropertyMatch{
+			Group: func(fg *schema.FieldGroup) {
+				groupSchema := sp.GroupSchema(fg.Group())
+				if groupSchema != nil {
+					groupSchemaMap[fg.Group()] = groupSchema
+				}
+			},
+		})
+	}
+	return groupSchemaMap
 }
