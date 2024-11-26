@@ -75,6 +75,18 @@ func (m *VersionedSyncMap[K, V]) SaveOne(key K, value V, parent *version.Version
 	}
 }
 
+func (m *VersionedSyncMap[K, V]) SaveAll(key []K, value []V, parent []*version.VersionOrRef) {
+	if len(key) != len(value) || (parent != nil && len(key) != len(parent)) {
+		return
+	}
+	if len(key) == 0 {
+		return
+	}
+	for i := 0; i < len(key); i++ {
+		m.SaveOne(key[i], value[i], parent[i])
+	}
+}
+
 func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref version.Ref, vr *version.VersionOrRef) {
 	m.Range(func(k K, v *version.Values[V]) bool {
 		if k == key {

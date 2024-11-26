@@ -48,10 +48,9 @@ type Props = {
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
+  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
-
-export let viewerRef: CesiumViewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
@@ -67,6 +66,7 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
+  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -75,10 +75,6 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer?: CesiumViewer) => {
-    viewerRef = viewer;
-  };
-
   const renderPreview = useCallback(() => {
     switch (viewerType) {
       case "geo":
@@ -86,7 +82,7 @@ const AssetMolecule: React.FC<Props> = ({
           <GeoViewer
             url={assetUrl}
             assetFileExt={assetFileExt}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -95,13 +91,17 @@ const AssetMolecule: React.FC<Props> = ({
           <Geo3dViewer
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
       case "geo_mvt":
         return (
-          <MvtViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+          <MvtViewer
+            url={assetUrl}
+            onGetViewer={onGetViewer}
+            workspaceSettings={workspaceSettings}
+          />
         );
       case "image":
         return <ImageViewer url={assetUrl} />;
@@ -111,19 +111,23 @@ const AssetMolecule: React.FC<Props> = ({
         return (
           <GltfViewer
             url={assetUrl}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
       case "csv":
         return (
-          <CsvViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+          <CsvViewer
+            url={assetUrl}
+            onGetViewer={onGetViewer}
+            workspaceSettings={workspaceSettings}
+          />
         );
       case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
+  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
