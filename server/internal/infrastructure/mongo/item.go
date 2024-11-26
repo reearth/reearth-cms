@@ -240,7 +240,7 @@ func (r *Item) SaveAll(ctx context.Context, items item.List) error {
 		}
 	}
 	docs, ids := mongodoc.NewItems(items)
-	return r.client.SaveAll(ctx, ids, lo.ToAnySlice(docs), nil)
+	return r.client.SaveMany(ctx, ids, lo.ToAnySlice(docs))
 }
 
 func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {

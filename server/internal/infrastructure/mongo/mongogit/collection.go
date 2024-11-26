@@ -90,7 +90,7 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *vers
 	}
 
 	if err := version.MatchVersionOrRef(actualVr, nil, func(r version.Ref) error {
-		return c.UpdateRef(ctx, id, r, nil)
+		return c.DeleteRef(ctx, []string{id}, r)
 	}); err != nil {
 		return err
 	}
@@ -102,6 +102,62 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *vers
 		return rerror.ErrInternalBy(err)
 	}
 
+	return nil
+}
+
+func (c *Collection) SaveMany(ctx context.Context, ids []string, docs []any) error {
+	// validate input
+	if len(ids) != len(docs) {
+		return rerror.ErrInvalidParams
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+
+	// check if any of the ids are archived
+	q := bson.M{"id": bson.M{"$in": ids}}
+	if archived, err := c.IsArchived(ctx, q); err != nil {
+		return err
+	} else if archived {
+		return version.ErrArchived
+	}
+
+	// load items metas
+	oldMetas, err := c.metas(ctx, ids)
+	if err != nil {
+		return err
+	}
+
+	newDocs := make([]any, len(ids))
+
+	for i := 0; i < len(ids); i++ {
+		id, doc := ids[i], docs[i]
+
+		newMeta := Meta{
+			ObjectID: primitive.NewObjectIDFromTimestamp(util.Now()),
+			Version:  version.New(),
+			Refs:     []version.Ref{version.Latest},
+		}
+
+		meta := oldMetas[id]
+		if meta != nil {
+			newMeta.Parents = []version.Version{meta.Version}
+		}
+
+		newDocs[i] = &Document[any]{
+			Data: doc,
+			Meta: newMeta,
+		}
+	}
+
+	// remove latest ref from old docs
+	if err := c.DeleteRef(ctx, ids, version.Latest); err != nil {
+		return err
+	}
+
+	if _, err := c.client.Client().InsertMany(ctx, newDocs); err != nil {
+		return rerror.ErrInternalBy(err)
+	}
 	return nil
 }
 
@@ -126,14 +182,21 @@ func (c *Collection) SaveAll(ctx context.Context, ids []string, docs []any, pare
 	return nil
 }
 
-func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
+func (c *Collection) DeleteRef(ctx context.Context, ids []string, ref version.Ref) error {
 	if _, err := c.client.Client().UpdateMany(ctx, bson.M{
-		"id":    id,
+		"id":    bson.M{"$in": ids},
 		refsKey: bson.M{"$in": []string{ref.String()}},
 	}, bson.M{
 		"$pull": bson.M{refsKey: ref},
 	}); err != nil {
 		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
+	if err := c.DeleteRef(ctx, []string{id}, ref); err != nil {
+		return err
 	}
 
 	if dest != nil {
@@ -245,4 +308,18 @@ func (c *Collection) meta(ctx context.Context, id string, v *version.VersionOrRe
 		return nil, err
 	}
 	return &consumer.Result[0], nil
+}
+
+func (c *Collection) metas(ctx context.Context, ids []string) (map[string]*Meta, error) {
+	type idDoc struct {
+		ID string
+	}
+	consumer := mongox.SliceConsumer[Document[*idDoc]]{}
+	q := apply(version.Eq(version.Latest.OrVersion()), bson.M{
+		"id": bson.M{"$in": ids},
+	})
+	if err := c.client.Find(ctx, q, &consumer); err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	return lo.SliceToMap(consumer.Result, func(m Document[*idDoc]) (string, *Meta) { return m.Data.ID, &m.Meta }), nil
 }
