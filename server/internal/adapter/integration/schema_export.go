@@ -6,25 +6,12 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/exporters"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
-
-const defaultJSONSchemaVersion = "https://json-schema.org/draft/2020-12/schema"
-
-func NewSchemaJSON(id string, title, description *string, pp map[string]interface{}) integrationapi.SchemaJSON {
-	return integrationapi.SchemaJSON{
-		Schema:      defaultJSONSchemaVersion,
-		Id:          id,
-		Title:       title,
-		Description: description,
-		Type:        "object",
-		Properties:  pp,
-	}
-}
 
 func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelAsJSONRequestObject) (SchemaByModelAsJSONResponseObject, error) {
 	op := adapter.Operator(ctx)
@@ -43,7 +30,8 @@ func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelA
 		return SchemaByModelAsJSON404Response{}, err
 	}
 
-	res := NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(uc, sp.Schema().Fields(), ctx))
+	gsMap := buildGroupSchemaMap(ctx, sp.Schema(), uc)
+	res := exporters.NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), exporters.BuildProperties(ctx, sp.Schema().Fields(), gsMap))
 	return SchemaByModelAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -71,7 +59,7 @@ func (s *Server) MetadataSchemaByModelAsJSON(ctx context.Context, request Metada
 		return MetadataSchemaByModelAsJSON404Response{}, err
 	}
 
-	res := NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(uc, sp.MetaSchema().Fields(), ctx))
+	res := exporters.NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), exporters.BuildProperties(ctx, sp.MetaSchema().Fields(), nil))
 	return MetadataSchemaByModelAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -110,7 +98,8 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 		return SchemaByModelWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(uc, sch.Schema().Fields(), ctx))
+	gsMap := buildGroupSchemaMap(ctx, sch.Schema(), uc)
+	res := exporters.NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), exporters.BuildProperties(ctx, sch.Schema().Fields(), gsMap))
 	return SchemaByModelWithProjectAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -149,7 +138,7 @@ func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, req
 		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(uc, sch.MetaSchema().Fields(), ctx))
+	res := exporters.NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), exporters.BuildProperties(ctx, sch.MetaSchema().Fields(), nil))
 	return MetadataSchemaByModelWithProjectAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -172,7 +161,8 @@ func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONR
 		return SchemaByIDAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSON(sch.ID().String(), nil, nil, buildProperties(uc, sch.Fields(), ctx))
+	gsMap := buildGroupSchemaMap(ctx, sch, uc)
+	res := exporters.NewSchemaJSON(sch.ID().String(), nil, nil, exporters.BuildProperties(ctx, sch.Fields(), gsMap))
 	return SchemaByIDAsJSON200JSONResponse{
 		Schema:     res.Schema,
 		Id:         res.Id,
@@ -201,7 +191,8 @@ func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request Schema
 		return SchemaByIDWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSON(sch.ID().String(), nil, nil, buildProperties(uc, sch.Fields(), ctx))
+	gsMap := buildGroupSchemaMap(ctx, sch, uc)
+	res := exporters.NewSchemaJSON(sch.ID().String(), nil, nil, exporters.BuildProperties(ctx, sch.Fields(), gsMap))
 	return SchemaByIDWithProjectAsJSON200JSONResponse{
 		Schema:     res.Schema,
 		Id:         res.Id,
@@ -210,91 +201,17 @@ func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request Schema
 	}, nil
 }
 
-func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.Context) map[string]interface{} {
-	properties := make(map[string]interface{})
-	for _, field := range f {
-		fieldType, format := determineTypeAndFormat(field.Type())
-		fieldSchema := map[string]interface{}{
-			"type":        fieldType,
-			"title":       field.Name(),
-			"description": field.Description(),
-		}
-		if format != "" {
-			fieldSchema["format"] = format
-		}
-
-		var maxLength *int
+func buildGroupSchemaMap(ctx context.Context, sch *schema.Schema, uc *interfaces.Container) map[id.GroupID]*schema.Schema {
+	groupSchemaMap := make(map[id.GroupID]*schema.Schema)
+	for _, field := range sch.Fields() {
 		field.TypeProperty().Match(schema.TypePropertyMatch{
-			Text: func(f *schema.FieldText) {
-				if maxLength = f.MaxLength(); maxLength != nil {
-					fieldSchema["maxLength"] = *maxLength
-				}
-			},
-			TextArea: func(f *schema.FieldTextArea) {
-				if maxLength = f.MaxLength(); maxLength != nil {
-					fieldSchema["maxLength"] = *maxLength
-				}
-			},
-			RichText: func(f *schema.FieldRichText) {
-				if maxLength = f.MaxLength(); maxLength != nil {
-					fieldSchema["maxLength"] = *maxLength
-				}
-			},
-			Markdown: func(f *schema.FieldMarkdown) {
-				if maxLength = f.MaxLength(); maxLength != nil {
-					fieldSchema["maxLength"] = *maxLength
-				}
-			},
-			Integer: func(f *schema.FieldInteger) {
-				if min := f.Min(); min != nil {
-					fieldSchema["minimum"] = *min
-				}
-				if max := f.Max(); max != nil {
-					fieldSchema["maximum"] = *max
-				}
-			},
-			Number: func(f *schema.FieldNumber) {
-				if min := f.Min(); min != nil {
-					fieldSchema["minimum"] = *min
-				}
-				if max := f.Max(); max != nil {
-					fieldSchema["maximum"] = *max
-				}
-			},
-			Group: func(f *schema.FieldGroup) {
-				gs, _ := uc.Schema.FindByGroup(ctx, f.Group(), nil)
-				if gs != nil {
-					fieldSchema["items"] = buildProperties(uc, gs.Fields(), ctx)
+			Group: func(fg *schema.FieldGroup) {
+				groupSchema, err := uc.Schema.FindByGroup(ctx, fg.Group(), nil)
+				if err == nil {
+					groupSchemaMap[fg.Group()] = groupSchema
 				}
 			},
 		})
-
-		properties[field.Key().String()] = fieldSchema
 	}
-	return properties
-}
-
-func determineTypeAndFormat(t value.Type) (string, string) {
-	switch t {
-	case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeSelect, value.TypeTag, value.TypeReference:
-		return "string", ""
-	case value.TypeInteger:
-		return "integer", ""
-	case value.TypeNumber:
-		return "number", ""
-	case value.TypeBool, value.TypeCheckbox:
-		return "boolean", ""
-	case value.TypeDateTime:
-		return "string", "date-time"
-	case value.TypeURL:
-		return "string", "uri"
-	case value.TypeAsset:
-		return "string", "binary"
-	case value.TypeGroup:
-		return "array", ""
-	case value.TypeGeometryObject, value.TypeGeometryEditor:
-		return "object", ""
-	default:
-		return "string", ""
-	}
+	return groupSchemaMap
 }
