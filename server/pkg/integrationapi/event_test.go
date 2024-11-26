@@ -61,9 +61,7 @@ func Test_NewOperator(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			result := NewOperator(test.input)
-			if !assert.Equal(t, result, test.want) {
-				t.Errorf("expected %+v but got %+v", test.want, result)
-			}
+			assert.Equal(t, result, test.want)
 		})
 
 	}
@@ -163,12 +161,8 @@ func TestNewEventWith(t *testing.T) {
 			t.Parallel()
 
 			result, err := NewEventWith(test.args.event, test.args.override, test.args.v, test.args.urlResolver)
-			if !assert.Equal(t, result, test.want) {
-				t.Errorf("expected %+v but got %+v", test.want, result)
-			}
-			if !assert.Equal(t, err, test.wantErr) {
-				t.Errorf("expected %+v but got %+v", test.wantErr, err)
-			}
+			assert.Equal(t, result, test.want)
+			assert.Equal(t, err, test.wantErr)
 		})
 	}
 }
