@@ -75,7 +75,7 @@ func TestBuildProperties(t *testing.T) {
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf2}).MustBuild()
 	lo.Must0(r.Schema.Save(ctx, s1))
 
-	expectedProperties := &map[string]interface{}{
+	expectedProperties := map[string]interface{}{
 		sfKey1.String(): map[string]interface{}{
 			"type":        "string",
 			"title":       "",
@@ -93,7 +93,7 @@ func TestBuildProperties(t *testing.T) {
 			"title":       "",
 			"type":        "array",
 			"description": "",
-			"items": &map[string]interface{}{
+			"items": map[string]interface{}{
 				"asset-key": map[string]interface{}{
 					"description": "",
 					"format":      "binary",
