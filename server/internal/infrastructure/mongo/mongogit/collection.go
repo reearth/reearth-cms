@@ -218,13 +218,18 @@ func (c *Collection) IsArchived(ctx context.Context, filter any) (bool, error) {
 		metaKey: true,
 	})
 
-	if err := c.client.FindOne(ctx, q, &cons); err != nil {
+	if err := c.client.Find(ctx, q, &cons); err != nil {
 		if errors.Is(err, rerror.ErrNotFound) || err == io.EOF {
 			return false, nil
 		}
 		return false, err
 	}
-	return cons.Result[0].Archived, nil
+	for _, m := range cons.Result {
+		if m.Archived {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func (c *Collection) ArchiveOne(ctx context.Context, filter bson.M, archived bool) error {
