@@ -606,7 +606,7 @@ func TestCollection_DeleteRef(t *testing.T) {
 	assert.NoError(t, col.DeleteRef(ctx, []string{"x", "y"}, "a"))
 	got := c.FindOne(ctx, bson.M{"id": "x", versionKey: v1})
 	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v1, Refs: []version.Ref{"a", "b"}}, meta)
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v1, Refs: []version.Ref{"b"}}, meta)
 
 	got = c.FindOne(ctx, bson.M{"id": "x", versionKey: v2})
 	assert.NoError(t, got.Decode(&meta))
