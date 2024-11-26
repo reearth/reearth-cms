@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
 func (c *Controller) GetSchemaJSON(ctx context.Context, pKey, mKey string) (SchemaJSON, error) {
@@ -26,10 +27,10 @@ func (c *Controller) GetSchemaJSON(ctx context.Context, pKey, mKey string) (Sche
 		return SchemaJSON{}, rerror.ErrNotFound
 	}
 
-	return NewSchemaJSON(m, buildProperties(c.usecases, sp.Schema().Fields(), ctx)), nil
+	return NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(c.usecases, sp.Schema().Fields(), ctx)), nil
 }
 
-func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.Context) *map[string]interface{} {
+func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.Context) map[string]interface{} {
 	properties := make(map[string]interface{})
 	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
@@ -42,25 +43,24 @@ func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.C
 			fieldSchema["format"] = format
 		}
 
-		var maxLength *int
 		field.TypeProperty().Match(schema.TypePropertyMatch{
 			Text: func(f *schema.FieldText) {
-				if maxLength = f.MaxLength(); maxLength != nil {
+				if maxLength := f.MaxLength(); maxLength != nil {
 					fieldSchema["maxLength"] = *maxLength
 				}
 			},
 			TextArea: func(f *schema.FieldTextArea) {
-				if maxLength = f.MaxLength(); maxLength != nil {
+				if maxLength := f.MaxLength(); maxLength != nil {
 					fieldSchema["maxLength"] = *maxLength
 				}
 			},
 			RichText: func(f *schema.FieldRichText) {
-				if maxLength = f.MaxLength(); maxLength != nil {
+				if maxLength := f.MaxLength(); maxLength != nil {
 					fieldSchema["maxLength"] = *maxLength
 				}
 			},
 			Markdown: func(f *schema.FieldMarkdown) {
-				if maxLength = f.MaxLength(); maxLength != nil {
+				if maxLength := f.MaxLength(); maxLength != nil {
 					fieldSchema["maxLength"] = *maxLength
 				}
 			},
@@ -90,7 +90,7 @@ func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.C
 
 		properties[field.Key().String()] = fieldSchema
 	}
-	return &properties
+	return properties
 }
 
 func determineTypeAndFormat(t value.Type) (string, string) {

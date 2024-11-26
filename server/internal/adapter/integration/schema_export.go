@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
@@ -16,22 +15,13 @@ import (
 
 const defaultJSONSchemaVersion = "https://json-schema.org/draft/2020-12/schema"
 
-func NewSchemaJSON(s *schema.Schema, pp *map[string]interface{}) integrationapi.SchemaJSON {
+func NewSchemaJSON(id string, title, description *string, pp map[string]interface{}) integrationapi.SchemaJSON {
 	return integrationapi.SchemaJSON{
-		Schema:     lo.ToPtr(defaultJSONSchemaVersion),
-		Id:         s.ID().Ref().StringRef(),
-		Type:       lo.ToPtr("object"),
-		Properties: pp,
-	}
-}
-
-func NewSchemaJSONWitModel(m *model.Model, pp *map[string]interface{}) integrationapi.SchemaJSON {
-	return integrationapi.SchemaJSON{
-		Schema:      lo.ToPtr(defaultJSONSchemaVersion),
-		Id:          m.ID().Ref().StringRef(),
-		Title:       lo.ToPtr(m.Name()),
-		Description: lo.ToPtr(m.Description()),
-		Type:        lo.ToPtr("object"),
+		Schema:      defaultJSONSchemaVersion,
+		Id:          id,
+		Title:       title,
+		Description: description,
+		Type:        "object",
 		Properties:  pp,
 	}
 }
@@ -53,7 +43,7 @@ func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelA
 		return SchemaByModelAsJSON404Response{}, err
 	}
 
-	res := NewSchemaJSONWitModel(m, buildProperties(uc, sp.Schema().Fields(), ctx))
+	res := NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(uc, sp.Schema().Fields(), ctx))
 	return SchemaByModelAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -81,7 +71,7 @@ func (s *Server) MetadataSchemaByModelAsJSON(ctx context.Context, request Metada
 		return MetadataSchemaByModelAsJSON404Response{}, err
 	}
 
-	res := NewSchemaJSONWitModel(m, buildProperties(uc, sp.MetaSchema().Fields(), ctx))
+	res := NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(uc, sp.MetaSchema().Fields(), ctx))
 	return MetadataSchemaByModelAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -120,7 +110,7 @@ func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request Sch
 		return SchemaByModelWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSONWitModel(m, buildProperties(uc, sch.Schema().Fields(), ctx))
+	res := NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(uc, sch.Schema().Fields(), ctx))
 	return SchemaByModelWithProjectAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -159,7 +149,7 @@ func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, req
 		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSONWitModel(m, buildProperties(uc, sch.MetaSchema().Fields(), ctx))
+	res := NewSchemaJSON(m.ID().String(), lo.ToPtr(m.Name()), lo.ToPtr(m.Description()), buildProperties(uc, sch.MetaSchema().Fields(), ctx))
 	return MetadataSchemaByModelWithProjectAsJSON200JSONResponse{
 		Schema:      res.Schema,
 		Id:          res.Id,
@@ -182,7 +172,7 @@ func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONR
 		return SchemaByIDAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSON(sch, buildProperties(uc, sch.Fields(), ctx))
+	res := NewSchemaJSON(sch.ID().String(), nil, nil, buildProperties(uc, sch.Fields(), ctx))
 	return SchemaByIDAsJSON200JSONResponse{
 		Schema:     res.Schema,
 		Id:         res.Id,
@@ -211,7 +201,7 @@ func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request Schema
 		return SchemaByIDWithProjectAsJSON400Response{}, err
 	}
 
-	res := NewSchemaJSON(sch, buildProperties(uc, sch.Fields(), ctx))
+	res := NewSchemaJSON(sch.ID().String(), nil, nil, buildProperties(uc, sch.Fields(), ctx))
 	return SchemaByIDWithProjectAsJSON200JSONResponse{
 		Schema:     res.Schema,
 		Id:         res.Id,
@@ -220,7 +210,7 @@ func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request Schema
 	}, nil
 }
 
-func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.Context) *map[string]interface{} {
+func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.Context) map[string]interface{} {
 	properties := make(map[string]interface{})
 	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
@@ -281,7 +271,7 @@ func buildProperties(uc *interfaces.Container, f schema.FieldList, ctx context.C
 
 		properties[field.Key().String()] = fieldSchema
 	}
-	return &properties
+	return properties
 }
 
 func determineTypeAndFormat(t value.Type) (string, string) {

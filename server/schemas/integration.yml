@@ -1831,6 +1831,7 @@ components:
           format: date-time
     schemaJSON:
       type: object
+      required: ["$schema", "$id", "type", "properties"]
       properties:
         $schema:
           type: string
