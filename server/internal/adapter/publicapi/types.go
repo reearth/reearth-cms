@@ -215,17 +215,28 @@ func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
 const defaultJSONSchemaVersion = "https://json-schema.org/draft/2020-12/schema"
 
 type SchemaJSON struct {
-	Schema      string                 `json:"schema"`
-	Id          string                 `json:"id"`
-	Title       *string                `json:"title,omitempty"`
-	Description *string                `json:"description,omitempty"`
-	Type        string                 `json:"type"`
-	Properties  map[string]interface{} `json:"properties"`
+	Id          *string                         `json:"id,omitempty"`
+	Schema      *string                         `json:"schema,omitempty"`
+	Description *string                         `json:"description,omitempty"`
+	Properties  map[string]SchemaJSONProperties `json:"properties"`
+	Title       *string                         `json:"title,omitempty"`
+	Type        string                          `json:"type"`
 }
 
-func NewSchemaJSON(id string, title, description *string, pp map[string]interface{}) SchemaJSON {
+type SchemaJSONProperties struct {
+	Description *string     `json:"description,omitempty"`
+	Format      *string     `json:"format,omitempty"`
+	Items       *SchemaJSON `json:"items,omitempty"`
+	MaxLength   *int        `json:"maxLength,omitempty"`
+	Maximum     *float64    `json:"maximum,omitempty"`
+	Minimum     *float64    `json:"minimum,omitempty"`
+	Title       *string     `json:"title,omitempty"`
+	Type        string      `json:"type"`
+}
+
+func NewSchemaJSON(id, title, description *string, pp map[string]SchemaJSONProperties) SchemaJSON {
 	return SchemaJSON{
-		Schema:      defaultJSONSchemaVersion,
+		Schema:      lo.ToPtr(defaultJSONSchemaVersion),
 		Id:          id,
 		Title:       title,
 		Description: description,

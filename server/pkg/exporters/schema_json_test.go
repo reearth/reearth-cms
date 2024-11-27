@@ -64,49 +64,51 @@ func TestBuildProperties(t *testing.T) {
 	fieldList := schema.FieldList{sf1, sf2, sf3, sf4, sf5, sf6}
 	gsMap := map[id.GroupID]*schema.Schema{gid: gs}
 
-	expectedProperties := map[string]interface{}{
-		sfKey1.String(): map[string]interface{}{
-			"type":        "string",
-			"title":       "",
-			"description": "",
-			"maxLength":   100,
+	expectedProperties := map[string]SchemaJSONProperties{
+		sfKey1.String(): {
+			Type:        "string",
+			Title:       lo.ToPtr(""),
+			Description: lo.ToPtr(""),
+			MaxLength:   lo.ToPtr(100),
 		},
-		sfKey2.String(): map[string]interface{}{
-			"type":        "integer",
-			"title":       "",
-			"description": "",
-			"minimum":     int64(1),
-			"maximum":     int64(100),
+		sfKey2.String(): {
+			Type:        "integer",
+			Title:       lo.ToPtr(""),
+			Description: lo.ToPtr(""),
+			Minimum:     lo.ToPtr(float64(1)),
+			Maximum:     lo.ToPtr(float64(100)),
 		},
-		sfKey3.String(): map[string]interface{}{
-			"title":       "",
-			"type":        "array",
-			"description": "",
-			"items": map[string]interface{}{
-				"asset-key": map[string]interface{}{
-					"description": "",
-					"format":      "binary",
-					"title":       "",
-					"type":        "string",
-				},
-			},
+		sfKey3.String(): {
+			Title:       lo.ToPtr(""),
+			Type:        "array",
+			Description: lo.ToPtr(""),
+			Items: &SchemaJSON{
+				Type: "object",
+				Properties: map[string]SchemaJSONProperties{
+					"asset-key": {
+						Description: lo.ToPtr(""),
+						Format:      lo.ToPtr("binary"),
+						Title:       lo.ToPtr(""),
+						Type:        "string",
+					},
+				}},
 		},
-		sfKey4.String(): map[string]interface{}{
-			"type":        "boolean",
-			"title":       "",
-			"description": "",
+		sfKey4.String(): {
+			Type:        "boolean",
+			Title:       lo.ToPtr(""),
+			Description: lo.ToPtr(""),
 		},
-		sfKey5.String(): map[string]interface{}{
-			"type":        "string",
-			"title":       "",
-			"description": "",
-			"format":      "date-time",
+		sfKey5.String(): {
+			Type:        "string",
+			Title:       lo.ToPtr(""),
+			Description: lo.ToPtr(""),
+			Format:      lo.ToPtr("date-time"),
 		},
-		sfKey6.String(): map[string]interface{}{
-			"type":        "string",
-			"title":       "",
-			"description": "",
-			"format":      "uri",
+		sfKey6.String(): {
+			Type:        "string",
+			Title:       lo.ToPtr(""),
+			Description: lo.ToPtr(""),
+			Format:      lo.ToPtr("uri"),
 		},
 	}
 

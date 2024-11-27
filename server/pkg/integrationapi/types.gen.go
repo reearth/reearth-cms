@@ -553,12 +553,24 @@ type SchemaField struct {
 
 // SchemaJSON defines model for schemaJSON.
 type SchemaJSON struct {
-	Id          string                 `json:"$id"`
-	Schema      string                 `json:"$schema"`
-	Description *string                `json:"description,omitempty"`
-	Properties  map[string]interface{} `json:"properties"`
-	Title       *string                `json:"title,omitempty"`
-	Type        string                 `json:"type"`
+	Id          *string                         `json:"$id,omitempty"`
+	Schema      *string                         `json:"$schema,omitempty"`
+	Description *string                         `json:"description,omitempty"`
+	Properties  map[string]SchemaJSONProperties `json:"properties"`
+	Title       *string                         `json:"title,omitempty"`
+	Type        string                          `json:"type"`
+}
+
+// SchemaJSONProperties defines model for schemaJSONProperties.
+type SchemaJSONProperties struct {
+	Description *string     `json:"description,omitempty"`
+	Format      *string     `json:"format,omitempty"`
+	Items       *SchemaJSON `json:"items,omitempty"`
+	MaxLength   *int        `json:"maxLength,omitempty"`
+	Maximum     *float64    `json:"maximum,omitempty"`
+	Minimum     *float64    `json:"minimum,omitempty"`
+	Title       *string     `json:"title,omitempty"`
+	Type        string      `json:"type"`
 }
 
 // TagResponse defines model for tagResponse.

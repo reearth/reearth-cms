@@ -1831,7 +1831,7 @@ components:
           format: date-time
     schemaJSON:
       type: object
-      required: ["$schema", "$id", "type", "properties"]
+      required: ["type", "properties"]
       properties:
         $schema:
           type: string
@@ -1845,7 +1845,30 @@ components:
           type: string
         properties:
           type: object
-          additionalProperties: true
+          additionalProperties:
+            $ref: '#/components/schemas/schemaJSONProperties'
+    schemaJSONProperties:
+      type: object
+      required: ["type"]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+        minimum:
+          type: number
+          format: double
+        maximum:
+          type: number
+          format: double
+        maxLength:
+          type: integer
+        items:
+          $ref: '#/components/schemas/schemaJSON'
     valueType:
       type: string
       enum:
