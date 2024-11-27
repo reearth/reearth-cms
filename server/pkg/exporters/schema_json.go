@@ -86,10 +86,10 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 			},
 			Integer: func(f *schema.FieldInteger) {
 				if min := f.Min(); min != nil {
-					fieldSchema.Minimum = Int64ToFloat64(min)
+					fieldSchema.Minimum = int64ToFloat64(min)
 				}
 				if max := f.Max(); max != nil {
-					fieldSchema.Maximum = Int64ToFloat64(max)
+					fieldSchema.Maximum = int64ToFloat64(max)
 				}
 			},
 			Number: func(f *schema.FieldNumber) {
@@ -126,7 +126,7 @@ func BuildItems(f schema.FieldList) *SchemaJSON {
 	}
 }
 
-func Int64ToFloat64(input *int64) *float64 {
+func int64ToFloat64(input *int64) *float64 {
 	if input == nil {
 		return nil
 	}
