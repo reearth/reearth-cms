@@ -39,10 +39,12 @@ type Config struct {
 	S3           S3Config          `pp:",omitempty"`
 	Task         gcp.TaskConfig    `pp:",omitempty"`
 	AWSTask      aws.TaskConfig    `pp:",omitempty"`
-	AssetBaseURL string            `pp:",omitempty"`
 	Web          map[string]string `pp:",omitempty"`
 	Web_Config   JSON              `pp:",omitempty"`
 	Web_Disabled bool              `pp:",omitempty"`
+	// asset
+	Asset_Public bool   `pp:",omitempty"`
+	AssetBaseURL string `pp:",omitempty"`
 	// auth
 	Auth          AuthConfigs    `pp:",omitempty"`
 	Auth0         Auth0Config    `pp:",omitempty"`

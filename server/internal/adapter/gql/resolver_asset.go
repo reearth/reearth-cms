@@ -122,7 +122,7 @@ func (r *mutationResolver) DecompressAsset(ctx context.Context, input gqlmodel.D
 	}
 
 	uc := usecases(ctx).Asset
-	res, err2 := uc.DecompressByID(ctx, aid, getOperator(ctx))
+	res, err2 := uc.Decompress(ctx, aid, getOperator(ctx))
 	if err2 != nil {
 		return nil, err2
 	}

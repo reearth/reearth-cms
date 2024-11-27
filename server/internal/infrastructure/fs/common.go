@@ -8,7 +8,7 @@ import (
 const (
 	fileSizeLimit int64 = 10 * 1024 * 1024 * 1024 // 10GB
 	assetDir            = "assets"
-	defaultBase         = "http://localhost:8080/assets"
+	defaultBase         = "http://localhost:8080"
 )
 
 var (

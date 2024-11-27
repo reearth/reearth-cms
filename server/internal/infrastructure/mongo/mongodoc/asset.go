@@ -24,6 +24,7 @@ type AssetDocument struct {
 	Thread                  string
 	ArchiveExtractionStatus string
 	FlatFiles               bool
+	Public                  bool
 }
 
 type AssetAndFileDocument struct {
@@ -81,6 +82,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		Thread:                  a.Thread().String(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
 		FlatFiles:               a.FlatFiles(),
+		Public:                  a.Public(),
 	}, aid
 }
 
@@ -108,7 +110,8 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		UUID(d.UUID).
 		Thread(thid).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus))).
-		FlatFiles(d.FlatFiles)
+		FlatFiles(d.FlatFiles).
+		Public(d.Public)
 
 	if d.User != nil {
 		uid, err := accountdomain.UserIDFrom(*d.User)
