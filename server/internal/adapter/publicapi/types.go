@@ -212,8 +212,6 @@ func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
 	}
 }
 
-const defaultJSONSchemaVersion = "https://json-schema.org/draft/2020-12/schema"
-
 type SchemaJSON struct {
 	Id          *string                         `json:"$id,omitempty"`
 	Schema      *string                         `json:"$schema,omitempty"`
@@ -232,17 +230,6 @@ type SchemaJSONProperties struct {
 	Minimum     *float64    `json:"minimum,omitempty"`
 	Title       *string     `json:"title,omitempty"`
 	Type        string      `json:"type"`
-}
-
-func NewSchemaJSON(id, title, description *string, pp map[string]SchemaJSONProperties) SchemaJSON {
-	return SchemaJSON{
-		Schema:      lo.ToPtr(defaultJSONSchemaVersion),
-		Id:          id,
-		Title:       title,
-		Description: description,
-		Type:        "object",
-		Properties:  pp,
-	}
 }
 
 // GeoJSON
