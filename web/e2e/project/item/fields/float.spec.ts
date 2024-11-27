@@ -79,7 +79,7 @@ test("Float field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new float1 description");
   await page.getByLabel("Support multiple values").check();
-  await page.getByLabel("Use as title").check();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Set minimum value").click();
   await page.getByLabel("Set minimum value").fill("10.1");
@@ -112,7 +112,7 @@ test("Float field editing has succeeded", async ({ page }) => {
   await expect(page.locator("thead")).toContainText("new float1");
   await expect(page.getByRole("cell", { name: "1.1", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByText("new float1(unique)Title")).toBeVisible();
+  await expect(page.getByText("new float1(unique)")).toBeVisible();
   await expect(page.getByRole("spinbutton").nth(0)).toHaveValue("2.2");
   await expect(page.getByRole("spinbutton").nth(1)).toHaveValue("3.3");
   await page.getByRole("button", { name: "Save" }).click();

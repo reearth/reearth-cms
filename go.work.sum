@@ -2602,6 +2602,8 @@ github.com/reearth/reearthx v0.0.0-20241023075926-e29bdd6c4ae3 h1:aFm6QNDFs08EKl
 github.com/reearth/reearthx v0.0.0-20241023075926-e29bdd6c4ae3/go.mod h1:d1WXkdCVzSoc8pl3vW9/9yKfk4fdoZQZhX8Ot8jqgnc=
 github.com/reearth/reearthx v0.0.0-20241025125329-f01a05daf443 h1:r3bAWyEVAMX60W70OPeWd0uA+2sLhXgox41rQb2XKDY=
 github.com/reearth/reearthx v0.0.0-20241025125329-f01a05daf443/go.mod h1:d1WXkdCVzSoc8pl3vW9/9yKfk4fdoZQZhX8Ot8jqgnc=
+github.com/reearth/reearthx v0.0.0-20241121115830-a7f7b61afe26 h1:epJj+4FT1OkHr4uOugcGU70pT3SKK1VquLi1z8aE2wk=
+github.com/reearth/reearthx v0.0.0-20241121115830-a7f7b61afe26/go.mod h1:/ByvE9o0WANHL2nhOyZjOXWwY8cCgze0OmwyNzxcYoA=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/robertkrimen/godocdown v0.0.0-20130622164427-0bfa04905481 h1:jMxcLa+VjJKhpCwbLUXAD15wJ+hhvXMLujCl3MkXpfM=
