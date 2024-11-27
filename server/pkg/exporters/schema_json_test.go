@@ -66,49 +66,35 @@ func TestBuildProperties(t *testing.T) {
 
 	expectedProperties := map[string]SchemaJSONProperties{
 		sfKey1.String(): {
-			Type:        "string",
-			Title:       lo.ToPtr(""),
-			Description: lo.ToPtr(""),
-			MaxLength:   lo.ToPtr(100),
+			Type:      "string",
+			MaxLength: lo.ToPtr(100),
 		},
 		sfKey2.String(): {
-			Type:        "integer",
-			Title:       lo.ToPtr(""),
-			Description: lo.ToPtr(""),
-			Minimum:     lo.ToPtr(float64(1)),
-			Maximum:     lo.ToPtr(float64(100)),
+			Type:    "integer",
+			Minimum: lo.ToPtr(float64(1)),
+			Maximum: lo.ToPtr(float64(100)),
 		},
 		sfKey3.String(): {
-			Title:       lo.ToPtr(""),
-			Type:        "array",
-			Description: lo.ToPtr(""),
+			Type: "array",
 			Items: &SchemaJSON{
 				Type: "object",
 				Properties: map[string]SchemaJSONProperties{
 					"asset-key": {
-						Description: lo.ToPtr(""),
-						Format:      lo.ToPtr("binary"),
-						Title:       lo.ToPtr(""),
-						Type:        "string",
+						Format: lo.ToPtr("binary"),
+						Type:   "string",
 					},
 				}},
 		},
 		sfKey4.String(): {
-			Type:        "boolean",
-			Title:       lo.ToPtr(""),
-			Description: lo.ToPtr(""),
+			Type: "boolean",
 		},
 		sfKey5.String(): {
-			Type:        "string",
-			Title:       lo.ToPtr(""),
-			Description: lo.ToPtr(""),
-			Format:      lo.ToPtr("date-time"),
+			Type:   "string",
+			Format: lo.ToPtr("date-time"),
 		},
 		sfKey6.String(): {
-			Type:        "string",
-			Title:       lo.ToPtr(""),
-			Description: lo.ToPtr(""),
-			Format:      lo.ToPtr("uri"),
+			Type:   "string",
+			Format: lo.ToPtr("uri"),
 		},
 	}
 

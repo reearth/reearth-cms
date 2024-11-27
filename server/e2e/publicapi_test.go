@@ -365,45 +365,37 @@ func TestPublicAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		IsEqual(map[string]any{
-			"description": "",
-			"$id":          publicAPIModelID,
+			"$id": publicAPIModelID,
 			"properties": map[string]any{
 				"asset": map[string]any{
-					"description": "",
-					"title":       "asset",
-					"type":        "string",
-					"format":      "binary",
+					"title":  "asset",
+					"type":   "string",
+					"format": "binary",
 				},
 				"asset2": map[string]any{
-					"description": "",
-					"title":       "asset2",
-					"type":        "string",
-					"format":      "binary",
+					"title":  "asset2",
+					"type":   "string",
+					"format": "binary",
 				},
 				"geometry-editor": map[string]any{
-					"description": "",
-					"title":       "geometry-editor",
-					"type":        "object",
+					"title": "geometry-editor",
+					"type":  "object",
 				},
 				"geometry-object": map[string]any{
-					"description": "",
-					"title":       "geometry-object",
-					"type":        "object",
+					"title": "geometry-object",
+					"type":  "object",
 				},
 				"test-field-1": map[string]any{
-					"description": "",
-					"title":       "test-field-1",
-					"type":        "string",
+					"title": "test-field-1",
+					"type":  "string",
 				},
 				"test-field-2": map[string]any{
-					"description": "",
-					"title":       "test-field-2",
-					"type":        "string",
+					"title": "test-field-2",
+					"type":  "string",
 				},
 			},
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
-			"title":  "",
-			"type":   "object",
+			"type":    "object",
 		})
 
 	// make the project private

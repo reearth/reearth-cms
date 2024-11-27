@@ -32,15 +32,11 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"properties": map[string]any{
 				"asset": map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "string",
-					"format":      "binary",
+					"type":   "string",
+					"format": "binary",
 				},
 				sfKey1.String(): map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "string",
+					"type": "string",
 				},
 			},
 			"type": "object",
@@ -67,15 +63,11 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"properties": map[string]any{
 				"asset": map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "string",
-					"format":      "binary",
+					"type":   "string",
+					"format": "binary",
 				},
 				sfKey1.String(): map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "string",
+					"type": "string",
 				},
 			},
 			"type": "object",
@@ -102,15 +94,11 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"properties": map[string]any{
 				"asset": map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "string",
-					"format":      "binary",
+					"type":   "string",
+					"format": "binary",
 				},
 				sfKey1.String(): map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "string",
+					"type": "string",
 				},
 			},
 			"type":        "object",
@@ -139,9 +127,7 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"properties": map[string]any{
 				sfKey4.String(): map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "boolean",
+					"type": "boolean",
 				},
 			},
 			"type":        "object",
@@ -170,15 +156,11 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"properties": map[string]any{
 				"asset": map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "string",
-					"format":      "binary",
+					"type":   "string",
+					"format": "binary",
 				},
 				sfKey1.String(): map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "string",
+					"type": "string",
 				},
 			},
 			"type":        "object",
@@ -207,9 +189,7 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"properties": map[string]any{
 				sfKey4.String(): map[string]any{
-					"description": "",
-					"title":       "",
-					"type":        "boolean",
+					"type": "boolean",
 				},
 			},
 			"type":        "object",

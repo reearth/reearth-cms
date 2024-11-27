@@ -30,24 +30,33 @@ type SchemaJSONProperties struct {
 }
 
 func NewSchemaJSON(id, title, description *string, pp map[string]SchemaJSONProperties) SchemaJSON {
-	return SchemaJSON{
-		Schema:      lo.ToPtr(defaultJSONSchemaVersion),
-		Id:          id,
-		Title:       title,
-		Description: description,
-		Type:        "object",
-		Properties:  pp,
+	res := SchemaJSON{
+		Schema:     lo.ToPtr(defaultJSONSchemaVersion),
+		Type:       "object",
+		Properties: pp,
 	}
+	if id != nil && *id != "" {
+		res.Id = id
+	}
+	if title != nil && *title != "" {
+		res.Title = title
+	}
+	if description != nil && *description != "" {
+		res.Description = description
+	}
+	return res
 }
 
 func BuildProperties(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]SchemaJSONProperties {
 	properties := make(map[string]SchemaJSONProperties)
 	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
-		fieldSchema := SchemaJSONProperties{
-			Type:        fieldType,
-			Title:       lo.ToPtr(field.Name()),
-			Description: lo.ToPtr(field.Description()),
+		fieldSchema := SchemaJSONProperties{Type: fieldType}
+		if field.Name() != "" {
+			fieldSchema.Title = lo.ToPtr(field.Name())
+		}
+		if field.Description() != "" {
+			fieldSchema.Description = lo.ToPtr(field.Description())
 		}
 		if format != "" {
 			fieldSchema.Format = lo.ToPtr(format)
@@ -110,10 +119,13 @@ func BuildItems(f schema.FieldList) *SchemaJSON {
 	properties := make(map[string]SchemaJSONProperties)
 	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
-		fieldSchema := SchemaJSONProperties{}
-		fieldSchema.Type = fieldType
-		fieldSchema.Title = lo.ToPtr(field.Name())
-		fieldSchema.Description = lo.ToPtr(field.Description())
+		fieldSchema := SchemaJSONProperties{Type: fieldType}
+		if field.Name() != "" {
+			fieldSchema.Title = lo.ToPtr(field.Name())
+		}
+		if field.Description() != "" {
+			fieldSchema.Description = lo.ToPtr(field.Description())
+		}
 		if format != "" {
 			fieldSchema.Format = lo.ToPtr(format)
 		}
