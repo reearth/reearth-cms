@@ -47,7 +47,7 @@ func NewSchemaJSON(id, title, description *string, pp map[string]SchemaJSONPrope
 	return res
 }
 
-func BuildProperties(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]SchemaJSONProperties {
+func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]SchemaJSONProperties {
 	properties := make(map[string]SchemaJSONProperties)
 	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
@@ -115,65 +115,14 @@ func BuildProperties(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) ma
 	return properties
 }
 
-func BuildItems(f schema.FieldList) *SchemaJSON {
-	properties := make(map[string]SchemaJSONProperties)
-	for _, field := range f {
-		fieldType, format := determineTypeAndFormat(field.Type())
-		fieldSchema := SchemaJSONProperties{Type: fieldType}
-		if field.Name() != "" {
-			fieldSchema.Title = lo.ToPtr(field.Name())
-		}
-		if field.Description() != "" {
-			fieldSchema.Description = lo.ToPtr(field.Description())
-		}
-		if format != "" {
-			fieldSchema.Format = lo.ToPtr(format)
-		}
+func BuildProperties(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]SchemaJSONProperties {
+	return buildPropertiesMap(f, gsMap)
+}
 
-		field.TypeProperty().Match(schema.TypePropertyMatch{
-			Text: func(f *schema.FieldText) {
-				if maxLength := f.MaxLength(); maxLength != nil {
-					fieldSchema.MaxLength = maxLength
-					properties[field.Key().String()] = fieldSchema
-				}
-			},
-			TextArea: func(f *schema.FieldTextArea) {
-				if maxLength := f.MaxLength(); maxLength != nil {
-					fieldSchema.MaxLength = maxLength
-				}
-			},
-			RichText: func(f *schema.FieldRichText) {
-				if maxLength := f.MaxLength(); maxLength != nil {
-					fieldSchema.MaxLength = maxLength
-				}
-			},
-			Markdown: func(f *schema.FieldMarkdown) {
-				if maxLength := f.MaxLength(); maxLength != nil {
-					fieldSchema.MaxLength = maxLength
-				}
-			},
-			Integer: func(f *schema.FieldInteger) {
-				if min := f.Min(); min != nil {
-					fieldSchema.Minimum = Int64ToFloat64(min)
-				}
-				if max := f.Max(); max != nil {
-					fieldSchema.Maximum = Int64ToFloat64(max)
-				}
-			},
-			Number: func(f *schema.FieldNumber) {
-				if min := f.Min(); min != nil {
-					fieldSchema.Minimum = min
-				}
-				if max := f.Max(); max != nil {
-					fieldSchema.Maximum = max
-				}
-			},
-		})
-		properties[field.Key().String()] = fieldSchema
-	}
+func BuildItems(f schema.FieldList) *SchemaJSON {
 	return &SchemaJSON{
 		Type:       "object",
-		Properties: properties,
+		Properties: buildPropertiesMap(f, nil),
 	}
 }
 
