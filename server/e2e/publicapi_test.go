@@ -366,7 +366,7 @@ func TestPublicAPI(t *testing.T) {
 		JSON().
 		IsEqual(map[string]any{
 			"description": "",
-			"id":          publicAPIModelID,
+			"$id":          publicAPIModelID,
 			"properties": map[string]any{
 				"asset": map[string]any{
 					"description": "",
@@ -401,7 +401,7 @@ func TestPublicAPI(t *testing.T) {
 					"type":        "string",
 				},
 			},
-			"schema": "https://json-schema.org/draft/2020-12/schema",
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"title":  "",
 			"type":   "object",
 		})

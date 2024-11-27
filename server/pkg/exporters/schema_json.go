@@ -10,8 +10,8 @@ import (
 const defaultJSONSchemaVersion = "https://json-schema.org/draft/2020-12/schema"
 
 type SchemaJSON struct {
-	Id          *string                         `json:"$id"`
-	Schema      *string                         `json:"$schema"`
+	Id          *string                         `json:"$id,omitempty"`
+	Schema      *string                         `json:"$schema,omitempty"`
 	Description *string                         `json:"description,omitempty"`
 	Properties  map[string]SchemaJSONProperties `json:"properties"`
 	Title       *string                         `json:"title,omitempty"`
