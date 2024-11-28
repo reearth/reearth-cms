@@ -8,6 +8,7 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator } from "../utils";
 
 type DefaultFieldProps = {
   field: Field;
@@ -19,13 +20,16 @@ const MarkdownField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
   const t = useT();
   const maxLength = useMemo(() => field.typeProperty?.maxLength, [field.typeProperty?.maxLength]);
 
+  const required = useMemo(() => field.required, [field.required]);
+
   return (
     <Form.Item
       extra={field.description}
       validateStatus="success"
       rules={[
         {
-          required: field.required,
+          required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
         {
@@ -47,9 +51,14 @@ const MarkdownField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueField maxLength={maxLength} FieldInput={MarkdownInput} disabled={disabled} />
+        <MultiValueField
+          maxLength={maxLength}
+          FieldInput={MarkdownInput}
+          disabled={disabled}
+          required={required}
+        />
       ) : (
-        <MarkdownInput maxLength={maxLength} disabled={disabled} />
+        <MarkdownInput maxLength={maxLength} disabled={disabled} required={required} />
       )}
     </Form.Item>
   );

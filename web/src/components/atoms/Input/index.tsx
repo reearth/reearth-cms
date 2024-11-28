@@ -9,26 +9,32 @@ type Props = {
   isError?: boolean;
 } & InputProps;
 
-const Input = forwardRef<InputRef, Props>(({ value, isError, maxLength, ...props }, ref) => {
-  const status = useMemo(() => {
-    if (isError || (maxLength && value && runes(value).length > maxLength)) {
-      return "error";
-    }
-  }, [isError, maxLength, value]);
+const Input = forwardRef<InputRef, Props>(
+  ({ value, isError, maxLength, required, ...props }, ref) => {
+    const status = useMemo(() => {
+      if (
+        isError ||
+        (required && !value) ||
+        (maxLength && value && runes(value).length > maxLength)
+      ) {
+        return "error";
+      }
+    }, [isError, maxLength, required, value]);
 
-  return (
-    <AntDInput
-      count={{
-        max: maxLength,
-        strategy: txt => runes(txt).length,
-      }}
-      value={value}
-      ref={ref}
-      status={status}
-      {...props}
-    />
-  );
-});
+    return (
+      <AntDInput
+        count={{
+          max: maxLength,
+          strategy: txt => runes(txt).length,
+        }}
+        value={value}
+        ref={ref}
+        status={status}
+        {...props}
+      />
+    );
+  },
+);
 
 export default Input;
 export type { InputProps };
