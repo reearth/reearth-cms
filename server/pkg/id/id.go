@@ -243,7 +243,7 @@ var RequestIDFromRef = idx.FromRef[Request]
 
 type View struct{}
 
-func (View) Type() string { return "request" }
+func (View) Type() string { return "view" }
 
 type ViewID = idx.ID[View]
 type ViewIDList = idx.List[View]
