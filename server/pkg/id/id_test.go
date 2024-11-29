@@ -57,7 +57,7 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, "resource", r.Type())
 
 	v := View{}
-	assert.Equal(t, "request", v.Type())
+	assert.Equal(t, "view", v.Type())
 
 	tag := Tag{}
 	assert.Equal(t, "tag", tag.Type())
