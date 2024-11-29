@@ -565,6 +565,12 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 				oldFields: oldFields,
 				action:    action,
 			}
+
+			if action == interfaces.ImportStrategyTypeInsert {
+				res.ItemInserted()
+			} else {
+				res.ItemUpdated()
+			}
 		}
 
 		if err := i.repos.Thread.SaveAll(ctx, threadsToSave); err != nil {
@@ -580,6 +586,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		if err != nil {
 			return interfaces.ImportItemsResponse{}, err
 		}
+		var events []Event
 
 		for k, changes := range itemsEvent {
 			vi := items.Item(k)
@@ -593,12 +600,10 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			var eType event.Type
 			if changes.action == interfaces.ImportStrategyTypeInsert {
 				eType = event.ItemCreate
-				res.ItemInserted()
 			} else {
 				eType = event.ItemUpdate
-				res.ItemUpdated()
 			}
-			if err := i.event(ctx, Event{
+			events = append(events, Event{
 				Project:   prj,
 				Workspace: s.Workspace(),
 				Type:      eType,
@@ -612,9 +617,10 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 					Changes:         item.CompareFields(it.Fields(), changes.oldFields),
 				},
 				Operator: operator.Operator(),
-			}); err != nil {
-				return interfaces.ImportItemsResponse{}, err
-			}
+			})
+		}
+		if err := i.events(ctx, events); err != nil {
+			return interfaces.ImportItemsResponse{}, err
 		}
 
 		return res.Into(), nil
@@ -1145,11 +1151,15 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 }
 
 func (i Item) event(ctx context.Context, e Event) error {
+	return i.events(ctx, []Event{e})
+}
+
+func (i Item) events(ctx context.Context, e []Event) error {
 	if i.ignoreEvent {
 		return nil
 	}
 
-	_, err := createEvent(ctx, i.repos, i.gateways, e)
+	_, err := createEvents(ctx, i.repos, i.gateways, e)
 	return err
 }
 

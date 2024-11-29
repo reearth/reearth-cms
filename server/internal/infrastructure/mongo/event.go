@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -40,6 +41,14 @@ func (r *Event) Save(ctx context.Context, ev *event.Event[any]) error {
 		return err
 	}
 	return r.client.SaveOne(ctx, eID, doc)
+}
+
+func (r *Event) SaveAll(ctx context.Context, ev event.List) error {
+	doc, eID, err := mongodoc.NewEvents(ev)
+	if err != nil {
+		return err
+	}
+	return r.client.SaveAll(ctx, eID, lo.ToAnySlice(doc))
 }
 
 func (r *Event) findOne(ctx context.Context, filter any) (*event.Event[any], error) {
