@@ -16,11 +16,13 @@ import {
   FormTypes,
   ObjectSupportedType,
   EditorSupportedType,
+  SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 export default (
+  selectedSchemaType: SelectedSchemaType,
   selectedType: FieldType,
   isMeta: boolean,
   selectedField: Field | null,
@@ -337,8 +339,9 @@ export default (
 
   const isTitleDisabled = useMemo(
     () =>
+      (selectedSchemaType === "model" && isMeta) ||
       !(selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText"),
-    [selectedType],
+    [isMeta, selectedSchemaType, selectedType],
   );
 
   const ObjectSupportType = useMemo(

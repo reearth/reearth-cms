@@ -34,6 +34,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
     "checkbox1 description",
   );
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Make field required")).toBeDisabled();
   await expect(page.getByLabel("Set field as unique")).toBeDisabled();
