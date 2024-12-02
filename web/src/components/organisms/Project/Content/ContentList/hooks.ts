@@ -228,7 +228,7 @@ export default () => {
                   const tags = metaFieldsMap.get(key)?.typeProperty?.tags;
                   field.value = tags ? selectedTagIdsGet(value as string[], tags) : [];
                 } else {
-                  field.value[index ?? 0] = value ?? "";
+                  field.value[index ?? 0] = value === "" ? undefined : value;
                 }
               } else {
                 field.value = value ?? "";
