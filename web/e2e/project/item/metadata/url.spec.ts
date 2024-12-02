@@ -33,6 +33,7 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Settings").locator("#key")).toHaveValue("url1");
   await expect(page.getByLabel("Settings").locator("#description")).toHaveValue("url1 description");
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Make field required")).not.toBeChecked();
   await expect(page.getByLabel("Set field as unique")).not.toBeChecked();

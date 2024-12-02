@@ -46,6 +46,7 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByText("Tag1", { exact: true })).toBeVisible();
   await expect(page.getByText("Tag2")).toBeVisible();
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Make field required")).not.toBeChecked();
   await expect(page.getByLabel("Set field as unique")).not.toBeChecked();

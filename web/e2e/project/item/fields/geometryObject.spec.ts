@@ -94,6 +94,7 @@ test("GeometryObject field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new geometryObject1 description");
   await page.getByLabel("Support multiple values").check();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
