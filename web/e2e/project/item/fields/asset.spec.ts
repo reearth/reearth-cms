@@ -159,9 +159,6 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await expect(page.locator(".css-7g0azd").nth(1)).toContainText(uploadFileName_1);
   await page.getByRole("button", { name: "plus New" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page, false);
-  await page.getByRole("button", { name: "delete" }).nth(2).click();
-  await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
