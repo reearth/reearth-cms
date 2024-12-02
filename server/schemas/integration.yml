@@ -162,6 +162,63 @@ paths:
           description: Not found
         '500':
           description: Internal server error
+  '/schemata/{schemaId}/schema.json':
+    parameters:
+      - $ref: '#/components/parameters/schemaIdParam'
+    get:
+      operationId: SchemaByIDAsJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a schema as json by schema ID
+      tags:
+        - Schema
+        - JSON
+      description: Returns a schema as json by schema ID
+      responses:
+        '200':
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaJSON'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/schemaIdParam'
+    get:
+      operationId: SchemaByIDWithProjectAsJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a schema as json by project and schema ID
+      tags:
+        - Schema
+        - JSON
+      description: Returns a schema as json by project and schema ID
+      responses:
+        '200':
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaJSON'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/models/{modelId}':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
@@ -242,6 +299,62 @@ paths:
             description: Invalid request parameter value
           '401':
             $ref: '#/components/responses/UnauthorizedError'
+  /models/{modelId}/schema.json:
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    get:
+      operationId: SchemaByModelAsJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a schema as json by model ID
+      tags:
+        - Schema
+        - JSON
+      description: Returns a schema as json by model ID
+      responses:
+        '200':
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaJSON'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  /models/{modelId}/metadata_schema.json:
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    get:
+      operationId: MetadataSchemaByModelAsJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a metadata schema as json by model ID
+      tags:
+        - MetadataSchema
+        - JSON
+      description: Returns a metadata schema as json by model ID
+      responses:
+        '200':
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaJSON'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/models/{modelId}/import':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
@@ -916,6 +1029,64 @@ paths:
             text/csv:
               schema:
                 type: string
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: SchemaByModelWithProjectAsJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a schema as json by project and model ID
+      tags:
+        - Schema
+        - JSON
+      description: Returns a schema as json by project and model ID
+      responses:
+        '200':
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaJSON'
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: MetadataSchemaByModelWithProjectAsJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a metadata schema as json by project and model ID
+      tags:
+        - MetadataSchema
+        - JSON
+      description: Returns a metadata schema as json by project and model ID
+      responses:
+        '200':
+          description: A JSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaJSON'
                 format: binary
         '400':
           description: Invalid request parameter value
@@ -1658,6 +1829,46 @@ components:
         createdAt:
           type: string
           format: date-time
+    schemaJSON:
+      type: object
+      required: ["type", "properties"]
+      properties:
+        $schema:
+          type: string
+        $id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/schemaJSONProperties'
+    schemaJSONProperties:
+      type: object
+      required: ["type"]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+        minimum:
+          type: number
+          format: double
+        maximum:
+          type: number
+          format: double
+        maxLength:
+          type: integer
+        items:
+          $ref: '#/components/schemas/schemaJSON'
     valueType:
       type: string
       enum:

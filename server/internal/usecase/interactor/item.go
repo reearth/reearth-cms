@@ -366,7 +366,23 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		}
 		res := NewImportRes()
 
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
+		if err != nil {
+			return interfaces.ImportItemsResponse{}, err
+		}
+
 		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+		if err != nil {
+			return interfaces.ImportItemsResponse{}, err
+		}
+
+		itemsIds := lo.FilterMap(param.Items, func(i interfaces.ImportItemParam, _ int) (item.ID, bool) {
+			if i.ItemId != nil {
+				return *i.ItemId, true
+			}
+			return item.ID{}, false
+		})
+		oldItems, err := i.repos.Item.FindByIDs(ctx, itemsIds, nil)
 		if err != nil {
 			return interfaces.ImportItemsResponse{}, err
 		}
@@ -375,6 +391,15 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		if m.Metadata() != nil && s.ID() == *m.Metadata() {
 			isMetadata = true
 		}
+
+		threadsToSave := thread.List{}
+		itemsToSave := item.List{}
+
+		type itemChanges struct {
+			oldFields item.Fields
+			action    interfaces.ImportStrategyType
+		}
+		itemsEvent := map[item.ID]itemChanges{}
 
 		// update schema if needed
 		if param.MutateSchema && len(param.Fields) > 0 {
@@ -410,10 +435,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 
 			var oldItem *item.Item
 			if itemParam.ItemId != nil {
-				itm, err := i.repos.Item.FindByID(ctx, *itemParam.ItemId, nil)
-				if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-					return interfaces.ImportItemsResponse{}, err
-				}
+				itm := oldItems.Item(*itemParam.ItemId)
 				oldItem = itm.Value()
 			}
 
@@ -454,9 +476,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 				if err != nil {
 					return interfaces.ImportItemsResponse{}, err
 				}
-				if err := i.repos.Thread.Save(ctx, th); err != nil {
-					return interfaces.ImportItemsResponse{}, err
-				}
+				threadsToSave = append(threadsToSave, th)
 
 				ib := item.New().
 					NewID().
@@ -508,9 +528,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 					return interfaces.ImportItemsResponse{}, interfaces.ErrMetadataMismatch
 				}
 				mi.Value().SetOriginalItem(it.ID())
-				if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
-					return interfaces.ImportItemsResponse{}, err
-				}
+				itemsToSave = append(itemsToSave, mi.Value())
 			}
 
 			modelSchemaFields, otherFields := filterFieldParamsBySchema(itemParam.Fields, s)
@@ -527,7 +545,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			oldFields := it.Fields()
 			it.UpdateFields(fields)
 
-			groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), it.Fields())
+			groupFields, _, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), it.Fields())
 			if err != nil {
 				return interfaces.ImportItemsResponse{}, err
 			}
@@ -538,40 +556,54 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 				return interfaces.ImportItemsResponse{}, err
 			}
 
-			if err := i.repos.Item.Save(ctx, it); err != nil {
-				return interfaces.ImportItemsResponse{}, err
-			}
+			itemsToSave = append(itemsToSave, it)
 
 			if isMetadata {
 				continue
 			}
-
-			vi, err := i.repos.Item.FindByID(ctx, it.ID(), nil)
-			if err != nil {
-				return interfaces.ImportItemsResponse{}, err
+			itemsEvent[it.ID()] = itemChanges{
+				oldFields: oldFields,
+				action:    action,
 			}
+
+			if action == interfaces.ImportStrategyTypeInsert {
+				res.ItemInserted()
+			} else {
+				res.ItemUpdated()
+			}
+		}
+
+		if err := i.repos.Thread.SaveAll(ctx, threadsToSave); err != nil {
+			return interfaces.ImportItemsResponse{}, err
+		}
+
+		if err := i.repos.Item.SaveAll(ctx, itemsToSave); err != nil {
+			return interfaces.ImportItemsResponse{}, err
+		}
+
+		//  TODO: create ItemsImported event
+		items, err := i.repos.Item.FindByIDs(ctx, lo.Keys(itemsEvent), nil)
+		if err != nil {
+			return interfaces.ImportItemsResponse{}, err
+		}
+		var events []Event
+
+		for k, changes := range itemsEvent {
+			vi := items.Item(k)
+			it := vi.Value()
 
 			refItems, err := i.getReferencedItems(ctx, it.Fields())
 			if err != nil {
 				return interfaces.ImportItemsResponse{}, err
 			}
 
-			prj, err := i.repos.Project.FindByID(ctx, s.Project())
-			if err != nil {
-				return interfaces.ImportItemsResponse{}, err
-			}
-
-			// TODO: check if event creation is transactional
-			//  A: in future create ItemsImported event
 			var eType event.Type
-			if action == interfaces.ImportStrategyTypeInsert {
+			if changes.action == interfaces.ImportStrategyTypeInsert {
 				eType = event.ItemCreate
-				res.ItemInserted()
 			} else {
 				eType = event.ItemUpdate
-				res.ItemUpdated()
 			}
-			if err := i.event(ctx, Event{
+			events = append(events, Event{
 				Project:   prj,
 				Workspace: s.Workspace(),
 				Type:      eType,
@@ -580,14 +612,15 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 					Item:            vi.Value(),
 					Model:           m,
 					Schema:          s,
-					GroupSchemas:    groupSchemas,
+					GroupSchemas:    param.SP.GroupSchemas(),
 					ReferencedItems: refItems,
-					Changes:         item.CompareFields(it.Fields(), oldFields),
+					Changes:         item.CompareFields(it.Fields(), changes.oldFields),
 				},
 				Operator: operator.Operator(),
-			}); err != nil {
-				return interfaces.ImportItemsResponse{}, err
-			}
+			})
+		}
+		if err := i.events(ctx, events); err != nil {
+			return interfaces.ImportItemsResponse{}, err
 		}
 
 		return res.Into(), nil
@@ -1021,6 +1054,7 @@ func (i Item) getItemCorrespondingItems(ctx context.Context, fr schema.FieldRefe
 }
 
 func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFieldParam, s *schema.Schema, mId id.ModelID, itemFields item.Fields) (item.Fields, schema.List, error) {
+	// TODO: use schema package to enhance performance
 	var res item.Fields
 	var groupSchemas schema.List
 	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
@@ -1117,11 +1151,15 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 }
 
 func (i Item) event(ctx context.Context, e Event) error {
+	return i.events(ctx, []Event{e})
+}
+
+func (i Item) events(ctx context.Context, e []Event) error {
 	if i.ignoreEvent {
 		return nil
 	}
 
-	_, err := createEvent(ctx, i.repos, i.gateways, e)
+	_, err := createEvents(ctx, i.repos, i.gateways, e)
 	return err
 }
 
