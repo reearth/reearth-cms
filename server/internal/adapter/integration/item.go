@@ -103,23 +103,11 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
-	if err != nil {
-		return ItemsAsCSV400Response{}, err
-	}
-
-	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	pr, err := uc.Item.ItemsAsCSV(ctx, request.ModelId, request.Params.Page, request.Params.PerPage, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsCSV404Response{}, err
 		}
-		return ItemsAsCSV400Response{}, err
-	}
-
-	pr, pw := io.Pipe()
-	err = csvFromItems(pw, items, sp.Schema())
-	if err != nil {
 		return ItemsAsCSV400Response{}, err
 	}
 

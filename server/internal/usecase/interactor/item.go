@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -11,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/event"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/request"
@@ -24,6 +26,9 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
+
+const maxPerPage = 100
+const defaultPerPage int64 = 50
 
 type Item struct {
 	repos       *repo.Container
@@ -1178,4 +1183,78 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 		}
 	}
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
+}
+
+func (i Item) ItemsAsCSV(ctx context.Context, modelID id.ModelID, page *int, perPage *int, operator *usecase.Operator) (*io.PipeReader, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*io.PipeReader, error) {
+		model, err := i.repos.Model.FindByID(ctx, modelID)
+		if err != nil {
+			return nil, err
+		}
+
+		schemaIDs := id.SchemaIDList{model.Schema()}
+		if model.Metadata() != nil {
+			schemaIDs = append(schemaIDs, *model.Metadata())
+		}
+		schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+		if err != nil {
+			return nil, err
+		}
+		s := schemaList.Schema(lo.ToPtr(model.Schema()))
+		if s == nil {
+			return nil, nil
+		}
+
+		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
+		if err != nil {
+			return nil, err
+		}
+
+		groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
+		if err != nil {
+			return nil, err
+		}
+		groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+			return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
+		})
+		referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
+			return groupSchemaList.Schema(&s)
+		})
+
+		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
+
+		// fromPagination
+		p := int64(1)
+		if page != nil && *page > 0 {
+			p = int64(*page)
+		}
+
+		pp := defaultPerPage
+		if perPage != nil {
+			if ppr := *perPage; 1 <= ppr {
+				if ppr > maxPerPage {
+					pp = int64(maxPerPage)
+				} else {
+					pp = int64(ppr)
+				}
+			}
+		}
+
+		paginationOffset := usecasex.OffsetPagination{
+			Offset: (p - 1) * pp,
+			Limit:  pp,
+		}.Wrap()
+
+		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+		if err != nil {
+			return nil, err
+		}
+
+		pr, pw := io.Pipe()
+		err = csvFromItems(pw, items, schemaPackage.Schema())
+		if err != nil {
+			return nil, err
+		}
+		return pr, nil
+	})
 }

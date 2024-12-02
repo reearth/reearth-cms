@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+	"io"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -91,6 +92,7 @@ type Item interface {
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)
 	Search(context.Context, schema.Package, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	ItemStatus(context.Context, id.ItemIDList, *usecase.Operator) (map[id.ItemID]item.Status, error)
+	ItemsAsCSV(context.Context, id.ModelID, *int, *int, *usecase.Operator) (*io.PipeReader, error)
 	LastModifiedByModel(context.Context, id.ModelID, *usecase.Operator) (time.Time, error)
 	IsItemReferenced(context.Context, id.ItemID, id.FieldID, *usecase.Operator) (bool, error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
