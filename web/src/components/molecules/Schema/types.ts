@@ -109,7 +109,7 @@ export type FieldTypePropertyInput = {
   bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
   tag?: {
-    defaultValue?: string;
+    defaultValue?: string | string[];
     tags: Tag[];
   };
   checkbox?: { defaultValue?: boolean };
