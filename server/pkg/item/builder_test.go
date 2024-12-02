@@ -219,3 +219,21 @@ func TestBuilder_IsMetadata(t *testing.T) {
 	b := New().IsMetadata(true)
 	assert.Equal(t, true, b.i.isMetadata)
 }
+
+func TestBuilder_UpdatedByUser(t *testing.T) {
+	uId := accountdomain.NewUserID()
+	uuid := New().UpdatedByUser(&uId)
+	assert.Equal(t, &uId, uuid.i.updatedByUser)
+}
+
+func TestBuilder_UpdatedByIntegration(t *testing.T) {
+	iid := id.NewIntegrationID()
+	uuid := New().UpdatedByIntegration(&iid)
+	assert.Equal(t, &iid, uuid.i.updatedByIntegration)
+}
+
+func TestBuilder_OriginalItem(t *testing.T) {
+	iId := id.NewItemID().Ref()
+	b := New().OriginalItem(iId)
+	assert.Equal(t, iId, b.i.originalItem)
+}
