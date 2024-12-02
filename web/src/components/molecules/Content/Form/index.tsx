@@ -737,9 +737,10 @@ const FormItemsWrapper = styled.div`
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
   padding: 8px;
-  min-width: 272px;
+  width: 272px;
   max-height: 100%;
   overflow-y: auto;
+  overflow-wrap: break-word;
 `;
 
 const MetaFormItemWrapper = styled.div`

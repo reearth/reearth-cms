@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
@@ -64,55 +65,73 @@ func (e *Event) EventProject() *event.Project {
 }
 
 func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, e Event) (*event.Event[any], error) {
-	ev, err := event.New[any]().NewID().Object(e.Object).Type(e.Type).Project(e.EventProject()).Timestamp(util.Now()).Operator(e.Operator).Build()
+	evs, err := createEvents(ctx, r, g, []Event{e})
 	if err != nil {
 		return nil, err
 	}
+	return evs[0], nil
+}
 
-	if err := r.Event.Save(ctx, ev); err != nil {
+func createEvents(ctx context.Context, r *repo.Container, g *gateway.Container, el []Event) (event.List, error) {
+	evl := make(event.List, 0, len(el))
+	for _, e := range el {
+		ev, err := event.New[any]().NewID().Object(e.Object).Type(e.Type).Project(e.EventProject()).Timestamp(util.Now()).Operator(e.Operator).Build()
+		if err != nil {
+			return nil, err
+		}
+		evl = append(evl, ev)
+	}
+
+	if err := r.Event.SaveAll(ctx, evl); err != nil {
 		return nil, err
 	}
 
-	if err := webhook(ctx, r, g, e, ev); err != nil {
+	if err := webhooks(ctx, r, g, el, evl); err != nil {
 		return nil, err
 	}
 
-	return ev, nil
+	return evl, nil
 }
 
 func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, e Event, ev *event.Event[any]) error {
+	return webhooks(ctx, r, g, []Event{e}, event.List{ev})
+}
+
+func webhooks(ctx context.Context, r *repo.Container, g *gateway.Container, el []Event, evl event.List) error {
 	if g == nil || g.TaskRunner == nil {
 		log.Infof("asset: webhook was not sent because task runner is not configured")
 		return nil
 	}
 
-	ws, err := r.Workspace.FindByID(ctx, e.Workspace)
-	if err != nil {
-		return err
-	}
-	integrationIDs := ws.Members().IntegrationIDs()
-
-	ids := make([]id.IntegrationID, len(integrationIDs))
-	for i, iid := range integrationIDs {
-		id, err := id.IntegrationIDFrom(iid.String())
-		if err != nil {
-			return err
-		}
-		ids[i] = id
-	}
-
-	integrations, err := r.Integration.FindByIDs(ctx, ids)
+	// all events are assumed to have the same workspace
+	wId := el[0].Workspace
+	ws, err := r.Workspace.FindByID(ctx, wId)
 	if err != nil {
 		return err
 	}
 
-	for _, w := range integrations.ActiveWebhooks(ev.Type()) {
-		if err := g.TaskRunner.Run(ctx, task.WebhookPayload{
-			Webhook:  w,
-			Event:    ev,
-			Override: e.WebhookObject,
-		}.Payload()); err != nil {
-			return err
+	iIds, err := util.TryMap(ws.Members().IntegrationIDs(), func(iid workspace.IntegrationID) (id.IntegrationID, error) {
+		return id.IntegrationIDFrom(iid.String())
+	})
+	if err != nil {
+		return err
+	}
+
+	integrations, err := r.Integration.FindByIDs(ctx, iIds)
+	if err != nil {
+		return err
+	}
+
+	for i, ev := range evl {
+		e := el[i]
+		for _, w := range integrations.ActiveWebhooks(ev.Type()) {
+			if err := g.TaskRunner.Run(ctx, task.WebhookPayload{
+				Webhook:  w,
+				Event:    ev,
+				Override: e.WebhookObject,
+			}.Payload()); err != nil {
+				return err
+			}
 		}
 	}
 
