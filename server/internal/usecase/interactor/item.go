@@ -1185,6 +1185,7 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
+// ItemsAsCSV exports items data in content to csv file by modelID.
 func (i Item) ItemsAsCSV(ctx context.Context, modelID id.ModelID, page *int, perPage *int, operator *usecase.Operator) (*io.PipeReader, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*io.PipeReader, error) {
 		model, err := i.repos.Model.FindByID(ctx, modelID)
@@ -1202,7 +1203,7 @@ func (i Item) ItemsAsCSV(ctx context.Context, modelID id.ModelID, page *int, per
 		}
 		s := schemaList.Schema(lo.ToPtr(model.Schema()))
 		if s == nil {
-			return nil, nil
+			return nil, rerror.ErrNotFound
 		}
 
 		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
@@ -1224,26 +1225,7 @@ func (i Item) ItemsAsCSV(ctx context.Context, modelID id.ModelID, page *int, per
 		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
 
 		// fromPagination
-		p := int64(1)
-		if page != nil && *page > 0 {
-			p = int64(*page)
-		}
-
-		pp := defaultPerPage
-		if perPage != nil {
-			if ppr := *perPage; 1 <= ppr {
-				if ppr > maxPerPage {
-					pp = int64(maxPerPage)
-				} else {
-					pp = int64(ppr)
-				}
-			}
-		}
-
-		paginationOffset := usecasex.OffsetPagination{
-			Offset: (p - 1) * pp,
-			Limit:  pp,
-		}.Wrap()
+		paginationOffset := fromPagination(page, perPage)
 
 		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
 		if err != nil {
@@ -1255,6 +1237,30 @@ func (i Item) ItemsAsCSV(ctx context.Context, modelID id.ModelID, page *int, per
 		if err != nil {
 			return nil, err
 		}
+
 		return pr, nil
 	})
+}
+
+func fromPagination(page, perPage *int) *usecasex.Pagination {
+	p := int64(1)
+	if page != nil && *page > 0 {
+		p = int64(*page)
+	}
+
+	pp := defaultPerPage
+	if perPage != nil {
+		if ppr := *perPage; 1 <= ppr {
+			if ppr > maxPerPage {
+				pp = int64(maxPerPage)
+			} else {
+				pp = int64(ppr)
+			}
+		}
+	}
+
+	return usecasex.OffsetPagination{
+		Offset: (p - 1) * pp,
+		Limit:  pp,
+	}.Wrap()
 }
