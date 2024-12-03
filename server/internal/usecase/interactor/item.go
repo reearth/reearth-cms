@@ -1187,6 +1187,9 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 
 // ItemsAsCSV exports items data in content to csv file by modelID.
 func (i Item) ItemsAsCSV(ctx context.Context, modelID id.ModelID, page *int, perPage *int, operator *usecase.Operator) (*io.PipeReader, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*io.PipeReader, error) {
 		model, err := i.repos.Model.FindByID(ctx, modelID)
 		if err != nil {
