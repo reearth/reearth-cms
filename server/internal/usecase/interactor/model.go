@@ -320,6 +320,7 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
+			// copy model
 			oldModel, err := i.repos.Model.FindByID(ctx, params.ModelId)
 			if err != nil {
 				return nil, err
@@ -334,7 +335,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
-
+			// copy schema
 			oldSchema, err := i.repos.Schema.FindByID(ctx, oldModel.Schema())
 			if err != nil {
 				return nil, err
@@ -348,7 +349,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
-			
+			// copy items
 			oldItems, _, err := i.repos.Item.FindBySchema(ctx, oldSchema.ID(), nil, nil, nil)
 			if err != nil {
 				return nil, err
@@ -363,6 +364,9 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				if buildErr != nil {
 					return nil, buildErr
 				}
+				// should we copy items or versioned items?
+				// if versioned what should we do with parents and refs?
+				// vi := version.NewValue(version.New(), oldItem.Parents(), oldItem.Refs(), newItem.ID().Timestamp(), newItem)
 				return newItem, nil
 			})
 			if err != nil {
@@ -373,7 +377,9 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				return nil, err
 			}
 
+			// copy metadata
 			if oldModel.Metadata() != nil {
+				// copy metadata schema
 				oldMetaSchema, err := i.repos.Schema.FindByID(ctx, *oldModel.Metadata())
 				if err != nil {
 					return nil, err
@@ -387,7 +393,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				if err != nil {
 					return nil, err
 				}
-
+				// copy metadata items
 				oldMetaItems, _, err := i.repos.Item.FindBySchema(ctx, oldMetaSchema.ID(), nil, nil, nil)
 				if err != nil {
 					return nil, err
@@ -402,9 +408,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 					if buildErr != nil {
 						return nil, buildErr
 					}
-					// should we copy items or versioned items?
-					// if versioned what should we do with parents and refs?
-					// vi := version.NewValue(version.New(), oldItem.Parents(), oldItem.Refs(), newItem.ID().Timestamp(), newItem)
+					// how about meta items? versioned or not?
 					return newMetaItem, nil
 				})
 				if err != nil {
