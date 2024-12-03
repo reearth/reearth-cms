@@ -172,3 +172,12 @@ func (s *Schema) IsPointFieldSupported() bool {
 	}
 	return false
 }
+
+func (s *Schema) CopyFrom(ss *Schema) {
+	if s == nil || ss == nil {
+		return
+	}
+	// should we copy the fields with the same ids?
+	s.fields = slices.Clone(ss.fields)
+	s.titleField = ss.TitleField().CloneRef()
+}
