@@ -10,7 +10,6 @@ import {
   Item,
   ItemStatus,
   ItemField,
-  Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
@@ -190,13 +189,13 @@ export default () => {
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
   const [createNewItem] = useCreateItemMutation();
 
-  const itemIdToMetadata = useRef(new Map<string, Metadata>());
+  const itemIdToMetadataVersion = useRef(new Map<string, string>());
   const metadataVersionSet = useCallback(
     async (id: string) => {
       const { data } = await getItem({ variables: { id } });
       const item = fromGraphQLItem(data?.node as GQLItem);
       if (item) {
-        itemIdToMetadata.current.set(id, item.metadata);
+        itemIdToMetadataVersion.current.set(id, item.metadata.version);
       }
     },
     [getItem],
@@ -219,13 +218,17 @@ export default () => {
         Notification.error({ message: t("Failed to update item.") });
         return;
       } else {
-        const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
-        if (metadata?.fields && metadata.id) {
+        const metadata = target.metadata;
+        const version = itemIdToMetadataVersion.current.get(updateItemId) ?? metadata?.version;
+        if (metadata?.fields && metadata.id && version) {
+          const requiredErrorFields: string[] = [];
+          const maxLengthErrorFields: string[] = [];
           const fields = metadata.fields.map(field => {
+            const metaField = metaFieldsMap.get(field.schemaFieldId);
             if (field.schemaFieldId === key) {
               if (Array.isArray(field.value)) {
                 if (field.type === "Tag") {
-                  const tags = metaFieldsMap.get(key)?.typeProperty?.tags;
+                  const tags = metaField?.typeProperty?.tags;
                   field.value = tags ? selectedTagIdsGet(value as string[], tags) : [];
                 } else {
                   field.value[index ?? 0] = value === "" ? undefined : value;
@@ -236,13 +239,44 @@ export default () => {
             } else {
               field.value = field.value ?? "";
             }
+            const fieldValue = field.value;
+            if (metaField?.required) {
+              // use checkIfEmpty
+              if (Array.isArray(fieldValue)) {
+                if (fieldValue.every(v => v === undefined || v === null || v === "")) {
+                  requiredErrorFields.push(metaField.key);
+                }
+              } else if (fieldValue === undefined || fieldValue === null || fieldValue === "") {
+                requiredErrorFields.push(metaField.key);
+              }
+            }
+            const maxLength = metaField?.typeProperty?.maxLength;
+            if (maxLength) {
+              if (Array.isArray(fieldValue)) {
+                if (fieldValue.some(v => v.length > maxLength)) {
+                  maxLengthErrorFields.push(metaField.key);
+                }
+              } else if (fieldValue.length > maxLength) {
+                maxLengthErrorFields.push(metaField.key);
+              }
+            }
+
             return field as ItemFieldInput;
           });
+          if (requiredErrorFields.length || maxLengthErrorFields.length) {
+            requiredErrorFields.forEach(field => {
+              Notification.error({ message: t("Required field error", { field }) });
+            });
+            maxLengthErrorFields.forEach(field => {
+              Notification.error({ message: t("Maximum length error", { field }) });
+            });
+            return;
+          }
           const item = await updateItemMutation({
             variables: {
               itemId: metadata.id,
               fields,
-              version: metadata.version,
+              version,
             },
           });
           if (item.errors || !item.data?.updateItem) {
