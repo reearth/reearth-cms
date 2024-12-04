@@ -7,8 +7,10 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
@@ -102,4 +104,10 @@ type Item interface {
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
 	// ItemsAsCSV exports items data in content to csv file by modelID.
 	ItemsAsCSV(context.Context, id.ModelID, *int, *int, *usecase.Operator) (*io.PipeReader, error)
+	// ItemsAsGeoJSON converts items to Geo JSON type given a model ID
+	ItemsAsGeoJSON(context.Context, id.ModelID, *int, *int, *usecase.Operator) (*integrationapi.FeatureCollection, error)
+	// ItemsWithProjectAsCSV converts items content to CSV given by project ID or project Alias and model ID or model Key
+	ItemsWithProjectAsCSV(context.Context, project.IDOrAlias, model.IDOrKey, *int, *int, *usecase.Operator) (*io.PipeReader, error)
+	// ItemsWithProjectAsGeoJSON converts items content to Geo JSON given by project ID or project Alias and model ID or model Key
+	ItemsWithProjectAsGeoJSON(context.Context, project.IDOrAlias, model.IDOrKey, *int, *int, *usecase.Operator) (*integrationapi.FeatureCollection, error)
 }

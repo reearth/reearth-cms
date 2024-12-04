@@ -17,6 +17,11 @@ var (
 	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
 )
 
+// GeoJSON
+func featureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*integrationapi.FeatureCollection, error) {
+	return integrationapi.FeatureCollectionFromItems(ver, s)
+}
+
 // CSV
 func csvFromItems(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
 	if !s.IsPointFieldSupported() {

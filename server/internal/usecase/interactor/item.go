@@ -14,7 +14,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -1242,6 +1245,202 @@ func (i Item) ItemsAsCSV(ctx context.Context, modelID id.ModelID, page *int, per
 		}
 
 		return pr, nil
+	})
+}
+
+// ItemsAsGeoJSON converts items to Geo JSON type given a model ID
+func (i Item) ItemsAsGeoJSON(ctx context.Context, modelID id.ModelID, page *int, perPage *int, operator *usecase.Operator) (*integrationapi.FeatureCollection, error) {
+
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*integrationapi.FeatureCollection, error) {
+		model, err := i.repos.Model.FindByID(ctx, modelID)
+		if err != nil {
+			return nil, err
+		}
+
+		schemaIDs := id.SchemaIDList{model.Schema()}
+		if model.Metadata() != nil {
+			schemaIDs = append(schemaIDs, *model.Metadata())
+		}
+		schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+		if err != nil {
+			return nil, err
+		}
+		s := schemaList.Schema(lo.ToPtr(model.Schema()))
+		if s == nil {
+			return nil, rerror.ErrNotFound
+		}
+
+		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
+		if err != nil {
+			return nil, err
+		}
+
+		groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
+		if err != nil {
+			return nil, err
+		}
+		groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+			return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
+		})
+		referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
+			return groupSchemaList.Schema(&s)
+		})
+
+		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
+
+		// fromPagination
+		paginationOffset := fromPagination(page, perPage)
+
+		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+		if err != nil {
+			return nil, err
+		}
+
+		featureCollections, err := featureCollectionFromItems(items, schemaPackage.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		return featureCollections, nil
+	})
+}
+
+// ItemsWithProjectAsCSV converts items content to CSV given by project ID or project Alias and model ID or model Key
+func (i Item) ItemsWithProjectAsCSV(ctx context.Context, projectIDorAlias project.IDOrAlias, modelIDOrKey model.IDOrKey, page *int, perPage *int, operator *usecase.Operator) (*io.PipeReader, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*io.PipeReader, error) {
+		project, err := i.repos.Project.FindByIDOrAlias(ctx, projectIDorAlias)
+		if err != nil {
+			return nil, err
+		}
+
+		model, err := i.repos.Model.FindByIDOrKey(ctx, project.ID(), modelIDOrKey)
+		if err != nil {
+			return nil, err
+		}
+
+		schemaIDs := id.SchemaIDList{model.Schema()}
+		if model.Metadata() != nil {
+			schemaIDs = append(schemaIDs, *model.Metadata())
+		}
+
+		schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		s := schemaList.Schema(lo.ToPtr(model.Schema()))
+		if s == nil {
+			return nil, rerror.ErrNotFound
+		}
+
+		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
+		if err != nil {
+			return nil, err
+		}
+
+		groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
+		if err != nil {
+			return nil, err
+		}
+		groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+			return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
+		})
+		referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
+			return groupSchemaList.Schema(&s)
+		})
+
+		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
+
+		// fromPagination
+		paginationOffset := fromPagination(page, perPage)
+
+		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+		if err != nil {
+			return nil, err
+		}
+
+		pr, pw := io.Pipe()
+		err = csvFromItems(pw, items, schemaPackage.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		return pr, nil
+	})
+}
+
+// ItemsWithProjectAsGeoJSON converts items content to Geo JSON given by project ID or project Alias and model ID or model Key
+func (i Item) ItemsWithProjectAsGeoJSON(ctx context.Context, projectIDorAlias project.IDOrAlias, modelIDOrKey model.IDOrKey, page *int, perPage *int, operator *usecase.Operator) (*integrationapi.FeatureCollection, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*integrationapi.FeatureCollection, error) {
+		project, err := i.repos.Project.FindByIDOrAlias(ctx, projectIDorAlias)
+		if err != nil {
+			return nil, err
+		}
+
+		model, err := i.repos.Model.FindByIDOrKey(ctx, project.ID(), modelIDOrKey)
+		if err != nil {
+			return nil, err
+		}
+
+		schemaIDs := id.SchemaIDList{model.Schema()}
+		if model.Metadata() != nil {
+			schemaIDs = append(schemaIDs, *model.Metadata())
+		}
+
+		schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		s := schemaList.Schema(lo.ToPtr(model.Schema()))
+		if s == nil {
+			return nil, rerror.ErrNotFound
+		}
+
+		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
+		if err != nil {
+			return nil, err
+		}
+
+		groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
+		if err != nil {
+			return nil, err
+		}
+		groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+			return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
+		})
+		referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
+			return groupSchemaList.Schema(&s)
+		})
+
+		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
+
+		// fromPagination
+		paginationOffset := fromPagination(page, perPage)
+
+		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+		if err != nil {
+			return nil, err
+		}
+
+		featureCollections, err := featureCollectionFromItems(items, schemaPackage.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		return featureCollections, nil
 	})
 }
 
