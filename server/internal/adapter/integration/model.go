@@ -121,17 +121,23 @@ func (s *Server) ModelCopy(ctx context.Context, request ModelCopyRequestObject) 
 		Name:    request.Body.Name,
 	}, op)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelCopy404Response{}, err
+		}
+		return ModelCopy500Response{}, err
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelCopy404Response{}, err
+		}
+		return ModelCopy500Response{}, err
 	}
 
-	lastModified, err := uc.Item.LastModifiedByModel(ctx, request.ModelId, op)
+	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-		return nil, err
+		return ModelCopy500Response{}, err
 	}
 
 	return ModelCopy200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
