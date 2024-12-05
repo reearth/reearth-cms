@@ -11,6 +11,7 @@ import {
   Item,
   ItemStatus,
   ItemField,
+  Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
@@ -190,13 +191,13 @@ export default () => {
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
   const [createNewItem] = useCreateItemMutation();
 
-  const itemIdToMetadataVersion = useRef(new Map<string, string>());
+  const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
     async (id: string) => {
       const { data } = await getItem({ variables: { id } });
       const item = fromGraphQLItem(data?.node as GQLItem);
       if (item) {
-        itemIdToMetadataVersion.current.set(id, item.metadata.version);
+        itemIdToMetadata.current.set(id, item.metadata);
       }
     },
     [getItem],
@@ -219,9 +220,8 @@ export default () => {
         Notification.error({ message: t("Failed to update item.") });
         return;
       } else {
-        const metadata = target.metadata;
-        const version = itemIdToMetadataVersion.current.get(updateItemId) ?? metadata?.version;
-        if (metadata?.fields && metadata.id && version) {
+        const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
+        if (metadata?.fields && metadata.id) {
           const requiredErrorFields: string[] = [];
           const maxLengthErrorFields: string[] = [];
           const fields = metadata.fields.map(field => {
@@ -276,7 +276,7 @@ export default () => {
             variables: {
               itemId: metadata.id,
               fields,
-              version,
+              version: metadata.version,
             },
           });
           if (item.errors || !item.data?.updateItem) {
