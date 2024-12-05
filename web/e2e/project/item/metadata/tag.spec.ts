@@ -73,13 +73,13 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByText("Tag1", { exact: true })).toBeVisible();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("close-circle").locator("svg").click();
+  await closeNotification(page);
   await page.getByLabel("tag1").click();
   await page
     .locator("div")
     .filter({ hasText: /^Tag2$/ })
     .nth(1)
     .click();
-  await page.getByText("tag1", { exact: true }).click();
   await closeNotification(page);
   await expect(page.locator("#root").getByText("Tag2")).toBeVisible();
   await page.getByLabel("Back").click();
