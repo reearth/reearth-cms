@@ -16,7 +16,7 @@ const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
   const isError = useMemo(() => {
     if (props.isError || (props.required && !value)) {
       return true;
-    } else if (props.maxLength && value && typeof value === "string") {
+    } else if (props.maxLength && typeof value === "string" && value) {
       return runes(value).length > props.maxLength;
     } else {
       return false;
