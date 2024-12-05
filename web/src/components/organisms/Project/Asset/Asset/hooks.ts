@@ -189,15 +189,12 @@ export default (assetId?: string) => {
   };
 
   const handleFullScreen = useCallback(() => {
-    if (
-      viewerType === "geo" ||
-      viewerType === "geo_3d_tiles" ||
-      viewerType === "model_3d" ||
-      viewerType === "geo_mvt"
-    ) {
-      viewerRef.current?.canvas.requestFullscreen();
+    if (viewerType === "unknown") {
+      return;
     } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
+    } else {
+      viewerRef.current?.canvas.requestFullscreen();
     }
   }, [viewerType]);
 
