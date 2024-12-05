@@ -325,12 +325,16 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
+			name := lo.ToPtr(oldModel.Name() + " Copy")
+			if params.Name != nil {
+				name = params.Name
+			}
 			newModel, err := i.Create(ctx, interfaces.CreateModelParam{
-				ProjectId:   oldModel.Project(), // do we use the same project?
-				Name:        params.Name,
+				ProjectId:   oldModel.Project(),
+				Name:        name,
 				Description: lo.ToPtr(oldModel.Description()),
 				Key:         id.RandomKey().Ref().StringRef(),
-				Public:      lo.ToPtr(true),
+				Public:      lo.ToPtr(oldModel.Public()),
 			}, operator)
 			if err != nil {
 				return nil, err
@@ -350,6 +354,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				return nil, err
 			}
 			// copy items
+			// need to split into transactions of a batch of 100 items per transaction
 			oldItems, _, err := i.repos.Item.FindBySchema(ctx, oldSchema.ID(), nil, nil, nil)
 			if err != nil {
 				return nil, err
@@ -419,6 +424,10 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 					return nil, err
 				}
 			}
+
+			// copy group items
+
+			// copy referenced items
 
 			return newModel, nil
 		})
