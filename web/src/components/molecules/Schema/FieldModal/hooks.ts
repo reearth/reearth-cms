@@ -259,7 +259,7 @@ export default (
   const handleValuesChange = useCallback(async (changedValues: Record<string, unknown>) => {
     const [key, value] = Object.entries(changedValues)[0] as [keyof FormTypes, unknown];
     let changedValue = value;
-    let defaultValue = defaultValueRef.current?.[key as keyof FormTypes];
+    let defaultValue = defaultValueRef.current?.[key];
     if (key === "supportedTypes" && Array.isArray(value) && Array.isArray(defaultValue)) {
       changedValue = [...value].sort();
       defaultValue = [...defaultValue].sort();
