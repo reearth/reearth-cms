@@ -31,6 +31,18 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
   const [isEditable, setIsEditable] = useState(false);
   const [itemState, setItemState] = useState(item);
 
+  const handleTextBlur = useCallback(
+    (e: FocusEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (itemState === value) {
+        return;
+      }
+      update?.(value, index);
+      setItemState(value);
+    },
+    [index, itemState, update],
+  );
+
   const handleUrlBlur = useCallback(
     (e: FocusEvent<HTMLInputElement>) => {
       const value = e.target.value;
@@ -56,9 +68,7 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
           maxLength={field.typeProperty?.maxLength}
           defaultValue={item}
           placeholder="-"
-          onBlur={e => {
-            update(e.target.value, index);
-          }}
+          onBlur={handleTextBlur}
         />
       ) : (
         item

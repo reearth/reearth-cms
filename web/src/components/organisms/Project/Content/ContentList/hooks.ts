@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
 import { renderTitle } from "@reearth-cms/components/molecules/Content/RenderTitle";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -241,22 +242,21 @@ export default () => {
             }
             const fieldValue = field.value;
             if (metaField?.required) {
-              // use checkIfEmpty
               if (Array.isArray(fieldValue)) {
-                if (fieldValue.every(v => v === undefined || v === null || v === "")) {
+                if (fieldValue.every(v => checkIfEmpty(v))) {
                   requiredErrorFields.push(metaField.key);
                 }
-              } else if (fieldValue === undefined || fieldValue === null || fieldValue === "") {
+              } else if (checkIfEmpty(fieldValue)) {
                 requiredErrorFields.push(metaField.key);
               }
             }
             const maxLength = metaField?.typeProperty?.maxLength;
             if (maxLength) {
               if (Array.isArray(fieldValue)) {
-                if (fieldValue.some(v => v.length > maxLength)) {
+                if (fieldValue.some(v => typeof v === "string" && v.length > maxLength)) {
                   maxLengthErrorFields.push(metaField.key);
                 }
-              } else if (fieldValue.length > maxLength) {
+              } else if (typeof fieldValue === "string" && fieldValue.length > maxLength) {
                 maxLengthErrorFields.push(metaField.key);
               }
             }
