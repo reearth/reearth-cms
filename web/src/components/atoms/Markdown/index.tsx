@@ -6,7 +6,6 @@ import { runes } from "runes2";
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 
 type Props = {
-  value?: string;
   onChange?: (value: string) => void;
   isError?: boolean;
 } & TextAreaProps;
@@ -17,7 +16,7 @@ const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
   const isError = useMemo(() => {
     if (props.isError || (props.required && !value)) {
       return true;
-    } else if (props.maxLength && value) {
+    } else if (props.maxLength && typeof value === "string" && value) {
       return runes(value).length > props.maxLength;
     } else {
       return false;
@@ -52,7 +51,7 @@ const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
         showCount
       />
       <StyledMD disabled={props.disabled} isError={isError} hidden={!showMD} onClick={handleClick}>
-        <ReactMarkdown>{value}</ReactMarkdown>
+        <ReactMarkdown>{typeof value === "string" ? value : undefined}</ReactMarkdown>
       </StyledMD>
     </MarkdownWrapper>
   );
