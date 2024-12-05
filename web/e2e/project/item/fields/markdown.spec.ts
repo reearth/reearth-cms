@@ -102,8 +102,7 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "delete" }).first().click();
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.getByRole("button", { name: "plus New" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
   await page.locator("div:nth-child(1) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text");
   await page.getByRole("button", { name: "plus New" }).click();

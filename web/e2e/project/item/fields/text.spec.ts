@@ -101,8 +101,7 @@ test("Text field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.getByRole("button", { name: "plus New" }).click();
   await expect(page.getByText("/ 5")).toBeVisible();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
   await page.getByRole("textbox").nth(0).click();
   await page.getByRole("textbox").nth(0).fill("text");
   await page.getByRole("button", { name: "plus New" }).click();

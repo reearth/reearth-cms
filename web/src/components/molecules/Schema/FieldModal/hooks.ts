@@ -197,10 +197,20 @@ export default (
         return {
           date: { defaultValue: transformDayjsToString(values.defaultValue) ?? "" },
         };
-      case "Tag":
+      case "Tag": {
+        const defaultValue =
+          Array.isArray(values.defaultValue) && values.defaultValue.length
+            ? values.tags
+                ?.filter(tag => values.defaultValue.includes(tag.name))
+                .map(({ name }) => name)
+            : values.defaultValue;
         return {
-          tag: { defaultValue: values.defaultValue, tags: values.tags ?? [] },
+          tag: {
+            defaultValue,
+            tags: values.tags ?? [],
+          },
         };
+      }
       case "Checkbox":
         return {
           checkbox: { defaultValue: values.defaultValue },

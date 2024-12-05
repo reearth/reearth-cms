@@ -45,7 +45,9 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate, disabled }) =>
         <Select onChange={onMetaUpdate} allowClear disabled={disabled}>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
-              <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              <TagWrapper>
+                <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              </TagWrapper>
             </Select.Option>
           ))}
         </Select>
@@ -57,6 +59,10 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate, disabled }) =>
 export default TagField;
 
 const StyledMultipleSelect = styled(Select)`
+  .ant-select-selection-overflow {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
   .ant-select-selection-overflow-item {
     margin-right: 4px;
   }
@@ -74,4 +80,9 @@ const StyledMultipleSelect = styled(Select)`
   .ant-tag {
     margin-right: 0;
   }
+`;
+
+const TagWrapper = styled.div`
+  overflow-x: auto;
+  overflow-y: hidden;
 `;

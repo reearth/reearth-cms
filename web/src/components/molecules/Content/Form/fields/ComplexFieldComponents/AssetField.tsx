@@ -9,6 +9,8 @@ import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
+import { requiredValidator } from "../utils";
+
 type AssetFieldProps = {
   field: Field;
   itemGroupId?: string;
@@ -74,6 +76,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
       rules={[
         {
           required: field.required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
       ]}
