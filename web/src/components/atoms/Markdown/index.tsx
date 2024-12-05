@@ -8,15 +8,21 @@ import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea"
 type Props = {
   value?: string;
   onChange?: (value: string) => void;
+  isError?: boolean;
 } & TextAreaProps;
 
 const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
-  const isError = useMemo(
-    () => (props.maxLength && value ? runes(value).length > props.maxLength : false),
-    [props.maxLength, value],
-  );
+  const isError = useMemo(() => {
+    if (props.isError || (props.required && !value)) {
+      return true;
+    } else if (props.maxLength && value) {
+      return runes(value).length > props.maxLength;
+    } else {
+      return false;
+    }
+  }, [props, value]);
 
   const handleBlur = useCallback((event: FocusEvent<HTMLTextAreaElement>) => {
     event.stopPropagation();
