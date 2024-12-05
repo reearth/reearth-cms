@@ -147,6 +147,7 @@ const ProjectSchema: React.FC = () => {
         <FieldModal
           groups={groups}
           selectedType={selectedType}
+          selectedSchemaType={selectedSchemaType}
           isMeta={isMeta}
           open={fieldModalShown}
           fieldLoading={selectedField ? fieldUpdateLoading : fieldCreationLoading}
