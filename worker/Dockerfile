@@ -15,6 +15,7 @@ WORKDIR /app
 RUN go mod download
 
 COPY server/pkg/ /app/server/pkg/
+COPY server/infrastructure/ /app/server/infrastructure/
 COPY worker/cmd/ /app/worker/cmd/
 COPY worker/internal/ /app/worker/internal/
 COPY worker/pkg/ /app/worker/pkg/

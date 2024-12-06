@@ -16,14 +16,11 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
-  push:
-    branches:
-      - change-worker-docker-context
 
 jobs:
   docker:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/change-worker-docker-context' || inputs.name || inputs.new_tag
+    if: inputs.name || inputs.new_tag
     env:
       IMAGE_NAME: reearth/reearth-cms-worker
     steps:
@@ -41,9 +38,9 @@ jobs:
       - name: Get options
         id: options
         env:
-          TAG: ${{ inputs.new_tag_short || '' }}
-          NAME: ${{ inputs.name || github.sha }}
-          SHA: ${{ inputs.sha_short || github.sha }}
+          TAG: ${{ inputs.new_tag_short }}
+          NAME: ${{ inputs.name }}
+          SHA: ${{ inputs.sha_short }}
         run: |
           if [[ -n $TAG ]]; then
             PLATFORMS=linux/amd64,linux/arm64
