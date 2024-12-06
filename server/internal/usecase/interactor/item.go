@@ -1199,36 +1199,10 @@ func (i Item) ItemsAsCSV(ctx context.Context, modelID id.ModelID, page *int, per
 			return nil, err
 		}
 
-		schemaIDs := id.SchemaIDList{model.Schema()}
-		if model.Metadata() != nil {
-			schemaIDs = append(schemaIDs, *model.Metadata())
-		}
-		schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+		schemaPackage, err := i.buildSchemaPackage(ctx, model)
 		if err != nil {
 			return nil, err
 		}
-		s := schemaList.Schema(lo.ToPtr(model.Schema()))
-		if s == nil {
-			return nil, rerror.ErrNotFound
-		}
-
-		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
-		if err != nil {
-			return nil, err
-		}
-
-		groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
-		if err != nil {
-			return nil, err
-		}
-		groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-			return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
-		})
-		referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
-			return groupSchemaList.Schema(&s)
-		})
-
-		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
 
 		// fromPagination
 		paginationOffset := fromPagination(page, perPage)
@@ -1261,36 +1235,10 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, modelID id.ModelID, page *int,
 			return nil, err
 		}
 
-		schemaIDs := id.SchemaIDList{model.Schema()}
-		if model.Metadata() != nil {
-			schemaIDs = append(schemaIDs, *model.Metadata())
-		}
-		schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+		schemaPackage, err := i.buildSchemaPackage(ctx, model)
 		if err != nil {
 			return nil, err
 		}
-		s := schemaList.Schema(lo.ToPtr(model.Schema()))
-		if s == nil {
-			return nil, rerror.ErrNotFound
-		}
-
-		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
-		if err != nil {
-			return nil, err
-		}
-
-		groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
-		if err != nil {
-			return nil, err
-		}
-		groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-			return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
-		})
-		referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
-			return groupSchemaList.Schema(&s)
-		})
-
-		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
 
 		// fromPagination
 		paginationOffset := fromPagination(page, perPage)
@@ -1326,38 +1274,10 @@ func (i Item) ItemsWithProjectAsCSV(ctx context.Context, projectIDorAlias projec
 			return nil, err
 		}
 
-		schemaIDs := id.SchemaIDList{model.Schema()}
-		if model.Metadata() != nil {
-			schemaIDs = append(schemaIDs, *model.Metadata())
-		}
-
-		schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+		schemaPackage, err := i.buildSchemaPackage(ctx, model)
 		if err != nil {
 			return nil, err
 		}
-
-		s := schemaList.Schema(lo.ToPtr(model.Schema()))
-		if s == nil {
-			return nil, rerror.ErrNotFound
-		}
-
-		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
-		if err != nil {
-			return nil, err
-		}
-
-		groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
-		if err != nil {
-			return nil, err
-		}
-		groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-			return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
-		})
-		referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
-			return groupSchemaList.Schema(&s)
-		})
-
-		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
 
 		// fromPagination
 		paginationOffset := fromPagination(page, perPage)
@@ -1394,38 +1314,10 @@ func (i Item) ItemsWithProjectAsGeoJSON(ctx context.Context, projectIDorAlias pr
 			return nil, err
 		}
 
-		schemaIDs := id.SchemaIDList{model.Schema()}
-		if model.Metadata() != nil {
-			schemaIDs = append(schemaIDs, *model.Metadata())
-		}
-
-		schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+		schemaPackage, err := i.buildSchemaPackage(ctx, model)
 		if err != nil {
 			return nil, err
 		}
-
-		s := schemaList.Schema(lo.ToPtr(model.Schema()))
-		if s == nil {
-			return nil, rerror.ErrNotFound
-		}
-
-		groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
-		if err != nil {
-			return nil, err
-		}
-
-		groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
-		if err != nil {
-			return nil, err
-		}
-		groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-			return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
-		})
-		referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
-			return groupSchemaList.Schema(&s)
-		})
-
-		schemaPackage := schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap)
 
 		// fromPagination
 		paginationOffset := fromPagination(page, perPage)
@@ -1442,6 +1334,39 @@ func (i Item) ItemsWithProjectAsGeoJSON(ctx context.Context, projectIDorAlias pr
 
 		return featureCollections, nil
 	})
+}
+
+func (i Item) buildSchemaPackage(ctx context.Context, model *model.Model) (*schema.Package, error) {
+	schemaIDs := id.SchemaIDList{model.Schema()}
+	if model.Metadata() != nil {
+		schemaIDs = append(schemaIDs, *model.Metadata())
+	}
+	schemaList, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+	if err != nil {
+		return nil, err
+	}
+	s := schemaList.Schema(lo.ToPtr(model.Schema()))
+	if s == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
+	if err != nil {
+		return nil, err
+	}
+
+	groupSchemaList, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
+	if err != nil {
+		return nil, err
+	}
+	groupSchemaMap := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+		return g.ID(), schemaList.Schema(lo.ToPtr(g.Schema()))
+	})
+	referencedSchemaMap := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
+		return groupSchemaList.Schema(&s)
+	})
+
+	return schema.NewPackage(s, schemaList.Schema(model.Metadata()), groupSchemaMap, referencedSchemaMap), nil
 }
 
 func fromPagination(page, perPage *int) *usecasex.Pagination {
