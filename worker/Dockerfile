@@ -27,4 +27,4 @@ COPY --from=build /app/reearth-cms-worker /app/reearth-cms-worker
 
 WORKDIR /app
 
-CMD [ "./reearth-cms-worker" ]
+CMD ["./reearth-cms-worker"]
