@@ -5,7 +5,7 @@ import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -231,18 +231,40 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
+  const handleFormValidate = useCallback(async (form: FormInstance) => {
+    try {
+      await form.validateFields();
+    } catch (e) {
+      if ((e as ValidateErrorEntity).errorFields.length > 0) {
+        setIsDisabled(true);
+        throw e;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!itemId) {
+      handleFormValidate(form);
+      handleFormValidate(metaForm);
+    }
+  }, [form, handleFormValidate, itemId, metaForm]);
+
   const handleValuesChange = useCallback(
     async (changedValues: Record<string, unknown>) => {
       try {
-        await form.validateFields();
+        await handleFormValidate(form);
       } catch (e) {
-        if ((e as ValidateErrorEntity).errorFields.length > 0) {
-          setIsDisabled(true);
-          return;
-        }
+        console.error(e);
+        return;
       }
 
       if (!itemId) {
+        try {
+          await handleFormValidate(metaForm);
+        } catch (e) {
+          console.error(e);
+          return;
+        }
         setIsDisabled(false);
         return;
       }
@@ -268,7 +290,7 @@ const ContentForm: React.FC<Props> = ({
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
-    [checkIfSingleGroupField, form, initialFormValues, itemId],
+    [checkIfSingleGroupField, form, handleFormValidate, initialFormValues, itemId, metaForm],
   );
 
   useEffect(() => {
@@ -458,23 +480,23 @@ const ContentForm: React.FC<Props> = ({
         metaItemId: item?.metadata?.id,
         metaFields,
       });
+      setIsDisabled(true);
     } catch (info) {
-      console.log("Validate Failed:", info);
+      console.error(info);
     }
   }, [itemId, metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
 
   const handleMetaValuesChange = useCallback(async () => {
     if (itemId) return;
     try {
-      await metaForm.validateFields();
+      await handleFormValidate(form);
+      await handleFormValidate(metaForm);
     } catch (e) {
-      if ((e as ValidateErrorEntity).errorFields.length > 0) {
-        setIsDisabled(true);
-        return;
-      }
+      console.error(e);
+      return;
     }
     setIsDisabled(false);
-  }, [itemId, metaForm]);
+  }, [form, handleFormValidate, itemId, metaForm]);
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
