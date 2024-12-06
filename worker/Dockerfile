@@ -1,6 +1,7 @@
 FROM golang:1.23.3-alpine AS build
 
 ARG TAG=release
+ARG REV
 ARG VERSION
 
 RUN apk add --update --no-cache git ca-certificates build-base
