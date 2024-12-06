@@ -16,11 +16,14 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
+  push:
+    branches:
+      - change-worker-docker-context
 
 jobs:
   docker:
     runs-on: ubuntu-latest
-    if: inputs.name || inputs.new_tag
+    if: github.ref == 'refs/heads/change-worker-docker-context' || inputs.name || inputs.new_tag
     env:
       IMAGE_NAME: reearth/reearth-cms-worker
     steps:
@@ -62,6 +65,7 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@v6
         with:
+          context: ..
           file: ./worker/Dockerfile
           platforms: ${{ steps.options.outputs.platforms }}
           push: true
@@ -72,7 +76,7 @@ jobs:
 
   docker_decompressor:
     runs-on: ubuntu-latest
-    if: inputs.name || inputs.new_tag
+    if: github.ref == 'refs/heads/change-worker-docker-context' || inputs.name || inputs.new_tag
     env:
       IMAGE_NAME: reearth/reearth-cms-decompressor
     steps:
@@ -114,7 +118,7 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@v6
         with:
-          context: ./worker
+          context: ..
           file: ./worker/decompressor.Dockerfile
           platforms: ${{ steps.options.outputs.platforms }}
           push: true
