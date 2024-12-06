@@ -42,7 +42,7 @@ jobs:
         id: options
         env:
           TAG: ${{ inputs.new_tag_short || '' }}
-          NAME: ${{ inputs.name || '' }}
+          NAME: ${{ inputs.name || 'test-20241206' }}
           SHA: ${{ inputs.sha_short || '' }}
         run: |
           if [[ -n $TAG ]]; then
@@ -54,13 +54,10 @@ jobs:
               TAGS+=,${IMAGE_NAME}:${TAG%%.*}
               TAGS+=,${IMAGE_NAME}:latest
             fi
-          elif [[ -n $SHA ]]; then
+          else
             PLATFORMS=linux/amd64
             VERSION=$SHA
-            TAGS=$IMAGE_NAME:$SHA
-          else
-            echo "ERROR: No tag or SHA provided." >&2
-            exit 1
+            TAGS=$IMAGE_NAME:$NAME
           fi
           echo "platforms=$PLATFORMS" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
