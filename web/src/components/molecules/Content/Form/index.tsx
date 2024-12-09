@@ -242,13 +242,6 @@ const ContentForm: React.FC<Props> = ({
     }
   }, []);
 
-  useEffect(() => {
-    if (!itemId) {
-      handleFormValidate(form);
-      handleFormValidate(metaForm);
-    }
-  }, [form, handleFormValidate, itemId, metaForm]);
-
   const handleValuesChange = useCallback(
     async (changedValues: Record<string, unknown>) => {
       try {
@@ -261,11 +254,10 @@ const ContentForm: React.FC<Props> = ({
       if (!itemId) {
         try {
           await handleFormValidate(metaForm);
+          setIsDisabled(false);
         } catch (e) {
           console.error(e);
-          return;
         }
-        setIsDisabled(false);
         return;
       }
 
@@ -343,13 +335,29 @@ const ContentForm: React.FC<Props> = ({
     return () => window.removeEventListener("beforeunload", handleBeforeUnloadEvent, true);
   }, []);
 
-  useEffect(() => {
-    form.setFieldsValue(initialFormValues);
-  }, [form, initialFormValues]);
+  const allFormsValidate = useCallback(async () => {
+    try {
+      await handleFormValidate(form);
+      await handleFormValidate(metaForm);
+      setIsDisabled(false);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [form, handleFormValidate, metaForm]);
 
   useEffect(() => {
+    form.setFieldsValue(initialFormValues);
     metaForm.setFieldsValue(initialMetaFormValues);
-  }, [metaForm, initialMetaFormValues]);
+    if (!itemId) {
+      allFormsValidate();
+    }
+  }, [allFormsValidate, form, initialFormValues, initialMetaFormValues, itemId, metaForm]);
+
+  const handleMetaValuesChange = useCallback(async () => {
+    if (!itemId) {
+      allFormsValidate();
+    }
+  }, [allFormsValidate, itemId]);
 
   const unpublishedItems = useMemo(
     () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
@@ -402,7 +410,6 @@ const ContentForm: React.FC<Props> = ({
   }, [inputValueGet, metaFieldsMap, metaForm]);
 
   const handleSubmit = useCallback(async () => {
-    setIsDisabled(true);
     try {
       const groupFields = new Map<string, Field>();
       if (model) {
@@ -457,8 +464,9 @@ const ContentForm: React.FC<Props> = ({
       }
 
       changedKeys.current.clear();
-    } catch (_) {
-      setIsDisabled(false);
+      setIsDisabled(true);
+    } catch (e) {
+      console.error(e);
     }
   }, [
     model,
@@ -485,18 +493,6 @@ const ContentForm: React.FC<Props> = ({
       console.error(info);
     }
   }, [itemId, metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
-
-  const handleMetaValuesChange = useCallback(async () => {
-    if (itemId) return;
-    try {
-      await handleFormValidate(form);
-      await handleFormValidate(metaForm);
-    } catch (e) {
-      console.error(e);
-      return;
-    }
-    setIsDisabled(false);
-  }, [form, handleFormValidate, itemId, metaForm]);
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
