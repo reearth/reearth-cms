@@ -12,6 +12,7 @@ import {
   ItemField,
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
+import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ConditionInput,
@@ -201,6 +202,11 @@ export default () => {
     [getItem],
   );
 
+  const metaFieldsMap = useMemo(
+    () => new Map((currentModel?.metadataSchema.fields || []).map(field => [field.id, field])),
+    [currentModel?.metadataSchema.fields],
+  );
+
   const handleMetaItemUpdate = useCallback(
     async (
       updateItemId: string,
@@ -209,7 +215,7 @@ export default () => {
       index?: number,
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
-      if (!target || !currentModel?.metadataSchema?.id || !currentModel.metadataSchema.fields) {
+      if (!target || !currentModel?.metadataSchema?.id || !metaFieldsMap) {
         Notification.error({ message: t("Failed to update item.") });
         return;
       } else {
@@ -217,8 +223,13 @@ export default () => {
         if (metadata?.fields && metadata.id) {
           const fields = metadata.fields.map(field => {
             if (field.schemaFieldId === key) {
-              if (Array.isArray(field.value) && field.type !== "Tag") {
-                field.value[index ?? 0] = value ?? "";
+              if (Array.isArray(field.value)) {
+                if (field.type === "Tag") {
+                  const tags = metaFieldsMap.get(key)?.typeProperty?.tags;
+                  field.value = tags ? selectedTagIdsGet(value as string[], tags) : [];
+                } else {
+                  field.value[index ?? 0] = value ?? "";
+                }
               } else {
                 field.value = value ?? "";
               }
@@ -239,10 +250,10 @@ export default () => {
             return;
           }
         } else {
-          const fields = currentModel.metadataSchema.fields.map(field => ({
-            value: field.id === key ? value : "",
+          const fields = [...metaFieldsMap].map(field => ({
+            value: field[1].id === key ? value : "",
             schemaFieldId: key,
-            type: field.type as SchemaFieldType,
+            type: field[1].type as SchemaFieldType,
           }));
           const metaItem = await createNewItem({
             variables: {
@@ -278,9 +289,9 @@ export default () => {
     [
       createNewItem,
       currentModel?.id,
-      currentModel?.metadataSchema.fields,
       currentModel?.metadataSchema.id,
       data?.searchItem.nodes,
+      metaFieldsMap,
       metadataVersionSet,
       t,
       updateItemMutation,
@@ -450,6 +461,7 @@ export default () => {
       );
       setSearchTerm("");
       setPage(1);
+      setSelectedItems({ selectedRows: [] });
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
   );

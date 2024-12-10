@@ -6,6 +6,7 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator } from "../utils";
 
 type URLFieldProps = {
   field: Field;
@@ -25,6 +26,7 @@ const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, d
       rules={[
         {
           required: field.required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
         {

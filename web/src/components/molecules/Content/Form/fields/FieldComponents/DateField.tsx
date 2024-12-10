@@ -7,6 +7,7 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator } from "../utils";
 
 type DateFieldProps = {
   field: Field;
@@ -24,6 +25,7 @@ const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate,
       rules={[
         {
           required: field.required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
       ]}

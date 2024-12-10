@@ -24,6 +24,7 @@ import {
   ItemField,
   ItemValue,
 } from "@reearth-cms/components/molecules/Content/types";
+import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   Request,
@@ -333,12 +334,17 @@ const ContentForm: React.FC<Props> = ({
     [formItemsData],
   );
 
-  const inputValueGet = useCallback((value: ItemValue, multiple: boolean) => {
-    if (multiple) {
+  const inputValueGet = useCallback((value: ItemValue, field: Field) => {
+    if (field.multiple) {
       if (Array.isArray(value)) {
-        return value.map(v =>
-          v === "" ? undefined : dayjs.isDayjs(v) ? transformDayjsToString(v) : v,
-        );
+        if (field.type === "Tag") {
+          const tags = field.typeProperty?.tags;
+          return tags ? selectedTagIdsGet(value as string[], tags) : [];
+        } else {
+          return value.map(v =>
+            v === "" ? undefined : dayjs.isDayjs(v) ? transformDayjsToString(v) : v,
+          );
+        }
       } else {
         return [];
       }
@@ -364,7 +370,7 @@ const ContentForm: React.FC<Props> = ({
       const metaField = metaFieldsMap.get(key);
       if (metaField) {
         result.push({
-          value: inputValueGet(value as ItemValue, metaField.multiple),
+          value: inputValueGet(value as ItemValue, metaField),
           schemaFieldId: key,
           type: metaField.type,
         });
@@ -394,7 +400,7 @@ const ContentForm: React.FC<Props> = ({
         const modelField = modelFields.get(key);
         if (modelField) {
           fields.push({
-            value: inputValueGet(value as ItemValue, modelField.multiple),
+            value: inputValueGet(value as ItemValue, modelField),
             schemaFieldId: key,
             type: modelField.type,
           });
@@ -403,7 +409,7 @@ const ContentForm: React.FC<Props> = ({
             const groupField = groupFields.get(key);
             if (groupField) {
               fields.push({
-                value: inputValueGet(groupFieldValue, groupField.multiple),
+                value: inputValueGet(groupFieldValue, groupField),
                 schemaFieldId: key,
                 itemGroupId: groupFieldKey,
                 type: groupField.type,
@@ -456,6 +462,19 @@ const ContentForm: React.FC<Props> = ({
       console.log("Validate Failed:", info);
     }
   }, [itemId, metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
+
+  const handleMetaValuesChange = useCallback(async () => {
+    if (itemId) return;
+    try {
+      await metaForm.validateFields();
+    } catch (e) {
+      if ((e as ValidateErrorEntity).errorFields.length > 0) {
+        setIsDisabled(true);
+        return;
+      }
+    }
+    setIsDisabled(false);
+  }, [itemId, metaForm]);
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
@@ -673,7 +692,11 @@ const ContentForm: React.FC<Props> = ({
         </FormItemsWrapper>
       </StyledForm>
       <SideBarWrapper>
-        <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
+        <Form
+          form={metaForm}
+          layout="vertical"
+          initialValues={initialMetaFormValues}
+          onValuesChange={handleMetaValuesChange}>
           <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
           {model?.metadataSchema?.fields?.map(field => {
             const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
