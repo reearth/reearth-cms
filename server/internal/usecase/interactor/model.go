@@ -11,7 +11,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -312,4 +314,43 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 			}
 			return ordered, nil
 		})
+}
+
+func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ *model.Model, err error) {
+			m, err := i.repos.Model.FindByID(ctx, params.ModelId)
+			if err != nil {
+				return nil, err
+			}
+			name := m.Name() + " Copy"
+			if params.Name != nil {
+				name = *params.Name
+			}
+
+			err = i.triggerCopyEvent(ctx, m.ID().String(), name)
+			if err != nil {
+				return nil, err
+			}
+
+			return m, nil
+		})
+}
+
+func (i Model) triggerCopyEvent(ctx context.Context, modelId, name string) error {
+	if i.gateways.TaskRunner == nil {
+		log.Infof("model: copy of model %s was skipped because task runner is not configured", modelId)
+		return nil
+	}
+
+	taskPayload := task.CopyModelPayload{
+		ModelID: modelId,
+		Name:    name,
+	}
+
+	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
+		return err
+	}
+
+	return nil
 }

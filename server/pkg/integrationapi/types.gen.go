@@ -705,6 +705,11 @@ type ModelUpdateJSONBody struct {
 	Name        *string `json:"name,omitempty"`
 }
 
+// ModelCopyJSONBody defines parameters for ModelCopy.
+type ModelCopyJSONBody struct {
+	Name *string `json:"name,omitempty"`
+}
+
 // ModelImportJSONBody defines parameters for ModelImport.
 type ModelImportJSONBody struct {
 	AssetId          id.AssetID                  `json:"assetId"`
@@ -1021,6 +1026,9 @@ type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
 type ModelUpdateJSONRequestBody ModelUpdateJSONBody
+
+// ModelCopyJSONRequestBody defines body for ModelCopy for application/json ContentType.
+type ModelCopyJSONRequestBody ModelCopyJSONBody
 
 // ModelImportJSONRequestBody defines body for ModelImport for application/json ContentType.
 type ModelImportJSONRequestBody ModelImportJSONBody

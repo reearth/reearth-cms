@@ -449,6 +449,39 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           description: Internal server error
+  '/models/{modelId}/copy':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    post:
+      operationId: ModelCopy
+      summary: Copy schema and items of a selected model
+      tags:
+        - Models
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/model'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          description: Internal server error
   '/schemata/{schemaId}/fields':
     parameters:
       - $ref: '#/components/parameters/schemaIdParam'

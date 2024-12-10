@@ -112,6 +112,37 @@ func (s *Server) ModelGet(ctx context.Context, request ModelGetRequestObject) (M
 	return ModelGet200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
+func (s *Server) ModelCopy(ctx context.Context, request ModelCopyRequestObject) (ModelCopyResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	m, err := uc.Model.Copy(ctx, interfaces.CopyModelParam{
+		ModelId: request.ModelId,
+		Name:    request.Body.Name,
+	}, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelCopy404Response{}, err
+		}
+		return ModelCopy500Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelCopy404Response{}, err
+		}
+		return ModelCopy500Response{}, err
+	}
+
+	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return ModelCopy500Response{}, err
+	}
+
+	return ModelCopy200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
+}
+
 func (s *Server) ModelGetWithProject(ctx context.Context, request ModelGetWithProjectRequestObject) (ModelGetWithProjectResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
