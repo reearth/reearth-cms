@@ -71,6 +71,13 @@ func (t *TaskRunner) Retry(ctx context.Context, id string) error {
 }
 
 func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
+	if p.DecompressAsset != nil {
+		return decompressAsset(ctx, p, t.conf)
+	}
+	return copyModel(ctx, p, t.conf)
+}
+
+func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if p.DecompressAsset == nil {
 		return nil
 	}
@@ -80,25 +87,25 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		return rerror.ErrInternalBy(err)
 	}
 
-	src, err := url.JoinPath("gs://"+t.conf.GCSBucket, "assets", p.DecompressAsset.Path)
+	src, err := url.JoinPath("gs://"+conf.GCSBucket, "assets", p.DecompressAsset.Path)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
-	dest, err := url.JoinPath("gs://"+t.conf.GCSBucket, "assets", path.Dir(p.DecompressAsset.Path))
+	dest, err := url.JoinPath("gs://"+conf.GCSBucket, "assets", path.Dir(p.DecompressAsset.Path))
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 
-	project := t.conf.GCPProject
-	region := t.conf.GCPRegion
+	project := conf.GCPProject
+	region := conf.GCPRegion
 
 	machineType := ""
-	if v := t.conf.DecompressorMachineType; v != "" && v != "default" {
+	if v := conf.DecompressorMachineType; v != "" && v != "default" {
 		machineType = v
 	}
 
 	var diskSizeGb int64
-	if v := t.conf.DecompressorDiskSideGb; v > 0 {
+	if v := conf.DecompressorDiskSideGb; v > 0 {
 		diskSizeGb = v
 	} else {
 		diskSizeGb = defaultDiskSizeGb
@@ -109,11 +116,11 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
 			{
-				Name: t.conf.DecompressorImage,
-				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + t.conf.DecompressorGzipExt, "-skip-top", "-old-windows", src, dest},
+				Name: conf.DecompressorImage,
+				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + conf.DecompressorGzipExt, "-skip-top", "-old-windows", src, dest},
 				Env: []string{
 					"GOOGLE_CLOUD_PROJECT=" + project,
-					"REEARTH_CMS_DECOMPRESSOR_TOPIC=" + t.conf.DecompressorTopic,
+					"REEARTH_CMS_DECOMPRESSOR_TOPIC=" + conf.DecompressorTopic,
 					"REEARTH_CMS_DECOMPRESSOR_ASSET_ID=" + p.DecompressAsset.AssetID,
 				},
 			},
@@ -121,6 +128,60 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
+		},
+	}
+
+	if region != "" {
+		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
+		_, err = call.Do()
+	} else {
+		call := cb.Projects.Builds.Create(project, build)
+		_, err = call.Do()
+	}
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func copyModel(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+	if p.CopyModel == nil {
+		return nil
+	}
+
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	project := conf.GCPProject
+	region := conf.GCPRegion
+
+	build := &cloudbuild.Build{
+		Timeout:  "86400s", // 1 day
+		QueueTtl: "86400s", // 1 day
+		Steps: []*cloudbuild.BuildStep{
+			{
+				Name: conf.CopyModelImage,
+				Args: []string{
+					"-v",              // Enables verbose mode for logging.
+					"-n=192",          // Specifies a numerical configuration, possibly a limit or count (e.g., number of threads, requests, etc.).
+					"-gc=5000",        // Configures garbage collection or memory management to a threshold of 5000 units.
+					"-chunk=1m",       // Sets a chunk size of 1 megabyte for processing or data transfer.
+					"-disk-limit=20g", // Limits the disk usage to 20 gigabytes.
+					"-skip-top",       // Enables an option to skip certain data or processing steps (e.g., skipping the "top" of a hierarchy).
+					"-old-windows",    // Activates compatibility or a specific mode for older Windows environments.
+				},
+				Env: []string{
+					"GOOGLE_CLOUD_PROJECT=" + project,
+					"REEARTH_CMS_COPY_MODEL_TOPIC=" + conf.CopyModelTopic,
+					"REEARTH_CMS_COPY_MODEL_MODEL_ID=" + p.CopyModel.ModelID,
+					"REEARTH_CMS_COPY_MODEL_NAME=" + p.CopyModel.Name,
+				},
+			},
+		},
+		Options: &cloudbuild.BuildOptions{
+			DiskSizeGb: defaultDiskSizeGb,
 		},
 	}
 
