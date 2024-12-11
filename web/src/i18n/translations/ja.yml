@@ -485,11 +485,12 @@ Failed to update item.: アイテムの更新に失敗しました。
 Successfully updated Item!: アイテムの更新に成功しました。
 Failed to create request.: リクエストの作成に失敗しました。
 Successfully created request!: リクエストの作成に成功しました。
-Failed to update request.: リクエストの更新に失敗しました。
-Successfully updated request!: リクエストの更新に成功しました。
+Required field error: '{{field}}フィールドは必須項目です!'
+Maximum length error: '{{field}}フィールドの文字数が最大数を超えています!'
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
 One of the items already exists in the request.: アイテムのいずれかがすでにリクエストに存在します。
+Failed to update request.: リクエストの更新に失敗しました。
 Successfully updated Request!: リクエストの更新に成功しました。
 Failed to publish items.: アイテムの公開に失敗しました。
 Successfully published items!: アイテムの公開に成功しました!
@@ -517,6 +518,7 @@ Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。
 Successfully updated model!: モデルの更新に成功しました。
+Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more requests.: リクエストの削除に失敗しました。
 One or more requests were successfully closed!: リクエストのクローズに成功しました。
 Failed to approve request.: リクエストの承認に失敗しました。
