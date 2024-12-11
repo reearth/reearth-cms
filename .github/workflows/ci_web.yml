@@ -27,6 +27,10 @@ jobs:
           flags: web
       - name: Check translations
         run: yarn i18n --fail-on-update
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test
       - name: Build
         run: yarn build
       - name: Pack
