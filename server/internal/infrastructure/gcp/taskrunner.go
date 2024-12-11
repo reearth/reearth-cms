@@ -162,7 +162,7 @@ func copyModel(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
 			{
-				Name: conf.CopyModelImage,
+				Name: conf.CopierImage,
 				Args: []string{
 					"-v",              // Enables verbose mode for logging.
 					"-n=192",          // Specifies a numerical configuration, possibly a limit or count (e.g., number of threads, requests, etc.).
@@ -174,9 +174,9 @@ func copyModel(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 				},
 				Env: []string{
 					"GOOGLE_CLOUD_PROJECT=" + project,
-					"REEARTH_CMS_COPY_MODEL_TOPIC=" + conf.CopyModelTopic,
-					"REEARTH_CMS_COPY_MODEL_MODEL_ID=" + p.CopyModel.ModelID,
-					"REEARTH_CMS_COPY_MODEL_NAME=" + p.CopyModel.Name,
+					"REEARTH_CMS_COPIER_TOPIC=" + conf.CopierTopic,
+					"REEARTH_CMS_COPIER_MODEL_ID=" + p.CopyModel.ModelID,
+					"REEARTH_CMS_COPIER_NAME=" + p.CopyModel.Name,
 				},
 			},
 		},

@@ -11,6 +11,6 @@ type TaskConfig struct {
 	DecompressorGzipExt     string `default:"gml"`
 	DecompressorMachineType string `default:"E2_HIGHCPU_8"`
 	DecompressorDiskSideGb  int64  `default:"2000"`
-	CopyModelImage          string `default:"reearth/reearth-cms-copy-model"`
-	CopyModelTopic          string `default:"copy-model"`
+	CopierImage             string `default:"reearth/reearth-cms-copier"`
+	CopierTopic             string `default:"copier"`
 }
