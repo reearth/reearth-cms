@@ -10,7 +10,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func TestEventDocument_Model(t *testing.T) {
