@@ -9,6 +9,7 @@ type Payload struct {
 	DecompressAsset *DecompressAssetPayload
 	CompressAsset   *CompressAssetPayload
 	Webhook         *WebhookPayload
+	CopyModel       *CopyModelPayload
 }
 
 type DecompressAssetPayload struct {
@@ -41,5 +42,16 @@ type WebhookPayload struct {
 func (t WebhookPayload) Payload() Payload {
 	return Payload{
 		Webhook: &t,
+	}
+}
+
+type CopyModelPayload struct {
+	ModelID string
+	Name    string
+}
+
+func (p *CopyModelPayload) Payload() Payload {
+	return Payload{
+		CopyModel: p,
 	}
 }
