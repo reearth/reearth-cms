@@ -1094,6 +1094,7 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 
+	// Geometry Object type
 	sid1 := id.NewSchemaID()
 	fid1 := id.NewFieldID()
 	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).ID(fid1).MustBuild()
@@ -1104,15 +1105,17 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 	i1 := item.New().ID(id.NewItemID()).Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID()).Fields(fs1).MustBuild()
 	i1IDStr := i1.ID().String()
 
+	// GeometryEditor type item
 	sid2 := id.NewSchemaID()
 	fid2 := id.NewFieldID()
 	sf2 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).ID(fid2).MustBuild()
 	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf2}).MustBuild()
 	m2 := model.New().NewID().Schema(s2.ID()).Key(id.RandomKey()).Project(s2.Project()).MustBuild()
-	fi2 := item.NewField(sf2.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
+	fi2 := item.NewField(sf2.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[  ],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
 	fs2 := []*item.Field{fi2}
 	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID()).Fields(fs2).MustBuild()
 
+	// integer type item
 	fid3 := id.NewFieldID()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
 	tp4 := in4.TypeProperty()
@@ -1123,21 +1126,6 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 	i3 := item.New().NewID().Schema(s3.ID()).Model(m3.ID()).Project(s3.Project()).Thread(id.NewThreadID()).Fields(fs3).MustBuild()
 
 	m4 := id.NewModelID()
-
-	ctx := context.Background()
-	db := memory.New()
-	lo.Must0(db.Project.Save(ctx, prj))
-	lo.Must0(db.Schema.Save(ctx, s1))
-	lo.Must0(db.Model.Save(ctx, m1))
-	lo.Must0(db.Item.Save(ctx, i1))
-	lo.Must0(db.Schema.Save(ctx, s2))
-	lo.Must0(db.Model.Save(ctx, m2))
-	lo.Must0(db.Item.Save(ctx, i2))
-	lo.Must0(db.Schema.Save(ctx, s3))
-	lo.Must0(db.Model.Save(ctx, m3))
-	lo.Must0(db.Item.Save(ctx, i3))
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
 
 	page1 := 1
 	perPage1 := 10
@@ -1164,7 +1152,9 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        args
-		mockItemErr bool
+		seedsItems  item.List
+		seedSchemas *schema.Schema
+		seedModels  *model.Model
 		want        []byte
 		wantError   error
 	}{
@@ -1177,11 +1167,14 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 				perPage: &perPage1,
 				op:      op,
 			},
-			want:      []byte("id,location_lat,location_lng\n" + i1IDStr + ",139.28179282584915,36.58570985749664\n"),
-			wantError: nil,
+			seedsItems:  item.List{i1},
+			seedSchemas: s1,
+			seedModels:  m1,
+			want:        []byte("id,location_lat,location_lng\n" + i1IDStr + ",139.28179282584915,36.58570985749664\n"),
+			wantError:   nil,
 		},
 		{
-			name: "error point type is not supported in any geometry field multiple coordinates",
+			name: "success geometry editor type",
 			args: args{
 				ctx:     context.Background(),
 				modelID: m2.ID(),
@@ -1189,8 +1182,11 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 				perPage: &perPage1,
 				op:      op,
 			},
-			want:      []byte{},
-			wantError: pointFieldIsNotSupportedError,
+			seedsItems:  item.List{i2},
+			seedSchemas: s2,
+			seedModels:  m2,
+			want:        []byte("id,location_lat,location_lng\n"),
+			wantError:   nil,
 		},
 		{
 			name: "error point type is not supported in any geometry field non geometry field",
@@ -1201,8 +1197,11 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 				perPage: &perPage1,
 				op:      op,
 			},
-			want:      []byte{},
-			wantError: pointFieldIsNotSupportedError,
+			seedsItems:  item.List{i3},
+			seedSchemas: s3,
+			seedModels:  m3,
+			want:        []byte{},
+			wantError:   pointFieldIsNotSupportedError,
 		},
 		{
 			name: "error model ID not found",
@@ -1233,6 +1232,22 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()
+			db := memory.New()
+			for _, seed := range tt.seedsItems {
+				err := db.Item.Save(ctx, seed)
+				assert.NoError(t, err)
+			}
+
+			if tt.seedSchemas != nil {
+				err := db.Schema.Save(ctx, tt.seedSchemas)
+				assert.NoError(t, err)
+			}
+			if tt.seedModels != nil {
+				err := db.Model.Save(ctx, tt.seedModels)
+				assert.NoError(t, err)
+			}
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			pr, err := itemUC.ItemsAsCSV(ctx, tt.args.modelID, tt.args.page, tt.args.perPage, tt.args.op)
 			result := []byte{}
@@ -1278,6 +1293,11 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 	fi2 := item.NewField(sf2.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
 	fs2 := []*item.Field{fi2}
 	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID()).Fields(fs2).MustBuild()
+	v2 := version.New()
+	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
+
+	ver2 := item.VersionedList{vi2}
+	fc2, _ := featureCollectionFromItems(ver2, s2)
 
 	fid3 := id.NewFieldID()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
@@ -1289,21 +1309,6 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 	i3 := item.New().NewID().Schema(s3.ID()).Model(m3.ID()).Project(s3.Project()).Thread(id.NewThreadID()).Fields(fs3).MustBuild()
 
 	m4 := id.NewModelID()
-
-	ctx := context.Background()
-	db := memory.New()
-	lo.Must0(db.Project.Save(ctx, prj))
-	lo.Must0(db.Schema.Save(ctx, s1))
-	lo.Must0(db.Model.Save(ctx, m1))
-	lo.Must0(db.Item.Save(ctx, i1))
-	lo.Must0(db.Schema.Save(ctx, s2))
-	lo.Must0(db.Model.Save(ctx, m2))
-	lo.Must0(db.Item.Save(ctx, i2))
-	lo.Must0(db.Schema.Save(ctx, s3))
-	lo.Must0(db.Model.Save(ctx, m3))
-	lo.Must0(db.Item.Save(ctx, i3))
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
 
 	page1 := 1
 	perPage1 := 10
@@ -1330,7 +1335,9 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        args
-		mockItemErr bool
+		seedsItems  item.List
+		seedSchemas *schema.Schema
+		seedModels  *model.Model
 		want        *integrationapi.FeatureCollection
 		wantError   error
 	}{
@@ -1343,11 +1350,14 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 				perPage: &perPage1,
 				op:      op,
 			},
-			want:      fc1,
-			wantError: nil,
+			seedsItems:  item.List{i1},
+			seedSchemas: s1,
+			seedModels:  m1,
+			want:        fc1,
+			wantError:   nil,
 		},
 		{
-			name: "error no geometry field in this model",
+			name: "success geometry editor type",
 			args: args{
 				ctx:     context.Background(),
 				modelID: m2.ID(),
@@ -1355,8 +1365,11 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 				perPage: &perPage1,
 				op:      op,
 			},
-			want:      nil,
-			wantError: rerror.NewE(i18n.T("no geometry field in this model")),
+			seedsItems:  item.List{i2},
+			seedSchemas: s2,
+			seedModels:  m2,
+			want:        fc2,
+			wantError:   nil,
 		},
 		{
 			name: "error no geometry field in this model / integer",
@@ -1367,8 +1380,11 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 				perPage: &perPage1,
 				op:      op,
 			},
-			want:      nil,
-			wantError: rerror.NewE(i18n.T("no geometry field in this model")),
+			seedsItems:  item.List{i3},
+			seedSchemas: s3,
+			seedModels:  m3,
+			want:        nil,
+			wantError:   rerror.NewE(i18n.T("no geometry field in this model")),
 		},
 		{
 			name: "error model ID not found",
@@ -1400,6 +1416,22 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()
 
+			db := memory.New()
+			for _, seed := range tt.seedsItems {
+				err := db.Item.Save(ctx, seed)
+				assert.NoError(t, err)
+			}
+
+			if tt.seedSchemas != nil {
+				err := db.Schema.Save(ctx, tt.seedSchemas)
+				assert.NoError(t, err)
+			}
+			if tt.seedModels != nil {
+				err := db.Model.Save(ctx, tt.seedModels)
+				assert.NoError(t, err)
+			}
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 			result, err := itemUC.ItemsAsGeoJSON(ctx, tt.args.modelID, tt.args.page, tt.args.perPage, tt.args.op)
 
 			assert.Equal(t, tt.want, result)
@@ -1446,21 +1478,6 @@ func TestItem_ItemsWithProjectAsCSV(t *testing.T) {
 
 	m4 := id.NewModelID()
 
-	ctx := context.Background()
-	db := memory.New()
-	lo.Must0(db.Project.Save(ctx, prj))
-	lo.Must0(db.Schema.Save(ctx, s1))
-	lo.Must0(db.Model.Save(ctx, m1))
-	lo.Must0(db.Item.Save(ctx, i1))
-	lo.Must0(db.Schema.Save(ctx, s2))
-	lo.Must0(db.Model.Save(ctx, m2))
-	lo.Must0(db.Item.Save(ctx, i2))
-	lo.Must0(db.Schema.Save(ctx, s3))
-	lo.Must0(db.Model.Save(ctx, m3))
-	lo.Must0(db.Item.Save(ctx, i3))
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
-
 	page1 := 1
 	perPage1 := 10
 
@@ -1487,7 +1504,10 @@ func TestItem_ItemsWithProjectAsCSV(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        args
-		mockItemErr bool
+		seedProject *project.Project
+		seedsItems  item.List
+		seedSchema  *schema.Schema
+		seedModel   *model.Model
 		want        []byte
 		wantError   error
 	}{
@@ -1501,11 +1521,15 @@ func TestItem_ItemsWithProjectAsCSV(t *testing.T) {
 				perPage:          &perPage1,
 				op:               op,
 			},
-			want:      []byte("id,location_lat,location_lng\n" + i1IDStr + ",139.28179282584915,36.58570985749664\n"),
-			wantError: nil,
+			seedProject: prj,
+			seedsItems:  item.List{i1},
+			seedSchema:  s1,
+			seedModel:   m1,
+			want:        []byte("id,location_lat,location_lng\n" + i1IDStr + ",139.28179282584915,36.58570985749664\n"),
+			wantError:   nil,
 		},
 		{
-			name: "error pointFieldIsNotSupportedError",
+			name: "success geometry editor type",
 			args: args{
 				ctx:              context.Background(),
 				projectIDorAlias: project.IDOrAlias(prj.ID().String()),
@@ -1514,8 +1538,12 @@ func TestItem_ItemsWithProjectAsCSV(t *testing.T) {
 				perPage:          &perPage1,
 				op:               op,
 			},
-			want:      []byte{},
-			wantError: pointFieldIsNotSupportedError,
+			seedProject: prj,
+			seedsItems:  item.List{i2},
+			seedSchema:  s2,
+			seedModel:   m2,
+			want:        []byte("id,location_lat,location_lng\n"),
+			wantError:   nil,
 		},
 		{
 			name: "error pointFieldIsNotSupportedError non-geometry type",
@@ -1527,8 +1555,12 @@ func TestItem_ItemsWithProjectAsCSV(t *testing.T) {
 				perPage:          &perPage1,
 				op:               op,
 			},
-			want:      []byte{},
-			wantError: pointFieldIsNotSupportedError,
+			seedProject: prj,
+			seedsItems:  item.List{i3},
+			seedSchema:  s3,
+			seedModel:   m3,
+			want:        []byte{},
+			wantError:   pointFieldIsNotSupportedError,
 		},
 		{
 			name: "error model ID not found",
@@ -1540,8 +1572,9 @@ func TestItem_ItemsWithProjectAsCSV(t *testing.T) {
 				perPage:          &perPage1,
 				op:               op,
 			},
-			want:      []byte{},
-			wantError: rerror.ErrNotFound,
+			seedProject: prj,
+			want:        []byte{},
+			wantError:   rerror.ErrNotFound,
 		},
 		{
 			name: "error operator user is nil",
@@ -1553,14 +1586,37 @@ func TestItem_ItemsWithProjectAsCSV(t *testing.T) {
 				perPage:          &perPage1,
 				op:               opUserNil,
 			},
-			want:      []byte{},
-			wantError: interfaces.ErrInvalidOperator,
+			seedProject: prj,
+			want:        []byte{},
+			wantError:   interfaces.ErrInvalidOperator,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()
+
+			db := memory.New()
+
+			if tt.seedProject != nil {
+				err := db.Project.Save(ctx, tt.seedProject)
+				assert.NoError(t, err)
+			}
+			for _, seed := range tt.seedsItems {
+				err := db.Item.Save(ctx, seed)
+				assert.NoError(t, err)
+			}
+
+			if tt.seedSchema != nil {
+				err := db.Schema.Save(ctx, tt.seedSchema)
+				assert.NoError(t, err)
+			}
+			if tt.seedModel != nil {
+				err := db.Model.Save(ctx, tt.seedModel)
+				assert.NoError(t, err)
+			}
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			pr, err := itemUC.ItemsWithProjectAsCSV(ctx, tt.args.projectIDorAlias, tt.args.modelIDOrKey, tt.args.page, tt.args.perPage, tt.args.op)
 			result := []byte{}
@@ -1606,6 +1662,11 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 	fi2 := item.NewField(sf2.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
 	fs2 := []*item.Field{fi2}
 	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID()).Fields(fs2).MustBuild()
+	v2 := version.New()
+	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
+
+	ver2 := item.VersionedList{vi2}
+	fc2, _ := featureCollectionFromItems(ver2, s2)
 
 	fid3 := id.NewFieldID()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
@@ -1617,21 +1678,6 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 	i3 := item.New().NewID().Schema(s3.ID()).Model(m3.ID()).Project(s3.Project()).Thread(id.NewThreadID()).Fields(fs3).MustBuild()
 
 	m4 := id.NewModelID()
-
-	ctx := context.Background()
-	db := memory.New()
-	lo.Must0(db.Project.Save(ctx, prj))
-	lo.Must0(db.Schema.Save(ctx, s1))
-	lo.Must0(db.Model.Save(ctx, m1))
-	lo.Must0(db.Item.Save(ctx, i1))
-	lo.Must0(db.Schema.Save(ctx, s2))
-	lo.Must0(db.Model.Save(ctx, m2))
-	lo.Must0(db.Item.Save(ctx, i2))
-	lo.Must0(db.Schema.Save(ctx, s3))
-	lo.Must0(db.Model.Save(ctx, m3))
-	lo.Must0(db.Item.Save(ctx, i3))
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
 
 	page1 := 1
 	perPage1 := 10
@@ -1659,7 +1705,10 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        args
-		mockItemErr bool
+		seedProject *project.Project
+		seedsItems  item.List
+		seedSchema  *schema.Schema
+		seedModel   *model.Model
 		want        *integrationapi.FeatureCollection
 		wantError   error
 	}{
@@ -1673,8 +1722,12 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 				perPage:          &perPage1,
 				op:               op,
 			},
-			want:      fc1,
-			wantError: nil,
+			seedProject: prj,
+			seedsItems:  item.List{i1},
+			seedSchema:  s1,
+			seedModel:   m1,
+			want:        fc1,
+			wantError:   nil,
 		},
 		{
 			name: "error pointFieldIsNotSupportedError",
@@ -1686,8 +1739,12 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 				perPage:          &perPage1,
 				op:               op,
 			},
-			want:      nil,
-			wantError: rerror.NewE(i18n.T("no geometry field in this model")),
+			seedProject: prj,
+			seedsItems:  item.List{i2},
+			seedSchema:  s2,
+			seedModel:   m2,
+			want:        fc2,
+			wantError:   nil,
 		},
 		{
 			name: "error pointFieldIsNotSupportedError non-geometry type",
@@ -1699,8 +1756,12 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 				perPage:          &perPage1,
 				op:               op,
 			},
-			want:      nil,
-			wantError: rerror.NewE(i18n.T("no geometry field in this model")),
+			seedProject: prj,
+			seedsItems:  item.List{i3},
+			seedSchema:  s3,
+			seedModel:   m3,
+			want:        nil,
+			wantError:   rerror.NewE(i18n.T("no geometry field in this model")),
 		},
 		{
 			name: "error model ID not found",
@@ -1712,8 +1773,9 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 				perPage:          &perPage1,
 				op:               op,
 			},
-			want:      nil,
-			wantError: rerror.ErrNotFound,
+			seedProject: prj,
+			want:        nil,
+			wantError:   rerror.ErrNotFound,
 		},
 		{
 			name: "error operator user is nil",
@@ -1725,14 +1787,37 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 				perPage:          &perPage1,
 				op:               opUserNil,
 			},
-			want:      nil,
-			wantError: interfaces.ErrInvalidOperator,
+			seedProject: prj,
+			want:        nil,
+			wantError:   interfaces.ErrInvalidOperator,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()
+
+			db := memory.New()
+
+			if tt.seedProject != nil {
+				err := db.Project.Save(ctx, tt.seedProject)
+				assert.NoError(t, err)
+			}
+			for _, seed := range tt.seedsItems {
+				err := db.Item.Save(ctx, seed)
+				assert.NoError(t, err)
+			}
+
+			if tt.seedSchema != nil {
+				err := db.Schema.Save(ctx, tt.seedSchema)
+				assert.NoError(t, err)
+			}
+			if tt.seedModel != nil {
+				err := db.Model.Save(ctx, tt.seedModel)
+				assert.NoError(t, err)
+			}
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
 
 			result, err := itemUC.ItemsWithProjectAsGeoJSON(ctx, tt.args.projectIDorAlias, tt.args.modelIDOrKey, tt.args.page, tt.args.perPage, tt.args.op)
 
