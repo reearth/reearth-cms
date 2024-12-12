@@ -1417,6 +1417,7 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 			ctx := context.Background()
 
 			db := memory.New()
+
 			for _, seed := range tt.seedsItems {
 				err := db.Item.Save(ctx, seed)
 				assert.NoError(t, err)
@@ -1633,7 +1634,11 @@ func TestItem_ItemsWithProjectAsCSV(t *testing.T) {
 func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
 	w := accountdomain.NewWorkspaceID()
-	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+	prj1 := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+	prj2 := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+	prj3 := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+	prj4 := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+	prj5 := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
 
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
@@ -1641,7 +1646,7 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 	sid1 := id.NewSchemaID()
 	fid1 := id.NewFieldID()
 	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).ID(fid1).MustBuild()
-	s1 := schema.New().ID(sid1).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
+	s1 := schema.New().ID(sid1).Workspace(w).Project(prj1.ID()).Fields(schema.FieldList{sf1}).MustBuild()
 	m1 := model.New().NewID().Schema(s1.ID()).Key(id.RandomKey()).Project(s1.Project()).MustBuild()
 	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}").AsMultiple(), nil)
 	fs1 := []*item.Field{fi1}
@@ -1657,7 +1662,7 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 	sid2 := id.NewSchemaID()
 	fid2 := id.NewFieldID()
 	sf2 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).ID(fid2).MustBuild()
-	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf2}).MustBuild()
+	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj2.ID()).Fields(schema.FieldList{sf2}).MustBuild()
 	m2 := model.New().NewID().Schema(s2.ID()).Key(id.RandomKey()).Project(s2.Project()).MustBuild()
 	fi2 := item.NewField(sf2.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
 	fs2 := []*item.Field{fi2}
@@ -1672,7 +1677,7 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
 	tp4 := in4.TypeProperty()
 	sf3 := schema.NewField(tp4).NewID().Name("age").Key(id.RandomKey()).ID(fid3).MustBuild()
-	s3 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf3}).MustBuild()
+	s3 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj3.ID()).Fields(schema.FieldList{sf3}).MustBuild()
 	m3 := model.New().NewID().Schema(s3.ID()).Key(id.RandomKey()).Project(s3.Project()).MustBuild()
 	fs3 := []*item.Field{item.NewField(sf3.ID(), value.TypeReference.Value(nil).AsMultiple(), nil)}
 	i3 := item.New().NewID().Schema(s3.ID()).Model(m3.ID()).Project(s3.Project()).Thread(id.NewThreadID()).Fields(fs3).MustBuild()
@@ -1716,13 +1721,13 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 			name: "success",
 			args: args{
 				ctx:              context.Background(),
-				projectIDorAlias: project.IDOrAlias(prj.ID().String()),
+				projectIDorAlias: project.IDOrAlias(prj1.ID().String()),
 				modelIDOrKey:     model.IDOrKey(m1.ID().String()),
 				page:             &page1,
 				perPage:          &perPage1,
 				op:               op,
 			},
-			seedProject: prj,
+			seedProject: prj1,
 			seedsItems:  item.List{i1},
 			seedSchema:  s1,
 			seedModel:   m1,
@@ -1730,16 +1735,16 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 			wantError:   nil,
 		},
 		{
-			name: "error pointFieldIsNotSupportedError",
+			name: "success geometry editor",
 			args: args{
 				ctx:              context.Background(),
-				projectIDorAlias: project.IDOrAlias(prj.ID().String()),
+				projectIDorAlias: project.IDOrAlias(prj2.ID().String()),
 				modelIDOrKey:     model.IDOrKey(m2.ID().String()),
 				page:             &page1,
 				perPage:          &perPage1,
 				op:               op,
 			},
-			seedProject: prj,
+			seedProject: prj2,
 			seedsItems:  item.List{i2},
 			seedSchema:  s2,
 			seedModel:   m2,
@@ -1750,13 +1755,13 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 			name: "error pointFieldIsNotSupportedError non-geometry type",
 			args: args{
 				ctx:              context.Background(),
-				projectIDorAlias: project.IDOrAlias(prj.ID().String()),
+				projectIDorAlias: project.IDOrAlias(prj3.ID().String()),
 				modelIDOrKey:     model.IDOrKey(m3.ID().String()),
 				page:             &page1,
 				perPage:          &perPage1,
 				op:               op,
 			},
-			seedProject: prj,
+			seedProject: prj3,
 			seedsItems:  item.List{i3},
 			seedSchema:  s3,
 			seedModel:   m3,
@@ -1767,13 +1772,13 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 			name: "error model ID not found",
 			args: args{
 				ctx:              context.Background(),
-				projectIDorAlias: project.IDOrAlias(prj.ID().String()),
+				projectIDorAlias: project.IDOrAlias(prj4.ID().String()),
 				modelIDOrKey:     model.IDOrKey(m4.String()),
 				page:             &page1,
 				perPage:          &perPage1,
 				op:               op,
 			},
-			seedProject: prj,
+			seedProject: prj4,
 			want:        nil,
 			wantError:   rerror.ErrNotFound,
 		},
@@ -1781,13 +1786,13 @@ func TestItem_ItemsWithProjectAsGeoJSON(t *testing.T) {
 			name: "error operator user is nil",
 			args: args{
 				ctx:              context.Background(),
-				projectIDorAlias: project.IDOrAlias(prj.ID().String()),
+				projectIDorAlias: project.IDOrAlias(prj5.ID().String()),
 				modelIDOrKey:     model.IDOrKey(m1.ID().String()),
 				page:             &page1,
 				perPage:          &perPage1,
 				op:               opUserNil,
 			},
-			seedProject: prj,
+			seedProject: prj5,
 			want:        nil,
 			wantError:   interfaces.ErrInvalidOperator,
 		},
