@@ -1,11 +1,8 @@
 export const config = {
   api: process.env["REEARTH_CMS_API"],
+  baseUrl: process.env["REEARTH_CMS_E2E_BASEURL"],
   userName: process.env["REEARTH_CMS_E2E_USERNAME"],
   password: process.env["REEARTH_CMS_E2E_PASSWORD"],
-  workspaceId: process.env["REEARTH_CMS_E2E_WORKSPACE_ID"],
-  authAudience: process.env["REEARTH_CMS_AUTH0_AUDIENCE"],
-  authClientId: process.env["REEARTH_CMS_AUTH0_CLIENT_ID"],
-  authUrl: process.env["REEARTH_CMS_AUTH0_DOMAIN"],
 };
 
 export type Config = typeof config;

@@ -57,3 +57,4 @@ amplifytools.xcconfig
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/e2e/utils/.auth
