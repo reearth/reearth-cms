@@ -28,7 +28,7 @@ jobs:
       - name: Check translations
         run: yarn i18n --fail-on-update
       - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps
+        run: yarn playwright install --with-deps chromium
       - name: Run Playwright tests
         run: yarn e2e
         env:
