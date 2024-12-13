@@ -10,11 +10,10 @@ import FieldTitle from "../../FieldTitle";
 
 type TagFieldProps = {
   field: Field;
-  onMetaUpdate?: () => void;
   disabled: boolean;
 };
 
-const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate, disabled }) => {
+const TagField: React.FC<TagFieldProps> = ({ field, disabled }) => {
   const t = useT();
 
   return (
@@ -30,7 +29,6 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate, disabled }) =>
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
         <StyledMultipleSelect
-          onChange={onMetaUpdate}
           mode="multiple"
           tagRender={props => <>{props.label}</>}
           allowClear
@@ -42,7 +40,7 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate, disabled }) =>
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select onChange={onMetaUpdate} allowClear disabled={disabled}>
+        <Select allowClear disabled={disabled}>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <TagWrapper>
