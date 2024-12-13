@@ -451,7 +451,6 @@ const ContentForm: React.FC<Props> = ({
   ]);
 
   const handleMetaUpdate = useCallback(async () => {
-    if (!itemId) return;
     try {
       const metaFields = await metaFieldsGet();
       await onMetaItemUpdate({
@@ -461,20 +460,48 @@ const ContentForm: React.FC<Props> = ({
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [itemId, metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
+  }, [metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
 
-  const handleMetaValuesChange = useCallback(async () => {
-    if (itemId) return;
-    try {
-      await metaForm.validateFields();
-    } catch (e) {
-      if ((e as ValidateErrorEntity).errorFields.length > 0) {
-        setIsDisabled(true);
-        return;
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMetaValuesChange = useCallback(
+    async (changedValues: Record<string, unknown>) => {
+      if (itemId) {
+        if (timeout.current) {
+          clearTimeout(timeout.current);
+          timeout.current = null;
+        }
+        const [key, value] = Object.entries(changedValues)[0];
+        const initialValue = initialMetaFormValues[key];
+        if (Array.isArray(value)) {
+          // use checkIfEmpty
+          const noEmptyValuesLength = value.filter(
+            v => !(v === undefined || v === null || v === ""),
+          ).length;
+          if (
+            noEmptyValuesLength === value.length ||
+            (noEmptyValuesLength && !initialValue) ||
+            (Array.isArray(initialValue) && noEmptyValuesLength !== initialValue.length)
+          ) {
+            timeout.current = setTimeout(handleMetaUpdate, 800);
+          }
+        } else if (value !== initialValue) {
+          timeout.current = setTimeout(handleMetaUpdate, 800);
+        }
+      } else {
+        try {
+          await metaForm.validateFields();
+        } catch (e) {
+          if ((e as ValidateErrorEntity).errorFields.length > 0) {
+            setIsDisabled(true);
+            return;
+          }
+        }
+        setIsDisabled(false);
       }
-    }
-    setIsDisabled(false);
-  }, [itemId, metaForm]);
+    },
+    [handleMetaUpdate, initialMetaFormValues, itemId, metaForm],
+  );
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
@@ -702,11 +729,7 @@ const ContentForm: React.FC<Props> = ({
             const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
             return (
               <MetaFormItemWrapper key={field.id}>
-                <FieldComponent
-                  field={field}
-                  onMetaUpdate={handleMetaUpdate}
-                  disabled={fieldDisabled}
-                />
+                <FieldComponent field={field} disabled={fieldDisabled} />
               </MetaFormItemWrapper>
             );
           })}
