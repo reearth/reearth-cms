@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
   use: {
     baseURL: process.env.REEARTH_CMS_E2E_BASEURL,
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: process.env.CI ? "on-first-retry" : "retain-on-failure",
     locale: "en-US",
   },
   testDir: "e2e",
