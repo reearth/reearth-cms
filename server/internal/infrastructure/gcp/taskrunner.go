@@ -173,8 +173,6 @@ func copyModel(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 					"-old-windows",    // Activates compatibility or a specific mode for older Windows environments.
 				},
 				Env: []string{
-					"GOOGLE_CLOUD_PROJECT=" + project,
-					"REEARTH_CMS_COPIER_TOPIC=" + conf.CopierTopic,
 					"REEARTH_CMS_COPIER_MODEL_ID=" + p.CopyModel.ModelID,
 					"REEARTH_CMS_COPIER_NAME=" + p.CopyModel.Name,
 				},

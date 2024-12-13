@@ -27,6 +27,12 @@ func NewWebhook(db *mongo.Database) *Webhook {
 	}
 }
 
+func (r *Webhook) Init() error {
+	return r.InitIndex(
+		context.Background(),
+	)
+}
+
 func (w *Webhook) InitIndex(ctx context.Context) error {
 	indexes, err := w.c.Indexes().List(ctx)
 	if err != nil {
