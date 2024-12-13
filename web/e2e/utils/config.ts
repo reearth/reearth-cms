@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export const config = {
   api: process.env.REEARTH_CMS_API,
   userName: process.env.REEARTH_CMS_E2E_USERNAME,
