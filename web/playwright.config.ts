@@ -10,11 +10,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export const authFile = path.join(__dirname, "./e2e/utils/.auth/user.json");
 
+export const baseURL = process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:3000/";
+
 const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 1 : undefined,
   retries: 2,
   use: {
-    baseURL: process.env.REEARTH_CMS_E2E_BASEURL,
+    baseURL,
     screenshot: "only-on-failure",
     video: process.env.CI ? "on-first-retry" : "retain-on-failure",
     locale: "en-US",
