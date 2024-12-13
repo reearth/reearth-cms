@@ -17,39 +17,35 @@ jobs:
           cache-dependency-path: '**/yarn.lock'
       - name: Install
         run: yarn install
-      # - name: Lint
-      #   run: yarn run lint
-      # - name: Test
-      #   run: yarn run coverage
-      # - name: Send coverage report
-      #   uses: codecov/codecov-action@v4
-      #   with:
-      #     flags: web
-      # - name: Check translations
-      #   run: yarn i18n --fail-on-update
+      - name: Lint
+        run: yarn run lint
+      - name: Test
+        run: yarn run coverage
+      - name: Send coverage report
+        uses: codecov/codecov-action@v4
+        with:
+          flags: web
+      - name: Check translations
+        run: yarn i18n --fail-on-update
       - name: test secrets
-        run: echo secret "${{secrets.REEARTH_WEB_E2E_USERNAME }}" | sed 's/./& /g'
-      - name: test secrets
-        run: echo secret "${{secrets.DOCKERHUB_USERNAME }}" | sed 's/./& /g'
-      - name: test secrets
-        run: echo secret "${{secrets.GCP_PROJECT_ID }}" | sed 's/./& /g'
-      # - name: Install Playwright Browsers
-      #   run: yarn playwright install --with-deps chromium
-      # - name: Run Playwright tests
-      #   run: yarn e2e
-      #   env:
-      #     REEARTH_CMS_API: https://api.cms.test.reearth.dev/api
-      #     REEARTH_CMS_E2E_BASEURL: https://cms.test.reearth.dev
-      #     REEARTH_CMS_E2E_USERNAME: "${{ secrets.REEARTH_WEB_E2E_USERNAME }}"
-      #     REEARTH_CMS_E2E_PASSWORD: "${{ secrets.REEARTH_WEB_E2E_PASSWORD }}"
-      # - uses: actions/upload-artifact@v4
-      #   if: failure()
-      #   with:
-      #     name: test-results
-      #     path: web/test-results/
-      #     retention-days: 1
-      # - name: Build
-      #   run: yarn build
+        run: echo "${{secrets.REEARTH_WEB_E2E_USERNAME }}"
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps chromium
+      - name: Run Playwright tests
+        run: yarn e2e
+        env:
+          REEARTH_CMS_API: https://api.cms.test.reearth.dev/api
+          REEARTH_CMS_E2E_BASEURL: https://cms.test.reearth.dev
+          REEARTH_CMS_E2E_USERNAME: "${{ secrets.REEARTH_WEB_E2E_USERNAME }}"
+          REEARTH_CMS_E2E_PASSWORD: "${{ secrets.REEARTH_WEB_E2E_PASSWORD }}"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: web/test-results/
+          retention-days: 1
+      - name: Build
+        run: yarn build
       - name: Pack
         if: github.ref_name == 'main' || github.ref_name == 'release'
         run: mv dist reearth-cms-web && tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
