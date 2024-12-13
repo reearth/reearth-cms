@@ -461,6 +461,7 @@ export default () => {
       );
       setSearchTerm("");
       setPage(1);
+      setSelectedItems({ selectedRows: [] });
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
