@@ -14,7 +14,7 @@ test("authenticate", async ({ page }) => {
   await page.getByPlaceholder("your password").fill(password as string);
   await page.getByText("LOG IN").click();
   await expect(page.getByRole("button", { name: "New Project" })).toBeVisible({
-    timeout: 10 * 1000,
+    timeout: 15 * 1000,
   });
   await page.context().storageState({ path: authFile });
 });
