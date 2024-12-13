@@ -13,6 +13,7 @@ test("authenticate", async ({ page }) => {
   await page.getByPlaceholder("username/email").fill(username as string);
   await page.getByPlaceholder("your password").fill(password as string);
   await page.getByText("LOG IN").click();
+  await page.waitForURL(baseUrl as string);
   await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible({
     timeout: 10 * 1000,
   });
