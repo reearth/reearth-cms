@@ -5,7 +5,7 @@ import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -231,19 +231,33 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
+  const handleFormValidate = useCallback(async (form: FormInstance) => {
+    try {
+      await form.validateFields();
+    } catch (e) {
+      if ((e as ValidateErrorEntity).errorFields.length > 0) {
+        setIsDisabled(true);
+        throw e;
+      }
+    }
+  }, []);
+
   const handleValuesChange = useCallback(
     async (changedValues: Record<string, unknown>) => {
       try {
-        await form.validateFields();
+        await handleFormValidate(form);
       } catch (e) {
-        if ((e as ValidateErrorEntity).errorFields.length > 0) {
-          setIsDisabled(true);
-          return;
-        }
+        console.error(e);
+        return;
       }
 
       if (!itemId) {
-        setIsDisabled(false);
+        try {
+          await handleFormValidate(metaForm);
+          setIsDisabled(false);
+        } catch (e) {
+          console.error(e);
+        }
         return;
       }
 
@@ -268,7 +282,7 @@ const ContentForm: React.FC<Props> = ({
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
-    [checkIfSingleGroupField, form, initialFormValues, itemId],
+    [checkIfSingleGroupField, form, handleFormValidate, initialFormValues, itemId, metaForm],
   );
 
   useEffect(() => {
@@ -321,13 +335,23 @@ const ContentForm: React.FC<Props> = ({
     return () => window.removeEventListener("beforeunload", handleBeforeUnloadEvent, true);
   }, []);
 
-  useEffect(() => {
-    form.setFieldsValue(initialFormValues);
-  }, [form, initialFormValues]);
+  const allFormsValidate = useCallback(async () => {
+    try {
+      await handleFormValidate(form);
+      await handleFormValidate(metaForm);
+      setIsDisabled(false);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [form, handleFormValidate, metaForm]);
 
   useEffect(() => {
+    form.setFieldsValue(initialFormValues);
     metaForm.setFieldsValue(initialMetaFormValues);
-  }, [metaForm, initialMetaFormValues]);
+    if (!itemId) {
+      allFormsValidate();
+    }
+  }, [allFormsValidate, form, initialFormValues, initialMetaFormValues, itemId, metaForm]);
 
   const unpublishedItems = useMemo(
     () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
@@ -380,7 +404,6 @@ const ContentForm: React.FC<Props> = ({
   }, [inputValueGet, metaFieldsMap, metaForm]);
 
   const handleSubmit = useCallback(async () => {
-    setIsDisabled(true);
     try {
       const groupFields = new Map<string, Field>();
       if (model) {
@@ -435,8 +458,9 @@ const ContentForm: React.FC<Props> = ({
       }
 
       changedKeys.current.clear();
-    } catch (_) {
-      setIsDisabled(false);
+      setIsDisabled(true);
+    } catch (e) {
+      console.error(e);
     }
   }, [
     model,
@@ -457,8 +481,9 @@ const ContentForm: React.FC<Props> = ({
         metaItemId: item?.metadata?.id,
         metaFields,
       });
+      setIsDisabled(true);
     } catch (info) {
-      console.log("Validate Failed:", info);
+      console.error(info);
     }
   }, [metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
 
@@ -489,18 +514,10 @@ const ContentForm: React.FC<Props> = ({
           timeout.current = setTimeout(handleMetaUpdate, 800);
         }
       } else {
-        try {
-          await metaForm.validateFields();
-        } catch (e) {
-          if ((e as ValidateErrorEntity).errorFields.length > 0) {
-            setIsDisabled(true);
-            return;
-          }
-        }
-        setIsDisabled(false);
+        allFormsValidate();
       }
     },
-    [handleMetaUpdate, initialMetaFormValues, itemId, metaForm],
+    [allFormsValidate, handleMetaUpdate, initialMetaFormValues, itemId],
   );
 
   const items: MenuProps["items"] = useMemo(() => {
