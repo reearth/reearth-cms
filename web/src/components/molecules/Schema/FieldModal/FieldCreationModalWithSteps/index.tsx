@@ -107,18 +107,24 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   const SettingValues = Form.useWatch([], modelForm);
   useEffect(() => {
-    formValidate(modelForm);
-  }, [modelForm, SettingValues, formValidate]);
+    if (currentStep === 0) {
+      formValidate(modelForm);
+    }
+  }, [modelForm, SettingValues, formValidate, currentStep]);
 
   const FieldValues = Form.useWatch([], field1Form);
   useEffect(() => {
-    formValidate(field1Form);
-  }, [field1Form, FieldValues, formValidate]);
+    if (currentStep === 1) {
+      formValidate(field1Form);
+    }
+  }, [field1Form, FieldValues, formValidate, currentStep]);
 
   const CorrespondingValues = Form.useWatch([], field2Form);
   useEffect(() => {
-    formValidate(field2Form);
-  }, [field2Form, CorrespondingValues, formValidate]);
+    if (currentStep === 2) {
+      formValidate(field2Form);
+    }
+  }, [field2Form, CorrespondingValues, formValidate, currentStep]);
 
   useEffect(() => {
     modelForm.setFieldsValue({
