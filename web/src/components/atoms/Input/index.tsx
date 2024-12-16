@@ -5,7 +5,6 @@ import { runes } from "runes2";
 export type { SearchProps } from "antd/lib/input";
 
 type Props = {
-  value?: string;
   isError?: boolean;
 } & InputProps;
 
@@ -15,7 +14,7 @@ const Input = forwardRef<InputRef, Props>(
       if (
         isError ||
         (required && !value) ||
-        (maxLength && value && runes(value).length > maxLength)
+        (maxLength && typeof value === "string" && value && runes(value).length > maxLength)
       ) {
         return "error";
       }

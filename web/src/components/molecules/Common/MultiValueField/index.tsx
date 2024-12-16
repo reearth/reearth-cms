@@ -115,7 +115,7 @@ const MultiValueField: React.FC<Props> = ({
           type="primary"
           onClick={() => {
             const currentValues = value || [];
-            const defaultValue = props.type === "date" ? dayjs() : "";
+            const defaultValue = "";
             if (Array.isArray(currentValues)) {
               onChange?.([...currentValues, defaultValue]);
             } else {

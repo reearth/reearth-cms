@@ -12,11 +12,10 @@ import { requiredValidator } from "../utils";
 type DateFieldProps = {
   field: Field;
   itemGroupId?: string;
-  onMetaUpdate?: () => void;
   disabled: boolean;
 };
 
-const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
+const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
 
   return (
@@ -32,14 +31,9 @@ const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate,
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueField
-          onChange={onMetaUpdate}
-          type="date"
-          FieldInput={StyledDatePicker}
-          disabled={disabled}
-        />
+        <MultiValueField type="date" FieldInput={StyledDatePicker} disabled={disabled} />
       ) : (
-        <StyledDatePicker onChange={onMetaUpdate} disabled={disabled} />
+        <StyledDatePicker disabled={disabled} />
       )}
     </Form.Item>
   );

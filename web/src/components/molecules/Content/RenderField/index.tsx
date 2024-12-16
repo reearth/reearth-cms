@@ -46,11 +46,7 @@ export const renderField = (
       </StyledSelect>
     );
   } else if (value === "-") {
-    if (
-      (field.type === "Text" || field.type === "Date" || field.type === "URL") &&
-      !field.multiple &&
-      update
-    ) {
+    if ((field.type === "Text" || field.type === "Date" || field.type === "URL") && update) {
       return <ItemFormat item="" field={field} update={update} />;
     }
     return <span>-</span>;
