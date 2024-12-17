@@ -48,6 +48,10 @@ func init() {
 	// mime package depends on the OS, so adding the requited mime types to make sure about the results in different OS
 	lo.Must0(mime.AddExtensionType(".zip", "application/zip"))
 	lo.Must0(mime.AddExtensionType(".7z", "application/x-7z-compressed"))
+	lo.Must0(mime.AddExtensionType(".gz", "application/gzip"))
+	lo.Must0(mime.AddExtensionType(".bz2", "application/x-bzip2"))
+	lo.Must0(mime.AddExtensionType(".tar", "application/x-tar"))
+	lo.Must0(mime.AddExtensionType(".rar", "application/vnd.rar"))
 }
 
 func (p IssueUploadAssetParam) ContentType() string {
