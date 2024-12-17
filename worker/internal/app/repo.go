@@ -62,7 +62,8 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*gatew
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 	db := client.Database("reearth_cms")
-	repos, err := rmongo.New(ctx, db)
+	w := rmongo.NewWebhook(db)
+	repos, err := rmongo.New(ctx, w, nil)
 	if err != nil {
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}

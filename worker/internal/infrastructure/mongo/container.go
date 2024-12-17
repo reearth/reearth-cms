@@ -5,15 +5,12 @@ import (
 
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/util"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func New(ctx context.Context, db *mongo.Database) (*repo.Container, error) {
+func New(ctx context.Context, webhook *Webhook, copier *Copier) (*repo.Container, error) {
 	c := &repo.Container{
-		Webhook: NewWebhook(db),
-		Model:   NewModel(db),
-		Schema:  NewSchema(db),
-		Item:    NewItem(db),
+		Webhook: webhook,
+		Copier:  copier,
 	}
 
 	// init
@@ -31,8 +28,6 @@ func Init(r *repo.Container) error {
 
 	return util.Try(
 		r.Webhook.(*Webhook).Init,
-		r.Model.(*Model).Init,
-		r.Schema.(*Schema).Init,
-		r.Item.(*Item).Init,
+		r.Copier.(*Copier).Init,
 	)
 }

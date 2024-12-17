@@ -19,40 +19,38 @@ import (
 func main() {
 	ctx := context.Background()
 
-	dbURI := getEnv("REEARTH_CMS_DB", true)
-	modelID := getEnv("REEARTH_CMS_COPIER_MODEL_ID", true)
-	name := getEnv("REEARTH_CMS_COPIER_NAME", false)
+	dbURI := getEnv("REEARTH_CMS_DB")
+	collection := getEnv("REEARTH_CMS_COPIER_COLLECTION")
+	filter := getEnv("REEARTH_CMS_COPIER_FILTER")
+	changes := getEnv("REEARTH_CMS_COPIER_CHANGES")
 
 	cmd := exec.CommandContext(ctx, os.Args[1], os.Args[2:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
 	if err := cmd.Run(); err != nil {
 		log.Fatalf("command execution failed: %v", err)
 	}
 
-	repos, err := initRepos(ctx, dbURI)
+	repos, err := initReposWithCollection(ctx, dbURI, collection)
 	if err != nil {
 		log.Fatalf("failed to initialize repositories with DB URI %s: %v", dbURI, err)
 	}
-
 	uc := interactor.NewUsecase(nil, repos)
 	ctrl := http.NewCopyController(uc)
-
-	if err := ctrl.Copy(ctx, http.CopyInput{ModelID: modelID, Name: name}); err != nil {
+	if err := ctrl.Copy(ctx, http.CopyInput{Filter: filter, Changes: changes}); err != nil {
 		log.Fatalf("failed to copy model: %v", err)
 	}
 }
 
-func getEnv(key string, required bool) string {
+func getEnv(key string) string {
 	value := os.Getenv(key)
-	if required && value == "" {
+	if value == "" {
 		log.Fatalf("environment variable %s is required", key)
 	}
 	return value
 }
 
-func initRepos(ctx context.Context, dbURI string) (*repo.Container, error) {
+func initReposWithCollection(ctx context.Context, dbURI string, collection string) (*repo.Container, error) {
 	client, err := mongo.Connect(
 		ctx,
 		options.Client().
@@ -65,7 +63,9 @@ func initRepos(ctx context.Context, dbURI string) (*repo.Container, error) {
 	}
 
 	db := client.Database("reearth_cms")
-	repos, err := rmongo.New(ctx, db)
+	c := rmongo.NewCopier(db)
+	c.SetCollection(db.Collection(collection))
+	repos, err := rmongo.New(ctx, nil, c)
 	if err != nil {
 		return nil, err
 	}

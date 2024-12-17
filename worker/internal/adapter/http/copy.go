@@ -17,10 +17,10 @@ func NewCopyController(u *interactor.Usecase) *CopyController {
 }
 
 type CopyInput struct {
-	ModelID string `json:"modelId"`
-	Name    string `json:"name"`
+	Filter  string `json:"filter"`
+	Changes string `json:"changes"`
 }
 
 func (c *CopyController) Copy(ctx context.Context, input CopyInput) error {
-	return c.usecase.Copy(ctx, input.ModelID, input.Name)
+	return c.usecase.Copy(ctx, input.Filter, input.Changes)
 }
