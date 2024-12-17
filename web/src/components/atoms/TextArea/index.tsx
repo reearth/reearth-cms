@@ -3,7 +3,6 @@ import { forwardRef, useMemo } from "react";
 import { runes } from "runes2";
 
 type Props = {
-  value?: string;
   isError?: boolean;
 } & TextAreaProps;
 
@@ -13,7 +12,7 @@ const TextArea = forwardRef<HTMLInputElement, Props>(
       if (
         isError ||
         (required && !value) ||
-        (maxLength && value && runes(value).length > maxLength)
+        (maxLength && typeof value === "string" && value && runes(value).length > maxLength)
       ) {
         return "error";
       }

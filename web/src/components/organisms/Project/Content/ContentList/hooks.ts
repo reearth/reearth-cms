@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
 import { renderTitle } from "@reearth-cms/components/molecules/Content/RenderTitle";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -221,14 +222,17 @@ export default () => {
       } else {
         const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
         if (metadata?.fields && metadata.id) {
+          const requiredErrorFields: string[] = [];
+          const maxLengthErrorFields: string[] = [];
           const fields = metadata.fields.map(field => {
+            const metaField = metaFieldsMap.get(field.schemaFieldId);
             if (field.schemaFieldId === key) {
               if (Array.isArray(field.value)) {
                 if (field.type === "Tag") {
-                  const tags = metaFieldsMap.get(key)?.typeProperty?.tags;
+                  const tags = metaField?.typeProperty?.tags;
                   field.value = tags ? selectedTagIdsGet(value as string[], tags) : [];
                 } else {
-                  field.value[index ?? 0] = value ?? "";
+                  field.value[index ?? 0] = value === "" ? undefined : value;
                 }
               } else {
                 field.value = value ?? "";
@@ -236,8 +240,38 @@ export default () => {
             } else {
               field.value = field.value ?? "";
             }
+            const fieldValue = field.value;
+            if (metaField?.required) {
+              if (Array.isArray(fieldValue)) {
+                if (fieldValue.every(v => checkIfEmpty(v))) {
+                  requiredErrorFields.push(metaField.key);
+                }
+              } else if (checkIfEmpty(fieldValue)) {
+                requiredErrorFields.push(metaField.key);
+              }
+            }
+            const maxLength = metaField?.typeProperty?.maxLength;
+            if (maxLength) {
+              if (Array.isArray(fieldValue)) {
+                if (fieldValue.some(v => typeof v === "string" && v.length > maxLength)) {
+                  maxLengthErrorFields.push(metaField.key);
+                }
+              } else if (typeof fieldValue === "string" && fieldValue.length > maxLength) {
+                maxLengthErrorFields.push(metaField.key);
+              }
+            }
+
             return field as ItemFieldInput;
           });
+          if (requiredErrorFields.length || maxLengthErrorFields.length) {
+            requiredErrorFields.forEach(field => {
+              Notification.error({ message: t("Required field error", { field }) });
+            });
+            maxLengthErrorFields.forEach(field => {
+              Notification.error({ message: t("Maximum length error", { field }) });
+            });
+            return;
+          }
           const item = await updateItemMutation({
             variables: {
               itemId: metadata.id,
