@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
 var (
@@ -41,6 +42,12 @@ type IssueUploadAssetParam struct {
 	ExpiresAt     time.Time
 
 	Cursor string
+}
+
+func init() {
+	// mime package depends on the OS, so adding the requited mime types to make sure about the results in different OS
+	lo.Must0(mime.AddExtensionType(".zip", "application/zip"))
+	lo.Must0(mime.AddExtensionType(".7z", "application/x-7z-compressed"))
 }
 
 func (p IssueUploadAssetParam) ContentType() string {
