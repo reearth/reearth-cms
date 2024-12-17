@@ -56,3 +56,15 @@ func (p *CopyPayload) Payload() Payload {
 		Copy: p,
 	}
 }
+
+type Changes map[string]Change
+type Change struct {
+	Type  ChangeType
+	Value string
+}
+type ChangeType string
+
+const (
+	ChangeTypeSet ChangeType = "set"
+	ChangeTypeNew ChangeType = "new"
+)

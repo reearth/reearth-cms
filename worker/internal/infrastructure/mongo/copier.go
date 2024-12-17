@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -73,12 +74,6 @@ func (r *Copier) InitIndex(ctx context.Context) error {
 	return nil
 }
 
-type Changes map[string]Change
-type Change struct {
-	t string
-	v string
-}
-
 func (r *Copier) Copy(ctx context.Context, filter string, changes string) error {
 	if r.c == nil || r.c.Name() == "" {
 		return rerror.ErrInternalBy(errors.New("collection is empty"))
@@ -89,7 +84,7 @@ func (r *Copier) Copy(ctx context.Context, filter string, changes string) error 
 		return rerror.ErrInternalBy(err)
 	}
 
-	var changesMap Changes
+	var changesMap task.Changes
 	if err := json.Unmarshal([]byte(changes), &changesMap); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
@@ -115,12 +110,12 @@ func (r *Copier) Copy(ctx context.Context, filter string, changes string) error 
 		}
 
 		for k, change := range changesMap {
-			switch change.t {
-			case "new":
-				newId, _ := generateId(change.v)
+			switch change.Type {
+			case task.ChangeTypeNew:
+				newId, _ := generateId(change.Value)
 				result[k] = newId
-			case "set":
-				result[k] = change.v
+			case task.ChangeTypeSet:
+				result[k] = change.Value
 			}
 		}
 

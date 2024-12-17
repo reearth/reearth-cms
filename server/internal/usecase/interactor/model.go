@@ -318,12 +318,6 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 		})
 }
 
-type Changes map[string]Change
-type Change struct {
-	t string
-	v string
-}
-
 func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
@@ -367,18 +361,18 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
-			changes, err := json.Marshal(map[string]Change{
+			changes, err := json.Marshal(task.Changes{
 				"id": {
-					t: "new",
-					v: "item",
+					Type:  task.ChangeTypeNew,
+					Value: "item",
 				},
 				"schema": {
-					t: "set",
-					v: newSchema.ID().String(),
+					Type:  task.ChangeTypeSet,
+					Value: newSchema.ID().String(),
 				},
 				"model": {
-					t: "set",
-					v: newModel.ID().String(),
+					Type:  task.ChangeTypeSet,
+					Value: newModel.ID().String(),
 				},
 			})
 			if err != nil {
@@ -413,18 +407,18 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				if err != nil {
 					return nil, err
 				}
-				changes, err := json.Marshal(map[string]Change{
+				changes, err := json.Marshal(task.Changes{
 					"id": {
-						t: "new",
-						v: "item",
+						Type:  task.ChangeTypeNew,
+						Value: "item",
 					},
 					"schema": {
-						t: "set",
-						v: newMetaSchema.ID().String(),
+						Type:  task.ChangeTypeSet,
+						Value: newMetaSchema.ID().String(),
 					},
 					"model": {
-						t: "set",
-						v: newModel.ID().String(),
+						Type:  task.ChangeTypeSet,
+						Value: newModel.ID().String(),
 					},
 				})
 				if err != nil {
