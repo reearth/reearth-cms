@@ -21,16 +21,16 @@ type Copier struct {
 	c *mongo.Collection
 }
 
-func (c Copier) SetCollection(collection *mongo.Collection) {
-	c.c = collection
-}
-
-func NewCopier(db *mongo.Database) *Copier {
+func NewCopier(_ *mongo.Database) *Copier {
 	return &Copier{}
 }
 
+func (r *Copier) SetCollection(collection *mongo.Collection) {
+	r.c = collection
+}
+
 func (r *Copier) Init() error {
-	if r.c == nil {
+	if r.c == nil || r.c.Name() == "" {
 		return rerror.ErrInternalBy(errors.New("collection is empty"))
 	}
 	return r.InitIndex(
@@ -39,7 +39,7 @@ func (r *Copier) Init() error {
 }
 
 func (r *Copier) InitIndex(ctx context.Context) error {
-	if r.c == nil {
+	if r.c == nil || r.c.Name() == "" {
 		return rerror.ErrInternalBy(errors.New("collection is empty"))
 	}
 	indexes, err := r.c.Indexes().List(ctx)
@@ -79,30 +79,11 @@ type Change struct {
 	v string
 }
 
-//	filter := bson.M{
-//		"schema": schemaId.String(),
-//	}
-
-// changes:= map[string]Change{
-// 	"id": {
-// 		"type": "new",
-// 		"value": "item",
-// 	},
-// 	"schema": {
-// 		"type": "set",
-// 		"value": schemaId.String(),
-// 	},
-// 	"model": {
-// 		"type": "set",
-// 		"value": modelId.String(),
-// 	},
-// }
-
 func (r *Copier) Copy(ctx context.Context, filter string, changes string) error {
-	if r.c == nil {
+	if r.c == nil || r.c.Name() == "" {
 		return rerror.ErrInternalBy(errors.New("collection is empty"))
 	}
-	
+
 	var f bson.M
 	if err := json.Unmarshal([]byte(filter), &f); err != nil {
 		return rerror.ErrInternalBy(err)

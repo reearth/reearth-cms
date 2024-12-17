@@ -74,7 +74,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset != nil {
 		return decompressAsset(ctx, p, t.conf)
 	}
-	return copyModel(ctx, p, t.conf)
+	return copy(ctx, p, t.conf)
 }
 
 func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) error {
@@ -144,8 +144,8 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	return nil
 }
 
-func copyModel(ctx context.Context, p task.Payload, conf *TaskConfig) error {
-	if p.CopyModel == nil {
+func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+	if p.Copy == nil {
 		return nil
 	}
 
@@ -173,8 +173,9 @@ func copyModel(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 					"-old-windows",    // Activates compatibility or a specific mode for older Windows environments.
 				},
 				Env: []string{
-					"REEARTH_CMS_COPIER_MODEL_ID=" + p.CopyModel.ModelID,
-					"REEARTH_CMS_COPIER_NAME=" + p.CopyModel.Name,
+					"REEARTH_CMS_COPIER_COLLECTION=" + p.Copy.Collection,
+					"REEARTH_CMS_COPIER_FILTER=" + p.Copy.Filter,
+					"REEARTH_CMS_COPIER_CHANGES=" + p.Copy.Changes,
 				},
 			},
 		},

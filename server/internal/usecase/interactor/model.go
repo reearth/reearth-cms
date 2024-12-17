@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -17,6 +18,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Model struct {
@@ -316,36 +318,141 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 		})
 }
 
+type Changes map[string]Change
+type Change struct {
+	t string
+	v string
+}
+
 func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
-			m, err := i.repos.Model.FindByID(ctx, params.ModelId)
+			// copy model
+			oldModel, err := i.repos.Model.FindByID(ctx, params.ModelId)
 			if err != nil {
 				return nil, err
 			}
-			name := m.Name() + " Copy"
+			name := lo.ToPtr(oldModel.Name() + " Copy")
 			if params.Name != nil {
-				name = *params.Name
+				name = params.Name
 			}
-
-			err = i.triggerCopyEvent(ctx, m.ID().String(), name)
+			newModel, err := i.Create(ctx, interfaces.CreateModelParam{
+				ProjectId:   oldModel.Project(),
+				Name:        name,
+				Description: lo.ToPtr(oldModel.Description()),
+				Key:         id.RandomKey().Ref().StringRef(),
+				Public:      lo.ToPtr(oldModel.Public()),
+			}, operator)
+			if err != nil {
+				return nil, err
+			}
+			// copy schema
+			oldSchema, err := i.repos.Schema.FindByID(ctx, oldModel.Schema())
+			if err != nil {
+				return nil, err
+			}
+			newSchema, err := i.repos.Schema.FindByID(ctx, newModel.Schema())
+			if err != nil {
+				return nil, err
+			}
+			newSchema.CopyFrom(oldSchema)
+			err = i.repos.Schema.Save(ctx, newSchema)
+			if err != nil {
+				return nil, err
+			}
+			// copy items
+			filter, err := json.Marshal(bson.M{
+				"schema": oldSchema.ID().String(),
+			})
+			if err != nil {
+				return nil, err
+			}
+			changes, err := json.Marshal(map[string]Change{
+				"id": {
+					t: "new",
+					v: "item",
+				},
+				"schema": {
+					t: "set",
+					v: newSchema.ID().String(),
+				},
+				"model": {
+					t: "set",
+					v: newModel.ID().String(),
+				},
+			})
 			if err != nil {
 				return nil, err
 			}
 
-			return m, nil
+			err = i.triggerCopyEvent(ctx, "item", string(filter), string(changes))
+			if err != nil {
+				return nil, err
+			}
+
+			// copy metadata
+			if oldModel.Metadata() != nil {
+				// copy metadata schema
+				oldMetaSchema, err := i.repos.Schema.FindByID(ctx, *oldModel.Metadata())
+				if err != nil {
+					return nil, err
+				}
+				newMetaSchema, err := schema.New().NewID().Workspace(oldMetaSchema.Workspace()).Project(oldMetaSchema.Project()).TitleField(nil).Build()
+				if err != nil {
+					return nil, err
+				}
+				newMetaSchema.CopyFrom(oldMetaSchema)
+				err = i.repos.Schema.Save(ctx, newMetaSchema)
+				if err != nil {
+					return nil, err
+				}
+				// copy metadata items
+				filter, err := json.Marshal(bson.M{
+					"schema": oldMetaSchema.ID().String(),
+				})
+				if err != nil {
+					return nil, err
+				}
+				changes, err := json.Marshal(map[string]Change{
+					"id": {
+						t: "new",
+						v: "item",
+					},
+					"schema": {
+						t: "set",
+						v: newMetaSchema.ID().String(),
+					},
+					"model": {
+						t: "set",
+						v: newModel.ID().String(),
+					},
+				})
+				if err != nil {
+					return nil, err
+				}
+				err = i.triggerCopyEvent(ctx, "item", string(filter), string(changes))
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			// TODO: copy group items
+			// TODO: copy referenced items
+
+			return newModel, nil
 		})
 }
 
-func (i Model) triggerCopyEvent(ctx context.Context, modelId, name string) error {
+func (i Model) triggerCopyEvent(ctx context.Context, collection, filter, changes string) error {
 	if i.gateways.TaskRunner == nil {
-		log.Infof("model: copy of model %s was skipped because task runner is not configured", modelId)
+		log.Infof("model: copy of model was skipped because task runner is not configured")
 		return nil
 	}
 
-	taskPayload := task.CopyModelPayload{
-		ModelID: modelId,
-		Name:    name,
+	taskPayload := task.CopyPayload{
+		Collection: collection,
+		Filter:     filter,
+		Changes:    changes,
 	}
 
 	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
