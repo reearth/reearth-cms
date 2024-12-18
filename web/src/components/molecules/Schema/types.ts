@@ -81,11 +81,11 @@ export type CorrespondingField = {
 };
 
 export type TypeProperty = {
-  defaultValue?: string | boolean | string[] | boolean[];
+  defaultValue?: string | string[] | boolean | boolean[] | null;
   maxLength?: number;
-  assetDefaultValue?: string;
-  selectDefaultValue?: string | string[];
-  integerDefaultValue?: number;
+  assetDefaultValue?: string | string[] | null;
+  selectDefaultValue?: string | string[] | null;
+  integerDefaultValue?: number | number[] | null;
   min?: number;
   max?: number;
   numberMin?: number;

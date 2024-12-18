@@ -1,8 +1,24 @@
+import { type Dayjs } from "dayjs";
+
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
+
+export type FormValue =
+  | string
+  | string[]
+  | number
+  | number[]
+  | boolean
+  | boolean[]
+  | Dayjs
+  | ("" | Dayjs)[]
+  | null
+  | undefined;
+
+export type FormGroupValue = Record<string, FormValue>;
 
 export type ItemValue = string | string[] | number | number[] | boolean | boolean[];
 

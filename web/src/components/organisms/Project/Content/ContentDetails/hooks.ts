@@ -4,6 +4,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
+  FormValue,
+  FormGroupValue,
   FormItem,
   Item,
   ItemStatus,
@@ -366,18 +368,27 @@ export default () => {
   );
 
   const valueGet = useCallback((field: Field) => {
+    let result: FormValue;
     switch (field.type) {
       case "Select":
-        return field.typeProperty?.selectDefaultValue;
+        result = field.typeProperty?.selectDefaultValue;
+        break;
       case "Integer":
-        return field.typeProperty?.integerDefaultValue;
+        result = field.typeProperty?.integerDefaultValue;
+        break;
       case "Asset":
-        return field.typeProperty?.assetDefaultValue;
+        result = field.typeProperty?.assetDefaultValue;
+        break;
       case "Date":
-        return dateConvert(field.typeProperty?.defaultValue);
+        result = dateConvert(field.typeProperty?.defaultValue);
+        break;
       default:
-        return field.typeProperty?.defaultValue;
+        result = field.typeProperty?.defaultValue;
     }
+    if (field.multiple && !result) {
+      result = [];
+    }
+    return result;
   }, []);
 
   const updateValueConvert = useCallback(({ type, value }: ItemField) => {
@@ -394,18 +405,18 @@ export default () => {
     }
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [initialFormValues, setInitialFormValues] = useState<Record<string, any>>({});
+  const [initialFormValues, setInitialFormValues] = useState<
+    Record<string, FormValue | FormGroupValue>
+  >({});
 
   useEffect(() => {
     if (itemLoading) return;
     const handleInitialValuesSet = async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const initialValues: Record<string, any> = {};
+      const initialValues: Record<string, FormValue | FormGroupValue> = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
           initialValues[field.id] = {
-            ...initialValues[field.id],
+            ...(initialValues[field.id] as FormGroupValue),
             ...{ [itemGroupId]: valueGet(field) },
           };
         });
@@ -415,7 +426,7 @@ export default () => {
         currentItem?.fields?.forEach(field => {
           if (field.itemGroupId) {
             initialValues[field.schemaFieldId] = {
-              ...initialValues[field.schemaFieldId],
+              ...(initialValues[field.schemaFieldId] as FormGroupValue),
               ...{ [field.itemGroupId]: updateValueConvert(field) },
             };
           } else {
@@ -549,7 +560,7 @@ export default () => {
   const handleCheckItemReference = useCallback(
     async (itemId: string, correspondingFieldId: string, groupId?: string) => {
       const initialValue = groupId
-        ? initialFormValues[groupId][correspondingFieldId]
+        ? (initialFormValues[groupId] as FormGroupValue)[correspondingFieldId]
         : initialFormValues[correspondingFieldId];
       if (initialValue === itemId) {
         return false;
