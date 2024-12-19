@@ -1,6 +1,5 @@
-import { useCallback, useState, useEffect, useMemo, useRef } from "react";
+import { useCallback, useState, useMemo } from "react";
 
-import Form from "@reearth-cms/components/atoms/Form";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormType, PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -24,12 +23,7 @@ export default () => {
     () => !!userRights?.project.publish,
     [userRights?.project.publish],
   );
-  const [form] = Form.useForm<FormType>();
-  const modelsState = Form.useWatch("models", form) ?? {};
-  const assetState = !!Form.useWatch("assetPublic", form);
-  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [updateLoading, setUpdateLoading] = useState(false);
-
   const { data: modelsData } = useGetModelsQuery({
     variables: {
       projectId: currentProject?.id ?? "",
@@ -55,42 +49,13 @@ export default () => {
       modelsObj[model.id] = !!model.public;
     });
     return {
-      scope: currentProject?.scope,
+      scope: currentProject?.scope ?? "PRIVATE",
       alias,
       token,
       assetPublic: !!currentProject?.assetPublic,
       models: modelsObj,
     };
   }, [alias, currentProject?.assetPublic, currentProject?.scope, models, token]);
-
-  useEffect(() => {
-    form.setFieldsValue(initialValues);
-  }, [form, initialValues]);
-
-  const changedModels = useRef(new Map<string, boolean>());
-
-  const handleValuesChange = useCallback(
-    (changedValues: Partial<FormType>, values: FormType) => {
-      if (changedValues?.models) {
-        const modelId = Object.keys(changedValues.models)[0];
-        if (changedModels.current.has(modelId)) {
-          changedModels.current.delete(modelId);
-        } else {
-          changedModels.current.set(modelId, changedValues.models[modelId]);
-        }
-      }
-      if (
-        initialValues.scope === values.scope &&
-        initialValues.assetPublic === values.assetPublic &&
-        changedModels.current.size === 0
-      ) {
-        setIsSaveDisabled(true);
-      } else {
-        setIsSaveDisabled(false);
-      }
-    },
-    [initialValues],
-  );
 
   const scopeConvert = useCallback((scope?: PublicScope) => {
     if (scope === "PUBLIC") {
@@ -107,57 +72,57 @@ export default () => {
     refetchQueries: ["GetModels"],
   });
 
-  const handlePublicUpdate = useCallback(async () => {
-    if (!currentProject?.id) return;
-    setUpdateLoading(true);
-    try {
-      const { alias, scope, assetPublic } = form.getFieldsValue();
-      if (initialValues.scope !== scope || initialValues.assetPublic !== assetPublic) {
-        const projRes = await updateProjectMutation({
-          variables: {
-            alias,
-            projectId: currentProject.id,
-            publication: {
-              scope: scopeConvert(scope),
-              assetPublic,
+  const handlePublicUpdate = useCallback(
+    async (settings: FormType, changedModels: Map<string, boolean>) => {
+      if (!currentProject?.id) return;
+      setUpdateLoading(true);
+      try {
+        const { alias, scope, assetPublic } = settings;
+        if (initialValues.scope !== scope || initialValues.assetPublic !== assetPublic) {
+          const projRes = await updateProjectMutation({
+            variables: {
+              alias,
+              projectId: currentProject.id,
+              publication: {
+                scope: scopeConvert(scope),
+                assetPublic,
+              },
             },
-          },
-        });
-        if (projRes.errors) {
-          throw new Error();
-        }
-      }
-      if (changedModels.current.size) {
-        changedModels.current.forEach(async (value, modelId) => {
-          const modelRes = await updateModelMutation({
-            variables: { modelId, public: value },
           });
-          if (modelRes.errors) {
+          if (projRes.errors) {
             throw new Error();
           }
+        }
+        if (changedModels.size) {
+          changedModels.forEach(async (value, modelId) => {
+            const modelRes = await updateModelMutation({
+              variables: { modelId, public: value },
+            });
+            if (modelRes.errors) {
+              throw new Error();
+            }
+          });
+        }
+        Notification.success({
+          message: t("Successfully updated publication settings!"),
         });
+      } catch (e) {
+        Notification.error({ message: t("Failed to update publication settings.") });
+        throw e;
+      } finally {
+        setUpdateLoading(false);
       }
-      Notification.success({
-        message: t("Successfully updated publication settings!"),
-      });
-      changedModels.current.clear();
-      setIsSaveDisabled(true);
-    } catch (_) {
-      Notification.error({ message: t("Failed to update publication settings.") });
-      setIsSaveDisabled(false);
-    } finally {
-      setUpdateLoading(false);
-    }
-  }, [
-    currentProject?.id,
-    form,
-    initialValues.assetPublic,
-    initialValues.scope,
-    scopeConvert,
-    t,
-    updateModelMutation,
-    updateProjectMutation,
-  ]);
+    },
+    [
+      currentProject?.id,
+      initialValues.assetPublic,
+      initialValues.scope,
+      scopeConvert,
+      t,
+      updateModelMutation,
+      updateProjectMutation,
+    ],
+  );
 
   const [regeneratePublicApiToken, { loading: regenerateLoading }] =
     useRegeneratePublicApiTokenMutation({
@@ -166,18 +131,23 @@ export default () => {
 
   const handleRegenerateToken = useCallback(async () => {
     if (!currentProject?.id) return;
-    const result = await regeneratePublicApiToken({
-      variables: {
-        projectId: currentProject.id,
-      },
-    });
-    if (result.errors) {
+    try {
+      const result = await regeneratePublicApiToken({
+        variables: {
+          projectId: currentProject.id,
+        },
+      });
+      if (result.errors) {
+        throw new Error();
+      } else {
+        Notification.success({
+          message: t("Public API Token has been re-generated!"),
+        });
+      }
+    } catch (e) {
+      console.error(e);
       Notification.error({
         message: t("The attempt to re-generate the Public API Token has failed."),
-      });
-    } else {
-      Notification.success({
-        message: t("Public API Token has been re-generated!"),
       });
     }
   }, [currentProject?.id, regeneratePublicApiToken, t]);
@@ -188,18 +158,14 @@ export default () => {
   );
 
   return {
-    form,
+    initialValues,
     models,
-    modelsState,
-    assetState,
-    isSaveDisabled,
     hasPublishRight,
     updateLoading,
     regenerateLoading,
     apiUrl,
     alias,
     token,
-    handleValuesChange,
     handlePublicUpdate,
     handleRegenerateToken,
   };
