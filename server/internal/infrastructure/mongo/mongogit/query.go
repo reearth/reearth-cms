@@ -3,7 +3,7 @@ package mongogit
 import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func apply(q version.Query, f any) (res any) {
