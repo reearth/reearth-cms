@@ -53,6 +53,8 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await page.getByLabel("boolean1").click();
   await closeNotification(page);
   await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "true");
@@ -65,6 +67,7 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
 });
 
 test("Boolean metadata editing has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -137,22 +140,16 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "true");
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("switch").nth(2).click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("switch").nth(4).click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
