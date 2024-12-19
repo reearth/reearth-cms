@@ -1,14 +1,14 @@
-package integration
+package interactor
 
 import (
 	"encoding/csv"
 	"io"
 
+	"github.com/labstack/gommon/log"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
@@ -67,4 +67,3 @@ func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) erro
 
 	return w.Error()
 }
-
