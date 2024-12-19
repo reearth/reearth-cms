@@ -5,7 +5,7 @@ import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
+import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -24,13 +24,14 @@ import {
   ItemField,
   ItemValue,
 } from "@reearth-cms/components/molecules/Content/types";
+import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   Request,
   RequestItem,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
+import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
@@ -230,19 +231,33 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
+  const handleFormValidate = useCallback(async (form: FormInstance) => {
+    try {
+      await form.validateFields();
+    } catch (e) {
+      if ((e as ValidateErrorEntity).errorFields.length > 0) {
+        setIsDisabled(true);
+        throw e;
+      }
+    }
+  }, []);
+
   const handleValuesChange = useCallback(
     async (changedValues: Record<string, unknown>) => {
       try {
-        await form.validateFields();
+        await handleFormValidate(form);
       } catch (e) {
-        if ((e as ValidateErrorEntity).errorFields.length > 0) {
-          setIsDisabled(true);
-          return;
-        }
+        console.error(e);
+        return;
       }
 
       if (!itemId) {
-        setIsDisabled(false);
+        try {
+          await handleFormValidate(metaForm);
+          setIsDisabled(false);
+        } catch (e) {
+          console.error(e);
+        }
         return;
       }
 
@@ -267,7 +282,7 @@ const ContentForm: React.FC<Props> = ({
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
-    [checkIfSingleGroupField, form, initialFormValues, itemId],
+    [checkIfSingleGroupField, form, handleFormValidate, initialFormValues, itemId, metaForm],
   );
 
   useEffect(() => {
@@ -320,23 +335,40 @@ const ContentForm: React.FC<Props> = ({
     return () => window.removeEventListener("beforeunload", handleBeforeUnloadEvent, true);
   }, []);
 
-  useEffect(() => {
-    form.setFieldsValue(initialFormValues);
-  }, [form, initialFormValues]);
+  const allFormsValidate = useCallback(async () => {
+    try {
+      await handleFormValidate(form);
+      await handleFormValidate(metaForm);
+      setIsDisabled(false);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [form, handleFormValidate, metaForm]);
 
   useEffect(() => {
+    form.setFieldsValue(initialFormValues);
     metaForm.setFieldsValue(initialMetaFormValues);
-  }, [metaForm, initialMetaFormValues]);
+    if (!itemId) {
+      allFormsValidate();
+    }
+  }, [allFormsValidate, form, initialFormValues, initialMetaFormValues, itemId, metaForm]);
 
   const unpublishedItems = useMemo(
     () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
     [formItemsData],
   );
 
-  const inputValueGet = useCallback((value: ItemValue, multiple: boolean) => {
-    if (multiple) {
+  const inputValueGet = useCallback((value: ItemValue, field: Field) => {
+    if (field.multiple) {
       if (Array.isArray(value)) {
-        return value.map(v => (dayjs.isDayjs(v) ? transformDayjsToString(v) : v));
+        if (field.type === "Tag") {
+          const tags = field.typeProperty?.tags;
+          return tags ? selectedTagIdsGet(value as string[], tags) : [];
+        } else {
+          return value.map(v =>
+            v === "" ? undefined : dayjs.isDayjs(v) ? transformDayjsToString(v) : v,
+          );
+        }
       } else {
         return [];
       }
@@ -345,10 +377,34 @@ const ContentForm: React.FC<Props> = ({
     }
   }, []);
 
+  const modelFields = useMemo(
+    () => new Map((model?.schema.fields || []).map(field => [field.id, field])),
+    [model?.schema.fields],
+  );
+
+  const metaFieldsMap = useMemo(
+    () => new Map((model?.metadataSchema.fields || []).map(field => [field.id, field])),
+    [model?.metadataSchema.fields],
+  );
+
+  const metaFieldsGet = useCallback(async () => {
+    const result: ItemField[] = [];
+    const metaValues = await metaForm.validateFields();
+    for (const [key, value] of Object.entries(metaValues)) {
+      const metaField = metaFieldsMap.get(key);
+      if (metaField) {
+        result.push({
+          value: inputValueGet(value as ItemValue, metaField),
+          schemaFieldId: key,
+          type: metaField.type,
+        });
+      }
+    }
+    return result;
+  }, [inputValueGet, metaFieldsMap, metaForm]);
+
   const handleSubmit = useCallback(async () => {
-    setIsDisabled(true);
     try {
-      const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
       const groupFields = new Map<string, Field>();
       if (model) {
         await Promise.all(
@@ -367,7 +423,7 @@ const ContentForm: React.FC<Props> = ({
         const modelField = modelFields.get(key);
         if (modelField) {
           fields.push({
-            value: inputValueGet(value as ItemValue, modelField.multiple),
+            value: inputValueGet(value as ItemValue, modelField),
             schemaFieldId: key,
             type: modelField.type,
           });
@@ -376,7 +432,7 @@ const ContentForm: React.FC<Props> = ({
             const groupField = groupFields.get(key);
             if (groupField) {
               fields.push({
-                value: inputValueGet(groupFieldValue, groupField.multiple),
+                value: inputValueGet(groupFieldValue, groupField),
                 schemaFieldId: key,
                 itemGroupId: groupFieldKey,
                 type: groupField.type,
@@ -386,27 +442,13 @@ const ContentForm: React.FC<Props> = ({
         }
       }
 
-      const metaValues = await metaForm.validateFields();
-      const metaFields: ItemField[] = [];
-      for (const [key, value] of Object.entries(metaValues)) {
-        const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
-        if (type) {
-          metaFields.push({
-            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? ""),
-            schemaFieldId: key,
-            type,
-          });
-        }
-      }
-
-      changedKeys.current.clear();
-
       if (itemId) {
         await onItemUpdate?.({
           itemId: itemId,
           fields,
         });
       } else if (model?.schema.id) {
+        const metaFields = await metaFieldsGet();
         await onItemCreate?.({
           schemaId: model?.schema.id,
           metaSchemaId: model?.metadataSchema?.id,
@@ -414,31 +456,69 @@ const ContentForm: React.FC<Props> = ({
           fields,
         });
       }
-    } catch (_) {
-      setIsDisabled(false);
+
+      changedKeys.current.clear();
+      setIsDisabled(true);
+    } catch (e) {
+      console.error(e);
     }
-  }, [model, form, metaForm, itemId, onGroupGet, inputValueGet, onItemUpdate, onItemCreate]);
+  }, [
+    model,
+    form,
+    itemId,
+    onGroupGet,
+    modelFields,
+    inputValueGet,
+    onItemUpdate,
+    metaFieldsGet,
+    onItemCreate,
+  ]);
 
   const handleMetaUpdate = useCallback(async () => {
-    if (!itemId) return;
     try {
-      const metaValues = await metaForm.validateFields();
-      const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
-      for (const [key, value] of Object.entries(metaValues)) {
-        metaFields.push({
-          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : (value ?? "")) as string,
-          schemaFieldId: key,
-          type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
-        });
-      }
+      const metaFields = await metaFieldsGet();
       await onMetaItemUpdate({
         metaItemId: item?.metadata?.id,
         metaFields,
       });
+      setIsDisabled(true);
     } catch (info) {
-      console.log("Validate Failed:", info);
+      console.error(info);
     }
-  }, [itemId, item, metaForm, onMetaItemUpdate, model?.metadataSchema?.fields]);
+  }, [metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
+
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMetaValuesChange = useCallback(
+    async (changedValues: Record<string, unknown>) => {
+      if (itemId) {
+        if (timeout.current) {
+          clearTimeout(timeout.current);
+          timeout.current = null;
+        }
+        const [key, value] = Object.entries(changedValues)[0];
+        const initialValue = initialMetaFormValues[key];
+        if (Array.isArray(value)) {
+          // use checkIfEmpty
+          const noEmptyValuesLength = value.filter(
+            v => !(v === undefined || v === null || v === ""),
+          ).length;
+          if (
+            noEmptyValuesLength === value.length ||
+            (noEmptyValuesLength && !initialValue) ||
+            (Array.isArray(initialValue) && noEmptyValuesLength !== initialValue.length)
+          ) {
+            timeout.current = setTimeout(handleMetaUpdate, 800);
+          }
+        } else if (value !== initialValue) {
+          timeout.current = setTimeout(handleMetaUpdate, 800);
+        }
+      } else {
+        allFormsValidate();
+      }
+    },
+    [allFormsValidate, handleMetaUpdate, initialMetaFormValues, itemId],
+  );
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
@@ -656,17 +736,17 @@ const ContentForm: React.FC<Props> = ({
         </FormItemsWrapper>
       </StyledForm>
       <SideBarWrapper>
-        <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
+        <Form
+          form={metaForm}
+          layout="vertical"
+          initialValues={initialMetaFormValues}
+          onValuesChange={handleMetaValuesChange}>
           <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
           {model?.metadataSchema?.fields?.map(field => {
             const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
             return (
               <MetaFormItemWrapper key={field.id}>
-                <FieldComponent
-                  field={field}
-                  onMetaUpdate={handleMetaUpdate}
-                  disabled={fieldDisabled}
-                />
+                <FieldComponent field={field} disabled={fieldDisabled} />
               </MetaFormItemWrapper>
             );
           })}

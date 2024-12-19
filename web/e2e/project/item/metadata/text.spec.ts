@@ -35,6 +35,7 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
     "text1 description",
   );
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Set maximum length")).toBeEmpty();
   await expect(page.getByLabel("Make field required")).not.toBeChecked();
@@ -131,6 +132,10 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("new text1 description");
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text1");
+  await page.getByLabel("new text1(unique)").click();
+  await page.getByLabel("new text1(unique)").fill("text22");
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
+  await page.getByLabel("new text1(unique)").fill("text2");
 
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
