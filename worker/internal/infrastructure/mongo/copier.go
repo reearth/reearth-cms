@@ -31,9 +31,6 @@ func (r *Copier) SetCollection(collection *mongo.Collection) {
 }
 
 func (r *Copier) Init() error {
-	if r.c == nil || r.c.Name() == "" {
-		return rerror.ErrInternalBy(errors.New("collection is empty"))
-	}
 	return r.InitIndex(
 		context.Background(),
 	)
@@ -41,8 +38,9 @@ func (r *Copier) Init() error {
 
 func (r *Copier) InitIndex(ctx context.Context) error {
 	if r.c == nil || r.c.Name() == "" {
-		return rerror.ErrInternalBy(errors.New("collection is empty"))
+		return rerror.ErrInternalBy(errors.New("copier collection is not set"))
 	}
+
 	indexes, err := r.c.Indexes().List(ctx)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
@@ -75,10 +73,6 @@ func (r *Copier) InitIndex(ctx context.Context) error {
 }
 
 func (r *Copier) Copy(ctx context.Context, filter string, changes string) error {
-	if r.c == nil || r.c.Name() == "" {
-		return rerror.ErrInternalBy(errors.New("collection is empty"))
-	}
-
 	var f bson.M
 	if err := json.Unmarshal([]byte(filter), &f); err != nil {
 		return rerror.ErrInternalBy(err)
