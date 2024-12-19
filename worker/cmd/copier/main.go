@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"os/exec"
 	"time"
@@ -11,18 +10,20 @@ import (
 	rmongo "github.com/reearth/reearth-cms/worker/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
+	"github.com/reearth/reearthx/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
 func main() {
+	log.Infof("reearth-cms/worker: copier has started")
 	ctx := context.Background()
 
-	dbURI := getEnv("REEARTH_CMS_DB")
-	collection := getEnv("REEARTH_CMS_COPIER_COLLECTION")
-	filter := getEnv("REEARTH_CMS_COPIER_FILTER")
-	changes := getEnv("REEARTH_CMS_COPIER_CHANGES")
+	dbURI := mustGetEnv("REEARTH_CMS_DB")
+	collection := mustGetEnv("REEARTH_CMS_COPIER_COLLECTION")
+	filter := mustGetEnv("REEARTH_CMS_COPIER_FILTER")
+	changes := mustGetEnv("REEARTH_CMS_COPIER_CHANGES")
 
 	cmd := exec.CommandContext(ctx, os.Args[1], os.Args[2:]...)
 	cmd.Stdout = os.Stdout
@@ -35,14 +36,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to initialize repositories with DB URI %s: %v", dbURI, err)
 	}
+
 	uc := interactor.NewUsecase(nil, repos)
 	ctrl := http.NewCopyController(uc)
 	if err := ctrl.Copy(ctx, http.CopyInput{Filter: filter, Changes: changes}); err != nil {
-		log.Fatalf("failed to copy model: %v", err)
+		log.Fatalf("copy operation failed: %v", err)
 	}
 }
 
-func getEnv(key string) string {
+func mustGetEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
 		log.Fatalf("environment variable %s is required", key)
@@ -50,7 +52,7 @@ func getEnv(key string) string {
 	return value
 }
 
-func initReposWithCollection(ctx context.Context, dbURI string, collection string) (*repo.Container, error) {
+func initReposWithCollection(ctx context.Context, dbURI, collection string) (*repo.Container, error) {
 	client, err := mongo.Connect(
 		ctx,
 		options.Client().
@@ -65,10 +67,5 @@ func initReposWithCollection(ctx context.Context, dbURI string, collection strin
 	db := client.Database("reearth_cms")
 	c := rmongo.NewCopier(db)
 	c.SetCollection(db.Collection(collection))
-	repos, err := rmongo.New(ctx, nil, c)
-	if err != nil {
-		return nil, err
-	}
-
-	return repos, nil
+	return rmongo.New(ctx, nil, c)
 }
