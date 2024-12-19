@@ -1856,7 +1856,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/schemaField'
-        TitleField:
+        titleField:
           x-go-type: id.FieldID
           type: string
         createdAt:
