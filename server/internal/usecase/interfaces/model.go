@@ -20,6 +20,11 @@ type CreateModelParam struct {
 	Public      *bool
 }
 
+type CopyModelParam struct {
+	ModelId   id.ModelID
+	Name        *string
+}
+
 type FindOrCreateSchemaParam struct {
 	ModelID *id.ModelID
 	GroupID *id.GroupID
@@ -56,4 +61,5 @@ type Model interface {
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)
 	Delete(context.Context, id.ModelID, *usecase.Operator) error
 	Publish(context.Context, id.ModelID, bool, *usecase.Operator) (bool, error)
+	Copy(context.Context, CopyModelParam, *usecase.Operator) (*model.Model, error)
 }

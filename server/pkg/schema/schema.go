@@ -172,3 +172,11 @@ func (s *Schema) IsPointFieldSupported() bool {
 	}
 	return false
 }
+
+func (s *Schema) CopyFrom(s2 *Schema) {
+	if s == nil || s2 == nil {
+		return
+	}
+	s.fields = slices.Clone(s2.fields)
+	s.titleField = s2.TitleField().CloneRef()
+}
