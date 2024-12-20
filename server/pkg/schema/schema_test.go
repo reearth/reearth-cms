@@ -479,3 +479,12 @@ func TestSchema_HasFieldByKey(t *testing.T) {
 		})
 	}
 }
+
+func TestSchema_CopyFrom(t *testing.T) {
+	fid := id.NewFieldID()
+	s1 := &Schema{id: id.NewSchemaID(), fields: []*Field{{id: id.NewFieldID(), name: "f1", key: id.NewKey("K123123")}}, titleField: fid.Ref()}
+	s2 := &Schema{id: id.NewSchemaID(), fields: []*Field{{}}}
+	s2.CopyFrom(s1)
+	assert.Equal(t, s1.fields, s2.fields)
+	assert.Equal(t, s1.titleField, s2.titleField)
+}

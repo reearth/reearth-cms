@@ -2,16 +2,22 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
@@ -527,6 +533,112 @@ func TestNewModel(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tt.want, NewModel(tt.args.r, nil))
+		})
+	}
+}
+
+func TestModel_Copy(t *testing.T) {
+	mockTime := time.Now()
+	wid := accountdomain.NewWorkspaceID()
+	p := project.New().NewID().Workspace(wid).MustBuild()
+	op := &usecase.Operator{OwningProjects: []id.ProjectID{p.ID()}}
+
+	fId1 := id.NewFieldID()
+	sfKey1 := id.RandomKey()
+	sf1 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId1).Key(sfKey1).MustBuild()
+	s1 := schema.New().NewID().Workspace(wid).Project(p.ID()).Fields([]*schema.Field{sf1}).MustBuild()
+	fId2 := id.NewFieldID()
+	sfKey2 := id.RandomKey()
+	sf2 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
+	s2 := schema.New().NewID().Workspace(wid).Project(p.ID()).Fields([]*schema.Field{sf2}).MustBuild()
+	m := model.New().NewID().Key(id.RandomKey()).Project(p.ID()).Schema(s1.ID()).Metadata(s2.ID().Ref()).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mRunner := gatewaymock.NewMockTaskRunner(mockCtrl)
+	gw := &gateway.Container{TaskRunner: mRunner}
+	u := NewModel(db, gw)
+
+	defer memory.MockNow(db, mockTime)()
+
+	err := db.Project.Save(ctx, p.Clone())
+	assert.NoError(t, err)
+	err = db.Model.Save(ctx, m.Clone())
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s1.Clone())
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s2.Clone())
+	assert.NoError(t, err)
+
+	tests := []struct {
+		name       string
+		param      interfaces.CopyModelParam
+		setupMock  func()
+		wantErr    bool
+		validate   func(t *testing.T, got *model.Model)
+	}{
+		{
+			name: "successful copy",
+			param: interfaces.CopyModelParam{
+				ModelId: m.ID(),
+				Name:    lo.ToPtr("Copied Model"),
+			},
+			setupMock: func() {
+				mRunner.EXPECT().Run(ctx, gomock.Any()).Times(1).Return(nil)
+			},
+			wantErr: false,
+			validate: func(t *testing.T, got *model.Model) {
+				assert.NotEqual(t, m.ID(), got.ID())
+				assert.NotEqual(t, m.Key(), got.Key())
+				assert.Equal(t, "Copied Model", got.Name())
+				assert.Equal(t, m.Description(), got.Description())
+				assert.Equal(t, m.Public(), got.Public())
+			},
+		},
+		{
+			name: "missing model ID",
+			param: interfaces.CopyModelParam{
+				ModelId: id.ModelID{},
+				Name:    lo.ToPtr("Copied Model"),
+			},
+			setupMock: func() {
+				mRunner.EXPECT().Run(ctx, gomock.Any()).Times(0)
+			},
+			wantErr: true,
+			validate: func(t *testing.T, got *model.Model) {
+				assert.Nil(t, got)
+			},
+		},
+		{
+			name: "task runner error",
+			param: interfaces.CopyModelParam{
+				ModelId: m.ID(),
+				Name:    lo.ToPtr("Copied Model"),
+			},
+			setupMock: func() {
+				mRunner.EXPECT().Run(ctx, gomock.Any()).Times(1).Return(errors.New("task runner error"))
+			},
+			wantErr: true,
+			validate: func(t *testing.T, got *model.Model) {
+				assert.Nil(t, got)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMock()
+			got, err := u.Copy(ctx, tt.param, op)
+			if tt.wantErr {
+				assert.Error(t, err)
+				tt.validate(t, nil)
+			} else {
+				assert.NoError(t, err)
+				tt.validate(t, got)
+			}
 		})
 	}
 }
