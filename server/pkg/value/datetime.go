@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson/primitive"
 )
 
 const TypeDateTime Type = "datetime"

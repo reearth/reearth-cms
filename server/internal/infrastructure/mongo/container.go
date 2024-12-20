@@ -10,8 +10,8 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransaction bool, acRepo *accountrepo.Container) (*repo.Container, error) {
