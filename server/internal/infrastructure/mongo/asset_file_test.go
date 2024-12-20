@@ -10,7 +10,7 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func TestAssetFileRepo_FindByID(t *testing.T) {

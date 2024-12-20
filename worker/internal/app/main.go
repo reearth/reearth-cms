@@ -16,8 +16,8 @@ import (
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/interactor"
 	"github.com/reearth/reearthx/log"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 func Start(debug bool, version string) {
