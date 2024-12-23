@@ -57,6 +57,10 @@ func (p *CopyPayload) Payload() Payload {
 	}
 }
 
+func (p *CopyPayload) Validate() bool {
+	return p != nil && p.Changes != "" && p.Collection != "" && p.Filter != ""
+}
+
 type Changes map[string]Change
 type Change struct {
 	Type  ChangeType

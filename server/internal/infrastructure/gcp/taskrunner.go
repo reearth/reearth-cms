@@ -145,7 +145,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 }
 
 func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
-	if p.Copy == nil {
+	if !p.Copy.Validate() {
 		return nil
 	}
 

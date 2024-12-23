@@ -413,6 +413,7 @@ func (i Model) copyMetaSchema(ctx context.Context, oldMetaSchemaId id.SchemaID, 
 }
 
 func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID) error {
+	collection := "item"
 	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String()})
 	if err != nil {
 		return err
@@ -434,7 +435,7 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 	if err != nil {
 		return err
 	}
-	return i.triggerCopyEvent(ctx, "item", string(filter), string(changes))
+	return i.triggerCopyEvent(ctx, collection, string(filter), string(changes))
 }
 
 func (i Model) triggerCopyEvent(ctx context.Context, collection, filter, changes string) error {

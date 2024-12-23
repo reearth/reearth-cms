@@ -29,7 +29,7 @@ jobs:
         env:
           BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
-          echo "sha_short=$(git rev-parse --short HEAD))" >> "$GITHUB_OUTPUT"
+          echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
           if [[ "$BRANCH" = "release" ]]; then
             TAG=$(git tag --points-at HEAD)
             if [[ ! -z "$TAG" ]]; then
