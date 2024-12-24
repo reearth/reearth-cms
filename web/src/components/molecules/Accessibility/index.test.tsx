@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, it } from "vitest";
+import { expect, test } from "vitest";
 
 import Accessibility from ".";
 
-it("Accessibility component worked successfully", async () => {
+test("Accessibility component worked successfully", async () => {
   const user = userEvent.setup();
 
   const model1Id = "model1Id";
