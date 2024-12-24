@@ -13,6 +13,8 @@ export type Project = {
   token: string;
 };
 
+export type ProjectListItem = Pick<Project, "id" | "name" | "description">;
+
 export type UserMember = {
   userId: string;
   role: Role;

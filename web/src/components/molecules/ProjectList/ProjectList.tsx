@@ -1,26 +1,28 @@
 import styled from "@emotion/styled";
 
-import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
+import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
+import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
   hasCreateRight: boolean;
-  projects?: Project[];
+  projects?: ProjectListItem[];
   loading: boolean;
-  onProjectModalOpen: () => void;
-  onProjectNavigation: (project: Project) => void;
+  onProjectNavigation: (projectId: string) => void;
+  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const ProjectList: React.FC<Props> = ({
   hasCreateRight,
   projects,
   loading,
-  onProjectModalOpen,
   onProjectNavigation,
+  onProjectCreate,
+  onProjectAliasCheck,
 }) => {
   const t = useT();
 
@@ -33,16 +35,14 @@ const ProjectList: React.FC<Props> = ({
           <Title>{t("No Projects Yet")}</Title>
           <Wrapper>
             <Suggestion>{t("Create a new project")}</Suggestion>
-            <Button
-              onClick={onProjectModalOpen}
-              type="primary"
-              icon={<Icon icon="plus" />}
-              disabled={!hasCreateRight}>
-              {t("New Project")}
-            </Button>
+            <CreateProjectButton
+              hasCreateRight={hasCreateRight}
+              onProjectCreate={onProjectCreate}
+              onProjectAliasCheck={onProjectAliasCheck}
+            />
           </Wrapper>
           <Suggestion>
-            <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
+            <Trans i18nKey="readDocument" components={{ l: <a role="link" href="" /> }} />
           </Suggestion>
         </EmptyListWrapper>
       ) : (
