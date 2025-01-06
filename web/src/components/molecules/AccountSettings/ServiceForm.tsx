@@ -4,11 +4,10 @@ import { useCallback, useMemo, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { localesWithLabel, useT } from "@reearth-cms/i18n";
 
 type Props = {
-  user: User;
+  initialValues: FormType;
   onLanguageUpdate: (lang: string) => Promise<void>;
 };
 
@@ -16,7 +15,7 @@ type FormType = {
   lang: string;
 };
 
-const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
+const AccountServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }) => {
   const [form] = Form.useForm<FormType>();
   const { Option } = Select;
   const t = useT();
@@ -36,9 +35,9 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
 
   const handleSelect = useCallback(
     (value: string) => {
-      setIsDisabled(value === user?.lang);
+      setIsDisabled(value === initialValues.lang);
     },
-    [user?.lang],
+    [initialValues.lang],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -55,7 +54,7 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   }, [form, onLanguageUpdate]);
 
   return (
-    <StyledForm form={form} initialValues={user} layout="vertical" autoComplete="off">
+    <StyledForm form={form} initialValues={initialValues} layout="vertical" autoComplete="off">
       <Form.Item
         name="lang"
         label={t("Service Language")}

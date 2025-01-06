@@ -4,11 +4,10 @@ import { useCallback, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  user: User;
+  initialValues: FormType;
   onUserUpdate: (name: string, email: string) => Promise<void>;
 };
 
@@ -17,7 +16,7 @@ type FormType = {
   email: string;
 };
 
-const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
+const AccountGeneralForm: React.FC<Props> = ({ initialValues, onUserUpdate }) => {
   const [form] = Form.useForm<FormType>();
   const t = useT();
   const [isDisabled, setIsDisabled] = useState(true);
@@ -25,7 +24,7 @@ const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
 
   const handleValuesChange = useCallback(
     async (_: unknown, values: FormType) => {
-      if (user.name === values.name && user.email === values.email) {
+      if (initialValues.name === values.name && initialValues.email === values.email) {
         setIsDisabled(true);
         return;
       }
@@ -35,7 +34,7 @@ const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
         .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
       setIsDisabled(hasError);
     },
-    [form, user.email, user.name],
+    [form, initialValues.email, initialValues.name],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -54,7 +53,7 @@ const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
   return (
     <StyledForm
       form={form}
-      initialValues={user}
+      initialValues={initialValues}
       layout="vertical"
       autoComplete="on"
       requiredMark={false}
