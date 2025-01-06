@@ -16,9 +16,10 @@ type FormType = {
   email: string;
 };
 
-const AccountGeneralForm: React.FC<Props> = ({ initialValues, onUserUpdate }) => {
-  const [form] = Form.useForm<FormType>();
+const GeneralForm: React.FC<Props> = ({ initialValues, onUserUpdate }) => {
   const t = useT();
+
+  const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -93,4 +94,4 @@ const StyledForm = styled(Form<FormType>)`
   max-width: 400px;
 `;
 
-export default AccountGeneralForm;
+export default GeneralForm;

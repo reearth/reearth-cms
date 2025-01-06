@@ -15,10 +15,10 @@ type FormType = {
   lang: string;
 };
 
-const AccountServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }) => {
-  const [form] = Form.useForm<FormType>();
-  const { Option } = Select;
+const ServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }) => {
   const t = useT();
+
+  const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,9 +61,9 @@ const AccountServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }
         extra={t("This will change the UI language")}>
         <Select placeholder={t("Language")} onSelect={handleSelect}>
           {langItems?.map(langItem => (
-            <Option key={langItem.key} value={langItem.key}>
+            <Select.Option key={langItem.key} value={langItem.key}>
               {langItem.label}
-            </Option>
+            </Select.Option>
           ))}
         </Select>
       </Form.Item>
@@ -78,4 +78,4 @@ const StyledForm = styled(Form<FormType>)`
   max-width: 400px;
 `;
 
-export default AccountServiceForm;
+export default ServiceForm;

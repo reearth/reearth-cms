@@ -2,8 +2,8 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import DangerZone from "@reearth-cms/components/molecules/AccountSettings/DangerZone";
-import AccountGeneralForm from "@reearth-cms/components/molecules/AccountSettings/GeneralForm";
-import AccountServiceForm from "@reearth-cms/components/molecules/AccountSettings/ServiceForm";
+import GeneralForm from "@reearth-cms/components/molecules/AccountSettings/GeneralForm";
+import ServiceForm from "@reearth-cms/components/molecules/AccountSettings/ServiceForm";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -29,10 +29,10 @@ const AccountSettings: React.FC<Props> = ({
   ) : (
     <InnerContent title={t("Account Settings")}>
       <ContentSection title={t("General")}>
-        <AccountGeneralForm initialValues={me} onUserUpdate={onUserUpdate} />
+        <GeneralForm initialValues={me} onUserUpdate={onUserUpdate} />
       </ContentSection>
       <ContentSection title={t("Service")}>
-        <AccountServiceForm initialValues={me} onLanguageUpdate={onLanguageUpdate} />
+        <ServiceForm initialValues={me} onLanguageUpdate={onLanguageUpdate} />
       </ContentSection>
       <DangerZone onUserDelete={onUserDelete} />
     </InnerContent>
