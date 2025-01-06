@@ -103,7 +103,7 @@ func TestIntegrationModelCopy(t *testing.T) {
 		ContainsKey("createdAt").
 		ContainsKey("updatedAt").
 		ContainsKey("key")
-	
+
 	newModelID := newModel.Value("id").String()
 	newModelID.NotEqual(oldModelId)
 	copiedModel := e.GET("/api/models/{modelId}", newModelID.Raw()).

@@ -574,11 +574,11 @@ func TestModel_Copy(t *testing.T) {
 	assert.NoError(t, err)
 
 	tests := []struct {
-		name       string
-		param      interfaces.CopyModelParam
-		setupMock  func()
-		wantErr    bool
-		validate   func(t *testing.T, got *model.Model)
+		name      string
+		param     interfaces.CopyModelParam
+		setupMock func()
+		wantErr   bool
+		validate  func(t *testing.T, got *model.Model)
 	}{
 		{
 			name: "successful copy",

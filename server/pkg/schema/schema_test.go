@@ -491,5 +491,5 @@ func TestSchema_CopyFrom(t *testing.T) {
 	s3 := &Schema{id: id.NewSchemaID(), fields: []*Field{}}
 	s3.CopyFrom(nil)
 	assert.Equal(t, 0, len(s3.fields))
-	assert.Nil(t, s3.titleField)	
+	assert.Nil(t, s3.titleField)
 }
