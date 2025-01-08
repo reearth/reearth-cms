@@ -75,7 +75,10 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 
 	schemaPackage, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
 	if err != nil {
-		return ItemsAsGeoJSON404Response{}, err
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsGeoJSON404Response{}, err
+		}
+		return ItemsAsGeoJSON400Response{}, err
 	}
 
 	featureCollections, err := uc.Item.ItemsAsGeoJSON(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
@@ -98,7 +101,10 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 
 	schemaPackage, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
 	if err != nil {
-		return ItemsAsCSV404Response{}, err
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsCSV404Response{}, err
+		}
+		return ItemsAsCSV400Response{}, err
 	}
 
 	pr, err := uc.Item.ItemsAsCSV(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
@@ -205,6 +211,9 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 
 	schemaPackage, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON404Response{}, err
+		}
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
@@ -244,6 +253,9 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 
 	schemaPackage, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV404Response{}, err
+		}
 		return ItemsWithProjectAsCSV400Response{}, err
 	}
 
