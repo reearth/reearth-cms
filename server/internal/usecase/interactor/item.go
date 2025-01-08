@@ -1184,7 +1184,7 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
-// ItemsAsCSV exports items data in content to csv file by modelID.
+// ItemsAsCSV exports items data in content to csv file by schema package.
 func (i Item) ItemsAsCSV(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToCSVResponse, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return interfaces.ExportItemsToCSVResponse{}, interfaces.ErrInvalidOperator
@@ -1211,7 +1211,7 @@ func (i Item) ItemsAsCSV(ctx context.Context, schemaPackage *schema.Package, pag
 	})
 }
 
-// ItemsAsGeoJSON converts items to Geo JSON type given a model ID
+// ItemsAsGeoJSON converts items to Geo JSON type given the schema package
 func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToGeoJSONResponse, error) {
 
 	if operator.AcOperator.User == nil && operator.Integration == nil {
