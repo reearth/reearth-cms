@@ -1,5 +1,8 @@
 name: E2E test
 on:
+  push:
+    branches:
+      - chore-web/e2e-ci
   workflow_dispatch:
   schedule:
     - cron: "0 3 * * 1-5"
