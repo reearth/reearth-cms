@@ -23,6 +23,7 @@ type CreateModelParam struct {
 type CopyModelParam struct {
 	ModelId id.ModelID
 	Name    *string
+	Key     *string
 }
 
 type FindOrCreateSchemaParam struct {

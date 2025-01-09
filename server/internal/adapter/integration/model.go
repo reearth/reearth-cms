@@ -119,6 +119,7 @@ func (s *Server) CopyModel(ctx context.Context, request CopyModelRequestObject) 
 	m, err := uc.Model.Copy(ctx, interfaces.CopyModelParam{
 		ModelId: request.ModelId,
 		Name:    request.Body.Name,
+		Key:     request.Body.Key,
 	}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {

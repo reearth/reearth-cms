@@ -467,6 +467,8 @@ paths:
               properties:
                 name:
                   type: string
+                key:
+                  type: string
       responses:
         '200':
           description: A JSON object of field

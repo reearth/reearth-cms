@@ -361,11 +361,15 @@ func (i Model) copyModel(ctx context.Context, params interfaces.CopyModelParam, 
 	if params.Name != nil {
 		name = params.Name
 	}
+	key := id.RandomKey().Ref().StringRef()
+	if params.Key != nil {
+		key = params.Key
+	}
 	newModel, err := i.Create(ctx, interfaces.CreateModelParam{
 		ProjectId:   oldModel.Project(),
 		Name:        name,
 		Description: lo.ToPtr(oldModel.Description()),
-		Key:         id.RandomKey().Ref().StringRef(),
+		Key:         key,
 		Public:      lo.ToPtr(oldModel.Public()),
 	}, operator)
 	if err != nil {

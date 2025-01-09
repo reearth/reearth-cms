@@ -707,6 +707,7 @@ type ModelUpdateJSONBody struct {
 
 // CopyModelJSONBody defines parameters for CopyModel.
 type CopyModelJSONBody struct {
+	Key  *string `json:"key,omitempty"`
 	Name *string `json:"name,omitempty"`
 }
 

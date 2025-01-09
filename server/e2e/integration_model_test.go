@@ -85,10 +85,12 @@ func TestIntegrationModelCopy(t *testing.T) {
 		Object()
 
 	newName := "new name"
+	newKey := id.RandomKey().Ref().StringRef()
 	newModel := e.POST(endpoint, oldModelId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"name": newName,
+			"key":  newKey,
 		}).
 		Expect().
 		Status(http.StatusOK).
@@ -117,6 +119,7 @@ func TestIntegrationModelCopy(t *testing.T) {
 		HasValue("projectId", oldModel.Value("projectId").String().Raw()).
 		HasValue("public", oldModel.Value("public").Boolean().Raw()).
 		HasValue("name", newName).
+		HasValue("key", newKey).
 		HasValue("description", oldModel.Value("description").String().Raw())
 
 	copiedModel.Value("schemaId").NotNull()
