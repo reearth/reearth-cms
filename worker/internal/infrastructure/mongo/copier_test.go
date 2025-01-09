@@ -2,18 +2,60 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestCopier(t *testing.T) {
-	ctx := context.Background()
 	db := mongotest.Connect(t)(t)
 	w := NewCopier(db)
 	w.SetCollection(db.Collection("item"))
 
-	assert.NoError(t, w.InitIndex(ctx))
-	assert.NoError(t, w.InitIndex(ctx)) // second
+	assert.NoError(t, w.Init())
+	assert.NoError(t, w.Init()) // second
+}
+
+func TestCopier_Copy(t *testing.T) {
+	ctx := context.Background()
+	db := mongotest.Connect(t)(t)
+	w := NewCopier(db)
+	iCol := db.Collection("item")
+	w.SetCollection(iCol)
+
+	mid1 := id.NewModelID()
+	sid1 := id.NewSchemaID()
+	mid2 := id.NewModelID()
+	sid2 := id.NewSchemaID()
+	i1 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+
+	res, err := iCol.InsertMany(ctx, []any{i1, i2})
+	assert.NoError(t, err)
+	fmt.Print(res)
+
+	filter := bson.M{"schema": sid1.String()}
+	changes := task.Changes{
+		"id": {
+			Type:  task.ChangeTypeNew,
+			Value: "item",
+		},
+		"schema": {
+			Type:  task.ChangeTypeSet,
+			Value: sid2.String(),
+		},
+		"model": {
+			Type:  task.ChangeTypeSet,
+			Value: mid2.String(),
+		},
+	}
+
+	err = w.Copy(ctx, filter, changes)
+	assert.NoError(t, err)
 }
