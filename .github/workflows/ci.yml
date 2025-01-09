@@ -47,9 +47,6 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.web == 'true'
     uses: ./.github/workflows/ci_web.yml
-    secrets:
-      REEARTH_WEB_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
-      REEARTH_WEB_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
 
   ci-server:
     needs: prepare

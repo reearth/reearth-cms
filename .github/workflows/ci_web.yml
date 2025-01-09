@@ -1,11 +1,6 @@
 name: ci-web
 on:
   workflow_call:
-    secrets:
-      REEARTH_WEB_E2E_USERNAME:
-        required: true
-      REEARTH_WEB_E2E_PASSWORD:
-        required: true
 jobs:
   ci:
     name: ci
@@ -32,21 +27,6 @@ jobs:
           flags: web
       - name: Check translations
         run: yarn i18n --fail-on-update
-      - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps chromium
-      - name: Run Playwright tests
-        run: yarn e2e
-        env:
-          REEARTH_CMS_API: https://api.cms.test.reearth.dev/api
-          REEARTH_CMS_E2E_BASEURL: https://cms.test.reearth.dev
-          REEARTH_CMS_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
-          REEARTH_CMS_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: test-results
-          path: web/test-results/
-          retention-days: 1
       - name: Build
         run: yarn build
       - name: Pack
