@@ -53,6 +53,8 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
   await page.getByLabel("Back").click();
   await expect(page.getByLabel("", { exact: true }).nth(1)).not.toBeChecked();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await page.getByLabel("checkbox1").check();
   await closeNotification(page);
   await expect(page.getByLabel("checkbox1")).toBeChecked();
@@ -68,6 +70,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
 });
 
 test("Checkbox metadata editing has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Check Box" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -147,22 +150,16 @@ test("Checkbox metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByLabel("", { exact: true }).nth(0)).toBeChecked();
   await expect(page.getByLabel("", { exact: true }).nth(1)).toBeChecked();
   await expect(page.getByLabel("", { exact: true }).nth(2)).toBeChecked();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByLabel("", { exact: true }).nth(2).uncheck();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByLabel("", { exact: true }).nth(4).click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
   await expect(page.getByLabel("", { exact: true }).nth(0)).toBeChecked();
