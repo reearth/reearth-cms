@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -34,9 +33,8 @@ func TestCopier_Copy(t *testing.T) {
 	i1 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
-	res, err := iCol.InsertMany(ctx, []any{i1, i2})
+	_, err := iCol.InsertMany(ctx, []any{i1, i2})
 	assert.NoError(t, err)
-	fmt.Print(res)
 
 	filter := bson.M{"schema": sid1.String()}
 	changes := task.Changes{
@@ -56,4 +54,45 @@ func TestCopier_Copy(t *testing.T) {
 
 	err = w.Copy(ctx, filter, changes)
 	assert.NoError(t, err)
+}
+
+func TestCopier_GenerateId(t *testing.T) {
+	tests := []struct {
+		name       string
+		input      string
+		expectOk   bool
+	}{
+		{
+			name:     "Valid input - item",
+			input:    "item",
+			expectOk: true,
+		},
+		{
+			name:     "Valid input - schema",
+			input:    "schema",
+			expectOk: true,
+		},
+		{
+			name:     "Valid input - model",
+			input:    "model",
+			expectOk: true,
+		},
+		{
+			name:     "Invalid input - unknown type",
+			input:    "unknown",
+			expectOk: false,
+		},
+		{
+			name:     "Empty input",
+			input:    "",
+			expectOk: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, ok := generateId(tt.input)
+			assert.Equal(t, tt.expectOk, ok)
+		})
+	}
 }
