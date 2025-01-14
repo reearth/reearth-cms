@@ -458,6 +458,6 @@ func (i Model) triggerCopyEvent(ctx context.Context, collection, filter, changes
 		return fmt.Errorf("failed to trigger copy event: %w", err)
 	}
 
-	log.Infof("model: successfully triggered copy event for %s", collection)
+	log.Infof("model: successfully triggered copy event for collection %s, filter: %s, changes: %s", collection, filter, changes)
 	return nil
 }
