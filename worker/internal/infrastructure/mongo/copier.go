@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -77,6 +78,7 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 			return rerror.ErrInternalBy(err)
 		}
 	}
+	log.Infof("reearth-cms/worker: all data has been successfully copied!")
 
 	return nil
 }
