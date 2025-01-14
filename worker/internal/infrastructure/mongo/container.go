@@ -2,12 +2,16 @@ package mongo
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
-	"github.com/reearth/reearthx/util"
 )
 
 func New(ctx context.Context, webhook *Webhook, copier *Copier) (*repo.Container, error) {
+	if webhook == nil && copier == nil {
+		return nil, errors.New("invalid repository container")
+	}
+
 	c := &repo.Container{
 		Webhook: webhook,
 		Copier:  copier,
@@ -22,12 +26,13 @@ func New(ctx context.Context, webhook *Webhook, copier *Copier) (*repo.Container
 }
 
 func Init(r *repo.Container) error {
-	if r == nil {
-		return nil
-	}
+	return nil
+	// if r == nil {
+	// 	return nil
+	// }
 
-	return util.Try(
-		r.Webhook.(*Webhook).Init,
-		r.Copier.(*Copier).Init,
-	)
+	// return util.Try(
+	// 	r.Webhook.(*Webhook).Init,
+	// 	r.Copier.(*Copier).Init,
+	// )
 }

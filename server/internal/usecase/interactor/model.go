@@ -431,7 +431,7 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 			Type:  task.ChangeTypeSet,
 			Value: newSchemaID.String(),
 		},
-		"model": {
+		"modelid": {
 			Type:  task.ChangeTypeSet,
 			Value: newModelID.String(),
 		},

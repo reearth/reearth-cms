@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"os"
-	"os/exec"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/reearth/reearth-cms/worker/internal/adapter/http"
 	rmongo "github.com/reearth/reearth-cms/worker/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/interactor"
@@ -20,17 +20,16 @@ func main() {
 	log.Infof("reearth-cms/worker: copier has started")
 	ctx := context.Background()
 
+	if err := godotenv.Load(".env"); err != nil && !os.IsNotExist(err) {
+		log.Fatal("config: unable to load .env")
+	} else if err == nil {
+		log.Infof("config: .env loaded")
+	}
+
 	dbURI := mustGetEnv("REEARTH_CMS_DB")
 	collection := mustGetEnv("REEARTH_CMS_COPIER_COLLECTION")
 	filter := mustGetEnv("REEARTH_CMS_COPIER_FILTER")
 	changes := mustGetEnv("REEARTH_CMS_COPIER_CHANGES")
-
-	cmd := exec.CommandContext(ctx, os.Args[1], os.Args[2:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("command execution failed: %v", err)
-	}
 
 	repos, err := initReposWithCollection(ctx, dbURI, collection)
 	if err != nil {

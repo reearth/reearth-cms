@@ -13,13 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func TestCopier(t *testing.T) {
+func TestCopier_SetCollection(t *testing.T) {
 	db := mongotest.Connect(t)(t)
 	w := NewCopier(db)
 	w.SetCollection(db.Collection("item"))
-
-	assert.NoError(t, w.Init())
-	assert.NoError(t, w.Init()) // second
+	assert.Equal(t, "item", w.c.Name())
 }
 
 func TestCopier_Copy(t *testing.T) {

@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/rerror"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -30,17 +31,13 @@ func (r *Copier) SetCollection(collection *mongo.Collection) {
 	r.c = collection
 }
 
-func (r *Copier) Init() error {
-	return nil
-}
-
 func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) error {
 	options := options.Find().SetBatchSize(batchSize)
 	cursor, err := r.c.Find(ctx, f, options)
-	if errors.Is(err, mongo.ErrNilDocument) || errors.Is(err, mongo.ErrNoDocuments) {
-		return rerror.ErrNotFound
-	}
 	if err != nil {
+		if errors.Is(err, mongo.ErrNilDocument) || errors.Is(err, mongo.ErrNoDocuments) {
+			return rerror.ErrNotFound
+		}
 		return rerror.ErrInternalBy(err)
 	}
 	defer cursor.Close(ctx)
@@ -55,6 +52,7 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 		if err := cursor.Decode(&result); err != nil {
 			return rerror.ErrInternalBy(err)
 		}
+		result["_id"] = primitive.NewObjectID()
 
 		for k, change := range changesMap {
 			switch change.Type {
