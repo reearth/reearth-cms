@@ -23,15 +23,8 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
-const defaultCMSDatabase = "reearth_cms"
-const defaultAccountDatabase = "reearth_account"
-
 func initAccountDB(client *mongo.Client, txAvailable bool, ctx context.Context, conf *Config) *accountrepo.Container {
 	accountDatabase := conf.DB_Account
-	if accountDatabase == "" {
-		accountDatabase = defaultAccountDatabase
-	}
-
 	log.Infof("account database: %s", accountDatabase)
 
 	accountUsers := make([]accountrepo.User, 0, len(conf.DB_Users))
@@ -53,10 +46,6 @@ func initAccountDB(client *mongo.Client, txAvailable bool, ctx context.Context, 
 
 func initCMSDB(client *mongo.Client, txAvailable bool, acRepos *accountrepo.Container, ctx context.Context, conf *Config) *repo.Container {
 	cmsDatabase := conf.DB_CMS
-	if cmsDatabase == "" {
-		cmsDatabase = defaultCMSDatabase
-	}
-
 	log.Infof("cms database: %s", cmsDatabase)
 
 	repos, err := mongorepo.New(ctx, client, cmsDatabase, txAvailable, acRepos)
