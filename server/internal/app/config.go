@@ -58,6 +58,7 @@ type Config struct {
 	AuthM2M AuthM2MConfig `pp:",omitempty"`
 
 	DB_Account string          `pp:",omitempty"`
+	DB_CMS     string          `pp:",omitempty"`
 	DB_Users   []appx.NamedURI `pp:",omitempty"`
 }
 
