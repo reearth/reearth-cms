@@ -26,7 +26,7 @@ func main() {
 		log.Infof("config: .env loaded")
 	}
 
-	dbURI := mustGetEnv("REEARTH_CMS_DB")
+	dbURI := mustGetEnv("REEARTH_CMS_WORKER_DB")
 	collection := mustGetEnv("REEARTH_CMS_COPIER_COLLECTION")
 	filter := mustGetEnv("REEARTH_CMS_COPIER_FILTER")
 	changes := mustGetEnv("REEARTH_CMS_COPIER_CHANGES")
