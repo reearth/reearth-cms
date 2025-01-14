@@ -64,7 +64,7 @@ func initReposWithCollection(ctx context.Context, dbURI, collection string) (*re
 	}
 
 	db := client.Database("reearth_cms")
-	c := rmongo.NewCopier(db)
-	c.SetCollection(db.Collection(collection))
-	return rmongo.New(ctx, nil, c)
+	mongoCopier := rmongo.NewCopier(db)
+	mongoCopier.SetCollection(db.Collection(collection))
+	return rmongo.New(ctx, nil, mongoCopier)
 }

@@ -2,23 +2,16 @@ package app
 
 import (
 	"context"
-	"time"
 
 	"github.com/reearth/reearth-cms/worker/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/worker/internal/infrastructure/gcp"
-	rmongo "github.com/reearth/reearth-cms/worker/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
-
 	"github.com/reearth/reearthx/log"
 )
 
-func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*gateway.Container, *repo.Container) {
-	// gateways
+func initReposAndGateways(ctx context.Context, conf *Config, debug bool) *gateway.Container {
 	gateways := &gateway.Container{}
+
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s\n", conf.GCS.BucketName)
 		gateways.CMS = gcp.NewPubSub(conf.PubSub.Topic, conf.GCP.Project)
@@ -50,23 +43,5 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*gatew
 		gateways.File = fileRepo
 	}
 
-	// repos
-	client, err := mongo.Connect(
-		ctx,
-		options.Client().
-			ApplyURI(conf.DB).
-			SetConnectTimeout(time.Second*10).
-			SetMonitor(otelmongo.NewMonitor()),
-	)
-	if err != nil {
-		log.Fatalf("repo initialization error: %+v\n", err)
-	}
-	db := client.Database("reearth_cms")
-	w := rmongo.NewWebhook(db)
-	repos, err := rmongo.New(ctx, w, nil)
-	if err != nil {
-		log.Fatalf("repo initialization error: %+v\n", err)
-	}
-
-	return gateways, repos
+	return gateways
 }

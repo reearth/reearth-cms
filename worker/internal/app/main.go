@@ -4,15 +4,21 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
+	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 	"golang.org/x/net/http2"
 
 	rhttp "github.com/reearth/reearth-cms/worker/internal/adapter/http"
+	rmongo "github.com/reearth/reearth-cms/worker/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/interactor"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func Start(debug bool, version string) {
@@ -26,8 +32,26 @@ func Start(debug bool, version string) {
 		log.Fatal(cerr)
 	}
 
-	// repos and gateways
-	gateways, repos := initReposAndGateways(ctx, conf, debug)
+	// mongo
+	client, err := mongo.Connect(
+		ctx,
+		options.Client().
+			ApplyURI(conf.DB).
+			SetConnectTimeout(time.Second*10).
+			SetMonitor(otelmongo.NewMonitor()),
+	)
+	if err != nil {
+		log.Fatalf("repo initialization error: %+v\n", err)
+	}
+	mongoWebhook := rmongo.NewWebhook(client.Database("reearth_cms"))
+	lo.Must0(mongoWebhook.InitIndex(ctx))
+	repos, err := rmongo.New(ctx, mongoWebhook, nil)
+	if err != nil {
+		log.Fatalf("repo initialization error: %+v\n", err)
+	}
+
+	// gateways
+	gateways := initReposAndGateways(ctx, conf, debug)
 
 	// usecase
 	uc := interactor.NewUsecase(gateways, repos)
