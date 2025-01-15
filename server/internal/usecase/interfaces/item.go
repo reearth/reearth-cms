@@ -2,10 +2,12 @@ package interfaces
 
 import (
 	"context"
+	"io"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -80,6 +82,15 @@ type ImportItemsResponse struct {
 	NewFields schema.FieldList
 }
 
+// ExportItemsToCSVResponse contains exported csv data from items
+type ExportItemsToCSVResponse struct {
+	PipeReader *io.PipeReader
+}
+
+type ExportItemsToGeoJSONResponse struct {
+	FeatureCollections *integrationapi.FeatureCollection
+}
+
 type Item interface {
 	FindByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
 	FindPublicByID(context.Context, id.ItemID, *usecase.Operator) (item.Versioned, error)
@@ -99,4 +110,8 @@ type Item interface {
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
+	// ItemsAsCSV exports items data in content to csv file by schema package.
+	ItemsAsCSV(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToCSVResponse, error)
+	// ItemsAsGeoJSON converts items to Geo JSON type given thge schema package.
+	ItemsAsGeoJSON(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToGeoJSONResponse, error)
 }
