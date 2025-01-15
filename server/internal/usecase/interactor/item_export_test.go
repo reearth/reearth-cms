@@ -1,4 +1,4 @@
-package integration
+package interactor
 
 import (
 	"io"
@@ -44,13 +44,11 @@ func TestCSVFromItems(t *testing.T) {
 		MustBuild()
 	v1 := version.New()
 	vi1 := version.MustBeValue(v1, nil, version.NewRefs(version.Latest), util.Now(), i1)
-
 	// with geometry fields
 	ver1 := item.VersionedList{vi1}
 	_, pw := io.Pipe()
 	err := csvFromItems(pw, ver1, s1)
 	assert.Nil(t, err)
-
 	// no geometry fields
 	iid2 := id.NewItemID()
 	sid2 := id.NewSchemaID()
@@ -73,7 +71,6 @@ func TestCSVFromItems(t *testing.T) {
 	_, pw1 := io.Pipe()
 	err = csvFromItems(pw1, ver2, s2)
 	assert.Equal(t, expectErr2, err)
-
 	// point field is not supported
 	iid3 := id.NewItemID()
 	sid3 := id.NewSchemaID()
