@@ -2,7 +2,9 @@ package interactor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -11,10 +13,13 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Model struct {
@@ -312,4 +317,147 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 			}
 			return ordered, nil
 		})
+}
+
+func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (*model.Model, error) {
+			// copy model
+			oldModel, newModel, err := i.copyModel(ctx, params, operator)
+			if err != nil {
+				return nil, err
+			}
+			// copy schema
+			if err := i.copySchema(ctx, oldModel.Schema(), newModel.Schema()); err != nil {
+				return nil, err
+			}
+			// copy items
+			if err := i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID()); err != nil {
+				return nil, err
+			}
+			// copy metadata
+			if oldModel.Metadata() != nil {
+				// copy meta schema
+				newMetaSchema, err := i.copyMetaSchema(ctx, *oldModel.Metadata(), newModel)
+				if err != nil {
+					return nil, err
+				}
+				// copy meta items
+				if err := i.copyItems(ctx, *oldModel.Metadata(), newMetaSchema.ID(), newModel.ID()); err != nil {
+					return nil, err
+				}
+			}
+			// return the new model
+			return newModel, nil
+		})
+}
+
+func (i Model) copyModel(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, *model.Model, error) {
+	oldModel, err := i.repos.Model.FindByID(ctx, params.ModelId)
+	if err != nil {
+		return nil, nil, err
+	}
+	name := lo.ToPtr(oldModel.Name() + " Copy")
+	if params.Name != nil {
+		name = params.Name
+	}
+	key := id.RandomKey().Ref().StringRef()
+	if params.Key != nil {
+		key = params.Key
+	}
+	newModel, err := i.Create(ctx, interfaces.CreateModelParam{
+		ProjectId:   oldModel.Project(),
+		Name:        name,
+		Description: lo.ToPtr(oldModel.Description()),
+		Key:         key,
+		Public:      lo.ToPtr(oldModel.Public()),
+	}, operator)
+	if err != nil {
+		return nil, nil, err
+	}
+	return oldModel, newModel, nil
+}
+
+func (i Model) copySchema(ctx context.Context, oldSchemaId, newSchemaId id.SchemaID) error {
+	oldSchema, err := i.repos.Schema.FindByID(ctx, oldSchemaId)
+	if err != nil {
+		return err
+	}
+	newSchema, err := i.repos.Schema.FindByID(ctx, newSchemaId)
+	if err != nil {
+		return err
+	}
+	newSchema.CopyFrom(oldSchema)
+	return i.repos.Schema.Save(ctx, newSchema)
+}
+
+func (i Model) copyMetaSchema(ctx context.Context, oldMetaSchemaId id.SchemaID, newModel *model.Model) (*schema.Schema, error) {
+	oldMetaSchema, err := i.repos.Schema.FindByID(ctx, oldMetaSchemaId)
+	if err != nil {
+		return nil, err
+	}
+	newMetaSchema, err := schema.New().
+		NewID().
+		Workspace(oldMetaSchema.Workspace()).
+		Project(oldMetaSchema.Project()).
+		TitleField(nil).
+		Build()
+	if err != nil {
+		return nil, err
+	}
+	newMetaSchema.CopyFrom(oldMetaSchema)
+	newModel.SetMetadata(newMetaSchema.ID())
+	if err := i.repos.Model.Save(ctx, newModel); err != nil {
+		return nil, err
+	}
+	if err := i.repos.Schema.Save(ctx, newMetaSchema); err != nil {
+		return nil, err
+	}
+	return newMetaSchema, nil
+}
+
+func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID) error {
+	collection := "item"
+	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String()})
+	if err != nil {
+		return err
+	}
+	changes, err := json.Marshal(task.Changes{
+		"id": {
+			Type:  task.ChangeTypeNew,
+			Value: "item",
+		},
+		"schema": {
+			Type:  task.ChangeTypeSet,
+			Value: newSchemaID.String(),
+		},
+		"modelid": {
+			Type:  task.ChangeTypeSet,
+			Value: newModelID.String(),
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return i.triggerCopyEvent(ctx, collection, string(filter), string(changes))
+}
+
+func (i Model) triggerCopyEvent(ctx context.Context, collection, filter, changes string) error {
+	if i.gateways.TaskRunner == nil {
+		log.Infof("model: copy of %s skipped because task runner is not configured", collection)
+		return nil
+	}
+
+	taskPayload := task.CopyPayload{
+		Collection: collection,
+		Filter:     filter,
+		Changes:    changes,
+	}
+
+	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
+		return fmt.Errorf("failed to trigger copy event: %w", err)
+	}
+
+	log.Infof("model: successfully triggered copy event for collection %s, filter: %s, changes: %s", collection, filter, changes)
+	return nil
 }
