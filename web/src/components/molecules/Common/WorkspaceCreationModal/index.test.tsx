@@ -24,5 +24,5 @@ test("WorkspaceCreationModal works successfully", async () => {
   expect(saveButton).not.toHaveAttribute("disabled");
   await user.clear(input);
   expect(saveButton).toHaveAttribute("disabled");
-  expect(screen.queryByRole("alert")).toBeVisible();
+  expect(await screen.findByRole("alert")).toBeVisible();
 });
