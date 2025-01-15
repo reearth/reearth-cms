@@ -322,113 +322,98 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*model.Model, error) {
-			// copy model
-			oldModel, newModel, err := i.copyModel(ctx, params, operator)
+			// Copy the model
+			oldModel, err := i.repos.Model.FindByID(ctx, params.ModelId)
 			if err != nil {
 				return nil, err
 			}
-			log.Debug("copy: model copied")
-			// copy schema
-			err = i.copySchema(ctx, oldModel.Schema(), newModel.Schema());
+			log.Debugf("copy: old model with id %v found", oldModel.ID().String())
+
+			name := lo.ToPtr(oldModel.Name() + " Copy")
+			if params.Name != nil {
+				name = params.Name
+			}
+			key := id.RandomKey().Ref().StringRef()
+			if params.Key != nil {
+				key = params.Key
+			}
+
+			newModel, err := i.Create(ctx, interfaces.CreateModelParam{
+				ProjectId:   oldModel.Project(),
+				Name:        name,
+				Description: lo.ToPtr(oldModel.Description()),
+				Key:         key,
+				Public:      lo.ToPtr(oldModel.Public()),
+			}, operator)
 			if err != nil {
+				return nil, err
+			}
+			log.Debugf("copy: new model with id %v created", newModel.ID().String())
+
+			// Copy the schema
+			oldSchema, err := i.repos.Schema.FindByID(ctx, oldModel.Schema())
+			if err != nil {
+				return nil, err
+			}
+			log.Debugf("copy: old schema with id %v found", oldSchema.ID().String())
+
+			newSchema, err := i.repos.Schema.FindByID(ctx, newModel.Schema())
+			if err != nil {
+				return nil, err
+			}
+			log.Debugf("copy: new schema with id %v found", newSchema.ID().String())
+
+			newSchema.CopyFrom(oldSchema)
+			if err := i.repos.Schema.Save(ctx, newSchema); err != nil {
 				return nil, err
 			}
 			log.Debug("copy: schema copied")
-			// copy items
-			err = i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID());
-			if err != nil {
+
+			// Copy items
+			if err := i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID()); err != nil {
 				return nil, err
 			}
 			log.Debug("copy: items copied")
-			// copy metadata
+
+			// Copy metadata (if present)
 			if oldModel.Metadata() != nil {
-				// copy meta schema
-				newMetaSchema, err := i.copyMetaSchema(ctx, *oldModel.Metadata(), newModel)
+				oldMetaSchema, err := i.repos.Schema.FindByID(ctx, *oldModel.Metadata())
 				if err != nil {
 					return nil, err
 				}
-				log.Debug("copy: meta schema copied")
-				// copy meta items
-				err = i.copyItems(ctx, *oldModel.Metadata(), newMetaSchema.ID(), newModel.ID());
+				log.Debugf("copy: old meta schema with id %v found", oldMetaSchema.ID().String())
+
+				newMetaSchema, err := schema.New().
+					NewID().
+					Workspace(oldMetaSchema.Workspace()).
+					Project(oldMetaSchema.Project()).
+					TitleField(nil).
+					Build()
 				if err != nil {
+					return nil, err
+				}
+				newMetaSchema.CopyFrom(oldMetaSchema)
+				newModel.SetMetadata(newMetaSchema.ID())
+
+				if err := i.repos.Model.Save(ctx, newModel); err != nil {
+					return nil, err
+				}
+				log.Debug("copy: new model with updated metadata saved")
+
+				if err := i.repos.Schema.Save(ctx, newMetaSchema); err != nil {
+					return nil, err
+				}
+				log.Debug("copy: new meta schema saved")
+
+				if err := i.copyItems(ctx, *oldModel.Metadata(), newMetaSchema.ID(), newModel.ID()); err != nil {
 					return nil, err
 				}
 				log.Debug("copy: meta items copied")
 			}
-			// return the new model
+
+			// Return the new model
 			return newModel, nil
 		})
-}
-
-func (i Model) copyModel(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, *model.Model, error) {
-	oldModel, err := i.repos.Model.FindByID(ctx, params.ModelId)
-	if err != nil {
-		return nil, nil, err
-	}
-	log.Debugf("copy: old model with id %v found", oldModel.ID().String())
-	name := lo.ToPtr(oldModel.Name() + " Copy")
-	if params.Name != nil {
-		name = params.Name
-	}
-	key := id.RandomKey().Ref().StringRef()
-	if params.Key != nil {
-		key = params.Key
-	}
-	newModel, err := i.Create(ctx, interfaces.CreateModelParam{
-		ProjectId:   oldModel.Project(),
-		Name:        name,
-		Description: lo.ToPtr(oldModel.Description()),
-		Key:         key,
-		Public:      lo.ToPtr(oldModel.Public()),
-	}, operator)
-	if err != nil {
-		return nil, nil, err
-	}
-	log.Debugf("copy: new model with id %v created", newModel.ID().String())
-	return oldModel, newModel, nil
-}
-
-func (i Model) copySchema(ctx context.Context, oldSchemaId, newSchemaId id.SchemaID) error {
-	oldSchema, err := i.repos.Schema.FindByID(ctx, oldSchemaId)
-	if err != nil {
-		return err
-	}
-	log.Debugf("copy: old schema with id %v found", oldSchema.ID().String())
-	newSchema, err := i.repos.Schema.FindByID(ctx, newSchemaId)
-	if err != nil {
-		return err
-	}
-	log.Debugf("copy: new schema with id %v found", oldSchema.ID().String())
-	newSchema.CopyFrom(oldSchema)
-	return i.repos.Schema.Save(ctx, newSchema)
-}
-
-func (i Model) copyMetaSchema(ctx context.Context, oldMetaSchemaId id.SchemaID, newModel *model.Model) (*schema.Schema, error) {
-	oldMetaSchema, err := i.repos.Schema.FindByID(ctx, oldMetaSchemaId)
-	if err != nil {
-		return nil, err
-	}
-	log.Debugf("copy: old meta schema with id %v found", oldMetaSchema.ID().String())
-	newMetaSchema, err := schema.New().
-		NewID().
-		Workspace(oldMetaSchema.Workspace()).
-		Project(oldMetaSchema.Project()).
-		TitleField(nil).
-		Build()
-	if err != nil {
-		return nil, err
-	}
-	newMetaSchema.CopyFrom(oldMetaSchema)
-	newModel.SetMetadata(newMetaSchema.ID())
-	if err := i.repos.Model.Save(ctx, newModel); err != nil {
-		return nil, err
-	}
-	log.Debug("copy: new model saved!")
-	if err := i.repos.Schema.Save(ctx, newMetaSchema); err != nil {
-		return nil, err
-	}
-	log.Debug("copy: new meta schema saved!")
-	return newMetaSchema, nil
 }
 
 func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID) error {
@@ -454,7 +439,7 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 	if err != nil {
 		return err
 	}
-	log.Debugf("copy: copy event triggered. collection: s%, filter: s%, changes: s%", collection, filter, changes)
+	log.Debugf("copy: copy event triggered. collection: %s, filter: %s, changes: %s", collection, filter, changes)
 	return i.triggerCopyEvent(ctx, collection, string(filter), string(changes))
 }
 
