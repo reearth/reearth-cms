@@ -37,6 +37,7 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 // Run implements gateway.TaskRunner
 func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
+		log.Info("copy: run cloud build!")
 		return t.runCloudBuild(ctx, p)
 	}
 	return t.runPubSub(ctx, p)
@@ -74,6 +75,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset != nil {
 		return decompressAsset(ctx, p, t.conf)
 	}
+	log.Info("copy: run copy!")
 	return copy(ctx, p, t.conf)
 }
 
@@ -148,6 +150,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Copy.Validate() {
 		return nil
 	}
+	log.Info("copy: copy event running")
 
 	cb, err := cloudbuild.NewService(ctx)
 	if err != nil {
@@ -156,6 +159,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 	project := conf.GCPProject
 	region := conf.GCPRegion
+	log.Infof("copy: project %v, region %v", project, region)
 
 	build := &cloudbuild.Build{
 		Timeout:  "86400s", // 1 day
@@ -187,13 +191,16 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if region != "" {
 		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
 		_, err = call.Do()
+		log.Info("copy: call build with region!")
 	} else {
 		call := cb.Projects.Builds.Create(project, build)
 		_, err = call.Do()
+		log.Info("copy: call build without region!")
 	}
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
+	log.Info("copy: cloud build done!")
 	return nil
 }
 
