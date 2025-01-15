@@ -30,7 +30,7 @@ describe("Accessibility", () => {
     return Promise.resolve();
   };
 
-  test("Scope, alias, and public status and API end point of models and assets displays successfully", async () => {
+  test("Scope, alias, and public status and API end point of models and assets are displayed successfully", async () => {
     render(
       <Accessibility
         initialValues={initialValues}
@@ -112,7 +112,7 @@ describe("Accessibility", () => {
     await expect.poll(() => saveButton).toHaveAttribute("disabled");
   });
 
-  test("Set up limited scope and token displays successfully", () => {
+  test("Set up limited scope and token is displayed successfully", () => {
     render(
       <Accessibility
         initialValues={{
