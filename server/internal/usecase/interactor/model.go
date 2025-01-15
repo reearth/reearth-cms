@@ -327,19 +327,19 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
-			log.Info("copy: model copied")
+			log.Debug("copy: model copied")
 			// copy schema
 			err = i.copySchema(ctx, oldModel.Schema(), newModel.Schema());
 			if err != nil {
 				return nil, err
 			}
-			log.Info("copy: schema copied")
+			log.Debug("copy: schema copied")
 			// copy items
 			err = i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID());
 			if err != nil {
 				return nil, err
 			}
-			log.Info("copy: items copied")
+			log.Debug("copy: items copied")
 			// copy metadata
 			if oldModel.Metadata() != nil {
 				// copy meta schema
@@ -347,13 +347,13 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				if err != nil {
 					return nil, err
 				}
-				log.Info("copy: meta schema copied")
+				log.Debug("copy: meta schema copied")
 				// copy meta items
 				err = i.copyItems(ctx, *oldModel.Metadata(), newMetaSchema.ID(), newModel.ID());
 				if err != nil {
 					return nil, err
 				}
-				log.Info("copy: meta items copied")
+				log.Debug("copy: meta items copied")
 			}
 			// return the new model
 			return newModel, nil
@@ -365,7 +365,7 @@ func (i Model) copyModel(ctx context.Context, params interfaces.CopyModelParam, 
 	if err != nil {
 		return nil, nil, err
 	}
-	log.Infof("copy: old model with id %v found", oldModel.ID().String())
+	log.Debugf("copy: old model with id %v found", oldModel.ID().String())
 	name := lo.ToPtr(oldModel.Name() + " Copy")
 	if params.Name != nil {
 		name = params.Name
@@ -384,7 +384,7 @@ func (i Model) copyModel(ctx context.Context, params interfaces.CopyModelParam, 
 	if err != nil {
 		return nil, nil, err
 	}
-	log.Infof("copy: new model with id %v created", newModel.ID().String())
+	log.Debugf("copy: new model with id %v created", newModel.ID().String())
 	return oldModel, newModel, nil
 }
 
@@ -393,12 +393,12 @@ func (i Model) copySchema(ctx context.Context, oldSchemaId, newSchemaId id.Schem
 	if err != nil {
 		return err
 	}
-	log.Infof("copy: old schema with id %v found", oldSchema.ID().String())
+	log.Debugf("copy: old schema with id %v found", oldSchema.ID().String())
 	newSchema, err := i.repos.Schema.FindByID(ctx, newSchemaId)
 	if err != nil {
 		return err
 	}
-	log.Infof("copy: new schema with id %v found", oldSchema.ID().String())
+	log.Debugf("copy: new schema with id %v found", oldSchema.ID().String())
 	newSchema.CopyFrom(oldSchema)
 	return i.repos.Schema.Save(ctx, newSchema)
 }
@@ -408,7 +408,7 @@ func (i Model) copyMetaSchema(ctx context.Context, oldMetaSchemaId id.SchemaID, 
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("copy: old meta schema with id %v found", oldMetaSchema.ID().String())
+	log.Debugf("copy: old meta schema with id %v found", oldMetaSchema.ID().String())
 	newMetaSchema, err := schema.New().
 		NewID().
 		Workspace(oldMetaSchema.Workspace()).
@@ -423,11 +423,11 @@ func (i Model) copyMetaSchema(ctx context.Context, oldMetaSchemaId id.SchemaID, 
 	if err := i.repos.Model.Save(ctx, newModel); err != nil {
 		return nil, err
 	}
-	log.Info("copy: new model saved!")
+	log.Debug("copy: new model saved!")
 	if err := i.repos.Schema.Save(ctx, newMetaSchema); err != nil {
 		return nil, err
 	}
-	log.Info("copy: new meta schema saved!")
+	log.Debug("copy: new meta schema saved!")
 	return newMetaSchema, nil
 }
 
@@ -454,13 +454,13 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 	if err != nil {
 		return err
 	}
-	log.Infof("copy: copy event triggered. collection: s%, filter: s%, changes: s%", collection, filter, changes)
+	log.Debugf("copy: copy event triggered. collection: s%, filter: s%, changes: s%", collection, filter, changes)
 	return i.triggerCopyEvent(ctx, collection, string(filter), string(changes))
 }
 
 func (i Model) triggerCopyEvent(ctx context.Context, collection, filter, changes string) error {
 	if i.gateways.TaskRunner == nil {
-		log.Infof("model: copy of %s skipped because task runner is not configured", collection)
+		log.Debugf("model: copy of %s skipped because task runner is not configured", collection)
 		return nil
 	}
 
@@ -469,12 +469,12 @@ func (i Model) triggerCopyEvent(ctx context.Context, collection, filter, changes
 		Filter:     filter,
 		Changes:    changes,
 	}
-	log.Infof("copy: task payload created: %v", taskPayload)
+	log.Debugf("copy: task payload created: %v", taskPayload)
 
 	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
 		return fmt.Errorf("failed to trigger copy event: %w", err)
 	}
 
-	log.Infof("model: successfully triggered copy event for collection %s, filter: %s, changes: %s", collection, filter, changes)
+	log.Debugf("model: successfully triggered copy event for collection %s, filter: %s, changes: %s", collection, filter, changes)
 	return nil
 }
