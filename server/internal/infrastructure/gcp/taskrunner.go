@@ -37,7 +37,6 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 // Run implements gateway.TaskRunner
 func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
-		log.Debug("copy: run cloud build!")
 		return t.runCloudBuild(ctx, p)
 	}
 	return t.runPubSub(ctx, p)
@@ -75,7 +74,6 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset != nil {
 		return decompressAsset(ctx, p, t.conf)
 	}
-	log.Debug("copy: run copy!")
 	return copy(ctx, p, t.conf)
 }
 
@@ -150,7 +148,6 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Copy.Validate() {
 		return nil
 	}
-	log.Debug("copy: copy event running")
 
 	cb, err := cloudbuild.NewService(ctx)
 	if err != nil {
@@ -159,7 +156,6 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 	project := conf.GCPProject
 	region := conf.GCPRegion
-	log.Debug("copy: project %v, region %v", project, region)
 
 	build := &cloudbuild.Build{
 		Timeout:  "86400s", // 1 day
@@ -167,40 +163,39 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		Steps: []*cloudbuild.BuildStep{
 			{
 				Name: conf.CopierImage,
-				Args: []string{
-					"-v",              // Enables verbose mode for logging.
-					"-n=192",          // Specifies a numerical configuration, possibly a limit or count (e.g., number of threads, requests, etc.).
-					"-gc=5000",        // Configures garbage collection or memory management to a threshold of 5000 units.
-					"-chunk=1m",       // Sets a chunk size of 1 megabyte for processing or data transfer.
-					"-disk-limit=20g", // Limits the disk usage to 20 gigabytes.
-					"-skip-top",       // Enables an option to skip certain data or processing steps (e.g., skipping the "top" of a hierarchy).
-					"-old-windows",    // Activates compatibility or a specific mode for older Windows environments.
-				},
 				Env: []string{
 					"REEARTH_CMS_COPIER_COLLECTION=" + p.Copy.Collection,
 					"REEARTH_CMS_COPIER_FILTER=" + p.Copy.Filter,
 					"REEARTH_CMS_COPIER_CHANGES=" + p.Copy.Changes,
+				},
+				SecretEnv: []string{
+					"REEARTH_CMS_WORKER_DB",
 				},
 			},
 		},
 		Options: &cloudbuild.BuildOptions{
 			DiskSizeGb: defaultDiskSizeGb,
 		},
+		AvailableSecrets: &cloudbuild.Secrets{
+			SecretManager: []*cloudbuild.SecretManagerSecret{
+				{
+					VersionName: fmt.Sprintf("projects/%s/secrets/reearth-cms-db/versions/latest", project),
+					Env:         "REEARTH_CMS_WORKER_DB",
+				},
+			},
+		},
 	}
 
 	if region != "" {
 		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
 		_, err = call.Do()
-		log.Debug("copy: call build with region!")
 	} else {
 		call := cb.Projects.Builds.Create(project, build)
 		_, err = call.Do()
-		log.Debug("copy: call build without region!")
 	}
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
-	log.Debug("copy: cloud build done!")
 	return nil
 }
 

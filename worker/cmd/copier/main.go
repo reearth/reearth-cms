@@ -23,7 +23,7 @@ func main() {
 	if err := godotenv.Load(".env"); err != nil && !os.IsNotExist(err) {
 		log.Fatal("config: unable to load .env")
 	} else if err == nil {
-		log.Infof("config: .env loaded")
+		log.Info("config: .env loaded")
 	}
 
 	dbURI := mustGetEnv("REEARTH_CMS_WORKER_DB")
