@@ -92,6 +92,7 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	if err != nil {
 		return nil, err
 	}
+
 	s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
 	if err != nil {
 		return nil, err
