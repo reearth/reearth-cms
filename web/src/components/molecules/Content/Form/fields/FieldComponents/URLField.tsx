@@ -1,11 +1,13 @@
+import { useMemo, useState } from "react";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { validateURL } from "@reearth-cms/utils/regex";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator, urlErrorIndexesGet } from "../utils";
 
 type URLFieldProps = {
   field: Field;
@@ -17,27 +19,28 @@ type URLFieldProps = {
 const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
   const t = useT();
 
+  const required = useMemo(() => field.required, [field.required]);
+  const [errorIndexes, setErrorIndexes] = useState(new Set<number>());
+
   return (
     <Form.Item
       extra={field.description}
+      validateStatus="success"
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}
       rules={[
         {
-          required: field.required,
+          required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
         {
           message: t("URL is not valid"),
           validator: async (_, value) => {
-            if (value) {
-              if (
-                Array.isArray(value) &&
-                value.some((valueItem: string) => !validateURL(valueItem) && valueItem.length > 0)
-              )
-                return Promise.reject();
-              else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
-                return Promise.reject();
+            const indexes = urlErrorIndexesGet(value);
+            setErrorIndexes(new Set(indexes));
+            if (indexes.length) {
+              return Promise.reject();
             }
             return Promise.resolve();
           },
@@ -45,18 +48,18 @@ const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, d
       ]}>
       {field.multiple ? (
         <MultiValueField
-          showCount={true}
-          maxLength={field.typeProperty?.maxLength ?? 500}
           FieldInput={Input}
           onBlur={onMetaUpdate}
           disabled={disabled}
+          required={required}
+          errorIndexes={errorIndexes}
         />
       ) : (
         <Input
-          showCount={true}
-          maxLength={field.typeProperty?.maxLength ?? 500}
           onBlur={onMetaUpdate}
           disabled={disabled}
+          required={required}
+          isError={errorIndexes.has(0)}
         />
       )}
     </Form.Item>

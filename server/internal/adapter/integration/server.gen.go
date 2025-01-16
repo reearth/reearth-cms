@@ -75,6 +75,9 @@ type ServerInterface interface {
 	// Update a model.
 	// (PATCH /models/{modelId})
 	ModelUpdate(ctx echo.Context, modelId ModelIdParam) error
+	// Copy schema and items of a selected model
+	// (POST /models/{modelId}/copy)
+	CopyModel(ctx echo.Context, modelId ModelIdParam) error
 	// Import data under the selected model
 	// (PUT /models/{modelId}/import)
 	ModelImport(ctx echo.Context, modelId ModelIdParam) error
@@ -90,6 +93,12 @@ type ServerInterface interface {
 	// Returns a GeoJSON that has a list of items as features.
 	// (GET /models/{modelId}/items.geojson)
 	ItemsAsGeoJSON(ctx echo.Context, modelId ModelIdParam, params ItemsAsGeoJSONParams) error
+	// Returns a metadata schema as json by model ID
+	// (GET /models/{modelId}/metadata_schema.json)
+	MetadataSchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error
+	// Returns a schema as json by model ID
+	// (GET /models/{modelId}/schema.json)
+	SchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error
 	// Returns a list of models.
 	// (GET /projects/{projectIdOrAlias}/models)
 	ModelFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error
@@ -126,9 +135,18 @@ type ServerInterface interface {
 	// Returns a GeoJSON that has a list of items as features.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson)
 	ItemsWithProjectAsGeoJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsWithProjectAsGeoJSONParams) error
+	// Returns a metadata schema as json by project and model ID
+	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json)
+	MetadataSchemaByModelWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Returns a schema as json by project and model ID
+	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json)
+	SchemaByModelWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
 	// Returns a schema.
 	// (GET /projects/{projectIdOrAlias}/schemata)
 	SchemaFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params SchemaFilterParams) error
+	// Returns a schema as json by project and schema ID
+	// (GET /projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json)
+	SchemaByIDWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx echo.Context, projectId ProjectIdParam, params AssetFilterParams) error
@@ -147,6 +165,9 @@ type ServerInterface interface {
 	// update a field
 	// (PATCH /schemata/{schemaId}/fields/{fieldIdOrKey})
 	FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error
+	// Returns a schema as json by schema ID
+	// (GET /schemata/{schemaId}/schema.json)
+	SchemaByIDAsJSON(ctx echo.Context, schemaId SchemaIdParam) error
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error
@@ -489,6 +510,24 @@ func (w *ServerInterfaceWrapper) ModelUpdate(ctx echo.Context) error {
 	return err
 }
 
+// CopyModel converts echo context to params.
+func (w *ServerInterfaceWrapper) CopyModel(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CopyModel(ctx, modelId)
+	return err
+}
+
 // ModelImport converts echo context to params.
 func (w *ServerInterfaceWrapper) ModelImport(ctx echo.Context) error {
 	var err error
@@ -673,6 +712,42 @@ func (w *ServerInterfaceWrapper) ItemsAsGeoJSON(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ItemsAsGeoJSON(ctx, modelId, params)
+	return err
+}
+
+// MetadataSchemaByModelAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) MetadataSchemaByModelAsJSON(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MetadataSchemaByModelAsJSON(ctx, modelId)
+	return err
+}
+
+// SchemaByModelAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) SchemaByModelAsJSON(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "modelId" -------------
+	var modelId ModelIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SchemaByModelAsJSON(ctx, modelId)
 	return err
 }
 
@@ -1110,6 +1185,58 @@ func (w *ServerInterfaceWrapper) ItemsWithProjectAsGeoJSON(ctx echo.Context) err
 	return err
 }
 
+// MetadataSchemaByModelWithProjectAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) MetadataSchemaByModelWithProjectAsJSON(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.MetadataSchemaByModelWithProjectAsJSON(ctx, projectIdOrAlias, modelIdOrKey)
+	return err
+}
+
+// SchemaByModelWithProjectAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) SchemaByModelWithProjectAsJSON(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SchemaByModelWithProjectAsJSON(ctx, projectIdOrAlias, modelIdOrKey)
+	return err
+}
+
 // SchemaFilter converts echo context to params.
 func (w *ServerInterfaceWrapper) SchemaFilter(ctx echo.Context) error {
 	var err error
@@ -1148,6 +1275,32 @@ func (w *ServerInterfaceWrapper) SchemaFilter(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.SchemaFilter(ctx, projectIdOrAlias, params)
+	return err
+}
+
+// SchemaByIDWithProjectAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) SchemaByIDWithProjectAsJSON(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "schemaId" -------------
+	var schemaId SchemaIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SchemaByIDWithProjectAsJSON(ctx, projectIdOrAlias, schemaId)
 	return err
 }
 
@@ -1312,6 +1465,24 @@ func (w *ServerInterfaceWrapper) FieldUpdate(ctx echo.Context) error {
 	return err
 }
 
+// SchemaByIDAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) SchemaByIDAsJSON(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "schemaId" -------------
+	var schemaId SchemaIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SchemaByIDAsJSON(ctx, schemaId)
+	return err
+}
+
 // ProjectFilter converts echo context to params.
 func (w *ServerInterfaceWrapper) ProjectFilter(ctx echo.Context) error {
 	var err error
@@ -1390,11 +1561,14 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.DELETE(baseURL+"/models/:modelId", wrapper.ModelDelete)
 	router.GET(baseURL+"/models/:modelId", wrapper.ModelGet)
 	router.PATCH(baseURL+"/models/:modelId", wrapper.ModelUpdate)
+	router.POST(baseURL+"/models/:modelId/copy", wrapper.CopyModel)
 	router.PUT(baseURL+"/models/:modelId/import", wrapper.ModelImport)
 	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
 	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
 	router.GET(baseURL+"/models/:modelId/items.csv", wrapper.ItemsAsCSV)
 	router.GET(baseURL+"/models/:modelId/items.geojson", wrapper.ItemsAsGeoJSON)
+	router.GET(baseURL+"/models/:modelId/metadata_schema.json", wrapper.MetadataSchemaByModelAsJSON)
+	router.GET(baseURL+"/models/:modelId/schema.json", wrapper.SchemaByModelAsJSON)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelFilter)
 	router.POST(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelCreate)
 	router.DELETE(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelDeleteWithProject)
@@ -1407,13 +1581,17 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemCreateWithProject)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items.csv", wrapper.ItemsWithProjectAsCSV)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items.geojson", wrapper.ItemsWithProjectAsGeoJSON)
+	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/metadata_schema.json", wrapper.MetadataSchemaByModelWithProjectAsJSON)
+	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/schema.json", wrapper.SchemaByModelWithProjectAsJSON)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/schemata", wrapper.SchemaFilter)
+	router.GET(baseURL+"/projects/:projectIdOrAlias/schemata/:schemaId/schema.json", wrapper.SchemaByIDWithProjectAsJSON)
 	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
 	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
 	router.POST(baseURL+"/projects/:projectId/assets/uploads", wrapper.AssetUploadCreate)
 	router.POST(baseURL+"/schemata/:schemaId/fields", wrapper.FieldCreate)
 	router.DELETE(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldDelete)
 	router.PATCH(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
+	router.GET(baseURL+"/schemata/:schemaId/schema.json", wrapper.SchemaByIDAsJSON)
 	router.GET(baseURL+"/:workspaceId/projects", wrapper.ProjectFilter)
 
 }
@@ -2097,6 +2275,54 @@ func (response ModelUpdate401Response) VisitModelUpdateResponse(w http.ResponseW
 	return nil
 }
 
+type CopyModelRequestObject struct {
+	ModelId ModelIdParam `json:"modelId"`
+	Body    *CopyModelJSONRequestBody
+}
+
+type CopyModelResponseObject interface {
+	VisitCopyModelResponse(w http.ResponseWriter) error
+}
+
+type CopyModel200JSONResponse Model
+
+func (response CopyModel200JSONResponse) VisitCopyModelResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CopyModel400Response struct {
+}
+
+func (response CopyModel400Response) VisitCopyModelResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type CopyModel401Response = UnauthorizedErrorResponse
+
+func (response CopyModel401Response) VisitCopyModelResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type CopyModel404Response = NotFoundErrorResponse
+
+func (response CopyModel404Response) VisitCopyModelResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type CopyModel500Response struct {
+}
+
+func (response CopyModel500Response) VisitCopyModelResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type ModelImportRequestObject struct {
 	ModelId       ModelIdParam `json:"modelId"`
 	JSONBody      *ModelImportJSONRequestBody
@@ -2338,6 +2564,102 @@ type ItemsAsGeoJSON500Response struct {
 }
 
 func (response ItemsAsGeoJSON500Response) VisitItemsAsGeoJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type MetadataSchemaByModelAsJSONRequestObject struct {
+	ModelId ModelIdParam `json:"modelId"`
+}
+
+type MetadataSchemaByModelAsJSONResponseObject interface {
+	VisitMetadataSchemaByModelAsJSONResponse(w http.ResponseWriter) error
+}
+
+type MetadataSchemaByModelAsJSON200JSONResponse SchemaJSON
+
+func (response MetadataSchemaByModelAsJSON200JSONResponse) VisitMetadataSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type MetadataSchemaByModelAsJSON400Response struct {
+}
+
+func (response MetadataSchemaByModelAsJSON400Response) VisitMetadataSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type MetadataSchemaByModelAsJSON401Response = UnauthorizedErrorResponse
+
+func (response MetadataSchemaByModelAsJSON401Response) VisitMetadataSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type MetadataSchemaByModelAsJSON404Response struct {
+}
+
+func (response MetadataSchemaByModelAsJSON404Response) VisitMetadataSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type MetadataSchemaByModelAsJSON500Response struct {
+}
+
+func (response MetadataSchemaByModelAsJSON500Response) VisitMetadataSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type SchemaByModelAsJSONRequestObject struct {
+	ModelId ModelIdParam `json:"modelId"`
+}
+
+type SchemaByModelAsJSONResponseObject interface {
+	VisitSchemaByModelAsJSONResponse(w http.ResponseWriter) error
+}
+
+type SchemaByModelAsJSON200JSONResponse SchemaJSON
+
+func (response SchemaByModelAsJSON200JSONResponse) VisitSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type SchemaByModelAsJSON400Response struct {
+}
+
+func (response SchemaByModelAsJSON400Response) VisitSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type SchemaByModelAsJSON401Response = UnauthorizedErrorResponse
+
+func (response SchemaByModelAsJSON401Response) VisitSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type SchemaByModelAsJSON404Response struct {
+}
+
+func (response SchemaByModelAsJSON404Response) VisitSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type SchemaByModelAsJSON500Response struct {
+}
+
+func (response SchemaByModelAsJSON500Response) VisitSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
@@ -2900,6 +3222,104 @@ func (response ItemsWithProjectAsGeoJSON500Response) VisitItemsWithProjectAsGeoJ
 	return nil
 }
 
+type MetadataSchemaByModelWithProjectAsJSONRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
+}
+
+type MetadataSchemaByModelWithProjectAsJSONResponseObject interface {
+	VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error
+}
+
+type MetadataSchemaByModelWithProjectAsJSON200JSONResponse SchemaJSON
+
+func (response MetadataSchemaByModelWithProjectAsJSON200JSONResponse) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type MetadataSchemaByModelWithProjectAsJSON400Response struct {
+}
+
+func (response MetadataSchemaByModelWithProjectAsJSON400Response) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type MetadataSchemaByModelWithProjectAsJSON401Response = UnauthorizedErrorResponse
+
+func (response MetadataSchemaByModelWithProjectAsJSON401Response) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type MetadataSchemaByModelWithProjectAsJSON404Response struct {
+}
+
+func (response MetadataSchemaByModelWithProjectAsJSON404Response) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type MetadataSchemaByModelWithProjectAsJSON500Response struct {
+}
+
+func (response MetadataSchemaByModelWithProjectAsJSON500Response) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type SchemaByModelWithProjectAsJSONRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
+}
+
+type SchemaByModelWithProjectAsJSONResponseObject interface {
+	VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error
+}
+
+type SchemaByModelWithProjectAsJSON200JSONResponse SchemaJSON
+
+func (response SchemaByModelWithProjectAsJSON200JSONResponse) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type SchemaByModelWithProjectAsJSON400Response struct {
+}
+
+func (response SchemaByModelWithProjectAsJSON400Response) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type SchemaByModelWithProjectAsJSON401Response = UnauthorizedErrorResponse
+
+func (response SchemaByModelWithProjectAsJSON401Response) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type SchemaByModelWithProjectAsJSON404Response struct {
+}
+
+func (response SchemaByModelWithProjectAsJSON404Response) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type SchemaByModelWithProjectAsJSON500Response struct {
+}
+
+func (response SchemaByModelWithProjectAsJSON500Response) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type SchemaFilterRequestObject struct {
 	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
 	Params           SchemaFilterParams
@@ -2950,6 +3370,55 @@ type SchemaFilter500Response struct {
 }
 
 func (response SchemaFilter500Response) VisitSchemaFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type SchemaByIDWithProjectAsJSONRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	SchemaId         SchemaIdParam         `json:"schemaId"`
+}
+
+type SchemaByIDWithProjectAsJSONResponseObject interface {
+	VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error
+}
+
+type SchemaByIDWithProjectAsJSON200JSONResponse SchemaJSON
+
+func (response SchemaByIDWithProjectAsJSON200JSONResponse) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type SchemaByIDWithProjectAsJSON400Response struct {
+}
+
+func (response SchemaByIDWithProjectAsJSON400Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type SchemaByIDWithProjectAsJSON401Response = UnauthorizedErrorResponse
+
+func (response SchemaByIDWithProjectAsJSON401Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type SchemaByIDWithProjectAsJSON404Response struct {
+}
+
+func (response SchemaByIDWithProjectAsJSON404Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type SchemaByIDWithProjectAsJSON500Response struct {
+}
+
+func (response SchemaByIDWithProjectAsJSON500Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
@@ -3191,6 +3660,54 @@ func (response FieldUpdate401Response) VisitFieldUpdateResponse(w http.ResponseW
 	return nil
 }
 
+type SchemaByIDAsJSONRequestObject struct {
+	SchemaId SchemaIdParam `json:"schemaId"`
+}
+
+type SchemaByIDAsJSONResponseObject interface {
+	VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error
+}
+
+type SchemaByIDAsJSON200JSONResponse SchemaJSON
+
+func (response SchemaByIDAsJSON200JSONResponse) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type SchemaByIDAsJSON400Response struct {
+}
+
+func (response SchemaByIDAsJSON400Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type SchemaByIDAsJSON401Response = UnauthorizedErrorResponse
+
+func (response SchemaByIDAsJSON401Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type SchemaByIDAsJSON404Response struct {
+}
+
+func (response SchemaByIDAsJSON404Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type SchemaByIDAsJSON500Response struct {
+}
+
+func (response SchemaByIDAsJSON500Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type ProjectFilterRequestObject struct {
 	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
 	Params      ProjectFilterParams
@@ -3294,6 +3811,9 @@ type StrictServerInterface interface {
 	// Update a model.
 	// (PATCH /models/{modelId})
 	ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error)
+	// Copy schema and items of a selected model
+	// (POST /models/{modelId}/copy)
+	CopyModel(ctx context.Context, request CopyModelRequestObject) (CopyModelResponseObject, error)
 	// Import data under the selected model
 	// (PUT /models/{modelId}/import)
 	ModelImport(ctx context.Context, request ModelImportRequestObject) (ModelImportResponseObject, error)
@@ -3309,6 +3829,12 @@ type StrictServerInterface interface {
 	// Returns a GeoJSON that has a list of items as features.
 	// (GET /models/{modelId}/items.geojson)
 	ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONRequestObject) (ItemsAsGeoJSONResponseObject, error)
+	// Returns a metadata schema as json by model ID
+	// (GET /models/{modelId}/metadata_schema.json)
+	MetadataSchemaByModelAsJSON(ctx context.Context, request MetadataSchemaByModelAsJSONRequestObject) (MetadataSchemaByModelAsJSONResponseObject, error)
+	// Returns a schema as json by model ID
+	// (GET /models/{modelId}/schema.json)
+	SchemaByModelAsJSON(ctx context.Context, request SchemaByModelAsJSONRequestObject) (SchemaByModelAsJSONResponseObject, error)
 	// Returns a list of models.
 	// (GET /projects/{projectIdOrAlias}/models)
 	ModelFilter(ctx context.Context, request ModelFilterRequestObject) (ModelFilterResponseObject, error)
@@ -3345,9 +3871,18 @@ type StrictServerInterface interface {
 	// Returns a GeoJSON that has a list of items as features.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson)
 	ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWithProjectAsGeoJSONRequestObject) (ItemsWithProjectAsGeoJSONResponseObject, error)
+	// Returns a metadata schema as json by project and model ID
+	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json)
+	MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, request MetadataSchemaByModelWithProjectAsJSONRequestObject) (MetadataSchemaByModelWithProjectAsJSONResponseObject, error)
+	// Returns a schema as json by project and model ID
+	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json)
+	SchemaByModelWithProjectAsJSON(ctx context.Context, request SchemaByModelWithProjectAsJSONRequestObject) (SchemaByModelWithProjectAsJSONResponseObject, error)
 	// Returns a schema.
 	// (GET /projects/{projectIdOrAlias}/schemata)
 	SchemaFilter(ctx context.Context, request SchemaFilterRequestObject) (SchemaFilterResponseObject, error)
+	// Returns a schema as json by project and schema ID
+	// (GET /projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json)
+	SchemaByIDWithProjectAsJSON(ctx context.Context, request SchemaByIDWithProjectAsJSONRequestObject) (SchemaByIDWithProjectAsJSONResponseObject, error)
 	// Returns a list of assets.
 	// (GET /projects/{projectId}/assets)
 	AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error)
@@ -3366,6 +3901,9 @@ type StrictServerInterface interface {
 	// update a field
 	// (PATCH /schemata/{schemaId}/fields/{fieldIdOrKey})
 	FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error)
+	// Returns a schema as json by schema ID
+	// (GET /schemata/{schemaId}/schema.json)
+	SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error)
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error)
@@ -3824,6 +4362,37 @@ func (sh *strictHandler) ModelUpdate(ctx echo.Context, modelId ModelIdParam) err
 	return nil
 }
 
+// CopyModel operation middleware
+func (sh *strictHandler) CopyModel(ctx echo.Context, modelId ModelIdParam) error {
+	var request CopyModelRequestObject
+
+	request.ModelId = modelId
+
+	var body CopyModelJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CopyModel(ctx.Request().Context(), request.(CopyModelRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CopyModel")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(CopyModelResponseObject); ok {
+		return validResponse.VisitCopyModelResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ModelImport operation middleware
 func (sh *strictHandler) ModelImport(ctx echo.Context, modelId ModelIdParam) error {
 	var request ModelImportRequestObject
@@ -3972,6 +4541,56 @@ func (sh *strictHandler) ItemsAsGeoJSON(ctx echo.Context, modelId ModelIdParam, 
 		return err
 	} else if validResponse, ok := response.(ItemsAsGeoJSONResponseObject); ok {
 		return validResponse.VisitItemsAsGeoJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// MetadataSchemaByModelAsJSON operation middleware
+func (sh *strictHandler) MetadataSchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error {
+	var request MetadataSchemaByModelAsJSONRequestObject
+
+	request.ModelId = modelId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MetadataSchemaByModelAsJSON(ctx.Request().Context(), request.(MetadataSchemaByModelAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MetadataSchemaByModelAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(MetadataSchemaByModelAsJSONResponseObject); ok {
+		return validResponse.VisitMetadataSchemaByModelAsJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// SchemaByModelAsJSON operation middleware
+func (sh *strictHandler) SchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error {
+	var request SchemaByModelAsJSONRequestObject
+
+	request.ModelId = modelId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.SchemaByModelAsJSON(ctx.Request().Context(), request.(SchemaByModelAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SchemaByModelAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(SchemaByModelAsJSONResponseObject); ok {
+		return validResponse.VisitSchemaByModelAsJSONResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -4325,6 +4944,58 @@ func (sh *strictHandler) ItemsWithProjectAsGeoJSON(ctx echo.Context, projectIdOr
 	return nil
 }
 
+// MetadataSchemaByModelWithProjectAsJSON operation middleware
+func (sh *strictHandler) MetadataSchemaByModelWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request MetadataSchemaByModelWithProjectAsJSONRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MetadataSchemaByModelWithProjectAsJSON(ctx.Request().Context(), request.(MetadataSchemaByModelWithProjectAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MetadataSchemaByModelWithProjectAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(MetadataSchemaByModelWithProjectAsJSONResponseObject); ok {
+		return validResponse.VisitMetadataSchemaByModelWithProjectAsJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// SchemaByModelWithProjectAsJSON operation middleware
+func (sh *strictHandler) SchemaByModelWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request SchemaByModelWithProjectAsJSONRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.SchemaByModelWithProjectAsJSON(ctx.Request().Context(), request.(SchemaByModelWithProjectAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SchemaByModelWithProjectAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(SchemaByModelWithProjectAsJSONResponseObject); ok {
+		return validResponse.VisitSchemaByModelWithProjectAsJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // SchemaFilter operation middleware
 func (sh *strictHandler) SchemaFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params SchemaFilterParams) error {
 	var request SchemaFilterRequestObject
@@ -4345,6 +5016,32 @@ func (sh *strictHandler) SchemaFilter(ctx echo.Context, projectIdOrAlias Project
 		return err
 	} else if validResponse, ok := response.(SchemaFilterResponseObject); ok {
 		return validResponse.VisitSchemaFilterResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// SchemaByIDWithProjectAsJSON operation middleware
+func (sh *strictHandler) SchemaByIDWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error {
+	var request SchemaByIDWithProjectAsJSONRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.SchemaId = schemaId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.SchemaByIDWithProjectAsJSON(ctx.Request().Context(), request.(SchemaByIDWithProjectAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SchemaByIDWithProjectAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(SchemaByIDWithProjectAsJSONResponseObject); ok {
+		return validResponse.VisitSchemaByIDWithProjectAsJSONResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -4536,6 +5233,31 @@ func (sh *strictHandler) FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, f
 	return nil
 }
 
+// SchemaByIDAsJSON operation middleware
+func (sh *strictHandler) SchemaByIDAsJSON(ctx echo.Context, schemaId SchemaIdParam) error {
+	var request SchemaByIDAsJSONRequestObject
+
+	request.SchemaId = schemaId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.SchemaByIDAsJSON(ctx.Request().Context(), request.(SchemaByIDAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SchemaByIDAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(SchemaByIDAsJSONResponseObject); ok {
+		return validResponse.VisitSchemaByIDAsJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ProjectFilter operation middleware
 func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error {
 	var request ProjectFilterRequestObject
@@ -4565,74 +5287,79 @@ func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceId
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+w9WW/buLp/RdC9j2qcOZ3zkrfcpCkyp22CcTrFRVEUjPTZ5kQmXZLKMoH/+wE3ibKo",
-	"zZaTOPFLG0sU9fHbN1KPYUznC0qACB4ePYYLxNAcBDD1C3EO4jy5lBfl7wR4zPBCYErCo/D8NKCTQMwg",
-	"4JBCLCAJ1ANhFGJ5f4HELIxCguYQHtm5wihk8CvDDJLwSLAMopDHM5gjOb94WMihXDBMpmEU3r+b0nfm",
-	"Ik4OjtUUp+FyGenpagAbLyDGEww8uJuBmAHTcAUJEihADAKYX0OSQBJgouBnwLNUcAv4rwzYwwrkoQvn",
-	"/zKYhEfh/4wK5I30XT5Soz+oF8hFSFhjOp8D6YVI84gflfl8myDzxEyi0TnBkCbnyQX7Dzw0QMmCG3iw",
-	"wKpnLArnNIGUB+b1XrDdd6wNuR51cKbmOtVzyQVgAfM+CJbj/WDqmTZB7bmcQeP1Bh7uKKuDy9wN8ol8",
-	"7GcGhfUAyBcp/PckoHrGEnDB6N8Q13CcO/vamFGTHLhEM9O2Uq03oJtQ77OaQpNvgaZQA91XDkkgqOEo",
-	"DRmaQg0Rza0CiAQmKEtFePRbFM4xwfNsrv62cBABU2AaCGCXg8Gh5/KD8u/DKJyjewPL4WE7ZJoUkjGO",
-	"U4x4I+MhOcJStJGIq9OuTU0zkeI5PVMJ6u7aohu4jXCucNmleUjzGYNJN/KigMFEYvMWWA2JpW3ykjdM",
-	"kQAuFwFE0vR7cWGRXac4Dn9EHs2iZ+qCLTWwZBD8CLMzbiKlYz2HRh+nTJxi1oLCBCaYgAKOsgRYkGAG",
-	"sRxkV8CALyjhEKSYiyi4w2kaXEOAp4QyaTMmzsOYB4SKYMGAAxGQ1FAjwayGGhJIhxZI/VIX/WSgTPRd",
-	"oG9ZNXDK6WsAjRkgAcmxyznutWyRmL+9gN9RdsMXKIY+Apc/5OcgZ87OQofimGZEJHSOMDn4ls8gWUiJ",
-	"oEaScny/UHFGM5J8YIyyKsBXCqm/MuASVgacZiyG4A5pnpjIR8NlFH4lKBMzyvA/UDfVcRwD54GgN0Ak",
-	"T80x55hMpYhjcotSnDhCqGA7AyQyBspbZ3QBTGAN9BToHAR7aPNQP9px0m1Kevgz0coLzQh6rXTj0hL/",
-	"MecSC6qXLypPm9EnNE21WFaXONFD1N/ST+Nta7UQFO9DjKGHBmCd13cD+yPQP8YXX3YG2JxHytDGlLIE",
-	"E2kR5E9K4GISHn1vhviSYiLnbR71OUsF7jb0EyYwNvB3mbXH+EuaPkwp6QqtGfxjGVnBwj1I6cpYGy01",
-	"ZqLQQVMUOgszd0pXLHz5U/anfXFvznCm77pIS1LpJp7rB/5VXe4q8F1nL5HWP6sGoDe4NXNpFHafzbJT",
-	"Zb4qWBPK5kgZfZpdp9KomWdINr+WzrRyvA0O37cg1AfpZggoXvd79aZOf1T0BWLxDN/Ch3vBkOKzsUAi",
-	"4y5jL4AkNq79uWB0yoBLZz6hRKJggnAKiYc9ozCmRAARV0ZSqvdz96OEXCTgncBzB7/FIxOcQhuC1Jiu",
-	"VjHPRlmvxAPngsEthrurFYnHcxOhyf9/8ls5+xSo/vfn++TnFU6Bm5/zW6kPlDv98710d2J+K70uckPo",
-	"HfGir4hI2pfhBCJRKKhA6Rj/466mYNHC0euM9Yyl/nxF4bN9l+iOSlGUfCpq9TEL3bWSc3MwjVI5k3QL",
-	"FcOlHGr4Tafbqlyu/Ld2RCKiZUUNXyV3xk2wJmDKBPLr5Jzph2L4TkxczgJWEBtTkmC/K4ZI0lnxFNN4",
-	"lM814jj2eE86W9guspAmYxU2UMWkcg4ktKttCQC/MpRKeSJUfNB/+whwi9JMEs6LimtK0xcFpb0jAQNE",
-	"KlJlQXNeZh/2ydBcGsFFCttdIyZxmiXAj8mDXuh56UJ+W4mteztNm5Fh+bDCYJthhWRpiq63jRWYL4TB",
-	"xwf1ZzeXzWjmrYI2VYqHXc2Q9C5T4Nz86dy4YIpdr6gzorjWhYetjdmMWBryzTUSzx3V7eFVKnuEiRH3",
-	"k+IXF4gJ/g2rdAeQxP5JqBi7tySv2LtdUFxje3uiWBmbrSLmGiaUSYOGJkKZTX3hgl0Qe9H8TSdXM8y/",
-	"AdzkPz5TopCjf/0/INaMmy6WdBOE+aRWTeDJ3jCaLTomYz7Ksdpj62TlTbUs1AUpr4Nhg9Im+qlVKuem",
-	"zViWKd3EL90hXw2bldeo/CJMySkS4Pz8qj2uOU3wBMfuCPeSGcV14GIpE4VzEEi9uKMetqHFSkJlhtOE",
-	"QfeI0kYfq+qoLRiqjz6QmHlvcL+H71ubTuNXF9ffHy3lPR/X9Ffz4lw9J6eIi8+KypB0h07SPEECjTsV",
-	"+U2GufJcJ54uSheNkeOaIZwp5Xj8w64dDMXi+HqL6h0n+hjPltyqgYcq5A0UJA3ClCX811J0jejZLXO0",
-	"BaAN1Q0PdgtOKCP3CosUzqyF6q6c10rIQJp0T17p/zVoHiWJ+zLpmgJWj8wzv10fykC78VlVsgsPxXe3",
-	"p3H3rbG47ZhgAfdCkhbuxTEDFEYhw/HsSl+dI3aT0DvpqcUziG+u6X0Y5c1UiTbHKqqOQl33szkSZZWN",
-	"UVK1cWBAVClQJ4a0qxSFApnEmcp4X1ybEr298CHB0vvwOoDAOKYEEulNDWLdenLzZCM+LgpymH82BshP",
-	"eWuezgYCz/bX+N0NZtsIq4nvLFP+Wo3fWbwgp3Zy3iu3Xaaof+LybK2grKGwDRQdVr70xQoc4oxh8aD0",
-	"lGbFa0AM2HGmPTm1WkVidbmYdibEQtexMZnQapn5T/iAmJi9O/k8Ds5VHlJ5wMHx5bmcRGr91lH54sLf",
-	"Dg4PDk0AR9ACh0fh+4PDg/eh9jkV4LoRko8eTePnUgOVglAqRAdPmBLJTKHKpZ/qmyul+H8dHuryZJ4c",
-	"RYtFajz40d9cY7vOnvXL5HuIsuojaAXGdSvFMgp/1+CtNDToyr3tEQjyrtpAR03qud/qWDpf/qjaP6Ce",
-	"/L36xi9F24Hko2w+R+xBNZlInOZ9uQJNuVTcasU81MVNUUOPj+qRjYjR2ii7+xiegmhCr9tQXVNML4aM",
-	"Sg3XqvZcEaORqVWYlo864pnE/ifd8TOgRLmv75hq07UVX2a2m7TZbuiXzhNGeytCu3r7+4/lDy/L5Aur",
-	"8E5xZ2MmisIF5S1scqIcHtNKBVz8H00eNuKRukqWn+blBq7lFpVOzoxVVtt9vtJuax/WalQwo8d8o0G7",
-	"8TaM9Gw2vLGQWSW2tYukjK3d5wHX4D+Feolax6/sflEKCYl41sxIXxfJm9dIGgfB8atjUrswh96takr5",
-	"GqNHvTunUR/JCPDZ9JCz96eHEsImaH0duofY3VWWojqUd6KN1eBUZIxw++BBXltzKaqjkX6qKt9W0UFN",
-	"ORsK5aq2Ju8riYoqVxy/ZHaIwn/7YRLACEoDDuwWWAB6vj7M42GCKvv0I7+7J7BkdrxqtpH7BjZHeU9l",
-	"n52kwyUZh80KPrcF3UtUo5VtEKiqXW3PLshnX0lyQb7hVeYWNMWdTeQlwm/i/FdUqje14PDIPrPwmjIL",
-	"3RmrQbV0zSs4XLR7aYUSnl6LZ/8kWmXIjILDQvuEgptQeF3sadYlqR2cdNNN+ryS0aMpaDcqItV09mwq",
-	"yD2PorMCMtvvn4Gy6yQM8sMCLMnUmrtkDPST1ZhNTbDlAqZBsSfeCP4YX3wJlCca0EmQcWABQXPgbzao",
-	"L+jkIXE/Y1E6NKZDWN/IIgNbhbZ2wrrmrpqmwec2JW0crqGSLL4T6qbKERVm9JmGEZ4vKBOrx6Otw6mZ",
-	"qLEu5/oVg+aXznvuYrUdS87mH6B/cLWtXL3Q10lnm+1UKuk/tb2LAgkYr57t4nYmC4YETB/Ke8U4sGLz",
-	"p/pDXfnRtkejOGvOrMl5gXeThm6uREyM5APvbD9dHXptw3/e43WNCVKnqVT7At8qUgdXVCuukz6T54Rm",
-	"JSc8P50qMittHiI9w4b7td2OTfsSCNydDdrabPoQa+Hs4hdWFLbWaYHZ+/Isbsm2nA6tS/VpjxlJgJWP",
-	"Fqr1Nf263xKwxQ9NMdd4VcHGHRazYIJTAZJdAkQSfSITJlN/feFMje1d4CoOheoQNpdOyeowvjj8rstg",
-	"95C6DuPXLc21jy4duahLeUOYVE3NHvtKfWI5sA4ctkNaHRt49Nh46F9+GmH7QHWWRK608rGH0SYKbB9T",
-	"1emcIQqmVYe1Pr0/bF5/X9lcr7L5oqRi/YpCTW3Sb40PYn7bwSKfjP8KxAyJYIaqBhrxwB7P5jfI/Jif",
-	"jP/qbZCfyGa2N6gIuBcjg6iC2VoDFh+L6XsBJgqlZoo3q3T7sFU5A10cIis5a2Pt3CAgU6BW0bQIiTm8",
-	"cDNBsScg7qywrK+h7dK9gmORW+yifJsi05fJyqagOGFzEJExUshHj6vHTC+NOPWI9vQDNbnlPKYb0OUv",
-	"IOzk1+Rp2b2v/0p8/YLjNi6k+E9v325ioDamUKsYOKjYV2N2IQJoTsi1q+vc+1HflVgp5JdXflqqN9eo",
-	"bT3oGxazy9xhe9E1/6viCxnJW1OQVYoO3kIwICfsuwleXDfB2kaw+sGdYXoRVtltbwh30RC+hL7/ljaH",
-	"3pZ1VCRpn1fGvA6kyvhqB3IbIvQij2V6WrErlak7CF+eVN8JL9Qe/mhlxVQQNpOV0aP70btG39QaN+fL",
-	"eknVUCioXoKHmp9Y1i2gtyt6s/6pQsCBj7+e02Npf6j6YciGdnu1pu25MXsd/Dp1cGYdloF18JP27pQZ",
-	"ft/Gs90d9vtGmH06oGsjTF54ff7sgIlcyqg4yVshzmvPH9heYLPvvHljnTdVdquTlg2s7tP06DjysG/X",
-	"2bfrvKx2nUFtxyai+KTdQCWR3DcG7RuDttYY5Ajo+g1CTyqkmjf01rIWSdRDqzI2NvH/vrNokODJfLJe",
-	"P/CGA6iC3ayIjS2v7kZfUe9tQTWyujTH4fbIGpnjynuljdSu2ze358uzM+uZUkDm7Pkd0147cTD++tkb",
-	"vbyD6kmwA+RvuuZgAgJ35rRdKcFMAalqcuabMPpmjUQP3L/Ib/DiFOTKGHD7XZEEJihLRXikvmbsfqFU",
-	"sAwiX4mD3oC/76P268xPuUO+0yo937odfHPlBh+r2H1xLLJCuQQ0SmKL/Rxli5Qi0yzilbhzzjMpcF//",
-	"/KREDQWKTwNBA/1sfjh7jbB9VaNykdtYMQx6LtgnINPSxxcdoxBnjOuvYm7ScLUc+ODNdrDbPkMJ9/5v",
-	"lw+gf2q+C6IZ5TWcX1Zh+EbBs4Hk6NF+oXH95iw7Q4/+qn1Bf1/QH6Cpqp6LG9umahuiXn4X1C7SMil1",
-	"MA3RwLSicbbXg7TXU3s9NUDj0aPzGd5l7vT2yBDlj6z6saZQso107sCJDHfVnTIs1mHx5Fi2m9LNIX1O",
-	"r7D5yS9UnEkncesnYdWzoutiXlqM9VfljmQ8ye7R5XL53wAAAP//H0uKi7KeAAA=",
+	"H4sIAAAAAAAC/+xd23LbONJ+FRb/uWQsz2b2xndeO5ny7GTiWjs79ddUKgWTLQlrCmAA0I7WpXffwokH",
+	"ESRBibIlWzeJRQJgo/vrAxpN8CmM6SKjBIjg4dlTmCGGFiCAqV+IcxBXybW8KH8nwGOGM4EpCc/Cq8uA",
+	"TgMxh4BDCrGAJFAdwijE8n6GxDyMQoIWEJ7ZscIoZPA9xwyS8EywHKKQx3NYIDm+WGayKRcMk1kYhT/e",
+	"zeg7cxEnJ+dqiMtwtYr0cC2E3WQQ4ykGHjzOQcyBabqCBAkUIAYBLO4gSSAJMFH0M+B5Krgl/HsObLlG",
+	"eVil8ycG0/As/L9JybyJvssnqvUH9QA5CUlrTBcLIIMYabq4WVmMtw0zL8wgmp1TDGlylXxm/4RlB5Us",
+	"uIelJVb1sSxc0ARSHpjHO8muPmNjynWrk49qrEs9lpwAFrAYwmDZ3k2mHmkb1l7JETRf72H5SFkbXeZu",
+	"UAzkgp9pFLYTIB+k+D9QgKqPFWDG6H8gbkFcdfSNOaMGOakKzQzbK7XBhG4jvU9qCC2+DM2ghbovHJJA",
+	"UIMoTRmaQYsQza2SiASmKE9FePZzFC4wwYt8of62dBABM2CaCGDXo9Ghx3KT8vfTKFygH4aW09N+yrQo",
+	"JDDOU4x4J/CQbGEl2inE9WE3lqYZSGFOj1Sj2t9a+JHbSecayq5NJ40zBlM/8aKAwVRy8wFYi4ilb3KK",
+	"N0yRAC4nAUTK9K/yQpbfpTgOv0YOy6JH8uGWalhzCG6G2RG30dIbPYZmH6dMXGLWw8IEppiAIo6yBFiQ",
+	"YAaxbGRnwIBnlHAIUsxFFDziNA3uIMAzQpn0GdNKZ8wDQkWQMeBABCQt0kgwa5GGJLIiC6R+qYtuMVAm",
+	"hk7QNa0WOuXwLYTGDJCA5LyKnOq1PEvM307CHym75xmKYYjCFZ3cCKqM6a10KI5pTkRCFwiTkz+LESSE",
+	"lApqJqnA9w8qPtKcJB8Yo6xJ8K1i6vccuKSVAac5iyF4RBoTU9k1XEXhF4JyMacM/xfahjqPY+A8EPQe",
+	"iMTUAnOOyUyqOCYPKMVJRQkVbR8BiZyBitYZzYAJrImeAV2AYMu+CPVX206GTcmAeCZae6BpQe+UbVxZ",
+	"4T8VKLGkOnHR6G1aX9A01WrZnOJUN1F/yziN983VUlA+DzGGlh3EVh7vR/avQH+7+fzHwRBbYKRObUwp",
+	"SzCRHkH+pAQ+T8Ozv7opvqaYyHG7W33KU4H9mv6OCdwY+n1GHdD+mqbLGSW+1JrGX1eRVSw8QJRVHeuT",
+	"peZMFFbYFIWViZk7tSuWvqKX/WkfPBgZleF9J2lFKsPEK93hb83prhPvO3pNtO5RNQGDyW0ZS7PQfzQL",
+	"p8Z4TbKmlC2Qcvo0v0ulUzN9SL64k8G0CrwND9/3MNRF6XYMKB/3S/OmTn807AVi8Rw/wIcfgiGFsxuB",
+	"RM6rwM6AJHZd+y1jdMaAy2A+oUSyYIpwCokDnlEYUyKAiFujKc37RfhRYy4S8E7gRYW/ZZcpTqGPQaqN",
+	"r1csslE2KnHQmTF4wPB4u6bxeGFWaPL/b/xBjj4Dqv/99j75dotT4Obn4kHaAxVOf3svw52YP8ioi9wT",
+	"+kic7CtXJP3TqCxEolBQgdIb/N/qbEqIloGeN9dzlrrzFWXM9pdkd1RbRcleUW+MWdqutZxbhdMolSPJ",
+	"sFABLuXQgjedbmuiXMVv/YxEROuKar4u7pybxZqAGRPIbZML0I8FeC8Q17OADcbGlCTYHYohkngbnnIY",
+	"h/G5QxzHjuhJZwv7VRbS5EYtG6gCqRwDCR1qWwHA9xylUp8IFR/03y4BPKA0l4JzsuKO0nSvqLR3JGGA",
+	"SEOrLGmVh9nOLh1aSCeYpbDbOWISp3kC/Jws9USvaheK20ptq7fTtJsZFocNgG3HFZKnKbrbNVdgkQnD",
+	"jw/qT7+QzVjmnZI2U4aH3c6RjC5T4Nz8WbnxmSm43tJKi/KaD4atj9lOWJry7S0SLwLV3fFVGnuEiVH3",
+	"i/IXF4gJ/idW6Q4gif2TUHFTvSWxYu/6sLjF9w5ksXI2O2XMHUwpkw4NTYVym/rCZ/aZ2Ivmbzq9nWP+",
+	"J8B98eMTJYo5+tf/A2LdvPHxpNswzKW1agBH9obRPPNMxvwq2+qIzcvLm92yUG9IOQMMuyjtkp+apQpu",
+	"+pxlXdJdePGnfH3ZrKJGFRdhSi6RgMrPLzriWtAET3FcbVG9ZFpxvXCxkonCBQikHuxph+3SYi2hMsdp",
+	"wsB/RWlXH+vmqG8x1L76QGLuvMHdEb5rbjqN35zc8Hi0lvd82jBeLTbn2pGcIi4+KSlD4k+dlHmCBLrx",
+	"2uQ3GeZGPy9Ml1sXnSvHDZdwZivHER/6VjCUk+ObTWrwOtEFPLvl1lx4qI28kRZJo4Cyxv9WiW6weq5u",
+	"c/QtQDt2NxzcLZGwtV4rq+mfhNL/a/PqMHZ4KNg2z3VgkcJH64x9/VA7Mz+6/fpYDrq6PmtqdhmhuO4O",
+	"dO7tc3RvdPzkmuMqCn9qLVjpV7w1nU90tI7S6/qTe4EmKa70WTljWpFCZ1DUHRGquzWKv3YysD6F+kT7",
+	"2GJV0mWq/LVPiVHnnH8HMqtFCUV9R6UWxC+BbWtFvFqPwnQXn0scV2JFAT+EpAJ+iHMGKIxChuP5rb66",
+	"QOw+oY9ySRHPIb6/oz/CqKj6S3TcqNI/Uag3qG0yT4WPZk6qiAMYELVnrTOYOqaPQoFMhldtzXy+M7Uk",
+	"9sKHBMsw2blSAcYxJZDIsP8lzPV0K0Nd7hxj/slESm4TZeOojyORZwvB3HExs/WuzR2aPFcLixZYlg8o",
+	"pJ1cDdqEqUvUPXB9tF5SNogsDBUeM1+5FrUc4pxhsVSOWEPxDhADdp5rY6Jmq0SsLpfDzoXIdMEFJlPa",
+	"rIf4F3xATMzfXXy6Ca5Uwlwt1YLz66uwsBo9rYrJhT+fnJ6cmkwDQRkOz8L3J6cn70O9OFKE64pdPnky",
+	"FcorTVQKQpkQvcrHlEgwhWrT51LfXKsZ+dvpqd5HL7L4KMtSs9Sc/IdrbrcFXsO2nBxCWfep2oBxXfOz",
+	"isJfNHlrlTe6xMQWswRF+Xegl/eq389tkC6mP2kWuqievzSf+EdZHyNxlC8WiC1VNZTkaVFALtCMS8Ot",
+	"ZsxDvQsvWuTxq+qylTB6K7oPn8MzEF3srVb+t1R9lE0mtTcDVJFEQ40mZlPN1Ca1Cc/sQP2uS9NG1Kjq",
+	"4z1zwnoT0LWF4Kdttmx/3zFhrLcSdNVu//V19dUJmWJiDeyUd7YGURRmlPfA5EIFPKbmD7j4B02WW2Gk",
+	"bcvVLfN6peFqh0anAGMTaoePKx22DoFWp4GZPBVvxPQ7bwOkF/PhnTvuTWFbv0jq3Dp8DFQd/nOYl6i3",
+	"/dprWsogIRHPu4H0JUvevEXSPAjOXx1I7cQq8u41UyrWmDzp18g67ZFcAb6YHaq8pDbACGGzaH0dtofY",
+	"1wCtRPVSvrLaWF+cipwRbjueFJvAVYnq1cgwU1W8/+NhpipvvspZ7Uzf1xIVTVSc7zMcovDvbpoEMILS",
+	"gAN7ABaAHm8IeBwgaMJnmPirL6/W3I7TzHaib2R3VBT/Dnnlebwk47hZwZf2oEeN6vSyHQrV9Kv92QXZ",
+	"95UkF+QTXmVuQUu8ctpBTfDbBP8Nk+pMLVQwcswsvKbMgj+wOkyLb16hgqLDSyvU+PRaIvtnsSpjZhQq",
+	"EDomFKoJhdcFTzMvKe3gws826YN1Jk9mQ7vTEKnqyBczQdWDU7wNkDkn4gUku0nCoDjVwopMzdknY6B7",
+	"NtdsaoAdb2AaFjvWG8FvN5//CFQkGtBpkHNgAUELXSj1Jhf1pZwcIh7mLGqnG3ks6zshMrJX6Ksza6tC",
+	"bKlufWlX0odwTZWE+EGYmyYiGmB0uYZJTLPl+il+m+DUuVa6oNnykzF/44BwBJDtB6iKfNOLmczunvXj",
+	"bHZoRiVG7DlQiOhT9tSZX6g82qfVhTohjRcZZWIMUOeiJWC60o8YNWV6NfAEgbKut3jxEuhvXB3poR7o",
+	"Kg619aMqO/rP1rpxgQTcrFdiV98KEQwJmC3r7+lyYOWL9+oPdeVr3/tx5TmfZk6VBzhfkNOF7YiJiezw",
+	"zpaItrHXvmxVlC3eYYLUSVYdxdJvjKmj+9611YA+D+2C5rV1ZaVyXM+0u4k0DR33Wwt4u94JI/D4cdTX",
+	"UUxpbSudPkudhrvQNi0w7x2+iNvYlQPQtlSftJuTBFj9WLeBtt8KsGdplWKu+aq8zSMW82CKUwESLsoN",
+	"qdPwMJm5t8w+qraD92zLA/k8MkG1Ewo92pcHj/o0rh4Q6tF+093m/ta142717vQYLlVLc8A7/bsIFdds",
+	"4LhF/+rI1rOnzgNXi5Ng+xuqc3wKo1W0PY22MWDHNEGbzRmjBsBzFaYSxeNuVR036zfbrN8rrdh8k6xl",
+	"u93tjU9i/uDhkS9u/h2IORLBHDUdNOKBPRrT7ZD5Ob+4+fdgh/xMPrO/5krADzExjCrB1rtgcUFM3wsw",
+	"USw1Q7xZozsEVvVNlfIAb4msra1zh4LMgFpD06Mk5uDY7RTFnj57sMqyuYW2U3cqjmVu+WLw21SZoSCr",
+	"u4LydOPdqIwNGb6Zz3p4ao7tVqQaeSB7BndL86mIq8vmLkrtoJZ/6FT2OTfKszOQVl+470kNvOE9Ny95",
+	"FkmD+lE9UbhDgA7D5QA4HmG4fzD0Qt8OUGeCEz55Wv/yycogckASTHdo2UUuUl0jZkJKCr2We8UG7DEF",
+	"8kpSICXiti6ZcH9QaLf50tZUi5rFyLmWY93FISRGuvcp+s11EUCoT52tlezVZ35ZqyxrMdu60Z9YzK+L",
+	"dexeV/fdlh9tS96agWxKdPRiwRGRcKwb3Lu6wY2dYPMbkONUHa7D7egID9ER7sMbfj0FjYM966Tcu3pZ",
+	"HXMGkGojTAeQu1ChvTwp9HnVrla9s8+FmhtFofY8cqsrZmN1O12ZPFW/w9wZm1rnVvnYc9J0FIqqfYhQ",
+	"O87odUHDzujNxqeKAScufL1kxNLfqfmt8o4X69ScdhfGHG3w67TBuQ1YRrbBz1rSWAf8sbpxt2fpHOsD",
+	"j+kA3/rAoh7l5bMDZuVSZ8VFUSF21XrS0O4WNseCxDdWkNiEW5u2bOF1n6d0saIPxyrGYxXjflUxjuo7",
+	"tlHFZy2SrKnksV7yWC+5s3rJioJuXje5B0o6flmmebJaug4r0axp77FMbr+rNVvEPHbl5h6oyLaFoV4K",
+	"cVSEA6sX7cH/QeFez04fxuAF75MW/B6LTkfKqxm86Q78revdSUOxBDqQktPBL9L76urkyX6yd1wPZe52",
+	"uKiry6N/Oiz/VJXpizsoC9sewK/MR4AG7KCZj7QN2kJTBzO9uWNBHId3vNB2mPni3oG564P4HODmO1l6",
+	"eifN79+MsJflux8VEHg03xiSGswUkao+yXwJV99s0eiR3+Xg9zi7BDkzBtx+TTWBKcpTEZ5NUcohCkme",
+	"puguBb0/FLnKPeg9uGtgc5b6lbru8hA1r1muz+q5j2rs+UTn4atjuUNWaECnJvb4z0mepRSZwlmnxl1x",
+	"nkuF+/Kv35WqoUDhNBA00H2LT9K1KNsX1apQua0Nw6inoXd99TzOGafspQ8mHU62bnLr/np6FBL44f5u",
+	"/Aj2p+VrqBoor+HU9gbgOxXPtRrbtFB9PTD2qDU/FjceixtHKDBvR3FnCXlrcfj+V4QfoiyTWjX3GMXc",
+	"axZnd/XYRzt1tFMjFGHvIvfpk+88Jjn3NMm5i8SmKz/59EjZPc9QDBJydrU1IDVZdFkHmUmj72LjbOQM",
+	"WnXWXqk9Gyk7knu73TwrKD1+pqEDitW1zbXl2HB1qWjGsxzhslqt/hcAAP//Lbuqn8q0AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

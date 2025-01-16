@@ -535,11 +535,11 @@ type RefOrVersionRef string
 
 // Schema defines model for schema.
 type Schema struct {
-	TitleField *id.FieldID    `json:"TitleField,omitempty"`
 	CreatedAt  *time.Time     `json:"createdAt,omitempty"`
 	Fields     *[]SchemaField `json:"fields,omitempty"`
 	Id         *id.SchemaID   `json:"id,omitempty"`
 	ProjectId  *id.ProjectID  `json:"projectId,omitempty"`
+	TitleField *id.FieldID    `json:"titleField,omitempty"`
 }
 
 // SchemaField defines model for schemaField.
@@ -549,6 +549,28 @@ type SchemaField struct {
 	Multiple *bool       `json:"multiple,omitempty"`
 	Required *bool       `json:"required,omitempty"`
 	Type     *ValueType  `json:"type,omitempty"`
+}
+
+// SchemaJSON defines model for schemaJSON.
+type SchemaJSON struct {
+	Id          *string                         `json:"$id,omitempty"`
+	Schema      *string                         `json:"$schema,omitempty"`
+	Description *string                         `json:"description,omitempty"`
+	Properties  map[string]SchemaJSONProperties `json:"properties"`
+	Title       *string                         `json:"title,omitempty"`
+	Type        string                          `json:"type"`
+}
+
+// SchemaJSONProperties defines model for schemaJSONProperties.
+type SchemaJSONProperties struct {
+	Description *string     `json:"description,omitempty"`
+	Format      *string     `json:"format,omitempty"`
+	Items       *SchemaJSON `json:"items,omitempty"`
+	MaxLength   *int        `json:"maxLength,omitempty"`
+	Maximum     *float64    `json:"maximum,omitempty"`
+	Minimum     *float64    `json:"minimum,omitempty"`
+	Title       *string     `json:"title,omitempty"`
+	Type        string      `json:"type"`
 }
 
 // TagResponse defines model for tagResponse.
@@ -681,6 +703,12 @@ type ModelUpdateJSONBody struct {
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
 	Name        *string `json:"name,omitempty"`
+}
+
+// CopyModelJSONBody defines parameters for CopyModel.
+type CopyModelJSONBody struct {
+	Key  *string `json:"key,omitempty"`
+	Name *string `json:"name,omitempty"`
 }
 
 // ModelImportJSONBody defines parameters for ModelImport.
@@ -999,6 +1027,9 @@ type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
 type ModelUpdateJSONRequestBody ModelUpdateJSONBody
+
+// CopyModelJSONRequestBody defines body for CopyModel for application/json ContentType.
+type CopyModelJSONRequestBody CopyModelJSONBody
 
 // ModelImportJSONRequestBody defines body for ModelImport for application/json ContentType.
 type ModelImportJSONRequestBody ModelImportJSONBody

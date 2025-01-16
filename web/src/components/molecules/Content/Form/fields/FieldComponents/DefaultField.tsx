@@ -8,6 +8,7 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator } from "../utils";
 
 type DefaultFieldProps = {
   field: Field;
@@ -25,23 +26,26 @@ const DefaultField: React.FC<DefaultFieldProps> = ({
   const t = useT();
   const maxLength = useMemo(() => field.typeProperty?.maxLength, [field.typeProperty?.maxLength]);
 
+  const required = useMemo(() => field.required, [field.required]);
+
   return (
     <Form.Item
       extra={field.description}
       validateStatus="success"
       rules={[
         {
-          required: field.required,
+          required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
         {
           validator: (_, value) => {
             if (value && maxLength) {
               if (Array.isArray(value)) {
-                if (value.some(v => maxLength < runes(v).length)) {
+                if (value.some(v => typeof v === "string" && maxLength < runes(v).length)) {
                   return Promise.reject();
                 }
-              } else if (maxLength < runes(value).length) {
+              } else if (typeof value === "string" && maxLength < runes(value).length) {
                 return Promise.reject();
               }
             }
@@ -59,9 +63,16 @@ const DefaultField: React.FC<DefaultFieldProps> = ({
           maxLength={maxLength}
           FieldInput={Input}
           disabled={disabled}
+          required={required}
         />
       ) : (
-        <Input onBlur={onMetaUpdate} showCount={true} maxLength={maxLength} disabled={disabled} />
+        <Input
+          onBlur={onMetaUpdate}
+          showCount={true}
+          maxLength={maxLength}
+          disabled={disabled}
+          required={required}
+        />
       )}
     </Form.Item>
   );

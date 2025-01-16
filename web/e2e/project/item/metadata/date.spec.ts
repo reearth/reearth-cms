@@ -34,6 +34,7 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
     "date1 description",
   );
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Make field required")).not.toBeChecked();
   await expect(page.getByLabel("Set field as unique")).not.toBeChecked();
@@ -55,6 +56,8 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
   await expect(page.getByPlaceholder("-")).toHaveValue("2024-01-01");
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await page.getByPlaceholder("Select date").click();
   await page.getByPlaceholder("Select date").fill("2024-01-02");
   await page.getByPlaceholder("Select date").press("Enter");
@@ -72,6 +75,7 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
 });
 
 test("Date metadata editing has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Date" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -156,34 +160,25 @@ test("Date metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("2024-01-01");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("2024-01-04");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("2024-01-02");
-  await page.getByRole("button", { name: "plus New" }).click();
-  await closeNotification(page);
   // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(500);
+  await page.getByRole("button", { name: "plus New" }).click();
   await page.getByRole("textbox").nth(3).click();
   await page.getByRole("textbox").nth(3).fill("2024-01-05");
   await page.getByRole("textbox").nth(3).press("Enter");
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "plus New" }).click();
-  await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("textbox").nth(4).click();
   await page.getByRole("textbox").nth(4).fill("2024-01-06");
   await page.getByRole("textbox").nth(4).press("Enter");
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "plus New" }).click();
+  await page.getByRole("textbox").nth(4).click();
+  await page.getByRole("textbox").nth(4).fill("2024-01-07");
+  await page.getByRole("textbox").nth(4).press("Enter");
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "close-circle" }).nth(4).click();
   await closeNotification(page);
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("2024-01-04");

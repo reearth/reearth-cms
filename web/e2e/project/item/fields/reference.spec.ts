@@ -69,6 +69,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await expect(
     page.locator("label").filter({ hasText: "Support multiple values" }).locator("span").nth(1),
   ).toBeDisabled();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
@@ -187,6 +188,7 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await expect(
     page.locator("label").filter({ hasText: "Support multiple values" }).locator("span").nth(1),
   ).toBeDisabled();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await expect(

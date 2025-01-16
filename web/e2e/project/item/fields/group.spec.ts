@@ -75,6 +75,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.locator("span").filter({ hasText: "Schema" }).click();
+  await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.getByRole("menuitem", { name: "e2e group name" }).locator("span").click();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await page.getByLabel("Display name").click();
@@ -206,6 +207,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new group1 description");
   await page.getByLabel("Support multiple values").check();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await page.getByText("Content").click();

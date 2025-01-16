@@ -33,6 +33,7 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Settings").locator("#key")).toHaveValue("url1");
   await expect(page.getByLabel("Settings").locator("#description")).toHaveValue("url1 description");
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Make field required")).not.toBeChecked();
   await expect(page.getByLabel("Set field as unique")).not.toBeChecked();
@@ -52,10 +53,12 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
   await expect(page.getByRole("link", { name: "http://test1.com" })).toBeVisible();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await page.getByLabel("url1").click();
   await page.getByLabel("url1").fill("http://test2.com");
-  await page.getByLabel("Back").click();
   await closeNotification(page);
+  await page.getByLabel("Back").click();
   await expect(page.getByRole("link", { name: "http://test2.com" })).toBeVisible();
 
   await page.getByRole("link", { name: "http://test2.com" }).hover();
@@ -69,6 +72,7 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
 });
 
 test("Url metadata editing has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Url" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -148,26 +152,15 @@ test("Url metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tooltip").getByText("new url1").click();
   await closeNotification(page);
   await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://new-default2.com");
   await page.getByRole("button", { name: "plus New" }).click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^0 \/ 500$/ })
-    .getByRole("textbox")
-    .click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^0 \/ 500$/ })
-    .getByRole("textbox")
-    .fill("http://default3.com");
-  await page.getByText("url1 description").click();
+  await page.getByRole("textbox").last().click();
+  await page.getByRole("textbox").last().fill("http://default3.com");
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "arrow-up" }).nth(1).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();

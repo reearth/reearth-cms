@@ -6,6 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { InputProps } from "@reearth-cms/components/atoms/Input";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "./moveItemArray";
@@ -26,6 +27,7 @@ const MultiValueField: React.FC<Props> = ({
   onBlur,
   FieldInput,
   errorIndexes,
+  required,
   ...props
 }) => {
   const t = useT();
@@ -93,7 +95,7 @@ const MultiValueField: React.FC<Props> = ({
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
               onBlur={() => onBlur?.()}
               value={valueItem}
-              isError={errorIndexes?.has(key)}
+              isError={(required && value.every(v => checkIfEmpty(v))) || errorIndexes?.has(key)}
             />
             {!props.disabled && (
               <FieldButton
@@ -113,7 +115,7 @@ const MultiValueField: React.FC<Props> = ({
           type="primary"
           onClick={() => {
             const currentValues = value || [];
-            const defaultValue = props.type === "date" ? dayjs() : "";
+            const defaultValue = "";
             if (Array.isArray(currentValues)) {
               onChange?.([...currentValues, defaultValue]);
             } else {

@@ -7,6 +7,7 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator } from "../utils";
 
 type DefaultFieldProps = {
   field: Field;
@@ -39,6 +40,7 @@ const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
       rules={[
         {
           required: field.required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
         {

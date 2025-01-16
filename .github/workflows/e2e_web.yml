@@ -1,0 +1,51 @@
+name: Web E2E test
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1-5"
+jobs:
+  e2e:
+    name: playwright
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: "**/yarn.lock"
+      - name: Install dependencies
+        run: yarn install
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "version=$( node -e "console.log(require('@playwright/test/package.json').version)" )" >> $GITHUB_OUTPUT
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: "${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}"
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      - name: Install Playwright system dependencies and browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: yarn playwright install --with-deps chromium
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: yarn playwright install-deps chromium
+      - name: Run Playwright tests
+        run: yarn e2e
+        env:
+          REEARTH_CMS_API: https://api.cms.test.reearth.dev/api
+          REEARTH_CMS_E2E_BASEURL: https://cms.test.reearth.dev
+          REEARTH_CMS_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
+          REEARTH_CMS_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: web/test-results/
+          retention-days: 7

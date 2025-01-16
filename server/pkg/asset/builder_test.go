@@ -28,6 +28,7 @@ type Input struct {
 	uuid                    string
 	thread                  ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
+	flatFiles               bool
 }
 
 func TestBuilder_Build(t *testing.T) {
@@ -53,6 +54,7 @@ func TestBuilder_Build(t *testing.T) {
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
+				flatFiles:               false,
 			},
 			want: &Asset{
 				id:                      aid,
@@ -65,6 +67,7 @@ func TestBuilder_Build(t *testing.T) {
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
+				flatFiles:               false,
 			},
 		},
 		{
@@ -217,7 +220,8 @@ func TestBuilder_Build(t *testing.T) {
 				Type(tt.input.previewType).
 				UUID(tt.input.uuid).
 				Thread(tt.input.thread).
-				ArchiveExtractionStatus(tt.input.archiveExtractionStatus)
+				ArchiveExtractionStatus(tt.input.archiveExtractionStatus).
+				FlatFiles(tt.input.flatFiles)
 			if !tt.input.createdByUser.IsNil() {
 				ab.CreatedByUser(tt.input.createdByUser)
 			}

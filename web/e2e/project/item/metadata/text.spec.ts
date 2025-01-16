@@ -35,6 +35,7 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
     "text1 description",
   );
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Set maximum length")).toBeEmpty();
   await expect(page.getByLabel("Make field required")).not.toBeChecked();
@@ -55,10 +56,12 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
   await expect(page.getByPlaceholder("-")).toHaveValue("text1");
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("new text1");
-  await page.getByLabel("Back").click();
   await closeNotification(page);
+  await page.getByLabel("Back").click();
   await expect(page.getByPlaceholder("-")).toHaveValue("new text1");
 
   await page.getByPlaceholder("-").click();
@@ -72,6 +75,7 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
 });
 
 test("Text metadata editing has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -131,6 +135,10 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("new text1 description");
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text1");
+  await page.getByLabel("new text1(unique)").click();
+  await page.getByLabel("new text1(unique)").fill("text22");
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
+  await page.getByLabel("new text1(unique)").fill("text2");
 
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
@@ -150,6 +158,8 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tooltip").getByText("new text1").click();
   await closeNotification(page);
   await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(500);
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("text3");
   await page.getByRole("button", { name: "plus New" }).click();
   await page
@@ -164,19 +174,13 @@ test("Text metadata editing has succeeded", async ({ page }) => {
     .fill("text2");
   await page.getByText("new text1 description").click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "arrow-down" }).first().click();
   await closeNotification(page);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "arrow-down" }).nth(1).click();
   await closeNotification(page);
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("text1");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("text3");
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
   await page.getByLabel("Back").click();

@@ -15,6 +15,7 @@ import (
 	rmongo "github.com/reearth/reearth-cms/worker/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/interactor"
+	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -44,12 +45,16 @@ func Start(debug bool, version string) {
 	}
 	mongoWebhook := rmongo.NewWebhook(client.Database("reearth_cms"))
 	lo.Must0(mongoWebhook.InitIndex(ctx))
+	repos, err := rmongo.New(ctx, mongoWebhook, nil)
+	if err != nil {
+		log.Fatalf("repo initialization error: %+v\n", err)
+	}
 
 	// gateways
 	gateways := initReposAndGateways(ctx, conf, debug)
 
 	// usecase
-	uc := interactor.NewUsecase(gateways, mongoWebhook)
+	uc := interactor.NewUsecase(gateways, repos)
 	ctrl := rhttp.NewController(uc)
 	handler := NewHandler(ctrl)
 
@@ -58,6 +63,7 @@ func Start(debug bool, version string) {
 		Config:   conf,
 		Debug:    debug,
 		Gateways: gateways,
+		Repos:    repos,
 	}, handler).Run(ctx)
 }
 
@@ -70,6 +76,7 @@ type ServerConfig struct {
 	Config   *Config
 	Debug    bool
 	Gateways *gateway.Container
+	Repos    *repo.Container
 }
 
 func NewServer(ctx context.Context, cfg *ServerConfig, handler *Handler) *WebServer {
