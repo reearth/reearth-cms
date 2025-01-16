@@ -303,15 +303,14 @@ func TestModel_Create(t *testing.T) {
 			}
 			u := NewModel(db, nil)
 
-			m, s, err := u.Create(ctx, tt.args.param, tt.args.operator)
+			got, err := u.Create(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
-				assert.Nil(t, m)
-				assert.Nil(t, s)
+				assert.Nil(t, got)
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, m)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

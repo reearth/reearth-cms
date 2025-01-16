@@ -69,7 +69,7 @@ func (s *Server) ModelCreate(ctx context.Context, request ModelCreateRequestObje
 		Key:         request.Body.Key,
 		Public:      lo.ToPtr(true),
 	}
-	m, _, err := uc.Model.Create(ctx, input, op)
+	m, err := uc.Model.Create(ctx, input, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ModelCreate400Response{}, err

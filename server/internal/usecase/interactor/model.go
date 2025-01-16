@@ -70,73 +70,77 @@ func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKe
 	return i.repos.Model.FindByIDOrKey(ctx, p, q)
 }
 
-func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, *schema.Schema, error) {
-	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) (_ *model.Model, _ *schema.Schema, err error) {
+func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ *model.Model, err error) {
 			if !operator.IsMaintainingProject(param.ProjectId) {
-				return nil, nil, interfaces.ErrOperationDenied
-			}
-			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
-			if err != nil {
-				return nil, nil, err
+				return nil, interfaces.ErrOperationDenied
 			}
 			m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
 			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-				return nil, nil, err
+				return nil, err
 			}
 			if m != nil {
-				return nil, nil, id.ErrDuplicatedKey
+				return nil, id.ErrDuplicatedKey
 			}
-			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
-			if err != nil {
-				return nil, nil, err
-			}
-
-			if err := i.repos.Schema.Save(ctx, s); err != nil {
-				return nil, nil, err
-			}
-
-			mb := model.
-				New().
-				NewID().
-				Schema(s.ID()).
-				Public(false).
-				Project(param.ProjectId)
-
-			if param.Name != nil {
-				mb = mb.Name(*param.Name)
-			}
-			if param.Description != nil {
-				mb = mb.Description(*param.Description)
-			}
-			if param.Public != nil {
-				mb = mb.Public(*param.Public)
-			}
-			if param.Key != nil {
-				mb = mb.Key(id.NewKey(*param.Key))
-			} else {
-				mb = mb.Key(id.RandomKey())
-			}
-			models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
-			if err != nil {
-				return nil, nil, err
-			}
-
-			if len(models) > 0 {
-				mb = mb.Order(len(models))
-			}
-
-			m, err = mb.Build()
-			if err != nil {
-				return nil, nil, err
-			}
-
-			err = i.repos.Model.Save(ctx, m)
-			if err != nil {
-				return nil, nil, err
-			}
-			return m, s, nil
+			return i.create(ctx, param)
 		})
+}
+
+func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*model.Model, error) {
+	p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+	s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.repos.Schema.Save(ctx, s); err != nil {
+		return nil, err
+	}
+
+	mb := model.
+		New().
+		NewID().
+		Schema(s.ID()).
+		Public(false).
+		Project(param.ProjectId)
+
+	if param.Name != nil {
+		mb = mb.Name(*param.Name)
+	}
+	if param.Description != nil {
+		mb = mb.Description(*param.Description)
+	}
+	if param.Public != nil {
+		mb = mb.Public(*param.Public)
+	}
+	if param.Key != nil {
+		mb = mb.Key(id.NewKey(*param.Key))
+	} else {
+		mb = mb.Key(id.RandomKey())
+	}
+	models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+	if err != nil {
+		return nil, err
+	}
+
+	if len(models) > 0 {
+		mb = mb.Order(len(models))
+	}
+
+	m, err := mb.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	err = i.repos.Model.Save(ctx, m)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, operator *usecase.Operator) (*model.Model, error) {
@@ -341,13 +345,13 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				key = params.Key
 			}
 
-			newModel, newSchema, err := i.Create(ctx, interfaces.CreateModelParam{
+			newModel, err := i.create(ctx, interfaces.CreateModelParam{
 				ProjectId:   oldModel.Project(),
 				Name:        name,
 				Description: lo.ToPtr(oldModel.Description()),
 				Key:         key,
 				Public:      lo.ToPtr(oldModel.Public()),
-			}, operator)
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -359,6 +363,12 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				return nil, err
 			}
 			log.Debugf("copy: old schema with id %v found", oldSchema.ID().String())
+
+			newSchema, err := i.repos.Schema.FindByID(ctx, newModel.Schema())
+			if err != nil {
+				return nil, err
+			}
+			log.Debugf("copy: new schema with id %v found", newSchema.ID().String())
 
 			newSchema.CopyFrom(oldSchema)
 			if err := i.repos.Schema.Save(ctx, newSchema); err != nil {

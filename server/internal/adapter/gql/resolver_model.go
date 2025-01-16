@@ -38,7 +38,7 @@ func (r *mutationResolver) CreateModel(ctx context.Context, input gqlmodel.Creat
 	if err != nil {
 		return nil, err
 	}
-	res, _, err := usecases(ctx).Model.Create(ctx, interfaces.CreateModelParam{
+	res, err := usecases(ctx).Model.Create(ctx, interfaces.CreateModelParam{
 		ProjectId:   pId,
 		Name:        input.Name,
 		Description: input.Description,
