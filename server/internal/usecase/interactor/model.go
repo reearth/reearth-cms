@@ -76,13 +76,6 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 			if !operator.IsMaintainingProject(param.ProjectId) {
 				return nil, interfaces.ErrOperationDenied
 			}
-			m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
-			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-				return nil, err
-			}
-			if m != nil {
-				return nil, id.ErrDuplicatedKey
-			}
 			return i.create(ctx, param)
 		})
 }
@@ -92,7 +85,13 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	if err != nil {
 		return nil, err
 	}
-
+	m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	if m != nil {
+		return nil, id.ErrDuplicatedKey
+	}
 	s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
 	if err != nil {
 		return nil, err
@@ -132,7 +131,7 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 		mb = mb.Order(len(models))
 	}
 
-	m, err := mb.Build()
+	m, err = mb.Build()
 	if err != nil {
 		return nil, err
 	}
