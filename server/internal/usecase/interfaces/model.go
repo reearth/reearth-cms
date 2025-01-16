@@ -56,7 +56,7 @@ type Model interface {
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*model.Model, error)
 	FindByIDOrKey(context.Context, id.ProjectID, model.IDOrKey, *usecase.Operator) (*model.Model, error)
 	FindOrCreateSchema(context.Context, FindOrCreateSchemaParam, *usecase.Operator) (*schema.Schema, error)
-	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)
+	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, *schema.Schema, error)
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
 	UpdateOrder(context.Context, id.ModelIDList, *usecase.Operator) (model.List, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)

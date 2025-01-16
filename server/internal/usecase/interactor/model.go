@@ -70,30 +70,30 @@ func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKe
 	return i.repos.Model.FindByIDOrKey(ctx, p, q)
 }
 
-func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) (_ *model.Model, err error) {
+func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, *schema.Schema, error) {
+	return Run2(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ *model.Model, _ *schema.Schema, err error) {
 			if !operator.IsMaintainingProject(param.ProjectId) {
-				return nil, interfaces.ErrOperationDenied
+				return nil, nil, interfaces.ErrOperationDenied
 			}
 			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
 			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-				return nil, err
+				return nil, nil, err
 			}
 			if m != nil {
-				return nil, id.ErrDuplicatedKey
+				return nil, nil, id.ErrDuplicatedKey
 			}
 			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			if err := i.repos.Schema.Save(ctx, s); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			mb := model.
@@ -119,7 +119,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 			}
 			models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			if len(models) > 0 {
@@ -128,14 +128,14 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 
 			m, err = mb.Build()
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 
 			err = i.repos.Model.Save(ctx, m)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
-			return m, nil
+			return m, s, nil
 		})
 }
 
@@ -327,6 +327,9 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
+			if !operator.IsMaintainingProject(oldModel.Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
 			log.Debugf("copy: old model with id %v found", oldModel.ID().String())
 
 			name := lo.ToPtr(oldModel.Name() + " Copy")
@@ -338,7 +341,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				key = params.Key
 			}
 
-			newModel, err := i.Create(ctx, interfaces.CreateModelParam{
+			newModel, newSchema, err := i.Create(ctx, interfaces.CreateModelParam{
 				ProjectId:   oldModel.Project(),
 				Name:        name,
 				Description: lo.ToPtr(oldModel.Description()),
@@ -357,11 +360,11 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			}
 			log.Debugf("copy: old schema with id %v found", oldSchema.ID().String())
 
-			newSchema, err := i.repos.Schema.FindByID(ctx, newModel.Schema())
-			if err != nil {
-				return nil, err
-			}
-			log.Debugf("copy: new schema with id %v found", newSchema.ID().String())
+			// newSchema, err := i.repos.Schema.FindByID(ctx, newModel.Schema())
+			// if err != nil {
+			// 	return nil, err
+			// }
+			// log.Debugf("copy: new schema with id %v found", newSchema.ID().String())
 
 			newSchema.CopyFrom(oldSchema)
 			if err := i.repos.Schema.Save(ctx, newSchema); err != nil {

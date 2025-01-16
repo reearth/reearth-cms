@@ -303,7 +303,7 @@ func TestModel_Create(t *testing.T) {
 			}
 			u := NewModel(db, nil)
 
-			got, err := u.Create(ctx, tt.args.param, tt.args.operator)
+			got, _, err := u.Create(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				assert.Nil(t, got)
