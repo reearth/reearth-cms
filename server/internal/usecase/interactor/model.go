@@ -360,12 +360,6 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			}
 			log.Debugf("copy: old schema with id %v found", oldSchema.ID().String())
 
-			// newSchema, err := i.repos.Schema.FindByID(ctx, newModel.Schema())
-			// if err != nil {
-			// 	return nil, err
-			// }
-			// log.Debugf("copy: new schema with id %v found", newSchema.ID().String())
-
 			newSchema.CopyFrom(oldSchema)
 			if err := i.repos.Schema.Save(ctx, newSchema); err != nil {
 				return nil, err
