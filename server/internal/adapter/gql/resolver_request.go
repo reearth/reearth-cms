@@ -137,7 +137,7 @@ func (r *mutationResolver) DeleteRequest(ctx context.Context, input gqlmodel.Del
 
 // Requests is the resolver for the requests field.
 func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error) {
-	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, reviewer, createdBy, pagination, sort)
+	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, createdBy, reviewer, pagination, sort)
 }
 
 // Thread is the resolver for the thread field.
