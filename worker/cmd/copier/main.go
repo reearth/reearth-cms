@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -31,18 +30,6 @@ func main() {
 	collection := mustGetEnv("REEARTH_CMS_COPIER_COLLECTION")
 	filter := mustGetEnv("REEARTH_CMS_COPIER_FILTER")
 	changes := mustGetEnv("REEARTH_CMS_COPIER_CHANGES")
-
-	if len(os.Args) < 2 {
-		log.Fatal("insufficient arguments provided")
-	}
-
-	cmd := exec.CommandContext(ctx, os.Args[1], os.Args[2:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("command execution failed: %v", err)
-	}
 
 	repos, err := initReposWithCollection(ctx, dbURI, collection)
 	if err != nil {

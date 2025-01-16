@@ -163,15 +163,6 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		Steps: []*cloudbuild.BuildStep{
 			{
 				Name: conf.CopierImage,
-				Args: []string{
-					"-v",              // Enables verbose mode for logging.
-					"-n=192",          // Specifies a numerical configuration, possibly a limit or count (e.g., number of threads, requests, etc.).
-					"-gc=5000",        // Configures garbage collection or memory management to a threshold of 5000 units.
-					"-chunk=1m",       // Sets a chunk size of 1 megabyte for processing or data transfer.
-					"-disk-limit=20g", // Limits the disk usage to 20 gigabytes.
-					"-skip-top",       // Enables an option to skip certain data or processing steps (e.g., skipping the "top" of a hierarchy).
-					"-old-windows",    // Activates compatibility or a specific mode for older Windows environments.
-				},
 				Env: []string{
 					"REEARTH_CMS_COPIER_COLLECTION=" + p.Copy.Collection,
 					"REEARTH_CMS_COPIER_FILTER=" + p.Copy.Filter,

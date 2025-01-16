@@ -21,4 +21,4 @@ COPY --from=build /app/copier /app/copier
 
 WORKDIR /app
 
-ENTRYPOINT ["/copier"]
+CMD ["./copier"]
