@@ -177,10 +177,21 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 					"REEARTH_CMS_COPIER_FILTER=" + p.Copy.Filter,
 					"REEARTH_CMS_COPIER_CHANGES=" + p.Copy.Changes,
 				},
+				SecretEnv: []string{
+					"REEARTH_CMS_WORKER_DB",
+				},
 			},
 		},
 		Options: &cloudbuild.BuildOptions{
 			DiskSizeGb: defaultDiskSizeGb,
+		},
+		AvailableSecrets: &cloudbuild.Secrets{
+			SecretManager: []*cloudbuild.SecretManagerSecret{
+				{
+					VersionName: fmt.Sprintf("projects/%s/secrets/reearth-cms-db/versions/latest", project),
+					Env:         "REEARTH_CMS_WORKER_DB",
+				},
+			},
 		},
 	}
 
