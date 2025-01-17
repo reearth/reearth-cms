@@ -156,7 +156,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 	project := conf.GCPProject
 	region := conf.GCPRegion
-	dbSecretName := conf.SecretDB
+	dbSecretName := conf.DBSecretName
 
 	build := &cloudbuild.Build{
 		Timeout:  "86400s", // 1 day
