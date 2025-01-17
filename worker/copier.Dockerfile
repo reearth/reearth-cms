@@ -19,6 +19,4 @@ FROM scratch
 
 COPY --from=build /app/copier /app/copier
 
-WORKDIR /app
-
-CMD ["./copier"]
+ENTRYPOINT ["/app/copier"]
