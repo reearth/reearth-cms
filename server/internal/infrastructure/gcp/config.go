@@ -12,4 +12,5 @@ type TaskConfig struct {
 	DecompressorMachineType string `default:"E2_HIGHCPU_8"`
 	DecompressorDiskSideGb  int64  `default:"2000"`
 	CopierImage             string `default:"reearth/reearth-cms-copier"`
+	SecretDB                string `default:"reearth-cms-db"`
 }

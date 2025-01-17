@@ -156,6 +156,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 	project := conf.GCPProject
 	region := conf.GCPRegion
+	dbSecretName := conf.SecretDB
 
 	build := &cloudbuild.Build{
 		Timeout:  "86400s", // 1 day
@@ -179,7 +180,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
 				{
-					VersionName: fmt.Sprintf("projects/%s/secrets/reearth-cms-db/versions/latest", project),
+					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, dbSecretName),
 					Env:         "REEARTH_CMS_WORKER_DB",
 				},
 			},
