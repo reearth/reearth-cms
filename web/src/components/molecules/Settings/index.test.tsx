@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, getByText } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe } from "vitest";
 
@@ -22,7 +22,7 @@ describe("Settings", () => {
     return Promise.resolve();
   };
 
-  test("Cards displays successfully", async () => {
+  test("Cards are displayed successfully", async () => {
     render(
       <Settings
         workspaceSettings={{
@@ -73,7 +73,7 @@ describe("Settings", () => {
     expect(saveButton).toBeEnabled();
   });
 
-  test("Loading on button displays successfully", () => {
+  test("Loading on button are displayed successfully", () => {
     render(
       <Settings
         workspaceSettings={workspaceSettings}
@@ -100,5 +100,221 @@ describe("Settings", () => {
     screen.getAllByRole("button").map(button => {
       expect(button).toBeDisabled();
     });
+  });
+
+  test("Adding a new tile successfully", async () => {
+    render(
+      <Settings
+        workspaceSettings={workspaceSettings}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+      />,
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    expect(saveButton).toBeDisabled();
+    expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "plus Add new Tiles option" }));
+    expect(screen.getByText("New Tiles")).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "OK" }));
+    expect(screen.getByText("DEFAULT")).toBeVisible();
+    expect(saveButton).toBeEnabled();
+  });
+
+  test("Adding a new terrain successfully", async () => {
+    render(
+      <Settings
+        workspaceSettings={workspaceSettings}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+      />,
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    expect(saveButton).toBeDisabled();
+    expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "plus Add new Terrain option" }));
+    expect(screen.getByText("New Terrain")).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "OK" }));
+    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
+    expect(saveButton).toBeEnabled();
+  });
+
+  test("Updating a tile successfully", async () => {
+    const { container } = render(
+      <Settings
+        workspaceSettings={{
+          tiles: {
+            resources: [
+              {
+                id: "",
+                type: "DEFAULT",
+                props: {
+                  image: "",
+                  name: "",
+                  url: "",
+                },
+              },
+            ],
+          },
+          terrains: {
+            resources: [],
+            enabled: true,
+          },
+        }}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+      />,
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    expect(saveButton).toBeDisabled();
+    expect(screen.getByText("DEFAULT")).toBeVisible();
+    expect(screen.queryByText("LABELLED")).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText("edit"));
+    expect(screen.getByText("Update Tiles")).toBeVisible();
+
+    await user.click(screen.getByLabelText("Tiles type"));
+    await user.click(screen.getByText("Labelled"));
+    await user.click(screen.getByRole("button", { name: "OK" }));
+    expect(screen.getByText("DEFAULT")).not.toBeVisible();
+    expect(getByText(container, "LABELLED")).toBeVisible();
+    expect(saveButton).toBeEnabled();
+  });
+
+  test("Updating a terrain successfully", async () => {
+    const { container } = render(
+      <Settings
+        workspaceSettings={{
+          tiles: {
+            resources: [],
+          },
+          terrains: {
+            resources: [
+              {
+                id: "",
+                type: "CESIUM_WORLD_TERRAIN",
+                props: {
+                  url: "",
+                  name: "",
+                  image: "",
+                  cesiumIonAccessToken: "",
+                  cesiumIonAssetId: "",
+                },
+              },
+            ],
+            enabled: true,
+          },
+        }}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+      />,
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    expect(saveButton).toBeDisabled();
+    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
+    expect(screen.queryByText("ARC_GIS_TERRAIN")).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText("edit"));
+    expect(screen.getByText("Update Terrain")).toBeVisible();
+
+    await user.click(screen.getByLabelText("Terrain type"));
+    await user.click(screen.getByText("ArcGIS Terrain"));
+    await user.click(screen.getByRole("button", { name: "OK" }));
+    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).not.toBeVisible();
+    expect(getByText(container, "ARC_GIS_TERRAIN")).toBeVisible();
+    expect(saveButton).toBeEnabled();
+  });
+
+  test("Deleting a tile successfully", async () => {
+    render(
+      <Settings
+        workspaceSettings={{
+          tiles: {
+            resources: [
+              {
+                id: "",
+                type: "DEFAULT",
+                props: {
+                  image: "",
+                  name: "",
+                  url: "",
+                },
+              },
+            ],
+          },
+          terrains: {
+            resources: [],
+            enabled: true,
+          },
+        }}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+      />,
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    expect(saveButton).toBeDisabled();
+    expect(screen.getByText("DEFAULT")).toBeVisible();
+
+    await user.click(screen.getByLabelText("delete"));
+    expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
+    expect(saveButton).toBeEnabled();
+  });
+
+  test("Deleting a terrain successfully", async () => {
+    render(
+      <Settings
+        workspaceSettings={{
+          tiles: {
+            resources: [],
+          },
+          terrains: {
+            resources: [
+              {
+                id: "",
+                type: "CESIUM_WORLD_TERRAIN",
+                props: {
+                  url: "",
+                  name: "",
+                  image: "",
+                  cesiumIonAccessToken: "",
+                  cesiumIonAssetId: "",
+                },
+              },
+            ],
+            enabled: true,
+          },
+        }}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+      />,
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    expect(saveButton).toBeDisabled();
+    expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
+
+    await user.click(screen.getByLabelText("delete"));
+    expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
+    expect(saveButton).toBeEnabled();
   });
 });
