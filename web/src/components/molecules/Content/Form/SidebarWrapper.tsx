@@ -108,6 +108,11 @@ const DataTitle = styled.div`
 const DataText = styled.div`
   color: #00000073;
   font-size: 12px;
+  flex: 1;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const StyledTag = styled(Tag)`
