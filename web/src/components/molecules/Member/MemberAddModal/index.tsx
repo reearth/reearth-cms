@@ -9,7 +9,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { User , Role } from "@reearth-cms/components/molecules/Member/types";
+import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -27,7 +27,7 @@ type Props = {
   setSelectedUsers: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
-type FormValues = Record<string, Role>;
+type FormValues = { search: string } & Record<string, Role>;
 
 const { Option } = Select;
 
@@ -84,7 +84,7 @@ const MemberAddModal: React.FC<Props> = ({
   useEffect(() => {
     if (searchedUsers.length) {
       const options = searchedUsers.map(user => ({
-        value: "",
+        value: user.id,
         user,
         label: (
           <UserWrapper>
@@ -106,8 +106,9 @@ const MemberAddModal: React.FC<Props> = ({
     (user: User) => {
       onUserAdd(user);
       resultClear();
+      form.resetFields(["search"]);
     },
-    [resultClear, onUserAdd],
+    [onUserAdd, resultClear, form],
   );
 
   const handleMemberRemove = useCallback(
@@ -160,7 +161,7 @@ const MemberAddModal: React.FC<Props> = ({
       ]}>
       {open && (
         <Form form={form} layout="vertical">
-          <Form.Item label={t("Search user")}>
+          <Form.Item label={t("Search user")} name="search">
             <AutoComplete
               open={isResultOpen}
               options={options}
