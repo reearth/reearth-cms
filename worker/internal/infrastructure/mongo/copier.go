@@ -81,10 +81,14 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 				if err != nil {
 					return rerror.ErrInternalBy(err)
 				}
-				v, ok := change.Value.(uint64)
+				val, ok := change.Value.(float64)
 				if !ok {
-					return errors.New("invalid millisecond value")
+					return errors.New("invalid millisecond value: not a float64")
 				}
+				if val < 0 || val != float64(uint64(val)) {
+					return errors.New("invalid millisecond value: out of range or not an integer")
+				}
+				v := uint64(val)
 				err = newId.SetTime(v)
 				if err != nil {
 					return rerror.ErrInternalBy(err)
