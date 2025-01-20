@@ -129,8 +129,6 @@ func generateId(t string) (string, bool) {
 		return id.NewSchemaID().String(), true
 	case "model":
 		return id.NewModelID().String(), true
-	case "version":
-		return uuid.New().String(), true
 	default:
 		return "", false
 	}
