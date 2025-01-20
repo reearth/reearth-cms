@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -373,7 +374,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			}
 
 			// Copy items
-			timestamp := time.Now()
+			timestamp := util.Now()
 			if err := i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID(), timestamp, operator); err != nil {
 				return nil, err
 			}
