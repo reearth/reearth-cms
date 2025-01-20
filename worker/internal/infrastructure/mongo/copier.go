@@ -64,11 +64,15 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 				if !ok {
 					return errors.New("invalid change value")
 				}
-				newId, ok := generateId(str)
-				if !ok {
-					return errors.New("invalid type")
+				if str == "version" {
+					result[k] = uuid.New()
+				} else {
+					newId, ok := generateId(str)
+					if !ok {
+						return errors.New("invalid type")
+					}
+					result[k] = newId
 				}
-				result[k] = newId
 			case task.ChangeTypeULID:
 				if result[k] == nil {
 					continue
@@ -93,7 +97,7 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 				if err != nil {
 					return rerror.ErrInternalBy(err)
 				}
-				result[k] = newId
+				result[k] = newId.String()
 			case task.ChangeTypeSet:
 				result[k] = change.Value
 			}
@@ -125,8 +129,6 @@ func generateId(t string) (string, bool) {
 		return id.NewSchemaID().String(), true
 	case "model":
 		return id.NewModelID().String(), true
-	case "version":
-		return uuid.New().String(), true
 	default:
 		return "", false
 	}
