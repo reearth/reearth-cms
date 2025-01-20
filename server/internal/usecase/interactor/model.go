@@ -437,7 +437,7 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 		},
 		"timestamp": {
 			Type:  task.ChangeTypeSet,
-			Value: timestamp.String(),
+			Value: timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00"), //TODO: should use a better way to format
 		},
 		"updatedbyuser": {
 			Type:  task.ChangeTypeSet,
