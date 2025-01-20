@@ -135,6 +135,7 @@ const Requests = styled.div`
 const StyledButton = styled(Button)`
   padding: 0;
   width: calc(100% - 14px);
+  justify-content: start;
   span {
     overflow: hidden;
     text-overflow: ellipsis;
