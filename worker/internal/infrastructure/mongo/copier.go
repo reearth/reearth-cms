@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/oklog/ulid"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
@@ -59,8 +60,28 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 		for k, change := range changesMap {
 			switch change.Type {
 			case task.ChangeTypeNew:
-				str, _ := change.Value.(string)
-				newId, _ := generateId(str)
+				str, ok := change.Value.(string)
+				if !ok {
+					return rerror.ErrInternalBy(err)
+				}
+				newId, ok := generateId(str)
+				if !ok {
+					return rerror.ErrInternalBy(err)
+				}
+				result[k] = newId
+			case task.ChangeTypeULID:
+				newId, err := ulid.Parse(result[k].(string))
+				if err != nil {
+					return rerror.ErrInternalBy(err)
+				}
+				v, ok := change.Value.(uint64)
+				if !ok {
+					return rerror.ErrInternalBy(err)
+				}
+				err = newId.SetTime(v)
+				if err != nil {
+					return rerror.ErrInternalBy(err)
+				}
 				result[k] = newId
 			case task.ChangeTypeSet:
 				result[k] = change.Value

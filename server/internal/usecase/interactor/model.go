@@ -421,7 +421,7 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 	if err != nil {
 		return err
 	}
-	changes, err := json.Marshal(task.Changes{
+	c := task.Changes{
 		"id": {
 			Type:  task.ChangeTypeULID,
 			Value: timestamp,
@@ -434,47 +434,52 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 			Type:  task.ChangeTypeSet,
 			Value: newModelID.String(),
 		},
-		"__r": { // tag
-			Type:task.ChangeTypeSet,
-			Value: []string{"latest"},
-		},
-		"__w": { // parent
-			Type:task.ChangeTypeSet,
-			Value: nil,
-		},
-		"__v": { // version
-			Type:task.ChangeTypeNew,
-			Value: "version",
-		},
 		"timestamp": {
 			Type:  task.ChangeTypeSet,
 			Value: time.Now().String(),
 		},
-		"user": {
-			Type: task.ChangeTypeSet,
-			Value: operator.AcOperator.User.String(), 
-		},
-		"integration": {
-			Type: task.ChangeTypeSet,
-			Value: operator.Integration.String(),
-		},
 		"updatedbyuser": {
-			Type: task.ChangeTypeSet,
+			Type:  task.ChangeTypeSet,
 			Value: nil,
 		},
 		"updatedbyintegration": {
-			Type: task.ChangeTypeSet,
+			Type:  task.ChangeTypeSet,
 			Value: nil,
 		},
 		"originalitem": {
-			Type: task.ChangeTypeSet,
+			Type:  task.ChangeTypeULID,
 			Value: timestamp,
 		},
 		"metadataitem": {
-			Type: task.ChangeTypeSet,
+			Type:  task.ChangeTypeULID,
 			Value: timestamp,
 		},
-	})
+		"__r": { // tag
+			Type:  task.ChangeTypeSet,
+			Value: []string{"latest"},
+		},
+		"__w": { // parent
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__v": { // version
+			Type:  task.ChangeTypeNew,
+			Value: "version",
+		},
+	}
+	if operator.AcOperator.User != nil {
+		c["user"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: operator.AcOperator.User.String(),
+		}
+	}
+	if operator.Integration != nil {
+		c["integration"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: operator.Integration.String(),
+		}
+	}
+	changes, err := json.Marshal(c)
 	if err != nil {
 		return err
 	}
