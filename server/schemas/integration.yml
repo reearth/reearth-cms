@@ -1403,6 +1403,9 @@ paths:
                 skipDecompression:
                   type: boolean
                   default: false
+                gzip:
+                  type: boolean
+                  default: false
           application/json:
             schema:
               type: object
@@ -1412,6 +1415,10 @@ paths:
                 token:
                   type: string
                 skipDecompression:
+                  type: boolean
+                  nullable: true
+                  default: false
+                gzip:
                   type: boolean
                   nullable: true
                   default: false
@@ -1436,7 +1443,7 @@ paths:
       security:
         - bearerAuth: []
       summary: Upload an asset.
-      description: Issue a URL and a token to upload an asset.
+      description: Issue an URL and a token to upload an asset.
       parameters:
         - $ref: '#/components/parameters/projectIdParam'
       requestBody:
@@ -1451,6 +1458,9 @@ paths:
                   type: integer
                 cursor:
                   type: string
+                gzip:
+                  type: boolean
+                  default: false
       responses:
         '200':
           description: asset upload

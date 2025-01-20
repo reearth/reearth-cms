@@ -33,6 +33,7 @@ type CreateAssetUploadParam struct {
 
 	Filename      string
 	ContentLength int64
+	Gzip          bool
 
 	Cursor string
 }
@@ -54,6 +55,7 @@ type AssetUpload struct {
 	ContentType   string
 	ContentLength int64
 	Next          string
+	Gzip          bool
 }
 
 type Asset interface {

@@ -117,7 +117,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 		return "", 0, gateway.ErrInvalidFile
 	}
 
-	size, err := f.upload(ctx, p, file.Content)
+	size, err := f.upload(ctx, p, file.ContentType, file.Gzip, file.Content)
 	if err != nil {
 		return "", 0, err
 	}
@@ -154,6 +154,9 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 	}
+	if param.Gzip {
+		opt.Headers = []string{"Content-Encoding: gzip"}
+	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {
 		log.Warnf("gcs: failed to issue signed url: %v", err)
@@ -164,6 +167,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		ContentType:   contentType,
 		ContentLength: param.ContentLength,
 		Next:          "",
+		Gzip:          param.Gzip,
 	}, nil
 }
 
@@ -208,9 +212,13 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 	return reader, nil
 }
 
-func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) (int64, error) {
+func (f *fileRepo) upload(ctx context.Context, filename, contentType string, gzip bool, content io.Reader) (int64, error) {
 	if filename == "" {
 		return 0, gateway.ErrInvalidFile
+	}
+
+	if gzip {
+		filename = strings.TrimSuffix(filename, ".gz")
 	}
 
 	bucket, err := f.bucket(ctx)
@@ -227,9 +235,17 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 
 	writer := object.NewWriter(ctx)
 	writer.ObjectAttrs.CacheControl = f.cacheControl
-	ct := getContentType(filename)
-	if ct != "" {
-		writer.ObjectAttrs.ContentType = ct
+	if contentType == "" {
+		contentType = getContentType(filename)
+	}
+	if contentType != "" {
+		writer.ObjectAttrs.ContentType = contentType
+	}
+	if gzip {
+		writer.ObjectAttrs.ContentEncoding = "gzip"
+		if writer.ObjectAttrs.ContentType == "" || writer.ObjectAttrs.ContentType == "application/gzip" {
+			writer.ObjectAttrs.ContentType = "application/octet-stream"
+		}
 	}
 
 	if _, err := io.Copy(writer, content); err != nil {

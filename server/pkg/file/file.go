@@ -19,6 +19,7 @@ type File struct {
 	Name        string
 	Size        int64
 	ContentType string
+	Gzip        bool
 }
 
 func FromMultipart(multipartReader *multipart.Reader, formName string) (*File, error) {

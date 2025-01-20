@@ -110,6 +110,10 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, interfaces.ErrFileNotIncluded
 	}
 
+	if inp.File.Gzip {
+		inp.File.Name = strings.TrimSuffix(inp.File.Name, ".gz")
+	}
+
 	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
 	if err != nil {
 		return nil, nil, err
@@ -304,6 +308,10 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, interfaces.ErrInvalidOperator
 	}
 
+	if inp.Gzip {
+		inp.Filename = strings.TrimSuffix(inp.Filename, ".gz")
+	}
+
 	var param *gateway.IssueUploadAssetParam
 	if inp.Cursor == "" {
 		if inp.Filename == "" {
@@ -319,6 +327,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			ContentLength: inp.ContentLength,
 			ExpiresAt:     expiresAt,
 			Cursor:        "",
+			Gzip:          inp.Gzip,
 		}
 	} else {
 		wrapped, err := parseWrappedUploadCursor(inp.Cursor)
@@ -338,6 +347,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			ContentLength: au.ContentLength(),
 			ExpiresAt:     au.ExpiresAt(),
 			Cursor:        wrapped.Cursor,
+			Gzip:          inp.Gzip,
 		}
 	}
 
@@ -375,6 +385,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		ContentType:   uploadLink.ContentType,
 		ContentLength: uploadLink.ContentLength,
 		Next:          wrapUploadCursor(param.UUID, uploadLink.Next),
+		Gzip:          inp.Gzip,
 	}, nil
 }
 

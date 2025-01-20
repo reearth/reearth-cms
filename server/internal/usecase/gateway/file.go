@@ -33,6 +33,7 @@ type UploadAssetLink struct {
 	ContentType   string
 	ContentLength int64
 	Next          string
+	Gzip          bool
 }
 
 type IssueUploadAssetParam struct {
@@ -40,6 +41,7 @@ type IssueUploadAssetParam struct {
 	Filename      string
 	ContentLength int64
 	ExpiresAt     time.Time
+	Gzip          bool
 
 	Cursor string
 }

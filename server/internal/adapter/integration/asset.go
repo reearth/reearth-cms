@@ -90,6 +90,7 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 			Size:    inp.File.FileSize(),
 			// ContentType: inp.File.ContentType(),
 			ContentType: "",
+			Gzip:        lo.FromPtr(inp.Gzip),
 		}
 		skipDecompression = lo.FromPtrOr(inp.SkipDecompression, false)
 	}
@@ -173,6 +174,7 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 		ProjectID:     request.ProjectId,
 		Filename:      lo.FromPtr(request.Body.Name),
 		ContentLength: int64(lo.FromPtr(request.Body.ContentLength)),
+		Gzip:          lo.FromPtr(request.Body.Gzip),
 		Cursor:        lo.FromPtr(request.Body.Cursor),
 	}, op)
 
