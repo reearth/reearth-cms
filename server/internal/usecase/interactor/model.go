@@ -373,7 +373,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			}
 
 			// Copy items
-			timestamp := time.Now().UnixMilli()
+			timestamp := time.Now()
 			if err := i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID(), timestamp, operator); err != nil {
 				return nil, err
 			}
@@ -415,7 +415,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 		})
 }
 
-func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID, timestamp int64, operator *usecase.Operator) error {
+func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID, timestamp time.Time, operator *usecase.Operator) error {
 	collection := "item"
 	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String(), "__r": bson.M{"$in": []string{"latest"}}})
 	if err != nil {
@@ -424,7 +424,7 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 	c := task.Changes{
 		"id": {
 			Type:  task.ChangeTypeULID,
-			Value: timestamp,
+			Value: timestamp.UnixMilli(),
 		},
 		"schema": {
 			Type:  task.ChangeTypeSet,
@@ -436,7 +436,7 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 		},
 		"timestamp": {
 			Type:  task.ChangeTypeSet,
-			Value: time.Now().String(),
+			Value: timestamp.String(),
 		},
 		"updatedbyuser": {
 			Type:  task.ChangeTypeSet,
@@ -448,11 +448,11 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 		},
 		"originalitem": {
 			Type:  task.ChangeTypeULID,
-			Value: timestamp,
+			Value: timestamp.UnixMilli(),
 		},
 		"metadataitem": {
 			Type:  task.ChangeTypeULID,
-			Value: timestamp,
+			Value: timestamp.UnixMilli(),
 		},
 		"__r": { // tag
 			Type:  task.ChangeTypeSet,

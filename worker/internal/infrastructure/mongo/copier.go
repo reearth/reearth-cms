@@ -62,21 +62,28 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 			case task.ChangeTypeNew:
 				str, ok := change.Value.(string)
 				if !ok {
-					return rerror.ErrInternalBy(err)
+					return errors.New("invalid change value")
 				}
 				newId, ok := generateId(str)
 				if !ok {
-					return rerror.ErrInternalBy(err)
+					return errors.New("invalid type")
 				}
 				result[k] = newId
 			case task.ChangeTypeULID:
-				newId, err := ulid.Parse(result[k].(string))
+				if result[k] == nil {
+					continue
+				}
+				u, ok := result[k].(string)
+				if !ok {
+					return errors.New("invalid old id")
+				}
+				newId, err := ulid.Parse(u)
 				if err != nil {
 					return rerror.ErrInternalBy(err)
 				}
 				v, ok := change.Value.(uint64)
 				if !ok {
-					return rerror.ErrInternalBy(err)
+					return errors.New("invalid millisecond value")
 				}
 				err = newId.SetTime(v)
 				if err != nil {
