@@ -28,7 +28,6 @@ func main() {
 	}
 
 	dbURI := mustGetEnv("REEARTH_CMS_WORKER_DB")
-	log.Debugf("config: db uri %s", dbURI)
 	collection := mustGetEnv("REEARTH_CMS_COPIER_COLLECTION")
 	filter := mustGetEnv("REEARTH_CMS_COPIER_FILTER")
 	changes := mustGetEnv("REEARTH_CMS_COPIER_CHANGES")
