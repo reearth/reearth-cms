@@ -1,6 +1,6 @@
 import { render, screen, getByText } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { expect, test, describe, vi } from "vitest";
 
 import Settings from ".";
 
@@ -103,12 +103,14 @@ describe("Settings", () => {
   });
 
   test("Adding a new tile successfully", async () => {
+    const updateMock = vi.fn();
+
     render(
       <Settings
         workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
         loading={loading}
-        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -122,16 +124,20 @@ describe("Settings", () => {
 
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("DEFAULT")).toBeVisible();
-    expect(saveButton).toBeEnabled();
+
+    await user.click(saveButton);
+    expect(updateMock).toHaveBeenCalled();
   });
 
   test("Adding a new terrain successfully", async () => {
+    const updateMock = vi.fn();
+
     render(
       <Settings
         workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
         loading={loading}
-        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -145,10 +151,14 @@ describe("Settings", () => {
 
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
-    expect(saveButton).toBeEnabled();
+
+    await user.click(saveButton);
+    expect(updateMock).toHaveBeenCalled();
   });
 
   test("Updating a tile successfully", async () => {
+    const updateMock = vi.fn();
+
     const { container } = render(
       <Settings
         workspaceSettings={{
@@ -172,7 +182,7 @@ describe("Settings", () => {
         }}
         hasUpdateRight={hasUpdateRight}
         loading={loading}
-        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -190,10 +200,14 @@ describe("Settings", () => {
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("DEFAULT")).not.toBeVisible();
     expect(getByText(container, "LABELLED")).toBeVisible();
-    expect(saveButton).toBeEnabled();
+
+    await user.click(saveButton);
+    expect(updateMock).toHaveBeenCalled();
   });
 
   test("Updating a terrain successfully", async () => {
+    const updateMock = vi.fn();
+
     const { container } = render(
       <Settings
         workspaceSettings={{
@@ -219,7 +233,7 @@ describe("Settings", () => {
         }}
         hasUpdateRight={hasUpdateRight}
         loading={loading}
-        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -237,10 +251,14 @@ describe("Settings", () => {
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("CESIUM_WORLD_TERRAIN")).not.toBeVisible();
     expect(getByText(container, "ARC_GIS_TERRAIN")).toBeVisible();
-    expect(saveButton).toBeEnabled();
+
+    await user.click(saveButton);
+    expect(updateMock).toHaveBeenCalled();
   });
 
   test("Deleting a tile successfully", async () => {
+    const updateMock = vi.fn();
+
     render(
       <Settings
         workspaceSettings={{
@@ -264,7 +282,7 @@ describe("Settings", () => {
         }}
         hasUpdateRight={hasUpdateRight}
         loading={loading}
-        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -275,10 +293,14 @@ describe("Settings", () => {
 
     await user.click(screen.getByLabelText("delete"));
     expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
-    expect(saveButton).toBeEnabled();
+
+    await user.click(saveButton);
+    expect(updateMock).toHaveBeenCalled();
   });
 
   test("Deleting a terrain successfully", async () => {
+    const updateMock = vi.fn();
+
     render(
       <Settings
         workspaceSettings={{
@@ -304,7 +326,7 @@ describe("Settings", () => {
         }}
         hasUpdateRight={hasUpdateRight}
         loading={loading}
-        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -315,6 +337,8 @@ describe("Settings", () => {
 
     await user.click(screen.getByLabelText("delete"));
     expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
-    expect(saveButton).toBeEnabled();
+
+    await user.click(saveButton);
+    expect(updateMock).toHaveBeenCalled();
   });
 });
