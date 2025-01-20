@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -372,7 +373,8 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			}
 
 			// Copy items
-			if err := i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID()); err != nil {
+			timestamp := time.Now().UnixMilli()
+			if err := i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID(), timestamp, operator); err != nil {
 				return nil, err
 			}
 
@@ -403,7 +405,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 					return nil, err
 				}
 
-				if err := i.copyItems(ctx, *oldModel.Metadata(), newMetaSchema.ID(), newModel.ID()); err != nil {
+				if err := i.copyItems(ctx, *oldModel.Metadata(), newMetaSchema.ID(), newModel.ID(), timestamp, operator); err != nil {
 					return nil, err
 				}
 			}
@@ -413,16 +415,16 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 		})
 }
 
-func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID) error {
+func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID, timestamp int64, operator *usecase.Operator) error {
 	collection := "item"
-	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String()})
+	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String(), "__r": bson.M{"$in": []string{"latest"}}})
 	if err != nil {
 		return err
 	}
 	changes, err := json.Marshal(task.Changes{
 		"id": {
-			Type:  task.ChangeTypeNew,
-			Value: "item",
+			Type:  task.ChangeTypeULID,
+			Value: timestamp,
 		},
 		"schema": {
 			Type:  task.ChangeTypeSet,
@@ -431,6 +433,46 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 		"modelid": {
 			Type:  task.ChangeTypeSet,
 			Value: newModelID.String(),
+		},
+		"__r": { // tag
+			Type:task.ChangeTypeSet,
+			Value: []string{"latest"},
+		},
+		"__w": { // parent
+			Type:task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__v": { // version
+			Type:task.ChangeTypeNew,
+			Value: "version",
+		},
+		"timestamp": {
+			Type:  task.ChangeTypeSet,
+			Value: time.Now().String(),
+		},
+		"user": {
+			Type: task.ChangeTypeSet,
+			Value: operator.AcOperator.User.String(), 
+		},
+		"integration": {
+			Type: task.ChangeTypeSet,
+			Value: operator.Integration.String(),
+		},
+		"updatedbyuser": {
+			Type: task.ChangeTypeSet,
+			Value: nil,
+		},
+		"updatedbyintegration": {
+			Type: task.ChangeTypeSet,
+			Value: nil,
+		},
+		"originalitem": {
+			Type: task.ChangeTypeSet,
+			Value: timestamp,
+		},
+		"metadataitem": {
+			Type: task.ChangeTypeSet,
+			Value: timestamp,
 		},
 	})
 	if err != nil {

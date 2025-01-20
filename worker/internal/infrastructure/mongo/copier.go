@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
@@ -58,7 +59,8 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 		for k, change := range changesMap {
 			switch change.Type {
 			case task.ChangeTypeNew:
-				newId, _ := generateId(change.Value)
+				str, _ := change.Value.(string)
+				newId, _ := generateId(str)
 				result[k] = newId
 			case task.ChangeTypeSet:
 				result[k] = change.Value
@@ -91,6 +93,8 @@ func generateId(t string) (string, bool) {
 		return id.NewSchemaID().String(), true
 	case "model":
 		return id.NewModelID().String(), true
+	case "version":
+		return uuid.New().String(), true
 	default:
 		return "", false
 	}
