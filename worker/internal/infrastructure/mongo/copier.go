@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+	"github.com/oklog/ulid"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
@@ -58,7 +60,35 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 		for k, change := range changesMap {
 			switch change.Type {
 			case task.ChangeTypeNew:
-				newId, _ := generateId(change.Value)
+				str, ok := change.Value.(string)
+				if !ok {
+					return errors.New("invalid change value")
+				}
+				newId, ok := generateId(str)
+				if !ok {
+					return errors.New("invalid type")
+				}
+				result[k] = newId
+			case task.ChangeTypeULID:
+				if result[k] == nil {
+					continue
+				}
+				u, ok := result[k].(string)
+				if !ok {
+					return errors.New("invalid old id")
+				}
+				newId, err := ulid.Parse(u)
+				if err != nil {
+					return rerror.ErrInternalBy(err)
+				}
+				v, ok := change.Value.(uint64)
+				if !ok {
+					return errors.New("invalid millisecond value")
+				}
+				err = newId.SetTime(v)
+				if err != nil {
+					return rerror.ErrInternalBy(err)
+				}
 				result[k] = newId
 			case task.ChangeTypeSet:
 				result[k] = change.Value
@@ -91,6 +121,8 @@ func generateId(t string) (string, bool) {
 		return id.NewSchemaID().String(), true
 	case "model":
 		return id.NewModelID().String(), true
+	case "version":
+		return uuid.New().String(), true
 	default:
 		return "", false
 	}
