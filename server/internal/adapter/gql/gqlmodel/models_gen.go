@@ -524,7 +524,7 @@ type IntegrationPayload struct {
 type Item struct {
 	ID                     ID           `json:"id"`
 	SchemaID               ID           `json:"schemaId"`
-	ThreadID               ID           `json:"threadId"`
+	ThreadID               *ID          `json:"threadId,omitempty"`
 	ModelID                ID           `json:"modelId"`
 	ProjectID              ID           `json:"projectId"`
 	IntegrationID          *ID          `json:"integrationId,omitempty"`
@@ -539,7 +539,7 @@ type Item struct {
 	Model                  *Model       `json:"model"`
 	Status                 ItemStatus   `json:"status"`
 	Project                *Project     `json:"project"`
-	Thread                 *Thread      `json:"thread"`
+	Thread                 *Thread      `json:"thread,omitempty"`
 	Fields                 []*ItemField `json:"fields"`
 	Assets                 []*Asset     `json:"assets"`
 	ReferencedItems        []*Item      `json:"referencedItems,omitempty"`

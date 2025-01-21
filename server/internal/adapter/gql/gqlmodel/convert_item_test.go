@@ -53,7 +53,7 @@ func TestToItem(t *testing.T) {
 				ProjectID:     IDFrom(pid),
 				ModelID:       IDFrom(mid),
 				SchemaID:      IDFrom(sid),
-				ThreadID:      IDFrom(tid),
+				ThreadID:      IDFromRef(tid.Ref()),
 				UserID:        IDFromRef(uid.Ref()),
 				IntegrationID: IDFromRef(nid.Ref()),
 				CreatedAt:     i.ID().Timestamp(),

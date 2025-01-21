@@ -20,14 +20,13 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 	for _, s2 := range gsList {
 		groupFields = append(groupFields, toItemFields(i.Fields(), s2, true)...)
 	}
-	return &Item{
+	itm := Item{
 		ID:                     IDFrom(i.ID()),
 		ProjectID:              IDFrom(i.Project()),
 		SchemaID:               IDFrom(i.Schema()),
 		ModelID:                IDFrom(i.Model()),
 		UserID:                 IDFromRef(i.User()),
 		IntegrationID:          IDFromRef(i.Integration()),
-		ThreadID:               IDFrom(i.Thread()),
 		MetadataID:             IDFromRef(i.MetadataItem()),
 		IsMetadata:             i.IsMetadata(),
 		OriginalID:             IDFromRef(i.MetadataItem()),
@@ -39,6 +38,10 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 		Version:                vi.Version().String(),
 		Title:                  i.GetTitle(s),
 	}
+	if !i.Thread().Ref().IsNil() {
+		itm.ThreadID = IDFromRef(i.Thread().Ref())
+	}
+	return &itm
 }
 func toItemFields(fields item.Fields, s *schema.Schema, isGroupSchema bool) []*ItemField {
 	var res []*ItemField
