@@ -62,12 +62,11 @@ func NewVersionedItemConsumer() *VersionedItemConsumer {
 
 func NewItem(i *item.Item) (*ItemDocument, string) {
 	itmId := i.ID().String()
-	return &ItemDocument{
+	d := ItemDocument{
 		ID:           itmId,
 		Schema:       i.Schema().String(),
 		ModelID:      i.Model().String(),
 		Project:      i.Project().String(),
-		Thread:       i.Thread().String(),
 		MetadataItem: i.MetadataItem().StringRef(),
 		OriginalItem: i.OriginalItem().StringRef(),
 		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
@@ -89,7 +88,11 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Integration:          i.Integration().StringRef(),
 		Assets:               i.AssetIDs().Strings(),
 		IsMetadata:           i.IsMetadata(),
-	}, itmId
+	}
+	if !i.Thread().IsEmpty() {
+		d.Thread = i.Thread().String()
+	}
+	return &d, itmId
 }
 
 func (d *ItemDocument) Model() (*item.Item, error) {
@@ -109,11 +112,6 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	}
 
 	pid, err := id.ProjectIDFrom(d.Project)
-	if err != nil {
-		return nil, err
-	}
-
-	tid, err := id.ThreadIDFrom(d.Thread)
 	if err != nil {
 		return nil, err
 	}
@@ -152,10 +150,17 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		Model(mid).
 		MetadataItem(id.ItemIDFromRef(d.MetadataItem)).
 		OriginalItem(id.ItemIDFromRef(d.OriginalItem)).
-		Thread(tid).
 		IsMetadata(d.IsMetadata).
 		Fields(fields).
 		Timestamp(d.Timestamp)
+
+	if d.Thread != "" {
+		tid, err := id.ThreadIDFrom(d.Thread)
+		if err != nil {
+			return nil, err
+		}
+		ib.Thread(tid)
+	}
 
 	if uId := accountdomain.UserIDFromRef(d.User); uId != nil {
 		ib = ib.User(*uId)
