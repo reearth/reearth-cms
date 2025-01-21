@@ -455,6 +455,10 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 			Type:  task.ChangeTypeULID,
 			Value: timestamp.UnixMilli(),
 		},
+		"thread": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
 		"__r": { // tag
 			Type:  task.ChangeTypeSet,
 			Value: []string{"latest"},

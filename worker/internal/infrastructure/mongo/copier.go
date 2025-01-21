@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/oklog/ulid"
@@ -97,7 +98,7 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 				if err != nil {
 					return rerror.ErrInternalBy(err)
 				}
-				result[k] = newId.String()
+				result[k] = strings.ToLower(newId.String())
 			case task.ChangeTypeSet:
 				result[k] = change.Value
 			}
