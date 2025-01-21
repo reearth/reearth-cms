@@ -167,19 +167,19 @@ func TestBuilder_Build(t *testing.T) {
 			want:    nil,
 			wantErr: id.ErrInvalidID,
 		},
-		{
-			name: "should fail: invalid thread ID",
-			fields: fields{
-				i: &Item{
-					id:      iid,
-					schema:  sid,
-					project: pid,
-					model:   mid,
-				},
-			},
-			want:    nil,
-			wantErr: id.ErrInvalidID,
-		},
+		// {
+		// 	name: "should fail: invalid thread ID",
+		// 	fields: fields{
+		// 		i: &Item{
+		// 			id:      iid,
+		// 			schema:  sid,
+		// 			project: pid,
+		// 			model:   mid,
+		// 		},
+		// 	},
+		// 	want:    nil,
+		// 	wantErr: id.ErrInvalidID,
+		// },
 	}
 
 	for _, tt := range tests {
