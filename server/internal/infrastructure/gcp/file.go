@@ -238,12 +238,13 @@ func (f *fileRepo) upload(ctx context.Context, file *file.File) (int64, error) {
 
 	writer := object.NewWriter(ctx)
 	writer.ObjectAttrs.CacheControl = f.cacheControl
+
 	if file.ContentType == "" {
 		writer.ContentEncoding = getContentType(file.Name)
-	}
-	if file.ContentType != "" {
+	} else {
 		writer.ObjectAttrs.ContentType = file.ContentType
 	}
+
 	if file.ContentEncoding == "gzip" {
 		writer.ObjectAttrs.ContentEncoding = "gzip"
 		if writer.ObjectAttrs.ContentType == "" || writer.ObjectAttrs.ContentType == "application/gzip" {

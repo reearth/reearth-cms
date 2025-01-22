@@ -1406,7 +1406,7 @@ paths:
                   type: string
                 skipDecompression:
                   type: boolean
-                  default: false#
+                  default: false
           application/json:
             schema:
               type: object
