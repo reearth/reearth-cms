@@ -89,8 +89,10 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 
 		fe := gateway.FileEntry{
 			// /22/2232222233333/hoge/tileset.json -> hoge/tileset.json
-			Name: strings.TrimPrefix(strings.TrimPrefix(attrs.Name, p), "/"),
-			Size: attrs.Size,
+			Name:            strings.TrimPrefix(strings.TrimPrefix(attrs.Name, p), "/"),
+			Size:            attrs.Size,
+			ContentType:     attrs.ContentType,
+			ContentEncoding: attrs.ContentEncoding,
 		}
 		fileEntries = append(fileEntries, fe)
 	}
@@ -117,7 +119,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 		return "", 0, gateway.ErrInvalidFile
 	}
 
-	size, err := f.upload(ctx, p, file.Content)
+	size, err := f.upload(ctx, file)
 	if err != nil {
 		return "", 0, err
 	}
@@ -154,16 +156,20 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 	}
+	if param.ContentEncoding != "" {
+		opt.Headers = []string{"Content-Encoding:" + param.ContentEncoding}
+	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {
 		log.Warnf("gcs: failed to issue signed url: %v", err)
 		return nil, gateway.ErrUnsupportedOperation
 	}
 	return &gateway.UploadAssetLink{
-		URL:           uploadURL,
-		ContentType:   contentType,
-		ContentLength: param.ContentLength,
-		Next:          "",
+		URL:             uploadURL,
+		ContentType:     contentType,
+		ContentLength:   param.ContentLength,
+		ContentEncoding: param.ContentEncoding,
+		Next:            "",
 	}, nil
 }
 
@@ -208,9 +214,17 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 	return reader, nil
 }
 
-func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) (int64, error) {
-	if filename == "" {
+func (f *fileRepo) upload(ctx context.Context, file *file.File) (int64, error) {
+	if file.Name == "" {
 		return 0, gateway.ErrInvalidFile
+	}
+
+	if err := validateContentEncoding(file.ContentEncoding); err != nil {
+		return 0, err
+	}
+
+	if file.ContentEncoding == "identity" {
+		file.ContentEncoding = ""
 	}
 
 	bucket, err := f.bucket(ctx)
@@ -219,7 +233,7 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 		return 0, rerror.ErrInternalBy(err)
 	}
 
-	object := bucket.Object(filename)
+	object := bucket.Object(file.Name)
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf("gcs: upload delete err: %+v\n", err)
 		return 0, gateway.ErrFailedToUploadFile
@@ -227,12 +241,21 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 
 	writer := object.NewWriter(ctx)
 	writer.ObjectAttrs.CacheControl = f.cacheControl
-	ct := getContentType(filename)
-	if ct != "" {
-		writer.ObjectAttrs.ContentType = ct
+
+	if file.ContentType == "" {
+		writer.ObjectAttrs.ContentType = getContentType(file.Name)
+	} else {
+		writer.ObjectAttrs.ContentType = file.ContentType
 	}
 
-	if _, err := io.Copy(writer, content); err != nil {
+	if file.ContentEncoding == "gzip" {
+		writer.ObjectAttrs.ContentEncoding = "gzip"
+		if writer.ObjectAttrs.ContentType == "" || writer.ObjectAttrs.ContentType == "application/gzip" {
+			writer.ObjectAttrs.ContentType = "application/octet-stream"
+		}
+	}
+
+	if _, err := io.Copy(writer, file.Content); err != nil {
 		log.Errorf("gcs: upload err: %+v\n", err)
 		return 0, gateway.ErrFailedToUploadFile
 	}
@@ -306,4 +329,11 @@ func IsValidUUID(u string) bool {
 
 func getURL(host *url.URL, uuid, fName string) string {
 	return host.JoinPath(gcsAssetBasePath, uuid[:2], uuid[2:], fName).String()
+}
+
+func validateContentEncoding(ce string) error {
+	if ce != "" && ce != "identity" && ce != "gzip" {
+		return gateway.ErrUnsupportedContentEncoding
+	}
+	return nil
 }

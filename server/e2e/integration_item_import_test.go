@@ -101,7 +101,7 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 
 	// strategy="insert" and mutateSchema=false
 	fileContent1 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	aId := UploadAsset(e, pId, "./test1.geojson", fileContent1).Object().Value("id").String().Raw()
+	aId := uploadAsset(e, pId, "./test1.geojson", fileContent1).Object().Value("id").String().Raw()
 	res := IntegrationModelImportJSON(e, mId, aId, "geoJson", "insert", false, &fids.geometryObjectFid)
 	res.Object().Value("modelId").String().IsEqual(mId)
 	res.Object().IsEqual(map[string]any{
@@ -168,7 +168,7 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	createFieldOfEachType(t, e, mId)
 
 	jsonContent := `[{"text": "test1", "bool": true, "number": 1.1},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
-	aId := UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
+	aId := uploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
 	res := IntegrationModelImportJSON(e, mId, aId, "json", "insert", false, nil)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
@@ -273,7 +273,7 @@ func TestIntegrationModelImportJSONWithJsonInput2(t *testing.T) {
 	iId := r.Value("id").String().Raw()
 
 	jsonContent := `[{"id": "` + iId + `","text": "test1", "bool": true, "number": 1.1},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
-	aId := UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
+	aId := uploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
 	res := IntegrationModelImportJSON(e, mId, aId, "json", "upsert", true, nil)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
@@ -309,4 +309,17 @@ func TestIntegrationModelImportJSONWithJsonInput2(t *testing.T) {
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(1)
 	// endregion
+}
+
+func uploadAsset(e *httpexpect.Expect, pId string, path string, content string) *httpexpect.Value {
+	res := e.POST("/api/projects/{projectId}/assets", pId).
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithMultipart().
+		WithFile("file", path, strings.NewReader(content)).
+		WithForm(map[string]any{"skipDecompression": true}).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
 }

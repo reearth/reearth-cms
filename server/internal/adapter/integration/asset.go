@@ -70,7 +70,8 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 	var f *file.File
 	var token string
 
-	skipDecompression := false
+	var skipDecompression bool
+
 	var err error
 	if request.MultipartBody != nil {
 		var inp integrationapi.AssetCreateMultipartBody
@@ -85,11 +86,11 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 			return AssetCreate400Response{}, err
 		}
 		f = &file.File{
-			Content: fc,
-			Name:    inp.File.Filename(),
-			Size:    inp.File.FileSize(),
-			// ContentType: inp.File.ContentType(),
-			ContentType: "",
+			Content:         fc,
+			Name:            inp.File.Filename(),
+			Size:            inp.File.FileSize(),
+			ContentType:     lo.FromPtr(inp.ContentType),     // TODO: check HTTP header also
+			ContentEncoding: lo.FromPtr(inp.ContentEncoding), // TODO: check HTTP header also
 		}
 		skipDecompression = lo.FromPtrOr(inp.SkipDecompression, false)
 	}
@@ -100,7 +101,7 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 		}
 		token = lo.FromPtr(request.JSONBody.Token)
 		if request.JSONBody.Url != nil {
-			f, err = file.FromURL(*request.JSONBody.Url)
+			f, err = file.FromURL(ctx, *request.JSONBody.Url)
 			if err != nil {
 				return AssetCreate400Response{}, err
 			}
@@ -170,10 +171,11 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 	au, err := uc.Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
-		ProjectID:     request.ProjectId,
-		Filename:      lo.FromPtr(request.Body.Name),
-		ContentLength: int64(lo.FromPtr(request.Body.ContentLength)),
-		Cursor:        lo.FromPtr(request.Body.Cursor),
+		ProjectID:       request.ProjectId,
+		Filename:        lo.FromPtr(request.Body.Name),
+		ContentLength:   int64(lo.FromPtr(request.Body.ContentLength)),
+		ContentEncoding: lo.FromPtr(request.Body.ContentEncoding),
+		Cursor:          lo.FromPtr(request.Body.Cursor),
 	}, op)
 
 	if err != nil {
