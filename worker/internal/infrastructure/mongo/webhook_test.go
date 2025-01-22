@@ -8,10 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	mongotest.Env = "REEARTH_CMS_WORKER_DB"
-}
-
 func TestWebhook(t *testing.T) {
 	ctx := context.Background()
 	db := mongotest.Connect(t)(t)

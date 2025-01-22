@@ -5793,7 +5793,7 @@ extend type Mutation {
 	{Name: "../../../schemas/item.graphql", Input: `type Item implements Node {
   id: ID!
   schemaId: ID!
-  threadId: ID!
+  threadId: ID
   modelId: ID!
   projectId: ID!
   integrationId: ID
@@ -5808,7 +5808,7 @@ extend type Mutation {
   model: Model!
   status: ItemStatus!
   project: Project!
-  thread: Thread!
+  thread: Thread
   fields: [ItemField!]!
   assets: [Asset]!
   referencedItems:[Item!]
@@ -15146,14 +15146,11 @@ func (ec *executionContext) _Item_threadId(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ID)
+	res := resTmp.(*gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_threadId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15851,14 +15848,11 @@ func (ec *executionContext) _Item_thread(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.Thread)
 	fc.Result = res
-	return ec.marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx, field.Selections, res)
+	return ec.marshalOThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_thread(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -43410,9 +43404,6 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "threadId":
 			out.Values[i] = ec._Item_threadId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "modelId":
 			out.Values[i] = ec._Item_modelId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -43620,16 +43611,13 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 		case "thread":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Item_thread(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -51613,10 +51601,6 @@ func (ec *executionContext) unmarshalNTheme2githubᚗcomᚋreearthᚋreearthᚑc
 
 func (ec *executionContext) marshalNTheme2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Theme) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNThread2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Thread) graphql.Marshaler {
-	return ec._Thread(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Thread) graphql.Marshaler {

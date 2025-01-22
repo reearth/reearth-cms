@@ -71,6 +71,13 @@ func (t *TaskRunner) Retry(ctx context.Context, id string) error {
 }
 
 func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
+	if p.DecompressAsset != nil {
+		return decompressAsset(ctx, p, t.conf)
+	}
+	return copy(ctx, p, t.conf)
+}
+
+func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if p.DecompressAsset == nil {
 		return nil
 	}
@@ -80,25 +87,25 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		return rerror.ErrInternalBy(err)
 	}
 
-	src, err := url.JoinPath("gs://"+t.conf.GCSBucket, "assets", p.DecompressAsset.Path)
+	src, err := url.JoinPath("gs://"+conf.GCSBucket, "assets", p.DecompressAsset.Path)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
-	dest, err := url.JoinPath("gs://"+t.conf.GCSBucket, "assets", path.Dir(p.DecompressAsset.Path))
+	dest, err := url.JoinPath("gs://"+conf.GCSBucket, "assets", path.Dir(p.DecompressAsset.Path))
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
 
-	project := t.conf.GCPProject
-	region := t.conf.GCPRegion
+	project := conf.GCPProject
+	region := conf.GCPRegion
 
 	machineType := ""
-	if v := t.conf.DecompressorMachineType; v != "" && v != "default" {
+	if v := conf.DecompressorMachineType; v != "" && v != "default" {
 		machineType = v
 	}
 
 	var diskSizeGb int64
-	if v := t.conf.DecompressorDiskSideGb; v > 0 {
+	if v := conf.DecompressorDiskSideGb; v > 0 {
 		diskSizeGb = v
 	} else {
 		diskSizeGb = defaultDiskSizeGb
@@ -109,11 +116,11 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
 			{
-				Name: t.conf.DecompressorImage,
-				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + t.conf.DecompressorGzipExt, "-skip-top", "-old-windows", src, dest},
+				Name: conf.DecompressorImage,
+				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + conf.DecompressorGzipExt, "-skip-top", "-old-windows", src, dest},
 				Env: []string{
 					"GOOGLE_CLOUD_PROJECT=" + project,
-					"REEARTH_CMS_DECOMPRESSOR_TOPIC=" + t.conf.DecompressorTopic,
+					"REEARTH_CMS_DECOMPRESSOR_TOPIC=" + conf.DecompressorTopic,
 					"REEARTH_CMS_DECOMPRESSOR_ASSET_ID=" + p.DecompressAsset.AssetID,
 				},
 			},
@@ -121,6 +128,62 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
+		},
+	}
+
+	if region != "" {
+		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
+		_, err = call.Do()
+	} else {
+		call := cb.Projects.Builds.Create(project, build)
+		_, err = call.Do()
+	}
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+	if !p.Copy.Validate() {
+		return nil
+	}
+
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	project := conf.GCPProject
+	region := conf.GCPRegion
+	dbSecretName := conf.DBSecretName
+
+	build := &cloudbuild.Build{
+		Timeout:  "86400s", // 1 day
+		QueueTtl: "86400s", // 1 day
+		Steps: []*cloudbuild.BuildStep{
+			{
+				Name: conf.CopierImage,
+				Env: []string{
+					"REEARTH_CMS_COPIER_COLLECTION=" + p.Copy.Collection,
+					"REEARTH_CMS_COPIER_FILTER=" + p.Copy.Filter,
+					"REEARTH_CMS_COPIER_CHANGES=" + p.Copy.Changes,
+				},
+				SecretEnv: []string{
+					"REEARTH_CMS_DB",
+				},
+			},
+		},
+		Options: &cloudbuild.BuildOptions{
+			DiskSizeGb: defaultDiskSizeGb,
+		},
+		AvailableSecrets: &cloudbuild.Secrets{
+			SecretManager: []*cloudbuild.SecretManagerSecret{
+				{
+					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, dbSecretName),
+					Env:         "REEARTH_CMS_DB",
+				},
+			},
 		},
 	}
 

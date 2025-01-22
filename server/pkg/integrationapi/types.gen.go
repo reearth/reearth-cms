@@ -535,11 +535,11 @@ type RefOrVersionRef string
 
 // Schema defines model for schema.
 type Schema struct {
-	TitleField *id.FieldID    `json:"TitleField,omitempty"`
 	CreatedAt  *time.Time     `json:"createdAt,omitempty"`
 	Fields     *[]SchemaField `json:"fields,omitempty"`
 	Id         *id.SchemaID   `json:"id,omitempty"`
 	ProjectId  *id.ProjectID  `json:"projectId,omitempty"`
+	TitleField *id.FieldID    `json:"titleField,omitempty"`
 }
 
 // SchemaField defines model for schemaField.
@@ -703,6 +703,12 @@ type ModelUpdateJSONBody struct {
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
 	Name        *string `json:"name,omitempty"`
+}
+
+// CopyModelJSONBody defines parameters for CopyModel.
+type CopyModelJSONBody struct {
+	Key  *string `json:"key,omitempty"`
+	Name *string `json:"name,omitempty"`
 }
 
 // ModelImportJSONBody defines parameters for ModelImport.
@@ -1021,6 +1027,9 @@ type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
 type ModelUpdateJSONRequestBody ModelUpdateJSONBody
+
+// CopyModelJSONRequestBody defines body for CopyModel for application/json ContentType.
+type CopyModelJSONRequestBody CopyModelJSONBody
 
 // ModelImportJSONRequestBody defines body for ModelImport for application/json ContentType.
 type ModelImportJSONRequestBody ModelImportJSONBody

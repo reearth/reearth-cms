@@ -140,6 +140,7 @@ test("Navigating between item and request has succeeded", async ({ page }) => {
   await expect(page.getByText(`Request / ${requestTitle}`)).toBeVisible();
   await expect(page.getByRole("heading", { name: requestTitle })).toBeVisible();
   await page.getByRole("button", { name: itemTitle }).last().click();
+  await expect(page.getByLabel(`${titleFieldName}Title`)).not.toBeEmpty();
   await page.getByLabel(`${titleFieldName}Title`).click();
   await page.getByLabel(`${titleFieldName}Title`).fill("");
   await page.getByRole("button", { name: "Save" }).click();

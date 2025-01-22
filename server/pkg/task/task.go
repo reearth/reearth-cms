@@ -9,6 +9,7 @@ type Payload struct {
 	DecompressAsset *DecompressAssetPayload
 	CompressAsset   *CompressAssetPayload
 	Webhook         *WebhookPayload
+	Copy            *CopyPayload
 }
 
 type DecompressAssetPayload struct {
@@ -43,3 +44,32 @@ func (t WebhookPayload) Payload() Payload {
 		Webhook: &t,
 	}
 }
+
+type CopyPayload struct {
+	Collection string
+	Filter     string
+	Changes    string
+}
+
+func (p *CopyPayload) Payload() Payload {
+	return Payload{
+		Copy: p,
+	}
+}
+
+func (p *CopyPayload) Validate() bool {
+	return p != nil && p.Changes != "" && p.Collection != "" && p.Filter != ""
+}
+
+type Changes map[string]Change
+type Change struct {
+	Type  ChangeType
+	Value any
+}
+type ChangeType string
+
+const (
+	ChangeTypeSet  ChangeType = "set"
+	ChangeTypeNew  ChangeType = "new"
+	ChangeTypeULID ChangeType = "ulid"
+)

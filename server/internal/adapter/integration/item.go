@@ -3,7 +3,6 @@ package integration
 import (
 	"context"
 	"errors"
-	"io"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -74,13 +73,7 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
-	if err != nil {
-		return ItemsAsGeoJSON400Response{}, err
-	}
-
-	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	schemaPackage, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsGeoJSON404Response{}, err
@@ -88,14 +81,17 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 		return ItemsAsGeoJSON400Response{}, err
 	}
 
-	fc, err := featureCollectionFromItems(items, sp.Schema())
+	featureCollections, err := uc.Item.ItemsAsGeoJSON(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsGeoJSON404Response{}, err
+		}
 		return ItemsAsGeoJSON400Response{}, err
 	}
 
 	return ItemsAsGeoJSON200JSONResponse{
-		Features: fc.Features,
-		Type:     fc.Type,
+		Features: featureCollections.FeatureCollections.Features,
+		Type:     featureCollections.FeatureCollections.Type,
 	}, nil
 }
 
@@ -103,13 +99,7 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
-	if err != nil {
-		return ItemsAsCSV400Response{}, err
-	}
-
-	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	schemaPackage, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsCSV404Response{}, err
@@ -117,14 +107,16 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 		return ItemsAsCSV400Response{}, err
 	}
 
-	pr, pw := io.Pipe()
-	err = csvFromItems(pw, items, sp.Schema())
+	pr, err := uc.Item.ItemsAsCSV(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsCSV404Response{}, err
+		}
 		return ItemsAsCSV400Response{}, err
 	}
 
 	return ItemsAsCSV200TextcsvResponse{
-		Body: pr,
+		Body: pr.PipeReader,
 	}, nil
 }
 
@@ -217,13 +209,7 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		return ItemsWithProjectAsGeoJSON400Response{}, err
-	}
-
-	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	schemaPackage, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsWithProjectAsGeoJSON404Response{}, err
@@ -231,14 +217,17 @@ func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWit
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
-	fc, err := featureCollectionFromItems(items, sp.Schema())
+	featureCollections, err := uc.Item.ItemsAsGeoJSON(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON404Response{}, err
+		}
 		return ItemsWithProjectAsGeoJSON400Response{}, err
 	}
 
 	return ItemsWithProjectAsGeoJSON200JSONResponse{
-		Features: fc.Features,
-		Type:     fc.Type,
+		Features: featureCollections.FeatureCollections.Features,
+		Type:     featureCollections.FeatureCollections.Type,
 	}, nil
 }
 
@@ -262,13 +251,7 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 		return ItemsWithProjectAsCSV400Response{}, err
 	}
 
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		return ItemsWithProjectAsCSV400Response{}, err
-	}
-
-	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, _, err := uc.Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	schemaPackage, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsWithProjectAsCSV404Response{}, err
@@ -276,14 +259,16 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 		return ItemsWithProjectAsCSV400Response{}, err
 	}
 
-	pr, pw := io.Pipe()
-	err = csvFromItems(pw, items, sp.Schema())
+	pr, err := uc.Item.ItemsAsCSV(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV404Response{}, err
+		}
 		return ItemsWithProjectAsCSV400Response{}, err
 	}
 
 	return ItemsWithProjectAsCSV200TextcsvResponse{
-		Body: pr,
+		Body: pr.PipeReader,
 	}, nil
 }
 
