@@ -15,33 +15,37 @@ import (
 )
 
 var (
-	ErrInvalidFile          error = rerror.NewE(i18n.T("invalid file"))
-	ErrFailedToUploadFile   error = rerror.NewE(i18n.T("failed to upload file"))
-	ErrFileTooLarge         error = rerror.NewE(i18n.T("file too large"))
-	ErrFailedToDeleteFile   error = rerror.NewE(i18n.T("failed to delete file"))
-	ErrFileNotFound         error = rerror.NewE(i18n.T("file not found"))
-	ErrUnsupportedOperation error = rerror.NewE(i18n.T("unsupported operation"))
+	ErrInvalidFile                error = rerror.NewE(i18n.T("invalid file"))
+	ErrFailedToUploadFile         error = rerror.NewE(i18n.T("failed to upload file"))
+	ErrFileTooLarge               error = rerror.NewE(i18n.T("file too large"))
+	ErrFailedToDeleteFile         error = rerror.NewE(i18n.T("failed to delete file"))
+	ErrFileNotFound               error = rerror.NewE(i18n.T("file not found"))
+	ErrUnsupportedOperation       error = rerror.NewE(i18n.T("unsupported operation"))
+	ErrUnsupportedContentEncoding error = rerror.NewE(i18n.T("unsupported content encoding"))
 )
 
 type FileEntry struct {
-	Name string
-	Size int64
+	Name            string
+	Size            int64
+	ContentType     string
+	ContentLength   int64
+	ContentEncoding string
 }
 
 type UploadAssetLink struct {
-	URL           string
-	ContentType   string
-	ContentLength int64
-	Next          string
-	Gzip          bool
+	URL             string
+	ContentType     string
+	ContentLength   int64
+	ContentEncoding string
+	Next            string
 }
 
 type IssueUploadAssetParam struct {
-	UUID          string
-	Filename      string
-	ContentLength int64
-	ExpiresAt     time.Time
-	Gzip          bool
+	UUID            string
+	Filename        string
+	ContentLength   int64
+	ContentEncoding string
+	ExpiresAt       time.Time
 
 	Cursor string
 }

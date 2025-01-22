@@ -1,6 +1,7 @@
 package file
 
 import (
+	"context"
 	"io"
 	"mime"
 	"net/http"
@@ -14,6 +15,8 @@ import (
 )
 
 func TestFromURL(t *testing.T) {
+	ctx := context.Background()
+
 	URL := "https://cms.com/xyz/test.txt"
 	f := lo.Must(os.Open("testdata/test.txt"))
 	defer f.Close()
@@ -32,7 +35,7 @@ func TestFromURL(t *testing.T) {
 
 	expected := File{Name: "filename.txt", Content: f, Size: 123}
 
-	got, err := FromURL(URL)
+	got, err := FromURL(ctx, URL)
 	assert.NoError(t, err)
 	assert.Equal(t, expected.Name, got.Name)
 	assert.Equal(t, z, lo.Must(io.ReadAll(got.Content)))
@@ -45,7 +48,7 @@ func TestFromURL(t *testing.T) {
 
 	expected = File{Name: "test.txt", Content: f, Size: 0}
 
-	got, err = FromURL(URL)
+	got, err = FromURL(ctx, URL)
 	assert.NoError(t, err)
 	assert.Equal(t, expected.Name, got.Name)
 	assert.Equal(t, z, lo.Must(io.ReadAll(got.Content)))

@@ -31,9 +31,9 @@ type UpdateAssetParam struct {
 type CreateAssetUploadParam struct {
 	ProjectID idx.ID[id.Project]
 
-	Filename      string
-	ContentLength int64
-	Gzip          bool
+	Filename        string
+	ContentLength   int64
+	ContentEncoding string
 
 	Cursor string
 }
@@ -50,12 +50,12 @@ type AssetFilter struct {
 }
 
 type AssetUpload struct {
-	URL           string
-	UUID          string
-	ContentType   string
-	ContentLength int64
-	Next          string
-	Gzip          bool
+	URL             string
+	UUID            string
+	ContentType     string
+	ContentLength   int64
+	ContentEncoding string
+	Next            string
 }
 
 type Asset interface {

@@ -967,7 +967,7 @@ type AssetFilterParamsDir string
 
 // AssetCreateJSONBody defines parameters for AssetCreate.
 type AssetCreateJSONBody struct {
-	Gzip              *bool   `json:"gzip"`
+	ContentEncoding   *string `json:"contentEncoding,omitempty"`
 	SkipDecompression *bool   `json:"skipDecompression"`
 	Token             *string `json:"token,omitempty"`
 	Url               *string `json:"url,omitempty"`
@@ -975,17 +975,18 @@ type AssetCreateJSONBody struct {
 
 // AssetCreateMultipartBody defines parameters for AssetCreate.
 type AssetCreateMultipartBody struct {
+	ContentEncoding   *string             `json:"contentEncoding,omitempty"`
+	ContentType       *string             `json:"contentType,omitempty"`
 	File              *openapi_types.File `json:"file,omitempty"`
-	Gzip              *bool               `json:"gzip,omitempty"`
 	SkipDecompression *bool               `json:"skipDecompression,omitempty"`
 }
 
 // AssetUploadCreateJSONBody defines parameters for AssetUploadCreate.
 type AssetUploadCreateJSONBody struct {
-	ContentLength *int    `json:"contentLength,omitempty"`
-	Cursor        *string `json:"cursor,omitempty"`
-	Gzip          *bool   `json:"gzip,omitempty"`
-	Name          *string `json:"name,omitempty"`
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	ContentLength   *int    `json:"contentLength,omitempty"`
+	Cursor          *string `json:"cursor,omitempty"`
+	Name            *string `json:"name,omitempty"`
 }
 
 // FieldCreateJSONBody defines parameters for FieldCreate.

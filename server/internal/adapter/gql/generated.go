@@ -77,6 +77,7 @@ type ComplexityRoot struct {
 
 	Asset struct {
 		ArchiveExtractionStatus func(childComplexity int) int
+		ContentEncoding         func(childComplexity int) int
 		CreatedAt               func(childComplexity int) int
 		CreatedBy               func(childComplexity int) int
 		CreatedByID             func(childComplexity int) int
@@ -107,11 +108,12 @@ type ComplexityRoot struct {
 	}
 
 	AssetFile struct {
-		ContentType func(childComplexity int) int
-		FilePaths   func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Path        func(childComplexity int) int
-		Size        func(childComplexity int) int
+		ContentEncoding func(childComplexity int) int
+		ContentType     func(childComplexity int) int
+		FilePaths       func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Path            func(childComplexity int) int
+		Size            func(childComplexity int) int
 	}
 
 	AssetItem struct {
@@ -165,11 +167,12 @@ type ComplexityRoot struct {
 	}
 
 	CreateAssetUploadPayload struct {
-		ContentLength func(childComplexity int) int
-		ContentType   func(childComplexity int) int
-		Next          func(childComplexity int) int
-		Token         func(childComplexity int) int
-		URL           func(childComplexity int) int
+		ContentEncoding func(childComplexity int) int
+		ContentLength   func(childComplexity int) int
+		ContentType     func(childComplexity int) int
+		Next            func(childComplexity int) int
+		Token           func(childComplexity int) int
+		URL             func(childComplexity int) int
 	}
 
 	CreateWorkspacePayload struct {
@@ -1102,6 +1105,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Asset.ArchiveExtractionStatus(childComplexity), true
 
+	case "Asset.contentEncoding":
+		if e.complexity.Asset.ContentEncoding == nil {
+			break
+		}
+
+		return e.complexity.Asset.ContentEncoding(childComplexity), true
+
 	case "Asset.createdAt":
 		if e.complexity.Asset.CreatedAt == nil {
 			break
@@ -1248,6 +1258,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AssetEdge.Node(childComplexity), true
+
+	case "AssetFile.contentEncoding":
+		if e.complexity.AssetFile.ContentEncoding == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.ContentEncoding(childComplexity), true
 
 	case "AssetFile.contentType":
 		if e.complexity.AssetFile.ContentType == nil {
@@ -1465,6 +1482,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateAssetPayload.Asset(childComplexity), true
+
+	case "CreateAssetUploadPayload.contentEncoding":
+		if e.complexity.CreateAssetUploadPayload.ContentEncoding == nil {
+			break
+		}
+
+		return e.complexity.CreateAssetUploadPayload.ContentEncoding(childComplexity), true
 
 	case "CreateAssetUploadPayload.contentLength":
 		if e.complexity.CreateAssetUploadPayload.ContentLength == nil {
@@ -5082,6 +5106,7 @@ schema {
   items: [AssetItem!]
   size: FileSize!
   previewType: PreviewType
+  contentEncoding: String
   uuid: String!
   thread: Thread
   threadId: ID!
@@ -5089,6 +5114,7 @@ schema {
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
+
 type AssetItem {
   itemId: ID!
   modelId: ID!
@@ -5098,6 +5124,7 @@ type AssetFile {
   name: String!
   size: FileSize!
   contentType: String
+  contentEncoding: String
   path: String!
   filePaths: [String!]
 }
@@ -5127,6 +5154,8 @@ input CreateAssetInput {
   url: String
   token: String
   skipDecompression: Boolean
+  # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
+  contentEncoding: String
 }
 
 # If ` + "`" + `cursor` + "`" + ` is specified, both ` + "`" + `filename` + "`" + ` and ` + "`" + `contentLength` + "`" + ` will be ignored.
@@ -5137,6 +5166,8 @@ input CreateAssetUploadInput {
   filename: String
   # The size of the file to upload.
   contentLength: Int
+  # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
+  contentEncoding: String
 
   # Required if uploading in multiple parts.
   cursor: String
@@ -5184,6 +5215,7 @@ type CreateAssetUploadPayload {
   contentType: String
   # The size of the upload.
   contentLength: Int!
+  contentEncoding: String
   # A cursor to obtain the URL for the next PUT request.
   next: String
 }
@@ -10506,6 +10538,47 @@ func (ec *executionContext) fieldContext_Asset_previewType(_ context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_contentEncoding(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_contentEncoding(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentEncoding, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_contentEncoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Asset_uuid(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Asset_uuid(ctx, field)
 	if err != nil {
@@ -10883,6 +10956,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(_ context.Context
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -11100,6 +11175,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(_ context.Context, field
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -11236,6 +11313,47 @@ func (ec *executionContext) _AssetFile_contentType(ctx context.Context, field gr
 }
 
 func (ec *executionContext) fieldContext_AssetFile_contentType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AssetFile_contentEncoding(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetFile_contentEncoding(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentEncoding, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AssetFile_contentEncoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AssetFile",
 		Field:      field,
@@ -12535,6 +12653,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -12727,6 +12847,47 @@ func (ec *executionContext) fieldContext_CreateAssetUploadPayload_contentLength(
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateAssetUploadPayload_contentEncoding(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateAssetUploadPayload_contentEncoding(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentEncoding, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateAssetUploadPayload_contentEncoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateAssetUploadPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreateAssetUploadPayload_next(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateAssetUploadPayload_next(ctx, field)
 	if err != nil {
@@ -12881,6 +13042,8 @@ func (ec *executionContext) fieldContext_DecompressAssetPayload_asset(_ context.
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -15997,6 +16160,8 @@ func (ec *executionContext) fieldContext_Item_assets(_ context.Context, field gr
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -19532,6 +19697,8 @@ func (ec *executionContext) fieldContext_Mutation_createAssetUpload(ctx context.
 				return ec.fieldContext_CreateAssetUploadPayload_contentType(ctx, field)
 			case "contentLength":
 				return ec.fieldContext_CreateAssetUploadPayload_contentLength(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_CreateAssetUploadPayload_contentEncoding(ctx, field)
 			case "next":
 				return ec.fieldContext_CreateAssetUploadPayload_next(ctx, field)
 			}
@@ -24427,6 +24594,8 @@ func (ec *executionContext) fieldContext_Query_assetFile(ctx context.Context, fi
 				return ec.fieldContext_AssetFile_size(ctx, field)
 			case "contentType":
 				return ec.fieldContext_AssetFile_contentType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_AssetFile_contentEncoding(ctx, field)
 			case "path":
 				return ec.fieldContext_AssetFile_path(ctx, field)
 			case "filePaths":
@@ -31042,6 +31211,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -36330,7 +36501,7 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "file", "url", "token", "skipDecompression"}
+	fieldsInOrder := [...]string{"projectId", "file", "url", "token", "skipDecompression", "contentEncoding"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36372,6 +36543,13 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 				return it, err
 			}
 			it.SkipDecompression = data
+		case "contentEncoding":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contentEncoding"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ContentEncoding = data
 		}
 	}
 
@@ -36385,7 +36563,7 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "filename", "contentLength", "cursor"}
+	fieldsInOrder := [...]string{"projectId", "filename", "contentLength", "contentEncoding", "cursor"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36413,6 +36591,13 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 				return it, err
 			}
 			it.ContentLength = data
+		case "contentEncoding":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contentEncoding"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ContentEncoding = data
 		case "cursor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -41553,6 +41738,8 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "previewType":
 			out.Values[i] = ec._Asset_previewType(ctx, field, obj)
+		case "contentEncoding":
+			out.Values[i] = ec._Asset_contentEncoding(ctx, field, obj)
 		case "uuid":
 			out.Values[i] = ec._Asset_uuid(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -41749,6 +41936,8 @@ func (ec *executionContext) _AssetFile(ctx context.Context, sel ast.SelectionSet
 			}
 		case "contentType":
 			out.Values[i] = ec._AssetFile_contentType(ctx, field, obj)
+		case "contentEncoding":
+			out.Values[i] = ec._AssetFile_contentEncoding(ctx, field, obj)
 		case "path":
 			out.Values[i] = ec._AssetFile_path(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -42237,6 +42426,8 @@ func (ec *executionContext) _CreateAssetUploadPayload(ctx context.Context, sel a
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "contentEncoding":
+			out.Values[i] = ec._CreateAssetUploadPayload_contentEncoding(ctx, field, obj)
 		case "next":
 			out.Values[i] = ec._CreateAssetUploadPayload_next(ctx, field, obj)
 		default:

@@ -161,9 +161,6 @@ func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWi
 	}
 
 	metaSchemas, metaItems := getMetaSchemasAndItems(ctx, items)
-	if err != nil {
-		return ItemFilterWithProject400Response{}, err
-	}
 
 	res, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
 		metaItem, _ := lo.Find(metaItems, func(itm item.Versioned) bool {
@@ -431,9 +428,6 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 	}
 
 	msList, miList := getMetaSchemasAndItems(ctx, item.VersionedList{i})
-	if err != nil {
-		return ItemGet400Response{}, err
-	}
 
 	var mi item.Versioned
 	var ms *schema.Schema

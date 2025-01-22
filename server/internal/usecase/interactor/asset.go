@@ -110,7 +110,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, interfaces.ErrFileNotIncluded
 	}
 
-	if inp.File.Gzip {
+	if inp.File.ContentEncoding == "gzip" {
 		inp.File.Name = strings.TrimSuffix(inp.File.Name, ".gz")
 	}
 
@@ -201,7 +201,9 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Name(file.Name).
 				Path(file.Name).
 				Size(uint64(file.Size)).
-				GuessContentType().
+				ContentType(file.ContentType).
+				GuessContentTypeIfEmpty().
+				ContentEncoding(file.ContentEncoding).
 				Build()
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
@@ -308,7 +310,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	if inp.Gzip {
+	if inp.ContentEncoding == "gzip" {
 		inp.Filename = strings.TrimSuffix(inp.Filename, ".gz")
 	}
 
@@ -322,12 +324,12 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		const week = 7 * 24 * time.Hour
 		expiresAt := time.Now().Add(1 * week)
 		param = &gateway.IssueUploadAssetParam{
-			UUID:          uuid.New().String(),
-			Filename:      inp.Filename,
-			ContentLength: inp.ContentLength,
-			ExpiresAt:     expiresAt,
-			Cursor:        "",
-			Gzip:          inp.Gzip,
+			UUID:            uuid.New().String(),
+			Filename:        inp.Filename,
+			ContentLength:   inp.ContentLength,
+			ContentEncoding: inp.ContentEncoding,
+			ExpiresAt:       expiresAt,
+			Cursor:          "",
 		}
 	} else {
 		wrapped, err := parseWrappedUploadCursor(inp.Cursor)
@@ -342,12 +344,12 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			return nil, fmt.Errorf("unmatched project id(in=%s,db=%s)", inp.ProjectID, au.Project())
 		}
 		param = &gateway.IssueUploadAssetParam{
-			UUID:          wrapped.UUID,
-			Filename:      au.FileName(),
-			ContentLength: au.ContentLength(),
-			ExpiresAt:     au.ExpiresAt(),
-			Cursor:        wrapped.Cursor,
-			Gzip:          inp.Gzip,
+			UUID:            wrapped.UUID,
+			Filename:        au.FileName(),
+			ContentLength:   au.ContentLength(),
+			ContentEncoding: inp.ContentEncoding,
+			ExpiresAt:       au.ExpiresAt(),
+			Cursor:          wrapped.Cursor,
 		}
 	}
 
@@ -379,13 +381,14 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			return nil, err
 		}
 	}
+
 	return &interfaces.AssetUpload{
-		URL:           uploadLink.URL,
-		UUID:          param.UUID,
-		ContentType:   uploadLink.ContentType,
-		ContentLength: uploadLink.ContentLength,
-		Next:          wrapUploadCursor(param.UUID, uploadLink.Next),
-		Gzip:          inp.Gzip,
+		URL:             uploadLink.URL,
+		UUID:            param.UUID,
+		ContentType:     uploadLink.ContentType,
+		ContentLength:   uploadLink.ContentLength,
+		ContentEncoding: uploadLink.ContentEncoding,
+		Next:            wrapUploadCursor(param.UUID, uploadLink.Next),
 	}, nil
 }
 
@@ -503,7 +506,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 					Name(path.Base(f.Name)).
 					Path(f.Name).
 					Size(uint64(f.Size)).
-					GuessContentType().
+					ContentType(f.ContentType).
+					GuessContentTypeIfEmpty().
+					ContentEncoding(f.ContentEncoding).
 					Build(), true
 			})
 

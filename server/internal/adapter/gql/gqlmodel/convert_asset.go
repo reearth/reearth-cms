@@ -133,11 +133,12 @@ func ToAssetFile(a *asset.File) *AssetFile {
 	}
 
 	return &AssetFile{
-		Name:        a.Name(),
-		Size:        int64(a.Size()),
-		ContentType: lo.ToPtr(a.ContentType()),
-		Path:        a.Path(),
-		FilePaths:   a.FilePaths(),
+		Name:            a.Name(),
+		Size:            int64(a.Size()),
+		ContentType:     lo.EmptyableToPtr(a.ContentType()),
+		ContentEncoding: lo.EmptyableToPtr(a.ContentEncoding()),
+		Path:            a.Path(),
+		FilePaths:       a.FilePaths(),
 	}
 }
 

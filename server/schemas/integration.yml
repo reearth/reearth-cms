@@ -1400,12 +1400,13 @@ paths:
                 file:
                   type: string
                   format: binary
+                contentType:
+                  type: string
+                contentEncoding:
+                  type: string
                 skipDecompression:
                   type: boolean
-                  default: false
-                gzip:
-                  type: boolean
-                  default: false
+                  default: false#
           application/json:
             schema:
               type: object
@@ -1418,10 +1419,8 @@ paths:
                   type: boolean
                   nullable: true
                   default: false
-                gzip:
-                  type: boolean
-                  nullable: true
-                  default: false
+                contentEncoding:
+                  type: string
       responses:
         '200':
           description: assets
@@ -1456,11 +1455,10 @@ paths:
                   type: string
                 contentLength:
                   type: integer
+                contentEncoding:
+                  type: string
                 cursor:
                   type: string
-                gzip:
-                  type: boolean
-                  default: false
       responses:
         '200':
           description: asset upload

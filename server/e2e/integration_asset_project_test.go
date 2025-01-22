@@ -116,7 +116,6 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		// HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("name", "testFile.jpg").
 		HasValue("contentType", "image/jpeg").
