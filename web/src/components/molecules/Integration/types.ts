@@ -1,3 +1,4 @@
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 export type IntegrationMember = {
@@ -7,7 +8,5 @@ export type IntegrationMember = {
   invitedById: string;
   active: boolean;
 };
-
-export type Role = "WRITER" | "READER" | "OWNER" | "MAINTAINER";
 
 export type IntegrationType = "Private" | "Public";

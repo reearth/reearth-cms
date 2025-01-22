@@ -4,7 +4,8 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
+import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
 type FormValues = {
@@ -12,7 +13,7 @@ type FormValues = {
 };
 
 type Props = {
-  selectedIntegrationMember?: IntegrationMember;
+  selectedIntegration?: IntegrationMember;
   open: boolean;
   loading: boolean;
   onClose: () => void;
@@ -20,7 +21,7 @@ type Props = {
 };
 
 const IntegrationSettingsModal: React.FC<Props> = ({
-  selectedIntegrationMember,
+  selectedIntegration,
   open,
   loading,
   onClose,
@@ -33,9 +34,9 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 
   useEffect(() => {
     form.setFieldsValue({
-      role: selectedIntegrationMember?.integrationRole,
+      role: selectedIntegration?.integrationRole,
     });
-  }, [form, selectedIntegrationMember]);
+  }, [form, selectedIntegration]);
 
   const handleSubmit = useCallback(async () => {
     setIsDisabled(true);
@@ -51,22 +52,22 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 
   const handleSelect = useCallback(
     (value: string) => {
-      setIsDisabled(value === selectedIntegrationMember?.integrationRole);
+      setIsDisabled(value === selectedIntegration?.integrationRole);
     },
-    [selectedIntegrationMember?.integrationRole],
+    [selectedIntegration?.integrationRole],
   );
 
   const handleAfterClose = useCallback(() => {
     form.setFieldsValue({
-      role: selectedIntegrationMember?.integrationRole,
+      role: selectedIntegration?.integrationRole,
     });
     setIsDisabled(true);
-  }, [form, selectedIntegrationMember?.integrationRole]);
+  }, [form, selectedIntegration?.integrationRole]);
 
   return (
     <Modal
       afterClose={handleAfterClose}
-      title={t("Integration Setting") + "  " + selectedIntegrationMember?.integration?.name}
+      title={t("Integration Setting") + "  " + selectedIntegration?.integration?.name}
       open={open}
       onCancel={onClose}
       footer={[
@@ -85,7 +86,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
       <Form
         form={form}
         layout="vertical"
-        initialValues={{ role: selectedIntegrationMember?.integrationRole }}>
+        initialValues={{ role: selectedIntegration?.integrationRole }}>
         <Form.Item
           name="role"
           label={t("Role")}

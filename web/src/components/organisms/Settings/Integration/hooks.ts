@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
+import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import {
   fromGraphQLIntegration,
@@ -19,7 +20,7 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserRights } from "@reearth-cms/state";
 
 export default (workspaceId?: string) => {
-  const [selectedIntegrationMember, setSelectedIntegrationMember] = useState<IntegrationMember>();
+  const [selectedIntegration, setSelectedIntegration] = useState<IntegrationMember>();
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -57,7 +58,7 @@ export default (workspaceId?: string) => {
     [workspace?.members, searchTerm],
   );
 
-  const integrations = useMemo(
+  const myIntegrations = useMemo(
     () =>
       data?.me?.integrations
         ?.map(integration => fromGraphQLIntegration(integration))
@@ -98,10 +99,10 @@ export default (workspaceId?: string) => {
 
   const handleUpdateIntegration = useCallback(
     async (role: Role) => {
-      if (!workspaceId || !selectedIntegrationMember) return;
+      if (!workspaceId || !selectedIntegration) return;
       const integration = await updateIntegrationToWorkspaceMutation({
         variables: {
-          integrationId: selectedIntegrationMember?.integration?.id || "",
+          integrationId: selectedIntegration?.integration?.id || "",
           workspaceId,
           role: role as GQLRole,
         },
@@ -114,7 +115,7 @@ export default (workspaceId?: string) => {
       Notification.success({ message: t("Successfully updated workspace integration!") });
       refetch();
     },
-    [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch, t],
+    [updateIntegrationToWorkspaceMutation, selectedIntegration, workspaceId, refetch, t],
   );
 
   const [removeIntegrationFromWorkspaceMutation, { loading: deleteLoading }] =
@@ -165,7 +166,7 @@ export default (workspaceId?: string) => {
     workspaceIntegrationMembers,
     handleSearchTerm,
     handleReload,
-    setSelectedIntegrationMember,
+    setSelectedIntegration,
     deleteLoading,
     handleIntegrationRemove,
     page,
@@ -175,11 +176,11 @@ export default (workspaceId?: string) => {
     hasUpdateRight,
     hasDeleteRight,
 
-    integrations,
+    myIntegrations,
     addLoading,
     handleIntegrationConnect,
 
-    selectedIntegrationMember,
+    selectedIntegration,
     updateLoading,
     handleUpdateIntegration,
   };

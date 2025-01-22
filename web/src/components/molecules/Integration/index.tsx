@@ -3,7 +3,8 @@ import { useCallback, useState } from "react";
 import IntegrationConnectModal from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal";
 import IntegrationSettingsModal from "@reearth-cms/components/molecules/Integration/IntegrationSettingsModal";
 import IntegrationTable from "@reearth-cms/components/molecules/Integration/IntegrationTable";
-import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
+import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
   integrationMembers?: IntegrationMember[];
   onSearchTerm: (term?: string) => void;
   onReload: () => void;
-  setSelectedIntegrationMember: (integrationMember: IntegrationMember) => void;
+  setSelectedIntegration: (integrationMember: IntegrationMember) => void;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
   deleteLoading: boolean;
   page: number;
@@ -21,13 +22,13 @@ type Props = {
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
 
-  integrations?: Integration[];
+  myIntegrations?: Integration[];
   addLoading: boolean;
-  handleIntegrationConnect: (integration?: Integration) => Promise<void>;
+  onIntegrationConnect: (integration?: Integration) => Promise<void>;
 
-  selectedIntegrationMember?: IntegrationMember;
+  selectedIntegration?: IntegrationMember;
   updateLoading: boolean;
-  handleUpdateIntegration: (role: Role) => Promise<void>;
+  onUpdateIntegration: (role: Role) => Promise<void>;
 };
 
 const IntegrationWrapper: React.FC<Props> = ({
@@ -35,7 +36,7 @@ const IntegrationWrapper: React.FC<Props> = ({
   integrationMembers,
   onSearchTerm,
   onReload,
-  setSelectedIntegrationMember,
+  setSelectedIntegration,
   onIntegrationRemove,
   deleteLoading,
   page,
@@ -45,21 +46,21 @@ const IntegrationWrapper: React.FC<Props> = ({
   hasUpdateRight,
   hasDeleteRight,
 
-  integrations,
+  myIntegrations,
   addLoading,
-  handleIntegrationConnect,
+  onIntegrationConnect,
 
-  selectedIntegrationMember,
+  selectedIntegration,
   updateLoading,
-  handleUpdateIntegration,
+  onUpdateIntegration,
 }) => {
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
   const handleIntegrationSettingsModalOpen = useCallback(
     (integrationMember: IntegrationMember) => {
-      setSelectedIntegrationMember(integrationMember);
+      setSelectedIntegration(integrationMember);
       setIntegrationSettingsModalShown(true);
     },
-    [setSelectedIntegrationMember],
+    [setSelectedIntegration],
   );
   const handleIntegrationConnectModalClose = useCallback(() => {
     setIntegrationConnectModalShown(false);
@@ -92,18 +93,18 @@ const IntegrationWrapper: React.FC<Props> = ({
         hasDeleteRight={hasDeleteRight}
       />
       <IntegrationConnectModal
-        integrations={integrations}
+        integrations={myIntegrations}
         open={integrationConnectModalShown}
         loading={addLoading}
         onClose={handleIntegrationConnectModalClose}
-        onSubmit={handleIntegrationConnect}
+        onSubmit={onIntegrationConnect}
       />
       <IntegrationSettingsModal
-        selectedIntegrationMember={selectedIntegrationMember}
+        selectedIntegration={selectedIntegration}
         open={integrationSettingsModalShown}
         loading={updateLoading}
         onClose={handleIntegrationSettingsModalClose}
-        onSubmit={handleUpdateIntegration}
+        onSubmit={onUpdateIntegration}
       />
     </>
   );

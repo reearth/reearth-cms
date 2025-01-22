@@ -12,7 +12,7 @@ const Integration: React.FC = () => {
     workspaceIntegrationMembers,
     handleSearchTerm,
     handleReload,
-    setSelectedIntegrationMember,
+    setSelectedIntegration,
     deleteLoading,
     handleIntegrationRemove,
     page,
@@ -22,11 +22,11 @@ const Integration: React.FC = () => {
     hasUpdateRight,
     hasDeleteRight,
 
-    integrations,
+    myIntegrations,
     addLoading,
     handleIntegrationConnect,
 
-    selectedIntegrationMember,
+    selectedIntegration,
     updateLoading,
     handleUpdateIntegration,
   } = useHooks(workspaceId);
@@ -37,7 +37,7 @@ const Integration: React.FC = () => {
       integrationMembers={workspaceIntegrationMembers}
       onSearchTerm={handleSearchTerm}
       onReload={handleReload}
-      setSelectedIntegrationMember={setSelectedIntegrationMember}
+      setSelectedIntegration={setSelectedIntegration}
       onIntegrationRemove={handleIntegrationRemove}
       deleteLoading={deleteLoading}
       page={page}
@@ -46,12 +46,12 @@ const Integration: React.FC = () => {
       hasConnectRight={hasConnectRight}
       hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}
-      integrations={integrations}
+      myIntegrations={myIntegrations}
       addLoading={addLoading}
-      handleIntegrationConnect={handleIntegrationConnect}
-      selectedIntegrationMember={selectedIntegrationMember}
+      onIntegrationConnect={handleIntegrationConnect}
+      selectedIntegration={selectedIntegration}
       updateLoading={updateLoading}
-      handleUpdateIntegration={handleUpdateIntegration}
+      onUpdateIntegration={handleUpdateIntegration}
     />
   );
 };

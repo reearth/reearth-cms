@@ -126,7 +126,7 @@ const IntegrationTable: React.FC<Props> = ({
     () => ({
       showSizeChanger: true,
       current: page,
-      pageSize: pageSize,
+      pageSize,
     }),
     [page, pageSize],
   );
