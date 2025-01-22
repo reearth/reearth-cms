@@ -28,7 +28,6 @@ type FileEntry struct {
 	Name            string
 	Size            int64
 	ContentType     string
-	ContentLength   int64
 	ContentEncoding string
 }
 

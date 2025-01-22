@@ -91,7 +91,6 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 			// /22/2232222233333/hoge/tileset.json -> hoge/tileset.json
 			Name:            strings.TrimPrefix(strings.TrimPrefix(attrs.Name, p), "/"),
 			Size:            attrs.Size,
-			ContentLength:   attrs.Size,
 			ContentType:     attrs.ContentType,
 			ContentEncoding: attrs.ContentEncoding,
 		}
@@ -224,6 +223,10 @@ func (f *fileRepo) upload(ctx context.Context, file *file.File) (int64, error) {
 		return 0, err
 	}
 
+	if file.ContentEncoding == "identity" {
+		file.ContentEncoding = ""
+	}
+
 	bucket, err := f.bucket(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
@@ -240,7 +243,7 @@ func (f *fileRepo) upload(ctx context.Context, file *file.File) (int64, error) {
 	writer.ObjectAttrs.CacheControl = f.cacheControl
 
 	if file.ContentType == "" {
-		writer.ContentEncoding = getContentType(file.Name)
+		writer.ObjectAttrs.ContentType = getContentType(file.Name)
 	} else {
 		writer.ObjectAttrs.ContentType = file.ContentType
 	}
@@ -329,7 +332,7 @@ func getURL(host *url.URL, uuid, fName string) string {
 }
 
 func validateContentEncoding(ce string) error {
-	if ce != "" && ce != "gzip" {
+	if ce != "" && ce != "identity" && ce != "gzip" {
 		return gateway.ErrUnsupportedContentEncoding
 	}
 	return nil

@@ -96,7 +96,7 @@ func (f *fileRepo) UploadAsset(_ context.Context, file *file.File) (string, int6
 	if file.Size >= fileSizeLimit {
 		return "", 0, gateway.ErrFileTooLarge
 	}
-	if file.ContentEncoding != "" {
+	if file.ContentEncoding != "" && file.ContentEncoding != "identity" {
 		return "", 0, gateway.ErrUnsupportedContentEncoding
 	}
 
