@@ -396,7 +396,7 @@ export default () => {
               createdBy: { id: item.createdBy?.id ?? "", name: item.createdBy?.name ?? "" },
               updatedBy: item.updatedBy?.name ?? "",
               fields: fieldsGet(item as unknown as Item),
-              comments: item.thread.comments.map(comment =>
+              comments: item.thread?.comments.map(comment =>
                 fromGraphQLComment(comment as GQLComment),
               ),
               version: item.version,

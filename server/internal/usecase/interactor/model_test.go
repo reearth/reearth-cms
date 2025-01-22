@@ -541,7 +541,12 @@ func TestModel_Copy(t *testing.T) {
 	mockTime := time.Now()
 	wid := accountdomain.NewWorkspaceID()
 	p := project.New().NewID().Workspace(wid).MustBuild()
-	op := &usecase.Operator{OwningProjects: []id.ProjectID{p.ID()}}
+	op := &usecase.Operator{
+		OwningProjects: []id.ProjectID{p.ID()},
+		AcOperator: &accountusecase.Operator{
+			User: accountdomain.NewUserID().Ref(),
+		},
+	}
 
 	fId1 := id.NewFieldID()
 	sfKey1 := id.RandomKey()

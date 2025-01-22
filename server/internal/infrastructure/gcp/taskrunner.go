@@ -170,7 +170,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 					"REEARTH_CMS_COPIER_CHANGES=" + p.Copy.Changes,
 				},
 				SecretEnv: []string{
-					"REEARTH_CMS_WORKER_DB",
+					"REEARTH_CMS_DB",
 				},
 			},
 		},
@@ -181,7 +181,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 			SecretManager: []*cloudbuild.SecretManagerSecret{
 				{
 					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, dbSecretName),
-					Env:         "REEARTH_CMS_WORKER_DB",
+					Env:         "REEARTH_CMS_DB",
 				},
 			},
 		},

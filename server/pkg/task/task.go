@@ -64,11 +64,12 @@ func (p *CopyPayload) Validate() bool {
 type Changes map[string]Change
 type Change struct {
 	Type  ChangeType
-	Value string
+	Value any
 }
 type ChangeType string
 
 const (
-	ChangeTypeSet ChangeType = "set"
-	ChangeTypeNew ChangeType = "new"
+	ChangeTypeSet  ChangeType = "set"
+	ChangeTypeNew  ChangeType = "new"
+	ChangeTypeULID ChangeType = "ulid"
 )
