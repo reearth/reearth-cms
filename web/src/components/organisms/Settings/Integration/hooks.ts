@@ -1,4 +1,4 @@
-import { Key, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
@@ -19,13 +19,8 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserRights } from "@reearth-cms/state";
 
 export default (workspaceId?: string) => {
-  const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
-  const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
-  const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
+  const [selectedIntegrationMember, setSelectedIntegrationMember] = useState<IntegrationMember>();
   const [searchTerm, setSearchTerm] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
-    selectedRowKeys: [],
-  });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { data, refetch, loading } = useGetMeQuery({
@@ -75,23 +70,6 @@ export default (workspaceId?: string) => {
     [data?.me?.integrations, workspaceIntegrationMembers],
   );
 
-  const handleIntegrationConnectModalClose = useCallback(() => {
-    setIntegrationConnectModalShown(false);
-  }, []);
-
-  const handleIntegrationConnectModalOpen = useCallback(() => {
-    setIntegrationConnectModalShown(true);
-  }, []);
-
-  const handleIntegrationSettingsModalClose = useCallback(() => {
-    setIntegrationSettingsModalShown(false);
-  }, []);
-
-  const handleIntegrationSettingsModalOpen = useCallback((integrationMember: IntegrationMember) => {
-    SetSelectedIntegrationMember(integrationMember);
-    setIntegrationSettingsModalShown(true);
-  }, []);
-
   const [addIntegrationToWorkspaceMutation, { loading: addLoading }] =
     useAddIntegrationToWorkspaceMutation();
 
@@ -107,10 +85,9 @@ export default (workspaceId?: string) => {
       });
       if (integrationResponse.errors || !integrationResponse.data?.addIntegrationToWorkspace) {
         Notification.error({ message: t("Failed to connect integration.") });
-        return;
+        throw new Error();
       }
       Notification.success({ message: t("Successfully connected integration to the workspace!") });
-      setIntegrationConnectModalShown(false);
       refetch();
     },
     [addIntegrationToWorkspaceMutation, workspaceId, refetch, t],
@@ -131,11 +108,10 @@ export default (workspaceId?: string) => {
       });
       if (integration.errors || !integration.data?.updateIntegrationOfWorkspace) {
         Notification.error({ message: t("Failed to update workspace integration.") });
-        return;
+        throw new Error();
       }
 
       Notification.success({ message: t("Successfully updated workspace integration!") });
-      setIntegrationConnectModalShown(false);
       refetch();
     },
     [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch, t],
@@ -147,22 +123,24 @@ export default (workspaceId?: string) => {
   const handleIntegrationRemove = useCallback(
     async (integrationIds: string[]) => {
       if (!workspaceId) return;
-      const results = await Promise.all(
-        integrationIds.map(async integrationId => {
-          const result = await removeIntegrationFromWorkspaceMutation({
-            variables: { workspaceId, integrationId },
-            refetchQueries: ["GetMe"],
-          });
-          if (result.errors) {
-            Notification.error({ message: t("Failed to delete one or more integrations.") });
-          }
-        }),
-      );
-      if (results) {
+      try {
+        await Promise.all(
+          integrationIds.map(async integrationId => {
+            const result = await removeIntegrationFromWorkspaceMutation({
+              variables: { workspaceId, integrationId },
+              refetchQueries: ["GetMe"],
+            });
+            if (result.errors) {
+              throw new Error();
+            }
+          }),
+        );
         Notification.success({
           message: t("One or more integrations were successfully deleted!"),
         });
-        setSelection({ selectedRowKeys: [] });
+      } catch (e) {
+        Notification.error({ message: t("Failed to delete one or more integrations.") });
+        throw e;
       }
     },
     [t, removeIntegrationFromWorkspaceMutation, workspaceId],
@@ -183,31 +161,26 @@ export default (workspaceId?: string) => {
   }, []);
 
   return {
-    integrations,
+    loading,
     workspaceIntegrationMembers,
-    handleIntegrationConnectModalClose,
-    handleIntegrationConnectModalOpen,
-    addLoading,
-    handleIntegrationConnect,
+    handleSearchTerm,
+    handleReload,
+    setSelectedIntegrationMember,
     deleteLoading,
     handleIntegrationRemove,
-    integrationConnectModalShown,
-    handleUpdateIntegration,
-    updateLoading,
-    handleIntegrationSettingsModalClose,
-    handleIntegrationSettingsModalOpen,
-    integrationSettingsModalShown,
-    selectedIntegrationMember,
-    selection,
-    handleSearchTerm,
-    setSelection,
     page,
     pageSize,
     handleTableChange,
-    loading,
-    handleReload,
     hasConnectRight,
     hasUpdateRight,
     hasDeleteRight,
+
+    integrations,
+    addLoading,
+    handleIntegrationConnect,
+
+    selectedIntegrationMember,
+    updateLoading,
+    handleUpdateIntegration,
   };
 };

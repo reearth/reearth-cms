@@ -32,6 +32,15 @@ const IntegrationConnectModal: React.FC<Props> = ({
     [SetSelectedIntegration],
   );
 
+  const handleSubmit = useCallback(async () => {
+    try {
+      await onSubmit(selectedIntegration);
+      onClose();
+    } catch (e) {
+      console.error(e);
+    }
+  }, [onClose, onSubmit, selectedIntegration]);
+
   return (
     <Modal
       afterClose={() => SetSelectedIntegration(undefined)}
@@ -46,7 +55,7 @@ const IntegrationConnectModal: React.FC<Props> = ({
           key="submit"
           type="primary"
           disabled={!selectedIntegration}
-          onClick={() => onSubmit(selectedIntegration)}
+          onClick={handleSubmit}
           loading={loading}>
           {t("Connect")}
         </Button>,

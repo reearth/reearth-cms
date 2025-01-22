@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
+import { Key, useMemo, useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
@@ -19,13 +19,9 @@ import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
   integrationMembers?: IntegrationMember[];
-  selection: {
-    selectedRowKeys: Key[];
-  };
   onIntegrationConnectModalOpen: () => void;
   onSearchTerm: (term?: string) => void;
   onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
   deleteLoading: boolean;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
   page: number;
@@ -40,11 +36,9 @@ type Props = {
 
 const IntegrationTable: React.FC<Props> = ({
   integrationMembers,
-  selection,
   onIntegrationConnectModalOpen,
   onSearchTerm,
   onIntegrationSettingsModalOpen,
-  setSelection,
   deleteLoading,
   onIntegrationRemove,
   page,
@@ -57,6 +51,8 @@ const IntegrationTable: React.FC<Props> = ({
   hasDeleteRight,
 }) => {
   const t = useT();
+
+  const [selection, setSelection] = useState<Key[]>([]);
 
   const columns: StretchColumn<IntegrationMember>[] = useMemo(
     () => [
@@ -137,26 +133,34 @@ const IntegrationTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
+      selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys,
-        });
+        setSelection(selectedRowKeys);
       },
     }),
     [selection, setSelection],
   );
 
+  const handleRemove = useCallback(
+    async (keys: Key[]) => {
+      try {
+        await onIntegrationRemove(keys.map(key => key.toString()));
+        setSelection([]);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [onIntegrationRemove, setSelection],
+  );
+
   const alertOptions = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (props: any) => (
+    (props: { selectedRowKeys: Key[] }) => (
       <Space size={4}>
         <Button
           type="link"
           size="small"
           icon={<Icon icon="delete" />}
-          onClick={() => onIntegrationRemove(props.selectedRowKeys)}
+          onClick={() => handleRemove(props.selectedRowKeys)}
           danger
           loading={deleteLoading}
           disabled={!hasDeleteRight}>
@@ -164,7 +168,7 @@ const IntegrationTable: React.FC<Props> = ({
         </Button>
       </Space>
     ),
-    [deleteLoading, hasDeleteRight, onIntegrationRemove, t],
+    [deleteLoading, handleRemove, hasDeleteRight, t],
   );
 
   const options = useMemo(
