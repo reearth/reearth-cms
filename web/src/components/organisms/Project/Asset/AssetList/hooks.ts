@@ -3,7 +3,6 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
@@ -20,7 +19,13 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 
+import { uploadFiles } from "./upload";
+
 type UploadType = "local" | "url";
+
+export type UploadFile = File & {
+  skipDecompression?: boolean;
+};
 
 export default (isItemsRequired: boolean) => {
   const t = useT();
@@ -45,7 +50,7 @@ export default (isItemsRequired: boolean) => {
     selectedRowKeys: [],
   });
   const [selectedAssetId, setSelectedAssetId] = useState<string>();
-  const [fileList, setFileList] = useState<UploadFile<File>[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploadUrl, setUploadUrl] = useState({
     url: "",
     autoUnzip: true,
@@ -137,69 +142,61 @@ export default (isItemsRequired: boolean) => {
   }, [setUploadModalVisibility, setFileList, setUploadUrl, setUploadType]);
 
   const handleAssetsCreate = useCallback(
-    async (files: UploadFile<File>[]) => {
+    async (files: UploadFile[]) => {
       if (!projectId) return [];
       setUploading(true);
+
       let results: (Asset | undefined)[] = [];
+
       try {
         results = (
-          await Promise.all(
-            files.map(async file => {
-              let cursor = "";
-              let offset = 0;
-              let uploadToken = "";
-              while (true) {
-                const createAssetUploadResult = await createAssetUploadMutation({
-                  variables: {
-                    projectId,
-                    filename: file.name,
-                    contentLength: file.size ?? 0,
-                    cursor,
-                  },
-                });
-                if (
-                  createAssetUploadResult.errors ||
-                  !createAssetUploadResult.data?.createAssetUpload
-                ) {
-                  Notification.error({ message: t("Failed to add one or more assets.") });
-                  handleUploadModalCancel();
-                  return undefined;
-                }
-                const { url, token, contentType, contentLength, next } =
-                  createAssetUploadResult.data.createAssetUpload;
-                uploadToken = token ?? "";
-                if (url === "") {
-                  break;
-                }
-                const headers = contentType ? { "content-type": contentType } : undefined;
-                await fetch(url, {
-                  method: "PUT",
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  body: (file as any).slice(offset, offset + contentLength),
-                  headers,
-                });
-                if (!next) {
-                  break;
-                }
-                cursor = next;
-                offset += contentLength;
-              }
-              const result = await createAssetMutation({
+          await uploadFiles<UploadFile, Asset | undefined>(
+            files,
+            async ({ contentLength, contentEncoding, cursor, filename }) => {
+              const result = await createAssetUploadMutation({
                 variables: {
                   projectId,
-                  token: uploadToken,
-                  file: uploadToken === "" ? file : null,
-                  skipDecompression: !!file.skipDecompression,
+                  filename,
+                  contentLength,
+                  contentEncoding,
+                  cursor: cursor ?? "",
                 },
               });
-              if (result.errors || !result.data?.createAsset) {
+
+              if (result.errors || !result.data?.createAssetUpload) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
+                handleUploadModalCancel();
                 return undefined;
               }
-              return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
-            }),
+
+              return {
+                url: result.data.createAssetUpload.url,
+                token: result.data.createAssetUpload.token,
+                contentLength: result.data.createAssetUpload.contentLength,
+                contentType: result.data.createAssetUpload.contentType ?? "",
+                contentEncoding: result.data.createAssetUpload.contentEncoding ?? "",
+                next: result.data.createAssetUpload.next ?? "",
+              };
+            },
+            (token, file) => {
+              return createAssetMutation({
+                variables: {
+                  projectId,
+                  token,
+                  file: token === "" ? file : null,
+                  skipDecompression: !!file?.skipDecompression,
+                },
+              }).then(result => {
+                if (result.errors || !result.data?.createAsset) {
+                  Notification.error({ message: t("Failed to add one or more assets.") });
+                  return undefined;
+                }
+                return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
+              });
+            },
           )
         ).filter(Boolean);
+
         if (results?.length > 0) {
           handleUploadModalCancel();
           Notification.success({ message: t("Successfully added one or more assets!") });
@@ -210,6 +207,7 @@ export default (isItemsRequired: boolean) => {
       } finally {
         setUploading(false);
       }
+
       return results;
     },
     [

@@ -364,6 +364,18 @@
             "deprecationReason": null
           },
           {
+            "name": "contentEncoding",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "createdAt",
             "description": null,
             "args": [],
@@ -745,6 +757,18 @@
         "description": null,
         "isOneOf": null,
         "fields": [
+          {
+            "name": "contentEncoding",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "contentType",
             "description": null,
@@ -1969,6 +1993,18 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "contentEncoding",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "file",
             "description": null,
             "type": {
@@ -2073,6 +2109,18 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "contentEncoding",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "contentLength",
             "description": null,
             "type": {
@@ -2135,6 +2183,18 @@
         "description": null,
         "isOneOf": null,
         "fields": [
+          {
+            "name": "contentEncoding",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "contentLength",
             "description": null,
@@ -5304,13 +5364,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "Thread",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "Thread",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -5320,13 +5376,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
