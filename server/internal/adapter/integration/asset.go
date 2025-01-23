@@ -175,6 +175,7 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 		Filename:        lo.FromPtr(request.Body.Name),
 		ContentLength:   int64(lo.FromPtr(request.Body.ContentLength)),
 		ContentEncoding: lo.FromPtr(request.Body.ContentEncoding),
+		ContentType:     lo.FromPtr(request.Body.ContentType),
 		Cursor:          lo.FromPtr(request.Body.Cursor),
 	}, op)
 
@@ -186,10 +187,11 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 	}
 
 	return AssetUploadCreate200JSONResponse{
-		Url:           &au.URL,
-		Token:         &au.UUID,
-		ContentType:   &au.ContentType,
-		ContentLength: lo.ToPtr(int(au.ContentLength)),
-		Next:          &au.Next,
+		Url:             &au.URL,
+		Token:           &au.UUID,
+		ContentType:     lo.EmptyableToPtr(au.ContentType),
+		ContentLength:   lo.EmptyableToPtr(int(au.ContentLength)),
+		ContentEncoding: lo.EmptyableToPtr(au.ContentEncoding),
+		Next:            lo.EmptyableToPtr(au.Next),
 	}, nil
 }

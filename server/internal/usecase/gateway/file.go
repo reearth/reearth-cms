@@ -40,26 +40,21 @@ type UploadAssetLink struct {
 }
 
 type IssueUploadAssetParam struct {
-	UUID            string
-	Filename        string
+	UUID     string
+	Filename string
+	// ContentLength is the size of the file in bytes. It is required when S3 is used.
 	ContentLength   int64
+	ContentType     string
 	ContentEncoding string
 	ExpiresAt       time.Time
 
 	Cursor string
 }
 
-func init() {
-	// mime package depends on the OS, so adding the requited mime types to make sure about the results in different OS
-	lo.Must0(mime.AddExtensionType(".zip", "application/zip"))
-	lo.Must0(mime.AddExtensionType(".7z", "application/x-7z-compressed"))
-	lo.Must0(mime.AddExtensionType(".gz", "application/gzip"))
-	lo.Must0(mime.AddExtensionType(".bz2", "application/x-bzip2"))
-	lo.Must0(mime.AddExtensionType(".tar", "application/x-tar"))
-	lo.Must0(mime.AddExtensionType(".rar", "application/vnd.rar"))
-}
-
-func (p IssueUploadAssetParam) ContentType() string {
+func (p IssueUploadAssetParam) GetOrGuessContentType() string {
+	if p.ContentType != "" {
+		return p.ContentType
+	}
 	return mime.TypeByExtension(path.Ext(p.Filename))
 }
 
@@ -71,4 +66,14 @@ type File interface {
 	GetURL(*asset.Asset) string
 	IssueUploadAssetLink(context.Context, IssueUploadAssetParam) (*UploadAssetLink, error)
 	UploadedAsset(context.Context, *asset.Upload) (*file.File, error)
+}
+
+func init() {
+	// mime package depends on the OS, so adding the requited mime types to make sure about the results in different OS
+	lo.Must0(mime.AddExtensionType(".zip", "application/zip"))
+	lo.Must0(mime.AddExtensionType(".7z", "application/x-7z-compressed"))
+	lo.Must0(mime.AddExtensionType(".gz", "application/gzip"))
+	lo.Must0(mime.AddExtensionType(".bz2", "application/x-bzip2"))
+	lo.Must0(mime.AddExtensionType(".tar", "application/x-tar"))
+	lo.Must0(mime.AddExtensionType(".rar", "application/vnd.rar"))
 }

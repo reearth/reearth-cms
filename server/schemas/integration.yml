@@ -1455,6 +1455,8 @@ paths:
                   type: string
                 contentLength:
                   type: integer
+                contentType:
+                  type: string
                 contentEncoding:
                   type: string
                 cursor:
@@ -1475,6 +1477,8 @@ paths:
                     type: string
                   contentLength:
                     type: integer
+                  contentEncoding:
+                    type: string
                   next:
                     type: string
         '400':

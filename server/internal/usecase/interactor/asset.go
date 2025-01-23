@@ -328,6 +328,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			UUID:            uuid.New().String(),
 			Filename:        inp.Filename,
 			ContentLength:   inp.ContentLength,
+			ContentType:     inp.ContentType,
 			ContentEncoding: inp.ContentEncoding,
 			ExpiresAt:       expiresAt,
 			Cursor:          "",
@@ -348,7 +349,8 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			UUID:            wrapped.UUID,
 			Filename:        au.FileName(),
 			ContentLength:   au.ContentLength(),
-			ContentEncoding: inp.ContentEncoding,
+			ContentEncoding: au.ContentEncoding(),
+			ContentType:     au.ContentType(),
 			ExpiresAt:       au.ExpiresAt(),
 			Cursor:          wrapped.Cursor,
 		}
@@ -376,7 +378,9 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			Project(prj.ID()).
 			FileName(param.Filename).
 			ExpiresAt(param.ExpiresAt).
-			ContentLength(param.ContentLength).
+			ContentLength(uploadLink.ContentLength).
+			ContentType(uploadLink.ContentType).
+			ContentEncoding(uploadLink.ContentEncoding).
 			Build()
 		if err := i.repos.AssetUpload.Save(ctx, u); err != nil {
 			return nil, err

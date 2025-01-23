@@ -141,7 +141,10 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
 	uuid := param.UUID
-	contentType := param.ContentType()
+	contentType := param.GetOrGuessContentType()
+	if err := validateContentEncoding(param.ContentEncoding); err != nil {
+		return nil, err
+	}
 
 	p := getGCSObjectPath(uuid, param.Filename)
 	if p == "" {
@@ -167,7 +170,6 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	return &gateway.UploadAssetLink{
 		URL:             uploadURL,
 		ContentType:     contentType,
-		ContentLength:   param.ContentLength,
 		ContentEncoding: param.ContentEncoding,
 		Next:            "",
 	}, nil

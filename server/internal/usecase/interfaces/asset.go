@@ -33,6 +33,7 @@ type CreateAssetUploadParam struct {
 
 	Filename        string
 	ContentLength   int64
+	ContentType     string
 	ContentEncoding string
 
 	Cursor string

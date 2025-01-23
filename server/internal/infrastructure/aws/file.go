@@ -143,7 +143,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	if p == "" {
 		return nil, gateway.ErrInvalidFile
 	}
-	contentType := param.ContentType()
+	contentType := param.GetOrGuessContentType()
 	if param.Cursor != "" {
 		cursor, err := parseUploadCursor(param.Cursor)
 		if err != nil {

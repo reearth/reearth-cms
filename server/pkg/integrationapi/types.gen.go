@@ -985,6 +985,7 @@ type AssetCreateMultipartBody struct {
 type AssetUploadCreateJSONBody struct {
 	ContentEncoding *string `json:"contentEncoding,omitempty"`
 	ContentLength   *int    `json:"contentLength,omitempty"`
+	ContentType     *string `json:"contentType,omitempty"`
 	Cursor          *string `json:"cursor,omitempty"`
 	Name            *string `json:"name,omitempty"`
 }
