@@ -205,7 +205,8 @@ func (f *fileRepo) read(ctx context.Context, filename string, headers map[string
 	}
 
 	obj := bucket.Object(filename)
-	if headers != nil && headers["Content-Encoding"] == "gzip" {
+
+	if headers != nil && hasAcceptEncoding(headers["Accept-Encoding"], "gzip") {
 		obj = obj.ReadCompressed(true)
 	}
 
@@ -401,4 +402,16 @@ func parseRange(ran string) (int64, int64, error) {
 		return 0, 0, fmt.Errorf("invalid range: offset=%d, length=%d", offset, length)
 	}
 	return offset, length, nil
+}
+
+func hasAcceptEncoding(accept, encoding string) bool {
+	if accept == "" {
+		return false
+	}
+	for _, e := range strings.Split(accept, ",") {
+		if strings.TrimSpace(e) == encoding {
+			return true
+		}
+	}
+	return false
 }
