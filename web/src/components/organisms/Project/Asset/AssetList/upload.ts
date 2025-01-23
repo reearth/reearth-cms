@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 export type CreateAssetUploadPayload = {
   url: string;
   token: string;
@@ -48,14 +50,18 @@ export async function uploadFiles<T extends File, U>(
         }
 
         const body: BodyInit = file.slice(offset, offset + contentLength);
-        await fetch(url, {
+        const resp = await fetch(url, {
           method: "PUT",
-          body: gzip ? gzipBlob(body) : body,
+          body: gzip ? gzipStreamFromBlob(body) : body,
           headers: {
             ...(contentType && { "Content-Type": contentType }),
             ...(contentEncoding && { "Content-Encoding": contentEncoding }),
           },
         });
+
+        if (!resp.ok) {
+          throw new Error(t("Failed to upload file"));
+        }
 
         if (!next) {
           break;
@@ -70,7 +76,7 @@ export async function uploadFiles<T extends File, U>(
   );
 }
 
-function gzipBlob(blob: Blob): ReadableStream {
+function gzipStreamFromBlob(blob: Blob): ReadableStream {
   const s = new CompressionStream("gzip");
   const readableStream = blob.stream().pipeThrough(s);
   return readableStream;
@@ -78,6 +84,7 @@ function gzipBlob(blob: Blob): ReadableStream {
 
 function isGzippable(file: File): boolean {
   return (
+    "CompressionStream" in window &&
     textFileExtensions.some(ext => file.name.endsWith(`.${ext}`)) &&
     file.size > minGzippableFileSize
   );
