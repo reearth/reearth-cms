@@ -110,10 +110,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, interfaces.ErrFileNotIncluded
 	}
 
-	if inp.File.ContentEncoding == "gzip" {
-		inp.File.Name = strings.TrimSuffix(inp.File.Name, ".gz")
-	}
-
 	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
 	if err != nil {
 		return nil, nil, err
@@ -126,12 +122,17 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 	var uuid string
 	var file *file.File
 	if inp.File != nil {
+		if inp.File.ContentEncoding == "gzip" {
+			inp.File.Name = strings.TrimSuffix(inp.File.Name, ".gz")
+		}
+
 		var size int64
 		file = inp.File
 		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
 		if err != nil {
 			return nil, nil, err
 		}
+
 		file.Size = size
 	}
 
