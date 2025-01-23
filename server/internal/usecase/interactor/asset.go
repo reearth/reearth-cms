@@ -83,18 +83,18 @@ func (i *Asset) FindFilesByIDs(ctx context.Context, ids id.AssetIDList, _ *useca
 	return files, nil
 }
 
-func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (io.ReadCloser, error) {
+func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, headers map[string]string, _ *usecase.Operator) (io.ReadCloser, map[string]string, error) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	f, err := i.gateways.File.ReadAsset(ctx, a.UUID(), a.FileName())
+	f, headers, err := i.gateways.File.ReadAsset(ctx, a.UUID(), a.FileName(), headers)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return f, nil
+	return f, headers, nil
 }
 
 func (i *Asset) GetURL(a *asset.Asset) string {

@@ -42,7 +42,7 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 	var cp interfaces.ImportItemsParam
 
 	if request.JSONBody != nil {
-		frc, err := uc.Asset.DownloadByID(ctx, request.JSONBody.AssetId, op)
+		frc, _, err := uc.Asset.DownloadByID(ctx, request.JSONBody.AssetId, nil, op)
 		if err != nil {
 			return nil, err
 		}
