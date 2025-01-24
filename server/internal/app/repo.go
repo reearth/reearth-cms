@@ -56,7 +56,7 @@ func initCMSDB(client *mongo.Client, txAvailable bool, acRepos *accountrepo.Cont
 	return repos
 }
 
-func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
+func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
 	gateways := &gateway.Container{}
 	acGateways := &accountgateway.Container{}
 

@@ -58,6 +58,19 @@ const (
 	ImportStrategyTypeUpsert ImportStrategyType = "upsert"
 )
 
+func ImportStrategyTypeFromString(s string) ImportStrategyType {
+	switch s {
+	case "insert":
+		return ImportStrategyTypeInsert
+	case "update":
+		return ImportStrategyTypeUpdate
+	case "upsert":
+		return ImportStrategyTypeUpsert
+	default:
+		return ""
+	}
+}
+
 type ImportItemParam struct {
 	ItemId     *id.ItemID
 	MetadataID *item.ID

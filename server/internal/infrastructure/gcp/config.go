@@ -13,4 +13,5 @@ type TaskConfig struct {
 	DecompressorDiskSideGb  int64  `default:"2000"`
 	CopierImage             string `default:"reearth/reearth-cms-copier"`
 	DBSecretName            string `default:"reearth-cms-db"`
+	CmsImage                string `default:"reearth/reearth-cms"`
 }
