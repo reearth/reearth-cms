@@ -1,30 +1,30 @@
 module github.com/reearth/reearth-cms/worker
 
-go 1.23.2
+go 1.23.5
 
 require (
-	cloud.google.com/go/pubsub v1.45.1
-	cloud.google.com/go/storage v1.46.0
-	github.com/aws/aws-sdk-go-v2 v1.32.3
-	github.com/aws/aws-sdk-go-v2/config v1.28.1
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.35
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.66.2
-	github.com/aws/aws-sdk-go-v2/service/sns v1.33.3
-	github.com/bodgit/sevenzip v1.5.2
+	cloud.google.com/go/pubsub v1.45.3
+	cloud.google.com/go/storage v1.50.0
+	github.com/aws/aws-sdk-go-v2 v1.34.0
+	github.com/aws/aws-sdk-go-v2/config v1.29.2
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.54
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.74.1
+	github.com/aws/aws-sdk-go-v2/service/sns v1.33.15
+	github.com/bodgit/sevenzip v1.6.0
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/labstack/echo/v4 v4.12.0
+	github.com/labstack/echo/v4 v4.13.3
 	github.com/reearth/reearthx v0.0.0-20240201064205-4a2be423e40d
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.47.0
-	github.com/spf13/afero v1.11.0
-	github.com/stretchr/testify v1.9.0
-	go.mongodb.org/mongo-driver v1.17.1
-	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.56.0
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.56.0
-	golang.org/x/net v0.30.0
+	github.com/spf13/afero v1.12.0
+	github.com/stretchr/testify v1.10.0
+	go.mongodb.org/mongo-driver/v2 v2.0.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.59.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.59.0
+	golang.org/x/net v0.34.0
 )
 
 require (
