@@ -26,7 +26,6 @@ export async function uploadFiles<T extends File, U>(
   return await Promise.all(
     files.map(async file => {
       const gzip = isGzippable(file);
-
       let cursor = "";
       let offset = 0;
       let uploadToken = "";
@@ -49,7 +48,9 @@ export async function uploadFiles<T extends File, U>(
           break;
         }
 
-        const body: BodyInit = file.slice(offset, offset + contentLength);
+        // if contentLength is 0, no need to slice the file
+        const body: BodyInit =
+          contentLength > 0 ? file.slice(offset, offset + contentLength) : file;
         const resp = await fetch(url, {
           method: "PUT",
           body: gzip ? gzipStreamFromBlob(body) : body,
@@ -57,6 +58,12 @@ export async function uploadFiles<T extends File, U>(
             ...(contentType && { "Content-Type": contentType }),
             ...(contentEncoding && { "Content-Encoding": contentEncoding }),
           },
+          // https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests
+          ...(gzip
+            ? {
+                duplex: "half",
+              }
+            : {}),
         });
 
         if (!resp.ok) {
@@ -77,9 +84,7 @@ export async function uploadFiles<T extends File, U>(
 }
 
 function gzipStreamFromBlob(blob: Blob): ReadableStream {
-  const s = new CompressionStream("gzip");
-  const readableStream = blob.stream().pipeThrough(s);
-  return readableStream;
+  return blob.stream().pipeThrough(new window.CompressionStream("gzip"));
 }
 
 function isGzippable(file: File): boolean {

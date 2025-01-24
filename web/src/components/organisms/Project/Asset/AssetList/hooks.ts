@@ -202,7 +202,8 @@ export default (isItemsRequired: boolean) => {
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
         }
-      } catch {
+      } catch (e) {
+        console.error("upload error", e);
         Notification.error({ message: t("Failed to add one or more assets.") });
       } finally {
         setUploading(false);
