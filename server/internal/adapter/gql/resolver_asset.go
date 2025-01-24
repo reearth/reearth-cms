@@ -145,11 +145,12 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 	return &gqlmodel.CreateAssetUploadPayload{
-		URL:           au.URL,
-		Token:         au.UUID,
-		ContentType:   lo.ToPtr(au.ContentType),
-		ContentLength: int(au.ContentLength),
-		Next:          lo.ToPtr(au.Next),
+		URL:             au.URL,
+		Token:           au.UUID,
+		ContentType:     lo.EmptyableToPtr(au.ContentType),
+		ContentLength:   int(au.ContentLength),
+		ContentEncoding: lo.EmptyableToPtr(au.ContentEncoding),
+		Next:            lo.EmptyableToPtr(au.Next),
 	}, nil
 }
 
