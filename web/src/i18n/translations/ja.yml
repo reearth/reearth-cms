@@ -2,7 +2,7 @@ Copy: コピー
 Copied: コピーしました
 Download: ダウンロード
 Loading: ローディング中
-Oops!: ''
+Oops!: ""
 PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
 ITEM NOT FOUND ON SERVER: データが見つかりません。
@@ -44,7 +44,7 @@ This will change the UI language: UIの言語設定を変更します。
 Language: 言語
 Copy URL: URLをコピー
 URL copied!!: URLをコピーしました！
-Unzip: ''
+Unzip: ""
 Asset Type: アセットの種類
 Created Time: 作成日時
 Created By: 作成者
@@ -52,13 +52,13 @@ Linked to: リンク先
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
-PNG/JPEG/TIFF/GIF: ''
-SVG: ''
-GEOJSON/KML/CZML: ''
-3D Tiles: ''
-MVT: ''
-GLTF/GLB: ''
-CSV: ''
+PNG/JPEG/TIFF/GIF: ""
+SVG: ""
+GEOJSON/KML/CZML: ""
+3D Tiles: ""
+MVT: ""
+GLTF/GLB: ""
+CSV: ""
 Unknown Type: 不明
 Decompressing...: 解凍中
 Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
@@ -73,7 +73,7 @@ Size: サイズ
 Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
-ID: ''
+ID: ""
 input search text: 検索
 Delete: 削除
 Upload Asset: アセットをアップロード
@@ -86,7 +86,7 @@ Upload and Link: アップロードとリンク
 Upload: アップロード
 Asset Uploader: アセットアップローダー
 Local: ローカル
-URL: ''
+URL: ""
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
@@ -109,7 +109,7 @@ Go to Editor: エディタへ移動
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
-OK: ''
+OK: ""
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
@@ -185,8 +185,8 @@ Descending: 降順
 Confirm: 確認
 Publish items: アイテムを公開
 All selected items will be published. You can unpublish them anytime.: 選択したアイテムはすべて公開されます。アイテムはいつでも非公開にすることができます。
-'No': いいえ
-'Yes': はい
+"No": いいえ
+"Yes": はい
 Filter: フィルター
 Add Filter: 絞り込む
 Add Sort: 並び替える
@@ -237,7 +237,7 @@ GROUPS: グループ
 Add: 追加
 MODELS: モデル
 My Integration: マイインテグレーション
-Webhook: ''
+Webhook: ""
 New Integration: 新規インテグレーション
 Create: 作成
 Integration Name: インテグレーション名
@@ -316,8 +316,8 @@ Group: グループ
 Meta Data: メタデータ
 Add Field: フィールドを追加
 optional: 任意
-Update Field: '{{field}}フィールドを更新'
-Create Field: '{{field}}フィールドを作成'
+Update Field: "{{field}}フィールドを更新"
+Create Field: "{{field}}フィールドを作成"
 Previous: 戻る
 Next: 次へ
 Reference setting: 参照設定
@@ -479,14 +479,15 @@ Failed to delete one or more assets.: アセットの削除に失敗しました
 One or more assets were successfully deleted!: アセットの削除に成功しました。
 No comments.: コメントはありません。
 Please click the comment bubble in the table to check comments.: コメントを確認するには、表のコメントアイコンををクリックしてください。
+Failed to upload file: ファイルのアップロードに失敗しました。
 Failed to create item.: アイテムの作成に失敗しました。
 Successfully created Item!: アイテムの作成に成功しました。
 Failed to update item.: アイテムの更新に失敗しました。
 Successfully updated Item!: アイテムの更新に成功しました。
 Failed to create request.: リクエストの作成に失敗しました。
 Successfully created request!: リクエストの作成に成功しました。
-Required field error: '{{field}}フィールドは必須項目です!'
-Maximum length error: '{{field}}フィールドの文字数が最大数を超えています!'
+Required field error: "{{field}}フィールドは必須項目です!"
+Maximum length error: "{{field}}フィールドの文字数が最大数を超えています!"
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
 One of the items already exists in the request.: アイテムのいずれかがすでにリクエストに存在します。
