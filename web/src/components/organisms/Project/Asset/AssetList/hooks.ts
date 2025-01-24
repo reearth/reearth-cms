@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
+import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
@@ -23,7 +24,7 @@ import { uploadFiles } from "./upload";
 
 type UploadType = "local" | "url";
 
-export type UploadFile = File & {
+type UploadFile = File & {
   skipDecompression?: boolean;
 };
 
@@ -50,7 +51,7 @@ export default (isItemsRequired: boolean) => {
     selectedRowKeys: [],
   });
   const [selectedAssetId, setSelectedAssetId] = useState<string>();
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [fileList, setFileList] = useState<RawUploadFile[]>([]);
   const [uploadUrl, setUploadUrl] = useState({
     url: "",
     autoUnzip: true,
@@ -142,7 +143,7 @@ export default (isItemsRequired: boolean) => {
   }, [setUploadModalVisibility, setFileList, setUploadUrl, setUploadType]);
 
   const handleAssetsCreate = useCallback(
-    async (files: UploadFile[]) => {
+    async (files: RawUploadFile[]) => {
       if (!projectId) return [];
       setUploading(true);
 
@@ -151,7 +152,7 @@ export default (isItemsRequired: boolean) => {
       try {
         results = (
           await uploadFiles<UploadFile, Asset | undefined>(
-            files,
+            files as unknown as UploadFile[], // TODO: refactor
             async ({ contentLength, contentEncoding, cursor, filename }) => {
               const result = await createAssetUploadMutation({
                 variables: {
