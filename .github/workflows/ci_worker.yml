@@ -44,7 +44,7 @@ jobs:
         env:
           REEARTH_CMS_DB: mongodb://localhost
       - name: Send coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: worker
           file: coverage.txt
