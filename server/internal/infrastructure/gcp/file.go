@@ -170,6 +170,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	return &gateway.UploadAssetLink{
 		URL:             uploadURL,
 		ContentType:     contentType,
+		ContentLength:   param.ContentLength,
 		ContentEncoding: param.ContentEncoding,
 		Next:            "",
 	}, nil
