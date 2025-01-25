@@ -33,11 +33,12 @@ type AssetAndFileDocument struct {
 }
 
 type AssetFileDocument struct {
-	Name        string
-	Size        uint64
-	ContentType string
-	Path        string
-	Children    []*AssetFileDocument
+	Name            string
+	Size            uint64
+	ContentType     string
+	ContentEncoding string
+	Path            string
+	Children        []*AssetFileDocument
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -142,11 +143,12 @@ func NewFile(f *asset.File) *AssetFileDocument {
 	}
 
 	return &AssetFileDocument{
-		Name:        f.Name(),
-		Size:        f.Size(),
-		ContentType: f.ContentType(),
-		Path:        f.Path(),
-		Children:    c,
+		Name:            f.Name(),
+		Size:            f.Size(),
+		ContentType:     f.ContentType(),
+		ContentEncoding: f.ContentEncoding(),
+		Path:            f.Path(),
+		Children:        c,
 	}
 }
 
@@ -167,6 +169,7 @@ func (f *AssetFileDocument) Model() *asset.File {
 		Name(f.Name).
 		Size(f.Size).
 		ContentType(f.ContentType).
+		ContentEncoding(f.ContentEncoding).
 		Path(f.Path).
 		Children(c).
 		Build()

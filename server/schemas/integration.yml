@@ -1400,6 +1400,10 @@ paths:
                 file:
                   type: string
                   format: binary
+                contentType:
+                  type: string
+                contentEncoding:
+                  type: string
                 skipDecompression:
                   type: boolean
                   default: false
@@ -1415,6 +1419,8 @@ paths:
                   type: boolean
                   nullable: true
                   default: false
+                contentEncoding:
+                  type: string
       responses:
         '200':
           description: assets
@@ -1436,7 +1442,7 @@ paths:
       security:
         - bearerAuth: []
       summary: Upload an asset.
-      description: Issue a URL and a token to upload an asset.
+      description: Issue an URL and a token to upload an asset.
       parameters:
         - $ref: '#/components/parameters/projectIdParam'
       requestBody:
@@ -1449,6 +1455,10 @@ paths:
                   type: string
                 contentLength:
                   type: integer
+                contentType:
+                  type: string
+                contentEncoding:
+                  type: string
                 cursor:
                   type: string
       responses:
@@ -1467,6 +1477,8 @@ paths:
                     type: string
                   contentLength:
                     type: integer
+                  contentEncoding:
+                    type: string
                   next:
                     type: string
         '400':
