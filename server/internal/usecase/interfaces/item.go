@@ -123,6 +123,7 @@ type Item interface {
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
+	Import2(context.Context, id.AssetID, id.ModelID, string, string, string, bool, *usecase.Operator) error
 	// ItemsAsCSV exports items data in content to csv file by schema package.
 	ItemsAsCSV(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToCSVResponse, error)
 	// ItemsAsGeoJSON converts items to Geo JSON type given thge schema package.

@@ -16,9 +16,11 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -629,6 +631,30 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 
 		return res.Into(), nil
 	})
+}
+
+func (i Item) Import2(ctx context.Context, aId id.AssetID, mId id.ModelID, format, strategy, geoFieldKey string, mutateSchema bool, operator *usecase.Operator) error {
+	if i.gateways.TaskRunner == nil {
+		log.Info("item: import skipped because task runner is not configured")
+		return nil
+	}
+
+	taskPayload := task.ImportPayload{
+		UserId:           operator.AcOperator.User.String(),
+		ModelId:          mId.String(),
+		AssetId:          aId.String(),
+		Format:           format,
+		GeometryFieldKey: geoFieldKey,
+		Strategy:         strategy,
+		MutateSchema:     mutateSchema,
+	}
+
+	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
+		return fmt.Errorf("failed to trigger copy event: %w", err)
+	}
+
+	log.Info("item: successfully triggered import event")
+	return nil
 }
 
 func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, _ *usecase.Operator) (time.Time, error) {
