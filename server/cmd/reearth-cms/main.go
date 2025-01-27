@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	integration2 "github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -347,7 +348,7 @@ func generateIntegrationOperator(ctx context.Context, iIdStr string, repo *repo.
 			MaintainableWorkspaces: mw,
 			OwningWorkspaces:       ow,
 		},
-		Integration:          &iId,
+		Integration:          integration2.IDFromRef(iId.StringRef()),
 		Lang:                 language.English.String(),
 		ReadableProjects:     rp,
 		WritableProjects:     wp,
