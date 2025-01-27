@@ -218,7 +218,6 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 	project := conf.GCPProject
 	region := conf.GCPRegion
-	dbSecretName := conf.DBSecretName
 
 	args := []string{
 		"item",
@@ -245,6 +244,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 				Name: conf.CmsImage,
 				SecretEnv: []string{
 					"REEARTH_CMS_DB",
+					"REEARTH_CMS_DB_USERS",
 				},
 				Args: args,
 			},
@@ -255,8 +255,12 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
 				{
-					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, dbSecretName),
+					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.DBSecretName),
 					Env:         "REEARTH_CMS_DB",
+				},
+				{
+					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.AccountDBSecretName),
+					Env:         "REEARTH_CMS_DB_USERS",
 				},
 			},
 		},
