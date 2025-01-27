@@ -2365,10 +2365,11 @@ export type CreateAssetUploadMutationVariables = Exact<{
   filename: Scalars['String']['input'];
   cursor: Scalars['String']['input'];
   contentLength: Scalars['Int']['input'];
+  contentEncoding?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType?: string | null, contentLength: number, next?: string | null } | null };
+export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType?: string | null, contentLength: number, contentEncoding?: string | null, next?: string | null } | null };
 
 export type AddCommentMutationVariables = Exact<{
   threadId: Scalars['ID']['input'];
@@ -3683,14 +3684,15 @@ export type DecompressAssetMutationHookResult = ReturnType<typeof useDecompressA
 export type DecompressAssetMutationResult = Apollo.MutationResult<DecompressAssetMutation>;
 export type DecompressAssetMutationOptions = Apollo.BaseMutationOptions<DecompressAssetMutation, DecompressAssetMutationVariables>;
 export const CreateAssetUploadDocument = gql`
-    mutation CreateAssetUpload($projectId: ID!, $filename: String!, $cursor: String!, $contentLength: Int!) {
+    mutation CreateAssetUpload($projectId: ID!, $filename: String!, $cursor: String!, $contentLength: Int!, $contentEncoding: String) {
   createAssetUpload(
-    input: {projectId: $projectId, filename: $filename, cursor: $cursor, contentLength: $contentLength}
+    input: {projectId: $projectId, filename: $filename, cursor: $cursor, contentLength: $contentLength, contentEncoding: $contentEncoding}
   ) {
     url
     token
     contentType
     contentLength
+    contentEncoding
     next
   }
 }
@@ -3714,6 +3716,7 @@ export type CreateAssetUploadMutationFn = Apollo.MutationFunction<CreateAssetUpl
  *      filename: // value for 'filename'
  *      cursor: // value for 'cursor'
  *      contentLength: // value for 'contentLength'
+ *      contentEncoding: // value for 'contentEncoding'
  *   },
  * });
  */
