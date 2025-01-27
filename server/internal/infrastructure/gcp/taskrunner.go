@@ -233,6 +233,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 					"item",
 					"import",
 					"-userId=" + p.Import.UserId,
+					"-integrationId=" + p.Import.IntegrationId,
 					"-modelId=" + p.Import.ModelId,
 					"-assetId=" + p.Import.AssetId,
 					"-format=" + p.Import.Format,
