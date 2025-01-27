@@ -42,6 +42,23 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 	var cp interfaces.ImportItemsParam
 
 	if request.JSONBody != nil {
+
+		if lo.FromPtrOr(request.JSONBody.AsBackground, false) {
+			err := uc.Item.Import2(ctx,
+				request.JSONBody.AssetId,
+				request.ModelId,
+				string(request.JSONBody.Format),
+				string(request.JSONBody.Strategy),
+				lo.FromPtr(request.JSONBody.GeometryFieldKey),
+				lo.FromPtrOr(request.JSONBody.MutateSchema, false),
+				op,
+			)
+			if err != nil {
+				return nil, err
+			}
+			return nil, nil
+		}
+
 		frc, _, err := uc.Asset.DownloadByID(ctx, request.JSONBody.AssetId, nil, op)
 		if err != nil {
 			return nil, err

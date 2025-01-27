@@ -74,7 +74,13 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset != nil {
 		return decompressAsset(ctx, p, t.conf)
 	}
-	return copy(ctx, p, t.conf)
+	if p.Copy != nil {
+		return copy(ctx, p, t.conf)
+	}
+	if p.Import != nil {
+		return importItems(ctx, p, t.conf)
+	}
+	return nil
 }
 
 func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) error {
@@ -171,6 +177,68 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 				},
 				SecretEnv: []string{
 					"REEARTH_CMS_DB",
+				},
+			},
+		},
+		Options: &cloudbuild.BuildOptions{
+			DiskSizeGb: defaultDiskSizeGb,
+		},
+		AvailableSecrets: &cloudbuild.Secrets{
+			SecretManager: []*cloudbuild.SecretManagerSecret{
+				{
+					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, dbSecretName),
+					Env:         "REEARTH_CMS_DB",
+				},
+			},
+		},
+	}
+
+	if region != "" {
+		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
+		_, err = call.Do()
+	} else {
+		call := cb.Projects.Builds.Create(project, build)
+		_, err = call.Do()
+	}
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+	if !p.Import.Validate() {
+		return nil
+	}
+
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	project := conf.GCPProject
+	region := conf.GCPRegion
+	dbSecretName := conf.DBSecretName
+
+	build := &cloudbuild.Build{
+		Timeout:  "86400s", // 1 day
+		QueueTtl: "86400s", // 1 day
+		Steps: []*cloudbuild.BuildStep{
+			{
+				Name: conf.CopierImage,
+				SecretEnv: []string{
+					"REEARTH_CMS_DB",
+				},
+				Args: []string{
+					"item",
+					"import",
+					"-userId=" + p.Import.UserId,
+					"-modelId=" + p.Import.ModelId,
+					"-assetId=" + p.Import.AssetId,
+					"-format=" + p.Import.Format,
+					"-geometryFieldKey=" + p.Import.GeometryFieldKey,
+					"-strategy=" + p.Import.Strategy,
+					"-mutateSchema=" + fmt.Sprint(p.Import.MutateSchema),
 				},
 			},
 		},

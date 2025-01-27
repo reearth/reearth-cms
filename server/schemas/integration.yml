@@ -390,6 +390,8 @@ paths:
                   type: boolean
                 geometryFieldKey:
                   type: string
+                asBackground:
+                  type: boolean
               required:
                 - assetId
                 - format

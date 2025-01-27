@@ -713,6 +713,7 @@ type CopyModelJSONBody struct {
 
 // ModelImportJSONBody defines parameters for ModelImport.
 type ModelImportJSONBody struct {
+	AsBackground     *bool                       `json:"asBackground,omitempty"`
 	AssetId          id.AssetID                  `json:"assetId"`
 	Format           ModelImportJSONBodyFormat   `json:"format"`
 	GeometryFieldKey *string                     `json:"geometryFieldKey,omitempty"`
