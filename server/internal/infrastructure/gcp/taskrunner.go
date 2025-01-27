@@ -220,6 +220,23 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	region := conf.GCPRegion
 	dbSecretName := conf.DBSecretName
 
+	args := []string{
+		"item",
+		"import",
+		"-modelId=" + p.Import.ModelId,
+		"-assetId=" + p.Import.AssetId,
+		"-format=" + p.Import.Format,
+		"-geometryFieldKey=" + p.Import.GeometryFieldKey,
+		"-strategy=" + p.Import.Strategy,
+		"-mutateSchema=" + fmt.Sprint(p.Import.MutateSchema),
+	}
+
+	if p.Import.UserId != "" {
+		args = append(args, "-userId="+p.Import.UserId)
+	} else if p.Import.IntegrationId != "" {
+		args = append(args, "-integrationId="+p.Import.IntegrationId)
+	}
+
 	build := &cloudbuild.Build{
 		Timeout:  "86400s", // 1 day
 		QueueTtl: "86400s", // 1 day
@@ -229,18 +246,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 				SecretEnv: []string{
 					"REEARTH_CMS_DB",
 				},
-				Args: []string{
-					"item",
-					"import",
-					"-userId=" + p.Import.UserId,
-					"-integrationId=" + p.Import.IntegrationId,
-					"-modelId=" + p.Import.ModelId,
-					"-assetId=" + p.Import.AssetId,
-					"-format=" + p.Import.Format,
-					"-geometryFieldKey=" + p.Import.GeometryFieldKey,
-					"-strategy=" + p.Import.Strategy,
-					"-mutateSchema=" + fmt.Sprint(p.Import.MutateSchema),
-				},
+				Args: args,
 			},
 		},
 		Options: &cloudbuild.BuildOptions{
