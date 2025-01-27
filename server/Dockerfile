@@ -24,4 +24,4 @@ COPY --from=build /app/reearth-cms /app/reearth-cms
 
 WORKDIR /app
 
-CMD [ "./reearth-cms" ]
+ENTRYPOINT [ "/reearth-cms" ]
