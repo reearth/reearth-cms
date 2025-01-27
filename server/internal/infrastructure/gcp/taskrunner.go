@@ -225,7 +225,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
 			{
-				Name: conf.CopierImage,
+				Name: conf.CmsImage,
 				SecretEnv: []string{
 					"REEARTH_CMS_DB",
 				},
