@@ -634,19 +634,28 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 }
 
 func (i Item) Import2(ctx context.Context, aId id.AssetID, mId id.ModelID, format, strategy, geoFieldKey string, mutateSchema bool, operator *usecase.Operator) error {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return interfaces.ErrInvalidOperator
+	}
+
 	if i.gateways.TaskRunner == nil {
 		log.Info("item: import skipped because task runner is not configured")
 		return nil
 	}
 
 	taskPayload := task.ImportPayload{
-		UserId:           operator.AcOperator.User.String(),
 		ModelId:          mId.String(),
 		AssetId:          aId.String(),
 		Format:           format,
 		GeometryFieldKey: geoFieldKey,
 		Strategy:         strategy,
 		MutateSchema:     mutateSchema,
+	}
+	if operator.AcOperator.User != nil {
+		taskPayload.UserId = operator.AcOperator.User.String()
+	}
+	if operator.Integration != nil {
+		taskPayload.IntegrationId = operator.Integration.String()
 	}
 
 	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {

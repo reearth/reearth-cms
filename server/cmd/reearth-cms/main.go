@@ -17,6 +17,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
@@ -39,6 +40,7 @@ func main() {
 	if len(os.Args) >= 3 && os.Args[1] == "item" && os.Args[2] == "import" {
 		importCmd := flag.NewFlagSet("import", flag.ExitOnError)
 		uIdStr := importCmd.String("userId", "", "")
+		iIdStr := importCmd.String("integrationId", "", "")
 		mIdStr := importCmd.String("modelId", "", "")
 		aIdStr := importCmd.String("assetId", "", "")
 		format := importCmd.String("format", "", "")
@@ -51,10 +53,6 @@ func main() {
 			return
 		}
 
-		uId, err := user.IDFrom(*uIdStr)
-		if err != nil {
-			log.Fatal("invalid user id")
-		}
 		mId := id.ModelIDFromRef(mIdStr)
 		if mId == nil {
 			log.Fatal("invalid model id")
@@ -94,8 +92,13 @@ func main() {
 		})
 
 		// get op from user id
-		op, err := generateUserOperator(ctx, uId, repos, acRepos)
-		if err != nil {
+		var op *usecase.Operator
+		if uIdStr != nil && *uIdStr != "" {
+			op, err = generateUserOperator(ctx, *uIdStr, repos, acRepos)
+		} else if iIdStr != nil && *iIdStr != "" {
+			op, err = generateIntegrationOperator(ctx, *iIdStr, repos, acRepos)
+		}
+		if err != nil || op == nil {
 			log.Fatalf("failed to generate operator: %v", err)
 		}
 
@@ -275,8 +278,11 @@ func isAssignable(vt1, vt2 value.Type) bool {
 	return false
 }
 
-func generateUserOperator(ctx context.Context, uId user.ID, repo *repo.Container, accRepo *accountrepo.Container) (*usecase.Operator, error) {
-
+func generateUserOperator(ctx context.Context, uIdStr string, repo *repo.Container, accRepo *accountrepo.Container) (*usecase.Operator, error) {
+	uId, err := user.IDFrom(uIdStr)
+	if err != nil {
+		return nil, err
+	}
 	w, err := accRepo.Workspace.FindByUser(ctx, uId)
 	if err != nil {
 		return nil, err
@@ -310,6 +316,43 @@ func generateUserOperator(ctx context.Context, uId user.ID, repo *repo.Container
 		OwningProjects:       op,
 
 		AcOperator: acop,
+	}, nil
+}
+
+func generateIntegrationOperator(ctx context.Context, iIdStr string, repo *repo.Container, accRepo *accountrepo.Container) (*usecase.Operator, error) {
+	iId, err := accountdomain.IntegrationIDFrom(iIdStr)
+	if err != nil {
+		return nil, err
+	}
+	w, err := accRepo.Workspace.FindByIntegration(ctx, iId)
+	if err != nil {
+		return nil, err
+	}
+
+	rw := w.FilterByIntegrationRole(iId, workspace.RoleReader).IDs()
+	ww := w.FilterByIntegrationRole(iId, workspace.RoleWriter).IDs()
+	mw := w.FilterByIntegrationRole(iId, workspace.RoleMaintainer).IDs()
+	ow := w.FilterByIntegrationRole(iId, workspace.RoleOwner).IDs()
+
+	rp, wp, mp, op, err := operatorProjects(ctx, repo, w, rw, ww, mw, ow)
+	if err != nil {
+		return nil, err
+	}
+
+	return &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:                   nil,
+			ReadableWorkspaces:     rw,
+			WritableWorkspaces:     ww,
+			MaintainableWorkspaces: mw,
+			OwningWorkspaces:       ow,
+		},
+		Integration:          &iId,
+		Lang:                 language.English.String(),
+		ReadableProjects:     rp,
+		WritableProjects:     wp,
+		MaintainableProjects: mp,
+		OwningProjects:       op,
 	}, nil
 }
 

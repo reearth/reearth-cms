@@ -77,6 +77,7 @@ const (
 
 type ImportPayload struct {
 	UserId           string
+	IntegrationId    string
 	ModelId          string
 	AssetId          string
 	Format           string
@@ -86,7 +87,7 @@ type ImportPayload struct {
 }
 
 func (p *ImportPayload) Validate() bool {
-	return p != nil && p.UserId != "" && p.ModelId != "" && p.AssetId != "" && p.Format != "" && p.GeometryFieldKey != "" && p.Strategy != ""
+	return p != nil && (p.UserId != "" || p.IntegrationId != "") && p.ModelId != "" && p.AssetId != "" && p.Format != "" && p.GeometryFieldKey != "" && p.Strategy != ""
 }
 
 func (p *ImportPayload) Payload() Payload {
