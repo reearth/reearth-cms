@@ -243,6 +243,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 			{
 				Name: conf.CmsImage,
 				Env: []string{
+					"REEARTH_CMS_GCS_BUCKETNAME=" + conf.GCSBucket,
 					"REEARTH_CMS_DB_ACCOUNT=" + conf.AccountDBName,
 				},
 				SecretEnv: []string{
