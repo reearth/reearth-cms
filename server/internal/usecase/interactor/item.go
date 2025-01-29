@@ -365,77 +365,89 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		return interfaces.ImportItemsResponse{}, interfaces.ErrInvalidOperator
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ImportItemsResponse, error) {
-		s := param.SP.Schema()
-		if !operator.IsWritableWorkspace(s.Workspace()) {
-			return interfaces.ImportItemsResponse{}, interfaces.ErrOperationDenied
-		}
-		res := NewImportRes()
+	s := param.SP.Schema()
+	if !operator.IsWritableWorkspace(s.Workspace()) {
+		return interfaces.ImportItemsResponse{}, interfaces.ErrOperationDenied
+	}
+	res := NewImportRes()
 
-		prj, err := i.repos.Project.FindByID(ctx, s.Project())
-		if err != nil {
-			return interfaces.ImportItemsResponse{}, err
-		}
+	prj, err := i.repos.Project.FindByID(ctx, s.Project())
+	if err != nil {
+		return interfaces.ImportItemsResponse{}, err
+	}
 
-		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
-		if err != nil {
-			return interfaces.ImportItemsResponse{}, err
-		}
+	m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+	if err != nil {
+		return interfaces.ImportItemsResponse{}, err
+	}
 
-		itemsIds := lo.FilterMap(param.Items, func(i interfaces.ImportItemParam, _ int) (item.ID, bool) {
-			if i.ItemId != nil {
-				return *i.ItemId, true
+	itemsIds := lo.FilterMap(param.Items, func(i interfaces.ImportItemParam, _ int) (item.ID, bool) {
+		if i.ItemId != nil {
+			return *i.ItemId, true
+		}
+		return item.ID{}, false
+	})
+	oldItems, err := i.repos.Item.FindByIDs(ctx, itemsIds, nil)
+	if err != nil {
+		return interfaces.ImportItemsResponse{}, err
+	}
+
+	metaItemsIds := lo.FilterMap(param.Items, func(i interfaces.ImportItemParam, _ int) (item.ID, bool) {
+		if i.MetadataID != nil {
+			return *i.MetadataID, true
+		}
+		return item.ID{}, false
+	})
+	oldMetaItems, err := i.repos.Item.FindByIDs(ctx, metaItemsIds, nil)
+	if err != nil {
+		return interfaces.ImportItemsResponse{}, err
+	}
+
+	isMetadata := false
+	if m.Metadata() != nil && s.ID() == *m.Metadata() {
+		isMetadata = true
+	}
+
+	threadsToSave := thread.List{}
+	itemsToSave := item.List{}
+
+	type itemChanges struct {
+		oldFields item.Fields
+		action    interfaces.ImportStrategyType
+	}
+	itemsEvent := map[item.ID]itemChanges{}
+
+	// update schema if needed
+	if param.MutateSchema && len(param.Fields) > 0 {
+		for _, fieldParam := range param.Fields {
+			if fieldParam.Key == "" || s.HasFieldByKey(fieldParam.Key) {
+				return interfaces.ImportItemsResponse{}, schema.ErrInvalidKey
 			}
-			return item.ID{}, false
-		})
-		oldItems, err := i.repos.Item.FindByIDs(ctx, itemsIds, nil)
-		if err != nil {
-			return interfaces.ImportItemsResponse{}, err
-		}
 
-		isMetadata := false
-		if m.Metadata() != nil && s.ID() == *m.Metadata() {
-			isMetadata = true
-		}
-
-		threadsToSave := thread.List{}
-		itemsToSave := item.List{}
-
-		type itemChanges struct {
-			oldFields item.Fields
-			action    interfaces.ImportStrategyType
-		}
-		itemsEvent := map[item.ID]itemChanges{}
-
-		// update schema if needed
-		if param.MutateSchema && len(param.Fields) > 0 {
-			for _, fieldParam := range param.Fields {
-				if fieldParam.Key == "" || s.HasFieldByKey(fieldParam.Key) {
-					return interfaces.ImportItemsResponse{}, schema.ErrInvalidKey
-				}
-
-				f, err := schema.NewFieldWithDefaultProperty(fieldParam.Type).
-					NewID().
-					Unique(fieldParam.Unique).
-					Multiple(fieldParam.Multiple).
-					Required(fieldParam.Required).
-					Name(fieldParam.Name).
-					Description(lo.FromPtr(fieldParam.Description)).
-					Key(id.NewKey(fieldParam.Key)).
-					DefaultValue(fieldParam.DefaultValue).
-					Build()
-				if err != nil {
-					return interfaces.ImportItemsResponse{}, err
-				}
-
-				s.AddField(f)
-				res.FieldAdded(f)
-			}
-			err = i.repos.Schema.Save(ctx, s)
+			f, err := schema.NewFieldWithDefaultProperty(fieldParam.Type).
+				NewID().
+				Unique(fieldParam.Unique).
+				Multiple(fieldParam.Multiple).
+				Required(fieldParam.Required).
+				Name(fieldParam.Name).
+				Description(lo.FromPtr(fieldParam.Description)).
+				Key(id.NewKey(fieldParam.Key)).
+				DefaultValue(fieldParam.DefaultValue).
+				Build()
 			if err != nil {
 				return interfaces.ImportItemsResponse{}, err
 			}
+
+			s.AddField(f)
+			res.FieldAdded(f)
 		}
+		err = i.repos.Schema.Save(ctx, s)
+		if err != nil {
+			return interfaces.ImportItemsResponse{}, err
+		}
+	}
+
+	f := func(ctx context.Context) (interfaces.ImportItemsResponse, error) {
 
 		for _, itemParam := range param.Items {
 
@@ -517,10 +529,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 
 			var mi item.Versioned
 			if itemParam.MetadataID != nil {
-				mi, err = i.repos.Item.FindByID(ctx, *itemParam.MetadataID, nil)
-				if err != nil {
-					return interfaces.ImportItemsResponse{}, err
-				}
+				mi = oldMetaItems.Item(*itemParam.MetadataID)
 				if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
 					return interfaces.ImportItemsResponse{}, interfaces.ErrMetadataMismatch
 				}
@@ -587,50 +596,57 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			return interfaces.ImportItemsResponse{}, err
 		}
 
-		//  TODO: create ItemsImported event
-		items, err := i.repos.Item.FindByIDs(ctx, lo.Keys(itemsEvent), nil)
+		return res.Into(), nil
+	}
+
+	runRes, err := Run1(ctx, operator, i.repos, Usecase().Transaction(), f)
+	if err != nil {
+		return interfaces.ImportItemsResponse{}, err
+	}
+
+	//  TODO: create ItemsImported event
+	items, err := i.repos.Item.FindByIDs(ctx, lo.Keys(itemsEvent), nil)
+	if err != nil {
+		return interfaces.ImportItemsResponse{}, err
+	}
+	var events []Event
+
+	for k, changes := range itemsEvent {
+		vi := items.Item(k)
+		it := vi.Value()
+
+		refItems, err := i.getReferencedItems(ctx, it.Fields())
 		if err != nil {
 			return interfaces.ImportItemsResponse{}, err
 		}
-		var events []Event
 
-		for k, changes := range itemsEvent {
-			vi := items.Item(k)
-			it := vi.Value()
-
-			refItems, err := i.getReferencedItems(ctx, it.Fields())
-			if err != nil {
-				return interfaces.ImportItemsResponse{}, err
-			}
-
-			var eType event.Type
-			if changes.action == interfaces.ImportStrategyTypeInsert {
-				eType = event.ItemCreate
-			} else {
-				eType = event.ItemUpdate
-			}
-			events = append(events, Event{
-				Project:   prj,
-				Workspace: s.Workspace(),
-				Type:      eType,
-				Object:    vi,
-				WebhookObject: item.ItemModelSchema{
-					Item:            vi.Value(),
-					Model:           m,
-					Schema:          s,
-					GroupSchemas:    param.SP.GroupSchemas(),
-					ReferencedItems: refItems,
-					Changes:         item.CompareFields(it.Fields(), changes.oldFields),
-				},
-				Operator: operator.Operator(),
-			})
+		var eType event.Type
+		if changes.action == interfaces.ImportStrategyTypeInsert {
+			eType = event.ItemCreate
+		} else {
+			eType = event.ItemUpdate
 		}
-		if err := i.events(ctx, events); err != nil {
-			return interfaces.ImportItemsResponse{}, err
-		}
+		events = append(events, Event{
+			Project:   prj,
+			Workspace: s.Workspace(),
+			Type:      eType,
+			Object:    vi,
+			WebhookObject: item.ItemModelSchema{
+				Item:            vi.Value(),
+				Model:           m,
+				Schema:          s,
+				GroupSchemas:    param.SP.GroupSchemas(),
+				ReferencedItems: refItems,
+				Changes:         item.CompareFields(it.Fields(), changes.oldFields),
+			},
+			Operator: operator.Operator(),
+		})
+	}
+	if err := i.events(ctx, events); err != nil {
+		return interfaces.ImportItemsResponse{}, err
+	}
 
-		return res.Into(), nil
-	})
+	return runRes, err
 }
 
 func (i Item) Import2(ctx context.Context, aId id.AssetID, mId id.ModelID, format, strategy, geoFieldKey string, mutateSchema bool, operator *usecase.Operator) error {
