@@ -445,11 +445,12 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		if err != nil {
 			return interfaces.ImportItemsResponse{}, err
 		}
+		log.Infof("schema %s updated, %v new field created.", s.ID(), len(param.Fields))
 	}
 
 	f := func(ctx context.Context) (interfaces.ImportItemsResponse, error) {
 
-		for _, itemParam := range param.Items {
+		for j, itemParam := range param.Items {
 
 			var oldItem *item.Item
 			if itemParam.ItemId != nil {
@@ -586,15 +587,22 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 			} else {
 				res.ItemUpdated()
 			}
+
+			if j > 0 && j%1000 == 0 {
+				log.Infof(" %d items created...", j)
+			}
 		}
+		log.Infof(" %d items created.", len(param.Items))
 
 		if err := i.repos.Thread.SaveAll(ctx, threadsToSave); err != nil {
 			return interfaces.ImportItemsResponse{}, err
 		}
+		log.Infof(" %d threads saved.", len(threadsToSave))
 
 		if err := i.repos.Item.SaveAll(ctx, itemsToSave); err != nil {
 			return interfaces.ImportItemsResponse{}, err
 		}
+		log.Infof(" %d items saved.", len(itemsToSave))
 
 		return res.Into(), nil
 	}
@@ -675,7 +683,7 @@ func (i Item) Import2(ctx context.Context, aId id.AssetID, mId id.ModelID, forma
 	}
 
 	if err := i.gateways.TaskRunner.Run(ctx, taskPayload.Payload()); err != nil {
-		return fmt.Errorf("failed to trigger copy event: %w", err)
+		return fmt.Errorf("failed to trigger import event: %w", err)
 	}
 
 	log.Info("item: successfully triggered import event")
