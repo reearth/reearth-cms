@@ -600,6 +600,9 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 	}
 
 	runRes, err := Run1(ctx, operator, i.repos, Usecase().Transaction(), f)
+	if err != nil {
+		return interfaces.ImportItemsResponse{}, err
+	}
 
 	//  TODO: create ItemsImported event
 	items, err := i.repos.Item.FindByIDs(ctx, lo.Keys(itemsEvent), nil)
