@@ -118,6 +118,8 @@ func main() {
 			log.Fatalf("asset not found: %v", err)
 		}
 
+		log.Infof("importing items from asset %s", aId.String())
+
 		items, fields, err := itemsFromJson(frc, *format == "geojson", geometryFieldKey, *sp)
 		if err != nil {
 			log.Fatalf("failed to parse json: %v", err)
@@ -164,7 +166,7 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 
 	items := make([]interfaces.ImportItemParam, 0)
 	fields := make([]interfaces.CreateFieldParam, 0)
-	for _, o := range jsonObjects {
+	for i, o := range jsonObjects {
 		var iId *id.ItemID
 		//idStr, _ := o["id"].(string)
 		//iId = id.ItemIDFromRef(&idStr)
@@ -251,7 +253,12 @@ func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Pack
 			})
 		}
 		items = append(items, item)
+		if i > 0 && i%1000 == 0 {
+			log.Infof("%d items prepared...", i)
+		}
 	}
+	log.Infof("%d items prepared.", len(items))
+	log.Infof("items preparation done.")
 	return items, fields, nil
 }
 
