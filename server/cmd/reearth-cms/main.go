@@ -2,12 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"io"
 	"os"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
@@ -15,17 +12,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	integration2 "github.com/reearth/reearth-cms/server/pkg/integration"
-	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
-	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"golang.org/x/text/language"
@@ -44,7 +36,7 @@ func main() {
 		iIdStr := importCmd.String("integrationId", "", "")
 		mIdStr := importCmd.String("modelId", "", "")
 		aIdStr := importCmd.String("assetId", "", "")
-		format := importCmd.String("format", "", "")
+		formatStr := importCmd.String("format", "", "")
 		geometryFieldKey := importCmd.String("geometryFieldKey", "", "")
 		strategyStr := importCmd.String("strategy", "", "")
 		mutateSchema := importCmd.Bool("mutateSchema", false, "")
@@ -71,7 +63,11 @@ func main() {
 			log.Fatalf("invalid strategy")
 		}
 
-		if format == nil || (*format != "json" && *format != "geojson") {
+		if formatStr == nil {
+			log.Fatalf("format is required")
+		}
+		format := interfaces.ImportFormatTypeFromString(*formatStr)
+		if format == "" {
 			log.Fatalf("invalid format")
 		}
 
@@ -103,12 +99,7 @@ func main() {
 			log.Fatalf("failed to generate operator: %v", err)
 		}
 
-		m, err := uc.Model.FindByID(ctx, *mId, op)
-		if err != nil {
-			log.Fatalf("model not found: %v", err)
-		}
-
-		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+		sp, err := uc.Schema.FindByModel(ctx, *mId, op)
 		if err != nil {
 			log.Fatalf("schema not found: %v", err)
 		}
@@ -120,18 +111,14 @@ func main() {
 
 		log.Infof("importing items from asset %s", aId.String())
 
-		items, fields, err := itemsFromJson(frc, *format == "geojson", geometryFieldKey, *sp)
-		if err != nil {
-			log.Fatalf("failed to parse json: %v", err)
-		}
-
 		cp := interfaces.ImportItemsParam{
 			SP:           *sp,
-			ModelID:      m.ID(),
+			ModelID:      *mId,
+			Format:       format,
 			Strategy:     strategy,
 			MutateSchema: lo.FromPtrOr(mutateSchema, false),
-			Items:        items,
-			Fields:       fields,
+			GeoField:     geometryFieldKey,
+			Reader:       frc,
 		}
 
 		_, err = uc.Item.Import(ctx, cp, op)
@@ -139,151 +126,6 @@ func main() {
 			log.Fatalf("failed to import: %v", err)
 		}
 	}
-}
-
-func itemsFromJson(r io.Reader, isGeoJson bool, geoField *string, sp schema.Package) ([]interfaces.ImportItemParam, []interfaces.CreateFieldParam, error) {
-	var jsonObjects []map[string]any
-	if isGeoJson {
-		var geoJson integrationapi.GeoJSON
-		err := json.NewDecoder(r).Decode(&geoJson)
-		if err != nil {
-			return nil, nil, err
-		}
-		if geoJson.Features == nil {
-			return nil, nil, rerror.ErrInvalidParams
-		}
-		for _, feature := range *geoJson.Features {
-			var f map[string]any
-			_ = json.Unmarshal(lo.Must(json.Marshal(feature)), &f)
-			jsonObjects = append(jsonObjects, f)
-		}
-	} else {
-		err := json.NewDecoder(r).Decode(&jsonObjects)
-		if err != nil {
-			return nil, nil, err
-		}
-	}
-
-	items := make([]interfaces.ImportItemParam, 0)
-	fields := make([]interfaces.CreateFieldParam, 0)
-	for i, o := range jsonObjects {
-		var iId *id.ItemID
-		//idStr, _ := o["id"].(string)
-		//iId = id.ItemIDFromRef(&idStr)
-		if idVal, ok := o["id"]; ok {
-			if idStr, ok := idVal.(string); ok {
-				iId = id.ItemIDFromRef(&idStr)
-				if iId.IsEmpty() || iId.IsNil() {
-					return nil, nil, rerror.ErrInvalidParams
-				}
-			} else {
-				return nil, nil, rerror.ErrInvalidParams
-			}
-		}
-		item := interfaces.ImportItemParam{
-			ItemId:     iId,
-			MetadataID: nil,
-			Fields:     nil,
-		}
-		if isGeoJson {
-			if geoField == nil {
-				return nil, nil, rerror.ErrInvalidParams
-			}
-
-			geoFieldKey := id.NewKey(*geoField)
-			if !geoFieldKey.IsValid() {
-				return nil, nil, rerror.ErrInvalidParams
-			}
-			geoFieldId := id.FieldIDFromRef(geoField)
-			f := sp.FieldByIDOrKey(geoFieldId, &geoFieldKey)
-			if f == nil { // TODO: check GeoField type
-				return nil, nil, rerror.ErrInvalidParams
-			}
-
-			v, err := json.Marshal(o["geometry"])
-			if err != nil {
-				return nil, nil, err
-			}
-			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
-				Field: f.ID().Ref(),
-				Key:   f.Key().Ref(),
-				Value: string(v),
-				// Group is not supported
-				Group: nil,
-			})
-
-			props, ok := o["properties"].(map[string]any)
-			if !ok {
-				continue
-			}
-			o = props
-		}
-		for k, v := range o {
-			if v == nil || k == "id" {
-				continue
-			}
-			key := id.NewKey(k)
-			if !key.IsValid() {
-				return nil, nil, rerror.ErrInvalidParams
-			}
-			newField := integration.FieldFrom(key.String(), v, sp)
-			f := sp.FieldByIDOrKey(nil, &key)
-			if f != nil && !isAssignable(newField.Type, f.Type()) {
-				continue
-			}
-
-			if f == nil {
-				prevField, found := lo.Find(fields, func(fp interfaces.CreateFieldParam) bool {
-					return fp.Key == key.String()
-				})
-				if found && prevField.Type != newField.Type {
-					return nil, nil, rerror.NewE(i18n.T("data type mismatch"))
-				}
-				if !found {
-					fields = append(fields, newField)
-				}
-			}
-
-			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
-				Field: nil,
-				Key:   key.Ref(),
-				Value: v,
-				// Group is not supported
-				Group: nil,
-			})
-		}
-		items = append(items, item)
-		if i > 0 && i%1000 == 0 {
-			log.Infof("%d items prepared...", i)
-		}
-	}
-	log.Infof("%d items prepared.", len(items))
-	log.Infof("items preparation done.")
-	return items, fields, nil
-}
-
-// isAssignable returns true if vt1 is assignable to vt2
-func isAssignable(vt1, vt2 value.Type) bool {
-	if vt1 == vt2 {
-		return true
-	}
-	if vt1 == value.TypeInteger &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown || vt2 == value.TypeNumber) {
-		return true
-	}
-	if vt1 == value.TypeNumber &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	if vt1 == value.TypeBool &&
-		(vt2 == value.TypeCheckbox || vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	if vt1 == value.TypeText &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	return false
 }
 
 func generateUserOperator(ctx context.Context, uIdStr string, repo *repo.Container, accRepo *accountrepo.Container) (*usecase.Operator, error) {
