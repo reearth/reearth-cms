@@ -179,37 +179,33 @@ const IntegrationTable: React.FC<Props> = ({
     [onReload],
   );
 
+  const ConnectButton = useCallback(
+    () => (
+      <Button
+        type="primary"
+        onClick={onIntegrationConnectModalOpen}
+        icon={<Icon icon="api" />}
+        disabled={!hasConnectRight}>
+        {t("Connect Integration")}
+      </Button>
+    ),
+    [hasConnectRight, onIntegrationConnectModalOpen, t],
+  );
+
   return (
     <Wrapper>
-      <PageHeader
-        title={t("Integrations")}
-        extra={
-          <Button
-            type="primary"
-            onClick={onIntegrationConnectModalOpen}
-            icon={<Icon icon="api" />}
-            disabled={!hasConnectRight}>
-            {t("Connect Integration")}
-          </Button>
-        }
-      />
+      <PageHeader title={t("Integrations")} extra={<ConnectButton />} />
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
             <Title>{t("No Integration yet")}</Title>
-            <Suggestion>
-              {t("Create a new")}{" "}
-              <Button
-                onClick={onIntegrationConnectModalOpen}
-                type="primary"
-                icon={<Icon icon="api" />}
-                disabled={!hasConnectRight}>
-                {t("Connect Integration")}
-              </Button>
-            </Suggestion>
-            <Suggestion>
+            <Action>
+              {t("Create a new")}
+              <ConnectButton />
+            </Action>
+            <span>
               <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
-            </Suggestion>
+            </span>
           </EmptyTableWrapper>
         )}>
         <TableWrapper>
@@ -241,28 +237,26 @@ const Wrapper = styled.div`
 `;
 
 const EmptyTableWrapper = styled.div`
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 64px;
+  gap: 8px;
+  margin: 24px 0;
+  color: #8c8c8c;
 `;
 
-const Suggestion = styled.p`
-  margin-top: 8px;
-  margin-bottom: 8px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+const Action = styled.span`
+  display: flex;
+  gap: 16px;
+  align-items: center;
 `;
 
-const Title = styled.h1`
+const Title = styled.h2`
   font-weight: 500;
   font-size: 16px;
-  line-height: 24px;
   color: #000;
+  margin-bottom: 16px;
 `;
 
 const TableWrapper = styled.div`

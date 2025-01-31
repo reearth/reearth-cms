@@ -55,6 +55,14 @@ const IntegrationWrapper: React.FC<Props> = ({
   onUpdateIntegration,
 }) => {
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
+  const handleIntegrationConnectModalOpen = useCallback(() => {
+    setIntegrationConnectModalShown(true);
+  }, []);
+  const handleIntegrationConnectModalClose = useCallback(() => {
+    setIntegrationConnectModalShown(false);
+  }, []);
+
+  const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
   const handleIntegrationSettingsModalOpen = useCallback(
     (integrationMember: IntegrationMember) => {
       setSelectedIntegration(integrationMember);
@@ -62,14 +70,6 @@ const IntegrationWrapper: React.FC<Props> = ({
     },
     [setSelectedIntegration],
   );
-  const handleIntegrationConnectModalClose = useCallback(() => {
-    setIntegrationConnectModalShown(false);
-  }, []);
-
-  const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
-  const handleIntegrationConnectModalOpen = useCallback(() => {
-    setIntegrationConnectModalShown(true);
-  }, []);
   const handleIntegrationSettingsModalClose = useCallback(() => {
     setIntegrationSettingsModalShown(false);
   }, []);
