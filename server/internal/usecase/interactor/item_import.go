@@ -329,14 +329,6 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 		isMetadata = true
 	}
 
-	itemsToSave := item.List{}
-
-	type itemChanges struct {
-		oldFields item.Fields
-		action    interfaces.ImportStrategyType
-	}
-	itemsEvent := map[item.ID]itemChanges{}
-
 	// res := NewImportRes()
 
 	// update schema if needed
@@ -370,7 +362,13 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 		log.Infof("schema %s updated, %v new field saved.", s.ID(), len(fields))
 	}
 
-	f := func(ctx context.Context) error {
+	type itemChanges struct {
+		oldFields item.Fields
+		action    interfaces.ImportStrategyType
+	}
+	f := func(ctx context.Context) (item.List, map[item.ID]itemChanges, error) {
+		itemsToSave := item.List{}
+		itemsEvent := map[item.ID]itemChanges{}
 
 		for _, itemParam := range items {
 
@@ -403,7 +401,7 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 
 			// strategy: update. 	item: exists & !permission 	=> error
 			if action == interfaces.ImportStrategyTypeUpdate && !operator.CanUpdate(oldItem) {
-				return interfaces.ErrOperationDenied
+				return nil, nil, interfaces.ErrOperationDenied
 			}
 
 			// TODO: more validation
@@ -428,7 +426,7 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 
 				it, err = ib.Build()
 				if err != nil {
-					return err
+					return nil, nil, err
 				}
 			} else {
 				it = oldItem
@@ -446,16 +444,16 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 			if itemParam.MetadataID != nil {
 				mi = oldMetaItems.Item(*itemParam.MetadataID)
 				if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
-					return interfaces.ErrMetadataMismatch
+					return nil, nil, interfaces.ErrMetadataMismatch
 				}
 
 				if it.MetadataItem() != nil && *it.MetadataItem() != *itemParam.MetadataID {
-					return interfaces.ErrMetadataMismatch
+					return nil, nil, interfaces.ErrMetadataMismatch
 				}
 				it.SetMetadataItem(*itemParam.MetadataID)
 
 				if mi.Value().OriginalItem() != nil && *mi.Value().OriginalItem() != it.ID() {
-					return interfaces.ErrMetadataMismatch
+					return nil, nil, interfaces.ErrMetadataMismatch
 				}
 				mi.Value().SetOriginalItem(it.ID())
 				itemsToSave = append(itemsToSave, mi.Value())
@@ -465,11 +463,11 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 
 			fields, err := itemFieldsFromParams(modelSchemaFields, s)
 			if err != nil {
-				return err
+				return nil, nil, err
 			}
 
 			if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
-				return err
+				return nil, nil, err
 			}
 
 			oldFields := it.Fields()
@@ -477,13 +475,13 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 
 			groupFields, _, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), it.Fields())
 			if err != nil {
-				return err
+				return nil, nil, err
 			}
 
 			it.UpdateFields(groupFields)
 
 			if err = i.handleReferenceFields(ctx, *s, it, oldFields); err != nil {
-				return err
+				return nil, nil, err
 			}
 
 			itemsToSave = append(itemsToSave, it)
@@ -503,12 +501,12 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 			}
 		}
 		if err := i.repos.Item.SaveAll(ctx, itemsToSave); err != nil {
-			return err
+			return nil, nil, err
 		}
-		return nil
+		return itemsToSave, itemsEvent, nil
 	}
 
-	err = Run0(ctx, operator, i.repos, Usecase().Transaction(), f)
+	_, itemsEvent, err := Run2(ctx, operator, i.repos, Usecase().Transaction(), f)
 	if err != nil {
 		return err
 	}
