@@ -23,7 +23,7 @@ import (
 	"github.com/samber/lo"
 )
 
-var chunkSize = 10 * 1000
+var chunkSize = 1 * 1000
 
 // region ImportRes
 
