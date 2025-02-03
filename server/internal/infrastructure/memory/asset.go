@@ -104,3 +104,17 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	}
 	return nil
 }
+
+func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.Range(func(key asset.ID, value *asset.Asset) bool {
+		if ids.Has(key) && r.f.CanWrite(value.Project()) {
+			r.data.Delete(key)
+		}
+		return true
+	})
+	return nil
+}

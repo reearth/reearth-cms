@@ -127,6 +127,41 @@ func TestFile_DeleteAsset(t *testing.T) {
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 }
 
+func TestFile_DeleteAssetsInBatch(t *testing.T) {
+	type args struct {
+		ids map[string]string
+	}
+	tests := []struct {
+		name string
+		args args
+		want error
+	}{
+		{
+			name: "success",
+			args: args{
+				ids: map[string]string{newUUID(): "aaa.txt", newUUID(): "yyy/hello.txt"},
+			},
+			want: nil,
+		},
+		{
+			name: "empty",
+			args: args{
+				ids: map[string]string{},
+			},
+			want: rerror.ErrNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fs := mockFs()
+			f, _ := NewFile(fs, "aaa.txt")
+			err := f.DeleteAssetsInBatch(context.Background(), tt.args.ids)
+			assert.Equal(t, tt.want, err)
+		})
+	}
+}
+
 func TestFile_GetURL(t *testing.T) {
 	host := "https://example.com"
 	fs := mockFs()

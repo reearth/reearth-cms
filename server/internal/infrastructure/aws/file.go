@@ -10,6 +10,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -407,6 +408,40 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	})
 	if err != nil {
 		return rerror.ErrInternalBy(err)
+	}
+
+	return nil
+}
+
+// DeleteAssetsInBatch deletes multiple assets in batch
+func (f *fileRepo) DeleteAssetsInBatch(ctx context.Context, mapFileNameByUUID map[string]string) error {
+	if len(mapFileNameByUUID) == 0 {
+		return gateway.ErrInvalidFile
+	}
+
+	var wg sync.WaitGroup
+	errCh := make(chan error, len(mapFileNameByUUID)) // Buffered channel to avoid goroutine blocking
+
+	for _, filename := range mapFileNameByUUID {
+		if filename == "" {
+			continue
+		}
+
+		wg.Add(1)
+		go func(fn string) {
+			defer wg.Done()
+			err := f.delete(ctx, fn)
+			if err != nil {
+				errCh <- err
+			}
+		}(filename)
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	for err := range errCh {
+		return err // Return the first error encountered
 	}
 
 	return nil

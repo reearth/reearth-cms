@@ -512,6 +512,84 @@ func TestAssetRepo_Delete(t *testing.T) {
 	}
 }
 
+func TestAssetRepo_BatchDelete(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := accountdomain.NewUserID()
+	id1 := id.NewAssetID()
+	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
+	a1 := asset.New().ID(id1).Project(pid1).ArchiveExtractionStatus(s).NewUUID().
+		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID()).MustBuild()
+
+	pid2 := id.NewProjectID()
+	uid2 := accountdomain.NewUserID()
+	id2 := id.NewAssetID()
+
+	a2 := asset.New().ID(id2).Project(pid2).ArchiveExtractionStatus(s).NewUUID().
+		CreatedByUser(uid2).Size(1000).Thread(id.NewThreadID()).MustBuild()
+	initDB := mongotest.Connect(t)
+	type args struct {
+		ids []id.AssetID
+	}
+	tests := []struct {
+		name  string
+		seeds []*asset.Asset
+		args  args
+		want  error
+	}{
+		{
+			name:  "success",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				ids: []id.AssetID{id1, id2},
+			},
+			want: nil,
+		},
+		{
+			name:  "success partial delete",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				ids: []id.AssetID{id1},
+			},
+			want: nil,
+		},
+		{
+			name: "Not found in empty db",
+			seeds: []*asset.Asset{
+				asset.New().NewID().Project(pid1).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+			},
+			args: args{ids: id.AssetIDList{id.NewAssetID()}},
+			want: rerror.ErrNotFound,
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p)
+				assert.NoError(t, err)
+			}
+
+			err := r.BatchDelete(ctx, tc.args.ids)
+			if tc.want != nil {
+				assert.ErrorIs(t, err, tc.want)
+				return
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.NoError(t, err)
+			_, err = r.FindByID(ctx, tc.args.ids[0])
+			assert.ErrorIs(t, err, rerror.ErrNotFound)
+		})
+	}
+}
+
 func TestAssetRepo_Save(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := accountdomain.NewUserID()

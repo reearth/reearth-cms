@@ -132,6 +132,20 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	}))
 }
 
+// BatchDelete deletes assets in batch based on multiple asset IDs
+func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
+	idsBson := formatAssetIDToBson(ids)
+	return r.client.RemoveAll(ctx, r.writeFilter(idsBson))
+}
+
+func formatAssetIDToBson(ids []id.AssetID) []bson.M {
+	var result []bson.M
+	for _, id := range ids {
+		result = append(result, bson.M{"id": id})
+	}
+	return result
+}
+
 func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	c := mongodoc.NewAssetConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c, options.Find().SetProjection(bson.M{"file": 0}))
