@@ -518,8 +518,13 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 	}
 	var events []Event
 
+	savedItemsMap := savedItems.ToMap()
 	for k, changes := range itemsEvent {
-		vi := savedItems.Item(k)
+		vi := savedItemsMap[k]
+		if vi == nil {
+			log.Debugf("item %s not found", k)
+			return rerror.ErrNotFound
+		}
 		it := vi.Value()
 
 		refItems, err := i.getReferencedItems(ctx, it.Fields())
