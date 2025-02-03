@@ -522,8 +522,8 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 	for k, changes := range itemsEvent {
 		vi := savedItemsMap[k]
 		if vi == nil {
-			log.Debugf("item %s not found", k)
-			return rerror.ErrNotFound
+			log.Debugf("item %s not found, skiping event.", k)
+			continue
 		}
 		it := vi.Value()
 
