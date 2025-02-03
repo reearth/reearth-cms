@@ -155,6 +155,7 @@ extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
+  deleteAssetsInBatch(input: DeleteAssetsInBatchInput!): DeleteAssetsInBatchPayload
   decompressAsset(input: DecompressAssetInput!): DecompressAssetPayload
   createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }
