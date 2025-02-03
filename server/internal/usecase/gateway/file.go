@@ -63,6 +63,8 @@ type File interface {
 	GetAssetFiles(context.Context, string) ([]FileEntry, error)
 	UploadAsset(context.Context, *file.File) (string, int64, error)
 	DeleteAsset(context.Context, string, string) error
+	// DeleteAssetsInBatch deletes assets in batch based on multiple asset IDs
+	DeleteAssetsInBatch(context.Context, map[string]string) error
 	GetURL(*asset.Asset) string
 	IssueUploadAssetLink(context.Context, IssueUploadAssetParam) (*UploadAssetLink, error)
 	UploadedAsset(context.Context, *asset.Upload) (*file.File, error)

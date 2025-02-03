@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -133,6 +134,21 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 	}
 
 	return f.delete(ctx, p)
+}
+
+// DeleteAssetsInBatch deletes assets data in batch
+func (f *fileRepo) DeleteAssetsInBatch(ctx context.Context, mapFileNameByUUID map[string]string) error {
+	paths := make([]string, 0)
+	for uuid, filename := range mapFileNameByUUID {
+		path := getGCSObjectPath(uuid, filename)
+		if path == "" {
+			return gateway.ErrInvalidFile
+		}
+
+		paths = append(paths, path)
+	}
+
+	return f.batchDelete(ctx, paths)
 }
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
@@ -351,6 +367,53 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
+}
+
+func (f *fileRepo) batchDelete(ctx context.Context, filenames []string) error {
+	if len(filenames) == 0 {
+		return gateway.ErrInvalidFile
+	}
+
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: deleteBatch bucket err: %+v\n", err)
+		return rerror.ErrInternalBy(err)
+	}
+
+	var wg sync.WaitGroup
+	errCh := make(chan error, len(filenames)) // Buffer for errors
+
+	for _, filename := range filenames {
+		if filename == "" {
+			errCh <- gateway.ErrInvalidFile
+			continue
+		}
+
+		wg.Add(1)
+		go func(filename string) {
+			defer wg.Done()
+
+			object := bucket.Object(filename)
+			if err := object.Delete(ctx); err != nil {
+				if errors.Is(err, storage.ErrObjectNotExist) {
+					return
+				}
+				log.Errorf("gcs: delete err for file %s: %+v\n", filename, err)
+				errCh <- rerror.ErrInternalBy(err)
+			}
+		}(filename)
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	var batchErr error
+	for e := range errCh {
+		if e != nil {
+			batchErr = e
+		}
+	}
+	return batchErr
 }
 
 func getGCSObjectPath(uuid, objectName string) string {
