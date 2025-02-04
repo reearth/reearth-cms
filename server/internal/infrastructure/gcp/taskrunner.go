@@ -74,7 +74,13 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset != nil {
 		return decompressAsset(ctx, p, t.conf)
 	}
-	return copy(ctx, p, t.conf)
+	if p.Copy != nil {
+		return copy(ctx, p, t.conf)
+	}
+	if p.Import != nil {
+		return importItems(ctx, p, t.conf)
+	}
+	return nil
 }
 
 func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) error {
@@ -182,6 +188,83 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 				{
 					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, dbSecretName),
 					Env:         "REEARTH_CMS_DB",
+				},
+			},
+		},
+	}
+
+	if region != "" {
+		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
+		_, err = call.Do()
+	} else {
+		call := cb.Projects.Builds.Create(project, build)
+		_, err = call.Do()
+	}
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+	if !p.Import.Validate() {
+		return nil
+	}
+
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	project := conf.GCPProject
+	region := conf.GCPRegion
+
+	args := []string{
+		"item",
+		"import",
+		"-modelId=" + p.Import.ModelId,
+		"-assetId=" + p.Import.AssetId,
+		"-format=" + p.Import.Format,
+		"-geometryFieldKey=" + p.Import.GeometryFieldKey,
+		"-strategy=" + p.Import.Strategy,
+		"-mutateSchema=" + fmt.Sprint(p.Import.MutateSchema),
+	}
+
+	if p.Import.UserId != "" {
+		args = append(args, "-userId="+p.Import.UserId)
+	} else if p.Import.IntegrationId != "" {
+		args = append(args, "-integrationId="+p.Import.IntegrationId)
+	}
+
+	build := &cloudbuild.Build{
+		Timeout:  "86400s", // 1 day
+		QueueTtl: "86400s", // 1 day
+		Steps: []*cloudbuild.BuildStep{
+			{
+				Name: conf.CmsImage,
+				Env: []string{
+					"REEARTH_CMS_GCS_BUCKETNAME=" + conf.GCSBucket,
+					"REEARTH_CMS_DB_ACCOUNT=" + conf.AccountDBName,
+				},
+				SecretEnv: []string{
+					"REEARTH_CMS_DB",
+					"REEARTH_CMS_DB_USERS",
+				},
+				Args: args,
+			},
+		},
+		Options: &cloudbuild.BuildOptions{
+			DiskSizeGb: defaultDiskSizeGb,
+		},
+		AvailableSecrets: &cloudbuild.Secrets{
+			SecretManager: []*cloudbuild.SecretManagerSecret{
+				{
+					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.DBSecretName),
+					Env:         "REEARTH_CMS_DB",
+				},
+				{
+					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.AccountDBSecretName),
+					Env:         "REEARTH_CMS_DB_USERS",
 				},
 			},
 		},

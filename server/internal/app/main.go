@@ -29,7 +29,7 @@ func Start(debug bool, version string) {
 	log.Infof("config: %s", conf.Print())
 
 	// Init repositories
-	repos, gateways, acRepos, acGateways := initReposAndGateways(ctx, conf)
+	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
 	// Start web server
 	NewServer(ctx, &ServerConfig{
