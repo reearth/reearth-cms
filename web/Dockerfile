@@ -47,6 +47,9 @@ ENV REEARTH_CMS_EDITOR_URL=null
 ENV REEARTH_CMS_LOGO_URL=null
 ENV REEARTH_CMS_MULTI_TENANT=null
 
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --no-cache jq
+
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 COPY --chown=nginx:nginx docker/nginx.conf.template /etc/nginx/templates/nginx.conf.template
 COPY --chown=nginx:nginx docker/40-envsubst-on-reearth-config.sh /docker-entrypoint.d
