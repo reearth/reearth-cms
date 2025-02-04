@@ -2,14 +2,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 
 import IntegrationTable from ".";
 
 describe("IntegrationTable", () => {
   const user = userEvent.setup();
 
-  const integrationMembers: IntegrationMember[] = [];
+  const workspaceIntegrations: WorkspaceIntegration[] = [];
   const onSearchTerm = () => {};
   const onIntegrationSettingsModalOpen = () => {};
   const onIntegrationConnectModalOpen = () => {};
@@ -31,7 +31,7 @@ describe("IntegrationTable", () => {
 
     render(
       <IntegrationTable
-        integrationMembers={integrationMembers}
+        workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={onSearchTerm}
         onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
@@ -63,7 +63,7 @@ describe("IntegrationTable", () => {
   test("Document link is displayed on placeholder successfully", () => {
     render(
       <IntegrationTable
-        integrationMembers={integrationMembers}
+        workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={onSearchTerm}
         onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
@@ -88,7 +88,7 @@ describe("IntegrationTable", () => {
 
     render(
       <IntegrationTable
-        integrationMembers={integrationMembers}
+        workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={onSearchTerm}
         onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={connectModalOpenMock}
@@ -117,7 +117,7 @@ describe("IntegrationTable", () => {
 
     render(
       <IntegrationTable
-        integrationMembers={integrationMembers}
+        workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={searchMock}
         onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
@@ -140,5 +140,36 @@ describe("IntegrationTable", () => {
     await user.keyboard("[Enter]");
     await user.click(searchButton);
     expect(searchMock).toBeCalledTimes(2);
+  });
+
+  test("Data is displayed successfully", async () => {
+    render(
+      <IntegrationTable
+        workspaceIntegrations={[
+          {
+            name: "name",
+            createdBy: { id: "", name: "creatorName", email: "" },
+            role: "READER",
+          },
+        ]}
+        onSearchTerm={onSearchTerm}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
+        deleteLoading={deleteLoading}
+        onIntegrationRemove={onIntegrationRemove}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={onTableChange}
+        loading={loading}
+        onReload={onReload}
+        hasConnectRight={hasConnectRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
+      />,
+    );
+
+    expect(screen.getByText("name")).toBeVisible();
+    expect(screen.getByText("READER")).toBeVisible();
+    expect(screen.getByText("creatorName")).toBeVisible();
   });
 });

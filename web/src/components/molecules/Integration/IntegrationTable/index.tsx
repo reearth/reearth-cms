@@ -14,14 +14,14 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
-  integrationMembers?: IntegrationMember[];
+  workspaceIntegrations?: WorkspaceIntegration[];
   onIntegrationConnectModalOpen: () => void;
   onSearchTerm: (term?: string) => void;
-  onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
+  onIntegrationSettingsModalOpen: (integrationMember: WorkspaceIntegration) => void;
   deleteLoading: boolean;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
   page: number;
@@ -35,7 +35,7 @@ type Props = {
 };
 
 const IntegrationTable: React.FC<Props> = ({
-  integrationMembers,
+  workspaceIntegrations,
   onIntegrationConnectModalOpen,
   onSearchTerm,
   onIntegrationSettingsModalOpen,
@@ -54,11 +54,11 @@ const IntegrationTable: React.FC<Props> = ({
 
   const [selection, setSelection] = useState<Key[]>([]);
 
-  const columns: StretchColumn<IntegrationMember>[] = useMemo(
+  const columns: StretchColumn<WorkspaceIntegration>[] = useMemo(
     () => [
       {
         title: t("Name"),
-        dataIndex: ["integration", "name"],
+        dataIndex: "name",
         key: "name",
         filters: [],
         width: 250,
@@ -66,7 +66,7 @@ const IntegrationTable: React.FC<Props> = ({
       },
       {
         title: t("Role"),
-        dataIndex: "integrationRole",
+        dataIndex: "role",
         key: "role",
         render: text => (typeof text === "string" ? t(text) : text),
         width: 100,
@@ -74,14 +74,14 @@ const IntegrationTable: React.FC<Props> = ({
       },
       {
         title: t("Creator"),
-        dataIndex: ["integration", "developer", "name"],
+        dataIndex: ["createdBy", "name"],
         key: "creator",
         width: 250,
         minWidth: 100,
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.integration?.developer.name} size="small" />
-            {item.integration?.developer.name}
+            <UserAvatar username={item.createdBy?.name} size="small" />
+            {item.createdBy?.name}
           </Space>
         ),
       },
@@ -90,13 +90,8 @@ const IntegrationTable: React.FC<Props> = ({
         render: (_, integrationMember) => (
           <Button
             type="link"
-            icon={
-              <Icon
-                size={18}
-                onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
-                icon="settings"
-              />
-            }
+            onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
+            icon={<Icon size={18} icon="settings" />}
             disabled={!hasUpdateRight}
           />
         ),
@@ -210,7 +205,7 @@ const IntegrationTable: React.FC<Props> = ({
         )}>
         <TableWrapper>
           <ResizableProTable
-            dataSource={integrationMembers}
+            dataSource={workspaceIntegrations}
             columns={columns}
             tableAlertOptionRender={alertOptions}
             search={false}

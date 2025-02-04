@@ -1,9 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import {
+  IntegrationMember,
+  WorkspaceIntegration,
+} from "@reearth-cms/components/molecules/Integration/types";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import {
   fromGraphQLIntegration,
   fromGraphQLWorkspace,
@@ -20,7 +22,8 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserRights } from "@reearth-cms/state";
 
 export default (workspaceId?: string) => {
-  const [selectedIntegration, setSelectedIntegration] = useState<IntegrationMember>();
+  const [selectedIntegration, setSelectedIntegration] = useState<WorkspaceIntegration>();
+
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -50,12 +53,23 @@ export default (workspaceId?: string) => {
 
   const workspaceIntegrationMembers = useMemo(
     () =>
-      workspace?.members?.filter(
-        (member): member is IntegrationMember =>
-          "integration" in member &&
-          !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""),
-      ),
-    [workspace?.members, searchTerm],
+      workspace?.members?.filter((member): member is IntegrationMember => "integration" in member),
+    [workspace?.members],
+  );
+
+  const workspaceIntegrations = useMemo(
+    (): WorkspaceIntegration[] | undefined =>
+      workspaceIntegrationMembers
+        ?.filter(member => !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""))
+        .map(member => ({
+          id: member.integration?.id,
+          name: member.integration?.name,
+          description: member.integration?.description ?? undefined,
+          imageUrl: undefined,
+          createdBy: member.integration?.developer,
+          role: member.integrationRole,
+        })),
+    [workspaceIntegrationMembers, searchTerm],
   );
 
   const myIntegrations = useMemo(
@@ -64,22 +78,22 @@ export default (workspaceId?: string) => {
         ?.map(integration => fromGraphQLIntegration(integration))
         .filter(
           integration =>
-            !workspaceIntegrationMembers?.some(
+            !workspaceIntegrations?.some(
               workspaceIntegration => workspaceIntegration.id === integration.id,
             ),
         ),
-    [data?.me?.integrations, workspaceIntegrationMembers],
+    [data?.me?.integrations, workspaceIntegrations],
   );
 
   const [addIntegrationToWorkspaceMutation, { loading: addLoading }] =
     useAddIntegrationToWorkspaceMutation();
 
   const handleIntegrationConnect = useCallback(
-    async (integration?: Integration) => {
-      if (!integration || !workspaceId) return;
+    async (integrationId: string) => {
+      if (!integrationId || !workspaceId) return;
       const integrationResponse = await addIntegrationToWorkspaceMutation({
         variables: {
-          integrationId: integration.id,
+          integrationId,
           workspaceId,
           role: GQLRole.Reader,
         },
@@ -102,7 +116,7 @@ export default (workspaceId?: string) => {
       if (!workspaceId || !selectedIntegration) return;
       const integration = await updateIntegrationToWorkspaceMutation({
         variables: {
-          integrationId: selectedIntegration?.integration?.id || "",
+          integrationId: selectedIntegration?.id || "",
           workspaceId,
           role: role as GQLRole,
         },
@@ -163,7 +177,7 @@ export default (workspaceId?: string) => {
 
   return {
     loading,
-    workspaceIntegrationMembers,
+    workspaceIntegrations,
     handleSearchTerm,
     handleReload,
     setSelectedIntegration,

@@ -3,16 +3,16 @@ import { useCallback, useState } from "react";
 import IntegrationConnectModal from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal";
 import IntegrationSettingsModal from "@reearth-cms/components/molecules/Integration/IntegrationSettingsModal";
 import IntegrationTable from "@reearth-cms/components/molecules/Integration/IntegrationTable";
-import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
   loading: boolean;
-  integrationMembers?: IntegrationMember[];
+  workspaceIntegrations?: WorkspaceIntegration[];
   onSearchTerm: (term?: string) => void;
   onReload: () => void;
-  setSelectedIntegration: (integrationMember: IntegrationMember) => void;
+  setSelectedIntegration: (integration: WorkspaceIntegration) => void;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
   deleteLoading: boolean;
   page: number;
@@ -24,16 +24,16 @@ type Props = {
 
   myIntegrations?: Integration[];
   addLoading: boolean;
-  onIntegrationConnect: (integration?: Integration) => Promise<void>;
+  onIntegrationConnect: (integrationId: string) => Promise<void>;
 
-  selectedIntegration?: IntegrationMember;
+  selectedIntegration?: WorkspaceIntegration;
   updateLoading: boolean;
   onUpdateIntegration: (role: Role) => Promise<void>;
 };
 
 const IntegrationWrapper: React.FC<Props> = ({
   loading,
-  integrationMembers,
+  workspaceIntegrations,
   onSearchTerm,
   onReload,
   setSelectedIntegration,
@@ -64,7 +64,7 @@ const IntegrationWrapper: React.FC<Props> = ({
 
   const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
   const handleIntegrationSettingsModalOpen = useCallback(
-    (integrationMember: IntegrationMember) => {
+    (integrationMember: WorkspaceIntegration) => {
       setSelectedIntegration(integrationMember);
       setIntegrationSettingsModalShown(true);
     },
@@ -77,7 +77,7 @@ const IntegrationWrapper: React.FC<Props> = ({
   return (
     <>
       <IntegrationTable
-        integrationMembers={integrationMembers}
+        workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={onSearchTerm}
         onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}

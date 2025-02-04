@@ -7,12 +7,14 @@ import IntegrationCard from "@reearth-cms/components/molecules/Integration/Integ
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
+type IntegrationType = Pick<Integration, "id" | "name">;
+
 type Props = {
-  integrations?: Integration[];
+  integrations?: IntegrationType[];
   open: boolean;
   loading: boolean;
   onClose: () => void;
-  onSubmit: (integration?: Integration) => Promise<void>;
+  onSubmit: (integrationId: string) => Promise<void>;
 };
 
 const IntegrationConnectModal: React.FC<Props> = ({
@@ -23,18 +25,19 @@ const IntegrationConnectModal: React.FC<Props> = ({
   onSubmit,
 }) => {
   const t = useT();
-  const [selectedIntegration, SetSelectedIntegration] = useState<Integration | undefined>();
+  const [selectedIntegration, setSelectedIntegration] = useState<IntegrationType>();
 
   const handleIntegrationSelect = useCallback(
-    (integration: Integration) => {
-      SetSelectedIntegration(integration);
+    (integration: IntegrationType) => {
+      setSelectedIntegration(integration);
     },
-    [SetSelectedIntegration],
+    [setSelectedIntegration],
   );
 
-  const handleSubmit = useCallback(async () => {
+  const handleConnect = useCallback(async () => {
+    if (!selectedIntegration) return;
     try {
-      await onSubmit(selectedIntegration);
+      await onSubmit(selectedIntegration.id);
       onClose();
     } catch (e) {
       console.error(e);
@@ -43,7 +46,7 @@ const IntegrationConnectModal: React.FC<Props> = ({
 
   return (
     <Modal
-      afterClose={() => SetSelectedIntegration(undefined)}
+      afterClose={() => setSelectedIntegration(undefined)}
       title={t("Connect Integration")}
       open={open}
       onCancel={onClose}
@@ -55,7 +58,7 @@ const IntegrationConnectModal: React.FC<Props> = ({
           key="submit"
           type="primary"
           disabled={!selectedIntegration}
-          onClick={handleSubmit}
+          onClick={handleConnect}
           loading={loading}>
           {t("Connect")}
         </Button>,
@@ -64,8 +67,8 @@ const IntegrationConnectModal: React.FC<Props> = ({
         {integrations?.map(integration => (
           <IntegrationCard
             key={integration.id}
-            integration={integration}
-            integrationSelected={integration.id === selectedIntegration?.id}
+            name={integration.name}
+            isSelected={integration.id === selectedIntegration?.id}
             onClick={() => handleIntegrationSelect(integration)}
           />
         ))}

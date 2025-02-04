@@ -1,21 +1,17 @@
+import { User } from "@reearth-cms/components/molecules/Member/types";
+
 export type Integration = {
   id: string;
   name: string;
   description?: string | null;
   logoUrl: string;
   developerId: string;
-  developer: Developer;
+  developer: User;
   iType: IntegrationType;
   config: {
     token?: string;
     webhooks?: Webhook[];
   };
-};
-
-export type Developer = {
-  id: string;
-  name: string;
-  email: string;
 };
 
 export enum IntegrationType {
@@ -43,11 +39,6 @@ export type WebhookTrigger = {
   onAssetDelete?: boolean | null;
 };
 
-export type WebhookValues = {
-  id: string;
-  name: string;
-  url: string;
-  active: boolean;
-  secret: string;
+export type WebhookValues = Webhook & {
   trigger: string[];
 };

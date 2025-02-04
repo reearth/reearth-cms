@@ -9,7 +9,7 @@ const Integration: React.FC = () => {
 
   const {
     loading,
-    workspaceIntegrationMembers,
+    workspaceIntegrations,
     handleSearchTerm,
     handleReload,
     setSelectedIntegration,
@@ -34,7 +34,7 @@ const Integration: React.FC = () => {
   return (
     <IntegrationWrapper
       loading={loading}
-      integrationMembers={workspaceIntegrationMembers}
+      workspaceIntegrations={workspaceIntegrations}
       onSearchTerm={handleSearchTerm}
       onReload={handleReload}
       setSelectedIntegration={setSelectedIntegration}
