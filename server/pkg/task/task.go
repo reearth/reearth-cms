@@ -9,6 +9,8 @@ type Payload struct {
 	DecompressAsset *DecompressAssetPayload
 	CompressAsset   *CompressAssetPayload
 	Webhook         *WebhookPayload
+	Copy            *CopyPayload
+	Import          *ImportPayload
 }
 
 type DecompressAssetPayload struct {
@@ -41,5 +43,55 @@ type WebhookPayload struct {
 func (t WebhookPayload) Payload() Payload {
 	return Payload{
 		Webhook: &t,
+	}
+}
+
+type CopyPayload struct {
+	Collection string
+	Filter     string
+	Changes    string
+}
+
+func (p *CopyPayload) Payload() Payload {
+	return Payload{
+		Copy: p,
+	}
+}
+
+func (p *CopyPayload) Validate() bool {
+	return p != nil && p.Changes != "" && p.Collection != "" && p.Filter != ""
+}
+
+type Changes map[string]Change
+type Change struct {
+	Type  ChangeType
+	Value any
+}
+type ChangeType string
+
+const (
+	ChangeTypeSet  ChangeType = "set"
+	ChangeTypeNew  ChangeType = "new"
+	ChangeTypeULID ChangeType = "ulid"
+)
+
+type ImportPayload struct {
+	UserId           string
+	IntegrationId    string
+	ModelId          string
+	AssetId          string
+	Format           string
+	GeometryFieldKey string
+	Strategy         string
+	MutateSchema     bool
+}
+
+func (p *ImportPayload) Validate() bool {
+	return p != nil && (p.UserId != "" || p.IntegrationId != "") && p.ModelId != "" && p.AssetId != "" && p.Format != "" && p.GeometryFieldKey != "" && p.Strategy != ""
+}
+
+func (p *ImportPayload) Payload() Payload {
+	return Payload{
+		Import: p,
 	}
 }

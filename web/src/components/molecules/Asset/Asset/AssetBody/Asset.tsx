@@ -6,7 +6,6 @@ import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -192,10 +191,10 @@ const AssetMolecule: React.FC<Props> = ({
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
-          <Space>
+          <Creator>
             <UserAvatar username={asset.createdBy.name} shadow />
-            {asset.createdBy.name}
-          </Space>
+            <Username>{asset.createdBy.name}</Username>
+          </Creator>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (
@@ -247,6 +246,20 @@ const SideBarWrapper = styled.div`
 
 const StyledButton = styled(Button)`
   padding: 0;
+`;
+
+const Creator = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: 100%;
+`;
+
+const Username = styled.span`
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export default AssetMolecule;

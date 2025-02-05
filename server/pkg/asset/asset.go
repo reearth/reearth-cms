@@ -24,6 +24,8 @@ type Asset struct {
 
 type URLResolver = func(*Asset) string
 
+// getters
+
 func (a *Asset) ID() ID {
 	return a.id
 }
@@ -74,6 +76,16 @@ func (a *Asset) ArchiveExtractionStatus() *ArchiveExtractionStatus {
 	return a.archiveExtractionStatus
 }
 
+func (a *Asset) Thread() ThreadID {
+	return a.thread
+}
+
+func (a *Asset) FlatFiles() bool {
+	return a.flatFiles
+}
+
+// setters
+
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
 }
@@ -81,6 +93,8 @@ func (a *Asset) UpdatePreviewType(p *PreviewType) {
 func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
 	a.archiveExtractionStatus = util.CloneRef(s)
 }
+
+// methods
 
 func (a *Asset) Clone() *Asset {
 	if a == nil {
@@ -101,12 +115,4 @@ func (a *Asset) Clone() *Asset {
 		archiveExtractionStatus: a.archiveExtractionStatus,
 		flatFiles:               a.flatFiles,
 	}
-}
-
-func (a *Asset) Thread() ThreadID {
-	return a.thread
-}
-
-func (a *Asset) FlatFiles() bool {
-	return a.flatFiles
 }

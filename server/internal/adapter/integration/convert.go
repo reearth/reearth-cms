@@ -46,7 +46,7 @@ func Page(p usecasex.OffsetPagination) int {
 	return int(p.Offset/int64(p.Limit)) + 1
 }
 
-func fromItemFieldParam(f integrationapi.Field, sf *schema.Field) interfaces.ItemFieldParam {
+func fromItemFieldParam(f integrationapi.Field, _ *schema.Field) interfaces.ItemFieldParam {
 	var v any = f.Value
 	if f.Value != nil {
 		v = *f.Value
@@ -198,7 +198,7 @@ func fromQuery(sp schema.Package, req ItemFilterRequestObject) *item.Query {
 		WithFilter(c)
 }
 
-func fromSort(sp schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
+func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
 	if dir == nil {
 		dir = lo.ToPtr(integrationapi.ItemFilterParamsDirAsc)
 	}
@@ -227,6 +227,6 @@ func fromSort(sp schema.Package, sort integrationapi.ItemFilterParamsSort, dir *
 	return nil
 }
 
-func fromCondition(sp schema.Package, condition integrationapi.Condition) *view.Condition {
+func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.Condition {
 	return condition.Into()
 }

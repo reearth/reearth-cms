@@ -48,15 +48,17 @@ const WebhookCard: React.FC<Props> = ({
   return (
     <StyledCard
       title={
-        <>
+        <TitleWrapper>
           <WebhookTitle>{webhook.name}</WebhookTitle>
-          <Switch
-            checkedChildren="ON"
-            unCheckedChildren="OFF"
-            checked={webhook.active}
-            onChange={handleWebhookUpdate}
-          />
-        </>
+          <SwitchWrapper>
+            <Switch
+              checkedChildren="ON"
+              unCheckedChildren="OFF"
+              checked={webhook.active}
+              onChange={handleWebhookUpdate}
+            />
+          </SwitchWrapper>
+        </TitleWrapper>
       }
       extra={
         <Space size={4}>
@@ -77,18 +79,36 @@ const WebhookCard: React.FC<Props> = ({
           />
         </Space>
       }>
-      {webhook.url}
+      <Content>{webhook.url}</Content>
     </StyledCard>
   );
 };
 
+const TitleWrapper = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-right: 4px;
+`;
+
 const WebhookTitle = styled.span`
-  display: inline-block;
-  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const SwitchWrapper = styled.div`
+  display: inline-flex;
 `;
 
 const StyledCard = styled(Card)`
   margin-top: 16px;
+`;
+
+const Content = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export default WebhookCard;

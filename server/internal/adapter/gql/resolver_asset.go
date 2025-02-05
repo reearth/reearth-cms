@@ -46,27 +46,25 @@ func (r *assetResolver) Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmo
 
 // CreateAsset is the resolver for the createAsset field.
 func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error) {
+	uc := usecases(ctx).Asset
+
 	pid, err := gqlmodel.ToID[id.Project](input.ProjectID)
 	if err != nil {
 		return nil, err
 	}
-	uc := usecases(ctx).Asset
+
 	params := interfaces.CreateAssetParam{
 		ProjectID: pid,
 		File:      gqlmodel.FromFile(input.File),
 	}
 	if input.URL != nil {
-		params.File, err = file.FromURL(*input.URL)
+		params.File, err = file.FromURL(ctx, *input.URL)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if input.Token != nil {
-		params.Token = *input.Token
-	}
-	if input.SkipDecompression != nil {
-		params.SkipDecompression = *input.SkipDecompression
-	}
+	params.Token = lo.FromPtr(input.Token)
+	params.SkipDecompression = lo.FromPtr(input.SkipDecompression)
 
 	res, _, err := uc.Create(ctx, params, getOperator(ctx))
 	if err != nil {
@@ -137,20 +135,22 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 	au, err := usecases(ctx).Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
-		ProjectID:     pid,
-		Filename:      lo.FromPtr(input.Filename),
-		ContentLength: int64(lo.FromPtr(input.ContentLength)),
-		Cursor:        lo.FromPtr(input.Cursor),
+		ProjectID:       pid,
+		Filename:        lo.FromPtr(input.Filename),
+		ContentLength:   int64(lo.FromPtr(input.ContentLength)),
+		ContentEncoding: lo.FromPtr(input.ContentEncoding),
+		Cursor:          lo.FromPtr(input.Cursor),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 	return &gqlmodel.CreateAssetUploadPayload{
-		URL:           au.URL,
-		Token:         au.UUID,
-		ContentType:   lo.ToPtr(au.ContentType),
-		ContentLength: int(au.ContentLength),
-		Next:          lo.ToPtr(au.Next),
+		URL:             au.URL,
+		Token:           au.UUID,
+		ContentType:     lo.EmptyableToPtr(au.ContentType),
+		ContentLength:   int(au.ContentLength),
+		ContentEncoding: lo.EmptyableToPtr(au.ContentEncoding),
+		Next:            lo.EmptyableToPtr(au.Next),
 	}, nil
 }
 

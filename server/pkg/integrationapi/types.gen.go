@@ -535,11 +535,11 @@ type RefOrVersionRef string
 
 // Schema defines model for schema.
 type Schema struct {
-	TitleField *id.FieldID    `json:"TitleField,omitempty"`
 	CreatedAt  *time.Time     `json:"createdAt,omitempty"`
 	Fields     *[]SchemaField `json:"fields,omitempty"`
 	Id         *id.SchemaID   `json:"id,omitempty"`
 	ProjectId  *id.ProjectID  `json:"projectId,omitempty"`
+	TitleField *id.FieldID    `json:"titleField,omitempty"`
 }
 
 // SchemaField defines model for schemaField.
@@ -705,8 +705,15 @@ type ModelUpdateJSONBody struct {
 	Name        *string `json:"name,omitempty"`
 }
 
+// CopyModelJSONBody defines parameters for CopyModel.
+type CopyModelJSONBody struct {
+	Key  *string `json:"key,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
 // ModelImportJSONBody defines parameters for ModelImport.
 type ModelImportJSONBody struct {
+	AsBackground     *bool                       `json:"asBackground,omitempty"`
 	AssetId          id.AssetID                  `json:"assetId"`
 	Format           ModelImportJSONBodyFormat   `json:"format"`
 	GeometryFieldKey *string                     `json:"geometryFieldKey,omitempty"`
@@ -961,6 +968,7 @@ type AssetFilterParamsDir string
 
 // AssetCreateJSONBody defines parameters for AssetCreate.
 type AssetCreateJSONBody struct {
+	ContentEncoding   *string `json:"contentEncoding,omitempty"`
 	SkipDecompression *bool   `json:"skipDecompression"`
 	Token             *string `json:"token,omitempty"`
 	Url               *string `json:"url,omitempty"`
@@ -968,15 +976,19 @@ type AssetCreateJSONBody struct {
 
 // AssetCreateMultipartBody defines parameters for AssetCreate.
 type AssetCreateMultipartBody struct {
+	ContentEncoding   *string             `json:"contentEncoding,omitempty"`
+	ContentType       *string             `json:"contentType,omitempty"`
 	File              *openapi_types.File `json:"file,omitempty"`
 	SkipDecompression *bool               `json:"skipDecompression,omitempty"`
 }
 
 // AssetUploadCreateJSONBody defines parameters for AssetUploadCreate.
 type AssetUploadCreateJSONBody struct {
-	ContentLength *int    `json:"contentLength,omitempty"`
-	Cursor        *string `json:"cursor,omitempty"`
-	Name          *string `json:"name,omitempty"`
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	ContentLength   *int    `json:"contentLength,omitempty"`
+	ContentType     *string `json:"contentType,omitempty"`
+	Cursor          *string `json:"cursor,omitempty"`
+	Name            *string `json:"name,omitempty"`
 }
 
 // FieldCreateJSONBody defines parameters for FieldCreate.
@@ -1021,6 +1033,9 @@ type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
 type ModelUpdateJSONRequestBody ModelUpdateJSONBody
+
+// CopyModelJSONRequestBody defines body for CopyModel for application/json ContentType.
+type CopyModelJSONRequestBody CopyModelJSONBody
 
 // ModelImportJSONRequestBody defines body for ModelImport for application/json ContentType.
 type ModelImportJSONRequestBody ModelImportJSONBody

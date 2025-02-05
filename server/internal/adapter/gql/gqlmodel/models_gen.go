@@ -84,6 +84,7 @@ type Asset struct {
 	Items                   []*AssetItem             `json:"items,omitempty"`
 	Size                    int64                    `json:"size"`
 	PreviewType             *PreviewType             `json:"previewType,omitempty"`
+	ContentEncoding         *string                  `json:"contentEncoding,omitempty"`
 	UUID                    string                   `json:"uuid"`
 	Thread                  *Thread                  `json:"thread,omitempty"`
 	ThreadID                ID                       `json:"threadId"`
@@ -108,11 +109,12 @@ type AssetEdge struct {
 }
 
 type AssetFile struct {
-	Name        string   `json:"name"`
-	Size        int64    `json:"size"`
-	ContentType *string  `json:"contentType,omitempty"`
-	Path        string   `json:"path"`
-	FilePaths   []string `json:"filePaths,omitempty"`
+	Name            string   `json:"name"`
+	Size            int64    `json:"size"`
+	ContentType     *string  `json:"contentType,omitempty"`
+	ContentEncoding *string  `json:"contentEncoding,omitempty"`
+	Path            string   `json:"path"`
+	FilePaths       []string `json:"filePaths,omitempty"`
 }
 
 type AssetItem struct {
@@ -221,6 +223,7 @@ type CreateAssetInput struct {
 	URL               *string         `json:"url,omitempty"`
 	Token             *string         `json:"token,omitempty"`
 	SkipDecompression *bool           `json:"skipDecompression,omitempty"`
+	ContentEncoding   *string         `json:"contentEncoding,omitempty"`
 }
 
 type CreateAssetPayload struct {
@@ -228,18 +231,20 @@ type CreateAssetPayload struct {
 }
 
 type CreateAssetUploadInput struct {
-	ProjectID     ID      `json:"projectId"`
-	Filename      *string `json:"filename,omitempty"`
-	ContentLength *int    `json:"contentLength,omitempty"`
-	Cursor        *string `json:"cursor,omitempty"`
+	ProjectID       ID      `json:"projectId"`
+	Filename        *string `json:"filename,omitempty"`
+	ContentLength   *int    `json:"contentLength,omitempty"`
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	Cursor          *string `json:"cursor,omitempty"`
 }
 
 type CreateAssetUploadPayload struct {
-	Token         string  `json:"token"`
-	URL           string  `json:"url"`
-	ContentType   *string `json:"contentType,omitempty"`
-	ContentLength int     `json:"contentLength"`
-	Next          *string `json:"next,omitempty"`
+	Token           string  `json:"token"`
+	URL             string  `json:"url"`
+	ContentType     *string `json:"contentType,omitempty"`
+	ContentLength   int     `json:"contentLength"`
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	Next            *string `json:"next,omitempty"`
 }
 
 type CreateFieldInput struct {
@@ -524,7 +529,7 @@ type IntegrationPayload struct {
 type Item struct {
 	ID                     ID           `json:"id"`
 	SchemaID               ID           `json:"schemaId"`
-	ThreadID               ID           `json:"threadId"`
+	ThreadID               *ID          `json:"threadId,omitempty"`
 	ModelID                ID           `json:"modelId"`
 	ProjectID              ID           `json:"projectId"`
 	IntegrationID          *ID          `json:"integrationId,omitempty"`
@@ -539,7 +544,7 @@ type Item struct {
 	Model                  *Model       `json:"model"`
 	Status                 ItemStatus   `json:"status"`
 	Project                *Project     `json:"project"`
-	Thread                 *Thread      `json:"thread"`
+	Thread                 *Thread      `json:"thread,omitempty"`
 	Fields                 []*ItemField `json:"fields"`
 	Assets                 []*Asset     `json:"assets"`
 	ReferencedItems        []*Item      `json:"referencedItems,omitempty"`
