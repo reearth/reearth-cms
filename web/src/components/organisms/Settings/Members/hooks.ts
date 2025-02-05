@@ -1,4 +1,4 @@
-import { Key, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -34,16 +34,9 @@ export default () => {
     [userRights?.members.changeRole],
   );
 
-  const [roleModalShown, setRoleModalShown] = useState(false);
-  const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<UserMember>();
-  const [searchTerm, setSearchTerm] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
-    selectedRowKeys: [],
-  });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
+  const [searchTerm, setSearchTerm] = useState<string>();
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
     setPage(1);
@@ -185,33 +178,32 @@ export default () => {
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
 
-  const [RemoveMultipleMembersFromWorkspaceMutation] =
+  const [removeMultipleMembersFromWorkspaceMutation] =
     useRemoveMultipleMembersFromWorkspaceMutation();
 
   const handleMemberRemoveFromWorkspace = useCallback(
     async (userIds: string[]) => {
       if (!workspaceId) return;
-      const result = await RemoveMultipleMembersFromWorkspaceMutation({
+      const result = await removeMultipleMembersFromWorkspaceMutation({
         variables: { workspaceId, userIds },
       });
       if (result.errors) {
         Notification.error({
           message: t("Failed to remove member(s) from the workspace."),
         });
-      } else {
-        Notification.success({
-          message: t("Successfully removed member(s) from the workspace!"),
-        });
-        setSelection({ selectedRowKeys: [] });
+        throw new Error();
       }
+      Notification.success({
+        message: t("Successfully removed member(s) from the workspace!"),
+      });
     },
-    [workspaceId, RemoveMultipleMembersFromWorkspaceMutation, t],
+    [workspaceId, removeMultipleMembersFromWorkspaceMutation, t],
   );
 
   const handleLeave = useCallback(
     async (userId: string) => {
       if (!workspaceId) return;
-      const result = await RemoveMultipleMembersFromWorkspaceMutation({
+      const result = await removeMultipleMembersFromWorkspaceMutation({
         variables: { workspaceId, userIds: [userId] },
       });
       if (result.errors) {
@@ -228,33 +220,13 @@ export default () => {
     },
     [
       workspaceId,
-      RemoveMultipleMembersFromWorkspaceMutation,
+      removeMultipleMembersFromWorkspaceMutation,
       t,
       refetchMe,
       navigate,
       me.myWorkspace,
     ],
   );
-
-  const handleRoleModalClose = useCallback(() => {
-    setRoleModalShown(false);
-    setSelectedMember(undefined);
-  }, []);
-
-  const handleRoleModalOpen = useCallback((member: UserMember) => {
-    setRoleModalShown(true);
-    setSelectedMember(member);
-  }, []);
-
-  const handleMemberAddModalClose = useCallback(() => {
-    setMemberAddModalShown(false);
-    setSelectedMember(undefined);
-  }, []);
-
-  const handleMemberAddModalOpen = useCallback(() => {
-    setMemberAddModalShown(true);
-    setSelectedMember(undefined);
-  }, []);
 
   const handleReload = useCallback(() => {
     refetch();
@@ -280,18 +252,9 @@ export default () => {
     handleUsersAddToWorkspace,
     updateLoading,
     handleMemberOfWorkspaceUpdate,
-    selectedMember,
-    roleModalShown,
     handleMemberRemoveFromWorkspace,
     handleLeave,
-    handleRoleModalClose,
-    handleRoleModalOpen,
-    handleMemberAddModalClose,
-    handleMemberAddModalOpen,
-    MemberAddModalShown,
     workspaceUserMembers,
-    selection,
-    setSelection,
     page,
     pageSize,
     handleTableChange,
