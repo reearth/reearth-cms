@@ -2,7 +2,6 @@ package gcp
 
 type TaskConfig struct {
 	GCPProject              string `pp:",omitempty"`
-	CopierServiceAccount    string `pp:",omitempty"`
 	GCPRegion               string `pp:",omitempty"`
 	Topic                   string `pp:",omitempty"`
 	GCSHost                 string `pp:",omitempty"`
@@ -17,4 +16,5 @@ type TaskConfig struct {
 	AccountDBSecretName     string `default:"reearth-cms-db-users"`
 	AccountDBName           string `default:"reearth-account"`
 	CmsImage                string `default:"reearth/reearth-cms"`
+	CopierServiceAccount    string `pp:",omitempty"`
 }
