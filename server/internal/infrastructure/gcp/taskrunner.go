@@ -183,7 +183,8 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
+			DiskSizeGb:                defaultDiskSizeGb,
+			DefaultLogsBucketBehavior: "REGIONAL_USER_OWNED_BUCKET",
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
@@ -258,7 +259,8 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
+			DiskSizeGb:                defaultDiskSizeGb,
+			DefaultLogsBucketBehavior: "REGIONAL_USER_OWNED_BUCKET",
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
