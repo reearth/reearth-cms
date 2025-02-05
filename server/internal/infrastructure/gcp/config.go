@@ -16,5 +16,5 @@ type TaskConfig struct {
 	AccountDBSecretName     string `default:"reearth-cms-db-users"`
 	AccountDBName           string `default:"reearth-account"`
 	CmsImage                string `default:"reearth/reearth-cms"`
-	CopierServiceAccount    string `pp:",omitempty"`
+	BuildServiceAccount     string `pp:",omitempty"`
 }
