@@ -2,6 +2,7 @@ package gcp
 
 type TaskConfig struct {
 	GCPProject              string `pp:",omitempty"`
+	CopierServiceAccount    string `pp:",omitempty"`
 	GCPRegion               string `pp:",omitempty"`
 	Topic                   string `pp:",omitempty"`
 	GCSHost                 string `pp:",omitempty"`
