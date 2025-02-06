@@ -231,17 +231,19 @@ func (f *fileRepo) DeleteAssetsInBatch(_ context.Context, mapFileNameByUUID map[
 	if len(mapFileNameByUUID) == 0 {
 		return rerror.ErrNotFound
 	}
-
-	for _, fileUUID := range mapFileNameByUUID {
+	var errs []error
+	for fileUUID, fileName := range mapFileNameByUUID {
 		if fileUUID == "" || !IsValidUUID(fileUUID) {
-			continue
+			errs = append(errs, gateway.ErrFileNotFound)
 		}
 
-		p := getFSObjectPath(fileUUID, "")
+		p := getFSObjectPath(fileUUID, fileName)
 		if err := f.fs.RemoveAll(p); err != nil {
-			return rerror.ErrInternalBy(err)
+			errs = append(errs, gateway.ErrInvalidUUID)
 		}
 	}
-
+	if len(errs) > 0 {
+		return rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", errs))
+	}
 	return nil
 }
