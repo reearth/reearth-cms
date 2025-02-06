@@ -19,6 +19,7 @@ duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
 duplicated value: 値が重複しています。
 either model or group should be provided: モデルまたはグループのどちらかを指定してください。
+empty asset ids: アセットIDが空です。
 failed to auth: 認証に失敗しました。
 failed to create asset: アセットの作成に失敗しました。
 failed to delete file: ファイルの削除に失敗しました。

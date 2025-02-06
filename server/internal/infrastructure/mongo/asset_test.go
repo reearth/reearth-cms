@@ -558,7 +558,7 @@ func TestAssetRepo_BatchDelete(t *testing.T) {
 				asset.New().NewID().Project(pid1).ArchiveExtractionStatus(s).NewUUID().
 					CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
-			args: args{ids: id.AssetIDList{id.NewAssetID()}},
+			args: args{ids: id.AssetIDList{id2}},
 			want: rerror.ErrNotFound,
 		},
 	}
