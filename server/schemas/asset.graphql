@@ -85,6 +85,10 @@ input DeleteAssetInput {
   assetId: ID!
 }
 
+input DeleteAssetsInBatchInput {
+  assetIds: [ID!]
+}
+
 input DecompressAssetInput {
   assetId: ID!
 }
@@ -99,6 +103,10 @@ type UpdateAssetPayload {
 
 type DeleteAssetPayload {
   assetId: ID!
+}
+
+type DeleteAssetsInBatchPayload {
+  assetIds: [ID!]
 }
 
 type DecompressAssetPayload {

@@ -151,7 +151,7 @@ func (s *Server) AssetBatchDelete(ctx context.Context, request AssetBatchDeleteR
 	op := adapter.Operator(ctx)
 	ids := make([]id.AssetID, len(*request.Body.AssetIDs))
 	for i, id := range *request.Body.AssetIDs {
-		ids[i] = *asset.IDFromRef(&id)
+		ids[i], _ = asset.IDFrom(id)
 	}
 
 	ids, err := uc.Asset.BatchDelete(ctx, ids, op)

@@ -138,12 +138,14 @@ func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
 	return r.client.RemoveAll(ctx, r.writeFilter(idsBson))
 }
 
-func formatAssetIDToBson(ids []id.AssetID) []bson.M {
-	var result []bson.M
+func formatAssetIDToBson(ids []id.AssetID) bson.M {
+	idstr := make([]string, 0, len(ids))
 	for _, id := range ids {
-		result = append(result, bson.M{"id": id})
+		idstr = append(idstr, id.String())
 	}
-	return result
+	return bson.M{
+		"id": bson.M{"$in": idstr}, // Match any ID from the list
+	}
 }
 
 func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {

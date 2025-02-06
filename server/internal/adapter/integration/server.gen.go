@@ -28,7 +28,7 @@ import (
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// delete assets in batch
-	// (DELETE /assets/batch/)
+	// (DELETE /assets/batch)
 	AssetBatchDelete(ctx echo.Context) error
 	// delete asset
 	// (DELETE /assets/{assetId})
@@ -184,6 +184,8 @@ type ServerInterfaceWrapper struct {
 // AssetBatchDelete converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetBatchDelete(ctx echo.Context) error {
 	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.AssetBatchDelete(ctx)
@@ -1571,7 +1573,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.DELETE(baseURL+"/assets/batch/", wrapper.AssetBatchDelete)
+	router.DELETE(baseURL+"/assets/batch", wrapper.AssetBatchDelete)
 	router.DELETE(baseURL+"/assets/:assetId", wrapper.AssetDelete)
 	router.GET(baseURL+"/assets/:assetId", wrapper.AssetGet)
 	router.GET(baseURL+"/assets/:assetId/comments", wrapper.AssetCommentList)
@@ -3834,7 +3836,7 @@ func (response ProjectFilter500Response) VisitProjectFilterResponse(w http.Respo
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// delete assets in batch
-	// (DELETE /assets/batch/)
+	// (DELETE /assets/batch)
 	AssetBatchDelete(ctx context.Context, request AssetBatchDeleteRequestObject) (AssetBatchDeleteResponseObject, error)
 	// delete asset
 	// (DELETE /assets/{assetId})
@@ -4003,7 +4005,6 @@ func (sh *strictHandler) AssetBatchDelete(ctx echo.Context) error {
 		return err
 	}
 	request.Body = &body
-
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.AssetBatchDelete(ctx.Request().Context(), request.(AssetBatchDeleteRequestObject))
 	}
