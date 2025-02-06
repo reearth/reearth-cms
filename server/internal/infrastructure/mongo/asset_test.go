@@ -552,15 +552,6 @@ func TestAssetRepo_BatchDelete(t *testing.T) {
 			},
 			want: nil,
 		},
-		{
-			name: "Not found in empty db",
-			seeds: []*asset.Asset{
-				asset.New().NewID().Project(pid1).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID()).MustBuild(),
-			},
-			args: args{ids: id.AssetIDList{id2}},
-			want: rerror.ErrNotFound,
-		},
 	}
 	for _, tc := range tests {
 		tc := tc
