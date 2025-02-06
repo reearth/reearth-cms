@@ -36,7 +36,7 @@ func MultipleFrom(t Type, v []*Value) *Multiple {
 	}
 	return &Multiple{
 		t: t,
-		v: slices.Clone(v),
+		v: lo.Map(v, func(value *Value, _ int) *Value { return value.Clone() }),
 	}
 }
 

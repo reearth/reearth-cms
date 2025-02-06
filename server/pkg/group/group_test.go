@@ -46,13 +46,6 @@ func TestGroup_Clone(t *testing.T) {
 			}
 			assert.Equal(t, tt.group, c)
 			assert.NotSame(t, tt.group, c)
-			assert.NotSame(t, tt.group.id, c.id)
-			assert.NotSame(t, tt.group.schema, c.schema)
-			assert.NotSame(t, tt.group.project, c.project)
-			assert.NotSame(t, tt.group.name, c.name)
-			assert.NotSame(t, tt.group.description, c.description)
-			assert.NotSame(t, tt.group.key, c.key)
-			assert.NotSame(t, tt.group.order, c.order)
 		})
 	}
 }

@@ -50,14 +50,6 @@ func TestModel_Clone(t *testing.T) {
 			}
 			assert.Equal(t, tt.model, c)
 			assert.NotSame(t, tt.model, c)
-			assert.NotSame(t, tt.model.id, c.id)
-			assert.NotSame(t, tt.model.schema, c.schema)
-			assert.NotSame(t, tt.model.project, c.project)
-			assert.NotSame(t, tt.model.name, c.name)
-			assert.NotSame(t, tt.model.description, c.description)
-			assert.NotSame(t, tt.model.key, c.key)
-			assert.NotSame(t, tt.model.public, c.public)
-			assert.NotSame(t, tt.model.updatedAt, c.updatedAt)
 		})
 	}
 }
