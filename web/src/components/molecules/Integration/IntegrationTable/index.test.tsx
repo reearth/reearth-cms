@@ -173,13 +173,16 @@ describe("IntegrationTable", () => {
   });
 
   test("Data is displayed successfully", async () => {
+    const name = "name";
+    const creatorName = "creatorName";
+    const role = "READER";
     render(
       <IntegrationTable
         workspaceIntegrations={[
           {
-            name: "name",
-            createdBy: { id: "", name: "creatorName", email: "" },
-            role: "READER",
+            name,
+            createdBy: { id: "", name: creatorName, email: "" },
+            role,
           },
         ]}
         onSearchTerm={onSearchTerm}
@@ -198,8 +201,8 @@ describe("IntegrationTable", () => {
       />,
     );
 
-    expect(screen.getByText("name")).toBeVisible();
-    expect(screen.getByText("READER")).toBeVisible();
-    expect(screen.getByText("creatorName")).toBeVisible();
+    expect(screen.getByText(name)).toBeVisible();
+    expect(screen.getByText(role)).toBeVisible();
+    expect(screen.getByText(creatorName)).toBeVisible();
   });
 });
