@@ -617,24 +617,19 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 				return assetIDs, err
 			}
 
-			if len(a) != len(assetIDs) {
+			// Check if asset is found
+			// Currently, FindByIDs returns no information if asset is not found, only returns a[0] == nil with len(a) == 1
+			if (len(a) == 1 && a[0] == nil) || len(a) != len(assetIDs) {
 				return assetIDs, rerror.ErrNotFound
 			}
 
 			mapFileNameByUUID := make(map[string]string, 0)
-			projectID := a[0].Project()
-
-			// Validate permissions and project consistency
-			for _, asset := range a {
-				if !operator.CanUpdate(asset) {
-					return assetIDs, interfaces.ErrOperationDenied
-				}
-				if asset.Project() != projectID {
-					return assetIDs, interfaces.ErrOperationDenied
-				}
-			}
 
 			for i := 0; i < len(a); i++ {
+
+				if a[i] == nil {
+					continue
+				}
 
 				uuid := a[i].UUID()
 				fileName := a[i].FileName()
