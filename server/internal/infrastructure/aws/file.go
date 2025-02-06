@@ -419,8 +419,20 @@ func (f *fileRepo) DeleteAssetsInBatch(ctx context.Context, mapFileNameByUUID ma
 		return gateway.ErrInvalidFile
 	}
 
+	const maxWorkers = 10 // Limit concurrent operations
+	type deleteResult struct {
+		filename string
+		err      error
+	}
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Create a worker pool with limited concurrency
+	sem := make(chan struct{}, maxWorkers)
+
 	var wg sync.WaitGroup
-	errCh := make(chan error, len(mapFileNameByUUID)) // Buffered channel to avoid goroutine blocking
+	resultCh := make(chan deleteResult, len(mapFileNameByUUID))
 
 	for _, filename := range mapFileNameByUUID {
 		if filename == "" {
@@ -430,18 +442,45 @@ func (f *fileRepo) DeleteAssetsInBatch(ctx context.Context, mapFileNameByUUID ma
 		wg.Add(1)
 		go func(fn string) {
 			defer wg.Done()
+
+			// Acquire semaphore
+			select {
+			case sem <- struct{}{}:
+				defer func() { <-sem }()
+			case <-ctx.Done():
+				resultCh <- deleteResult{filename: fn, err: ctx.Err()}
+				return
+			}
+
+			// Perform deletion
 			err := f.delete(ctx, fn)
+			resultCh <- deleteResult{filename: fn, err: err}
+
+			// Cancel context on first error to stop other operations
 			if err != nil {
-				errCh <- err
+				cancel()
 			}
 		}(filename)
 	}
 
-	wg.Wait()
-	close(errCh)
+	// Close result channel after all goroutines complete
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
 
-	for err := range errCh {
-		return err // Return the first error encountered
+	// Collect all errors
+	var errors []error
+	var failedFiles []string
+	for result := range resultCh {
+		if result.err != nil {
+			errors = append(errors, fmt.Errorf("failed to delete %s: %w", result.filename, result.err))
+			failedFiles = append(failedFiles, result.filename)
+		}
+	}
+
+	if len(errors) > 0 {
+		return fmt.Errorf("failed to delete %d files (%v): %v", len(errors), failedFiles, errors[0])
 	}
 
 	return nil
