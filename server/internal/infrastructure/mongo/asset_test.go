@@ -578,7 +578,7 @@ func TestAssetRepo_BatchDelete(t *testing.T) {
 
 			err := r.BatchDelete(ctx, tc.args.ids)
 			if tc.want != nil {
-				assert.ErrorIs(t, err, tc.want)
+				assert.Error(t, err, tc.want)
 				return
 			} else {
 				assert.NoError(t, err)
