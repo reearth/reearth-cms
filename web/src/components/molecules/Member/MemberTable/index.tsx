@@ -18,10 +18,7 @@ import { useT } from "@reearth-cms/i18n";
 const { confirm } = Modal;
 
 type Props = {
-  me: {
-    id?: string;
-    myWorkspace?: string;
-  };
+  userId?: string;
   isAbleToLeave: boolean;
   onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
   onLeave: (userId: string) => Promise<void>;
@@ -40,7 +37,7 @@ type Props = {
 };
 
 const MemberTable: React.FC<Props> = ({
-  me,
+  userId,
   isAbleToLeave,
   onMemberRemoveFromWorkspace,
   onLeave,
@@ -167,11 +164,11 @@ const MemberTable: React.FC<Props> = ({
             <ActionButton
               type="link"
               onClick={() => onRoleModalOpen(member)}
-              disabled={!hasChangeRoleRight || member.userId === me.id}>
+              disabled={!hasChangeRoleRight || member.userId === userId}>
               {t("Change Role?")}
             </ActionButton>
             <Divider type="vertical" />
-            {member.userId === me.id ? (
+            {member.userId === userId ? (
               <ActionButton
                 type="link"
                 onClick={() => {
@@ -197,7 +194,7 @@ const MemberTable: React.FC<Props> = ({
       workspaceUserMembers,
       t,
       hasChangeRoleRight,
-      me.id,
+      userId,
       isAbleToLeave,
       hasRemoveRight,
       onRoleModalOpen,
@@ -237,10 +234,10 @@ const MemberTable: React.FC<Props> = ({
         setSelection(selectedRowKeys);
       },
       getCheckboxProps: record => ({
-        disabled: record.id === me.id,
+        disabled: record.id === userId,
       }),
     }),
-    [me.id, selection, setSelection],
+    [selection, userId],
   );
 
   const alertOptions = useCallback(

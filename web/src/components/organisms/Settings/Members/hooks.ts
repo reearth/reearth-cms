@@ -238,7 +238,7 @@ export default () => {
   }, []);
 
   return {
-    me,
+    userId: me.id,
     isAbleToLeave,
     searchedUsers,
     handleSearchTerm,

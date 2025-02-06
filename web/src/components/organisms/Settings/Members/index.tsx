@@ -4,7 +4,7 @@ import useHooks from "./hooks";
 
 const Members: React.FC = () => {
   const {
-    me,
+    userId,
     isAbleToLeave,
     searchedUsers,
     handleSearchTerm,
@@ -33,7 +33,7 @@ const Members: React.FC = () => {
 
   return (
     <MemberWrapper
-      me={me}
+      userId={userId}
       isAbleToLeave={isAbleToLeave}
       onMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
       onLeave={handleLeave}

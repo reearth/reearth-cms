@@ -7,10 +7,7 @@ import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
-  me: {
-    id?: string;
-    myWorkspace?: string;
-  };
+  userId?: string;
   isAbleToLeave: boolean;
   onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
   onLeave: (userId: string) => Promise<void>;
@@ -40,7 +37,7 @@ type Props = {
 };
 
 const Member: React.FC<Props> = ({
-  me,
+  userId,
   isAbleToLeave,
   onMemberRemoveFromWorkspace,
   onLeave,
@@ -92,7 +89,7 @@ const Member: React.FC<Props> = ({
   return (
     <>
       <MemberTable
-        me={me}
+        userId={userId}
         isAbleToLeave={isAbleToLeave}
         onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
         onLeave={onLeave}
