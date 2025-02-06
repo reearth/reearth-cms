@@ -604,6 +604,10 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 		return assetIDs, interfaces.ErrInvalidOperator
 	}
 
+	if len(assetIDs) == 0 {
+		return nil, interfaces.ErrEmptyAssetIDs
+	}
+
 	return Run1(
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
@@ -613,12 +617,24 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 				return assetIDs, err
 			}
 
-			mapFileNameByUUID := make(map[string]string, 0)
+			if len(a) != len(assetIDs) {
+				return assetIDs, rerror.ErrNotFound
+			}
 
-			for i := 0; i < len(a); i++ {
-				if !operator.CanUpdate(a[i]) {
+			mapFileNameByUUID := make(map[string]string, 0)
+			projectID := a[0].Project()
+
+			// Validate permissions and project consistency
+			for _, asset := range a {
+				if !operator.CanUpdate(asset) {
 					return assetIDs, interfaces.ErrOperationDenied
 				}
+				if asset.Project() != projectID {
+					return assetIDs, interfaces.ErrOperationDenied
+				}
+			}
+
+			for i := 0; i < len(a); i++ {
 
 				uuid := a[i].UUID()
 				fileName := a[i].FileName()
@@ -627,7 +643,7 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 				}
 			}
 
-			// deletes assets' files in gcp
+			// deletes assets' files in
 			err = i.gateways.File.DeleteAssetsInBatch(ctx, mapFileNameByUUID)
 			if err != nil {
 				return assetIDs, err

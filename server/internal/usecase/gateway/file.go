@@ -22,6 +22,7 @@ var (
 	ErrFileNotFound               error = rerror.NewE(i18n.T("file not found"))
 	ErrUnsupportedOperation       error = rerror.NewE(i18n.T("unsupported operation"))
 	ErrUnsupportedContentEncoding error = rerror.NewE(i18n.T("unsupported content encoding"))
+	ErrInvalidUUID                error = rerror.NewE(i18n.T("invalid uuid"))
 )
 
 type FileEntry struct {
