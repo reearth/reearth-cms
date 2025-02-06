@@ -91,12 +91,8 @@ const MemberTable: React.FC<Props> = ({
         okText: t("Yes"),
         cancelText: t("No"),
         async onOk() {
-          try {
-            await onMemberRemoveFromWorkspace(users.map(user => user.id));
-            setSelection([]);
-          } catch (e) {
-            console.error(e);
-          }
+          await onMemberRemoveFromWorkspace(users.map(user => user.id));
+          setSelection([]);
         },
       });
     },
