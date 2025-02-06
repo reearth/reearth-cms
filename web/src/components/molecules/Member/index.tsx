@@ -39,7 +39,7 @@ type Props = {
   setSelectedUsers: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
-const Members: React.FC<Props> = ({
+const Member: React.FC<Props> = ({
   me,
   isAbleToLeave,
   onMemberRemoveFromWorkspace,
@@ -135,4 +135,4 @@ const Members: React.FC<Props> = ({
   );
 };
 
-export default Members;
+export default Member;
