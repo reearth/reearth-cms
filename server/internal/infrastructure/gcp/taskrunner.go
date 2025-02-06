@@ -161,6 +161,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	}
 
 	project := conf.GCPProject
+	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
 	dbSecretName := conf.DBSecretName
 
@@ -180,8 +181,10 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 				},
 			},
 		},
+		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
+			DiskSizeGb:                defaultDiskSizeGb,
+			DefaultLogsBucketBehavior: "REGIONAL_USER_OWNED_BUCKET",
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
@@ -217,6 +220,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	}
 
 	project := conf.GCPProject
+	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
 
 	args := []string{
@@ -253,8 +257,10 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 				Args: args,
 			},
 		},
+		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
+			DiskSizeGb:                defaultDiskSizeGb,
+			DefaultLogsBucketBehavior: "REGIONAL_USER_OWNED_BUCKET",
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
