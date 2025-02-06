@@ -73,6 +73,7 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	if err != nil {
 		return nil, err
 	}
+
 	return filterAssets(ids, res), nil
 }
 
@@ -174,6 +175,9 @@ func (r *Asset) findOne(ctx context.Context, filter interface{}) (*asset.Asset, 
 }
 
 func filterAssets(ids []id.AssetID, rows []*asset.Asset) []*asset.Asset {
+	if len(rows) == 0 {
+		return []*asset.Asset{}
+	}
 	res := make([]*asset.Asset, 0, len(ids))
 	for _, id := range ids {
 		var r2 *asset.Asset
