@@ -357,6 +357,14 @@ type DeleteAssetPayload struct {
 	AssetID ID `json:"assetId"`
 }
 
+type DeleteAssetsInBatchInput struct {
+	AssetIds []ID `json:"assetIds,omitempty"`
+}
+
+type DeleteAssetsInBatchPayload struct {
+	AssetIds []ID `json:"assetIds,omitempty"`
+}
+
 type DeleteCommentInput struct {
 	ThreadID  ID `json:"threadId"`
 	CommentID ID `json:"commentId"`

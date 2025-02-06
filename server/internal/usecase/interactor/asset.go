@@ -599,6 +599,7 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 
 // BatchDelete deletes assets in batch based on multiple asset IDs
 func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operator *usecase.Operator) (result id.AssetIDList, err error) {
+
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return assetIDs, interfaces.ErrInvalidOperator
 	}
@@ -634,21 +635,6 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 
 			err = i.repos.Asset.BatchDelete(ctx, assetIDs)
 			if err != nil {
-				return assetIDs, err
-			}
-
-			p, err := i.repos.Project.FindByID(ctx, a[0].Project())
-			if err != nil {
-				return assetIDs, err
-			}
-
-			if err := i.event(ctx, Event{
-				Project:   p,
-				Workspace: p.Workspace(),
-				Type:      event.AssetBatchDelete,
-				Object:    a,
-				Operator:  operator.Operator(),
-			}); err != nil {
 				return assetIDs, err
 			}
 
