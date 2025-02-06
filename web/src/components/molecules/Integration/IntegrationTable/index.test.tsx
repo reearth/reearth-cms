@@ -60,6 +60,36 @@ describe("IntegrationTable", () => {
     expect(fullscreenIcon).toBeVisible();
   });
 
+  test("Page number and number of items per page are displayed successfully", async () => {
+    render(
+      <IntegrationTable
+        workspaceIntegrations={[
+          {
+            name: "name",
+            createdBy: { id: "", name: "creatorName", email: "" },
+            role: "READER",
+          },
+        ]}
+        onSearchTerm={onSearchTerm}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
+        deleteLoading={deleteLoading}
+        onIntegrationRemove={onIntegrationRemove}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={onTableChange}
+        loading={loading}
+        onReload={onReload}
+        hasConnectRight={hasConnectRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
+      />,
+    );
+
+    expect(screen.getByTitle(page)).toBeVisible();
+    expect(screen.getByText(`${pageSize} / page`)).toBeVisible();
+  });
+
   test("Document link is displayed on placeholder successfully", () => {
     render(
       <IntegrationTable
