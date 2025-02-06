@@ -238,6 +238,7 @@ export default () => {
   }, []);
 
   return {
+    workspaceUserMembers,
     userId: me.id,
     isAbleToLeave,
     searchedUsers,
@@ -254,7 +255,6 @@ export default () => {
     handleMemberOfWorkspaceUpdate,
     handleMemberRemoveFromWorkspace,
     handleLeave,
-    workspaceUserMembers,
     page,
     pageSize,
     handleTableChange,

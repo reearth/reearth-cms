@@ -7,12 +7,12 @@ import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
+  workspaceUserMembers?: UserMember[];
   userId?: string;
   isAbleToLeave: boolean;
   onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
   onLeave: (userId: string) => Promise<void>;
   onSearchTerm: (term?: string) => void;
-  workspaceUserMembers?: UserMember[];
   page: number;
   pageSize: number;
   onTableChange: (page: number, pageSize: number) => void;
@@ -37,12 +37,12 @@ type Props = {
 };
 
 const Member: React.FC<Props> = ({
+  workspaceUserMembers,
   userId,
   isAbleToLeave,
   onMemberRemoveFromWorkspace,
   onLeave,
   onSearchTerm,
-  workspaceUserMembers,
   page,
   pageSize,
   onTableChange,
@@ -89,6 +89,7 @@ const Member: React.FC<Props> = ({
   return (
     <>
       <MemberTable
+        workspaceUserMembers={workspaceUserMembers}
         userId={userId}
         isAbleToLeave={isAbleToLeave}
         onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
@@ -96,7 +97,6 @@ const Member: React.FC<Props> = ({
         onSearchTerm={onSearchTerm}
         onRoleModalOpen={handleRoleModalOpen}
         onMemberAddModalOpen={handleMemberAddModalOpen}
-        workspaceUserMembers={workspaceUserMembers}
         page={page}
         pageSize={pageSize}
         onTableChange={onTableChange}

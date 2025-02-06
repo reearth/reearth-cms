@@ -18,6 +18,7 @@ import { useT } from "@reearth-cms/i18n";
 const { confirm } = Modal;
 
 type Props = {
+  workspaceUserMembers?: UserMember[];
   userId?: string;
   isAbleToLeave: boolean;
   onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
@@ -25,7 +26,6 @@ type Props = {
   onSearchTerm: (term?: string) => void;
   onRoleModalOpen: (member: UserMember) => void;
   onMemberAddModalOpen: () => void;
-  workspaceUserMembers?: UserMember[];
   page: number;
   pageSize: number;
   onTableChange: (page: number, pageSize: number) => void;
@@ -37,6 +37,7 @@ type Props = {
 };
 
 const MemberTable: React.FC<Props> = ({
+  workspaceUserMembers,
   userId,
   isAbleToLeave,
   onMemberRemoveFromWorkspace,
@@ -44,7 +45,6 @@ const MemberTable: React.FC<Props> = ({
   onSearchTerm,
   onRoleModalOpen,
   onMemberAddModalOpen,
-  workspaceUserMembers,
   page,
   pageSize,
   onTableChange,

@@ -33,12 +33,12 @@ const Members: React.FC = () => {
 
   return (
     <MemberWrapper
+      workspaceUserMembers={workspaceUserMembers}
       userId={userId}
       isAbleToLeave={isAbleToLeave}
       onMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
       onLeave={handleLeave}
       onSearchTerm={handleSearchTerm}
-      workspaceUserMembers={workspaceUserMembers}
       page={page}
       pageSize={pageSize}
       onTableChange={handleTableChange}
