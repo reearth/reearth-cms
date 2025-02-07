@@ -70,7 +70,7 @@ describe("MemberTable", () => {
     expect(screen.getByText(`${pageSize} / page`)).toBeVisible();
   });
 
-  test("Page number and number of items per page are displayed successfully", async () => {
+  test("Page number and number of items per page are displayed successfully", () => {
     render(
       <MemberTable
         workspaceUserMembers={workspaceUserMembers}
@@ -128,7 +128,7 @@ describe("MemberTable", () => {
     expect(searchMock).toBeCalledTimes(2);
   });
 
-  test("Data is displayed successfully", async () => {
+  test("Data is displayed successfully", () => {
     render(
       <MemberTable
         workspaceUserMembers={workspaceUserMembers}
@@ -152,6 +152,11 @@ describe("MemberTable", () => {
 
     const { user, role } = workspaceUserMembers[0];
 
+    expect(screen.getByText("Name")).toBeInTheDocument();
+    expect(screen.getByText("Thumbnail")).toBeInTheDocument();
+    expect(screen.getByText("Email")).toBeInTheDocument();
+    expect(screen.getByText("Role")).toBeInTheDocument();
+    expect(screen.getByText("Action")).toBeInTheDocument();
     expect(screen.getByText(user.name)).toBeVisible();
     expect(screen.getByText(user.email)).toBeVisible();
     expect(screen.getByText(role)).toBeVisible();
@@ -300,5 +305,45 @@ describe("MemberTable", () => {
 
     await user.click(screen.getByRole("button", { name: "Yes" }));
     expect(onMemberRemoveFromWorkspaceMock).toHaveBeenCalled();
+  });
+
+  test("Buttons are disabled according to user right successfully", async () => {
+    render(
+      <MemberTable
+        workspaceUserMembers={[
+          {
+            userId: "userId2",
+            role: "OWNER",
+            user: secondMember,
+          },
+          ...workspaceUserMembers,
+        ]}
+        userId={userId}
+        isAbleToLeave={isAbleToLeave}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onLeave={onLeave}
+        onSearchTerm={onSearchTerm}
+        onRoleModalOpen={onRoleModalOpen}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={onTableChange}
+        loading={loading}
+        onReload={onReload}
+        hasInviteRight={false}
+        hasRemoveRight={false}
+        hasChangeRoleRight={false}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "usergroup-add New Member" })).toBeDisabled();
+    for (const button of screen.getAllByRole("button", { name: "Change Role?" })) {
+      expect(button).toBeDisabled();
+    }
+    expect(screen.getByRole("button", { name: "Remove" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Leave" })).toBeDisabled();
+
+    await user.click(screen.getAllByRole("checkbox")[0]);
+    expect(screen.getByRole("button", { name: "usergroup-delete Remove" })).toBeDisabled();
   });
 });
