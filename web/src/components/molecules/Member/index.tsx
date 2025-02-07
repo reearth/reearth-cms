@@ -25,15 +25,10 @@ type Props = {
   updateLoading: boolean;
   onMemberOfWorkspaceUpdate: (userId: string, role: Role) => Promise<void>;
 
-  searchedUsers: User[];
-  selectedUsers: User[];
   searchLoading: boolean;
   addLoading: boolean;
-  onUserSearch: (nameOrEmail: string) => Promise<void>;
-  onUserAdd: (user: User) => void;
+  onUserSearch: (nameOrEmail: string) => Promise<User[]>;
   onUsersAddToWorkspace: (users: MemberInput[]) => Promise<void>;
-  setSearchedUsers: (user: User[]) => void;
-  setSelectedUsers: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
 const Member: React.FC<Props> = ({
@@ -55,15 +50,10 @@ const Member: React.FC<Props> = ({
   updateLoading,
   onMemberOfWorkspaceUpdate,
 
-  searchedUsers,
-  selectedUsers,
   searchLoading,
   addLoading,
-  onUserAdd,
   onUserSearch,
   onUsersAddToWorkspace,
-  setSearchedUsers,
-  setSelectedUsers,
 }) => {
   const [selectedMember, setSelectedMember] = useState<UserMember>();
   const [isRoleModalShow, setIsRoleModalShow] = useState(false);
@@ -117,16 +107,12 @@ const Member: React.FC<Props> = ({
       )}
       <MemberAddModal
         open={isAddModalShow}
-        searchedUsers={searchedUsers}
-        selectedUsers={selectedUsers}
+        workspaceUserMembers={workspaceUserMembers}
         searchLoading={searchLoading}
         addLoading={addLoading}
         onUserSearch={onUserSearch}
-        onUserAdd={onUserAdd}
         onClose={handleMemberAddModalClose}
         onSubmit={onUsersAddToWorkspace}
-        setSearchedUsers={setSearchedUsers}
-        setSelectedUsers={setSelectedUsers}
       />
     </>
   );

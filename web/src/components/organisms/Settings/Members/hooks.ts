@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User, Role } from "@reearth-cms/components/molecules/Member/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -41,9 +41,6 @@ export default () => {
     setSearchTerm(term);
     setPage(1);
   }, []);
-
-  const [searchedUsers, setSearchedUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   const {
     data: workspaceData,
@@ -95,39 +92,15 @@ export default () => {
     fetchPolicy: "no-cache",
   });
 
-  const handleUserAdd = useCallback((user: User) => {
-    setSelectedUsers(prev => [...prev, user]);
-  }, []);
-
   const handleUserSearch = useCallback(
     async (keyword: string) => {
-      if (keyword) {
-        try {
-          const res = await getUsersQuery({ variables: { keyword } });
-          if (res.error) {
-            throw new Error(res.error.message);
-          }
-          const users = res.data?.userSearch;
-          if (users?.length) {
-            const newUsers: User[] = [];
-            users.forEach(user => {
-              const isMember = !!workspaceUserMembers?.some(member => member.userId === user.id);
-              const isSelected = selectedUsers.some(selectedUser => selectedUser.id === user.id);
-              if (!isMember && !isSelected) {
-                newUsers.push(user);
-              }
-            });
-            setSearchedUsers(newUsers);
-          } else {
-            setSearchedUsers([]);
-          }
-        } catch (error) {
-          console.error(error);
-          setSearchedUsers([]);
-        }
+      const res = await getUsersQuery({ variables: { keyword } });
+      if (res.error) {
+        throw new Error(res.error.message);
       }
+      return res.data?.userSearch ?? [];
     },
-    [getUsersQuery, selectedUsers, workspaceUserMembers],
+    [getUsersQuery],
   );
 
   const [addUsersToWorkspaceMutation, { loading: addLoading }] = useAddUsersToWorkspaceMutation();
@@ -241,14 +214,9 @@ export default () => {
     workspaceUserMembers,
     userId: me.id,
     isAbleToLeave,
-    searchedUsers,
     handleSearchTerm,
-    setSearchedUsers,
-    selectedUsers,
-    setSelectedUsers,
     handleUserSearch,
     searchLoading,
-    handleUserAdd,
     addLoading,
     handleUsersAddToWorkspace,
     updateLoading,

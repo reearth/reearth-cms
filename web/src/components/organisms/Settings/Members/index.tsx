@@ -6,14 +6,9 @@ const Members: React.FC = () => {
   const {
     userId,
     isAbleToLeave,
-    searchedUsers,
     handleSearchTerm,
-    setSearchedUsers,
-    selectedUsers,
-    setSelectedUsers,
     handleUserSearch,
     searchLoading,
-    handleUserAdd,
     addLoading,
     handleUsersAddToWorkspace,
     updateLoading,
@@ -49,15 +44,10 @@ const Members: React.FC = () => {
       hasChangeRoleRight={hasChangeRoleRight}
       updateLoading={updateLoading}
       onMemberOfWorkspaceUpdate={handleMemberOfWorkspaceUpdate}
-      searchedUsers={searchedUsers}
-      selectedUsers={selectedUsers}
       searchLoading={searchLoading}
       addLoading={addLoading}
       onUserSearch={handleUserSearch}
-      onUserAdd={handleUserAdd}
       onUsersAddToWorkspace={handleUsersAddToWorkspace}
-      setSearchedUsers={setSearchedUsers}
-      setSelectedUsers={setSelectedUsers}
     />
   );
 };
