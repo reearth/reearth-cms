@@ -26,6 +26,16 @@ describe("IntegrationTable", () => {
   const hasUpdateRight = true;
   const hasDeleteRight = true;
 
+  const name = "name";
+  const creatorName = "creatorName";
+  const role = "READER";
+  const integration: WorkspaceIntegration = {
+    id: "id",
+    name,
+    createdBy: { id: "", name: creatorName, email: "" },
+    role,
+  };
+
   test("Table options works successfully", async () => {
     const reloadMock = vi.fn();
 
@@ -63,13 +73,7 @@ describe("IntegrationTable", () => {
   test("Page number and number of items per page are displayed successfully", async () => {
     render(
       <IntegrationTable
-        workspaceIntegrations={[
-          {
-            name: "name",
-            createdBy: { id: "", name: "creatorName", email: "" },
-            role: "READER",
-          },
-        ]}
+        workspaceIntegrations={[integration]}
         onSearchTerm={onSearchTerm}
         onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
@@ -173,18 +177,9 @@ describe("IntegrationTable", () => {
   });
 
   test("Data is displayed successfully", async () => {
-    const name = "name";
-    const creatorName = "creatorName";
-    const role = "READER";
     render(
       <IntegrationTable
-        workspaceIntegrations={[
-          {
-            name,
-            createdBy: { id: "", name: creatorName, email: "" },
-            role,
-          },
-        ]}
+        workspaceIntegrations={[integration]}
         onSearchTerm={onSearchTerm}
         onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
@@ -201,8 +196,113 @@ describe("IntegrationTable", () => {
       />,
     );
 
+    expect(screen.getByText("Name")).toBeInTheDocument();
+    expect(screen.getByText("Role")).toBeInTheDocument();
+    expect(screen.getByText("Creator")).toBeInTheDocument();
     expect(screen.getByText(name)).toBeVisible();
     expect(screen.getByText(role)).toBeVisible();
     expect(screen.getByText(creatorName)).toBeVisible();
+  });
+
+  test("Removing an integration is fired successfully", async () => {
+    const onIntegrationRemoveMock = vi.fn();
+
+    render(
+      <IntegrationTable
+        workspaceIntegrations={[integration]}
+        onSearchTerm={onSearchTerm}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
+        deleteLoading={deleteLoading}
+        onIntegrationRemove={onIntegrationRemoveMock}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={onTableChange}
+        loading={loading}
+        onReload={onReload}
+        hasConnectRight={hasConnectRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
+      />,
+    );
+
+    await user.click(screen.getByLabelText("Select all"));
+    await user.click(screen.getByRole("button", { name: "delete Remove" }));
+    expect(onIntegrationRemoveMock).toHaveBeenCalled();
+  });
+
+  test("Delete loading is displayed successfully", async () => {
+    render(
+      <IntegrationTable
+        workspaceIntegrations={[integration]}
+        onSearchTerm={onSearchTerm}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
+        deleteLoading={true}
+        onIntegrationRemove={onIntegrationRemove}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={onTableChange}
+        loading={loading}
+        onReload={onReload}
+        hasConnectRight={hasConnectRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
+      />,
+    );
+
+    await user.click(screen.getByLabelText("Select all"));
+    expect(screen.getByLabelText("loading")).toBeVisible();
+  });
+
+  test("Connecting buttons are disabled according to user right successfully", async () => {
+    render(
+      <IntegrationTable
+        workspaceIntegrations={workspaceIntegrations}
+        onSearchTerm={onSearchTerm}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
+        deleteLoading={deleteLoading}
+        onIntegrationRemove={onIntegrationRemove}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={onTableChange}
+        loading={loading}
+        onReload={onReload}
+        hasConnectRight={false}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
+      />,
+    );
+
+    for (const button of screen.getAllByRole("button", { name: "api Connect Integration" })) {
+      expect(button).toBeDisabled();
+    }
+  });
+
+  test("Update and remove buttons are disabled according to user right successfully", async () => {
+    render(
+      <IntegrationTable
+        workspaceIntegrations={[integration]}
+        onSearchTerm={onSearchTerm}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
+        deleteLoading={deleteLoading}
+        onIntegrationRemove={onIntegrationRemove}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={onTableChange}
+        loading={loading}
+        onReload={onReload}
+        hasConnectRight={hasConnectRight}
+        hasUpdateRight={false}
+        hasDeleteRight={false}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "setting" })).toBeDisabled();
+
+    await user.click(screen.getByLabelText("Select all"));
+    expect(screen.getByRole("button", { name: "delete Remove" })).toBeDisabled();
   });
 });
