@@ -103,6 +103,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	}
 
 	project := conf.GCPProject
+	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
 
 	machineType := ""
@@ -131,9 +132,11 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 				},
 			},
 		},
+		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
+			Logging:     "CLOUD_LOGGING_ONLY",
 		},
 	}
 
