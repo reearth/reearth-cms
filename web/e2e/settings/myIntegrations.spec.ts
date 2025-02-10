@@ -4,17 +4,13 @@ import { expect, test } from "@reearth-cms/e2e/utils";
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Create new integration$/ })
-    .nth(1)
-    .click();
+  await page.getByRole("button", { name: "plus Create new integration" }).click();
 
   await page.getByLabel("Integration Name").click();
   await page.getByLabel("Integration Name").fill("name");
   await page.getByLabel("Description").click();
   await page.getByLabel("Description").fill("description");
-  await page.getByRole("button", { name: "Create" }).click();
+  await page.getByRole("button", { name: "Create", exact: true }).click();
   await closeNotification(page);
 
   await page.getByText("namedescription", { exact: true }).first().click();
