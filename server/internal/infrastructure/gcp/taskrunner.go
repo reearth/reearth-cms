@@ -105,6 +105,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	project := conf.GCPProject
 	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
+	workerPool := conf.WorkerPool
 
 	machineType := ""
 	if v := conf.DecompressorMachineType; v != "" && v != "default" {
@@ -137,6 +138,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
 			Logging:     "CLOUD_LOGGING_ONLY",
+			WorkerPool:  workerPool,
 		},
 	}
 
@@ -167,6 +169,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
 	dbSecretName := conf.DBSecretName
+	workerPool := conf.WorkerPool
 
 	build := &cloudbuild.Build{
 		Timeout:  "86400s", // 1 day
@@ -188,6 +191,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		Options: &cloudbuild.BuildOptions{
 			DiskSizeGb: defaultDiskSizeGb,
 			Logging:    "CLOUD_LOGGING_ONLY",
+			WorkerPool: workerPool,
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
@@ -226,6 +230,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
 	singleDb := conf.DBName == conf.AccountDBName
+	workerPool := conf.WorkerPool
 
 	args := []string{
 		"item",
@@ -279,6 +284,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		Options: &cloudbuild.BuildOptions{
 			DiskSizeGb: defaultDiskSizeGb,
 			Logging:    "CLOUD_LOGGING_ONLY",
+			WorkerPool: workerPool,
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: availableSecrets,
