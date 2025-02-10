@@ -18,4 +18,5 @@ type TaskConfig struct {
 	AccountDBName           string `pp:",omitempty"`
 	CmsImage                string `default:"reearth/reearth-cms"`
 	BuildServiceAccount     string `pp:",omitempty"`
+	WorkerPool              string `pp:",omitempty"`
 }
