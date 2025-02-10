@@ -1,6 +1,6 @@
 FROM golang:1.23.3-alpine AS build
 
-RUN apk add --update --no-cache git ca-certificates build-base
+RUN apk add --update --no-cache ca-certificates
 
 COPY go.work go.work.sum /app/
 COPY server/go.mod server/go.sum server/main.go /app/server/
