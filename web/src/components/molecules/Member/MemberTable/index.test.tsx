@@ -6,7 +6,7 @@ import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 import MemberTable from ".";
 
-describe("MemberTable", () => {
+describe("Member table", () => {
   const user = userEvent.setup();
 
   const userId = "userId1";

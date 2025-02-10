@@ -12,7 +12,7 @@ const Members: React.FC = () => {
     addLoading,
     handleUsersAddToWorkspace,
     updateLoading,
-    handleMemberOfWorkspaceUpdate,
+    handleUpdateRole,
     handleMemberRemoveFromWorkspace,
     handleLeave,
     workspaceUserMembers,
@@ -43,7 +43,7 @@ const Members: React.FC = () => {
       hasRemoveRight={hasRemoveRight}
       hasChangeRoleRight={hasChangeRoleRight}
       updateLoading={updateLoading}
-      onMemberOfWorkspaceUpdate={handleMemberOfWorkspaceUpdate}
+      onUpdateRole={handleUpdateRole}
       searchLoading={searchLoading}
       addLoading={addLoading}
       onUserSearch={handleUserSearch}

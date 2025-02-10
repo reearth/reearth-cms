@@ -23,7 +23,7 @@ type Props = {
   hasChangeRoleRight: boolean;
 
   updateLoading: boolean;
-  onMemberOfWorkspaceUpdate: (userId: string, role: Role) => Promise<void>;
+  onUpdateRole: (userId: string, role: Role) => Promise<void>;
 
   searchLoading: boolean;
   addLoading: boolean;
@@ -48,7 +48,7 @@ const Member: React.FC<Props> = ({
   hasChangeRoleRight,
 
   updateLoading,
-  onMemberOfWorkspaceUpdate,
+  onUpdateRole,
 
   searchLoading,
   addLoading,
@@ -102,7 +102,7 @@ const Member: React.FC<Props> = ({
           member={selectedMember}
           loading={updateLoading}
           onClose={handleRoleModalClose}
-          onSubmit={onMemberOfWorkspaceUpdate}
+          onUpdateRole={onUpdateRole}
         />
       )}
       <MemberAddModal

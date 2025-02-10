@@ -125,7 +125,7 @@ export default () => {
   const [updateMemberOfWorkspaceMutation, { loading: updateLoading }] =
     useUpdateMemberOfWorkspaceMutation();
 
-  const handleMemberOfWorkspaceUpdate = useCallback(
+  const handleUpdateRole = useCallback(
     async (userId: string, role: Role) => {
       if (!workspaceId) return;
       const result = await updateMemberOfWorkspaceMutation({
@@ -220,7 +220,7 @@ export default () => {
     addLoading,
     handleUsersAddToWorkspace,
     updateLoading,
-    handleMemberOfWorkspaceUpdate,
+    handleUpdateRole,
     handleMemberRemoveFromWorkspace,
     handleLeave,
     page,

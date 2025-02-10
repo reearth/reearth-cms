@@ -36,7 +36,7 @@ describe("Member", () => {
   const hasChangeRoleRight = true;
 
   const updateLoading = false;
-  const onMemberOfWorkspaceUpdate = () => {
+  const onUpdateRole = () => {
     return Promise.resolve();
   };
 
@@ -67,7 +67,7 @@ describe("Member", () => {
         hasRemoveRight={hasRemoveRight}
         hasChangeRoleRight={hasChangeRoleRight}
         updateLoading={updateLoading}
-        onMemberOfWorkspaceUpdate={onMemberOfWorkspaceUpdate}
+        onUpdateRole={onUpdateRole}
         searchLoading={searchLoading}
         addLoading={addLoading}
         onUserSearch={onUserSearch}
@@ -100,7 +100,7 @@ describe("Member", () => {
         hasRemoveRight={hasRemoveRight}
         hasChangeRoleRight={hasChangeRoleRight}
         updateLoading={updateLoading}
-        onMemberOfWorkspaceUpdate={onMemberOfWorkspaceUpdate}
+        onUpdateRole={onUpdateRole}
         searchLoading={searchLoading}
         addLoading={addLoading}
         onUserSearch={onUserSearch}

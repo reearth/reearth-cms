@@ -4,7 +4,7 @@ import { expect, test, describe, vi } from "vitest";
 
 import MemberAddModal from ".";
 
-describe("MemberAddModal", () => {
+describe("Member add modal", () => {
   const user = userEvent.setup();
 
   const open = true;
