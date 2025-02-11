@@ -75,7 +75,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		return decompressAsset(ctx, p, t.conf)
 	}
 	if p.Copy != nil {
-		return copy(ctx, p, t.conf)
+		return copyItems(ctx, p, t.conf)
 	}
 	if p.Import != nil {
 		return importItems(ctx, p, t.conf)
@@ -137,9 +137,10 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
 			Logging:     "CLOUD_LOGGING_ONLY",
-			Pool: &cloudbuild.PoolOption{
-				Name: conf.WorkerPool,
-			},
+			// TODO: use worker pool
+			// Pool: &cloudbuild.PoolOption{
+			// 	Name: conf.WorkerPool,
+			// },
 		},
 	}
 
@@ -156,7 +157,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	return nil
 }
 
-func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Copy.Validate() {
 		return nil
 	}
