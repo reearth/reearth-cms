@@ -137,10 +137,9 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
 			Logging:     "CLOUD_LOGGING_ONLY",
-			// TODO: use worker pool
-			// Pool: &cloudbuild.PoolOption{
-			// 	Name: conf.WorkerPool,
-			// },
+			Pool: &cloudbuild.PoolOption{
+				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
+			},
 		},
 	}
 
