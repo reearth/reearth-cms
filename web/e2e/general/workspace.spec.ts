@@ -1,41 +1,48 @@
-import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+/* eslint-disable playwright/expect-expect */
 
+/**
+ * End-to-end tests for Workspace functionality in the CMS.
+ * Tests the creation, updating, and management of workspaces that serve
+ * as top-level organizational units for projects and teams.
+ */
+
+import { test } from "@reearth-cms/e2e/utils";
+
+import {
+  createWorkspace,
+  createWorkspaceFromTab,
+  deleteWorkspaceAfterUpdated,
+  updateWorkspace,
+} from "../project/utils/workspace";
+
+/**
+ * Tests the complete workspace lifecycle including:
+ * - Workspace creation
+ * - Workspace updates and modifications
+ * - Workspace deletion
+ * Verifies that all basic workspace operations work correctly
+ */
 test("Workspace CRUD has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Create a Workspace" }).click();
-  await page.getByLabel("Workspace name").click();
-  await page.getByLabel("Workspace name").fill("workspace name");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
 
-  await page.getByText("Workspace", { exact: true }).click();
-  await page.getByLabel("Workspace Name").click();
-  await page.getByLabel("Workspace Name").fill("new workspace name");
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await closeNotification(page);
+  // Create new workspace and verify setup
+  await createWorkspace(page);
 
-  await expect(page.locator("header")).toContainText("new workspace name");
-  await page.getByRole("button", { name: "Remove Workspace" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
+  // Test update operations
+  await updateWorkspace(page);
 
-  await page.locator("a").first().click();
-  await expect(page.getByText("new workspace name")).toBeHidden();
+  // Test deletion process
+  await deleteWorkspaceAfterUpdated(page);
 });
 
+/**
+ * Tests the alternative workspace creation flow
+ * Verifies that workspaces can be created successfully
+ * through the tab interface
+ */
 test("Workspace Creating from tab has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.locator("a").first().click();
-  await page.getByText("Create Workspace").click();
-  await page.getByLabel("Workspace name").click();
-  await page.getByLabel("Workspace name").fill("workspace name");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
-  await expect(page.locator("header")).toContainText("workspace name");
 
-  await page.getByText("Workspace", { exact: true }).click();
-  await page.getByRole("button", { name: "Remove Workspace" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
+  // Create workspace using tab interface
+  await createWorkspaceFromTab(page);
 });

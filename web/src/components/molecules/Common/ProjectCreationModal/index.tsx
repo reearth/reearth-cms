@@ -124,6 +124,7 @@ const ProjectCreationModal: React.FC<Props> = ({
           {t("Cancel")}
         </Button>,
         <Button
+          data-testid="project-creation-modal-button-ok"
           key="ok"
           type="primary"
           loading={isLoading}
@@ -137,7 +138,7 @@ const ProjectCreationModal: React.FC<Props> = ({
           name="name"
           label={t("Project name")}
           rules={[{ required: true, message: t("Please input the name of project!") }]}>
-          <Input onChange={handleNameChange} />
+          <Input data-testid="project-creation-modal-input-name" onChange={handleNameChange} />
         </Form.Item>
         <Form.Item
           name="alias"
@@ -154,10 +155,15 @@ const ProjectCreationModal: React.FC<Props> = ({
               },
             },
           ]}>
-          <Input onChange={handleAliasChange} showCount maxLength={MAX_KEY_LENGTH} />
+          <Input
+            data-testid="project-creation-modal-input-alias"
+            onChange={handleAliasChange}
+            showCount
+            maxLength={MAX_KEY_LENGTH}
+          />
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>
-          <TextArea rows={4} />
+          <TextArea data-testid="project-creation-modal-textarea-description" rows={4} />
         </Form.Item>
       </Form>
     </Modal>

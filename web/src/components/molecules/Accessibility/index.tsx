@@ -15,6 +15,7 @@ import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
+import { Selectors } from "@reearth-cms/selectors";
 
 type ModelDataType = {
   id: string;
@@ -102,7 +103,10 @@ const Accessibility: React.FC<Props> = ({
         publicState: modelsState[m.id],
         public: (
           <StyledFormItem name={["models", m.id]}>
-            <Switch disabled={!hasPublishRight} />
+            <Switch
+              disabled={!hasPublishRight}
+              data-testid={Selectors.accessibilityModelSwitch(m.id)}
+            />
           </StyledFormItem>
         ),
       });
@@ -114,7 +118,7 @@ const Accessibility: React.FC<Props> = ({
       publicState: assetState,
       public: (
         <StyledFormItem name="assetPublic">
-          <Switch disabled={!hasPublishRight} />
+          <Switch disabled={!hasPublishRight} data-testid={Selectors.accessibilitySwitch} />
         </StyledFormItem>
       ),
     });
@@ -141,9 +145,14 @@ const Accessibility: React.FC<Props> = ({
             name="scope"
             label={t("Public Scope")}
             extra={t("Choose your project public method.")}>
-            <StyledSelect disabled={!hasPublishRight}>
+            <StyledSelect
+              disabled={!hasPublishRight}
+              data-testid={Selectors.accessibilityPublicScopeSelect}>
               {publicScopeList.map(({ value, name }) => (
-                <Select.Option key={value} value={value}>
+                <Select.Option
+                  key={value}
+                  value={value}
+                  data-testid={Selectors.accessibilityScopeOption(value)}>
                   {name}
                 </Select.Option>
               ))}
@@ -185,7 +194,8 @@ const Accessibility: React.FC<Props> = ({
             type="primary"
             disabled={isSaveDisabled}
             onClick={onPublicUpdate}
-            loading={updateLoading}>
+            loading={updateLoading}
+            data-testid={Selectors.accessibilitySaveChangesButton}>
             {t("Save changes")}
           </Button>
         </Form>

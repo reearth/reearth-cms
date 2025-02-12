@@ -75,9 +75,10 @@ const WorkspaceGeneralForm: React.FC<Props> = ({
             message: t("Please input a new workspace name!"),
           },
         ]}>
-        <Input disabled={!hasUpdateRight} />
+        <Input data-testid="workspace-setting-input-name" disabled={!hasUpdateRight} />
       </Form.Item>
       <Button
+        data-testid="workspace-setting-button-save"
         onClick={handleSubmit}
         type="primary"
         loading={updateWorkspaceLoading}

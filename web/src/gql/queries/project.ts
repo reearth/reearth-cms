@@ -49,7 +49,7 @@ export const CHECK_PROJECT_ALIAS = gql`
 export const CREATE_PROJECT = gql`
   mutation CreateProject(
     $workspaceId: ID!
-    $name: String!
+    $name: String! 
     $description: String!
     $alias: String!
   ) {

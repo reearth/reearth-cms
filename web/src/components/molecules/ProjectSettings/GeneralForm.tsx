@@ -113,7 +113,11 @@ const ProjectGeneralForm: React.FC<Props> = ({
         name="name"
         label={t("Name")}
         rules={[{ required: true, message: t("Please input the name of project!") }]}>
-        <Input disabled={!hasUpdateRight} />
+        <Input
+          data-testid="project-setting-input-name"
+          disabled={!hasUpdateRight}
+          placeholder="project name"
+        />
       </Form.Item>
       <Form.Item
         name="alias"
@@ -129,6 +133,7 @@ const ProjectGeneralForm: React.FC<Props> = ({
           },
         ]}>
         <Input
+          data-testid="project-setting-input-alias"
           disabled={!hasUpdateRight}
           onChange={handleAliasChange}
           showCount
@@ -139,10 +144,19 @@ const ProjectGeneralForm: React.FC<Props> = ({
         name="description"
         label={t("Description")}
         extra={t("Write something here to describe this record.")}>
-        <TextArea rows={4} disabled={!hasUpdateRight} />
+        <TextArea
+          data-testid="project-setting-textarea-description"
+          rows={4}
+          disabled={!hasUpdateRight}
+        />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" disabled={isDisabled} loading={isLoading}>
+        <Button
+          data-testid="project-setting-button-save"
+          type="primary"
+          htmlType="submit"
+          disabled={isDisabled}
+          loading={isLoading}>
           {t("Save changes")}
         </Button>
       </Form.Item>

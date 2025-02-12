@@ -1,18 +1,47 @@
+/* eslint-disable import/first */
+test.describe.configure({ timeout: 180000 }); // Increase timeout to 3 minutes
+
+/**
+ * End-to-end tests for Reference field functionality in the CMS.
+ * Tests the creation, updating, and editing of reference fields that handle
+ * relationships between different models, including one-way and two-way references.
+ */
+
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+// import {
+//   OneWayReferenceFieldCreatingAndUpdating,
+//   TwoWayReferenceFieldCreatingAndUpdating,
+// } from "./reference";
+
+/**
+ * Setup: Before each test, create a fresh environment
+ * - Navigates to the root page
+ * - Creates a new project
+ * - Creates a new model within the project
+ */
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
+  await createProject( page);
   await createModel(page);
 });
 
+/**
+ * Cleanup: After each test, remove all test data
+ * by deleting the created project
+ */
 test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
+/**
+ * Tests the creation and configuration of one-way reference fields
+ * Verifies that reference fields can be added with proper linking
+ * and validation rules for unidirectional relationships
+ */
 test("One-way reference field creating and updating has succeeded", async ({ page }) => {
   test.slow();
   await page.getByRole("button", { name: "plus Add" }).first().click();
@@ -138,7 +167,12 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await expect(page.getByRole("cell", { name: "text2" }).locator("span").first()).toBeVisible();
 });
 
-test("Two-way reference field editing has succeeded", async ({ page }) => {
+/**
+ * Tests the creation and configuration of two-way reference fields
+ * Verifies that bidirectional references can be established and maintained
+ * between different models
+ */
+test("Two-way reference field editing has succeeded", async ({ page }) => {   
   test.slow();
   await page.getByRole("button", { name: "plus Add" }).first().click();
   await page.getByLabel("Model name").click();

@@ -60,7 +60,10 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
         name="lang"
         label={t("Service Language")}
         extra={t("This will change the UI language")}>
-        <Select placeholder={t("Language")} onSelect={handleSelect}>
+        <Select
+          data-testid="account-setting-select-language"
+          placeholder={t("Language")}
+          onSelect={handleSelect}>
           {langItems?.map(langItem => (
             <Option key={langItem.key} value={langItem.key}>
               {langItem.label}
@@ -68,7 +71,12 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
           ))}
         </Select>
       </Form.Item>
-      <Button onClick={handleSubmit} type="primary" disabled={isDisabled} loading={isLoading}>
+      <Button
+        data-testid="account-settings-service-button-save"
+        onClick={handleSubmit}
+        type="primary"
+        disabled={isDisabled}
+        loading={isLoading}>
         {t("Save")}
       </Button>
     </StyledForm>

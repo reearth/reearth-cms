@@ -63,6 +63,7 @@ const ProjectRequestOptions: React.FC<Props> = ({
         role: "Owner",
         needRequest: (
           <Switch
+            data-testid="owner-switch"
             checked={requestRoles?.includes("OWNER")}
             onChange={(value: boolean) => {
               if (!Array.isArray(requestRoles)) {
@@ -163,7 +164,12 @@ const ProjectRequestOptions: React.FC<Props> = ({
       <TableWrapper>
         <Table dataSource={dataSource} columns={columns} pagination={false} />
       </TableWrapper>
-      <Button type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
+      <Button
+        data-testid="project-setting-update-button-save"
+        type="primary"
+        disabled={isDisabled}
+        onClick={handleSave}
+        loading={isLoading}>
         {t("Save changes")}
       </Button>
     </>

@@ -59,17 +59,15 @@ const WorkspaceMenu: React.FC<Props> = ({
       show: "both" as MenuShowType,
     },
     {
-      label: t("Workspace"),
+      label: (
+        <span data-testid="workspace-settings-menu-item">
+          {t("Workspace")}
+        </span>
+      ),
       key: "workspaceSettings",
       icon: <Icon size={"1em"} icon="workspaceSettings" />,
       show: "notPersonal" as MenuShowType,
-    },
-    {
-      label: t("Account"),
-      key: "account",
-      icon: <Icon icon="user" />,
-      show: "personal" as MenuShowType,
-    },
+    }
   ].filter(
     item =>
       (isPersonalWorkspace && item.show === "personal") ||

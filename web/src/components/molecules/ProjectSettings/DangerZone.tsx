@@ -21,6 +21,9 @@ const DangerZone: React.FC<Props> = ({ hasDeleteRight, onProjectDelete }) => {
       title: t("Are you sure you want to delete this project?"),
       icon: <Icon icon="exclamationCircle" />,
       cancelText: t("Cancel"),
+      okButtonProps: {
+        "data-testid": "project-delete-confirm-ok",
+      },
       onOk() {
         onProjectDelete();
       },
@@ -36,6 +39,7 @@ const DangerZone: React.FC<Props> = ({ hasDeleteRight, onProjectDelete }) => {
         )}
       </Text>
       <Button
+        data-testid="project-settings-danger-zone-button-delete"
         onClick={handleProjectDeleteConfirmation}
         type="primary"
         danger

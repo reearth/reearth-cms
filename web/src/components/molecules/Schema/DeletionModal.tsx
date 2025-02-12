@@ -54,6 +54,7 @@ const DeletionModal: React.FC<Props> = ({
           {t("Cancel")}
         </Button>,
         <Button
+          data-testid="schema-deletion-modal-button-delete"
           key="submit"
           type="primary"
           onClick={() => onDelete(data?.id)}

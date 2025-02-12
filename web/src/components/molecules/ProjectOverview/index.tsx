@@ -73,6 +73,7 @@ const ProjectOverview: React.FC<Props> = ({
               <Actions>
                 {t("Create a new model")}
                 <Button
+                  data-testid="project-overview-create-model-button"
                   type="primary"
                   icon={<Icon icon="plus" />}
                   onClick={onModelModalOpen}
