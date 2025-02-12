@@ -135,11 +135,11 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
-			DiskSizeGb:  diskSizeGb, // TODO: should be deleted if a worker pool is used
+			DiskSizeGb:  diskSizeGb,
 			Logging:     "CLOUD_LOGGING_ONLY",
-			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
-			},
+			// Pool: &cloudbuild.PoolOption{
+			// 	Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
+			// },
 		},
 	}
 
