@@ -76,3 +76,13 @@ func TestList_Ordered(t *testing.T) {
 	assert.NotEqual(t, models, ordered)
 	assert.Equal(t, List{m1, m2, m3}, ordered)
 }
+
+func TestList_Model(t *testing.T) {
+	pid := id.NewProjectID()
+	m1 := New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(id.NewKey("key1")).Order(0).MustBuild()
+	m2 := New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(id.NewKey("key2")).Order(1).MustBuild()
+	m3 := New().NewID().Project(pid).Schema(id.NewSchemaID()).Key(id.NewKey("key3")).Order(2).MustBuild()
+	models := List{m3, m1, m2}
+	assert.Equal(t, m1, models.Model(m1.ID()))
+	assert.Nil(t, models.Model(id.NewModelID()))
+}

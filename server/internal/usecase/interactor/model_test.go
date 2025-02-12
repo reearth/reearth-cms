@@ -413,9 +413,22 @@ func TestModel_FindByIDs(t *testing.T) {
 
 func TestModel_Publish(t *testing.T) {
 	mockTime := time.Now()
+	pId := id.NewProjectID()
+	sid := id.NewSchemaID()
+	mId1 := id.NewModelID()
+	m1 := model.New().ID(mId1).Key(id.RandomKey()).Schema(sid).Project(pId).MustBuild()
+	mId2 := id.NewModelID()
+	m2 := model.New().ID(mId2).Key(id.RandomKey()).Schema(sid).Project(pId).MustBuild()
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(user.NewID()),
+		},
+		OwningProjects: id.ProjectIDList{pId},
+	}
+
 	type args struct {
-		modelID  id.ModelID
-		b        bool
+		params   []interfaces.PublishModelParam
 		operator *usecase.Operator
 	}
 	type seeds struct {
@@ -426,11 +439,74 @@ func TestModel_Publish(t *testing.T) {
 		name    string
 		seeds   seeds
 		args    args
-		want    bool
 		mockErr bool
 		wantErr error
 	}{
-		{},
+		{
+			name:  "empty params",
+			seeds: seeds{},
+			args: args{
+				params:   nil,
+				operator: nil,
+			},
+			mockErr: false,
+			wantErr: rerror.ErrInvalidParams,
+		},
+		{
+			name:  "empty params",
+			seeds: seeds{},
+			args: args{
+				params:   []interfaces.PublishModelParam{},
+				operator: nil,
+			},
+			mockErr: false,
+			wantErr: rerror.ErrInvalidParams,
+		},
+		{
+			name:  "not found model",
+			seeds: seeds{},
+			args: args{
+				params: []interfaces.PublishModelParam{{
+					ModelID: id.ModelID{},
+					Public:  false,
+				}},
+				operator: nil,
+			},
+			mockErr: false,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "not found model",
+			seeds: seeds{model.List{m1, m2}, project.List{}},
+			args: args{
+				params: []interfaces.PublishModelParam{{
+					ModelID: id.NewModelID(),
+					Public:  false,
+				}},
+				operator: nil,
+			},
+			mockErr: false,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "not found model",
+			seeds: seeds{model.List{m1, m2}, project.List{}},
+			args: args{
+				params: []interfaces.PublishModelParam{
+					{
+						ModelID: mId1,
+						Public:  false,
+					},
+					{
+						ModelID: mId2,
+						Public:  true,
+					},
+				},
+				operator: op,
+			},
+			mockErr: false,
+			wantErr: nil,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -453,13 +529,13 @@ func TestModel_Publish(t *testing.T) {
 			}
 			u := NewModel(db, nil)
 
-			got, err := u.Publish(ctx, tt.args.modelID, tt.args.b, tt.args.operator)
+			err := u.Publish(ctx, tt.args.params, tt.args.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
-				assert.Nil(t, got)
-				return
+			} else {
+				assert.NoError(t, err)
 			}
-			assert.Equal(t, tt.want, got)
+
 		})
 	}
 }
