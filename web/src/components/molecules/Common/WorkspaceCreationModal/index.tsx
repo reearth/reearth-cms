@@ -61,7 +61,13 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
         <Button key="cancel" onClick={handleCancel} disabled={loading}>
           {t("Cancel")}
         </Button>,
-        <Button key="ok" type="primary" loading={loading} onClick={handleOk} disabled={isDisabled}>
+        <Button 
+        data-testid="workspace-creation-modal-button-ok"
+        key="ok" 
+        type="primary" 
+        loading={loading} 
+        onClick={handleOk} 
+        disabled={isDisabled}>
           {t("OK")}
         </Button>,
       ]}>
@@ -79,7 +85,7 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
               message: t("Please input the title of the new workspace!"),
             },
           ]}>
-          <Input />
+          <Input data-testid="workspace-creation-modal-input-name" />
         </Form.Item>
       </Form>
     </Modal>

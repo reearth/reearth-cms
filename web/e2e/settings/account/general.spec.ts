@@ -4,16 +4,16 @@ import { expect, test } from "@reearth-cms/e2e/utils";
 let originalUsername: string;
 let originalEmail: string;
 
-test.beforeEach(async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {  
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("Account").click();
   originalUsername = await page.getByLabel(/Account Name|アカウント名/).inputValue();
   originalEmail = await page.getByLabel(/Your Email|メールアドレス/).inputValue();
 });
 
-test.afterEach(async ({ reearth, page }) => {
+test.afterEach(async ({ reearth, page }) => {  
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByText(/Account|アカウント/).click();
+  await page.getByText(/Account|アカウント/).click();  
   const username = await page.getByLabel(/Account Name|アカウント名/).inputValue();
   const email = await page.getByLabel(/Your Email|メールアドレス/).inputValue();
   if (username === originalUsername && email === originalEmail) {

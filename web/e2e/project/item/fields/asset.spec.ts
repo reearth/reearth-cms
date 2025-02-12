@@ -1,168 +1,57 @@
-import { closeNotification } from "@reearth-cms/e2e/common/notification";
+/* eslint-disable playwright/expect-expect */
+
+/**
+ * End-to-end tests for Asset field functionality in the CMS.
+ * Tests the creation, updating, and editing of asset fields that handle
+ * file uploads, including images, documents, and other media types.
+ * Verifies proper file handling, validation, and storage functionality.
+ */
+
 import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { test } from "@reearth-cms/e2e/utils";
 
-const uploadFileUrl_1 =
-  "https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/tileset.json";
-const uploadFileName_1 = "tileset.json";
-const uploadFileUrl_2 =
-  "https://assets.cms.plateau.reearth.io/assets/ec/0de34c-889a-459a-b49c-47c89d02ee3e/lowpolycar.gltf";
-const uploadFileName_2 = "lowpolycar.gltf";
+import { AssetFieldCreatingAndUpdating, AssetFieldEditing } from "./fields";
 
+/**
+ * Setup: Before each test, create a fresh environment
+ * - Navigates to the root page
+ * - Creates a new project
+ * - Creates a new model within the project
+ * This ensures each test has a clean slate for asset management testing
+ */
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
 });
 
+/**
+ * Cleanup: After each test, remove all test data
+ * by deleting the created project and its associated assets
+ */
 test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
+/**
+ * Tests the creation and configuration of asset fields
+ * Verifies that:
+ * - Asset fields can be added to a model
+ * - File upload functionality works correctly
+ * - Asset field properties can be configured properly
+ */
 test("Asset field creating and updating has succeeded", async ({ page }) => {
-  await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("asset1");
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill("asset1");
-  await page.getByLabel("Settings").locator("#description").click();
-  await page.getByLabel("Settings").locator("#description").fill("asset1 description");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
-
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("asset1#asset1");
-  await page.getByText("Content").click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator("label")).toContainText("asset1");
-  await expect(page.getByRole("main")).toContainText("asset1 description");
-
-  await page.getByRole("button", { name: "Asset" }).click();
-  await page.getByRole("button", { name: "upload Upload Asset" }).click();
-  await page.getByRole("tab", { name: "URL" }).click();
-  await page.getByPlaceholder("Please input a valid URL").click();
-  await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_1);
-  await page.getByRole("button", { name: "Upload and Link" }).click();
-  await closeNotification(page);
-
-  await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
-  await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
-
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await expect(page.getByText(uploadFileName_1)).toBeVisible();
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await page.getByRole("button", { name: `folder ${uploadFileName_1}` }).click();
-  await page.getByRole("button", { name: "upload Upload Asset" }).click();
-  await page.getByRole("tab", { name: "URL" }).click();
-  await page.getByPlaceholder("Please input a valid URL").click();
-  await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_2);
-  await page.getByRole("button", { name: "Upload and Link" }).click();
-  await closeNotification(page);
-  await expect(page.getByRole("button", { name: `folder ${uploadFileName_2}` })).toBeVisible();
-  await expect(page.getByRole("button", { name: uploadFileName_2, exact: true })).toBeVisible();
-  await page.getByLabel("Back").click();
-  await page.getByRole("button", { name: "Cancel" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await expect(page.getByText(uploadFileName_2)).toBeVisible();
+  await AssetFieldCreatingAndUpdating(page);
 });
 
+/**
+ * Tests the editing capabilities of existing asset fields
+ * Verifies that:
+ * - Existing assets can be modified
+ * - Files can be replaced or removed
+ * - Asset metadata can be updated
+ */
 test("Asset field editing has succeeded", async ({ page }) => {
-  test.slow();
-  await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("asset1");
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill("asset1");
-  await page.getByLabel("Settings").locator("#description").click();
-  await page.getByLabel("Settings").locator("#description").fill("asset1 description");
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await page.getByRole("button", { name: "Asset" }).click();
-  await page.getByRole("button", { name: "upload Upload Asset" }).click();
-  await page.getByRole("tab", { name: "URL" }).click();
-  await page.getByPlaceholder("Please input a valid URL").click();
-  await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_1);
-  await page.getByRole("button", { name: "Upload and Link" }).click();
-  await closeNotification(page);
-  await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
-  await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
-  await page.getByLabel("Default value").getByRole("button").nth(3).click();
-  await page.getByRole("button", { name: "Asset" }).click();
-  await page.getByPlaceholder("input search text").click();
-  await page.getByPlaceholder("input search text").fill("no asset");
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(page.locator(".ant-table-row").first()).toBeHidden();
-  await page.getByPlaceholder("input search text").click();
-  await page.getByPlaceholder("input search text").fill("");
-  await page.getByRole("button", { name: "search" }).click();
-  await page.locator(".ant-table-row > td").first().getByRole("button").hover();
-  await page.locator(".ant-table-row > td").first().getByRole("button").click();
-  await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
-  await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
-  await page.getByText("Content").click();
-  await expect(page.locator("thead")).toContainText("asset1");
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
-  await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
-  await expect(page.getByText("asset1", { exact: true })).toBeVisible();
-  await expect(page.getByText("asset1 description")).toBeVisible();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await expect(page.getByText(uploadFileName_1)).toBeVisible();
-  await page.getByText("Schema").click();
-  await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("new asset1");
-  await page.getByLabel("Field Key").click();
-  await page.getByLabel("Field Key").fill("new-asset1");
-  await page.getByLabel("Description(optional)").click();
-  await page.getByLabel("Description(optional)").fill("new asset1 description");
-  await page.getByLabel("Support multiple values").check();
-  await expect(page.getByLabel("Use as title")).toBeHidden();
-  await page.getByRole("tab", { name: "Validation" }).click();
-  await page.getByLabel("Make field required").check();
-  await page.getByLabel("Set field as unique").check();
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
-  await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "plus New" }).click();
-  await page.getByRole("button", { name: "Asset" }).click();
-  await page.getByRole("button", { name: "upload Upload Asset" }).click();
-  await page.getByRole("tab", { name: "URL" }).click();
-
-  await page.getByPlaceholder("Please input a valid URL").click();
-  await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_2);
-  await page.getByRole("button", { name: "Upload and Link" }).click();
-  await closeNotification(page);
-  await expect(page.getByRole("button", { name: `folder ${uploadFileName_2}` })).toBeVisible();
-  await expect(page.getByRole("button", { name: uploadFileName_2, exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "arrow-up" }).nth(1).click();
-  await expect(page.locator(".css-7g0azd").nth(0)).toContainText(uploadFileName_2);
-  await expect(page.locator(".css-7g0azd").nth(1)).toContainText(uploadFileName_1);
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText(
-    "new asset1 *#new-asset1(unique)",
-  );
-  await page.getByText("Content").click();
-  await expect(page.locator("thead")).toContainText("new asset1");
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator("label")).toContainText("new asset1(unique)");
-  await expect(page.getByRole("main")).toContainText("new asset1 description");
-  await expect(page.locator(".css-7g0azd").nth(0)).toContainText(uploadFileName_2);
-  await expect(page.locator(".css-7g0azd").nth(1)).toContainText(uploadFileName_1);
-  await page.getByRole("button", { name: "plus New" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await page.getByRole("button", { name: "x2" }).click();
-  await expect(page.getByRole("tooltip")).toContainText(`new asset1`);
-  await expect(page.getByRole("tooltip").locator("p").first()).toContainText(uploadFileName_2);
-  await expect(page.getByRole("tooltip").locator("p").last()).toContainText(uploadFileName_1);
+  await AssetFieldEditing(page);
 });

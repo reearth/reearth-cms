@@ -69,7 +69,7 @@ const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
             message: t("Please input Account Name!"),
           },
         ]}>
-        <Input />
+        <Input data-testid="account-setting-input-name" />
       </Form.Item>
       <Form.Item
         name="email"
@@ -81,9 +81,14 @@ const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
             message: t("Please input Your Email!"),
           },
         ]}>
-        <Input />
+        <Input data-testid="account-setting-input-email" />
       </Form.Item>
-      <Button onClick={handleSubmit} type="primary" disabled={isDisabled} loading={isLoading}>
+      <Button
+        data-testid="account-setting-button-save"
+        onClick={handleSubmit}
+        type="primary"
+        disabled={isDisabled}
+        loading={isLoading}>
         {t("Save")}
       </Button>
     </StyledForm>

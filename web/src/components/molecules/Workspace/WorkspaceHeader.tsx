@@ -24,14 +24,20 @@ const WorkspaceHeader: React.FC<Props> = ({
   return (
     <ActionHeader>
       <StyledSearch
+        data-testid="workspace-header-search-input"
         onSearch={onProjectSearch}
         placeholder={t("search projects")}
         allowClear
         type="text"
       />
       <ButtonWrapper>
-        <Button onClick={onWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
         <Button
+          data-testid="workspace-header-button-create-workspace"
+          onClick={onWorkspaceModalOpen}>
+          {t("Create a Workspace")}
+        </Button>
+        <Button
+          data-testid="workspace-header-button-new-project"
           onClick={onProjectModalOpen}
           type="primary"
           icon={<Icon icon="plus" />}

@@ -37,7 +37,7 @@
     "@graphql-codegen/typescript-operations": "4.2.3",
     "@graphql-codegen/typescript-react-apollo": "4.3.0",
     "@mapbox/vector-tile": "2.0.3",
-    "@playwright/test": "1.46.1",
+    "@playwright/test": "^1.49.1",
     "@rollup/plugin-yaml": "4.1.2",
     "@storybook/addon-essentials": "8.2.9",
     "@storybook/addon-interactions": "8.2.9",

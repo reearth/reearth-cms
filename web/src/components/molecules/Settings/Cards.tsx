@@ -39,11 +39,13 @@ const Cards: React.FC<Props> = ({
                 <Icon
                   icon="delete"
                   key="delete"
+                  data-testid={`card-delete-${index}`}
                   onClick={hasUpdateRight ? () => onDelete(isTile, index) : undefined}
                 />,
                 <Icon
                   icon="edit"
                   key="edit"
+                  data-testid={`card-edit-${index}`}
                   onClick={hasUpdateRight ? () => onModalOpen(index) : undefined}
                 />,
               ]}

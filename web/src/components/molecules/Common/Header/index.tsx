@@ -10,6 +10,7 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
+
 import HeaderDropdown from "./Dropdown";
 
 type Props = {
@@ -54,7 +55,7 @@ const HeaderMolecule: React.FC<Props> = ({
   const WorkspacesItems: MenuProps["items"] = useMemo(
     () => [
       {
-        label: t("Personal Account"),
+        label: <span data-testid="personal-account">{t("Personal Account")}</span>,
         key: "personal-account",
         type: "group",
         children: workspaces
@@ -93,7 +94,7 @@ const HeaderMolecule: React.FC<Props> = ({
           })),
       },
       {
-        label: t("Create Workspace"),
+        label: <span data-testid="create-workspace-button">{t("Create Workspace")}</span>,
         key: "new-workspace",
         icon: <Icon icon="userGroupAdd" />,
         onClick: onWorkspaceModalOpen,
@@ -132,6 +133,7 @@ const HeaderMolecule: React.FC<Props> = ({
         name={currentWorkspace?.name}
         items={WorkspacesItems}
         personal={currentIsPersonal}
+        data-testid={currentWorkspace ? `current-workspace-${currentWorkspace.id}` : undefined}
       />
       <CurrentProject>
         {currentProject?.name && (

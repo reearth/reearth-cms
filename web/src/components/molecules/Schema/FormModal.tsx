@@ -185,6 +185,7 @@ const FormModal: React.FC<Props> = ({
           {t("Cancel")}
         </Button>,
         <Button
+          data-testid="schema-form-modal-button-ok"
           key="ok"
           type="primary"
           loading={isLoading}
@@ -195,6 +196,7 @@ const FormModal: React.FC<Props> = ({
       ]}>
       <Form form={form} layout="vertical" validateTrigger="">
         <Form.Item
+          
           name="name"
           label={nameLabel}
           rules={[
@@ -203,12 +205,18 @@ const FormModal: React.FC<Props> = ({
               message: nameMessage,
             },
           ]}>
-          <Input onChange={handleNameChange} />
+          <Input 
+          data-testid="schema-form-modal-input-name" 
+          onChange={handleNameChange} />
         </Form.Item>
         <Form.Item name="description" label={descriptionLabel}>
-          <TextArea rows={4} />
+          <TextArea
+            data-testid="schema-form-modal-input-description"
+            rows={4}
+          />
         </Form.Item>
         <Form.Item
+         
           name="key"
           label={keyLabel}
           extra={keyExtra}
@@ -221,7 +229,9 @@ const FormModal: React.FC<Props> = ({
               },
             },
           ]}>
-          <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
+          <Input
+           data-testid="schema-form-modal-input-key"
+           onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
         </Form.Item>
       </Form>
     </Modal>

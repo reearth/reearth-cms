@@ -99,7 +99,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
             <Option value="READER">{t("Reader")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>
-            <Option value="OWNER">{t("Owner")}</Option>
+            <Option value="OWNER"data-testid="role-owner">{t("Owner")}</Option>
           </Select>
         </Form.Item>
       </Form>

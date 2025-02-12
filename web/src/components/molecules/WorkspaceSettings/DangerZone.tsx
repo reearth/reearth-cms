@@ -21,6 +21,9 @@ const DangerZone: React.FC<Props> = ({ hasDeleteRight, onWorkspaceDelete }) => {
       title: t("Are you sure you want to delete this workspace?"),
       icon: <Icon icon="exclamationCircle" />,
       cancelText: t("Cancel"),
+      okButtonProps: {
+        "data-testid": "workspace-delete-confirm-ok",
+      },
       async onOk() {
         await onWorkspaceDelete();
       },
@@ -36,6 +39,7 @@ const DangerZone: React.FC<Props> = ({ hasDeleteRight, onWorkspaceDelete }) => {
         )}
       </Text>
       <Button
+        data-testid="workspace-settings-danger-zone-button-delete"
         onClick={handleWorkspaceDeleteConfirmation}
         type="primary"
         danger

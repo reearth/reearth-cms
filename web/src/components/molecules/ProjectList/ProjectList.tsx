@@ -34,6 +34,7 @@ const ProjectList: React.FC<Props> = ({
           <Wrapper>
             <Suggestion>{t("Create a new project")}</Suggestion>
             <Button
+              data-testid="project-list-button-new-project"
               onClick={onProjectModalOpen}
               type="primary"
               icon={<Icon icon="plus" />}

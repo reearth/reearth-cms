@@ -1,7 +1,8 @@
 export const config = {
   api: process.env.REEARTH_CMS_API,
-  userName: process.env.REEARTH_CMS_E2E_USERNAME,
-  password: process.env.REEARTH_CMS_E2E_PASSWORD,
+  userName: process.env.REEARTH_CMS_E2E_USERNAME || "patrickm",
+  password: process.env.REEARTH_CMS_E2E_PASSWORD || "Masonwork2023",
+  workspaceId: process.env.REEARTH_CMS_E2E_WORKSPACE_ID || "01jj6pbk4m9e0qrer0edm653fs",
 };
 
 export type Config = typeof config;
@@ -12,4 +13,5 @@ export function setAccessToken(accessToken: string) {
 
 export function getAccessToken(): string | undefined {
   return process.env.REEARTH_E2E_ACCESS_TOKEN;
+  // return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im0zZVA3clBDc2YzaGd0V1Uxc2VNWiJ9.eyJpc3MiOiJodHRwczovL3JlZWFydGgtb3NzLXRlc3QuZXUuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDYzNzU4YWVjNWJjOTA5ZTMwMjJmMmQyOSIsImF1ZCI6WyJodHRwczovL2FwaS5jbXMudGVzdC5yZWVhcnRoLmRldiIsImh0dHBzOi8vcmVlYXJ0aC1vc3MtdGVzdC5ldS5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNzM4ODM2MTYyLCJleHAiOjE3Mzg5MjI1NjIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhenAiOiJYcE9Obm1QTHNzMVBVNWNaQjlueDZwY2JQQThxTDRhdyJ9.Lvjn7p8zFrsZZBg32nfc1HERi-yoviiXANb1JiRyVE-jQibavcDt9t-4gb8GzUaNoj_jQ12Lf9fXOZATO3ZgT5rhDFfeIsn8xBXXmeaKCSUbSbNsjnrleijX5xKXU2cqTszUa71EnSbA0DBc8Tez62Y65q-RHo9BI5j5EkfKO-uYmSyJYKpsUAfUP-oxJjCcPPnE9_k57moUMVdb1CNGLDr9VYh-TiSIv7tyxzorQ7vwJFvZ55hqtFlfHXJpmoNnWc5DAB-15rGB-cItC0YUCBoNk1os9p_0e5bw9Wao9vbmszzKMSNjqZ6NqlSQ-kxE34JAXS2hWmPN20IsPZPoCA";
 }

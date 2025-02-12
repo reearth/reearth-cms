@@ -96,6 +96,7 @@ const ModelsList: React.FC<Props> = ({
           <SchemaAction>
             <SchemaStyledMenuTitle>{t("MODELS")}</SchemaStyledMenuTitle>
             <SchemaAddButton
+              data-testid="models-list-button-add"
               onClick={onModalOpen}
               icon={<Icon icon="plus" />}
               type="link"

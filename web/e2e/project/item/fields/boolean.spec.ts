@@ -1,111 +1,57 @@
-import { closeNotification } from "@reearth-cms/e2e/common/notification";
+/* eslint-disable playwright/expect-expect */
+
+/**
+ * End-to-end tests for Boolean field functionality in the CMS.
+ * Tests the creation, updating, and editing of boolean fields that handle
+ * true/false values, typically represented as checkboxes or toggles.
+ * Verifies proper state management and value persistence.
+ */
+
 import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { test } from "@reearth-cms/e2e/utils";
 
+import { BooleanFieldCreatingAndUpdating, BooleanFieldEditing } from "./fields";
+
+/**
+ * Setup: Before each test, create a fresh environment
+ * - Navigates to the root page
+ * - Creates a new project
+ * - Creates a new model within the project
+ * This ensures each test has a clean state for boolean field testing
+ */
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
 });
 
+/**
+ * Cleanup: After each test, remove all test data
+ * by deleting the created project and its associated data
+ */
 test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
+/**
+ * Tests the creation and configuration of boolean fields
+ * Verifies that:
+ * - Boolean fields can be added to a model
+ * - Default values can be set
+ * - Field properties can be configured properly
+ */
 test("Boolean field creating and updating has succeeded", async ({ page }) => {
-  await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("boolean1");
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill("boolean1");
-  await page.getByLabel("Settings").locator("#description").click();
-  await page.getByLabel("Settings").locator("#description").fill("boolean1 description");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
-
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("boolean1#boolean1");
-  await page.getByText("Content").click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator("label")).toContainText("boolean1");
-  await expect(page.getByRole("main")).toContainText("boolean1 description");
-
-  await page.getByLabel("boolean1").click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
-  await page.getByLabel("boolean1").click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
+  await BooleanFieldCreatingAndUpdating(page);
 });
 
+/**
+ * Tests the editing capabilities of existing boolean fields
+ * Verifies that:
+ * - Boolean values can be toggled
+ * - State changes are properly saved
+ * - UI reflects the current boolean state correctly
+ */
 test("Boolean field editing has succeeded", async ({ page }) => {
-  await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("boolean1");
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill("boolean1");
-  await page.getByLabel("Settings").locator("#description").click();
-  await page.getByLabel("Settings").locator("#description").fill("boolean1 description");
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await page.getByLabel("Set default value").click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
-  await page.getByText("Content").click();
-  await expect(page.locator("thead")).toContainText("boolean1");
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
-  await page.getByText("Schema").click();
-  await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("new boolean1");
-  await page.getByLabel("Field Key").click();
-  await page.getByLabel("Field Key").fill("new-boolean1");
-  await page.getByLabel("Description(optional)").click();
-  await page.getByLabel("Description(optional)").fill("new boolean1 description");
-  await page.getByLabel("Support multiple values").check();
-  await expect(page.getByLabel("Use as title")).toBeHidden();
-  await page.getByRole("tab", { name: "Validation" }).click();
-  await expect(
-    page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
-  ).toBeDisabled();
-  await expect(
-    page.locator("label").filter({ hasText: "Set field as unique" }).locator("span").nth(1),
-  ).toBeDisabled();
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "true");
-  await page.getByRole("button", { name: "plus New" }).click();
-  await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
-  await page.getByRole("button", { name: "arrow-down" }).first().click();
-  await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
-  await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
-  await expect(page.getByText("new boolean1#new-boolean1")).toBeVisible();
-  await page.getByText("Content").click();
-  await expect(page.locator("thead")).toContainText("new boolean1");
-  await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
-  await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
-  await page.getByRole("button", { name: "plus New" }).click();
-  await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "false");
-  await page.getByRole("button", { name: "arrow-up" }).nth(2).click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await page.getByRole("button", { name: "x3" }).click();
-  await expect(page.getByRole("tooltip")).toContainText("new boolean1");
-  await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
-  await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "false");
-  await expect(page.getByRole("switch").nth(3)).toHaveAttribute("aria-checked", "true");
+  await BooleanFieldEditing(page);
 });

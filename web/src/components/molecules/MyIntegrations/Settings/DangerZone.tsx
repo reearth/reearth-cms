@@ -41,7 +41,11 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
           "Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.",
         )}
       </Text>
-      <Button onClick={handleWorkspaceDeleteConfirmation} type="primary" danger>
+      <Button
+        data-testid="my-integrations-settings-danger-zone-button-delete"
+        onClick={handleWorkspaceDeleteConfirmation}
+        type="primary"
+        danger>
         {t("Remove Integration")}
       </Button>
     </ContentSection>

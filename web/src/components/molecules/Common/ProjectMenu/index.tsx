@@ -15,12 +15,36 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
   const t = useT();
 
   const topItems: ItemType[] = [
-    { label: t("Home"), key: "home", icon: <Icon icon="home" /> },
-    { label: t("Overview"), key: "overview", icon: <Icon icon="dashboard" /> },
-    { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
-    { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
-    { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
-    { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
+    {
+      label: <span data-testid="home-menu-item">{t("Home")}</span>,
+      key: "home",
+      icon: <Icon icon="home" />,
+    },
+    {
+      label: <span data-testid="overview-menu-item">{t("Overview")}</span>,
+      key: "overview",
+      icon: <Icon icon="dashboard" />,
+    },
+    {
+      label: <span data-testid="schema-menu-item">{t("Schema")}</span>,
+      key: "schema",
+      icon: <Icon icon="unorderedList" />,
+    },
+    {
+      label: <span data-testid="content-menu-item">{t("Content")}</span>,
+      key: "content",
+      icon: <Icon icon="table" />,
+    },
+    {
+      label: <span data-testid="asset-menu-item">{t("Asset")}</span>,
+      key: "asset",
+      icon: <Icon icon="file" />,
+    },
+    {
+      label: <span data-testid="request-menu-item">{t("Request")}</span>,
+      key: "request",
+      icon: <Icon icon="pullRequest" />,
+    },
   ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "overview"]);
 
@@ -32,12 +56,12 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   const items: ItemType[] = [
     {
-      label: t("Accessibility"),
+      label: <span data-testid="accessibility-menu-item">{t("Accessibility")}</span>,
       key: "accessibility",
       icon: <Icon icon="send" />,
     },
     {
-      label: t("Settings"),
+      label: <span data-testid="settings-menu-item">{t("Settings")}</span>,
       key: "settings",
       icon: <Icon icon="settings" />,
     },
@@ -62,6 +86,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
       />
       <Menu
         onClick={onClick}
+        data-testid="project-menu"
         selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"

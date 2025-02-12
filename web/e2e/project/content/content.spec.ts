@@ -5,16 +5,40 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+// import {
+//   CRUDandSearching,
+//   PublishingAndUnpublishingFromEdit,
+//   PublishingAndUnpublishingFromTable,
+//   ShowingItemTitle,
+//   CommentCRUDOnEditPage,
+//   CommentCRUDonContentPage,
+// } from "./content";
+
+/**
+ * Setup: Before each test, create a fresh environment
+ * - Navigates to the root page
+ * - Creates a new project
+ * - Creates a new model within the project
+ */
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
+  await createProject( page);
   await createModel(page);
 });
 
+/**
+ * Cleanup: After each test, remove all test data
+ * by deleting the created project
+ */
 test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
+/**
+ * Tests basic CRUD operations and search functionality
+ * Verifies that content items can be created, read, updated,
+ * deleted, and found through search
+ */
 test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -48,6 +72,11 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await expect(page.getByRole("cell", { name: "new text" })).toBeHidden();
 });
 
+/**
+ * Tests publishing workflow from the edit page
+ * Verifies that content items can be published and unpublished
+ * directly from the editing interface
+ */
 test("Publishing and Unpublishing item from edit page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -73,6 +102,11 @@ test("Publishing and Unpublishing item from edit page has succeeded", async ({ p
   await expect(page.getByText("DRAFT")).toBeVisible();
 });
 
+/**
+ * Tests publishing workflow from the table view
+ * Verifies that content items can be published and unpublished
+ * from the content listing table
+ */
 test("Publishing and Unpublishing item from table has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -97,6 +131,11 @@ test("Publishing and Unpublishing item from table has succeeded", async ({ page 
   await expect(page.getByText("DRAFT")).toBeVisible();
 });
 
+/**
+ * Tests item title display functionality
+ * Verifies that content item titles are correctly shown
+ * across different views and contexts
+ */
 test("Showing item title has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -136,6 +175,11 @@ test("Showing item title has succeeded", async ({ page }) => {
   await expect(page.getByTitle(`e2e model name / default text`, { exact: true })).toBeVisible();
 });
 
+/**
+ * Tests comment functionality on the content listing page
+ * Verifies that comments can be created, read, updated,
+ * and deleted from the content view
+ */
 test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -153,6 +197,11 @@ test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await crudComment(page);
 });
 
+/**
+ * Tests comment functionality on the item edit page
+ * Verifies that comments can be created, read, updated,
+ * and deleted while editing content items
+ */
 test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
