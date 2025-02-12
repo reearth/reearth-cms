@@ -169,7 +169,6 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	project := conf.GCPProject
 	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
-	workerPool := conf.WorkerPool
 	dbSecretName := conf.DBSecretName
 
 	build := &cloudbuild.Build{
@@ -192,7 +191,7 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		Options: &cloudbuild.BuildOptions{
 			Logging: "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, workerPool),
+				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
 			},
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
@@ -231,7 +230,6 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	project := conf.GCPProject
 	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
-	workerPool := conf.WorkerPool
 	singleDb := conf.DBName == conf.AccountDBName
 
 	args := []string{
@@ -286,7 +284,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		Options: &cloudbuild.BuildOptions{
 			Logging: "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, workerPool),
+				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
 			},
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
