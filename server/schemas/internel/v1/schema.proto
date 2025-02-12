@@ -7,11 +7,8 @@ import "google/protobuf/timestamp.proto";
 option go_package = "proto/v1";
 
 service ReEarthCMS {
-  // Auth
-  rpc Authenticate(AuthRequest) returns (AuthResponse) {}
-  rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse) {}
-
   // Main operations
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {}
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {}
   rpc ListModels(ListModelsRequest) returns (ListModelsResponse) {}
   rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {}
@@ -19,23 +16,9 @@ service ReEarthCMS {
 
 // Implementation note:
 // Authentication should be implemented using gRPC interceptors
-// JWT tokens should be passed in metadata with key "authorization"
+// M2M tokens should be passed in metadata with key "authorization"
 // Format: "Bearer <token>"
-
-// Auth messages
-message AuthRequest {
-  string api_key = 1;
-}
-
-message RefreshTokenRequest {
-  string refresh_token = 1;
-}
-
-message AuthResponse {
-  string access_token = 1;
-  string refresh_token = 2;
-  google.protobuf.Timestamp expires_at = 3;
-}
+// UserId should be passed in metadata with key "user-id"
 
 // Core messages
 message Project {
@@ -73,38 +56,42 @@ message Model {
 }
 
 // Request messages
+message CreateProjectRequest {
+  string workspace_id = 1;
+  string name = 2;
+  string description = 3;
+  string alias = 4;
+  ProjectPublication publication = 5;
+}
+
 message ListProjectsRequest {
   string workspace_id = 1;
-  int32 page_size = 2;
-  string page_token = 3;
 }
 
 message ListModelsRequest {
   string project_id = 1;
-  int32 page_size = 2;
-  string page_token = 3;
 }
 
 message ExportRequest {
   string project_id = 1;
   string model_id = 2;
-  int32 expires_in_seconds = 3;
 }
 
 // Response messages
+message CreateProjectResponse {
+  Project project = 1;
+}
+
 message ListProjectsResponse {
   repeated Project projects = 1;
-  string next_page_token = 2;
   int32 total_count = 3;
 }
 
 message ListModelsResponse {
   repeated Model models = 1;
-  string next_page_token = 2;
   int32 total_count = 3;
 }
 
 message ExportURLResponse {
   string url = 1;
-  google.protobuf.Timestamp expires_at = 2;
 }
