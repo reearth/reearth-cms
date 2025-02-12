@@ -75,7 +75,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		return decompressAsset(ctx, p, t.conf)
 	}
 	if p.Copy != nil {
-		return copyItems(ctx, p, t.conf)
+		return copy(ctx, p, t.conf)
 	}
 	if p.Import != nil {
 		return importItems(ctx, p, t.conf)
@@ -135,7 +135,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
-			DiskSizeGb:  diskSizeGb,
+			DiskSizeGb:  diskSizeGb, // TODO: should be deleted if a worker pool is used
 			Logging:     "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
 				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
@@ -156,7 +156,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	return nil
 }
 
-func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Copy.Validate() {
 		return nil
 	}
@@ -189,7 +189,6 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
 			Logging:    "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
 				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
@@ -283,7 +282,6 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
 			Logging:    "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
 				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
