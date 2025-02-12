@@ -18,7 +18,7 @@ import { useWorkspace } from "@reearth-cms/state";
 export default () => {
   const { workspaceId, integrationId } = useParams();
   const navigate = useNavigate();
-  const { integrations } = integrationHooks();
+  const { loading, integrations } = integrationHooks();
   const t = useT();
   const [webhookId, setwebhookId] = useState<string>();
   const [currentWorkspace] = useWorkspace();
@@ -200,6 +200,7 @@ export default () => {
   }, [navigate, workspaceId]);
 
   return {
+    loading,
     integrations,
     selectedIntegration,
     webhookInitialValues,

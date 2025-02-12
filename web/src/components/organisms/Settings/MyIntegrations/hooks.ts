@@ -14,7 +14,7 @@ export default () => {
   const [integrationModalShown, setIntegrationModalShown] = useState(false);
   const t = useT();
 
-  const { data } = useGetMeQuery();
+  const { data, loading } = useGetMeQuery();
 
   const [createNewIntegration, { loading: createLoading }] = useCreateIntegrationMutation({
     refetchQueries: ["GetMe"],
@@ -62,6 +62,7 @@ export default () => {
   );
 
   return {
+    loading,
     integrations,
     integrationModalShown,
     createLoading,
