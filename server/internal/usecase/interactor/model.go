@@ -221,13 +221,13 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 		})
 }
 
-func (i Model) Publish(ctx context.Context, param []interfaces.PublishModelParam, operator *usecase.Operator) error {
-	if param == nil || len(param) == 0 {
+func (i Model) Publish(ctx context.Context, params []interfaces.PublishModelParam, operator *usecase.Operator) error {
+	if len(params) == 0 {
 		return rerror.ErrInvalidParams
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
-			mIds := lo.Map(param, func(p interfaces.PublishModelParam, _ int) id.ModelID { return p.ModelID })
+			mIds := lo.Map(params, func(p interfaces.PublishModelParam, _ int) id.ModelID { return p.ModelID })
 			ml, err := i.repos.Model.FindByIDs(ctx, mIds)
 			if err != nil {
 				return err
@@ -239,7 +239,7 @@ func (i Model) Publish(ctx context.Context, param []interfaces.PublishModelParam
 				return interfaces.ErrOperationDenied
 			}
 
-			for _, p := range param {
+			for _, p := range params {
 				m := ml.Model(p.ModelID)
 				if m == nil {
 					return rerror.ErrNotFound
