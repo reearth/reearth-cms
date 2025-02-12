@@ -137,10 +137,9 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
 			Logging:     "CLOUD_LOGGING_ONLY",
-			// TODO: use worker pool
-			// Pool: &cloudbuild.PoolOption{
-			// 	Name: conf.WorkerPool,
-			// },
+			Pool: &cloudbuild.PoolOption{
+				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
+			},
 		},
 	}
 
@@ -193,7 +192,7 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 			DiskSizeGb: defaultDiskSizeGb,
 			Logging:    "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
-				Name: conf.WorkerPool,
+				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
 			},
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
@@ -287,7 +286,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 			DiskSizeGb: defaultDiskSizeGb,
 			Logging:    "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
-				Name: conf.WorkerPool,
+				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
 			},
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
