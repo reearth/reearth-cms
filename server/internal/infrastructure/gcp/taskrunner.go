@@ -15,6 +15,8 @@ import (
 	"google.golang.org/api/cloudbuild/v1"
 )
 
+var defaultDiskSizeGb int64 = 2000 // 2TB
+
 type TaskRunner struct {
 	conf   *TaskConfig
 	pubsub *pubsub.Client
@@ -109,6 +111,13 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 		machineType = v
 	}
 
+	var diskSizeGb int64
+	if v := conf.DecompressorDiskSideGb; v > 0 {
+		diskSizeGb = v
+	} else {
+		diskSizeGb = defaultDiskSizeGb
+	}
+
 	build := &cloudbuild.Build{
 		Timeout:  "86400s", // 1 day
 		QueueTtl: "86400s", // 1 day
@@ -126,10 +135,11 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
+			DiskSizeGb:  diskSizeGb,
 			Logging:     "CLOUD_LOGGING_ONLY",
-			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
-			},
+			// Pool: &cloudbuild.PoolOption{
+			// 	Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
+			// },
 		},
 	}
 
