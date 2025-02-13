@@ -12,6 +12,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
@@ -152,6 +154,73 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 			}
 
 			return i.repos.Integration.Remove(ctx, integrationId)
+		})
+}
+
+func (i Integration) DeleteInBatch(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) error {
+	if operator.AcOperator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) error {
+			integrationIDList := make([]accountdomain.IntegrationID, 0, len(ids))
+			for _, id := range ids {
+				iid, err := accountdomain.IntegrationIDFrom(id.String())
+				if err != nil {
+					return err
+				}
+				integrationIDList = append(integrationIDList, iid)
+			}
+
+			integrationList, err := i.repos.Integration.FindByIDs(ctx, ids)
+			if err != nil {
+				return err
+			}
+
+			// check if the operator is the developer of the integrations and if the integration exists
+			foundIntegrationCount := 0
+			for _, in := range integrationList {
+				if in == nil {
+					continue
+				}
+				foundIntegrationCount++
+				if in.Developer() != *operator.AcOperator.User {
+					return interfaces.ErrOperationDenied
+				}
+			}
+
+			if foundIntegrationCount == 0 {
+				return rerror.NewE(i18n.T("integration not found"))
+			}
+
+			finalWorkspaceList := make(workspace.List, 0)
+			workspaceMap := make(map[string]bool, 0)
+
+			for _, id := range integrationIDList {
+				// remove the integration from the connected workspaces
+				ws, err := i.repos.Workspace.FindByIntegration(ctx, id)
+				if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+					return err
+				}
+
+				for _, w := range ws {
+					if _, ok := workspaceMap[w.ID().String()]; !ok {
+						workspaceMap[w.ID().String()] = true
+						finalWorkspaceList = append(finalWorkspaceList, w)
+					}
+
+					if err := w.Members().DeleteIntegration(id); err != nil {
+						return err
+					}
+				}
+			}
+
+			err = i.repos.Workspace.SaveAll(ctx, finalWorkspaceList)
+			if err != nil {
+				return err
+			}
+
+			return i.repos.Integration.RemoveMany(ctx, ids)
 		})
 }
 

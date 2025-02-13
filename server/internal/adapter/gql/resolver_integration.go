@@ -6,6 +6,7 @@ package gql
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -83,6 +84,28 @@ func (r *mutationResolver) DeleteIntegration(ctx context.Context, input gqlmodel
 	return &gqlmodel.DeleteIntegrationPayload{
 		IntegrationID: input.IntegrationID,
 	}, nil
+}
+
+// DeleteIntegrationInBatch is the resolver for the deleteIntegrationInBatch field.
+func (r *mutationResolver) DeleteIntegrationInBatch(ctx context.Context, input gqlmodel.DeleteIntegrationInBatchInput) (*gqlmodel.DeleteIntegrationInBatchPayload, error) {
+	if len(input.IntegrationIDs) == 0 {
+		return nil, fmt.Errorf("no integration ids")
+	}
+
+	ids, err := gqlmodel.ToIDs[id.Integration](input.IntegrationIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecases(ctx).Integration.DeleteInBatch(ctx, ids, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.DeleteIntegrationInBatchPayload{
+		IntegrationIDs: input.IntegrationIDs,
+	}, nil
+
 }
 
 // RegenerateIntegrationToken is the resolver for the regenerateToken field.
