@@ -309,9 +309,9 @@ type CreateRequestInput struct {
 }
 
 type CreateThreadInput struct {
-	WorkspaceID        ID            `json:"workspaceId"`
-	TargetResourceID   *ID           `json:"targetResourceId,omitempty"`
-	TargetResourceType *ResourceType `json:"targetResourceType,omitempty"`
+	WorkspaceID  ID            `json:"workspaceId"`
+	ResourceID   *ID           `json:"resourceId,omitempty"`
+	ResourceType *ResourceType `json:"resourceType,omitempty"`
 }
 
 type CreateViewInput struct {

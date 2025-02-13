@@ -51,28 +51,65 @@ func (i *Thread) CreateThread(ctx context.Context, input interfaces.CreateThread
 				return nil, err
 			}
 
-			if input.TargetResourceID != nil && input.TargetResourceType != nil {
-				if *input.TargetResourceType == thread.ResourceTypeItem {
-					iid, _ := id.ItemIDFrom(*input.TargetResourceID)
-					itm, _ := i.repos.Item.FindByID(ctx, iid, nil)
-					itm.Value().SetThread(th.ID())
-					_ = i.repos.Item.Save(ctx, itm.Value())
-				} else if *input.TargetResourceType == thread.ResourceTypeAsset {
-					iid, _ := id.AssetIDFrom(*input.TargetResourceID)
-					itm, _ := i.repos.Asset.FindByID(ctx, iid)
-					itm.SetThread(th.ID())
-					_ = i.repos.Asset.Save(ctx, itm)
-				} else if *input.TargetResourceType == thread.ResourceTypeRequest {
-					iid, _ := id.RequestIDFrom(*input.TargetResourceID)
-					itm, _ := i.repos.Request.FindByID(ctx, iid)
-					itm.SetThread(th.ID())
-					_ = i.repos.Request.Save(ctx, itm)
-				}
+			if err := i.linkThreadToResource(ctx, th.ID(), input.ResourceType, input.ResourceID); err != nil {
+				return nil, err
 			}
 
 			return th, nil
 		},
 	)
+}
+
+func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resourceType *thread.ResourceType, resourceID *string) error {
+	if resourceType == nil || resourceID == nil {
+		return nil
+	}
+
+	switch *resourceType {
+	case thread.ResourceTypeItem:
+		iid, err := id.ItemIDFrom(*resourceID)
+		if err != nil {
+			return err
+		}
+		itm, err := i.repos.Item.FindByID(ctx, iid, nil)
+		if err != nil {
+			return err
+		}
+		if itm != nil {
+			itm.Value().SetThread(thID)
+			return i.repos.Item.Save(ctx, itm.Value())
+		}
+
+	case thread.ResourceTypeAsset:
+		aid, err := id.AssetIDFrom(*resourceID)
+		if err != nil {
+			return err
+		}
+		a, err := i.repos.Asset.FindByID(ctx, aid)
+		if err != nil {
+			return err
+		}
+		if a != nil {
+			a.SetThread(thID)
+			return i.repos.Asset.Save(ctx, a)
+		}
+
+	case thread.ResourceTypeRequest:
+		rid, err := id.RequestIDFrom(*resourceID)
+		if err != nil {
+			return err
+		}
+		req, err := i.repos.Request.FindByID(ctx, rid)
+		if err != nil {
+			return err
+		}
+		if req != nil {
+			req.SetThread(thID)
+			return i.repos.Request.Save(ctx, req)
+		}
+	}
+
+	return nil
 }
 
 func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {

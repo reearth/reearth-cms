@@ -6612,8 +6612,8 @@ enum ResourceType {
 
 input CreateThreadInput {
   workspaceId: ID!
-  targetResourceId: ID
-  targetResourceType: ResourceType
+  resourceId: ID
+  resourceType: ResourceType
 }
 
 input AddCommentInput {
@@ -36907,7 +36907,7 @@ func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "targetResourceId", "targetResourceType"}
+	fieldsInOrder := [...]string{"workspaceId", "resourceId", "resourceType"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36921,20 +36921,20 @@ func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context,
 				return it, err
 			}
 			it.WorkspaceID = data
-		case "targetResourceId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetResourceId"))
+		case "resourceId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceId"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TargetResourceID = data
-		case "targetResourceType":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetResourceType"))
+			it.ResourceID = data
+		case "resourceType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
 			data, err := ec.unmarshalOResourceType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TargetResourceType = data
+			it.ResourceType = data
 		}
 	}
 

@@ -18,8 +18,8 @@ var (
 
 type CreateThreadInput struct {
 	WorkspaceID        accountdomain.WorkspaceID
-	TargetResourceID   *string
-	TargetResourceType *thread.ResourceType
+	ResourceID   *string
+	ResourceType *thread.ResourceType
 }
 
 type Thread interface {

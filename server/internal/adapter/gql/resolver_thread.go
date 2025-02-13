@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 )
@@ -42,17 +43,20 @@ func (r *mutationResolver) CreateThread(ctx context.Context, input gqlmodel.Crea
 	if err != nil {
 		return nil, err
 	}
+	var rid *string
+	if input.ResourceID != nil {
+		rid = (*string)(input.ResourceID)
+	}
+	var rt *thread.ResourceType
+	if input.ResourceType != nil {
+		rt = gqlmodel.FromResourceType(input.ResourceType)
+	}
 
 	uc := usecases(ctx).Thread
-	rt := gqlmodel.FromResourceType(input.TargetResourceType)
-	var rid string
-	if input.TargetResourceID != nil {
-		rid = string(*input.TargetResourceID)
-	}
 	th, err := uc.CreateThread(ctx, interfaces.CreateThreadInput{
-		WorkspaceID:        wid,
-		TargetResourceID:   &rid,
-		TargetResourceType: rt,
+		WorkspaceID:  wid,
+		ResourceID:   rid,
+		ResourceType: rt,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

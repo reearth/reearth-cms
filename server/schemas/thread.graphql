@@ -24,8 +24,8 @@ enum ResourceType {
 
 input CreateThreadInput {
   workspaceId: ID!
-  targetResourceId: ID
-  targetResourceType: ResourceType
+  resourceId: ID
+  resourceType: ResourceType
 }
 
 input AddCommentInput {
