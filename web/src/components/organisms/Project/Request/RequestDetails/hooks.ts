@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { ResourceType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
@@ -23,12 +23,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
-type Params = {
-  resourceId?: string;
-  resourceType?: ResourceType;
-};
-
-export default ({ resourceType, resourceId }: Params) => {
+export default () => {
   const t = useT();
   const navigate = useNavigate();
   const { requestId } = useParams();
@@ -186,8 +181,8 @@ export default ({ resourceType, resourceId }: Params) => {
           const { data, errors } = await createThread({
             variables: {
               workspaceId: currentWorkspace?.id ?? "",
-              resourceId,
-              resourceType: resourceType as GQLResourceType,
+              resourceId: currentRequest?.id,
+              resourceType: ResourceTypes.Request as GQLResourceType,
             },
           });
 
@@ -219,7 +214,7 @@ export default ({ resourceType, resourceId }: Params) => {
         console.error("Error creating comment:", error);
       }
     },
-    [createComment, createThread, currentRequest, currentWorkspace, resourceId, resourceType, t],
+    [createComment, createThread, currentRequest, currentWorkspace, t],
   );
 
   const handleNavigateToRequestsList = useCallback(() => {
