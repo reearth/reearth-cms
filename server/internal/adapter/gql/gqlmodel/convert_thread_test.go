@@ -56,3 +56,31 @@ func TestConvertThread_ToComment(t *testing.T) {
 	got2 := ToComment(comment2, th)
 	assert.Equal(t, want2, got2)
 }
+
+func TestConvertThread_FromResourceType(t *testing.T) {
+	var rt1 = ResourceTypeItem
+	want1 := thread.ResourceTypeItem
+	got1 := FromResourceType(&rt1)
+	assert.Equal(t, &want1, got1)
+
+	var rt2 = ResourceTypeAsset
+	want2 := thread.ResourceTypeAsset
+	got2 := FromResourceType(&rt2)
+	assert.Equal(t, &want2, got2)
+
+	var rt3 = ResourceTypeRequest
+	want3 := thread.ResourceTypeRequest
+	got3 := FromResourceType(&rt3)
+	assert.Equal(t, &want3, got3)
+
+	var rt4 *ResourceType = nil
+	want6 := (*thread.ResourceType)(nil)
+	got6 := FromResourceType(rt4)
+	assert.Equal(t, want6, got6)
+
+	var rt5 ResourceType = "test"
+	want7 := (*thread.ResourceType)(nil)
+	got7 := FromResourceType(&rt5)
+	assert.Equal(t, want7, got7)
+}
+

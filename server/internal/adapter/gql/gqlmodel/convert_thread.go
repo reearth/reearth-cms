@@ -63,23 +63,3 @@ func FromResourceType(p *ResourceType) *thread.ResourceType {
 
 	return &p2
 }
-
-func ToResourceType(p *thread.ResourceType) *ResourceType {
-	if p == nil {
-		return nil
-	}
-
-	var p2 ResourceType
-	switch *p {
-	case thread.ResourceTypeItem:
-		p2 = ResourceTypeItem
-	case thread.ResourceTypeAsset:
-		p2 = ResourceTypeAsset
-	case thread.ResourceTypeRequest:
-		p2 = ResourceTypeRequest
-	default:
-		return nil
-	}
-
-	return &p2
-}
