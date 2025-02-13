@@ -372,7 +372,7 @@ func TestIntegrationRepo_RemoveMany(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:    "Success partial delete data",
+			name:    "Success delete data",
 			seeds:   integration.List{i1},
 			arg:     idx.List[id.Integration]{iId1, iId2},
 			want:    nil,
@@ -402,9 +402,10 @@ func TestIntegrationRepo_RemoveMany(t *testing.T) {
 				return
 			}
 
-			_, err = r.FindByIDs(ctx, tc.arg)
-
-			assert.Equal(t, rerror.ErrNotFound, err)
+			for _, id := range tc.arg {
+				_, err := r.FindByID(ctx, id)
+				assert.Equal(t, rerror.ErrNotFound, err)
+			}
 		})
 	}
 }
