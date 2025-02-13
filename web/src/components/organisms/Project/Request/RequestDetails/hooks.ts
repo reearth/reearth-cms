@@ -179,42 +179,47 @@ export default ({ resourceType, resourceId }: Params) => {
 
   const handleCommentCreate = useCallback(
     async (content: string) => {
-      if (!currentRequest?.threadId) {
-        const thread = await createThread({
-          variables: {
-            workspaceId: currentWorkspace?.id ?? "",
-            resourceId: resourceId,
-            resourceType: resourceType as GQLResourceType,
-          },
-        });
-        if (thread.errors || !thread.data?.createThread?.thread) {
-          Notification.error({ message: t("Failed to create thread.") });
+      try {
+        let id = currentRequest?.threadId;
+
+        if (!id) {
+          const { data, errors } = await createThread({
+            variables: {
+              workspaceId: currentWorkspace?.id ?? "",
+              resourceId,
+              resourceType: resourceType as GQLResourceType,
+            },
+          });
+
+          if (errors || !data?.createThread?.thread?.id) {
+            Notification.error({ message: t("Failed to create thread.") });
+            return;
+          }
+
+          id = data.createThread.thread.id;
         }
 
-        console.log(thread);
-        return;
+        if (!id) {
+          Notification.error({ message: t("Thread ID is missing. Cannot create comment.") });
+          return;
+        }
+
+        const { data: commentData, errors: commentErrors } = await createComment({
+          variables: { threadId: id, content },
+        });
+
+        if (commentErrors || !commentData?.addComment) {
+          Notification.error({ message: t("Failed to create comment.") });
+          return;
+        }
+
+        Notification.success({ message: t("Successfully created comment!") });
+      } catch (error) {
+        Notification.error({ message: t("An unexpected error occurred.") });
+        console.error("Error creating comment:", error);
       }
-      const comment = await createComment({
-        variables: {
-          threadId: currentRequest.threadId,
-          content,
-        },
-      });
-      if (comment.errors || !comment.data?.addComment) {
-        Notification.error({ message: t("Failed to create comment.") });
-        return;
-      }
-      Notification.success({ message: t("Successfully created comment!") });
     },
-    [
-      createComment,
-      createThread,
-      currentRequest?.threadId,
-      currentWorkspace?.id,
-      resourceId,
-      resourceType,
-      t,
-    ],
+    [createComment, createThread, currentRequest, currentWorkspace, resourceId, resourceType, t],
   );
 
   const handleNavigateToRequestsList = useCallback(() => {
