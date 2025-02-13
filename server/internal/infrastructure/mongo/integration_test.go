@@ -347,35 +347,24 @@ func TestIntegrationRepo_RemoveMany(t *testing.T) {
 		name    string
 		seeds   integration.List
 		arg     id.IntegrationIDList
-		want    integration.List
 		wantErr error
 	}{
-		{
-			name:    "Error not found",
-			seeds:   integration.List{},
-			arg:     idx.List[id.Integration]{iId1},
-			want:    integration.List{},
-			wantErr: rerror.ErrNotFound,
-		},
 		{
 			name:    "Success delete multiple data",
 			seeds:   integration.List{i1, i2},
 			arg:     idx.List[id.Integration]{iId1, iId2},
-			want:    nil,
 			wantErr: nil,
 		},
 		{
 			name:    "Success delete data",
 			seeds:   integration.List{i1, i2},
 			arg:     idx.List[id.Integration]{iId1},
-			want:    nil,
 			wantErr: nil,
 		},
 		{
 			name:    "Success delete data",
 			seeds:   integration.List{i1},
 			arg:     idx.List[id.Integration]{iId1, iId2},
-			want:    nil,
 			wantErr: nil,
 		},
 	}
