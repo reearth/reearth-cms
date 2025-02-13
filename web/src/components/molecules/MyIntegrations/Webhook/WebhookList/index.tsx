@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
@@ -10,13 +10,7 @@ import WebhookCard from "./WebhookCard";
 type Props = {
   webhooks?: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
-  onWebhookUpdate: (data: {
-    webhookId: string;
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-  }) => Promise<void>;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
   onShowForm: () => void;
   onWebhookSelect: (id: string) => void;
 };

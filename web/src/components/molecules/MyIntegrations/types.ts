@@ -12,6 +12,8 @@ export type Integration = {
   };
 };
 
+export type IntegrationInfo = Pick<Integration, "name" | "description" | "logoUrl">;
+
 export type Developer = {
   id: string;
   name: string;
@@ -31,6 +33,8 @@ export type Webhook = {
   secret: string;
   trigger: WebhookTrigger;
 };
+
+export type NewWebhook = Omit<Webhook, "id">;
 
 export type WebhookTrigger = {
   onItemCreate?: boolean | null;

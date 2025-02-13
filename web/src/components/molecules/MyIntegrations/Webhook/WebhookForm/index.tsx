@@ -12,6 +12,8 @@ import Row from "@reearth-cms/components/atoms/Row";
 import {
   WebhookTrigger,
   WebhookValues,
+  NewWebhook,
+  Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
@@ -20,21 +22,8 @@ type Props = {
   webhookInitialValues?: WebhookValues;
   loading: boolean;
   onBack: () => void;
-  onWebhookCreate: (data: {
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-    secret: string;
-  }) => Promise<void>;
-  onWebhookUpdate: (data: {
-    webhookId: string;
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-    secret?: string;
-  }) => Promise<void>;
+  onWebhookCreate: (data: NewWebhook) => Promise<void>;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
 };
 
 type FormType = {
@@ -120,17 +109,16 @@ const WebhookForm: React.FC<Props> = ({
         await onWebhookUpdate({
           ...payload,
           active: webhookInitialValues.active,
-          webhookId: webhookInitialValues.id,
+          id: webhookInitialValues.id,
         });
-        onBack?.();
       } else {
         await onWebhookCreate(payload);
-        form.resetFields();
       }
+      setIsDisabled(true);
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [form, onWebhookCreate, onWebhookUpdate, onBack, webhookInitialValues]);
+  }, [form, onWebhookCreate, onWebhookUpdate, webhookInitialValues]);
 
   return (
     <>

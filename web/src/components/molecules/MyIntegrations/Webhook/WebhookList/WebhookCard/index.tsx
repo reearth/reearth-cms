@@ -6,18 +6,12 @@ import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
   webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
-  onWebhookUpdate: (data: {
-    webhookId: string;
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-  }) => Promise<void>;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
   onWebhookSettings: (webhookId: string) => void;
 };
 
@@ -40,7 +34,7 @@ const WebhookCard: React.FC<Props> = ({
 
   const handleWebhookUpdate = useCallback(
     (active: boolean) => {
-      onWebhookUpdate({ ...webhook, active, webhookId: webhook.id });
+      onWebhookUpdate({ ...webhook, active, id: webhook.id });
     },
     [onWebhookUpdate, webhook],
   );
