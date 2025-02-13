@@ -8,6 +8,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/samber/lo"
@@ -332,6 +333,76 @@ func TestIntegrationRepo_Remove(t *testing.T) {
 			}
 
 			_, err = r.FindByID(ctx, tc.arg)
+
+			assert.Equal(t, rerror.ErrNotFound, err)
+		})
+	}
+}
+
+func TestIntegrationRepo_RemoveMany(t *testing.T) {
+	_, _, _, iId1, _, i1, _ := testSuite()
+	_, _, _, iId2, _, i2, _ := testSuite()
+
+	tests := []struct {
+		name    string
+		seeds   integration.List
+		arg     id.IntegrationIDList
+		want    integration.List
+		wantErr error
+	}{
+		{
+			name:    "Error not found",
+			seeds:   integration.List{},
+			arg:     idx.List[id.Integration]{iId1},
+			want:    integration.List{},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "Success delete multiple data",
+			seeds:   integration.List{i1, i2},
+			arg:     idx.List[id.Integration]{iId1, iId2},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:    "Success delete data",
+			seeds:   integration.List{i1, i2},
+			arg:     idx.List[id.Integration]{iId1},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:    "Success partial delete data",
+			seeds:   integration.List{i1},
+			arg:     idx.List[id.Integration]{iId1, iId2},
+			want:    nil,
+			wantErr: nil,
+		},
+	}
+	initDB := mongotest.Connect(t)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+			r := NewIntegration(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p.Clone())
+				if tc.wantErr != nil {
+					assert.ErrorIs(t, err, tc.wantErr)
+					return
+				}
+			}
+
+			err := r.RemoveMany(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+
+			_, err = r.FindByIDs(ctx, tc.arg)
 
 			assert.Equal(t, rerror.ErrNotFound, err)
 		})

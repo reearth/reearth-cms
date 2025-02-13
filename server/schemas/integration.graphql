@@ -41,6 +41,10 @@ input DeleteIntegrationInput {
   integrationId: ID!
 }
 
+input DeleteIntegrationInBatchInput {
+  integrationIDs: [ID!]
+}
+
 input RegenerateIntegrationTokenInput {
   integrationId: ID!
 }
@@ -54,11 +58,16 @@ type DeleteIntegrationPayload {
   integrationId: ID!
 }
 
+type DeleteIntegrationInBatchPayload {
+  integrationIDs: [ID!]
+}
+
 # extend type Query {}
 
 extend type Mutation {
   createIntegration(input: CreateIntegrationInput!): IntegrationPayload
   updateIntegration(input: UpdateIntegrationInput!): IntegrationPayload
   deleteIntegration(input: DeleteIntegrationInput!): DeleteIntegrationPayload
+  deleteIntegrationInBatch(input: DeleteIntegrationInBatchInput!): DeleteIntegrationInBatchPayload
   regenerateIntegrationToken(input: RegenerateIntegrationTokenInput!): IntegrationPayload
 }
