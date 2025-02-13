@@ -458,7 +458,6 @@ Failed to delete user.: ユーザーの削除に失敗しました。
 Successfully deleted user!: ユーザーの削除に成功しました。
 Successfully created workspace!: ワークスペースの作成に成功しました。
 Failed to create thread.: ''
-Thread ID is missing. Cannot create comment.: ''
 Failed to create comment.: コメントの作成に失敗しました。
 Successfully created comment!: コメントの作成に成功しました。
 An unexpected error occurred.: ''

@@ -82,11 +82,6 @@ export default ({ resourceType, resourceId, threadId, refetchQueries }: Params) 
           id = data.createThread.thread.id;
         }
 
-        if (!id) {
-          Notification.error({ message: t("Thread ID is missing. Cannot create comment.") });
-          return;
-        }
-
         const { data: commentData, errors: commentErrors } = await createComment({
           variables: { threadId: id, content },
         });
