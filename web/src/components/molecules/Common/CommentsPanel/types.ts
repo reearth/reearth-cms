@@ -5,6 +5,8 @@ export type Comment = {
   createdAt: string;
 };
 
+export type ResourceType = "ITEM" | "ASSET" | "REQUEST" | undefined;
+
 export type RefetchQueries = (
   | "GetItem"
   | "SearchItem"

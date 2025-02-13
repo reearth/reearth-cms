@@ -326,6 +326,8 @@ export type CreateRequestInput = {
 };
 
 export type CreateThreadInput = {
+  resourceId?: InputMaybe<Scalars['ID']['input']>;
+  resourceType?: InputMaybe<ResourceType>;
   workspaceId: Scalars['ID']['input'];
 };
 
@@ -1547,6 +1549,12 @@ export type ResourceList = {
   resources: Array<Resource>;
   selectedResource?: Maybe<Scalars['ID']['output']>;
 };
+
+export enum ResourceType {
+  Asset = 'ASSET',
+  Item = 'ITEM',
+  Request = 'REQUEST'
+}
 
 export type ResourcesListInput = {
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2805,6 +2813,15 @@ export type DeleteRequestMutationVariables = Exact<{
 
 
 export type DeleteRequestMutation = { __typename?: 'Mutation', deleteRequest?: { __typename?: 'DeleteRequestPayload', requests: Array<string> } | null };
+
+export type CreateThreadMutationVariables = Exact<{
+  workspaceId: Scalars['ID']['input'];
+  resourceId?: InputMaybe<Scalars['ID']['input']>;
+  resourceType?: InputMaybe<ResourceType>;
+}>;
+
+
+export type CreateThreadMutation = { __typename?: 'Mutation', createThread?: { __typename?: 'ThreadPayload', thread: { __typename?: 'Thread', id: string, workspaceId: string } } | null };
 
 export type GetUserByNameOrEmailQueryVariables = Exact<{
   nameOrEmail: Scalars['String']['input'];
@@ -6275,6 +6292,46 @@ export function useDeleteRequestMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteRequestMutationHookResult = ReturnType<typeof useDeleteRequestMutation>;
 export type DeleteRequestMutationResult = Apollo.MutationResult<DeleteRequestMutation>;
 export type DeleteRequestMutationOptions = Apollo.BaseMutationOptions<DeleteRequestMutation, DeleteRequestMutationVariables>;
+export const CreateThreadDocument = gql`
+    mutation CreateThread($workspaceId: ID!, $resourceId: ID, $resourceType: ResourceType) {
+  createThread(
+    input: {workspaceId: $workspaceId, resourceId: $resourceId, resourceType: $resourceType}
+  ) {
+    thread {
+      id
+      workspaceId
+    }
+  }
+}
+    `;
+export type CreateThreadMutationFn = Apollo.MutationFunction<CreateThreadMutation, CreateThreadMutationVariables>;
+
+/**
+ * __useCreateThreadMutation__
+ *
+ * To run a mutation, you first call `useCreateThreadMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateThreadMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createThreadMutation, { data, loading, error }] = useCreateThreadMutation({
+ *   variables: {
+ *      workspaceId: // value for 'workspaceId'
+ *      resourceId: // value for 'resourceId'
+ *      resourceType: // value for 'resourceType'
+ *   },
+ * });
+ */
+export function useCreateThreadMutation(baseOptions?: Apollo.MutationHookOptions<CreateThreadMutation, CreateThreadMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateThreadMutation, CreateThreadMutationVariables>(CreateThreadDocument, options);
+      }
+export type CreateThreadMutationHookResult = ReturnType<typeof useCreateThreadMutation>;
+export type CreateThreadMutationResult = Apollo.MutationResult<CreateThreadMutation>;
+export type CreateThreadMutationOptions = Apollo.BaseMutationOptions<CreateThreadMutation, CreateThreadMutationVariables>;
 export const GetUserByNameOrEmailDocument = gql`
     query GetUserByNameOrEmail($nameOrEmail: String!) {
   userByNameOrEmail(nameOrEmail: $nameOrEmail) {

@@ -38,6 +38,8 @@ const RequestList: React.FC = () => {
     <RequestListMolecule
       commentsPanel={
         <CommentsPanel
+          resourceId={selectedRequest?.id}
+          resourceType="REQUEST"
           collapsed={collapsedCommentsPanel}
           onCollapse={collapseCommentsPanel}
           emptyText={

@@ -41,6 +41,8 @@ const Asset: React.FC = () => {
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
+          resourceId={assetId}
+          resourceType="ASSET"
           comments={asset?.comments}
           threadId={asset?.threadId}
           collapsed={collapsed}

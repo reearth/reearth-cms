@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import { ResourceType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
@@ -14,13 +15,20 @@ import {
   useUpdateCommentMutation,
   useDeleteCommentMutation,
   useGetRequestQuery,
+  useCreateThreadMutation,
   Request as GQLRequest,
   RequestState as GQLRequestState,
+  ResourceType as GQLResourceType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
-export default () => {
+type Params = {
+  resourceId?: string;
+  resourceType?: ResourceType;
+};
+
+export default ({ resourceType, resourceId }: Params) => {
   const t = useT();
   const navigate = useNavigate();
   const { requestId } = useParams();
@@ -165,9 +173,27 @@ export default () => {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
+  const [createThread] = useCreateThreadMutation({
+    refetchQueries: ["GetRequests", "GetRequest"],
+  });
+
   const handleCommentCreate = useCallback(
     async (content: string) => {
-      if (!currentRequest?.threadId) return;
+      if (!currentRequest?.threadId) {
+        const thread = await createThread({
+          variables: {
+            workspaceId: currentWorkspace?.id ?? "",
+            resourceId: resourceId,
+            resourceType: resourceType as GQLResourceType,
+          },
+        });
+        if (thread.errors || !thread.data?.createThread?.thread) {
+          Notification.error({ message: t("Failed to create thread.") });
+        }
+
+        console.log(thread);
+        return;
+      }
       const comment = await createComment({
         variables: {
           threadId: currentRequest.threadId,
@@ -180,7 +206,15 @@ export default () => {
       }
       Notification.success({ message: t("Successfully created comment!") });
     },
-    [createComment, currentRequest?.threadId, t],
+    [
+      createComment,
+      createThread,
+      currentRequest?.threadId,
+      currentWorkspace?.id,
+      resourceId,
+      resourceType,
+      t,
+    ],
   );
 
   const handleNavigateToRequestsList = useCallback(() => {
