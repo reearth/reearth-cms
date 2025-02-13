@@ -1,3 +1,4 @@
+import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
@@ -68,7 +69,7 @@ const ContentList: React.FC = () => {
       commentsPanel={
         <CommentsPanel
           resourceId={selectedItem?.id}
-          resourceType="ITEM"
+          resourceType={ResourceTypes.Item}
           collapsed={collapsedCommentsPanel}
           onCollapse={collapseCommentsPanel}
           emptyText={

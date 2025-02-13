@@ -2,7 +2,10 @@ import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { RefetchQueries,ResourceType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import {
+  RefetchQueries,
+  ResourceType,
+} from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import {
   ResourceType as GQLResourceType,
   useAddCommentMutation,
@@ -59,31 +62,48 @@ export default ({ resourceType, resourceId, threadId, refetchQueries }: Params) 
 
   const handleCommentCreate = useCallback(
     async (content: string) => {
-      let id = threadId;
-      if (!threadId) {
-        const thread = await createThread({
+      try {
+        let id = threadId;
+
+        if (!id) {
+          const { data, errors } = await createThread({
+            variables: {
+              workspaceId: currentWorkspaceId ?? "",
+              resourceId,
+              resourceType: resourceType as GQLResourceType,
+            },
+          });
+
+          if (errors || !data?.createThread?.thread?.id) {
+            Notification.error({ message: t("Failed to create thread.") });
+            return;
+          }
+
+          id = data.createThread.thread.id;
+        }
+
+        if (!id) {
+          Notification.error({ message: t("Thread ID is missing. Cannot create comment.") });
+          return;
+        }
+
+        const { data: commentData, errors: commentErrors } = await createComment({
           variables: {
-            workspaceId: currentWorkspaceId ?? "",
-            resourceId: resourceId,
-            resourceType: resourceType as GQLResourceType,
+            threadId: id,
+            content,
           },
         });
-        if (thread.errors || !thread.data?.createThread?.thread) {
-          Notification.error({ message: t("Failed to create thread.") });
+
+        if (commentErrors || !commentData?.addComment) {
+          Notification.error({ message: t("Failed to create comment.") });
+          return;
         }
-        id = thread.data?.createThread?.thread?.id;
+
+        Notification.success({ message: t("Successfully created comment!") });
+      } catch (error) {
+        Notification.error({ message: t("An unexpected error occurred.") });
+        console.error("Error creating comment:", error);
       }
-      const comment = await createComment({
-        variables: {
-          threadId: id ?? "",
-          content,
-        },
-      });
-      if (comment.errors || !comment.data?.addComment) {
-        Notification.error({ message: t("Failed to create comment.") });
-        return;
-      }
-      Notification.success({ message: t("Successfully created comment!") });
     },
     [threadId, createComment, t, createThread, currentWorkspaceId, resourceId, resourceType],
   );
