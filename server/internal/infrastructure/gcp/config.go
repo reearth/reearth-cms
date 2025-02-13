@@ -14,7 +14,9 @@ type TaskConfig struct {
 	CopierImage             string `default:"reearth/reearth-cms-copier"`
 	DBSecretName            string `default:"reearth-cms-db"`
 	AccountDBSecretName     string `default:"reearth-cms-db-users"`
-	AccountDBName           string `default:"reearth-account"`
+	DBName                  string `pp:",omitempty"`
+	AccountDBName           string `pp:",omitempty"`
 	CmsImage                string `default:"reearth/reearth-cms"`
 	BuildServiceAccount     string `pp:",omitempty"`
+	WorkerPool              string `pp:",omitempty"`
 }

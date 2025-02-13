@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"os"
 	"time"
 
@@ -57,7 +56,6 @@ func initReposWithCollection(ctx context.Context, dbURI, collection string) (*re
 		ctx,
 		options.Client().
 			ApplyURI(dbURI).
-			SetTLSConfig(&tls.Config{InsecureSkipVerify: true}).
 			SetConnectTimeout(10*time.Second).
 			SetMonitor(otelmongo.NewMonitor()),
 	)

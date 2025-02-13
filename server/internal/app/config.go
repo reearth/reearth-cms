@@ -313,6 +313,14 @@ func ReadConfig(debug bool) (*Config, error) {
 		c.Dev = true
 	}
 
+	if c.Task.DBName == "" {
+		c.Task.DBName = c.DB_CMS
+	}
+
+	if c.Task.AccountDBName == "" {
+		c.Task.AccountDBName = c.DB_Account
+	}
+
 	return &c, err
 }
 
