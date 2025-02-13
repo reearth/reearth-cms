@@ -43,3 +43,43 @@ func ToComment(c *thread.Comment, th *thread.Thread) *Comment {
 		CreatedAt:   c.CreatedAt(),
 	}
 }
+
+func FromResourceType(p *ResourceType) *thread.ResourceType {
+	if p == nil {
+		return nil
+	}
+
+	var p2 thread.ResourceType
+	switch *p {
+	case ResourceTypeItem:
+		p2 = thread.ResourceTypeItem
+	case ResourceTypeAsset:
+		p2 = thread.ResourceTypeAsset
+	case ResourceTypeRequest:
+		p2 = thread.ResourceTypeRequest
+	default:
+		return nil
+	}
+
+	return &p2
+}
+
+func ToResourceType(p *thread.ResourceType) *ResourceType {
+	if p == nil {
+		return nil
+	}
+
+	var p2 ResourceType
+	switch *p {
+	case thread.ResourceTypeItem:
+		p2 = ResourceTypeItem
+	case thread.ResourceTypeAsset:
+		p2 = ResourceTypeAsset
+	case thread.ResourceTypeRequest:
+		p2 = ResourceTypeRequest
+	default:
+		return nil
+	}
+
+	return &p2
+}

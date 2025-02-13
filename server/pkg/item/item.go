@@ -256,6 +256,10 @@ func (i *Item) SetOriginalItem(iid id.ItemID) {
 	i.originalItem = &iid
 }
 
+func (i *Item) SetThread(thid id.ThreadID) {
+	i.thread = thid
+}
+
 func (i *Item) GetFirstGeometryField() (*Field, bool) {
 	if i == nil {
 		return nil, false

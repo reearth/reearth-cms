@@ -3,6 +3,7 @@ package asset
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 )
@@ -88,6 +89,10 @@ func (a *Asset) FlatFiles() bool {
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
+}
+
+func (a *Asset) SetThread(thid id.ThreadID) {
+	a.thread = thid
 }
 
 func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {

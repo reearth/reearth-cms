@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 type Thread struct {
@@ -38,21 +37,40 @@ func (i *Thread) FindByIDs(ctx context.Context, threads []id.ThreadID, operator 
 	return i.repos.Thread.FindByIDs(ctx, threads)
 }
 
-func (i *Thread) CreateThread(ctx context.Context, wid accountdomain.WorkspaceID, op *usecase.Operator) (*thread.Thread, error) {
+func (i *Thread) CreateThread(ctx context.Context, input interfaces.CreateThreadInput, op *usecase.Operator) (*thread.Thread, error) {
 	return Run1(
 		ctx, op, i.repos,
-		Usecase().WithWritableWorkspaces(wid).Transaction(),
+		Usecase().WithWritableWorkspaces(input.WorkspaceID).Transaction(),
 		func(ctx context.Context) (*thread.Thread, error) {
-			thread, err := thread.New().NewID().Workspace(wid).Build()
+			th, err := thread.New().NewID().Workspace(input.WorkspaceID).Build()
 			if err != nil {
 				return nil, err
 			}
 
-			if err := i.repos.Thread.Save(ctx, thread); err != nil {
+			if err := i.repos.Thread.Save(ctx, th); err != nil {
 				return nil, err
 			}
 
-			return thread, nil
+			if input.TargetResourceID != nil && input.TargetResourceType != nil {
+				if *input.TargetResourceType == thread.ResourceTypeItem {
+					iid, _ := id.ItemIDFrom(*input.TargetResourceID)
+					itm, _ := i.repos.Item.FindByID(ctx, iid, nil)
+					itm.Value().SetThread(th.ID())
+					_ = i.repos.Item.Save(ctx, itm.Value())
+				} else if *input.TargetResourceType == thread.ResourceTypeAsset {
+					iid, _ := id.AssetIDFrom(*input.TargetResourceID)
+					itm, _ := i.repos.Asset.FindByID(ctx, iid)
+					itm.SetThread(th.ID())
+					_ = i.repos.Asset.Save(ctx, itm)
+				} else if *input.TargetResourceType == thread.ResourceTypeRequest {
+					iid, _ := id.RequestIDFrom(*input.TargetResourceID)
+					itm, _ := i.repos.Request.FindByID(ctx, iid)
+					itm.SetThread(th.ID())
+					_ = i.repos.Request.Save(ctx, itm)
+				}
+			}
+
+			return th, nil
 		},
 	)
 }

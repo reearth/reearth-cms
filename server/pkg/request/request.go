@@ -3,6 +3,7 @@ package request
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -125,4 +126,8 @@ func (r *Request) SetState(state State) {
 
 func (r *Request) SetUpdatedAt(d time.Time) {
 	r.updatedAt = d
+}
+
+func (r *Request) SetThread(thid id.ThreadID) {
+	r.thread = thid
 }

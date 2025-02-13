@@ -265,7 +265,7 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 			db := memory.New()
 			threadUC := NewThread(db, nil)
 
-			th, err := threadUC.CreateThread(ctx, tc.arg, tc.operator)
+			th, err := threadUC.CreateThread(ctx, interfaces.CreateThreadInput{WorkspaceID: tc.arg}, tc.operator)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

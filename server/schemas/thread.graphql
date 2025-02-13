@@ -16,8 +16,16 @@ type Comment {
   createdAt: DateTime!
 }
 
+enum ResourceType {
+  ITEM
+  ASSET
+  REQUEST
+}
+
 input CreateThreadInput {
   workspaceId: ID!
+  targetResourceId: ID
+  targetResourceType: ResourceType
 }
 
 input AddCommentInput {
