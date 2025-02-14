@@ -87,7 +87,7 @@ type Asset struct {
 	ContentEncoding         *string                  `json:"contentEncoding,omitempty"`
 	UUID                    string                   `json:"uuid"`
 	Thread                  *Thread                  `json:"thread,omitempty"`
-	ThreadID                ID                       `json:"threadId"`
+	ThreadID                *ID                      `json:"threadId,omitempty"`
 	URL                     string                   `json:"url"`
 	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
@@ -853,7 +853,7 @@ type Request struct {
 	CreatedByID ID             `json:"createdById"`
 	WorkspaceID ID             `json:"workspaceId"`
 	ProjectID   ID             `json:"projectId"`
-	ThreadID    ID             `json:"threadId"`
+	ThreadID    *ID            `json:"threadId,omitempty"`
 	ReviewersID []ID           `json:"reviewersId"`
 	State       RequestState   `json:"state"`
 	CreatedAt   time.Time      `json:"createdAt"`

@@ -31,7 +31,7 @@ type Request struct {
 	updatedAt   time.Time
 	approvedAt  *time.Time
 	closedAt    *time.Time
-	thread      ThreadID
+	thread      *ThreadID
 }
 
 func (r *Request) ID() ID {
@@ -86,7 +86,7 @@ func (r *Request) ClosedAt() *time.Time {
 	return r.closedAt
 }
 
-func (r *Request) Thread() ThreadID {
+func (r *Request) Thread() *ThreadID {
 	return r.thread
 }
 
@@ -128,6 +128,6 @@ func (r *Request) SetUpdatedAt(d time.Time) {
 	r.updatedAt = d
 }
 
-func (r *Request) SetThread(thid id.ThreadID) {
+func (r *Request) SetThread(thid *id.ThreadID) {
 	r.thread = thid
 }

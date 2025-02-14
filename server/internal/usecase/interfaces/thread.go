@@ -17,7 +17,7 @@ var (
 )
 
 type CreateThreadInput struct {
-	WorkspaceID        accountdomain.WorkspaceID
+	WorkspaceID  accountdomain.WorkspaceID
 	ResourceID   *string
 	ResourceType *thread.ResourceType
 }
@@ -26,6 +26,7 @@ type Thread interface {
 	FindByID(context.Context, id.ThreadID, *usecase.Operator) (*thread.Thread, error)
 	FindByIDs(context.Context, []id.ThreadID, *usecase.Operator) (thread.List, error)
 	CreateThread(context.Context, CreateThreadInput, *usecase.Operator) (*thread.Thread, error)
+	CreateThreadWithComment(context.Context, CreateThreadInput, string, *usecase.Operator) (*thread.Thread, *thread.Comment, error)
 	AddComment(context.Context, id.ThreadID, string, *usecase.Operator) (*thread.Thread, *thread.Comment, error)
 	UpdateComment(context.Context, id.ThreadID, id.CommentID, string, *usecase.Operator) (*thread.Thread, *thread.Comment, error)
 	DeleteComment(context.Context, id.ThreadID, id.CommentID, *usecase.Operator) (*thread.Thread, error)

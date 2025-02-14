@@ -42,20 +42,42 @@ func (i *Thread) CreateThread(ctx context.Context, input interfaces.CreateThread
 		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(input.WorkspaceID).Transaction(),
 		func(ctx context.Context) (*thread.Thread, error) {
-			th, err := thread.New().NewID().Workspace(input.WorkspaceID).Build()
+			return i.createThread(ctx, input)
+		},
+	)
+}
+
+func (i *Thread) createThread(ctx context.Context, input interfaces.CreateThreadInput) (*thread.Thread, error) {
+	th, err := thread.New().NewID().Workspace(input.WorkspaceID).Build()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.repos.Thread.Save(ctx, th); err != nil {
+		return nil, err
+	}
+
+	if err := i.linkThreadToResource(ctx, th.ID(), input.ResourceType, input.ResourceID); err != nil {
+		return nil, err
+	}
+
+	return th, nil
+}
+
+func (i *Thread) CreateThreadWithComment(ctx context.Context, input interfaces.CreateThreadInput, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
+	return Run2(
+		ctx, op, i.repos,
+		Usecase().WithWritableWorkspaces(input.WorkspaceID).Transaction(),
+		func(ctx context.Context) (*thread.Thread, *thread.Comment, error) {
+			th, err := i.createThread(ctx, input)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
-
-			if err := i.repos.Thread.Save(ctx, th); err != nil {
-				return nil, err
+			_, c, err := i.addComment(ctx, th.ID(), content, op)
+			if err != nil {
+				return nil, nil, err
 			}
-
-			if err := i.linkThreadToResource(ctx, th.ID(), input.ResourceType, input.ResourceID); err != nil {
-				return nil, err
-			}
-
-			return th, nil
+			return th, c, nil
 		},
 	)
 }
@@ -76,7 +98,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return err
 		}
 		if itm != nil {
-			itm.Value().SetThread(thID)
+			itm.Value().SetThread(thID.Ref())
 			return i.repos.Item.Save(ctx, itm.Value())
 		}
 
@@ -90,7 +112,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return err
 		}
 		if a != nil {
-			a.SetThread(thID)
+			a.SetThread(thID.Ref())
 			return i.repos.Asset.Save(ctx, a)
 		}
 
@@ -104,7 +126,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return err
 		}
 		if req != nil {
-			req.SetThread(thID)
+			req.SetThread(thID.Ref())
 			return i.repos.Request.Save(ctx, req)
 		}
 	}
@@ -120,27 +142,31 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content strin
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*thread.Thread, *thread.Comment, error) {
-			th, err := i.repos.Thread.FindByID(ctx, thid)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			if !op.IsWritableWorkspace(th.Workspace()) {
-				return nil, nil, interfaces.ErrOperationDenied
-			}
-
-			comment := thread.NewComment(thread.NewCommentID(), op.Operator(), content)
-			if err := th.AddComment(comment); err != nil {
-				return nil, nil, err
-			}
-
-			if err := i.repos.Thread.Save(ctx, th); err != nil {
-				return nil, nil, err
-			}
-
-			return th, comment, nil
+			return i.addComment(ctx, thid, content, op)
 		},
 	)
+}
+
+func (i *Thread) addComment(ctx context.Context, thid id.ThreadID, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
+	th, err := i.repos.Thread.FindByID(ctx, thid)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if !op.IsWritableWorkspace(th.Workspace()) {
+		return nil, nil, interfaces.ErrOperationDenied
+	}
+
+	comment := thread.NewComment(thread.NewCommentID(), op.Operator(), content)
+	if err := th.AddComment(comment); err != nil {
+		return nil, nil, err
+	}
+
+	if err := i.repos.Thread.Save(ctx, th); err != nil {
+		return nil, nil, err
+	}
+
+	return th, comment, nil
 }
 
 func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.CommentID, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {

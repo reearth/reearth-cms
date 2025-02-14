@@ -26,7 +26,7 @@ type Input struct {
 	size                    uint64
 	previewType             *PreviewType
 	uuid                    string
-	thread                  ThreadID
+	thread                  *ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
 	flatFiles               bool
 }
@@ -52,7 +52,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 				flatFiles:               false,
 			},
@@ -65,7 +65,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 				flatFiles:               false,
 			},
@@ -79,7 +79,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrNoProjectID,
@@ -93,7 +93,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrInvalidID,
@@ -107,7 +107,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrNoUser,
@@ -122,7 +122,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    0,
 				previewType:             lo.ToPtr(PreviewTypeImage),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrZeroSize,
@@ -137,7 +137,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  ThreadID{},
+				thread:                  ThreadID{}.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrNoThread,
@@ -151,7 +151,7 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:      "hoge",
 				size:          size,
 				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				thread:        thid,
+				thread:        thid.Ref(),
 			},
 			err: ErrNoUUID,
 		},
@@ -165,7 +165,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			want: &Asset{
@@ -177,7 +177,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 		},
@@ -191,7 +191,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			want: &Asset{
@@ -203,7 +203,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:                    size,
 				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  thid,
+				thread:                  thid.Ref(),
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 		},
@@ -219,7 +219,7 @@ func TestBuilder_Build(t *testing.T) {
 				Size(tt.input.size).
 				Type(tt.input.previewType).
 				UUID(tt.input.uuid).
-				Thread(tt.input.thread).
+				Thread(tt.input.thread.Ref()).
 				ArchiveExtractionStatus(tt.input.archiveExtractionStatus).
 				FlatFiles(tt.input.flatFiles)
 			if !tt.input.createdByUser.IsNil() {
@@ -243,7 +243,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 	var aid = NewID()
 	pid := NewProjectID()
 	uid := accountdomain.NewUserID()
-	thid := NewThreadID()
+	thid := NewThreadID().Ref()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
 
@@ -259,7 +259,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				size:          size,
 				previewType:   PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        thid,
+				thread:        thid.Ref(),
 			},
 			want: &Asset{
 				id:          aid,
@@ -270,7 +270,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:      thid,
+				thread:      thid.Ref(),
 			},
 		},
 		{
@@ -284,7 +284,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				size:          size,
 				previewType:   PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        thid,
+				thread:        thid.Ref(),
 			},
 			err: ErrInvalidID,
 		},
@@ -321,6 +321,6 @@ func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
 	uid := accountdomain.NewUserID()
 	var size uint64 = 15
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID()).NewUUID().MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID().Ref()).NewUUID().MustBuild()
 	assert.False(t, a.id.IsNil())
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +31,7 @@ func TestItemDocument_Model(t *testing.T) {
 				ID:                   iId.String(),
 				Project:              pId.String(),
 				Schema:               sId.String(),
-				Thread:               tId.String(),
+				Thread:               tId.StringRef(),
 				ModelID:              mId.String(),
 				MetadataItem:         miId.StringRef(),
 				UpdatedByUser:        upId.StringRef(),
@@ -40,7 +41,7 @@ func TestItemDocument_Model(t *testing.T) {
 				User:                 uId.StringRef(),
 				Integration:          nil,
 			},
-			want:    item.New().ID(iId).Project(pId).Schema(sId).UpdatedByUser(upId).UpdatedByIntegration(ipId).MetadataItem(miId).Thread(tId).Model(mId).Timestamp(now).User(uId).MustBuild(),
+			want:    item.New().ID(iId).Project(pId).Schema(sId).UpdatedByUser(upId).UpdatedByIntegration(ipId).MetadataItem(miId).Thread(tId.Ref()).Model(mId).Timestamp(now).User(uId).MustBuild(),
 			wantErr: false,
 		},
 		{
@@ -49,14 +50,14 @@ func TestItemDocument_Model(t *testing.T) {
 				ID:          iId.String(),
 				Project:     pId.String(),
 				Schema:      sId.String(),
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 				ModelID:     mId.String(),
 				Fields:      nil,
 				Timestamp:   now,
 				User:        nil,
 				Integration: gId.StringRef(),
 			},
-			want:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId).Model(mId).Timestamp(now).Integration(gId).MustBuild(),
+			want:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId.Ref()).Model(mId).Timestamp(now).Integration(gId).MustBuild(),
 			wantErr: false,
 		},
 		{
@@ -65,7 +66,7 @@ func TestItemDocument_Model(t *testing.T) {
 				ID:          "abc",
 				Project:     pId.String(),
 				Schema:      sId.String(),
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 				ModelID:     mId.String(),
 				Fields:      nil,
 				Timestamp:   now,
@@ -81,7 +82,7 @@ func TestItemDocument_Model(t *testing.T) {
 				ID:          iId.String(),
 				Project:     "abc",
 				Schema:      sId.String(),
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 				ModelID:     mId.String(),
 				Fields:      nil,
 				Timestamp:   now,
@@ -97,7 +98,7 @@ func TestItemDocument_Model(t *testing.T) {
 				ID:          iId.String(),
 				Project:     pId.String(),
 				Schema:      "abc",
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 				ModelID:     mId.String(),
 				Fields:      nil,
 				Timestamp:   now,
@@ -113,7 +114,7 @@ func TestItemDocument_Model(t *testing.T) {
 				ID:          iId.String(),
 				Project:     pId.String(),
 				Schema:      sId.String(),
-				Thread:      "abc",
+				Thread:      lo.ToPtr("abc"),
 				ModelID:     mId.String(),
 				Fields:      nil,
 				Timestamp:   now,
@@ -129,7 +130,7 @@ func TestItemDocument_Model(t *testing.T) {
 				ID:          iId.String(),
 				Project:     pId.String(),
 				Schema:      sId.String(),
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 				ModelID:     "abc",
 				Fields:      nil,
 				Timestamp:   now,
@@ -166,12 +167,12 @@ func TestNewItem(t *testing.T) {
 	}{
 		{
 			name: "new",
-			i:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId).Model(mId).Timestamp(now).User(uId).MustBuild(),
+			i:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId.Ref()).Model(mId).Timestamp(now).User(uId).MustBuild(),
 			want: &ItemDocument{
 				ID:          iId.String(),
 				Project:     pId.String(),
 				Schema:      sId.String(),
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 				ModelID:     mId.String(),
 				Fields:      []ItemFieldDocument{},
 				Timestamp:   now,
@@ -210,14 +211,14 @@ func TestNewItems(t *testing.T) {
 		{
 			name: "new arrat",
 			items: item.List{
-				item.New().ID(iId).Project(pId).Schema(sId).Thread(tId).Model(mId).Timestamp(now).User(uId).MustBuild(),
+				item.New().ID(iId).Project(pId).Schema(sId).Thread(tId.Ref()).Model(mId).Timestamp(now).User(uId).MustBuild(),
 			},
 			want: []*ItemDocument{
 				{
 					ID:          iId.String(),
 					Project:     pId.String(),
 					Schema:      sId.String(),
-					Thread:      tId.String(),
+					Thread:      tId.StringRef(),
 					ModelID:     mId.String(),
 					Fields:      []ItemFieldDocument{},
 					Timestamp:   now,
