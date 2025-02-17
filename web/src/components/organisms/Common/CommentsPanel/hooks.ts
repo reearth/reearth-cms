@@ -12,7 +12,7 @@ import {
   useDeleteCommentMutation,
   useGetMeQuery,
   useUpdateCommentMutation,
-  useCreateThreadMutation,
+  useCreateThreadWithCommentMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspaceId, useUserRights } from "@reearth-cms/state";
@@ -52,7 +52,7 @@ export default ({ resourceType, resourceId, threadId, refetchQueries }: Params) 
       : undefined;
   }, [userData]);
 
-  const [createThread] = useCreateThreadMutation({
+  const [createThreadWithComment] = useCreateThreadWithCommentMutation({
     refetchQueries,
   });
 
@@ -63,41 +63,45 @@ export default ({ resourceType, resourceId, threadId, refetchQueries }: Params) 
   const handleCommentCreate = useCallback(
     async (content: string) => {
       try {
-        let id = threadId;
-
-        if (!id) {
-          const { data, errors } = await createThread({
+        if (!threadId) {
+          const { data, errors } = await createThreadWithComment({
             variables: {
               workspaceId: currentWorkspaceId ?? "",
-              resourceId,
+              resourceId: resourceId ?? "",
               resourceType: resourceType as GQLResourceType,
+              content,
             },
           });
 
-          if (errors || !data?.createThread?.thread?.id) {
+          if (errors || !data?.createThreadWithComment?.thread?.id) {
             Notification.error({ message: t("Failed to create thread.") });
             return;
           }
-
-          id = data.createThread.thread.id;
+        } else {
+          const { data: commentData, errors: commentErrors } = await createComment({
+            variables: { threadId, content },
+          });
+  
+          if (commentErrors || !commentData?.addComment) {
+            Notification.error({ message: t("Failed to create comment.") });
+            return;
+          }
         }
-
-        const { data: commentData, errors: commentErrors } = await createComment({
-          variables: { threadId: id, content },
-        });
-
-        if (commentErrors || !commentData?.addComment) {
-          Notification.error({ message: t("Failed to create comment.") });
-          return;
-        }
-
         Notification.success({ message: t("Successfully created comment!") });
       } catch (error) {
         Notification.error({ message: t("An unexpected error occurred.") });
         console.error("Error creating comment:", error);
       }
     },
-    [threadId, createComment, t, createThread, currentWorkspaceId, resourceId, resourceType],
+    [
+      threadId,
+      createComment,
+      t,
+      createThreadWithComment,
+      currentWorkspaceId,
+      resourceId,
+      resourceType,
+    ],
   );
 
   const [updateComment] = useUpdateCommentMutation({
