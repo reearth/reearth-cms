@@ -308,10 +308,11 @@ type CreateRequestInput struct {
 	Items       []*RequestItemInput `json:"items"`
 }
 
-type CreateThreadInput struct {
-	WorkspaceID  ID            `json:"workspaceId"`
-	ResourceID   *ID           `json:"resourceId,omitempty"`
-	ResourceType *ResourceType `json:"resourceType,omitempty"`
+type CreateThreadWithCommentInput struct {
+	WorkspaceID  ID           `json:"workspaceId"`
+	ResourceID   ID           `json:"resourceId"`
+	ResourceType ResourceType `json:"resourceType"`
+	Content      string       `json:"content"`
 }
 
 type CreateViewInput struct {
@@ -1228,10 +1229,6 @@ type Thread struct {
 	Workspace   *Workspace `json:"workspace,omitempty"`
 	WorkspaceID ID         `json:"workspaceId"`
 	Comments    []*Comment `json:"comments"`
-}
-
-type ThreadPayload struct {
-	Thread *Thread `json:"thread"`
 }
 
 type TileResource struct {

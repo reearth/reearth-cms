@@ -428,7 +428,7 @@ type ComplexityRoot struct {
 		CreateModel                        func(childComplexity int, input gqlmodel.CreateModelInput) int
 		CreateProject                      func(childComplexity int, input gqlmodel.CreateProjectInput) int
 		CreateRequest                      func(childComplexity int, input gqlmodel.CreateRequestInput) int
-		CreateThread                       func(childComplexity int, input gqlmodel.CreateThreadInput) int
+		CreateThreadWithComment            func(childComplexity int, input gqlmodel.CreateThreadWithCommentInput) int
 		CreateView                         func(childComplexity int, input gqlmodel.CreateViewInput) int
 		CreateWebhook                      func(childComplexity int, input gqlmodel.CreateWebhookInput) int
 		CreateWorkspace                    func(childComplexity int, input gqlmodel.CreateWorkspaceInput) int
@@ -766,10 +766,6 @@ type ComplexityRoot struct {
 		WorkspaceID func(childComplexity int) int
 	}
 
-	ThreadPayload struct {
-		Thread func(childComplexity int) int
-	}
-
 	TileResource struct {
 		ID    func(childComplexity int) int
 		Props func(childComplexity int) int
@@ -990,7 +986,7 @@ type MutationResolver interface {
 	UpdateRequest(ctx context.Context, input gqlmodel.UpdateRequestInput) (*gqlmodel.RequestPayload, error)
 	ApproveRequest(ctx context.Context, input gqlmodel.ApproveRequestInput) (*gqlmodel.RequestPayload, error)
 	DeleteRequest(ctx context.Context, input gqlmodel.DeleteRequestInput) (*gqlmodel.DeleteRequestPayload, error)
-	CreateThread(ctx context.Context, input gqlmodel.CreateThreadInput) (*gqlmodel.ThreadPayload, error)
+	CreateThreadWithComment(ctx context.Context, input gqlmodel.CreateThreadWithCommentInput) (*gqlmodel.CommentPayload, error)
 	AddComment(ctx context.Context, input gqlmodel.AddCommentInput) (*gqlmodel.CommentPayload, error)
 	UpdateComment(ctx context.Context, input gqlmodel.UpdateCommentInput) (*gqlmodel.CommentPayload, error)
 	DeleteComment(ctx context.Context, input gqlmodel.DeleteCommentInput) (*gqlmodel.DeleteCommentPayload, error)
@@ -2556,17 +2552,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateRequest(childComplexity, args["input"].(gqlmodel.CreateRequestInput)), true
 
-	case "Mutation.createThread":
-		if e.complexity.Mutation.CreateThread == nil {
+	case "Mutation.createThreadWithComment":
+		if e.complexity.Mutation.CreateThreadWithComment == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createThread_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createThreadWithComment_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateThread(childComplexity, args["input"].(gqlmodel.CreateThreadInput)), true
+		return e.complexity.Mutation.CreateThreadWithComment(childComplexity, args["input"].(gqlmodel.CreateThreadWithCommentInput)), true
 
 	case "Mutation.createView":
 		if e.complexity.Mutation.CreateView == nil {
@@ -4304,13 +4300,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Thread.WorkspaceID(childComplexity), true
 
-	case "ThreadPayload.thread":
-		if e.complexity.ThreadPayload.Thread == nil {
-			break
-		}
-
-		return e.complexity.ThreadPayload.Thread(childComplexity), true
-
 	case "TileResource.id":
 		if e.complexity.TileResource.ID == nil {
 			break
@@ -4809,7 +4798,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateModelInput,
 		ec.unmarshalInputCreateProjectInput,
 		ec.unmarshalInputCreateRequestInput,
-		ec.unmarshalInputCreateThreadInput,
+		ec.unmarshalInputCreateThreadWithCommentInput,
 		ec.unmarshalInputCreateViewInput,
 		ec.unmarshalInputCreateWebhookInput,
 		ec.unmarshalInputCreateWorkspaceInput,
@@ -6610,10 +6599,11 @@ enum ResourceType {
   REQUEST
 }
 
-input CreateThreadInput {
+input CreateThreadWithCommentInput {
   workspaceId: ID!
-  resourceId: ID
-  resourceType: ResourceType
+  resourceId: ID!
+  resourceType: ResourceType!
+  content: String!
 }
 
 input AddCommentInput {
@@ -6632,10 +6622,6 @@ input DeleteCommentInput {
   commentId: ID!
 }
 
-type ThreadPayload {
-  thread: Thread!
-}
-
 type CommentPayload {
   thread: Thread!
   comment: Comment!
@@ -6647,7 +6633,7 @@ type DeleteCommentPayload {
 }
 
 extend type Mutation {
-  createThread(input: CreateThreadInput!): ThreadPayload
+  createThreadWithComment(input: CreateThreadWithCommentInput!): CommentPayload
   addComment(input: AddCommentInput!): CommentPayload
   updateComment(input: UpdateCommentInput!): CommentPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
@@ -7323,31 +7309,31 @@ func (ec *executionContext) field_Mutation_createRequest_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createThread_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_createThreadWithComment_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Mutation_createThread_argsInput(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_createThreadWithComment_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_createThread_argsInput(
+func (ec *executionContext) field_Mutation_createThreadWithComment_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (gqlmodel.CreateThreadInput, error) {
+) (gqlmodel.CreateThreadWithCommentInput, error) {
 	if _, ok := rawArgs["input"]; !ok {
-		var zeroVal gqlmodel.CreateThreadInput
+		var zeroVal gqlmodel.CreateThreadWithCommentInput
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateThreadInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadInput(ctx, tmp)
+		return ec.unmarshalNCreateThreadWithCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadWithCommentInput(ctx, tmp)
 	}
 
-	var zeroVal gqlmodel.CreateThreadInput
+	var zeroVal gqlmodel.CreateThreadWithCommentInput
 	return zeroVal, nil
 }
 
@@ -21460,8 +21446,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteRequest(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createThread(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createThread(ctx, field)
+func (ec *executionContext) _Mutation_createThreadWithComment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createThreadWithComment(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -21474,7 +21460,7 @@ func (ec *executionContext) _Mutation_createThread(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateThread(rctx, fc.Args["input"].(gqlmodel.CreateThreadInput))
+		return ec.resolvers.Mutation().CreateThreadWithComment(rctx, fc.Args["input"].(gqlmodel.CreateThreadWithCommentInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21483,12 +21469,12 @@ func (ec *executionContext) _Mutation_createThread(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ThreadPayload)
+	res := resTmp.(*gqlmodel.CommentPayload)
 	fc.Result = res
-	return ec.marshalOThreadPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThreadPayload(ctx, field.Selections, res)
+	return ec.marshalOCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCommentPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createThread(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createThreadWithComment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -21497,9 +21483,11 @@ func (ec *executionContext) fieldContext_Mutation_createThread(ctx context.Conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "thread":
-				return ec.fieldContext_ThreadPayload_thread(ctx, field)
+				return ec.fieldContext_CommentPayload_thread(ctx, field)
+			case "comment":
+				return ec.fieldContext_CommentPayload_comment(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ThreadPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CommentPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -21509,7 +21497,7 @@ func (ec *executionContext) fieldContext_Mutation_createThread(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createThread_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createThreadWithComment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -30385,60 +30373,6 @@ func (ec *executionContext) fieldContext_Thread_comments(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _ThreadPayload_thread(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ThreadPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ThreadPayload_thread(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Thread, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Thread)
-	fc.Result = res
-	return ec.marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ThreadPayload_thread(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ThreadPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Thread_id(ctx, field)
-			case "workspace":
-				return ec.fieldContext_Thread_workspace(ctx, field)
-			case "workspaceId":
-				return ec.fieldContext_Thread_workspaceId(ctx, field)
-			case "comments":
-				return ec.fieldContext_Thread_comments(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Thread", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TileResource_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TileResource) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TileResource_id(ctx, field)
 	if err != nil {
@@ -36894,14 +36828,14 @@ func (ec *executionContext) unmarshalInputCreateRequestInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context, obj any) (gqlmodel.CreateThreadInput, error) {
-	var it gqlmodel.CreateThreadInput
+func (ec *executionContext) unmarshalInputCreateThreadWithCommentInput(ctx context.Context, obj any) (gqlmodel.CreateThreadWithCommentInput, error) {
+	var it gqlmodel.CreateThreadWithCommentInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "resourceId", "resourceType"}
+	fieldsInOrder := [...]string{"workspaceId", "resourceId", "resourceType", "content"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36917,18 +36851,25 @@ func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context,
 			it.WorkspaceID = data
 		case "resourceId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceId"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ResourceID = data
 		case "resourceType":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
-			data, err := ec.unmarshalOResourceType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx, v)
+			data, err := ec.unmarshalNResourceType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ResourceType = data
+		case "content":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Content = data
 		}
 	}
 
@@ -44979,9 +44920,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteRequest(ctx, field)
 			})
-		case "createThread":
+		case "createThreadWithComment":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createThread(ctx, field)
+				return ec._Mutation_createThreadWithComment(ctx, field)
 			})
 		case "addComment":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -47918,45 +47859,6 @@ func (ec *executionContext) _Thread(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var threadPayloadImplementors = []string{"ThreadPayload"}
-
-func (ec *executionContext) _ThreadPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ThreadPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, threadPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ThreadPayload")
-		case "thread":
-			out.Values[i] = ec._ThreadPayload_thread(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var tileResourceImplementors = []string{"TileResource", "Resource"}
 
 func (ec *executionContext) _TileResource(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.TileResource) graphql.Marshaler {
@@ -49822,8 +49724,8 @@ func (ec *executionContext) unmarshalNCreateRequestInput2githubᚗcomᚋreearth�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateThreadInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadInput(ctx context.Context, v any) (gqlmodel.CreateThreadInput, error) {
-	res, err := ec.unmarshalInputCreateThreadInput(ctx, v)
+func (ec *executionContext) unmarshalNCreateThreadWithCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadWithCommentInput(ctx context.Context, v any) (gqlmodel.CreateThreadWithCommentInput, error) {
+	res, err := ec.unmarshalInputCreateThreadWithCommentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -51398,6 +51300,16 @@ func (ec *executionContext) unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearth
 func (ec *executionContext) unmarshalNResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInput(ctx context.Context, v any) (*gqlmodel.ResourceInput, error) {
 	res, err := ec.unmarshalInputResourceInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNResourceType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx context.Context, v any) (gqlmodel.ResourceType, error) {
+	var res gqlmodel.ResourceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNResourceType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ResourceType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx context.Context, v any) (gqlmodel.Role, error) {
@@ -53482,22 +53394,6 @@ func (ec *executionContext) marshalOResourceList2ᚖgithubᚗcomᚋreearthᚋree
 	return ec._ResourceList(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOResourceType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx context.Context, v any) (*gqlmodel.ResourceType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(gqlmodel.ResourceType)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOResourceType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ResourceType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
-}
-
 func (ec *executionContext) unmarshalOResourcesListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourcesListInput(ctx context.Context, v any) (*gqlmodel.ResourcesListInput, error) {
 	if v == nil {
 		return nil, nil
@@ -53885,13 +53781,6 @@ func (ec *executionContext) marshalOThread2ᚖgithubᚗcomᚋreearthᚋreearth�
 		return graphql.Null
 	}
 	return ec._Thread(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOThreadPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThreadPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ThreadPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._ThreadPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileResourceInput(ctx context.Context, v any) (*gqlmodel.TileResourceInput, error) {

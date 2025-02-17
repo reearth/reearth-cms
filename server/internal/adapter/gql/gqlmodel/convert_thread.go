@@ -44,13 +44,9 @@ func ToComment(c *thread.Comment, th *thread.Thread) *Comment {
 	}
 }
 
-func FromResourceType(p *ResourceType) *thread.ResourceType {
-	if p == nil {
-		return nil
-	}
-
+func FromResourceType(p ResourceType) (thread.ResourceType, bool) {
 	var p2 thread.ResourceType
-	switch *p {
+	switch p {
 	case ResourceTypeItem:
 		p2 = thread.ResourceTypeItem
 	case ResourceTypeAsset:
@@ -58,8 +54,8 @@ func FromResourceType(p *ResourceType) *thread.ResourceType {
 	case ResourceTypeRequest:
 		p2 = thread.ResourceTypeRequest
 	default:
-		return nil
+		return "", false
 	}
 
-	return &p2
+	return p2, true
 }

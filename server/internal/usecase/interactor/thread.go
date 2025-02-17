@@ -37,43 +37,22 @@ func (i *Thread) FindByIDs(ctx context.Context, threads []id.ThreadID, operator 
 	return i.repos.Thread.FindByIDs(ctx, threads)
 }
 
-func (i *Thread) CreateThread(ctx context.Context, input interfaces.CreateThreadInput, op *usecase.Operator) (*thread.Thread, error) {
-	return Run1(
-		ctx, op, i.repos,
-		Usecase().WithWritableWorkspaces(input.WorkspaceID).Transaction(),
-		func(ctx context.Context) (*thread.Thread, error) {
-			return i.createThread(ctx, input)
-		},
-	)
-}
-
-func (i *Thread) createThread(ctx context.Context, input interfaces.CreateThreadInput) (*thread.Thread, error) {
-	th, err := thread.New().NewID().Workspace(input.WorkspaceID).Build()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := i.repos.Thread.Save(ctx, th); err != nil {
-		return nil, err
-	}
-
-	if err := i.linkThreadToResource(ctx, th.ID(), input.ResourceType, input.ResourceID); err != nil {
-		return nil, err
-	}
-
-	return th, nil
-}
-
-func (i *Thread) CreateThreadWithComment(ctx context.Context, input interfaces.CreateThreadInput, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
+func (i *Thread) CreateThreadWithComment(ctx context.Context, input interfaces.CreateThreadWithCommentInput, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
 	return Run2(
 		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(input.WorkspaceID).Transaction(),
 		func(ctx context.Context) (*thread.Thread, *thread.Comment, error) {
-			th, err := i.createThread(ctx, input)
+			th, err := thread.New().NewID().Workspace(input.WorkspaceID).Build()
 			if err != nil {
 				return nil, nil, err
 			}
-			_, c, err := i.addComment(ctx, th.ID(), content, op)
+			if err := i.repos.Thread.Save(ctx, th); err != nil {
+				return nil, nil, err
+			}
+			if err := i.linkThreadToResource(ctx, th.ID(), input.ResourceType, input.ResourceID); err != nil {
+				return nil, nil, err
+			}
+			_, c, err := i.addComment(ctx, th.ID(), input.Content, op)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -82,14 +61,10 @@ func (i *Thread) CreateThreadWithComment(ctx context.Context, input interfaces.C
 	)
 }
 
-func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resourceType *thread.ResourceType, resourceID *string) error {
-	if resourceType == nil || resourceID == nil {
-		return nil
-	}
-
-	switch *resourceType {
+func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resourceType thread.ResourceType, resourceID string) error {
+	switch resourceType {
 	case thread.ResourceTypeItem:
-		iid, err := id.ItemIDFrom(*resourceID)
+		iid, err := id.ItemIDFrom(resourceID)
 		if err != nil {
 			return err
 		}
@@ -103,7 +78,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 		}
 
 	case thread.ResourceTypeAsset:
-		aid, err := id.AssetIDFrom(*resourceID)
+		aid, err := id.AssetIDFrom(resourceID)
 		if err != nil {
 			return err
 		}
@@ -117,7 +92,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 		}
 
 	case thread.ResourceTypeRequest:
-		rid, err := id.RequestIDFrom(*resourceID)
+		rid, err := id.RequestIDFrom(resourceID)
 		if err != nil {
 			return err
 		}

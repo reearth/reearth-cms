@@ -62,7 +62,7 @@ func (s *Server) AssetCommentCreate(ctx context.Context, request AssetCommentCre
 	var comment *thread.Comment
 	if a.Thread() == nil {
 		comment, err = s.createThreadForAsset(ctx, uc, a, *request.Body.Content, op)
-	}else {
+	} else {
 		_, comment, err = uc.Thread.AddComment(ctx, *a.Thread(), *request.Body.Content, op)
 	}
 
@@ -79,11 +79,12 @@ func (s *Server) createThreadForAsset(ctx context.Context, uc *interfaces.Contai
 	if err != nil {
 		return nil, err
 	}
-	_, comment, err := uc.Thread.CreateThreadWithComment(ctx, interfaces.CreateThreadInput{
+	_, comment, err := uc.Thread.CreateThreadWithComment(ctx, interfaces.CreateThreadWithCommentInput{
 		WorkspaceID:  p.Workspace(),
-		ResourceID:   a.ID().Ref().StringRef(),
-		ResourceType: thread.ResourceTypeAsset.Ref(),
-	}, content, op)
+		ResourceID:   a.ID().String(),
+		ResourceType: thread.ResourceTypeAsset,
+		Content:      content,
+	}, op)
 	if err != nil {
 		return nil, err
 	}

@@ -75,11 +75,12 @@ func (s *Server) createThreadForItem(ctx context.Context, uc *interfaces.Contain
 	if err != nil {
 		return nil, err
 	}
-	_, comment, err := uc.Thread.CreateThreadWithComment(ctx, interfaces.CreateThreadInput{
+	_, comment, err := uc.Thread.CreateThreadWithComment(ctx, interfaces.CreateThreadWithCommentInput{
 		WorkspaceID:  p.Workspace(),
-		ResourceID:   i.ID().Ref().StringRef(),
-		ResourceType: thread.ResourceTypeItem.Ref(),
-	}, content, op)
+		ResourceID:   i.ID().String(),
+		ResourceType: thread.ResourceTypeItem,
+		Content:      content,
+	}, op)
 	if err != nil {
 		return nil, err
 	}
