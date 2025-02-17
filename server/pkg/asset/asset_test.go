@@ -46,7 +46,7 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, &wantPreviewType, got.PreviewType())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
-	assert.Equal(t, thid, got.Thread())
+	assert.Equal(t, &thid, got.Thread())
 	assert.Equal(t, false, got.FlatFiles())
 	assert.Equal(t, &wantStatus, got.ArchiveExtractionStatus())
 }

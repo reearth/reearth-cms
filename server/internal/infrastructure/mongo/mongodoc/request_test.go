@@ -298,29 +298,6 @@ func TestRequestDocument_Model(t *testing.T) {
 				Title:       "ab",
 				Description: "abc",
 				CreatedBy:   uId.String(),
-				Reviewers:   []string{},
-				State:       request.StateDraft.String(),
-				UpdatedAt:   now,
-				ApprovedAt:  nil,
-				ClosedAt:    nil,
-				Thread:      lo.ToPtr("abc"),
-			},
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name: "invalid id 6",
-			rDoc: &RequestDocument{
-				ID:        rId.String(),
-				Workspace: wId.String(),
-				Project:   pId.String(),
-				Items: []RequestItem{{
-					Item:    itm.Item().String(),
-					Version: lo.ToPtr(version.New().String()),
-				}},
-				Title:       "ab",
-				Description: "abc",
-				CreatedBy:   uId.String(),
 				Reviewers:   []string{"abc"},
 				State:       request.StateDraft.String(),
 				UpdatedAt:   now,
@@ -332,7 +309,7 @@ func TestRequestDocument_Model(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "invalid id 7",
+			name: "invalid id 6",
 			rDoc: &RequestDocument{
 				ID:        rId.String(),
 				Workspace: wId.String(),

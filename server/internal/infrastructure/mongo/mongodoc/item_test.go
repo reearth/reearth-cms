@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/account/accountdomain/user"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -110,22 +109,6 @@ func TestItemDocument_Model(t *testing.T) {
 		},
 		{
 			name: "invalid id 4",
-			iDoc: &ItemDocument{
-				ID:          iId.String(),
-				Project:     pId.String(),
-				Schema:      sId.String(),
-				Thread:      lo.ToPtr("abc"),
-				ModelID:     mId.String(),
-				Fields:      nil,
-				Timestamp:   now,
-				User:        uId.StringRef(),
-				Integration: nil,
-			},
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name: "invalid id 5",
 			iDoc: &ItemDocument{
 				ID:          iId.String(),
 				Project:     pId.String(),

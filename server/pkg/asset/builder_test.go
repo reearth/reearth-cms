@@ -128,21 +128,6 @@ func TestBuilder_Build(t *testing.T) {
 			err: ErrZeroSize,
 		},
 		{
-			name: "fail: invalid threadId",
-			input: Input{
-				id:                      aid,
-				project:                 pid,
-				createdByUser:           uid,
-				fileName:                "hoge",
-				size:                    size,
-				previewType:             lo.ToPtr(PreviewTypeImage),
-				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:                  ThreadID{}.Ref(),
-				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
-			},
-			err: ErrNoThread,
-		},
-		{
 			name: "fail: no uuid",
 			input: Input{
 				id:            aid,
