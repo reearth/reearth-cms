@@ -11,6 +11,7 @@ type ListOperation string
 var (
 	ErrOperationDenied error = rerror.NewE(i18n.T("operation denied"))
 	ErrInvalidOperator error = rerror.NewE(i18n.T("invalid operator"))
+	ErrEmptyAssetIDs   error = rerror.NewE(i18n.T("empty asset ids"))
 )
 
 type Container struct {

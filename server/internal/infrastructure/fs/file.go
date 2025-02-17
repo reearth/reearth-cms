@@ -225,3 +225,25 @@ func IsValidUUID(fileUUID string) bool {
 	_, err := uuid.Parse(fileUUID)
 	return err == nil
 }
+
+// DeleteAssetsInBatch deletes assets in batch
+func (f *fileRepo) DeleteAssetsInBatch(_ context.Context, mapFileNameByUUID map[string]string) error {
+	if len(mapFileNameByUUID) == 0 {
+		return rerror.ErrNotFound
+	}
+	var errs []error
+	for fileUUID, fileName := range mapFileNameByUUID {
+		if fileUUID == "" || !IsValidUUID(fileUUID) {
+			errs = append(errs, gateway.ErrFileNotFound)
+		}
+
+		p := getFSObjectPath(fileUUID, fileName)
+		if err := f.fs.RemoveAll(p); err != nil {
+			errs = append(errs, gateway.ErrInvalidUUID)
+		}
+	}
+	if len(errs) > 0 {
+		return rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", errs))
+	}
+	return nil
+}

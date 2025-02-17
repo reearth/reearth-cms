@@ -606,6 +606,63 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 	)
 }
 
+// BatchDelete deletes assets in batch based on multiple asset IDs
+func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operator *usecase.Operator) (result id.AssetIDList, err error) {
+
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return assetIDs, interfaces.ErrInvalidOperator
+	}
+
+	if len(assetIDs) == 0 {
+		return nil, interfaces.ErrEmptyAssetIDs
+	}
+
+	return Run1(
+		ctx, operator, i.repos,
+		Usecase().Transaction(),
+		func(ctx context.Context) (id.AssetIDList, error) {
+			a, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			// Check if asset is found
+			// Currently, FindByIDs returns no information if asset is not found, only returns a[0] == nil with len(a) == 1
+			if (len(a) == 1 && a[0] == nil) || len(a) != len(assetIDs) {
+				return assetIDs, rerror.ErrNotFound
+			}
+
+			mapFileNameByUUID := make(map[string]string, 0)
+
+			for i := 0; i < len(a); i++ {
+
+				if a[i] == nil {
+					continue
+				}
+
+				uuid := a[i].UUID()
+				fileName := a[i].FileName()
+				if uuid != "" && fileName != "" {
+					mapFileNameByUUID[uuid] = fileName
+				}
+			}
+
+			// deletes assets' files in
+			err = i.gateways.File.DeleteAssetsInBatch(ctx, mapFileNameByUUID)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			err = i.repos.Asset.BatchDelete(ctx, assetIDs)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			return assetIDs, nil
+		},
+	)
+}
+
 func (i *Asset) event(ctx context.Context, e Event) error {
 	if i.ignoreEvent {
 		return nil

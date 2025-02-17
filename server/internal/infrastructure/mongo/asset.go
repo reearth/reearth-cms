@@ -73,6 +73,7 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	if err != nil {
 		return nil, err
 	}
+
 	return filterAssets(ids, res), nil
 }
 
@@ -132,6 +133,22 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	}))
 }
 
+// BatchDelete deletes assets in batch based on multiple asset IDs
+func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
+	idsBson := formatAssetIDToBson(ids)
+	return r.client.RemoveAll(ctx, r.writeFilter(idsBson))
+}
+
+func formatAssetIDToBson(ids []id.AssetID) bson.M {
+	idstr := make([]string, 0, len(ids))
+	for _, id := range ids {
+		idstr = append(idstr, id.String())
+	}
+	return bson.M{
+		"id": bson.M{"$in": idstr}, // Match any ID from the list
+	}
+}
+
 func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	c := mongodoc.NewAssetConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c, options.Find().SetProjection(bson.M{"file": 0}))
@@ -158,6 +175,9 @@ func (r *Asset) findOne(ctx context.Context, filter interface{}) (*asset.Asset, 
 }
 
 func filterAssets(ids []id.AssetID, rows []*asset.Asset) []*asset.Asset {
+	if len(rows) == 0 {
+		return []*asset.Asset{}
+	}
 	res := make([]*asset.Asset, 0, len(ids))
 	for _, id := range ids {
 		var r2 *asset.Asset
