@@ -2570,6 +2570,13 @@ export type IsItemReferencedQueryVariables = Exact<{
 
 export type IsItemReferencedQuery = { __typename?: 'Query', isItemReferenced: boolean };
 
+export type VersionsByItemQueryVariables = Exact<{
+  itemId: Scalars['ID']['input'];
+}>;
+
+
+export type VersionsByItemQuery = { __typename?: 'Query', versionsByItem: Array<{ __typename?: 'VersionedItem', version: string, refs: Array<string>, value: { __typename?: 'Item', id: string, modelId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, requests?: Array<{ __typename?: 'Request', id: string, title: string, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, item?: { __typename?: 'VersionedItem', value: { __typename?: 'Item', modelId: string } } | null }> }> | null } }> };
+
 export type SearchItemQueryVariables = Exact<{
   searchItemInput: SearchItemInput;
 }>;
@@ -4817,6 +4824,83 @@ export type IsItemReferencedQueryHookResult = ReturnType<typeof useIsItemReferen
 export type IsItemReferencedLazyQueryHookResult = ReturnType<typeof useIsItemReferencedLazyQuery>;
 export type IsItemReferencedSuspenseQueryHookResult = ReturnType<typeof useIsItemReferencedSuspenseQuery>;
 export type IsItemReferencedQueryResult = Apollo.QueryResult<IsItemReferencedQuery, IsItemReferencedQueryVariables>;
+export const VersionsByItemDocument = gql`
+    query VersionsByItem($itemId: ID!) {
+  versionsByItem(itemId: $itemId) {
+    version
+    refs
+    value {
+      id
+      modelId
+      status
+      createdAt
+      updatedAt
+      createdBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
+      }
+      updatedBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
+      }
+      requests {
+        id
+        title
+        items {
+          itemId
+          version
+          item {
+            value {
+              modelId
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useVersionsByItemQuery__
+ *
+ * To run a query within a React component, call `useVersionsByItemQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVersionsByItemQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVersionsByItemQuery({
+ *   variables: {
+ *      itemId: // value for 'itemId'
+ *   },
+ * });
+ */
+export function useVersionsByItemQuery(baseOptions: Apollo.QueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables> & ({ variables: VersionsByItemQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+      }
+export function useVersionsByItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+        }
+export function useVersionsByItemSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+        }
+export type VersionsByItemQueryHookResult = ReturnType<typeof useVersionsByItemQuery>;
+export type VersionsByItemLazyQueryHookResult = ReturnType<typeof useVersionsByItemLazyQuery>;
+export type VersionsByItemSuspenseQueryHookResult = ReturnType<typeof useVersionsByItemSuspenseQuery>;
+export type VersionsByItemQueryResult = Apollo.QueryResult<VersionsByItemQuery, VersionsByItemQueryVariables>;
 export const SearchItemDocument = gql`
     query SearchItem($searchItemInput: SearchItemInput!) {
   searchItem(input: $searchItemInput) {

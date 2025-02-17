@@ -1,6 +1,7 @@
 import { type Dayjs } from "dayjs";
 
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
@@ -91,4 +92,14 @@ export type Comment = {
   author: { id?: string; name: string; type: "User" | "Integration" | null };
   content: string;
   createdAt: string;
+};
+
+export type VersionedItem = {
+  version: string;
+  status: StateType;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: Pick<User, "name">;
+  updatedBy: Pick<User, "name">;
+  requests: Pick<Request, "id" | "title">[];
 };

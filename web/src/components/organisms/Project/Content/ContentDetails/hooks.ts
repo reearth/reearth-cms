@@ -15,7 +15,10 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { RequestState, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
+import {
+  fromGraphQLItem,
+  fromGraphQLversionsByItem,
+} from "@reearth-cms/components/organisms/DataConverters/content";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
@@ -23,6 +26,7 @@ import {
   Item as GQLItem,
   Model as GQLModel,
   Group as GQLGroup,
+  VersionedItem as GQLVersionedItem,
   RequestState as GQLRequestState,
   useCreateItemMutation,
   useCreateRequestMutation,
@@ -36,6 +40,7 @@ import {
   StringOperator,
   ItemFieldInput,
   useIsItemReferencedLazyQuery,
+  useVersionsByItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
@@ -291,7 +296,7 @@ export default () => {
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
-    refetchQueries: ["GetItem"],
+    refetchQueries: ["GetItem", "VersionsByItem"],
   });
 
   const handleItemUpdate = useCallback(
@@ -506,7 +511,7 @@ export default () => {
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetModalRequests", "GetItem"],
+    refetchQueries: ["GetModalRequests", "GetItem", "VersionsByItem"],
   });
 
   const handleRequestCreate = useCallback(
@@ -581,6 +586,20 @@ export default () => {
     return result;
   }, [currentItem, currentModel?.name]);
 
+  const { data: versionsData } = useVersionsByItemQuery({
+    fetchPolicy: "cache-and-network",
+    variables: { itemId: itemId ?? "" },
+    skip: !itemId,
+  });
+
+  const versions = useMemo(
+    () =>
+      versionsData
+        ? fromGraphQLversionsByItem(versionsData.versionsByItem as GQLVersionedItem[]).reverse()
+        : [],
+    [versionsData],
+  );
+
   return {
     loadingReference,
     linkedItemsModalList,
@@ -594,6 +613,7 @@ export default () => {
     currentItem,
     initialFormValues,
     initialMetaFormValues,
+    versions,
     itemCreationLoading,
     itemUpdatingLoading,
     collapsedModelMenu,

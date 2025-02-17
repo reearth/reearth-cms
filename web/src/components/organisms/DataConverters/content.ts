@@ -1,9 +1,11 @@
 import { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import {
   Item,
   Comment,
   ItemField,
   ItemAsset,
+  VersionedItem,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Schema } from "@reearth-cms/components/molecules/Schema/types";
@@ -13,6 +15,7 @@ import {
   Item as GQLItem,
   Comment as GQLComment,
   Request as GQLRequest,
+  VersionedItem as GQLVersionedItem,
 } from "@reearth-cms/gql/graphql-client-api";
 
 export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined => {
@@ -142,4 +145,46 @@ export const fromGraphQLComment = (GQLComment: GQLComment): Comment => {
     content: GQLComment.content,
     createdAt: GQLComment.createdAt.toString(),
   };
+};
+
+export const fromGraphQLversionsByItem = (
+  GQLVersionsByItem: GQLVersionedItem[],
+): VersionedItem[] => {
+  let publicIndex = -1;
+  const result = GQLVersionsByItem.map<VersionedItem>((version, index) => {
+    let status: StateType = "DRAFT";
+    if (version.refs.includes("public")) {
+      status = "PUBLIC";
+      publicIndex = index;
+    }
+    return {
+      version: version.version,
+      status,
+      createdAt: version.value.createdAt,
+      updatedAt: version.value.updatedAt,
+      createdBy: { name: version.value.createdBy?.name ?? "" },
+      updatedBy: { name: version.value.createdBy?.name ?? "" },
+      requests:
+        version.value.requests
+          ?.filter(request =>
+            request.items.some(
+              item =>
+                item.item?.value.modelId === version.value.modelId &&
+                item.itemId === version.value.id &&
+                item.version === version.version,
+            ),
+          )
+          .map(request => ({
+            id: request.id,
+            title: request.title,
+          })) ?? [],
+    };
+  }).map((version, index) => {
+    if (index > publicIndex && version.requests.length) {
+      version.status = "REVIEW";
+    }
+    return version;
+  });
+
+  return result;
 };

@@ -150,6 +150,51 @@ export const IS_ITEM_REFERENCED = gql`
   }
 `;
 
+export const VERSIONS_BY_ITEM = gql`
+  query VersionsByItem($itemId: ID!) {
+    versionsByItem(itemId: $itemId) {
+      version
+      refs
+      value {
+        id
+        modelId
+        status
+        createdAt
+        updatedAt
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        updatedBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        requests {
+          id
+          title
+          items {
+            itemId
+            version
+            item {
+              value {
+                modelId
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const SEARCH_ITEM = gql`
   query SearchItem($searchItemInput: SearchItemInput!) {
     searchItem(input: $searchItemInput) {

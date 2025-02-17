@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
 
+import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
@@ -10,6 +11,9 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
@@ -23,8 +27,9 @@ import {
   FormItem,
   ItemField,
   ItemValue,
+  VersionedItem,
 } from "@reearth-cms/components/molecules/Content/types";
-import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
+import { selectedTagIdsGet, stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   Request,
@@ -34,10 +39,12 @@ import {
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { transformDayjsToString } from "@reearth-cms/utils/format";
+import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
 import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
+
+const { TabPane } = Tabs;
 
 type Props = {
   title: string;
@@ -54,6 +61,7 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
+  versions: VersionedItem[];
   loading: boolean;
   model?: Model;
   assetList: Asset[];
@@ -145,6 +153,7 @@ const ContentForm: React.FC<Props> = ({
   model,
   initialFormValues,
   initialMetaFormValues,
+  versions,
   loading,
   assetList,
   fileList,
@@ -736,21 +745,61 @@ const ContentForm: React.FC<Props> = ({
         </FormItemsWrapper>
       </StyledForm>
       <SideBarWrapper>
-        <Form
-          form={metaForm}
-          layout="vertical"
-          initialValues={initialMetaFormValues}
-          onValuesChange={handleMetaValuesChange}>
-          <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
-          {model?.metadataSchema?.fields?.map(field => {
-            const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-            return (
-              <MetaFormItemWrapper key={field.id}>
-                <FieldComponent field={field} disabled={fieldDisabled} />
-              </MetaFormItemWrapper>
-            );
-          })}
-        </Form>
+        <StyledTabs>
+          <TabPane tab={t("Meta Data")} key="meta">
+            <Form
+              form={metaForm}
+              layout="vertical"
+              initialValues={initialMetaFormValues}
+              onValuesChange={handleMetaValuesChange}>
+              <ContentSidebarWrapper item={item} />
+              {model?.metadataSchema?.fields?.map(field => {
+                const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+                return (
+                  <MetaFormItemWrapper key={field.id}>
+                    <FieldComponent field={field} disabled={fieldDisabled} />
+                  </MetaFormItemWrapper>
+                );
+              })}
+            </Form>
+          </TabPane>
+          {versions.length && (
+            <TabPane tab={t("History Version")} key="history">
+              <History>
+                {versions.map((version, index) => {
+                  const isLast = index === versions.length - 1;
+                  const date = dateTimeFormat(isLast ? version.createdAt : version.updatedAt);
+                  const { name } = isLast ? version.createdBy : version.updatedBy;
+                  return (
+                    <HistoryCard key={version.version}>
+                      <HistoryTitle onClick={() => console.log(version.version)}>
+                        <Tooltip title={t(version.status)}>
+                          <Badge color={stateColors[version.status]} />
+                        </Tooltip>
+                        {date}
+                      </HistoryTitle>
+                      <HistoryInfo>
+                        <User>{`${isLast ? t("Created by") : t("Updated by")} ${name}`}</User>
+                        {version.status === "REVIEW" && (
+                          <Requests>
+                            {version.requests?.map(request => (
+                              <RequestWrapper
+                                key={request.id}
+                                onClick={() => onNavigateToRequest(request.id)}>
+                                <Icon icon="pullRequest" />
+                                <RequestTitle>{request.title}</RequestTitle>
+                              </RequestWrapper>
+                            ))}
+                          </Requests>
+                        )}
+                      </HistoryInfo>
+                    </HistoryCard>
+                  );
+                })}
+              </History>
+            </TabPane>
+          )}
+        </StyledTabs>
       </SideBarWrapper>
       {itemId && (
         <>
@@ -796,6 +845,14 @@ const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
   word-wrap: break-word;
 `;
 
+const StyledTabs = styled(Tabs)`
+  .ant-tabs-nav {
+    margin-bottom: 0;
+    padding-left: 20px;
+    background-color: #fff;
+  }
+`;
+
 const StyledForm = styled(Form)`
   flex: 1;
   min-width: 0;
@@ -816,11 +873,11 @@ const FormItemsWrapper = styled.div`
 
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
-  padding: 8px;
   width: 272px;
   max-height: 100%;
   overflow-y: auto;
   overflow-wrap: break-word;
+  border-left: 1px solid #f0f0f0;
 `;
 
 const MetaFormItemWrapper = styled.div`
@@ -832,6 +889,64 @@ const MetaFormItemWrapper = styled.div`
   background: #ffffff;
   border: 1px solid #f0f0f0;
   border-radius: 2px;
+`;
+
+const History = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+`;
+
+const HistoryCard = styled.div`
+  background-color: #fff;
+  padding: 12px;
+`;
+
+const HistoryTitle = styled.p`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  margin: 0;
+  cursor: pointer;
+  :hover {
+    text-decoration: underline;
+  }
+`;
+
+const HistoryInfo = styled.div`
+  margin-left: 14px;
+  line-height: 1.75;
+  font-size: 12px;
+`;
+const User = styled.p`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  color: #9a9a9a;
+`;
+
+const Requests = styled.div`
+  margin-top: 4px;
+`;
+const RequestWrapper = styled(Typography.Link)`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  color: #1677ff;
+`;
+
+const RequestTitle = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export default ContentForm;

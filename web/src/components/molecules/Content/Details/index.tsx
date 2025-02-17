@@ -6,7 +6,12 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
-import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
+import {
+  Item,
+  FormItem,
+  ItemField,
+  VersionedItem,
+} from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   Request,
@@ -31,6 +36,7 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
+  versions: VersionedItem[];
   title: string;
   item?: Item;
   itemId?: string;
@@ -126,6 +132,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   modelsMenu,
   initialFormValues,
   initialMetaFormValues,
+  versions,
   title,
   item,
   itemId,
@@ -240,6 +247,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             model={model}
             initialFormValues={initialFormValues}
             initialMetaFormValues={initialMetaFormValues}
+            versions={versions}
             assetList={assetList}
             onAssetTableChange={onAssetTableChange}
             totalCount={totalCount}
