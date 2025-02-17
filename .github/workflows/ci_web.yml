@@ -2,6 +2,26 @@ name: ci-web
 on:
   workflow_call:
 jobs:
+  validate-nginx-config:
+    name: validate-nginx-config
+    runs-on: ubuntu-latest    
+    defaults:
+      run:
+        working-directory: web
+    container: 
+      image: nginx:1.27-alpine
+      env:
+        PORT: ${{ vars.WEB_PORT }}
+        REAL_IP_HEADER: ${{ vars.WEB_REAL_IP_HEADER }}
+      volumes:
+        - ./docker/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+    steps:
+      - uses: actions/checkout@v4
+      - name: envsubst nginx config
+        run: /docker-entrypoint.d/20-envsubst-on-templates.sh
+      - name: test nginx configuration
+        run: nginx -t
+  
   ci:
     name: ci
     runs-on: ubuntu-latest
