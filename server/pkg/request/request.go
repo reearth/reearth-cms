@@ -128,6 +128,6 @@ func (r *Request) SetUpdatedAt(d time.Time) {
 	r.updatedAt = d
 }
 
-func (r *Request) SetThread(thid *id.ThreadID) {
-	r.thread = thid
+func (r *Request) SetThread(thid id.ThreadID) {
+	r.thread = &thid
 }

@@ -98,7 +98,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return err
 		}
 		if itm != nil {
-			itm.Value().SetThread(thID.Ref())
+			itm.Value().SetThread(thID)
 			return i.repos.Item.Save(ctx, itm.Value())
 		}
 
@@ -112,7 +112,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return err
 		}
 		if a != nil {
-			a.SetThread(thID.Ref())
+			a.SetThread(thID)
 			return i.repos.Asset.Save(ctx, a)
 		}
 
@@ -126,7 +126,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return err
 		}
 		if req != nil {
-			req.SetThread(thID.Ref())
+			req.SetThread(thID)
 			return i.repos.Request.Save(ctx, req)
 		}
 	}

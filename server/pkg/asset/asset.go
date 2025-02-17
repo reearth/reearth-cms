@@ -91,8 +91,8 @@ func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
 }
 
-func (a *Asset) SetThread(thid *id.ThreadID) {
-	a.thread = thid
+func (a *Asset) SetThread(thid id.ThreadID) {
+	a.thread = &thid
 }
 
 func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
