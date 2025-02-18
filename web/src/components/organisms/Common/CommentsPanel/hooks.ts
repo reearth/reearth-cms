@@ -81,7 +81,7 @@ export default ({ resourceType, resourceId, threadId, refetchQueries }: Params) 
           const { data: commentData, errors: commentErrors } = await createComment({
             variables: { threadId, content },
           });
-  
+
           if (commentErrors || !commentData?.addComment) {
             Notification.error({ message: t("Failed to create comment.") });
             return;
