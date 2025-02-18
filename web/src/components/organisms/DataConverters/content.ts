@@ -166,13 +166,15 @@ export const fromGraphQLversionsByItem = (
       updatedBy: { name: version.value.createdBy?.name ?? "" },
       requests:
         version.value.requests
-          ?.filter(request =>
-            request.items.some(
-              item =>
-                item.item?.value.modelId === version.value.modelId &&
-                item.itemId === version.value.id &&
-                item.version === version.version,
-            ),
+          ?.filter(
+            request =>
+              request.state === "WAITING" &&
+              request.items.some(
+                item =>
+                  item.item?.value.modelId === version.value.modelId &&
+                  item.itemId === version.value.id &&
+                  item.version === version.version,
+              ),
           )
           .map(request => ({
             id: request.id,
@@ -180,7 +182,7 @@ export const fromGraphQLversionsByItem = (
           })) ?? [],
     };
   }).map((version, index) => {
-    if (index > publicIndex && version.requests.length) {
+    if (index !== publicIndex && version.requests.length) {
       version.status = "REVIEW";
     }
     return version;

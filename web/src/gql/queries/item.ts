@@ -180,6 +180,7 @@ export const VERSIONS_BY_ITEM = gql`
         requests {
           id
           title
+          state
           items {
             itemId
             version
