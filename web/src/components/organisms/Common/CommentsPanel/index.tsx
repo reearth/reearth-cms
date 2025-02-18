@@ -8,8 +8,8 @@ import {
 import useHooks from "./hooks";
 
 type Props = {
-  resourceId?: string;
-  resourceType?: ResourceType;
+  resourceId: string;
+  resourceType: ResourceType;
   emptyText?: string;
   threadId?: string;
   comments?: Comment[];

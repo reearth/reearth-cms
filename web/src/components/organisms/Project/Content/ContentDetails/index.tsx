@@ -127,7 +127,7 @@ const ContentDetails: React.FC = () => {
       commentsPanel={
         currentItem ? (
           <CommentsPanel
-            resourceId={currentItem?.id}
+            resourceId={currentItem?.id ?? ""}
             resourceType={ResourceTypes.Item}
             comments={currentItem.comments}
             threadId={currentItem.threadId}

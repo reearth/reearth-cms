@@ -42,7 +42,7 @@ const Asset: React.FC = () => {
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
-          resourceId={assetId}
+          resourceId={assetId ?? ""}
           resourceType={ResourceTypes.Asset}
           comments={asset?.comments}
           threadId={asset?.threadId}

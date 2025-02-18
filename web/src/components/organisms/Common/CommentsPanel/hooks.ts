@@ -18,8 +18,8 @@ import { useT } from "@reearth-cms/i18n";
 import { useWorkspaceId, useUserRights } from "@reearth-cms/state";
 
 type Params = {
-  resourceId?: string;
-  resourceType?: ResourceType;
+  resourceId: string;
+  resourceType: ResourceType;
   threadId?: string;
   refetchQueries: RefetchQueries;
 };

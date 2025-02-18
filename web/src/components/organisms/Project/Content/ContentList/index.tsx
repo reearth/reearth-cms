@@ -68,7 +68,7 @@ const ContentList: React.FC = () => {
     <ContentListMolecule
       commentsPanel={
         <CommentsPanel
-          resourceId={selectedItem?.id}
+          resourceId={selectedItem?.id ?? ""}
           resourceType={ResourceTypes.Item}
           collapsed={collapsedCommentsPanel}
           onCollapse={collapseCommentsPanel}
