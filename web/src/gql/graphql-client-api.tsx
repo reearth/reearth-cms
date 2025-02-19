@@ -2575,7 +2575,7 @@ export type VersionsByItemQueryVariables = Exact<{
 }>;
 
 
-export type VersionsByItemQuery = { __typename?: 'Query', versionsByItem: Array<{ __typename?: 'VersionedItem', version: string, refs: Array<string>, value: { __typename?: 'Item', id: string, modelId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, requests?: Array<{ __typename?: 'Request', id: string, title: string, state: RequestState, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, item?: { __typename?: 'VersionedItem', value: { __typename?: 'Item', modelId: string } } | null }> }> | null } }> };
+export type VersionsByItemQuery = { __typename?: 'Query', versionsByItem: Array<{ __typename?: 'VersionedItem', version: string, refs: Array<string>, value: { __typename?: 'Item', id: string, version: string, modelId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, requests?: Array<{ __typename?: 'Request', id: string, title: string, state: RequestState, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, item?: { __typename?: 'VersionedItem', value: { __typename?: 'Item', modelId: string } } | null }> }> | null } }> };
 
 export type SearchItemQueryVariables = Exact<{
   searchItemInput: SearchItemInput;
@@ -4831,6 +4831,7 @@ export const VersionsByItemDocument = gql`
     refs
     value {
       id
+      version
       modelId
       status
       createdAt

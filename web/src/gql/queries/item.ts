@@ -157,6 +157,7 @@ export const VERSIONS_BY_ITEM = gql`
       refs
       value {
         id
+        version
         modelId
         status
         createdAt
