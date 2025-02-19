@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -32,10 +33,10 @@ type FeatureType string
 const FeatureTypeFeature FeatureType = "Feature"
 
 type Feature struct {
-	Geometry   *Geometry               `json:"geometry,omitempty"`
-	Id         *string                 `json:"id,omitempty"`
-	Properties *map[string]interface{} `json:"properties,omitempty"`
-	Type       *FeatureType            `json:"type,omitempty"`
+	Geometry   *Geometry              `json:"geometry,omitempty"`
+	Id         *string                `json:"id,omitempty"`
+	Properties *orderedmap.OrderedMap `json:"properties,omitempty"`
+	Type       *FeatureType           `json:"type,omitempty"`
 }
 
 type GeometryCollectionType string
@@ -162,21 +163,23 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 	}, true
 }
 
-func extractProperties(itm *item.Item, s *schema.Schema) *map[string]any {
+func extractProperties(itm *item.Item, s *schema.Schema) *orderedmap.OrderedMap {
 	if itm == nil || s == nil {
 		return nil
 	}
-	properties := make(map[string]any)
-	for _, field := range s.Fields() {
-		if field.Type() != value.TypeGeometryObject && field.Type() != value.TypeGeometryEditor {
-			key := field.Name()
-			itmField := itm.Field(field.ID())
-			if val, ok := toGeoJSONProp(itmField); ok {
-				properties[key] = val
-			}
+	properties := orderedmap.New()
+	for _, field := range s.Fields().Ordered() {
+		if field.Type() == value.TypeGeometryObject || field.Type() == value.TypeGeometryEditor {
+			continue
+		}
+
+		key := field.Name()
+		itmField := itm.Field(field.ID())
+		if val, ok := toGeoJSONProp(itmField); ok {
+			properties.Set(key, val)
 		}
 	}
-	return &properties
+	return properties
 }
 
 func extractGeometry(field *item.Field) (*Geometry, bool) {
