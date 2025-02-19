@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -21,7 +20,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Model struct {
@@ -418,77 +416,18 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 
 func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID, timestamp time.Time, operator *usecase.Operator) error {
 	collection := "item"
-	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String(), "__r": bson.M{"$in": []string{"latest"}}})
+	filter, changes, err := i.repos.Item.Copy(ctx, repo.CopyParams{
+		OldSchema: oldSchemaID,
+		NewSchema: newSchemaID,
+		NewModel:  newModelID,
+		Timestamp: timestamp,
+		User:      operator.AcOperator.User.StringRef(),
+		Integration: operator.Integration.StringRef(),
+	})
 	if err != nil {
 		return err
 	}
-	c := task.Changes{
-		"id": {
-			Type:  task.ChangeTypeULID,
-			Value: timestamp.UnixMilli(),
-		},
-		"schema": {
-			Type:  task.ChangeTypeSet,
-			Value: newSchemaID.String(),
-		},
-		"modelid": {
-			Type:  task.ChangeTypeSet,
-			Value: newModelID.String(),
-		},
-		"timestamp": {
-			Type:  task.ChangeTypeSet,
-			Value: timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00"), //TODO: should use a better way to format
-		},
-		"updatedbyuser": {
-			Type:  task.ChangeTypeSet,
-			Value: nil,
-		},
-		"updatedbyintegration": {
-			Type:  task.ChangeTypeSet,
-			Value: nil,
-		},
-		"originalitem": {
-			Type:  task.ChangeTypeULID,
-			Value: timestamp.UnixMilli(),
-		},
-		"metadataitem": {
-			Type:  task.ChangeTypeULID,
-			Value: timestamp.UnixMilli(),
-		},
-		"thread": {
-			Type:  task.ChangeTypeSet,
-			Value: nil,
-		},
-		"__r": { // tag
-			Type:  task.ChangeTypeSet,
-			Value: []string{"latest"},
-		},
-		"__w": { // parent
-			Type:  task.ChangeTypeSet,
-			Value: nil,
-		},
-		"__v": { // version
-			Type:  task.ChangeTypeNew,
-			Value: "version",
-		},
-	}
-	if operator.AcOperator.User != nil {
-		c["user"] = task.Change{
-			Type:  task.ChangeTypeSet,
-			Value: operator.AcOperator.User.String(),
-		}
-	}
-	if operator.Integration != nil {
-		c["integration"] = task.Change{
-			Type:  task.ChangeTypeSet,
-			Value: operator.Integration.String(),
-		}
-	}
-	changes, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
-	return i.triggerCopyEvent(ctx, collection, string(filter), string(changes))
+	return i.triggerCopyEvent(ctx, collection, string(*filter), string(*changes))
 }
 
 func (i Model) triggerCopyEvent(ctx context.Context, collection, filter, changes string) error {

@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
@@ -9,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
@@ -293,6 +295,82 @@ func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.
 		return nil, err
 	}
 	return c.Result[0], nil
+}
+
+func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *string, error) {
+	filter, err := json.Marshal(bson.M{"schema": params.OldSchema.String() , "__r": bson.M{"$in": []string{"latest"}}})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	c := task.Changes{
+		"id": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"schema": {
+			Type:  task.ChangeTypeSet,
+			Value: params.NewSchema.String(),
+		},
+		"modelid": {
+			Type:  task.ChangeTypeSet,
+			Value: params.NewModel.String(),
+		},
+		"timestamp": {
+			Type:  task.ChangeTypeSet,
+			Value: params.Timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00"), //TODO: should use a better way to format
+		},
+		"updatedbyuser": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"updatedbyintegration": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"originalitem": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"metadataitem": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"thread": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__r": { // tag
+			Type:  task.ChangeTypeSet,
+			Value: []string{"latest"},
+		},
+		"__w": { // parent
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__v": { // version
+			Type:  task.ChangeTypeNew,
+			Value: "version",
+		},
+	}
+	if params.User != nil {
+		c["user"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: *params.User,
+		}
+	}
+	if params.Integration != nil {
+		c["integration"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: *params.Integration,
+		}
+	}
+	changes, err := json.Marshal(c)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return lo.ToPtr(string(filter)), lo.ToPtr(string(changes)), nil
 }
 
 func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {
