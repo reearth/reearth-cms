@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -81,15 +82,15 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Type:        lo.ToPtr(GeometryTypeLineString),
 		Coordinates: &c,
 	}
-	p := make(map[string]interface{})
-	p["Name"] = []any{"a", "b", "c"}
-	p["Age"] = int64(30)
-	p["IsMarried"] = true
+	p := orderedmap.New()
+	p.Set("Name", []any{"a", "b", "c"})
+	p.Set("Age", int64(30))
+	p.Set("IsMarried", true)
 
 	f := Feature{
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Geometry:   &g,
-		Properties: &p,
+		Properties: p,
 		Id:         vi1.Value().ID().Ref().StringRef(),
 	}
 
