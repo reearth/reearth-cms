@@ -11,6 +11,7 @@ import {
   FormItem,
   ItemField,
   VersionedItem,
+  FormValues,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
@@ -69,6 +70,7 @@ type Props = {
   onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
+  onGetVersionedItem: (id: string, version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
   onLinkItemTableReload: () => void;
@@ -169,6 +171,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableChange,
+  onGetVersionedItem,
   onPublish,
   onUnpublish,
   onCollapse,
@@ -259,6 +262,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             uploadModalVisibility={uploadModalVisibility}
             uploadUrl={uploadUrl}
             uploadType={uploadType}
+            onGetVersionedItem={onGetVersionedItem}
             onPublish={onPublish}
             onUnpublish={onUnpublish}
             onChange={onChange}

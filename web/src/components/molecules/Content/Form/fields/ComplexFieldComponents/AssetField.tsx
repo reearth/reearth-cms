@@ -13,6 +13,8 @@ import { requiredValidator } from "../utils";
 
 type AssetFieldProps = {
   field: Field;
+  disabled: boolean;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
   itemGroupId?: string;
   assetList?: Asset[];
   itemAssets?: ItemAsset[];
@@ -25,7 +27,6 @@ type AssetFieldProps = {
   totalCount?: number;
   page?: number;
   pageSize?: number;
-  disabled: boolean;
   onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel?: () => void;
   setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
@@ -37,11 +38,12 @@ type AssetFieldProps = {
   onAssetSearchTerm?: (term?: string | undefined) => void;
   setFileList?: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility?: (visible: boolean) => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const AssetField: React.FC<AssetFieldProps> = ({
   field,
+  disabled,
+  onGetAsset,
   itemGroupId,
   assetList,
   itemAssets,
@@ -54,7 +56,6 @@ const AssetField: React.FC<AssetFieldProps> = ({
   totalCount,
   page,
   pageSize,
-  disabled,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -66,7 +67,6 @@ const AssetField: React.FC<AssetFieldProps> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  onGetAsset,
 }) => {
   const t = useT();
 

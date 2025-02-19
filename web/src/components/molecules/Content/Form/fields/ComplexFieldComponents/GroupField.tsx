@@ -15,7 +15,7 @@ type GroupFieldProps = {
   loadingReference?: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle?: string;
-  formItemsData?: FormItem[];
+  referencedItems: FormItem[];
   itemAssets?: ItemAsset[];
   assetList?: Asset[];
   fileList?: UploadFile[];
@@ -61,7 +61,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   loadingReference,
   linkedItemsModalList,
   linkItemModalTitle,
-  formItemsData,
+  referencedItems,
   itemAssets,
   assetList,
   fileList,
@@ -109,7 +109,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkedItemsModalList={linkedItemsModalList}
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}
-          formItemsData={formItemsData}
+          referencedItems={referencedItems}
           itemAssets={itemAssets}
           assetList={assetList}
           fileList={fileList}
@@ -150,7 +150,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkedItemsModalList={linkedItemsModalList}
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}
-          formItemsData={formItemsData}
+          referencedItems={referencedItems}
           itemAssets={itemAssets}
           assetList={assetList}
           fileList={fileList}

@@ -7,6 +7,8 @@ import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
 
+export type FormValues = Record<string, FormValue | FormGroupValue>;
+
 export type FormValue =
   | string
   | string[]
@@ -97,9 +99,7 @@ export type Comment = {
 export type VersionedItem = {
   version: string;
   status: StateType;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: Pick<User, "name">;
-  updatedBy: Pick<User, "name">;
+  timestamp: Date;
+  creator: Pick<User, "name">;
   requests: Pick<Request, "id" | "title">[];
 };

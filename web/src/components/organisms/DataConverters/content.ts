@@ -160,10 +160,8 @@ export const fromGraphQLversionsByItem = (
     return {
       version: version.version,
       status,
-      createdAt: version.value.createdAt,
-      updatedAt: version.value.updatedAt,
-      createdBy: { name: version.value.createdBy?.name ?? "" },
-      updatedBy: { name: version.value.createdBy?.name ?? "" },
+      timestamp: version.value.updatedAt ?? version.value.createdAt,
+      creator: { name: version.value.updatedBy?.name ?? version.value.createdBy?.name ?? "" },
       requests:
         version.value.requests
           ?.filter(

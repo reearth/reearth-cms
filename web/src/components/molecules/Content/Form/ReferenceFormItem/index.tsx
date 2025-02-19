@@ -12,13 +12,13 @@ import { useT } from "@reearth-cms/i18n";
 import { FormItem } from "../../types";
 
 type Props = {
+  referencedItems: FormItem[];
   linkedItemsModalList?: FormItem[];
   value?: string;
   disabled?: boolean;
   loading?: boolean;
   fieldId: string;
   itemGroupId?: string;
-  formItemsData?: FormItem[];
   correspondingField?: CorrespondingField;
   modelId?: string;
   titleFieldId?: string | null;
@@ -39,6 +39,7 @@ type Props = {
 };
 
 const ReferenceFormItem: React.FC<Props> = ({
+  referencedItems,
   linkedItemsModalList,
   value,
   disabled,
@@ -48,7 +49,6 @@ const ReferenceFormItem: React.FC<Props> = ({
   correspondingField,
   modelId,
   titleFieldId,
-  formItemsData,
   linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
@@ -78,11 +78,11 @@ const ReferenceFormItem: React.FC<Props> = ({
   }, [disabled, setVisible]);
 
   useEffect(() => {
-    const item = [...(formItemsData ?? []), ...(linkedItemsModalList ?? [])]?.find(
+    const item = [...(referencedItems ?? []), ...(linkedItemsModalList ?? [])]?.find(
       item => item.id === value,
     );
     setCurrentItem(item);
-  }, [linkedItemsModalList, formItemsData, value]);
+  }, [linkedItemsModalList, referencedItems, value]);
 
   return (
     <>

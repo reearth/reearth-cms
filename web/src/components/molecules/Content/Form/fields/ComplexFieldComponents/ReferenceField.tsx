@@ -7,15 +7,15 @@ import { useT } from "@reearth-cms/i18n";
 
 type ReferenceFieldProps = {
   field: Field;
+  disabled: boolean;
+  referencedItems: FormItem[];
   itemGroupId?: string;
   loading?: boolean;
   linkedItemsModalList?: FormItem[];
-  formItemsData?: FormItem[];
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  disabled: boolean;
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm?: (term?: string) => void;
   onLinkItemTableReload?: () => void;
@@ -29,15 +29,15 @@ type ReferenceFieldProps = {
 
 const ReferenceField: React.FC<ReferenceFieldProps> = ({
   field,
+  disabled,
+  referencedItems,
   itemGroupId,
   loading,
   linkedItemsModalList,
-  formItemsData,
   linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
-  disabled,
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableReload,
@@ -59,12 +59,12 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       <ReferenceFormItem
         key={field.id}
+        referencedItems={referencedItems}
         linkedItemsModalList={linkedItemsModalList}
         disabled={disabled}
         loading={loading}
         fieldId={field.id}
         itemGroupId={itemGroupId}
-        formItemsData={formItemsData}
         correspondingField={field.typeProperty?.correspondingField}
         modelId={field.typeProperty?.modelId}
         titleFieldId={field.typeProperty?.schema?.titleFieldId}

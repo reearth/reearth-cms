@@ -22,7 +22,7 @@ type Props = {
   loadingReference?: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle?: string;
-  formItemsData?: FormItem[];
+  referencedItems: FormItem[];
   itemAssets?: ItemAsset[];
   assetList?: Asset[];
   fileList?: UploadFile[];
@@ -74,7 +74,7 @@ const GroupItem: React.FC<Props> = ({
   loadingReference,
   linkedItemsModalList,
   linkItemModalTitle,
-  formItemsData,
+  referencedItems,
   itemAssets,
   assetList,
   fileList,
@@ -217,7 +217,7 @@ const GroupItem: React.FC<Props> = ({
                     itemGroupId={itemGroupId}
                     loading={loadingReference}
                     linkedItemsModalList={linkedItemsModalList}
-                    formItemsData={formItemsData}
+                    referencedItems={referencedItems}
                     linkItemModalTitle={linkItemModalTitle}
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}

@@ -31,6 +31,7 @@ import {
   useCreateItemMutation,
   useCreateRequestMutation,
   useGetItemQuery,
+  useGetItemLazyQuery,
   useGetModelLazyQuery,
   useGetMeQuery,
   useUpdateItemMutation,
@@ -414,9 +415,8 @@ export default () => {
     Record<string, FormValue | FormGroupValue>
   >({});
 
-  useEffect(() => {
-    if (itemLoading) return;
-    const handleInitialValuesSet = async () => {
+  const initialValueGet = useCallback(
+    async (item?: Item) => {
       const initialValues: Record<string, FormValue | FormGroupValue> = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
@@ -427,8 +427,8 @@ export default () => {
         });
       };
 
-      if (currentItem) {
-        currentItem?.fields?.forEach(field => {
+      if (item) {
+        item.fields?.forEach(field => {
           if (field.itemGroupId) {
             initialValues[field.schemaFieldId] = {
               ...(initialValues[field.schemaFieldId] as FormGroupValue),
@@ -458,11 +458,18 @@ export default () => {
           }),
         );
       }
+      return initialValues;
+    },
+    [currentModel, handleGroupGet, updateValueConvert, valueGet],
+  );
 
-      setInitialFormValues(initialValues);
+  useEffect(() => {
+    if (itemLoading) return;
+    const handleInitialValuesSet = async () => {
+      setInitialFormValues(await initialValueGet(currentItem));
     };
     handleInitialValuesSet();
-  }, [itemLoading, currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
+  }, [currentItem, initialValueGet, itemLoading]);
 
   const initialMetaFormValues: Record<string, unknown> = useMemo(() => {
     const initialValues: Record<string, unknown> = {};
@@ -600,6 +607,23 @@ export default () => {
     [versionsData],
   );
 
+  const [getItem] = useGetItemLazyQuery({
+    fetchPolicy: "cache-and-network",
+  });
+
+  const handleGetVersionedItem = useCallback(
+    async (id: string, version: string) => {
+      const res = await getItem({
+        variables: {
+          id,
+          // version,
+        },
+      });
+      return await initialValueGet(fromGraphQLItem(res.data?.node as GQLItem));
+    },
+    [getItem, initialValueGet],
+  );
+
   return {
     loadingReference,
     linkedItemsModalList,
@@ -637,6 +661,7 @@ export default () => {
     requestModalTotalCount: totalCount,
     requestModalPage: page,
     requestModalPageSize: pageSize,
+    handleGetVersionedItem,
     handlePublish,
     handleUnpublish,
     handleAddItemToRequest,

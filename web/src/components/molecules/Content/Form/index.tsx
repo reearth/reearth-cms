@@ -18,6 +18,7 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { emptyConvert } from "@reearth-cms/components/molecules/Common/Form/utils";
+import FormItemsWrapper from "@reearth-cms/components/molecules/Content/Form/FormItemsWrapper";
 import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
@@ -28,6 +29,7 @@ import {
   ItemField,
   ItemValue,
   VersionedItem,
+  FormValues,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet, stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -41,7 +43,6 @@ import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
-import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 const { TabPane } = Tabs;
@@ -114,6 +115,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetVersionedItem: (id: string, version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
   onRequestCreate: (data: {
@@ -185,6 +187,7 @@ const ContentForm: React.FC<Props> = ({
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableChange,
+  onGetVersionedItem,
   onPublish,
   onUnpublish,
   onAssetTableChange,
@@ -216,10 +219,11 @@ const ContentForm: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
+  const [versionForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(!!itemId);
   const changedKeys = useRef(new Set<string>());
-  const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
+  const referencedItems = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -363,8 +367,8 @@ const ContentForm: React.FC<Props> = ({
   }, [allFormsValidate, form, initialFormValues, initialMetaFormValues, itemId, metaForm]);
 
   const unpublishedItems = useMemo(
-    () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
-    [formItemsData],
+    () => referencedItems?.filter(item => item.status !== "PUBLIC") ?? [],
+    [referencedItems],
   );
 
   const inputValueGet = useCallback((value: ItemValue, field: Field) => {
@@ -586,6 +590,27 @@ const ContentForm: React.FC<Props> = ({
     [hasItemUpdateRight, itemId],
   );
 
+  const [activeKey, setActiveKey] = useState<string>();
+  const [versionedItem, setVersionedItem] = useState<VersionedItem>();
+
+  const versionClick = useCallback(
+    async (versionedItem: VersionedItem) => {
+      if (versionedItem.version === item?.version || !item?.id) return;
+      const res = await onGetVersionedItem(item.id, versionedItem.version);
+      versionForm.setFieldsValue(res);
+      setVersionedItem(versionedItem);
+    },
+    [item?.id, item?.version, onGetVersionedItem, versionForm],
+  );
+
+  const versionedItemClose = useCallback(() => {
+    setVersionedItem(undefined);
+  }, []);
+
+  const handleRestore = useCallback(() => {
+    form.setFieldsValue(versionForm.getFieldsValue());
+  }, [form, versionForm]);
+
   return (
     <>
       <StyledForm
@@ -630,177 +655,128 @@ const ContentForm: React.FC<Props> = ({
             </>
           }
         />
-        <FormItemsWrapper>
-          {model?.schema.fields.map(field => {
-            if (field.type === "Asset") {
-              return (
-                <StyledFormItemWrapper key={field.id}>
-                  <AssetField
-                    field={field}
-                    assetList={assetList}
-                    itemAssets={item?.assets}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    disabled={fieldDisabled}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsGet={onAssetsGet}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
-                    onGetAsset={onGetAsset}
-                  />
-                </StyledFormItemWrapper>
-              );
-            } else if (field.type === "Reference") {
-              return (
-                <StyledFormItemWrapper key={field.id}>
-                  <ReferenceField
-                    field={field}
-                    loading={loadingReference}
-                    linkedItemsModalList={linkedItemsModalList}
-                    formItemsData={formItemsData}
-                    linkItemModalTitle={linkItemModalTitle}
-                    linkItemModalTotalCount={linkItemModalTotalCount}
-                    linkItemModalPage={linkItemModalPage}
-                    linkItemModalPageSize={linkItemModalPageSize}
-                    disabled={fieldDisabled}
-                    onReferenceModelUpdate={onReferenceModelUpdate}
-                    onSearchTerm={onSearchTerm}
-                    onLinkItemTableReload={onLinkItemTableReload}
-                    onLinkItemTableChange={onLinkItemTableChange}
-                    onCheckItemReference={onCheckItemReference}
-                  />
-                </StyledFormItemWrapper>
-              );
-            } else if (field.type === "Group") {
-              return (
-                <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <GroupField
-                    field={field}
-                    form={form}
-                    loadingReference={loadingReference}
-                    linkedItemsModalList={linkedItemsModalList}
-                    linkItemModalTitle={linkItemModalTitle}
-                    formItemsData={formItemsData}
-                    itemAssets={item?.assets}
-                    assetList={assetList}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    linkItemModalTotalCount={linkItemModalTotalCount}
-                    linkItemModalPage={linkItemModalPage}
-                    linkItemModalPageSize={linkItemModalPageSize}
-                    disabled={fieldDisabled}
-                    onSearchTerm={onSearchTerm}
-                    onReferenceModelUpdate={onReferenceModelUpdate}
-                    onLinkItemTableReload={onLinkItemTableReload}
-                    onLinkItemTableChange={onLinkItemTableChange}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsGet={onAssetsGet}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
-                    onGetAsset={onGetAsset}
-                    onGroupGet={onGroupGet}
-                    onCheckItemReference={onCheckItemReference}
-                  />
-                </StyledFormItemWrapper>
-              );
-            } else {
-              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-              return (
-                <StyledFormItemWrapper
-                  key={field.id}
-                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
-                  <FieldComponent field={field} disabled={fieldDisabled} />
-                </StyledFormItemWrapper>
-              );
-            }
-          })}
-        </FormItemsWrapper>
+        <FormItemsWrapper
+          fields={model?.schema.fields}
+          disabled={fieldDisabled}
+          assetProps={{
+            assetList,
+            itemAssets: item?.assets,
+            fileList,
+            loadingAssets,
+            uploading,
+            uploadModalVisibility,
+            uploadUrl,
+            uploadType,
+            totalCount,
+            page,
+            pageSize,
+            onAssetTableChange,
+            onUploadModalCancel,
+            setUploadUrl,
+            setUploadType,
+            onAssetsCreate,
+            onAssetCreateFromUrl,
+            onAssetsGet,
+            onAssetsReload,
+            onAssetSearchTerm,
+            setFileList,
+            setUploadModalVisibility,
+            onGetAsset,
+          }}
+          referenceProps={{
+            referencedItems,
+            loadingReference,
+            linkedItemsModalList,
+            linkItemModalTitle,
+            linkItemModalTotalCount,
+            linkItemModalPage,
+            linkItemModalPageSize,
+            onReferenceModelUpdate,
+            onSearchTerm,
+            onLinkItemTableReload,
+            onLinkItemTableChange,
+            onCheckItemReference,
+          }}
+          groupProps={{ form, onGroupGet }}
+        />
       </StyledForm>
-      <SideBarWrapper>
-        <StyledTabs>
-          <TabPane tab={t("Meta Data")} key="meta">
-            <Form
-              form={metaForm}
-              layout="vertical"
-              initialValues={initialMetaFormValues}
-              onValuesChange={handleMetaValuesChange}>
-              <ContentSidebarWrapper item={item} />
-              {model?.metadataSchema?.fields?.map(field => {
-                const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-                return (
-                  <MetaFormItemWrapper key={field.id}>
-                    <FieldComponent field={field} disabled={fieldDisabled} />
-                  </MetaFormItemWrapper>
-                );
-              })}
-            </Form>
-          </TabPane>
-          {versions.length && (
-            <TabPane tab={t("History Version")} key="history">
-              <History>
-                {versions.map((version, index) => {
-                  const isLast = index === versions.length - 1;
-                  const date = dateTimeFormat(isLast ? version.createdAt : version.updatedAt);
-                  const { name } = isLast ? version.createdBy : version.updatedBy;
-                  return (
-                    <HistoryCard key={version.version}>
-                      <HistoryTitle onClick={() => console.log(version.version)}>
-                        <Tooltip title={t(version.status)}>
-                          <Badge color={stateColors[version.status]} />
-                        </Tooltip>
-                        {date}
-                      </HistoryTitle>
-                      <HistoryInfo>
-                        <User>{`${isLast ? t("Created by") : t("Updated by")} ${name}`}</User>
-                        {version.status === "REVIEW" && (
-                          <Requests>
-                            {version.requests?.map(request => (
-                              <RequestWrapper
-                                key={request.id}
-                                onClick={() => onNavigateToRequest(request.id)}>
-                                <Icon icon="pullRequest" />
-                                <RequestTitle>{request.title}</RequestTitle>
-                              </RequestWrapper>
-                            ))}
-                          </Requests>
-                        )}
-                      </HistoryInfo>
-                    </HistoryCard>
-                  );
-                })}
-              </History>
-            </TabPane>
-          )}
-        </StyledTabs>
-      </SideBarWrapper>
+      {versionedItem ? (
+        <VersionForm form={versionForm} layout="vertical">
+          <PageHeader
+            title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
+            onBack={versionedItemClose}
+            extra={
+              <Button onClick={handleRestore} type="link">
+                {t("Restore")}
+              </Button>
+            }
+          />
+          <FormItemsWrapper
+            fields={model?.schema.fields}
+            disabled
+            assetProps={{ onGetAsset }}
+            referenceProps={{ referencedItems }}
+            groupProps={{ form, onGroupGet }}
+          />
+        </VersionForm>
+      ) : (
+        <SideBarWrapper>
+          <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
+            {(model?.metadataSchema.fields || item?.id) && (
+              <TabPane tab={t("Meta Data")} key="meta">
+                <Form
+                  form={metaForm}
+                  layout="vertical"
+                  initialValues={initialMetaFormValues}
+                  onValuesChange={handleMetaValuesChange}>
+                  <ContentSidebarWrapper item={item} />
+                  {model?.metadataSchema?.fields?.map(field => {
+                    const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+                    return (
+                      <MetaFormItemWrapper key={field.id}>
+                        <FieldComponent field={field} disabled={fieldDisabled} />
+                      </MetaFormItemWrapper>
+                    );
+                  })}
+                </Form>
+              </TabPane>
+            )}
+            {versions.length && (
+              <TabPane tab={t("Version History")} key="history">
+                <History>
+                  {versions.map((version, index) => {
+                    return (
+                      <HistoryCard key={version.version}>
+                        <HistoryTitle onClick={() => versionClick(version)}>
+                          <Tooltip title={t(version.status)}>
+                            <Badge color={stateColors[version.status]} />
+                          </Tooltip>
+                          {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
+                        </HistoryTitle>
+                        <HistoryInfo>
+                          <User>{`${index === versions.length - 1 ? t("Created by") : t("Updated by")} ${version.creator.name}`}</User>
+                          {version.status === "REVIEW" && (
+                            <Requests>
+                              {version.requests?.map(request => (
+                                <RequestWrapper
+                                  key={request.id}
+                                  onClick={() => onNavigateToRequest(request.id)}>
+                                  <Icon icon="pullRequest" />
+                                  <RequestTitle>{request.title}</RequestTitle>
+                                </RequestWrapper>
+                              ))}
+                            </Requests>
+                          )}
+                        </HistoryInfo>
+                      </HistoryCard>
+                    );
+                  })}
+                </History>
+              </TabPane>
+            )}
+          </StyledTabs>
+        </SideBarWrapper>
+      )}
       {itemId && (
         <>
           <RequestCreationModal
@@ -840,11 +816,6 @@ const ContentForm: React.FC<Props> = ({
   );
 };
 
-const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
-  max-width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
-  word-wrap: break-word;
-`;
-
 const StyledTabs = styled(Tabs)`
   .ant-tabs-nav {
     margin-bottom: 0;
@@ -864,11 +835,8 @@ const StyledForm = styled(Form)`
   }
 `;
 
-const FormItemsWrapper = styled.div`
-  max-height: calc(100% - 72px);
-  overflow-y: auto;
-  padding: 36px;
-  border-top: 1px solid #00000008;
+const VersionForm = styled(StyledForm)`
+  background: #fafafa;
 `;
 
 const SideBarWrapper = styled.div`

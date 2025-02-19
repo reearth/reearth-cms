@@ -46,6 +46,7 @@ const ContentDetails: React.FC = () => {
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
+    handleGetVersionedItem,
     handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
@@ -169,6 +170,7 @@ const ContentDetails: React.FC = () => {
       uploadModalVisibility={uploadModalVisibility}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      onGetVersionedItem={handleGetVersionedItem}
       onUnpublish={handleUnpublish}
       onPublish={handlePublish}
       onUploadModalCancel={handleUploadModalCancel}
