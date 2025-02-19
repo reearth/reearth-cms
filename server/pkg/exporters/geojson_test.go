@@ -177,19 +177,20 @@ func TestExtractProperties(t *testing.T) {
 
 	// Test with item containing geometry fields and non geometry fields
 	properties1 := extractProperties(i1, s1)
-	expectedProperties1 := map[string]interface{}{
-		"Name":      []any{"a", "b", "c"},
-		"Age":       int64(30),
-		"IsMarried": true,
-	}
+	expectedProperties1 := orderedmap.New()
+
+	expectedProperties1.Set("Name", []any{"a", "b", "c"})
+	expectedProperties1.Set("Age", int64(30))
+	expectedProperties1.Set("IsMarried", true)
+
 	assert.NotNil(t, properties1)
-	assert.Equal(t, expectedProperties1, *properties1)
+	assert.Equal(t, expectedProperties1, properties1)
 
 	// Test with item containing only geometry fields
 	properties3 := extractProperties(i2, s1)
-	expectedProperties3 := map[string]interface{}{}
+	expectedProperties3 := orderedmap.New()
 	assert.NotNil(t, properties3)
-	assert.Equal(t, expectedProperties3, *properties3)
+	assert.Equal(t, expectedProperties3, properties3)
 
 	// Test with nil item
 	properties4 := extractProperties(nil, s1)
