@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
+  FormValues,
   FormValue,
   FormGroupValue,
   FormItem,
@@ -416,7 +417,7 @@ export default () => {
 
   const initialValueGet = useCallback(
     async (fields?: ItemField[]) => {
-      const initialValues: Record<string, FormValue | FormGroupValue> = {};
+      const initialValues: FormValues = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
           initialValues[field.id] = {
@@ -609,9 +610,7 @@ export default () => {
   const handleGetVersionedItem = useCallback(
     (version: string) => {
       const res = versions.find(v => v.version === version);
-      if (res) {
-        return initialValueGet(res.fields);
-      }
+      return initialValueGet(res?.fields);
     },
     [initialValueGet, versions],
   );
