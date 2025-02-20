@@ -3,11 +3,13 @@ package mongo
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox/mongotest"
+	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -26,41 +28,76 @@ func TestCopier_Copy(t *testing.T) {
 	iCol := db.Collection("item")
 	w.SetCollection(iCol)
 
-	mid1 := id.NewModelID()
-	sid1 := id.NewSchemaID()
-	mid2 := id.NewModelID()
-	sid2 := id.NewSchemaID()
-	i1 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	pid := id.NewProjectID().String()
+	uid := accountdomain.NewUserID().String()
+	mid1, mid2 := id.NewModelID().String(), id.NewModelID().String()
+	sid1, sid2 := id.NewSchemaID().String(), id.NewSchemaID().String()
+	iid1, iid2 := id.NewItemID().String(), id.NewItemID().String()
 
-	_, err := iCol.InsertMany(ctx, []any{i1, i2})
+	i1 := map[string]any{
+		"id":        iid1,
+		"schema":    sid1,
+		"modelid":   mid1,
+		"timestamp": util.Now().UTC().Format(time.RFC3339),
+		"project":   pid,
+		"user":      uid,
+		"__r":       []string{"latest"},
+	}
+	i2 := map[string]any{
+		"id":        iid2,
+		"schema":    sid1,
+		"modelid":   mid1,
+		"timestamp": util.Now().UTC().Format(time.RFC3339),
+		"project":   pid,
+		"user":      uid,
+		"__r":       []string{"latest"},
+	}
+
+	_, err := w.c.InsertMany(ctx, []any{i1, i2})
 	assert.NoError(t, err)
 
-	filter := bson.M{"schema": sid1.String()}
+	count, err := w.c.CountDocuments(ctx, bson.M{"schema": sid1})
+	assert.NoError(t, err)
+	assert.Greater(t, count, int64(0))
+
+	timestamp := util.Now()
+	filter := bson.M{"schema": sid1, "__r": bson.M{"$in": []string{"latest"}}}
 	changes := task.Changes{
-		"id": {
-			Type:  task.ChangeTypeNew,
-			Value: "item",
-		},
-		"schema": {
-			Type:  task.ChangeTypeSet,
-			Value: sid2.String(),
-		},
-		"model": {
-			Type:  task.ChangeTypeSet,
-			Value: mid2.String(),
-		},
+		"id":        {Type: task.ChangeTypeULID, Value: float64(timestamp.UnixMilli())},
+		"schema":    {Type: task.ChangeTypeSet, Value: sid2},
+		"modelid":   {Type: task.ChangeTypeSet, Value: mid2},
+		"timestamp": {Type: task.ChangeTypeSet, Value: timestamp.UTC().Format(time.RFC3339)},
+		"project":   {Type: task.ChangeTypeSet, Value: pid},
+		"user":      {Type: task.ChangeTypeSet, Value: uid},
+		"__r":       {Type: task.ChangeTypeSet, Value: []string{"latest"}},
 	}
+
+	cursor, err := w.c.Find(ctx, filter)
+	assert.NoError(t, err)
+
+	var beforeCopyDocs []bson.M
+	err = cursor.All(ctx, &beforeCopyDocs)
+	assert.NoError(t, err)
+	assert.Greater(t, len(beforeCopyDocs), 0)
 
 	err = w.Copy(ctx, filter, changes)
 	assert.NoError(t, err)
+
+	filter2 := bson.M{"schema": sid2, "__r": bson.M{"$in": []string{"latest"}}}
+	cursor, err = w.c.Find(ctx, filter2)
+	assert.NoError(t, err)
+
+	var copiedDocs []bson.M
+	err = cursor.All(ctx, &copiedDocs)
+	assert.NoError(t, err)
+	assert.Greater(t, len(copiedDocs), 0)
 }
 
 func TestCopier_GenerateId(t *testing.T) {
 	tests := []struct {
-		name       string
-		input      string
-		expectOk   bool
+		name     string
+		input    string
+		expectOk bool
 	}{
 		{
 			name:     "Valid input - item",

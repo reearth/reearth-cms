@@ -417,11 +417,11 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID, timestamp time.Time, operator *usecase.Operator) error {
 	collection := "item"
 	filter, changes, err := i.repos.Item.Copy(ctx, repo.CopyParams{
-		OldSchema: oldSchemaID,
-		NewSchema: newSchemaID,
-		NewModel:  newModelID,
-		Timestamp: timestamp,
-		User:      operator.AcOperator.User.StringRef(),
+		OldSchema:   oldSchemaID,
+		NewSchema:   newSchemaID,
+		NewModel:    newModelID,
+		Timestamp:   timestamp,
+		User:        operator.AcOperator.User.StringRef(),
 		Integration: operator.Integration.StringRef(),
 	})
 	if err != nil {
