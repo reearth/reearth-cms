@@ -5,12 +5,12 @@ go 1.24.0
 require (
 	cloud.google.com/go/pubsub v1.47.0
 	cloud.google.com/go/storage v1.50.0
-	github.com/99designs/gqlgen v0.17.64
+	github.com/99designs/gqlgen v0.17.66
 	github.com/avast/retry-go/v4 v4.6.0
-	github.com/aws/aws-sdk-go-v2 v1.36.0
-	github.com/aws/aws-sdk-go-v2/config v1.29.4
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.75.2
-	github.com/aws/aws-sdk-go-v2/service/sns v1.33.17
+	github.com/aws/aws-sdk-go-v2 v1.36.2
+	github.com/aws/aws-sdk-go-v2/config v1.29.7
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.77.1
+	github.com/aws/aws-sdk-go-v2/service/sns v1.33.20
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/gavv/httpexpect/v2 v2.16.0
 	github.com/getkin/kin-openapi v0.129.0
@@ -38,14 +38,14 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/vektah/gqlparser/v2 v2.5.22
 	github.com/vikstrous/dataloadgen v0.0.6
-	go.mongodb.org/mongo-driver v1.17.2
+	go.mongodb.org/mongo-driver/v2 v2.0.0
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.59.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.59.0
 	golang.org/x/exp v0.0.0-20250128182459-e0ece0dbea4c
-	golang.org/x/net v0.34.0
-	golang.org/x/text v0.21.0
-	google.golang.org/api v0.219.0
+	golang.org/x/net v0.35.0
+	golang.org/x/text v0.22.0
+	google.golang.org/api v0.222.0
 )
 
 require (
