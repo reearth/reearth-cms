@@ -597,12 +597,11 @@ const ContentForm: React.FC<Props> = ({
 
   const versionClick = useCallback(
     async (versionedItem: VersionedItem) => {
-      if (versionedItem.version === item?.version || !item?.id) return;
       const res = await onGetVersionedItem(versionedItem.version);
       versionForm.setFieldsValue(res);
       setVersionedItem(versionedItem);
     },
-    [item?.id, item?.version, onGetVersionedItem, versionForm],
+    [onGetVersionedItem, versionForm],
   );
 
   const versionedItemClose = useCallback(() => {
