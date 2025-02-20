@@ -609,10 +609,35 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const handleRestore = useCallback(() => {
-    const values = versionForm.getFieldsValue();
-    form.setFieldsValue(values);
-    handleValuesChange(values);
-  }, [form, handleValuesChange, versionForm]);
+    const restore = () => {
+      const values = versionForm.getFieldsValue();
+      form.setFieldsValue(values);
+      handleValuesChange(values);
+      Notification.destroy();
+    };
+
+    Notification.info({
+      message: t("Are you sure you want to restore this version’s content?"),
+      description: t(
+        "After saving, a new version will be created while keeping the current version unchanged.",
+      ),
+      btn: (
+        <Space>
+          <Button
+            onClick={() => {
+              Notification.destroy();
+            }}>
+            {t("Cancel")}
+          </Button>
+          <Button type="primary" onClick={restore}>
+            {t("Restore")}
+          </Button>
+        </Space>
+      ),
+      placement: "top",
+      closeIcon: false,
+    });
+  }, [form, handleValuesChange, t, versionForm]);
 
   return (
     <>
