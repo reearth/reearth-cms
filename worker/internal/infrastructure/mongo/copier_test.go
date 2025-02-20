@@ -78,7 +78,7 @@ func TestCopier_Copy(t *testing.T) {
 	var beforeCopyDocs []bson.M
 	err = cursor.All(ctx, &beforeCopyDocs)
 	assert.NoError(t, err)
-	assert.Greater(t, len(beforeCopyDocs), 0)
+	assert.Equal(t, len(beforeCopyDocs), 2)
 
 	err = w.Copy(ctx, filter, changes)
 	assert.NoError(t, err)
@@ -90,7 +90,17 @@ func TestCopier_Copy(t *testing.T) {
 	var copiedDocs []bson.M
 	err = cursor.All(ctx, &copiedDocs)
 	assert.NoError(t, err)
-	assert.Greater(t, len(copiedDocs), 0)
+	assert.Equal(t, len(copiedDocs), 2)
+
+	for _, doc := range copiedDocs {
+		assert.Contains(t, doc, "id")
+		assert.Equal(t, mid2, doc["modelid"])
+		assert.Equal(t, sid2, doc["schema"])
+		assert.Equal(t, pid, doc["project"])
+		assert.Equal(t, uid, doc["user"])
+		assert.Contains(t, doc, "timestamp")
+		assert.Contains(t, doc["__r"], "latest")
+	}
 }
 
 func TestCopier_GenerateId(t *testing.T) {
