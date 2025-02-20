@@ -274,24 +274,26 @@ const ContentForm: React.FC<Props> = ({
         return;
       }
 
-      const [key, value] = Object.entries(changedValues)[0];
-      if (checkIfSingleGroupField(key, value)) {
-        const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
-        const groupFieldValue = initialFormValues[key][groupFieldKey];
-        if (
-          JSON.stringify(emptyConvert(changedFieldValue)) ===
-          JSON.stringify(emptyConvert(groupFieldValue))
+      for (const [key, value] of Object.entries(changedValues)) {
+        if (checkIfSingleGroupField(key, value)) {
+          const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
+          const groupFieldValue = initialFormValues[key][groupFieldKey];
+          if (
+            JSON.stringify(emptyConvert(changedFieldValue)) ===
+            JSON.stringify(emptyConvert(groupFieldValue))
+          ) {
+            changedKeys.current.delete(key);
+          } else if (changedFieldValue !== undefined) {
+            changedKeys.current.add(key);
+          }
+        } else if (
+          JSON.stringify(emptyConvert(value)) ===
+          JSON.stringify(emptyConvert(initialFormValues[key]))
         ) {
           changedKeys.current.delete(key);
-        } else if (changedFieldValue !== undefined) {
+        } else {
           changedKeys.current.add(key);
         }
-      } else if (
-        JSON.stringify(emptyConvert(value)) === JSON.stringify(emptyConvert(initialFormValues[key]))
-      ) {
-        changedKeys.current.delete(key);
-      } else {
-        changedKeys.current.add(key);
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
@@ -608,8 +610,10 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const handleRestore = useCallback(() => {
-    form.setFieldsValue(versionForm.getFieldsValue());
-  }, [form, versionForm]);
+    const values = versionForm.getFieldsValue();
+    form.setFieldsValue(values);
+    handleValuesChange(values);
+  }, [form, handleValuesChange, versionForm]);
 
   return (
     <>
