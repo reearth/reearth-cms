@@ -178,6 +178,12 @@ export const VERSIONS_BY_ITEM = gql`
             name
           }
         }
+        fields {
+          schemaFieldId
+          itemGroupId
+          type
+          value
+        }
         requests {
           id
           title

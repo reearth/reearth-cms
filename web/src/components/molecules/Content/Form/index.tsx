@@ -115,7 +115,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onGetVersionedItem: (id: string, version: string) => Promise<FormValues>;
+  onGetVersionedItem: (version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
   onRequestCreate: (data: {
@@ -596,7 +596,7 @@ const ContentForm: React.FC<Props> = ({
   const versionClick = useCallback(
     async (versionedItem: VersionedItem) => {
       if (versionedItem.version === item?.version || !item?.id) return;
-      const res = await onGetVersionedItem(item.id, versionedItem.version);
+      const res = await onGetVersionedItem(versionedItem.version);
       versionForm.setFieldsValue(res);
       setVersionedItem(versionedItem);
     },

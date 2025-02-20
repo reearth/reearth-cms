@@ -31,7 +31,6 @@ import {
   useCreateItemMutation,
   useCreateRequestMutation,
   useGetItemQuery,
-  useGetItemLazyQuery,
   useGetModelLazyQuery,
   useGetMeQuery,
   useUpdateItemMutation,
@@ -416,7 +415,7 @@ export default () => {
   >({});
 
   const initialValueGet = useCallback(
-    async (item?: Item) => {
+    async (fields?: ItemField[]) => {
       const initialValues: Record<string, FormValue | FormGroupValue> = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
@@ -427,8 +426,8 @@ export default () => {
         });
       };
 
-      if (item) {
-        item.fields?.forEach(field => {
+      if (fields) {
+        fields?.forEach(field => {
           if (field.itemGroupId) {
             initialValues[field.schemaFieldId] = {
               ...(initialValues[field.schemaFieldId] as FormGroupValue),
@@ -466,7 +465,7 @@ export default () => {
   useEffect(() => {
     if (itemLoading) return;
     const handleInitialValuesSet = async () => {
-      setInitialFormValues(await initialValueGet(currentItem));
+      setInitialFormValues(await initialValueGet(currentItem?.fields ?? undefined));
     };
     handleInitialValuesSet();
   }, [currentItem, initialValueGet, itemLoading]);
@@ -607,21 +606,14 @@ export default () => {
     [versionsData],
   );
 
-  const [getItem] = useGetItemLazyQuery({
-    fetchPolicy: "cache-and-network",
-  });
-
   const handleGetVersionedItem = useCallback(
-    async (id: string, version: string) => {
-      const res = await getItem({
-        variables: {
-          id,
-          // version,
-        },
-      });
-      return await initialValueGet(fromGraphQLItem(res.data?.node as GQLItem));
+    (version: string) => {
+      const res = versions.find(v => v.version === version);
+      if (res) {
+        return initialValueGet(res.fields);
+      }
     },
-    [getItem, initialValueGet],
+    [initialValueGet, versions],
   );
 
   return {

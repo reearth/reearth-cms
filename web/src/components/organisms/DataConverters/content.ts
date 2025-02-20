@@ -162,6 +162,15 @@ export const fromGraphQLversionsByItem = (
       status,
       timestamp: version.value.updatedAt ?? version.value.createdAt,
       creator: { name: version.value.updatedBy?.name ?? version.value.createdBy?.name ?? "" },
+      fields: version.value.fields.map(
+        field =>
+          ({
+            schemaFieldId: field.schemaFieldId,
+            itemGroupId: field.itemGroupId,
+            type: field.type,
+            value: field.value,
+          }) as ItemField,
+      ),
       requests:
         version.value.requests
           ?.filter(

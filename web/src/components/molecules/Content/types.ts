@@ -101,5 +101,6 @@ export type VersionedItem = {
   status: StateType;
   timestamp: Date;
   creator: Pick<User, "name">;
+  fields: ItemField[];
   requests: Pick<Request, "id" | "title">[];
 };
