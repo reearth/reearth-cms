@@ -413,8 +413,8 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
-// DeleteAssetsInBatch deletes multiple assets in batch
-func (f *fileRepo) DeleteAssetsInBatch(ctx context.Context, mapFileNameByUUID map[string]string) error {
+// DeleteAssets deletes multiple assets in batch
+func (f *fileRepo) DeleteAssets(ctx context.Context, mapFileNameByUUID map[string]string) error {
 	if len(mapFileNameByUUID) == 0 {
 		return gateway.ErrInvalidFile
 	}
