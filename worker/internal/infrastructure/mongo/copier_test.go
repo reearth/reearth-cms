@@ -58,7 +58,7 @@ func TestCopier_Copy(t *testing.T) {
 
 	count, err := w.c.CountDocuments(ctx, bson.M{"schema": sid1})
 	assert.NoError(t, err)
-	assert.Greater(t, count, int64(0))
+	assert.Equal(t, count, int64(2))
 
 	timestamp := util.Now()
 	filter := bson.M{"schema": sid1, "__r": bson.M{"$in": []string{"latest"}}}
