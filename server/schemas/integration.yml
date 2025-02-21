@@ -1532,7 +1532,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/assets/batch':
+  '/assets':
     delete:
       operationId: AssetBatchDelete
       summary: delete assets in batch
@@ -1551,6 +1551,7 @@ paths:
                   type: array
                   items:
                     type: string
+                    x-go-type: id.AssetID
       responses:
         '200':
           description: assets list

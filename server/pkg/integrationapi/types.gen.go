@@ -662,7 +662,7 @@ type WorkspaceIdParam = accountdomain.WorkspaceID
 
 // AssetBatchDeleteJSONBody defines parameters for AssetBatchDelete.
 type AssetBatchDeleteJSONBody struct {
-	AssetIDs *[]string `json:"assetIDs,omitempty"`
+	AssetIDs *[]id.AssetID `json:"assetIDs,omitempty"`
 }
 
 // AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.

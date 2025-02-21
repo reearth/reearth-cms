@@ -357,11 +357,11 @@ type DeleteAssetPayload struct {
 	AssetID ID `json:"assetId"`
 }
 
-type DeleteAssetsInBatchInput struct {
+type DeleteAssetsInput struct {
 	AssetIds []ID `json:"assetIds,omitempty"`
 }
 
-type DeleteAssetsInBatchPayload struct {
+type DeleteAssetsPayload struct {
 	AssetIds []ID `json:"assetIds,omitempty"`
 }
 

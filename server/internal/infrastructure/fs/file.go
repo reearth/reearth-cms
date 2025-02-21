@@ -226,8 +226,8 @@ func IsValidUUID(fileUUID string) bool {
 	return err == nil
 }
 
-// DeleteAssetsInBatch deletes assets in batch
-func (f *fileRepo) DeleteAssetsInBatch(_ context.Context, mapFileNameByUUID map[string]string) error {
+// DeleteAssets deletes assets in batch
+func (f *fileRepo) DeleteAssets(_ context.Context, mapFileNameByUUID map[string]string) error {
 	if len(mapFileNameByUUID) == 0 {
 		return rerror.ErrNotFound
 	}
