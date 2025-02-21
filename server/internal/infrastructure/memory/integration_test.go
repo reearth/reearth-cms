@@ -375,3 +375,69 @@ func TestIntegrationRepo_Save(t *testing.T) {
 		})
 	}
 }
+
+func TestIntegrationRepo_RemoveMany(t *testing.T) {
+	now := time.Now()
+	iId1 := id.NewIntegrationID()
+	i1 := integration.New().ID(iId1).UpdatedAt(now).MustBuild()
+
+	iId2 := id.NewIntegrationID()
+	i2 := integration.New().ID(iId2).UpdatedAt(now).MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   integration.List
+		arg     id.IntegrationIDList
+		want    integration.List
+		wantErr error
+		mockErr bool
+	}{
+		{
+			name:    "error not found",
+			seeds:   integration.List{},
+			arg:     id.IntegrationIDList{iId1},
+			want:    integration.List{},
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "Delete multiple data",
+			seeds:   integration.List{i1, i2},
+			arg:     id.IntegrationIDList{iId1, iId2},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewIntegration()
+			if tc.mockErr {
+				SetIntegrationError(r, tc.wantErr)
+			}
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p.Clone())
+				if tc.wantErr != nil {
+					assert.ErrorIs(t, err, tc.wantErr)
+					return
+				}
+			}
+
+			err := r.RemoveMany(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, []*integration.Integration(tc.want), r.(*Integration).data.Values())
+		})
+	}
+}

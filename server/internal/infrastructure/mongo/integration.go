@@ -84,6 +84,18 @@ func (r *Integration) Remove(ctx context.Context, integrationID id.IntegrationID
 	return r.client.RemoveOne(ctx, bson.M{"id": integrationID.String()})
 }
 
+func (r *Integration) RemoveMany(ctx context.Context, integrationIDs id.IntegrationIDList) error {
+	if len(integrationIDs) == 0 {
+		return nil
+	}
+	err := r.client.RemoveAll(ctx, bson.M{
+		"id": bson.M{
+			"$in": integrationIDs.Strings(),
+		},
+	})
+	return err
+}
+
 func (r *Integration) findOne(ctx context.Context, filter any) (*integration.Integration, error) {
 	c := mongodoc.NewIntegrationConsumer()
 	if err := r.client.FindOne(ctx, filter, c); err != nil {

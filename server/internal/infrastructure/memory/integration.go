@@ -100,6 +100,27 @@ func (r *Integration) Remove(_ context.Context, iId id.IntegrationID) error {
 	return rerror.ErrNotFound
 }
 
+func (r *Integration) RemoveMany(_ context.Context, iIDs id.IntegrationIDList) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	notFoundCount := 0
+	for _, iId := range iIDs {
+		if _, ok := r.data.Load(iId); ok {
+			r.data.Delete(iId)
+		} else {
+			notFoundCount++
+		}
+	}
+
+	if notFoundCount == len(iIDs) {
+		return rerror.ErrNotFound
+	}
+
+	return nil
+}
+
 func MockIntegrationNow(r repo.Integration, t time.Time) func() {
 	return r.(*Integration).now.Mock(t)
 }
