@@ -34,7 +34,11 @@ func (c *Collection) FindOne(ctx context.Context, filter any, q version.Query, c
 }
 
 func (c *Collection) Find(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
-	return c.client.Find(ctx, apply(q, filter), consumer)
+	opt := options.Find().SetCollation(&options.Collation{
+		Locale:   "simple",
+		Strength: 1,
+	})
+	return c.client.Find(ctx, apply(q, filter), consumer, opt)
 }
 
 func (c *Collection) Paginate(ctx context.Context, filter any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
