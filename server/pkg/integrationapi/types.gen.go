@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -297,10 +298,10 @@ const (
 
 // Feature defines model for Feature.
 type Feature struct {
-	Geometry   *Geometry               `json:"geometry,omitempty"`
-	Id         *id.ItemID              `json:"id,omitempty"`
-	Properties *map[string]interface{} `json:"properties,omitempty"`
-	Type       *FeatureType            `json:"type,omitempty"`
+	Geometry   *Geometry              `json:"geometry,omitempty"`
+	Id         *id.ItemID             `json:"id,omitempty"`
+	Properties *orderedmap.OrderedMap `json:"properties,omitempty"`
+	Type       *FeatureType           `json:"type,omitempty"`
 }
 
 // FeatureType defines model for Feature.Type.

@@ -1358,6 +1358,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	sId, _, _ := getModel(e, mId)
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": fids.numberFId, "value": 1, "type": "Number"},
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
@@ -1368,7 +1369,10 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	f := features.Value(0).Object()
 	f.Value("id").String().IsEqual(i1Id)
 	f.Value("type").String().IsEqual("Feature")
-	f.Value("properties").Object().Value("text").String().IsEqual("test1")
+	f.Value("properties").Object().IsEqual(map[string]any{
+		"number": 1,
+		"text":   "test1",
+	})
 	g := f.Value("geometry").Object()
 	g.Value("type").String().IsEqual("Point")
 	g.Value("coordinates").Array().IsEqual([]float64{139.28179282584915, 36.58570985749664})
