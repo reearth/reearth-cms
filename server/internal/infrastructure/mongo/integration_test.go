@@ -8,7 +8,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/samber/lo"
@@ -352,19 +351,19 @@ func TestIntegrationRepo_RemoveMany(t *testing.T) {
 		{
 			name:    "Success delete multiple data",
 			seeds:   integration.List{i1, i2},
-			arg:     idx.List[id.Integration]{iId1, iId2},
+			arg:     id.IntegrationIDList{iId1, iId2},
 			wantErr: nil,
 		},
 		{
 			name:    "Success delete data",
 			seeds:   integration.List{i1, i2},
-			arg:     idx.List[id.Integration]{iId1},
+			arg:     id.IntegrationIDList{iId1},
 			wantErr: nil,
 		},
 		{
 			name:    "Success delete data",
 			seeds:   integration.List{i1},
-			arg:     idx.List[id.Integration]{iId1, iId2},
+			arg:     id.IntegrationIDList{iId1, iId2},
 			wantErr: nil,
 		},
 	}

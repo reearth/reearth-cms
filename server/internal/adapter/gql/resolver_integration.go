@@ -6,12 +6,12 @@ package gql
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/rerror"
 )
 
 // Developer is the resolver for the developer field.
@@ -86,10 +86,10 @@ func (r *mutationResolver) DeleteIntegration(ctx context.Context, input gqlmodel
 	}, nil
 }
 
-// DeleteIntegrationInBatch is the resolver for the deleteIntegrationInBatch field.
-func (r *mutationResolver) DeleteIntegrationInBatch(ctx context.Context, input gqlmodel.DeleteIntegrationInBatchInput) (*gqlmodel.DeleteIntegrationInBatchPayload, error) {
+// DeleteIntegrations is the resolver for the deleteIntegrations field.
+func (r *mutationResolver) DeleteIntegrations(ctx context.Context, input gqlmodel.DeleteIntegrationsInput) (*gqlmodel.DeleteIntegrationsPayload, error) {
 	if len(input.IntegrationIDs) == 0 {
-		return nil, fmt.Errorf("no integration ids")
+		return nil, rerror.ErrInvalidParams
 	}
 
 	ids, err := gqlmodel.ToIDs[id.Integration](input.IntegrationIDs)
@@ -97,15 +97,14 @@ func (r *mutationResolver) DeleteIntegrationInBatch(ctx context.Context, input g
 		return nil, err
 	}
 
-	err = usecases(ctx).Integration.DeleteInBatch(ctx, ids, getOperator(ctx))
+	err = usecases(ctx).Integration.DeleteMany(ctx, ids, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	return &gqlmodel.DeleteIntegrationInBatchPayload{
+	return &gqlmodel.DeleteIntegrationsPayload{
 		IntegrationIDs: input.IntegrationIDs,
 	}, nil
-
 }
 
 // RegenerateIntegrationToken is the resolver for the regenerateToken field.

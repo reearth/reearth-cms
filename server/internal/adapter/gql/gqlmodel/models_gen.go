@@ -383,20 +383,20 @@ type DeleteGroupPayload struct {
 	GroupID ID `json:"groupId"`
 }
 
-type DeleteIntegrationInBatchInput struct {
-	IntegrationIDs []ID `json:"integrationIDs,omitempty"`
-}
-
-type DeleteIntegrationInBatchPayload struct {
-	IntegrationIDs []ID `json:"integrationIDs,omitempty"`
-}
-
 type DeleteIntegrationInput struct {
 	IntegrationID ID `json:"integrationId"`
 }
 
 type DeleteIntegrationPayload struct {
 	IntegrationID ID `json:"integrationId"`
+}
+
+type DeleteIntegrationsInput struct {
+	IntegrationIDs []ID `json:"integrationIDs,omitempty"`
+}
+
+type DeleteIntegrationsPayload struct {
+	IntegrationIDs []ID `json:"integrationIDs,omitempty"`
 }
 
 type DeleteItemInput struct {

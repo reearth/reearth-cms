@@ -436,7 +436,7 @@ func TestIntegrationRepo_RemoveMany(t *testing.T) {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
-
+			assert.NoError(t, err)
 			assert.Equal(t, []*integration.Integration(tc.want), r.(*Integration).data.Values())
 		})
 	}
