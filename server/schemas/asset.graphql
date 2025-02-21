@@ -85,7 +85,7 @@ input DeleteAssetInput {
   assetId: ID!
 }
 
-input DeleteAssetsInBatchInput {
+input DeleteAssetsInput {
   assetIds: [ID!]
 }
 
@@ -105,7 +105,7 @@ type DeleteAssetPayload {
   assetId: ID!
 }
 
-type DeleteAssetsInBatchPayload {
+type DeleteAssetsPayload {
   assetIds: [ID!]
 }
 
@@ -163,7 +163,7 @@ extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
-  deleteAssetsInBatch(input: DeleteAssetsInBatchInput!): DeleteAssetsInBatchPayload
+  deleteAssets(input: DeleteAssetsInput!): DeleteAssetsPayload
   decompressAsset(input: DecompressAssetInput!): DecompressAssetPayload
   createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }

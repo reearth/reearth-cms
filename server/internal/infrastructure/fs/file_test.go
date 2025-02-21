@@ -127,7 +127,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 }
 
-func TestFile_DeleteAssetsInBatch(t *testing.T) {
+func TestFile_DeleteAssets(t *testing.T) {
 	type args struct {
 		ids map[string]string
 	}
@@ -139,7 +139,7 @@ func TestFile_DeleteAssetsInBatch(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				ids: map[string]string{newUUID(): "aaa.txt", newUUID(): "yyy/hello.txt"},
+				ids: map[string]string{newUUID(): "xxx.txt", newUUID(): "yyy/hello.txt"},
 			},
 			want: nil,
 		},
@@ -155,9 +155,11 @@ func TestFile_DeleteAssetsInBatch(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			fs := mockFs()
-			f, _ := NewFile(fs, "aaa.txt")
-			err := f.DeleteAssetsInBatch(context.Background(), tt.args.ids)
+			f, _ := NewFile(fs, "xxx.txt")
+
+			err := f.DeleteAssets(context.Background(), tt.args.ids)
 			assert.Equal(t, tt.want, err)
+
 		})
 	}
 }

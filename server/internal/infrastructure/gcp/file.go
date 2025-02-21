@@ -136,8 +136,8 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 	return f.delete(ctx, p)
 }
 
-// DeleteAssetsInBatch deletes assets data in batch
-func (f *fileRepo) DeleteAssetsInBatch(ctx context.Context, mapFileNameByUUID map[string]string) error {
+// DeleteAssets deletes assets data in batch
+func (f *fileRepo) DeleteAssets(ctx context.Context, mapFileNameByUUID map[string]string) error {
 	paths := make([]string, 0)
 	for uuid, filename := range mapFileNameByUUID {
 		path := getGCSObjectPath(uuid, filename)
@@ -383,6 +383,9 @@ func (f *fileRepo) batchDelete(ctx context.Context, filenames []string) error {
 	var wg sync.WaitGroup
 	errCh := make(chan error, len(filenames)) // Buffer for errors
 
+	const maxConcurrency = 10 // Limit the number of concurrent goroutines
+	sem := make(chan struct{}, maxConcurrency)
+
 	for _, filename := range filenames {
 		if filename == "" {
 			errCh <- gateway.ErrInvalidFile
@@ -390,8 +393,11 @@ func (f *fileRepo) batchDelete(ctx context.Context, filenames []string) error {
 		}
 
 		wg.Add(1)
+		sem <- struct{}{}
+
 		go func(filename string) {
 			defer wg.Done()
+			defer func() { <-sem }()
 
 			object := bucket.Object(filename)
 			if err := object.Delete(ctx); err != nil {

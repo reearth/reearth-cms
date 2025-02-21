@@ -6,15 +6,12 @@ package gql
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // Project is the resolver for the project field.
@@ -118,31 +115,26 @@ func (r *mutationResolver) DeleteAsset(ctx context.Context, input gqlmodel.Delet
 	return &gqlmodel.DeleteAssetPayload{AssetID: gqlmodel.IDFrom(res)}, nil
 }
 
-// DeleteAssetsInBatch is the resolver for the deleteAssetsInBatch field.
-func (r *mutationResolver) DeleteAssetsInBatch(ctx context.Context, input gqlmodel.DeleteAssetsInBatchInput) (*gqlmodel.DeleteAssetsInBatchPayload, error) {
-	if len(input.AssetIds) == 0 {
-		return nil, gqlerror.Errorf("at least one asset ID is required")
-	}
+// DeleteAssets is the resolver for the deleteAssets field.
+func (r *mutationResolver) DeleteAssets(ctx context.Context, input gqlmodel.DeleteAssetsInput) (*gqlmodel.DeleteAssetsPayload, error) {
 
 	ids, err := gqlmodel.ToIDs[id.Asset](input.AssetIds)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err2 := usecases(ctx).Asset.BatchDelete(ctx, ids, getOperator(ctx))
-	if err2 != nil {
-		if errors.Is(err2, rerror.ErrNotFound) {
-			return nil, gqlerror.Errorf("one or more assets not found")
-		}
-		return nil, err2
+	res, err := usecases(ctx).Asset.BatchDelete(ctx, ids, getOperator(ctx))
+	if err != nil {
+		return nil, err
 	}
+
 	// code to return deleted ids in []gqlmodel.ID
 	deletedIds := make([]gqlmodel.ID, 0, len(res))
 	for _, id := range res {
 		deletedIds = append(deletedIds, gqlmodel.IDFrom(id))
 	}
 
-	return &gqlmodel.DeleteAssetsInBatchPayload{AssetIds: deletedIds}, nil
+	return &gqlmodel.DeleteAssetsPayload{AssetIds: deletedIds}, nil
 }
 
 // DecompressAsset is the resolver for the decompressAsset field.
