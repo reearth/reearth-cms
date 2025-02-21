@@ -502,7 +502,7 @@ func TestIntegration_DeleteInBatch(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			err := i.DeleteInBatch(ctx, tt.args, tt.operator)
+			err := i.DeleteMany(ctx, tt.args, tt.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return

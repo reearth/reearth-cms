@@ -13,8 +13,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -157,19 +157,16 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 		})
 }
 
-func (i Integration) DeleteInBatch(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) error {
+// DeleteMany deletes multiple integration
+func (i Integration) DeleteMany(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) error {
 	if operator.AcOperator.User == nil {
 		return interfaces.ErrInvalidOperator
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
-			integrationIDList := make([]accountdomain.IntegrationID, 0, len(ids))
-			for _, id := range ids {
-				iid, err := accountdomain.IntegrationIDFrom(id.String())
-				if err != nil {
-					return err
-				}
-				integrationIDList = append(integrationIDList, iid)
+			integrationIDList, err := util.TryMap(ids.Strings(), accountdomain.IntegrationIDFrom)
+			if err != nil {
+				return err
 			}
 
 			integrationList, err := i.repos.Integration.FindByIDs(ctx, ids)
@@ -190,7 +187,7 @@ func (i Integration) DeleteInBatch(ctx context.Context, ids id.IntegrationIDList
 			}
 
 			if foundIntegrationCount == 0 {
-				return rerror.NewE(i18n.T("integration not found"))
+				return rerror.ErrNotFound
 			}
 
 			finalWorkspaceList := make(workspace.List, 0)
