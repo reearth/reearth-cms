@@ -3,29 +3,12 @@ on:
   workflow_call:
 jobs:
   validate-nginx-config:
-    name: validate-nginx-config
-    runs-on: ubuntu-latest
-    env:
-      PORT: ${{ vars.WEB_PORT }}
-      REAL_IP_HEADER: ${{ vars.WEB_REAL_IP_HEADER }}
-      NGINX_ENVSUBST_TEMPLATE_DIR: docker # see - https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/entrypoint/20-envsubst-on-templates.sh#L32
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - uses: actions/checkout@v4
-      - name: check Nginx version
-        run: sudo nginx -v
-      - name: list Nginx config template directory
-        run: ls -l ${NGINX_ENVSUBST_TEMPLATE_DIR} /etc/nginx/ /etc/nginx/conf.d/
-      - name: download Nginx envsubst script
-        run: curl -s -O https://raw.githubusercontent.com/nginxinc/docker-nginx/2879b26c7dedf1d958b1894a5c1b1dec3c026369/entrypoint/20-envsubst-on-templates.sh && chmod +x 20-envsubst-on-templates.sh
-      - name: envsubst Nginx config
-        run: sudo --preserve-env ./20-envsubst-on-templates.sh
-      - name: check generated config files
-        run: ls -l /etc/nginx/conf.d/
-      - name: test Nginx configuration
-        run: sudo nginx -t
+    # TODO: update the referer to tag or commit hash
+    uses: reearth/actions/.github/workflows/validate-nginx-config.yml@feat/nginx-config-validator/1
+    with:
+      workdir: web
+      templatedir: docker
+      verbose: false
   
   ci:
     name: ci
