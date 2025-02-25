@@ -6,7 +6,7 @@ jobs:
     # TODO: update the referer to tag or commit hash
     uses: reearth/actions/.github/workflows/validate-nginx-config.yml@feat/nginx-config-validator/1
     with:
-      custom_headers: '{"REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}","DUMMY_HEADER_KEY": "DUMMY_HEADER_VALUE"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
+      custom_template_values: '{"REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}","DUMMY_HEADER_KEY": "DUMMY_HEADER_VALUE"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
       port: 8080
       workdir: web
       templatedir: docker
