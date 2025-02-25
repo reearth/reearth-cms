@@ -5,6 +5,8 @@ jobs:
   validate-nginx-config:
     # TODO: update the referer to tag or commit hash
     uses: reearth/actions/.github/workflows/validate-nginx-config.yml@feat/nginx-config-validator/1
+    env:
+      REAL_IP_HEADER: ${{ vars.WEB_REAL_IP_HEADER }}
     with:
       workdir: web
       templatedir: docker
