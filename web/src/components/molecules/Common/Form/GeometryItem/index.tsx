@@ -247,12 +247,12 @@ const GeometryItem: React.FC<Props> = ({
     [onChange, typeCheck],
   );
 
-  const [currentValue, setCurrentValue] = useState<string | undefined>();
+  const [currentValue, setCurrentValue] = useState<string>("");
   useEffect(() => {
     if (value === currentValue) {
       typeCheck(value);
     }
-    setCurrentValue(value ?? undefined);
+    setCurrentValue(value ?? "");
   }, [currentValue, typeCheck, value]);
 
   const placeholderContent = useMemo(() => {

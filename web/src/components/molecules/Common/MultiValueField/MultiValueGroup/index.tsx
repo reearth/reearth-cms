@@ -5,116 +5,42 @@ import { useCallback, useEffect } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import { Field, Group, FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
+import { AssetProps } from "../../Form/AssetItem";
 import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 
-type Props = {
+type Props = FieldProps & {
   value?: string[];
   onChange?: (value: string[]) => void;
-  parentField: Field;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
-  fields?: Field[];
-  loadingReference?: boolean;
-  linkedItemsModalList?: FormItem[];
-  linkItemModalTitle?: string;
-  referencedItems: FormItem[];
-  itemAssets?: ItemAsset[];
-  assetList?: Asset[];
-  fileList?: UploadFile[];
-  loadingAssets?: boolean;
-  uploading?: boolean;
-  uploadModalVisibility?: boolean;
-  uploadUrl?: { url: string; autoUnzip: boolean };
-  uploadType?: UploadType;
-  totalCount?: number;
-  page?: number;
-  pageSize?: number;
-  linkItemModalTotalCount?: number;
-  linkItemModalPage?: number;
-  linkItemModalPageSize?: number;
-  disabled: boolean;
-  onSearchTerm?: (term?: string) => void;
-  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
-  onLinkItemTableReload?: () => void;
-  onLinkItemTableChange?: (page: number, pageSize: number) => void;
-  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel?: () => void;
-  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType?: (type: UploadType) => void;
-  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet?: () => void;
-  onAssetsReload?: () => void;
-  onAssetSearchTerm?: (term?: string | undefined) => void;
-  setFileList?: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility?: (visible: boolean) => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference?: (
-    itemId: string,
-    correspondingFieldId: string,
-    groupId?: string,
-  ) => Promise<boolean>;
+  assetProps: AssetProps;
+  referenceProps: ReferenceProps;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
-  parentField,
-  form,
-  fields,
   value = [],
   onChange,
-  loadingReference,
-  linkedItemsModalList,
-  linkItemModalTitle,
-  referencedItems,
-  itemAssets,
-  assetList,
-  fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  linkItemModalTotalCount,
-  linkItemModalPage,
-  linkItemModalPageSize,
+  field,
   disabled,
-  onSearchTerm,
-  onReferenceModelUpdate,
-  onLinkItemTableReload,
-  onLinkItemTableChange,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetsGet,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
-  onGetAsset,
+  itemHeights,
+  onItemHeightChange,
+  form,
   onGroupGet,
-  onCheckItemReference,
+  assetProps,
+  referenceProps,
 }) => {
   const t = useT();
 
   useEffect(() => {
     if (!value) onChange?.([]);
-  }, [fields, onChange, value]);
+  }, [onChange, value]);
 
   const handleInputDelete = useCallback(
     (key: number) => {
@@ -139,8 +65,8 @@ const MultiValueGroup: React.FC<Props> = ({
 
     // set default value
     const newValues = { ...form?.getFieldsValue() };
-    if (!parentField.typeProperty?.groupId) return;
-    const group = await onGroupGet(parentField.typeProperty.groupId);
+    if (!field.typeProperty?.groupId) return;
+    const group = await onGroupGet(field.typeProperty.groupId);
     group?.schema.fields.forEach((field: Field) => {
       const defaultValue = field.typeProperty?.defaultValue;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,7 +102,7 @@ const MultiValueGroup: React.FC<Props> = ({
           break;
       }
     });
-  }, [form, onChange, onGroupGet, parentField.typeProperty?.groupId, value]);
+  }, [form, onChange, onGroupGet, field.typeProperty?.groupId, value]);
 
   return (
     <div>
@@ -185,51 +111,20 @@ const MultiValueGroup: React.FC<Props> = ({
           return (
             <FieldWrapper key={key}>
               <GroupItem
-                order={key}
                 value={valueItem}
-                parentField={parentField}
-                loadingReference={loadingReference}
-                linkedItemsModalList={linkedItemsModalList}
-                linkItemModalTitle={linkItemModalTitle}
-                onSearchTerm={onSearchTerm}
-                referencedItems={referencedItems}
-                itemAssets={itemAssets}
-                assetList={assetList}
-                fileList={fileList}
-                loadingAssets={loadingAssets}
-                uploading={uploading}
-                uploadModalVisibility={uploadModalVisibility}
-                uploadUrl={uploadUrl}
-                uploadType={uploadType}
-                totalCount={totalCount}
-                page={page}
-                pageSize={pageSize}
-                linkItemModalTotalCount={linkItemModalTotalCount}
-                linkItemModalPage={linkItemModalPage}
-                linkItemModalPageSize={linkItemModalPageSize}
+                parentField={field}
                 disabled={disabled}
-                onReferenceModelUpdate={onReferenceModelUpdate}
-                onLinkItemTableReload={onLinkItemTableReload}
-                onLinkItemTableChange={onLinkItemTableChange}
-                onAssetTableChange={onAssetTableChange}
-                onUploadModalCancel={onUploadModalCancel}
-                setUploadUrl={setUploadUrl}
-                setUploadType={setUploadType}
-                onAssetsCreate={onAssetsCreate}
-                onAssetCreateFromUrl={onAssetCreateFromUrl}
-                onAssetsGet={onAssetsGet}
-                onAssetsReload={onAssetsReload}
-                onAssetSearchTerm={onAssetSearchTerm}
-                setFileList={setFileList}
-                setUploadModalVisibility={setUploadModalVisibility}
+                itemHeights={itemHeights}
+                onItemHeightChange={onItemHeightChange}
+                order={key}
                 onMoveUp={() => onChange?.(moveItemInArray(value, key, key - 1))}
                 onMoveDown={() => onChange?.(moveItemInArray(value, key, key + 1))}
                 onDelete={() => handleInputDelete(key)}
                 disableMoveUp={key === 0}
                 disableMoveDown={key === value.length - 1}
-                onGetAsset={onGetAsset}
                 onGroupGet={onGroupGet}
-                onCheckItemReference={onCheckItemReference}
+                assetProps={assetProps}
+                referenceProps={referenceProps}
               />
             </FieldWrapper>
           );

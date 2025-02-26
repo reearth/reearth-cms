@@ -11,17 +11,10 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../../types";
 
-type Props = {
+export type ReferenceProps = {
   referencedItems: FormItem[];
-  linkedItemsModalList?: FormItem[];
-  value?: string;
-  disabled?: boolean;
   loading?: boolean;
-  fieldId: string;
-  itemGroupId?: string;
-  correspondingField?: CorrespondingField;
-  modelId?: string;
-  titleFieldId?: string | null;
+  linkedItemsModalList?: FormItem[];
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
@@ -35,16 +28,26 @@ type Props = {
     correspondingFieldId: string,
     groupId?: string,
   ) => Promise<boolean>;
-  onChange?: (value?: string) => void;
 };
 
+type Props = {
+  value?: string;
+  onChange?: (value?: string) => void;
+  disabled?: boolean;
+  itemGroupId?: string;
+  fieldId: string;
+  modelId?: string;
+  titleFieldId?: string | null;
+  correspondingField?: CorrespondingField;
+} & ReferenceProps;
+
 const ReferenceFormItem: React.FC<Props> = ({
-  referencedItems,
-  linkedItemsModalList,
   value,
-  disabled,
-  loading,
   fieldId,
+  referencedItems,
+  loading,
+  linkedItemsModalList,
+  disabled,
   itemGroupId,
   correspondingField,
   modelId,
@@ -148,13 +151,13 @@ const UnreferButton = styled(Button)`
 const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
-  margin-top: 8px;
 `;
 
 const ReferenceItemWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 8px;
 `;
 
 export default ReferenceFormItem;

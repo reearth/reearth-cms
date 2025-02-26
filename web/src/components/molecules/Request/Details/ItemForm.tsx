@@ -48,9 +48,9 @@ const RequestItemForm: React.FC<Props> = ({
                 <GroupField
                   field={field}
                   disabled
-                  onGetAsset={onGetAsset}
-                  referencedItems={referencedItems}
                   onGroupGet={onGroupGet}
+                  assetProps={{ onGetAsset }}
+                  referenceProps={{ referencedItems }}
                 />
               </div>
             );
