@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
 import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
+import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
 
@@ -41,6 +42,8 @@ const Asset: React.FC = () => {
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
+          resourceId={assetId ?? ""}
+          resourceType={ResourceTypes.Asset}
           comments={asset?.comments}
           threadId={asset?.threadId}
           collapsed={collapsed}

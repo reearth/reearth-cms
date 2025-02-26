@@ -1,3 +1,4 @@
+import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
@@ -126,6 +127,8 @@ const ContentDetails: React.FC = () => {
       commentsPanel={
         currentItem ? (
           <CommentsPanel
+            resourceId={currentItem?.id ?? ""}
+            resourceType={ResourceTypes.Item}
             comments={currentItem.comments}
             threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}
