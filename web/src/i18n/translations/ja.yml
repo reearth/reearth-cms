@@ -137,17 +137,26 @@ Title: タイトル
 Leave: 離れる
 This item has unsaved data: 保存していないデータがあります。
 Are you going to leave?: ページを離れますか？
+Are you sure you want to restore this version’s content?: 本当にこのバージョンを復元しますか？
+After saving, a new version will be created while keeping the current version unchanged.: 保存すると、現在のバージョンはそのままで、新しいバージョンが作成されます。
+Restore: 復元
 Add to Request: 既存のリクエストに追加
 Unpublish: 非公開
 New Request: 新規リクエスト
 Publish: 公開
-Replace item: アイテムを置き換える
-Refer to item: アイテムを参照
+Version history: バージョン履歴
+Meta Data: メタデータ
+Version History: バージョン履歴
 Item Information: アイテムの情報
 Updated At: 更新日時
 Updated By: 更新者
 Publish State: 公開状態
-Linked Request: リンクされたリクエスト
+Customized meta data: カスタマイズされたメタデータ
+Replace item: アイテムを置き換える
+Refer to item: アイテムを参照
+current: 現在
+Created by: 作成者
+Updated by: 更新者
 This item has been referenced: このアイテムは参照されています
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
 State: ステータス
@@ -313,7 +322,6 @@ Number: 数値
 GeoJSON Geometry: GeoJSONジオメトリ
 Relation: 関係
 Group: グループ
-Meta Data: メタデータ
 Add Field: フィールドを追加
 optional: 任意
 Update Field: "{{field}}フィールドを更新"
