@@ -33,6 +33,9 @@ wrap_reearth_cms_variables() {
 
 wrap_reearth_cms_variables "$@"
 envsubst < "$_REEARTH_CONFIG_TEMPLATE_FILE" > "$_REEARTH_CONFIG_OUTPUT_FILE"
+# TODO: remove after debugging completed
+cat $_REEARTH_CONFIG_OUTPUT_FILE
+# TODO: remove after debugging completed
 if ! jq empty "$_REEARTH_CONFIG_OUTPUT_FILE" > /dev/null 2>&1; then
   echo "Invalid JSON configuration file $_REEARTH_CONFIG_OUTPUT_FILE" >&2
   exit 1
