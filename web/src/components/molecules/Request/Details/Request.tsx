@@ -69,6 +69,7 @@ const RequestMolecule: React.FC<Props> = ({
       <PageHeader
         title={`${t("Request")} / ${currentRequest.title}`}
         onBack={onBack}
+        style={{ backgroundColor: "#fff" }}
         extra={
           <>
             <Button

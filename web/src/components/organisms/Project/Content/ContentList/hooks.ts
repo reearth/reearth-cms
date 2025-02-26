@@ -607,10 +607,9 @@ export default () => {
   const handleBulkAddItemToRequest = useCallback(
     async (request: Request, items: RequestItem[]) => {
       await handleAddItemToRequest(request, items);
-      refetch();
       setSelectedItems({ selectedRows: [] });
     },
-    [handleAddItemToRequest, refetch],
+    [handleAddItemToRequest],
   );
 
   return {
