@@ -142,7 +142,10 @@ func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key
 
 // Thread is the resolver for the thread field.
 func (r *requestResolver) Thread(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Thread, error) {
-	return dataloaders(ctx).Thread.Load(obj.ThreadID)
+	if obj.ThreadID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).Thread.Load(*obj.ThreadID)
 }
 
 // CreatedBy is the resolver for the createdBy field.

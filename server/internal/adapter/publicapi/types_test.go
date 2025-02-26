@@ -22,7 +22,7 @@ func TestNewItem(t *testing.T) {
 		NewID().
 		Project(id.NewProjectID()).
 		CreatedByUser(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Size(1).
 		NewUUID().
 		MustBuild()
@@ -60,7 +60,7 @@ func TestNewItem(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Project(id.NewProjectID()).
 		Model(id.NewModelID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*item.Field{
 			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").AsMultiple(), nil),
 			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).AsMultiple(), nil),
@@ -102,7 +102,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		NewID().
 		Project(id.NewProjectID()).
 		CreatedByUser(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Size(1).
 		NewUUID().
 		MustBuild()
@@ -121,7 +121,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Project(id.NewProjectID()).
 		Model(id.NewModelID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*item.Field{
 			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").AsMultiple(), nil),
 			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).AsMultiple(), nil),

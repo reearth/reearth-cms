@@ -12,7 +12,7 @@ type Asset implements Node {
   contentEncoding: String
   uuid: String!
   thread: Thread
-  threadId: ID!
+  threadId: ID
   url: String!
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus

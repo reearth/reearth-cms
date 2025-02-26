@@ -38,9 +38,9 @@ func Test_AreItemsReferenced(t *testing.T) {
 	if1 := NewField(fid1, value.TypeReference.Value(iid2.String()).AsMultiple(), nil)
 	if2 := NewField(fid2, value.TypeReference.Value(iid1.String()).AsMultiple(), nil)
 	if3 := NewField(fid3, value.TypeReference.Value(id.NewItemID().String()).AsMultiple(), nil)
-	i1 := New().ID(iid1).Schema(sid1).Model(mid1).Project(prj.ID()).Fields([]*Field{if1}).Thread(id.NewThreadID()).MustBuild()
-	i2 := New().ID(iid2).Schema(sid2).Model(mid2).Project(prj.ID()).Fields([]*Field{if2}).Thread(id.NewThreadID()).MustBuild()
-	i3 := New().ID(iid3).Schema(sid3).Model(mid3).Project(prj.ID()).Fields([]*Field{if3}).Thread(id.NewThreadID()).MustBuild()
+	i1 := New().ID(iid1).Schema(sid1).Model(mid1).Project(prj.ID()).Fields([]*Field{if1}).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := New().ID(iid2).Schema(sid2).Model(mid2).Project(prj.ID()).Fields([]*Field{if2}).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := New().ID(iid3).Schema(sid3).Model(mid3).Project(prj.ID()).Fields([]*Field{if3}).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	ff1, ff2 := AreItemsReferenced(i1, i2, s1, s2)
 	assert.Equal(t, fid1, *ff1)

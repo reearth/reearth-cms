@@ -40,7 +40,7 @@ func TestCSVFromItems(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi1, fi2, fi3, fi4}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 	v1 := version.New()
 	vi1 := version.MustBeValue(v1, nil, version.NewRefs(version.Latest), util.Now(), i1)
@@ -62,7 +62,7 @@ func TestCSVFromItems(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{item.NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple(), nil)}).
 		Model(mid2).
-		Thread(tid2).
+		Thread(tid2.Ref()).
 		MustBuild()
 	v2 := version.New()
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
@@ -85,7 +85,7 @@ func TestCSVFromItems(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{item.NewField(sf6.ID(), value.TypeText.Value("{\n  \"coordinates\": [\n    [\n      139.65439725962517,\n      36.34793305387103\n    ],\n    [\n      139.61688622815393,\n      35.910803456352724\n    ]\n  ],\n  \"type\": \"LineString\"\n}").AsMultiple(), nil)}).
 		Model(mid3).
-		Thread(tid3).
+		Thread(tid3.Ref()).
 		MustBuild()
 	v3 := version.New()
 	vi3 := version.MustBeValue(v3, nil, version.NewRefs(version.Latest), util.Now(), i3)
