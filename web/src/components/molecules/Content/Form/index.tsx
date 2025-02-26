@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
 
-import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
@@ -12,14 +11,11 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import Typography from "@reearth-cms/components/atoms/Typography";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { emptyConvert } from "@reearth-cms/components/molecules/Common/Form/utils";
-import FormItemsWrapper from "@reearth-cms/components/molecules/Content/Form/FormItemsWrapper";
-import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
+import Metadata from "@reearth-cms/components/molecules/Content/Form/Metadata";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
@@ -31,7 +27,7 @@ import {
   VersionedItem,
   FormValues,
 } from "@reearth-cms/components/molecules/Content/types";
-import { selectedTagIdsGet, stateColors } from "@reearth-cms/components/molecules/Content/utils";
+import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   Request,
@@ -43,7 +39,8 @@ import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
-import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
+import FieldWrapper from "./FieldWrapper";
+import Versions from "./Versions";
 
 const { TabPane } = Tabs;
 
@@ -418,6 +415,53 @@ const ContentForm: React.FC<Props> = ({
     return result;
   }, [inputValueGet, metaFieldsMap, metaForm]);
 
+  const [versionedItem, setVersionedItem] = useState<VersionedItem>();
+
+  const versionClick = useCallback(
+    async (versionedItem: VersionedItem) => {
+      const res = await onGetVersionedItem(versionedItem.version);
+      versionForm.setFieldsValue(res);
+      setVersionedItem(versionedItem);
+    },
+    [onGetVersionedItem, versionForm],
+  );
+
+  const versionedItemClose = useCallback(() => {
+    setVersionedItem(undefined);
+  }, []);
+
+  const handleRestore = useCallback(() => {
+    const restore = () => {
+      const values = versionForm.getFieldsValue();
+      form.setFieldsValue(values);
+      handleValuesChange(values);
+      Notification.destroy();
+      versionedItemClose();
+    };
+
+    Notification.info({
+      message: t("Are you sure you want to restore this version’s content?"),
+      description: t(
+        "After saving, a new version will be created while keeping the current version unchanged.",
+      ),
+      btn: (
+        <Space>
+          <Button
+            onClick={() => {
+              Notification.destroy();
+            }}>
+            {t("Cancel")}
+          </Button>
+          <Button type="primary" onClick={restore}>
+            {t("Restore")}
+          </Button>
+        </Space>
+      ),
+      placement: "top",
+      closeIcon: false,
+    });
+  }, [form, handleValuesChange, t, versionForm, versionedItemClose]);
+
   const handleSubmit = useCallback(async () => {
     try {
       const groupFields = new Map<string, Field>();
@@ -474,6 +518,7 @@ const ContentForm: React.FC<Props> = ({
 
       changedKeys.current.clear();
       setIsDisabled(true);
+      versionedItemClose();
     } catch (e) {
       console.error(e);
     }
@@ -481,6 +526,7 @@ const ContentForm: React.FC<Props> = ({
     model,
     form,
     itemId,
+    versionedItemClose,
     onGroupGet,
     modelFields,
     inputValueGet,
@@ -593,217 +639,194 @@ const ContentForm: React.FC<Props> = ({
   );
 
   const [activeKey, setActiveKey] = useState<string>();
-  const [versionedItem, setVersionedItem] = useState<VersionedItem>();
 
-  const versionClick = useCallback(
-    async (versionedItem: VersionedItem) => {
-      const res = await onGetVersionedItem(versionedItem.version);
-      versionForm.setFieldsValue(res);
-      setVersionedItem(versionedItem);
-    },
-    [onGetVersionedItem, versionForm],
-  );
+  const formWrapperRef = useRef<HTMLDivElement>(null);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
-  const versionedItemClose = useCallback(() => {
-    setVersionedItem(undefined);
+  useEffect(() => {
+    if (formWrapperRef.current)
+      setScrollbarWidth(formWrapperRef.current?.offsetWidth - formWrapperRef.current?.clientWidth);
   }, []);
 
-  const handleRestore = useCallback(() => {
-    const restore = () => {
-      const values = versionForm.getFieldsValue();
-      form.setFieldsValue(values);
-      handleValuesChange(values);
-      Notification.destroy();
-    };
+  const itemHeightsRef = useRef<Record<string, number>>({});
+  const [itemHeights, setItemHeights] = useState<Record<string, number>>({});
 
-    Notification.info({
-      message: t("Are you sure you want to restore this version’s content?"),
-      description: t(
-        "After saving, a new version will be created while keeping the current version unchanged.",
-      ),
-      btn: (
-        <Space>
-          <Button
-            onClick={() => {
-              Notification.destroy();
-            }}>
-            {t("Cancel")}
-          </Button>
-          <Button type="primary" onClick={restore}>
-            {t("Restore")}
-          </Button>
-        </Space>
-      ),
-      placement: "top",
-      closeIcon: false,
-    });
-  }, [form, handleValuesChange, t, versionForm]);
+  const handleItemHeightChange = useCallback((id: string, height: number) => {
+    itemHeightsRef.current = { ...itemHeightsRef.current, [id]: height };
+    const _height = id.startsWith("version")
+      ? Math.max(
+          itemHeightsRef.current[id] ?? 0,
+          itemHeightsRef.current[id.substring(id.indexOf("_") + 1)] ?? 0,
+        )
+      : Math.max(itemHeightsRef.current[id] ?? 0, itemHeightsRef.current[`version_${id}`] ?? 0);
+    const _id = id.startsWith("version") ? id.substring(id.indexOf("_") + 1) : id;
+
+    setItemHeights(prev => ({ ...prev, [_id]: _height }));
+  }, []);
 
   return (
     <>
-      <StyledForm
-        form={form}
-        layout="vertical"
-        initialValues={initialFormValues}
-        onValuesChange={handleValuesChange}>
-        <PageHeader
-          title={title}
-          onBack={onBack}
-          extra={
-            <>
-              <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
-                {t("Save")}
-              </Button>
-              {itemId && (
-                <>
-                  {showPublishAction && (
-                    <Button
-                      type="primary"
-                      onClick={handlePublishSubmit}
-                      loading={publishLoading}
-                      disabled={item?.status === "PUBLIC" || !hasPublishRight}>
-                      {t("Publish")}
-                    </Button>
-                  )}
-                  {!showPublishAction && (
-                    <Button
-                      type="primary"
-                      onClick={onModalOpen}
-                      disabled={item?.status === "PUBLIC" || !hasRequestCreateRight}>
-                      {t("New Request")}
-                    </Button>
-                  )}
-                  <Dropdown menu={{ items }} trigger={["click"]}>
-                    <Button>
-                      <Icon icon="ellipsis" />
-                    </Button>
-                  </Dropdown>
-                </>
-              )}
-            </>
-          }
-        />
-        <FormItemsWrapper
-          fields={model?.schema.fields}
-          disabled={fieldDisabled}
-          assetProps={{
-            assetList,
-            itemAssets: item?.assets,
-            fileList,
-            loadingAssets,
-            uploading,
-            uploadModalVisibility,
-            uploadUrl,
-            uploadType,
-            totalCount,
-            page,
-            pageSize,
-            onAssetTableChange,
-            onUploadModalCancel,
-            setUploadUrl,
-            setUploadType,
-            onAssetsCreate,
-            onAssetCreateFromUrl,
-            onAssetsGet,
-            onAssetsReload,
-            onAssetSearchTerm,
-            setFileList,
-            setUploadModalVisibility,
-            onGetAsset,
-          }}
-          referenceProps={{
-            referencedItems,
-            loadingReference,
-            linkedItemsModalList,
-            linkItemModalTitle,
-            linkItemModalTotalCount,
-            linkItemModalPage,
-            linkItemModalPageSize,
-            onReferenceModelUpdate,
-            onSearchTerm,
-            onLinkItemTableReload,
-            onLinkItemTableChange,
-            onCheckItemReference,
-          }}
-          groupProps={{ form, onGroupGet }}
-        />
-      </StyledForm>
-      {versionedItem ? (
-        <VersionForm form={versionForm} layout="vertical">
-          <PageHeader
-            title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
-            onBack={versionedItemClose}
+      <Wrapper>
+        <HeaderWrapper>
+          <StyledPageHeader
+            title={title}
+            onBack={onBack}
             extra={
-              <Button onClick={handleRestore} type="link">
-                {t("Restore")}
-              </Button>
+              <>
+                <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
+                  {t("Save")}
+                </Button>
+                {itemId && (
+                  <>
+                    {showPublishAction && (
+                      <Button
+                        type="primary"
+                        onClick={handlePublishSubmit}
+                        loading={publishLoading}
+                        disabled={item?.status === "PUBLIC" || !hasPublishRight}>
+                        {t("Publish")}
+                      </Button>
+                    )}
+                    {!showPublishAction && (
+                      <Button
+                        type="primary"
+                        onClick={onModalOpen}
+                        disabled={item?.status === "PUBLIC" || !hasRequestCreateRight}>
+                        {t("New Request")}
+                      </Button>
+                    )}
+                    <Dropdown menu={{ items }} trigger={["click"]}>
+                      <Button>
+                        <Icon icon="ellipsis" />
+                      </Button>
+                    </Dropdown>
+                  </>
+                )}
+              </>
             }
           />
-          <FormItemsWrapper
-            fields={model?.schema.fields}
-            disabled
-            assetProps={{ onGetAsset }}
-            referenceProps={{ referencedItems }}
-            groupProps={{ form, onGroupGet }}
-          />
-        </VersionForm>
-      ) : (
-        <SideBarWrapper>
-          <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
-            {(model?.metadataSchema.fields || item?.id) && (
-              <TabPane tab={t("Meta Data")} key="meta">
-                <Form
-                  form={metaForm}
-                  layout="vertical"
-                  initialValues={initialMetaFormValues}
-                  onValuesChange={handleMetaValuesChange}>
-                  <ContentSidebarWrapper item={item} />
-                  {model?.metadataSchema?.fields?.map(field => {
-                    const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-                    return (
-                      <MetaFormItemWrapper key={field.id}>
-                        <FieldComponent field={field} disabled={fieldDisabled} />
-                      </MetaFormItemWrapper>
-                    );
-                  })}
-                </Form>
-              </TabPane>
-            )}
-            {versions.length && (
-              <TabPane tab={t("Version History")} key="history">
-                <History>
-                  {versions.map((version, index) => {
-                    return (
-                      <HistoryCard key={version.version}>
-                        <HistoryTitle onClick={() => versionClick(version)}>
-                          <Tooltip title={t(version.status)}>
-                            <Badge color={stateColors[version.status]} />
-                          </Tooltip>
-                          {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
-                        </HistoryTitle>
-                        <HistoryInfo>
-                          <User>{`${index === versions.length - 1 ? t("Created by") : t("Updated by")} ${version.creator.name}`}</User>
-                          {version.status === "REVIEW" && (
-                            <Requests>
-                              {version.requests?.map(request => (
-                                <RequestWrapper
-                                  key={request.id}
-                                  onClick={() => onNavigateToRequest(request.id)}>
-                                  <Icon icon="pullRequest" />
-                                  <RequestTitle>{request.title}</RequestTitle>
-                                </RequestWrapper>
-                              ))}
-                            </Requests>
-                          )}
-                        </HistoryInfo>
-                      </HistoryCard>
-                    );
-                  })}
-                </History>
-              </TabPane>
-            )}
-          </StyledTabs>
-        </SideBarWrapper>
+          {versionedItem && (
+            <VersionHeader
+              title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
+              onBack={versionedItemClose}
+              extra={
+                <Button onClick={handleRestore} type="link">
+                  {t("Restore")}
+                </Button>
+              }
+            />
+          )}
+        </HeaderWrapper>
+        <FormWrapper ref={formWrapperRef}>
+          <StyledForm
+            form={form}
+            layout="vertical"
+            initialValues={initialFormValues}
+            onValuesChange={handleValuesChange}
+            scrollbarWidth={scrollbarWidth}>
+            {model?.schema.fields.map(field => (
+              <FieldWrapper
+                key={field.id}
+                field={field}
+                disabled={fieldDisabled}
+                itemHeights={itemHeights}
+                onItemHeightChange={handleItemHeightChange}
+                assetProps={{
+                  assetList,
+                  itemAssets: item?.assets,
+                  fileList,
+                  loadingAssets,
+                  uploading,
+                  uploadModalVisibility,
+                  uploadUrl,
+                  uploadType,
+                  totalCount,
+                  page,
+                  pageSize,
+                  onAssetTableChange,
+                  onUploadModalCancel,
+                  setUploadUrl,
+                  setUploadType,
+                  onAssetsCreate,
+                  onAssetCreateFromUrl,
+                  onAssetsGet,
+                  onAssetsReload,
+                  onAssetSearchTerm,
+                  setFileList,
+                  setUploadModalVisibility,
+                  onGetAsset,
+                }}
+                referenceProps={{
+                  referencedItems,
+                  loading: loadingReference,
+                  linkedItemsModalList,
+                  linkItemModalTitle,
+                  linkItemModalTotalCount,
+                  linkItemModalPage,
+                  linkItemModalPageSize,
+                  onReferenceModelUpdate,
+                  onSearchTerm,
+                  onLinkItemTableReload,
+                  onLinkItemTableChange,
+                  onCheckItemReference,
+                }}
+                groupProps={{ form, onGroupGet }}
+              />
+            ))}
+          </StyledForm>
+          {versionedItem && (
+            <VersionForm
+              form={versionForm}
+              layout="vertical"
+              name="version"
+              scrollbarWidth={scrollbarWidth}>
+              {model?.schema.fields.map(field => (
+                <FieldWrapper
+                  key={field.id}
+                  field={field}
+                  disabled
+                  itemHeights={itemHeights}
+                  onItemHeightChange={handleItemHeightChange}
+                  assetProps={{ onGetAsset }}
+                  referenceProps={{ referencedItems }}
+                  groupProps={{ form, onGroupGet }}
+                />
+              ))}
+            </VersionForm>
+          )}
+        </FormWrapper>
+      </Wrapper>
+      {!versionedItem && (
+        <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
+          {(model?.metadataSchema.fields || item?.id) && (
+            <TabPane tab={t("Meta Data")} key="meta">
+              <Form
+                form={metaForm}
+                layout="vertical"
+                initialValues={initialMetaFormValues}
+                onValuesChange={handleMetaValuesChange}>
+                <TabContent>
+                  <Metadata
+                    item={item}
+                    fields={model?.metadataSchema.fields ?? []}
+                    disabled={fieldDisabled}
+                  />
+                </TabContent>
+              </Form>
+            </TabPane>
+          )}
+          {versions.length && (
+            <TabPane tab={t("Version History")} key="history">
+              <TabContent>
+                <Versions
+                  versions={versions}
+                  versionClick={versionClick}
+                  onNavigateToRequest={onNavigateToRequest}
+                />
+              </TabContent>
+            </TabPane>
+          )}
+        </StyledTabs>
       )}
       {itemId && (
         <>
@@ -844,22 +867,64 @@ const ContentForm: React.FC<Props> = ({
   );
 };
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-flow: column;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+`;
+
+const HeaderWrapper = styled.div`
+  background-color: #fff;
+  display: flex;
+`;
+
+const StyledPageHeader = styled(PageHeader)`
+  flex: 1;
+  min-width: 0;
+`;
+
+const VersionHeader = styled(StyledPageHeader)`
+  background-color: #fafafa !important;
+`;
+
+const FormWrapper = styled.div`
+  border-top: 1px solid #00000008;
+  overflow: hidden auto;
+  display: flex;
+  flex: 1;
+  scrollbar-gutter: stable;
+`;
+
 const StyledTabs = styled(Tabs)`
+  max-height: 100%;
+  background-color: #fafafa;
+  width: 272px;
+  border-left: 1px solid #f0f0f0;
   .ant-tabs-nav {
     margin-bottom: 0;
     padding-left: 20px;
     background-color: #fff;
   }
+  .ant-tabs-content-holder {
+    overflow-y: auto;
+  }
 `;
 
-const StyledForm = styled(Form)`
+const StyledForm = styled(Form)<{ scrollbarWidth: number }>`
   flex: 1;
   min-width: 0;
-  height: 100%;
+  padding: 36px;
   background: #fff;
+  min-height: 100%;
+  height: fit-content;
   label {
     width: 100%;
     display: flex;
+  }
+  :last-child {
+    margin-right: ${({ scrollbarWidth }) => `-${scrollbarWidth}px`};
   }
 `;
 
@@ -867,82 +932,11 @@ const VersionForm = styled(StyledForm)`
   background: #fafafa;
 `;
 
-const SideBarWrapper = styled.div`
-  background-color: #fafafa;
-  width: 272px;
-  max-height: 100%;
-  overflow-y: auto;
-  overflow-wrap: break-word;
-  border-left: 1px solid #f0f0f0;
-`;
-
-const MetaFormItemWrapper = styled.div`
-  padding: 12px;
-  margin-bottom: 8px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
-  border-radius: 2px;
-`;
-
-const History = styled.div`
+const TabContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 8px;
-`;
-
-const HistoryCard = styled.div`
-  background-color: #fff;
-  padding: 12px;
-`;
-
-const HistoryTitle = styled.p`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 12px;
-  margin: 0;
-  cursor: pointer;
-  :hover {
-    text-decoration: underline;
-  }
-`;
-
-const HistoryInfo = styled.div`
-  margin-left: 14px;
-  line-height: 1.75;
-  font-size: 12px;
-`;
-const User = styled.p`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin: 0;
-  color: #9a9a9a;
-`;
-
-const Requests = styled.div`
-  margin-top: 4px;
-`;
-const RequestWrapper = styled(Typography.Link)`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin: 0;
-  color: #1677ff;
-`;
-
-const RequestTitle = styled.span`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 `;
 
 export default ContentForm;
