@@ -72,14 +72,14 @@ func (r *Model) FindByIDs(ctx context.Context, ids id.ModelIDList) (model.List, 
 	return prepare(ids, res), nil
 }
 
-func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, sort *model.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
 	return r.paginate(ctx, bson.M{
 		"project": pid.String(),
-	}, pagination)
+	}, sortModels(sort), pagination)
 }
 
 func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
@@ -97,7 +97,7 @@ func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k
 		}
 	}
 
-	return r.paginate(ctx, filter, pagination)
+	return r.paginate(ctx, filter, nil, pagination)
 }
 
 func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*model.Model, error) {
@@ -185,9 +185,9 @@ func (r *Model) find(ctx context.Context, filter any) (model.List, error) {
 	return c.Result, nil
 }
 
-func (r *Model) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) paginate(ctx context.Context, filter bson.M, sort *usecasex.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewModelConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
@@ -206,6 +206,29 @@ func prepare(ids id.ModelIDList, rows model.List) model.List {
 		}
 	}
 	return res
+}
+
+func sortModels(ms *model.Sort) *usecasex.Sort {
+	var s *usecasex.Sort
+	if ms != nil {
+		reverted := ms.Direction == model.DirectionDesc
+		s = &usecasex.Sort{
+			Key:      modelSortColumn(ms.Column),
+			Reverted: reverted,
+		}
+	}
+	return s
+}
+
+func modelSortColumn(c model.Column) string {
+	switch c {
+	case model.ColumnCreatedAt:
+		return "__temp.createdAt"
+	case model.ColumnUpdatedAt:
+		return "__temp.updateAt"
+	default:
+		return "__temp.updateAt"
+	}
 }
 
 func (r *Model) readFilter(filter interface{}) interface{} {

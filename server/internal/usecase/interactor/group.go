@@ -230,7 +230,7 @@ func (i Group) FindByModel(ctx context.Context, modelID id.ModelID, operator *us
 }
 
 func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.List, err error) {
-	models, _, err := i.repos.Model.FindByProject(ctx, g.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+	models, _, err := i.repos.Model.FindByProject(ctx, g.Project(), nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}

@@ -42,13 +42,17 @@ func (c *ModelLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel
 	}), nil
 }
 
-func (c *ModelLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error) {
-	pId, err := gqlmodel.ToID[id.Project](projectId)
+func (c *ModelLoader) FindByProject(ctx context.Context, input gqlmodel.ModelsInput) (*gqlmodel.ModelConnection, error) {
+	pId, err := gqlmodel.ToID[id.Project](input.Project)
 	if err != nil {
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindByProject(ctx, pId, p.Into(), getOperator(ctx))
+	res, pi, err := c.usecase.FindByProject(ctx, interfaces.FindByProjectParam{
+		ProjectID:  pId,
+		Sort:       gqlmodel.ToModelSortOptions(input.Sort),
+		Pagination: input.Pagination.Into(),
+	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

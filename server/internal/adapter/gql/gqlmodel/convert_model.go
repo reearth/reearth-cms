@@ -24,3 +24,29 @@ func ToModel(m *model.Model) *Model {
 		Order:            lo.ToPtr(m.Order()),
 	}
 }
+
+func ToModelSortOptions(s *ModelSortOptions) *model.Sort {
+	if s == nil {
+		return nil
+	}
+	column := ToModelSortColumn(s.Column)
+	direction := ToModelSortDirection(s.Direction)
+	return &model.Sort{
+		Column:    column,
+		Direction: direction,
+	}
+}
+
+func ToModelSortDirection(s *SortDirection) model.Direction {
+	if s != nil && *s == SortDirectionAsc {
+		return model.DirectionAsc
+	}
+	return model.DirectionDesc
+}
+
+func ToModelSortColumn(s ModelSortColumn) model.Column {
+	if s == ModelSortColumnCreatedAt {
+		return model.ColumnCreatedAt
+	}
+	return model.ColumnUpdatedAt
+}

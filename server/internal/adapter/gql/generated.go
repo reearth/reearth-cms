@@ -556,7 +556,7 @@ type ComplexityRoot struct {
 		Groups                    func(childComplexity int, projectID *gqlmodel.ID, modelID *gqlmodel.ID) int
 		IsItemReferenced          func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
 		Me                        func(childComplexity int) int
-		Models                    func(childComplexity int, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) int
+		Models                    func(childComplexity int, input gqlmodel.ModelsInput) int
 		ModelsByGroup             func(childComplexity int, groupID gqlmodel.ID) int
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
@@ -1023,7 +1023,7 @@ type QueryResolver interface {
 	SearchItem(ctx context.Context, input gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error)
 	IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error)
 	View(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.View, error)
-	Models(ctx context.Context, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
+	Models(ctx context.Context, input gqlmodel.ModelsInput) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Projects(ctx context.Context, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
@@ -3454,7 +3454,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Models(childComplexity, args["projectId"].(gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Models(childComplexity, args["input"].(gqlmodel.ModelsInput)), true
 
 	case "Query.modelsByGroup":
 		if e.complexity.Query.ModelsByGroup == nil {
@@ -4832,6 +4832,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputItemQueryInput,
 		ec.unmarshalInputItemSortInput,
 		ec.unmarshalInputMemberInput,
+		ec.unmarshalInputModelSortOptions,
+		ec.unmarshalInputModelsInput,
 		ec.unmarshalInputMultipleFieldConditionInput,
 		ec.unmarshalInputNullableFieldConditionInput,
 		ec.unmarshalInputNumberFieldConditionInput,
@@ -6301,6 +6303,11 @@ extend type Mutation {
   order: Int
 }
 
+enum ModelSortColumn {
+  CREATED_AT
+  UPDATED_AT
+}
+
 # Inputs
 input CreateModelInput {
   projectId: ID!
@@ -6328,6 +6335,17 @@ input DeleteModelInput {
 input PublishModelInput {
   modelId: ID!
   status: Boolean!
+}
+
+input ModelsInput {
+  project: ID!
+  sort: ModelSortOptions
+  pagination: Pagination
+}
+
+input ModelSortOptions {
+  column: ModelSortColumn!
+  direction: SortDirection
 }
 
 # Payloads
@@ -6361,7 +6379,7 @@ type ModelEdge {
 }
 
 extend type Query {
-  models(projectId: ID!, pagination: Pagination): ModelConnection!
+  models(input: ModelsInput!): ModelConnection!
   checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
@@ -9019,51 +9037,28 @@ func (ec *executionContext) field_Query_modelsByGroup_argsGroupID(
 func (ec *executionContext) field_Query_models_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Query_models_argsProjectID(ctx, rawArgs)
+	arg0, err := ec.field_Query_models_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["projectId"] = arg0
-	arg1, err := ec.field_Query_models_argsPagination(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["pagination"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Query_models_argsProjectID(
+func (ec *executionContext) field_Query_models_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (gqlmodel.ID, error) {
-	if _, ok := rawArgs["projectId"]; !ok {
-		var zeroVal gqlmodel.ID
+) (gqlmodel.ModelsInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.ModelsInput
 		return zeroVal, nil
 	}
 
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-	if tmp, ok := rawArgs["projectId"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNModelsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelsInput(ctx, tmp)
 	}
 
-	var zeroVal gqlmodel.ID
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_models_argsPagination(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*gqlmodel.Pagination, error) {
-	if _, ok := rawArgs["pagination"]; !ok {
-		var zeroVal *gqlmodel.Pagination
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-	if tmp, ok := rawArgs["pagination"]; ok {
-		return ec.unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx, tmp)
-	}
-
-	var zeroVal *gqlmodel.Pagination
+	var zeroVal gqlmodel.ModelsInput
 	return zeroVal, nil
 }
 
@@ -24840,7 +24835,7 @@ func (ec *executionContext) _Query_models(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Models(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Models(rctx, fc.Args["input"].(gqlmodel.ModelsInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -37701,6 +37696,81 @@ func (ec *executionContext) unmarshalInputMemberInput(ctx context.Context, obj a
 				return it, err
 			}
 			it.Role = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputModelSortOptions(ctx context.Context, obj any) (gqlmodel.ModelSortOptions, error) {
+	var it gqlmodel.ModelSortOptions
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"column", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "column":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("column"))
+			data, err := ec.unmarshalNModelSortColumn2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelSortColumn(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Column = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputModelsInput(ctx context.Context, obj any) (gqlmodel.ModelsInput, error) {
+	var it gqlmodel.ModelsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"project", "sort", "pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "project":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("project"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Project = data
+		case "sort":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+			data, err := ec.unmarshalOModelSortOptions2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelSortOptions(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sort = data
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
 		}
 	}
 
@@ -50825,6 +50895,21 @@ func (ec *executionContext) marshalNModelEdge2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._ModelEdge(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNModelSortColumn2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelSortColumn(ctx context.Context, v any) (gqlmodel.ModelSortColumn, error) {
+	var res gqlmodel.ModelSortColumn
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNModelSortColumn2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelSortColumn(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ModelSortColumn) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNModelsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelsInput(ctx context.Context, v any) (gqlmodel.ModelsInput, error) {
+	res, err := ec.unmarshalInputModelsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNMultipleOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleOperator(ctx context.Context, v any) (gqlmodel.MultipleOperator, error) {
 	var res gqlmodel.MultipleOperator
 	err := res.UnmarshalGQL(v)
@@ -53125,6 +53210,14 @@ func (ec *executionContext) marshalOModelPayload2ᚖgithubᚗcomᚋreearthᚋree
 		return graphql.Null
 	}
 	return ec._ModelPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOModelSortOptions2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelSortOptions(ctx context.Context, v any) (*gqlmodel.ModelSortOptions, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputModelSortOptions(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOModelsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ModelsPayload) graphql.Marshaler {
