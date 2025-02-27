@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -113,33 +113,53 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		return res.Into(), fmt.Errorf("error reading array start: %v", err)
 	}
 
-	count := 0
+	count, first := 0, true
+	var rawJSON json.RawMessage
+
 	var jsonChunk []map[string]any
 	for decoder.More() {
 		count++
 
-		if param.Format == interfaces.ImportFormatTypeGeoJSON {
-			var obj integrationapi.Feature
-			if err := decoder.Decode(&obj); err != nil {
-				return res.Into(), fmt.Errorf("error decoding GeoJSON object: %v", err)
-			}
-			var f map[string]any
-			_ = json.Unmarshal(lo.Must(json.Marshal(obj)), &f)
-			jsonChunk = append(jsonChunk, f)
-		} else if param.Format == interfaces.ImportFormatTypeJSON {
-			var obj map[string]interface{}
-			if err := decoder.Decode(&obj); err != nil {
-				return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
-			}
-			jsonChunk = append(jsonChunk, obj)
+		if err := decoder.Decode(&rawJSON); err != nil {
+			return res.Into(), fmt.Errorf("Error decoding raw message: %v\n", err)
 		}
 
+		// guess schema fields from first object using ordered map to keep fields order
+		if param.MutateSchema && first {
+			orderedMap := orderedmap.New()
+			if err := json.Unmarshal(rawJSON, &orderedMap); err != nil {
+				return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+			}
+
+			fieldsParams, err := guessSchemaFields(param.SP, orderedMap, param.Format == interfaces.ImportFormatTypeGeoJSON)
+			if err != nil {
+				return res.Into(), fmt.Errorf("error guessing schema fields: %v", err)
+			}
+
+			fields, err := i.updateSchema(ctx, s, fieldsParams)
+			if err != nil {
+				return res.Into(), fmt.Errorf("error saving schema fields: %v", err)
+			}
+
+			for _, f := range fields {
+				res.FieldAdded(f)
+			}
+
+			first = false
+		}
+
+		var obj map[string]any
+		if err := json.Unmarshal(rawJSON, &obj); err != nil {
+			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+		}
+		jsonChunk = append(jsonChunk, obj)
+
 		if count == chunkSize || !decoder.More() {
-			fields, items, err := itemsParamsFrom(jsonChunk, param.Format == interfaces.ImportFormatTypeGeoJSON, param.GeoField, param.SP)
+			items, err := itemsParamsFrom(jsonChunk, param.Format == interfaces.ImportFormatTypeGeoJSON, param.GeoField, param.SP)
 			if err != nil {
 				return res.Into(), err
 			}
-			err = i.saveChunk(ctx, prj, m, s, param, fields, items, &res, operator)
+			err = i.saveChunk(ctx, prj, m, s, param, items, &res, operator)
 			if err != nil {
 				return res.Into(), err
 			}
@@ -183,125 +203,7 @@ func (i Item) TriggerImportJob(ctx context.Context, aId id.AssetID, mId id.Model
 	return nil
 }
 
-func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, sp schema.Package) ([]interfaces.CreateFieldParam, []interfaces.ImportItemParam, error) {
-	if isGeoJson && geoField == nil {
-		return nil, nil, rerror.ErrInvalidParams
-	}
-	items := make([]interfaces.ImportItemParam, 0)
-	fields := make([]interfaces.CreateFieldParam, 0)
-	for _, o := range chunk {
-		var iId *id.ItemID
-		if idVal, ok := o["id"]; ok {
-			if idStr, ok := idVal.(string); ok {
-				iId = id.ItemIDFromRef(&idStr)
-				if iId.IsEmpty() || iId.IsNil() {
-					return nil, nil, rerror.ErrInvalidParams
-				}
-			} else {
-				return nil, nil, rerror.ErrInvalidParams
-			}
-		}
-		item := interfaces.ImportItemParam{
-			ItemId:     iId,
-			MetadataID: nil,
-			Fields:     nil,
-		}
-		if isGeoJson {
-			if geoField == nil {
-				return nil, nil, rerror.ErrInvalidParams
-			}
-
-			geoFieldKey := id.NewKey(*geoField)
-			if !geoFieldKey.IsValid() {
-				return nil, nil, rerror.ErrInvalidParams
-			}
-			geoFieldId := id.FieldIDFromRef(geoField)
-			f := sp.FieldByIDOrKey(geoFieldId, &geoFieldKey)
-			if f == nil { // TODO: check GeoField type
-				return nil, nil, rerror.ErrInvalidParams
-			}
-
-			v, err := json.Marshal(o["geometry"])
-			if err != nil {
-				return nil, nil, err
-			}
-			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
-				Field: f.ID().Ref(),
-				Key:   f.Key().Ref(),
-				Value: string(v),
-				// Group is not supported
-				Group: nil,
-			})
-
-			props, ok := o["properties"].(map[string]any)
-			if !ok {
-				continue
-			}
-			o = props
-		}
-		for k, v := range o {
-			if v == nil || k == "id" {
-				continue
-			}
-			key := id.NewKey(k)
-			if !key.IsValid() {
-				return nil, nil, rerror.ErrInvalidParams
-			}
-			newField := fieldFrom(key.String(), v, sp)
-			f := sp.FieldByIDOrKey(nil, &key)
-			if f != nil && !isAssignable(newField.Type, f.Type()) {
-				continue
-			}
-
-			if f == nil {
-				prevField, found := lo.Find(fields, func(fp interfaces.CreateFieldParam) bool {
-					return fp.Key == key.String()
-				})
-				if found && prevField.Type != newField.Type {
-					return nil, nil, rerror.NewE(i18n.T("data type mismatch"))
-				}
-				if !found {
-					fields = append(fields, newField)
-				}
-			}
-
-			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
-				Field: nil,
-				Key:   key.Ref(),
-				Value: v,
-				// Group is not supported
-				Group: nil,
-			})
-		}
-		items = append(items, item)
-	}
-	return fields, items, nil
-}
-
-func isAssignable(vt1, vt2 value.Type) bool {
-	if vt1 == vt2 {
-		return true
-	}
-	if vt1 == value.TypeInteger &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown || vt2 == value.TypeNumber) {
-		return true
-	}
-	if vt1 == value.TypeNumber &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	if vt1 == value.TypeBool &&
-		(vt2 == value.TypeCheckbox || vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	if vt1 == value.TypeText &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	return false
-}
-
-func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, fields []interfaces.CreateFieldParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {
+func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {
 	itemsIds := lo.FilterMap(items, func(i interfaces.ImportItemParam, _ int) (item.ID, bool) {
 		if i.ItemId != nil {
 			return *i.ItemId, true
@@ -327,39 +229,6 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 	isMetadata := false
 	if m.Metadata() != nil && s.ID() == *m.Metadata() {
 		isMetadata = true
-	}
-
-	// res := NewImportRes()
-
-	// update schema if needed
-	if param.MutateSchema && len(fields) > 0 {
-		for _, fieldParam := range fields {
-			if fieldParam.Key == "" || s.HasFieldByKey(fieldParam.Key) {
-				return schema.ErrInvalidKey
-			}
-
-			f, err := schema.NewFieldWithDefaultProperty(fieldParam.Type).
-				NewID().
-				Unique(fieldParam.Unique).
-				Multiple(fieldParam.Multiple).
-				Required(fieldParam.Required).
-				Name(fieldParam.Name).
-				Description(lo.FromPtr(fieldParam.Description)).
-				Key(id.NewKey(fieldParam.Key)).
-				DefaultValue(fieldParam.DefaultValue).
-				Build()
-			if err != nil {
-				return err
-			}
-
-			s.AddField(f)
-			res.FieldAdded(f)
-		}
-		err = i.repos.Schema.Save(ctx, s)
-		if err != nil {
-			return err
-		}
-		log.Infof("schema %s updated, %v new field saved.", s.ID(), len(fields))
 	}
 
 	type itemChanges struct {
@@ -561,6 +430,79 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 	return err
 }
 
+func (i Item) updateSchema(ctx context.Context, s *schema.Schema, params []interfaces.CreateFieldParam) (schema.FieldList, error) {
+	var fields schema.FieldList
+	for _, fieldParam := range params {
+		if fieldParam.Key == "" || s.HasFieldByKey(fieldParam.Key) {
+			return nil, schema.ErrInvalidKey
+		}
+
+		f, err := schema.NewFieldWithDefaultProperty(fieldParam.Type).
+			NewID().
+			Unique(fieldParam.Unique).
+			Multiple(fieldParam.Multiple).
+			Required(fieldParam.Required).
+			Name(fieldParam.Name).
+			Description(lo.FromPtr(fieldParam.Description)).
+			Key(id.NewKey(fieldParam.Key)).
+			DefaultValue(fieldParam.DefaultValue).
+			Build()
+		if err != nil {
+			return nil, err
+		}
+
+		s.AddField(f)
+		fields = append(fields, f)
+	}
+	err := i.repos.Schema.Save(ctx, s)
+	if err != nil {
+		return nil, err
+	}
+	log.Infof("schema %s updated, %v new field saved.", s.ID(), len(params))
+	return fields, nil
+}
+
+func guessSchemaFields(sp schema.Package, orderedMap *orderedmap.OrderedMap, isGeoJson bool) ([]interfaces.CreateFieldParam, error) {
+	fields := make([]interfaces.CreateFieldParam, 0)
+	if isGeoJson {
+		properties, ok := orderedMap.Get("properties")
+		if !ok {
+			return nil, rerror.ErrInvalidParams
+		}
+		orderedMap = lo.ToPtr(properties.(orderedmap.OrderedMap))
+	}
+	for _, k := range orderedMap.Keys() {
+		v, _ := orderedMap.Get(k)
+		if v == nil || k == "id" {
+			continue
+		}
+
+		key := id.NewKey(k)
+		if !key.IsValid() {
+			return nil, rerror.ErrInvalidParams
+		}
+		newField := fieldFrom(key.String(), v, sp)
+		f := sp.FieldByIDOrKey(nil, &key)
+		if f != nil && !isAssignable(newField.Type, f.Type()) {
+			continue
+		}
+
+		if f == nil {
+			prevField, found := lo.Find(fields, func(fp interfaces.CreateFieldParam) bool {
+				return fp.Key == key.String()
+			})
+			if found && prevField.Type != newField.Type {
+				return nil, rerror.NewE(i18n.T("data type mismatch"))
+			}
+			if !found {
+				fields = append(fields, newField)
+			}
+		}
+
+	}
+	return fields, nil
+}
+
 func fieldFrom(k string, v any, sp schema.Package) interfaces.CreateFieldParam {
 	t := value.TypeText
 	switch reflect.TypeOf(v).Kind() {
@@ -594,4 +536,104 @@ func fieldFrom(k string, v any, sp schema.Package) interfaces.CreateFieldParam {
 		// type property is not supported in import
 		TypeProperty: nil,
 	}
+}
+
+func isAssignable(vt1, vt2 value.Type) bool {
+	if vt1 == vt2 {
+		return true
+	}
+	if vt1 == value.TypeInteger &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown || vt2 == value.TypeNumber) {
+		return true
+	}
+	if vt1 == value.TypeNumber &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	if vt1 == value.TypeBool &&
+		(vt2 == value.TypeCheckbox || vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	if vt1 == value.TypeText &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	return false
+}
+
+func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, sp schema.Package) ([]interfaces.ImportItemParam, error) {
+	if isGeoJson && geoField == nil {
+		return nil, rerror.ErrInvalidParams
+	}
+	items := make([]interfaces.ImportItemParam, 0)
+	for _, o := range chunk {
+		var iId *id.ItemID
+		if idVal, ok := o["id"]; ok {
+			idStr, ok := idVal.(string)
+			if !ok {
+				return nil, rerror.ErrInvalidParams
+			}
+			iId = id.ItemIDFromRef(&idStr)
+			if iId.IsEmpty() || iId.IsNil() {
+				return nil, rerror.ErrInvalidParams
+			}
+		}
+		item := interfaces.ImportItemParam{
+			ItemId:     iId,
+			MetadataID: nil,
+			Fields:     nil,
+		}
+		if isGeoJson {
+			if geoField == nil {
+				return nil, rerror.ErrInvalidParams
+			}
+
+			geoFieldKey := id.NewKey(*geoField)
+			if !geoFieldKey.IsValid() {
+				return nil, rerror.ErrInvalidParams
+			}
+			geoFieldId := id.FieldIDFromRef(geoField)
+			f := sp.FieldByIDOrKey(geoFieldId, &geoFieldKey)
+			if f == nil { // TODO: check GeoField type
+				return nil, rerror.ErrInvalidParams
+			}
+
+			v, err := json.Marshal(o["geometry"])
+			if err != nil {
+				return nil, err
+			}
+			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
+				Field: f.ID().Ref(),
+				Key:   f.Key().Ref(),
+				Value: string(v),
+				// Group is not supported
+				Group: nil,
+			})
+
+			props, ok := o["properties"].(map[string]any)
+			if !ok {
+				continue
+			}
+			o = props
+		}
+		for k, v := range o {
+			if v == nil || k == "id" {
+				continue
+			}
+			key := id.NewKey(k)
+			if !key.IsValid() {
+				return nil, rerror.ErrInvalidParams
+			}
+
+			item.Fields = append(item.Fields, interfaces.ItemFieldParam{
+				Field: nil,
+				Key:   key.Ref(),
+				Value: v,
+				// Group is not supported
+				Group: nil,
+			})
+		}
+		items = append(items, item)
+	}
+	return items, nil
 }
