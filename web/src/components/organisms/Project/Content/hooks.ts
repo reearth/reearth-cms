@@ -58,7 +58,9 @@ export default () => {
     [data?.requests.nodes],
   );
 
-  const [updateRequest] = useUpdateRequestMutation();
+  const [updateRequest] = useUpdateRequestMutation({
+    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+  });
 
   const handleAddItemToRequest = useCallback(
     async (request: Request, items: RequestItem[]) => {
@@ -81,7 +83,6 @@ export default () => {
           title: request.title,
           state: request.state as GQLRequestState,
         },
-        refetchQueries: ["GetItem"],
       });
       if (item.errors || !item.data?.updateRequest) {
         Notification.error({ message: t("Failed to update request.") });
@@ -93,7 +94,9 @@ export default () => {
     [updateRequest, t],
   );
 
-  const [publishItem, { loading: publishLoading }] = usePublishItemMutation();
+  const [publishItem, { loading: publishLoading }] = usePublishItemMutation({
+    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+  });
 
   const handlePublish = useCallback(
     async (itemIds: string[]) => {
@@ -101,7 +104,6 @@ export default () => {
         variables: {
           itemIds: itemIds,
         },
-        refetchQueries: ["SearchItem", "GetItem"],
       });
       if (item.errors || !item.data?.publishItem) {
         Notification.error({ message: t("Failed to publish items.") });
@@ -113,7 +115,9 @@ export default () => {
     [publishItem, t],
   );
 
-  const [unpublishItem, { loading: unpublishLoading }] = useUnpublishItemMutation();
+  const [unpublishItem, { loading: unpublishLoading }] = useUnpublishItemMutation({
+    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+  });
 
   const handleUnpublish = useCallback(
     async (itemIds: string[]) => {
@@ -121,7 +125,6 @@ export default () => {
         variables: {
           itemIds: itemIds,
         },
-        refetchQueries: ["SearchItem", "GetItem"],
       });
       if (item.errors || !item.data?.unpublishItem) {
         Notification.error({ message: t("Failed to unpublish items.") });

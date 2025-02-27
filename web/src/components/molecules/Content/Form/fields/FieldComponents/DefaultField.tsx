@@ -1,27 +1,23 @@
+import styled from "@emotion/styled";
 import { useMemo } from "react";
 import { runes } from "runes2";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
-type DefaultFieldProps = {
-  field: Field;
-  itemGroupId?: string;
-  onMetaUpdate?: () => Promise<void>;
-  disabled: boolean;
-};
-
-const DefaultField: React.FC<DefaultFieldProps> = ({
+const DefaultField: React.FC<FieldProps> = ({
   field,
   itemGroupId,
-  onMetaUpdate,
   disabled,
+  itemHeights,
+  onItemHeightChange,
 }) => {
   const t = useT();
   const maxLength = useMemo(() => field.typeProperty?.maxLength, [field.typeProperty?.maxLength]);
@@ -29,7 +25,7 @@ const DefaultField: React.FC<DefaultFieldProps> = ({
   const required = useMemo(() => field.required, [field.required]);
 
   return (
-    <Form.Item
+    <StyledFormItem
       extra={field.description}
       validateStatus="success"
       rules={[
@@ -57,25 +53,26 @@ const DefaultField: React.FC<DefaultFieldProps> = ({
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueField
-          onBlur={onMetaUpdate}
-          showCount={true}
-          maxLength={maxLength}
-          FieldInput={Input}
-          disabled={disabled}
-          required={required}
-        />
+        <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+          <MultiValueField
+            showCount={true}
+            maxLength={maxLength}
+            FieldInput={Input}
+            disabled={disabled}
+            required={required}
+          />
+        </ResponsiveHeight>
       ) : (
-        <Input
-          onBlur={onMetaUpdate}
-          showCount={true}
-          maxLength={maxLength}
-          disabled={disabled}
-          required={required}
-        />
+        <Input showCount={true} maxLength={maxLength} disabled={disabled} required={required} />
       )}
-    </Form.Item>
+    </StyledFormItem>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+  .ant-input-disabled {
+    color: inherit;
+  }
+`;
 
 export default DefaultField;
