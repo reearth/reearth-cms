@@ -247,7 +247,7 @@ const GeometryItem: React.FC<Props> = ({
     [onChange, typeCheck],
   );
 
-  const [currentValue, setCurrentValue] = useState<string>("");
+  const [currentValue, setCurrentValue] = useState("");
   useEffect(() => {
     if (value === currentValue) {
       typeCheck(value);
@@ -465,8 +465,8 @@ const GeometryItem: React.FC<Props> = ({
   }, [sketch, value, hasError]);
 
   const minWidth = useMemo(() => 280, []);
-  const [width, setWidth] = useState<number>(minWidth);
-  const [maxWidth, setMaxWidth] = useState<number>(Infinity);
+  const [width, setWidth] = useState(minWidth);
+  const [maxWidth, setMaxWidth] = useState(Infinity);
   const fieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
