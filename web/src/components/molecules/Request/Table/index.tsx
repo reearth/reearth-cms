@@ -297,7 +297,7 @@ const RequestListTable: React.FC<Props> = ({
           !!filters?.reviewers?.[0],
         );
       }}
-      heightOffset={72}
+      heightOffset={73}
     />
   );
 };
