@@ -46,8 +46,10 @@ Copy URL: URLをコピー
 URL copied!!: URLをコピーしました！
 Unzip: ""
 Asset Type: アセットの種類
-Created Time: 作成日時
-Created By: 作成者
+Asset Information: アセットの情報
+Created at: 作成日時
+Created by: 作成者
+Size: サイズ
 Linked to: リンク先
 Asset: アセット
 Source Code: ソースコード
@@ -69,10 +71,10 @@ Decompressing: 解凍中
 Skipped: スキップ
 Pending: 保留中
 File: ファイル
-Size: サイズ
 Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
+Created By: 作成者
 ID: ""
 input search text: 検索
 Delete: 削除
@@ -294,6 +296,7 @@ Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
 Assign to: 割り当てる
+Created Time: 作成日時
 WAITING: レビュー待ち
 APPROVED: 承認済
 CLOSED: クローズ済
