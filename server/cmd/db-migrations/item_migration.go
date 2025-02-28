@@ -64,62 +64,6 @@ func ItemMigration(ctx context.Context, dbURL, dbName string, wetRun bool) error
 		fmt.Printf("test mode: filter on item id '%s' is applyed, %d items selected.\n", testID, count)
 	}
 
-	f := func(item ItemDocument) (ItemDocument, error) {
-		updatedItem := ItemDocument{}
-		var assets []string
-		for _, f := range item.Fields {
-			if f.Field != "" {
-				f.F = f.Field
-			}
-			if f.ValueType != "" {
-				f.V.T = f.ValueType
-			}
-			if f.Value != nil {
-				f.V.V = f.Value
-			}
-
-			// value should be an array, the value is always treated as multiple in db
-			if f.V.V != nil {
-				_, ok := f.V.V.(bson.A)
-				if !ok {
-					f.V.V = bson.A{f.V.V}
-				}
-			}
-
-			// migrate old value: date to datetime
-			if f.V.T == "date" {
-				f.V.T = "datetime"
-			}
-			updatedItem.Fields = append(updatedItem.Fields, ItemFieldDocument{
-				F: f.F,
-				V: ValueDocument{
-					T: f.V.T,
-					V: f.V.V,
-				},
-			})
-			if f.V.T == "asset" && f.V.V != nil {
-				pa, ok := f.V.V.(bson.A)
-				if ok {
-					aa := lo.FilterMap(pa, func(v any, _ int) (string, bool) {
-						s, ok := v.(string)
-						if !ok {
-							fmt.Printf("failed to parse asset: asset=%v item=%v\n", v, item.ID)
-						}
-						return s, ok && s != ""
-					})
-					assets = append(assets, aa...)
-					continue
-				}
-				fmt.Printf("failed to parse assets: assets=%v item=%v\n", f.V.V, item.ID)
-			}
-		}
-		if len(assets) > 0 {
-			updatedItem.Assets = lo.Uniq(assets)
-		}
-
-		return updatedItem, nil
-	}
-
 	if !wetRun {
 		fmt.Printf("dry run\n")
 		count, err := col.CountDocuments(ctx, filter)
@@ -130,11 +74,67 @@ func ItemMigration(ctx context.Context, dbURL, dbName string, wetRun bool) error
 		return nil
 	}
 
-	_, err = BatchUpdate(ctx, col, filter, 1000, f)
+	_, err = BatchUpdate(ctx, col, filter, 1000, updateItem)
 	if err != nil {
 		return fmt.Errorf("failed to apply batches: %w", err)
 	}
 
 	fmt.Printf("done.\n")
 	return nil
+}
+
+func updateItem(item ItemDocument) (ItemDocument, error) {
+	updatedItem := ItemDocument{}
+	var assets []string
+	for _, f := range item.Fields {
+		if f.Field != "" {
+			f.F = f.Field
+		}
+		if f.ValueType != "" {
+			f.V.T = f.ValueType
+		}
+		if f.Value != nil {
+			f.V.V = f.Value
+		}
+
+		// value should be an array, the value is always treated as multiple in db
+		if f.V.V != nil {
+			_, ok := f.V.V.(bson.A)
+			if !ok {
+				f.V.V = bson.A{f.V.V}
+			}
+		}
+
+		// migrate old value: date to datetime
+		if f.V.T == "date" {
+			f.V.T = "datetime"
+		}
+		updatedItem.Fields = append(updatedItem.Fields, ItemFieldDocument{
+			F: f.F,
+			V: ValueDocument{
+				T: f.V.T,
+				V: f.V.V,
+			},
+		})
+		if f.V.T == "asset" && f.V.V != nil {
+			pa, ok := f.V.V.(bson.A)
+			if ok {
+				aa := lo.FilterMap(pa, func(v any, _ int) (string, bool) {
+					s, ok := v.(string)
+					if !ok {
+						fmt.Printf("failed to parse asset: asset=%v item=%v\n", v, item.ID)
+					}
+					return s, ok && s != ""
+				})
+				assets = append(assets, aa...)
+				continue
+			}
+			fmt.Printf("failed to parse assets: assets=%v item=%v\n", f.V.V, item.ID)
+		}
+	}
+	if len(assets) > 0 {
+		updatedItem.Assets = lo.Uniq(assets)
+	}
+
+	return updatedItem, nil
 }
