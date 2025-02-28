@@ -30,7 +30,7 @@ var (
 		"project,__r,modelid,schema,__",
 		"modelid,id,__r",
 		"modelid,!_id,__r",
-		"__r,assets,project,__",
+		//"__r,assets,project,__", // mongo cannot index parallel arrays [assets] [__r]
 		"__r,project,__",
 		"__r,asset,project,__",
 		"schema,id,__r,project",
@@ -147,33 +147,7 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 		return nil, nil
 	}
 
-	filters := make([]bson.M, 0, len(al)+1)
-	filters = append(filters, bson.M{
-		"assets": bson.M{"$in": al.Strings()},
-	})
-
-	// compat
-	for _, assetID := range al {
-		filters = append(filters,
-			bson.M{
-				"fields": bson.M{
-					"$elemMatch": bson.M{
-						"v.t": "asset",
-						"v.v": assetID.String(),
-					},
-				},
-			},
-			bson.M{
-				"fields": bson.M{
-					"$elemMatch": bson.M{
-						"valuetype": "asset",
-						"value":     assetID.String(),
-					},
-				},
-			})
-	}
-
-	return r.find(ctx, bson.M{"$or": filters}, ref)
+	return r.aggregate(ctx, []any{bson.M{"$match": bson.M{"assets": bson.M{"$in": al.Strings()}}}}, ref)
 }
 
 func (r *Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
@@ -282,6 +256,14 @@ func (r *Item) paginateAggregation(ctx context.Context, pipeline []any, ref *ver
 func (r *Item) find(ctx context.Context, filter any, ref *version.Ref) (item.VersionedList, error) {
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
+		return nil, err
+	}
+	return c.Result, nil
+}
+
+func (r *Item) aggregate(ctx context.Context, pipeline []any, ref *version.Ref) (item.VersionedList, error) {
+	c := mongodoc.NewVersionedItemConsumer()
+	if err := r.client.Aggregate(ctx, applyProjectFilterToPipeline(pipeline, r.f.Readable), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
