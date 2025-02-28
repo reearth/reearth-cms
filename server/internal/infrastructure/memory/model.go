@@ -36,7 +36,7 @@ func (r *Model) Filtered(f repo.ProjectFilter) repo.Model {
 	}
 }
 
-func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *model.Sort, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}

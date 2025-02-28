@@ -24,7 +24,12 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	ms, pi, err := uc.Model.FindByProject(ctx, prj.ID(), p, op)
+	// Todo: support sort
+	ms, pi, err := uc.Model.FindByProject(ctx, interfaces.FindByProjectParam{
+		ProjectID:  prj.ID(),
+		Sort:       nil,
+		Pagination: p,
+	}, op)
 	if err != nil {
 		return nil, err
 	}

@@ -488,7 +488,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByProject(ctx, tc.args.tid, tc.args.pInfo)
+			got, _, err := r.FindByProject(ctx, tc.args.tid, nil, tc.args.pInfo)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -648,6 +648,79 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 			}
 
 			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestSortModels(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *model.Sort
+		expected *usecasex.Sort
+	}{
+		{
+			name:  "nil input",
+			input: nil,
+			expected: nil,
+		},
+		{
+			name: "sort by CreatedAt ascending",
+			input: &model.Sort{
+				Column:    model.ColumnCreatedAt,
+				Direction: model.DirectionAsc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "createdat",
+				Reverted: false,
+			},
+		},
+		{
+			name: "sort by CreatedAt descending",
+			input: &model.Sort{
+				Column:    model.ColumnCreatedAt,
+				Direction: model.DirectionDesc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "createdat",
+				Reverted: true,
+			},
+		},
+		{
+			name: "sort by UpdatedAt ascending",
+			input: &model.Sort{
+				Column:    model.ColumnUpdatedAt,
+				Direction: model.DirectionAsc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "updatedat",
+				Reverted: false,
+			},
+		},
+		{
+			name: "sort by UpdatedAt descending",
+			input: &model.Sort{
+				Column:    model.ColumnUpdatedAt,
+				Direction: model.DirectionDesc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "updatedat",
+				Reverted: true,
+			},
+		},
+		{
+			name: "invalid column",
+			input: &model.Sort{
+				Column:    "invalid_column",
+				Direction: model.DirectionAsc,
+			},
+			expected: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := sortModels(tc.input)
+			assert.Equal(t, tc.expected, result)
 		})
 	}
 }

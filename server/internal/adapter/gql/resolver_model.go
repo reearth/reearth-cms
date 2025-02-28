@@ -130,8 +130,8 @@ func (r *mutationResolver) PublishModel(ctx context.Context, input gqlmodel.Publ
 }
 
 // Models is the resolver for the models field.
-func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error) {
-	return loaders(ctx).Model.FindByProject(ctx, projectID, pagination)
+func (r *queryResolver) Models(ctx context.Context, input gqlmodel.ModelsInput) (*gqlmodel.ModelConnection, error) {
+	return loaders(ctx).Model.FindByProject(ctx, input)
 }
 
 // CheckModelKeyAvailability is the resolver for the checkModelKeyAvailability field.

@@ -55,3 +55,49 @@ func TestToModel(t *testing.T) {
 		})
 	}
 }
+
+func TestToModelSortOptions(t *testing.T) {
+	// "nil input
+	result := ToModelSortOptions(nil)
+	assert.Nil(t, result)
+
+	// valid input
+	column := ModelSortColumnCreatedAt
+	direction := SortDirectionAsc
+	sortOptions := &ModelSortOptions{
+		Column:    column,
+		Direction: &direction,
+	}
+	expected := &model.Sort{
+		Column:    model.ColumnCreatedAt,
+		Direction: model.DirectionAsc,
+	}
+	result = ToModelSortOptions(sortOptions)
+	assert.Equal(t, expected, result)
+}
+
+func TestToModelSortDirection(t *testing.T) {
+	// nil input
+		result := ToModelSortDirection(nil)
+		assert.Equal(t, model.DirectionDesc, result)
+
+	// ascending direction
+		asc := SortDirectionAsc
+		result = ToModelSortDirection(&asc)
+		assert.Equal(t, model.DirectionAsc, result)
+
+	// descending direction
+		desc := SortDirectionDesc
+		result = ToModelSortDirection(&desc)
+		assert.Equal(t, model.DirectionDesc, result)
+}
+
+func TestToModelSortColumn(t *testing.T) {
+	// created at column
+		result := ToModelSortColumn(ModelSortColumnCreatedAt)
+		assert.Equal(t, model.ColumnCreatedAt, result)
+
+	// updated at column
+		result = ToModelSortColumn(ModelSortColumnUpdatedAt)
+		assert.Equal(t, model.ColumnUpdatedAt, result)
+}
