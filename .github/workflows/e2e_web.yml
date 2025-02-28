@@ -11,6 +11,9 @@ on:
       baseUrl:
         required: true
         type: string
+      branch:
+        required: true
+        type: string
     secrets:
       REEARTH_WEB_E2E_USERNAME:
         required: true
@@ -25,6 +28,9 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: reearth/reearth-cms
+          ref: ${{ inputs.branch || 'main' }}
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
