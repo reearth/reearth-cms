@@ -53,7 +53,10 @@ func (i Model) FindByProject(ctx context.Context, input interfaces.FindByProject
 	if err != nil {
 		return nil, nil, err
 	}
-	return m.Ordered(), p, nil
+	if input.Sort == nil {
+		m = m.Ordered()
+	}
+	return m, p, nil
 }
 
 func (i Model) FindByProjectAndKeyword(ctx context.Context, projectID id.ProjectID, k string, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
