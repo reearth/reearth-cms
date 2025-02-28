@@ -17,7 +17,7 @@ jobs:
       - uses: google-github-actions/auth@v2
         with:
           service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER}}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER}}
       - name: Get Cesium Ion token
         id: ion_token
         run: |
