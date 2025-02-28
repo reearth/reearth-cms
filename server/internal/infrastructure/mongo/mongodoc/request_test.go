@@ -30,7 +30,7 @@ func TestNewRequest(t *testing.T) {
 	}{
 		{
 			name: "new",
-			r: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId).CreatedBy(uId).
+			r: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId.Ref()).CreatedBy(uId).
 				Title("ab").Description("abc").
 				UpdatedAt(now).State(request.StateDraft).
 				Items([]*request.Item{itm}).
@@ -51,7 +51,7 @@ func TestNewRequest(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
 			rDocId: rId.String(),
 		},
@@ -86,7 +86,7 @@ func TestNewRequests(t *testing.T) {
 		{
 			name: "new",
 			requests: []*request.Request{
-				request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId).CreatedBy(uId).
+				request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId.Ref()).CreatedBy(uId).
 					Title("ab").Description("abc").
 					UpdatedAt(now).State(request.StateDraft).
 					Items([]*request.Item{itm}).
@@ -109,7 +109,7 @@ func TestNewRequests(t *testing.T) {
 					UpdatedAt:   now,
 					ApprovedAt:  nil,
 					ClosedAt:    nil,
-					Thread:      tId.String(),
+					Thread:      tId.StringRef(),
 				},
 			},
 			rDocsIds: []string{rId.String()},
@@ -156,9 +156,9 @@ func TestRequestDocument_Model(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
-			want: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId).CreatedBy(uId).
+			want: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId.Ref()).CreatedBy(uId).
 				Title("ab").Description("abc").
 				UpdatedAt(now).State(request.StateDraft).Reviewers([]idx.ID[accountdomain.User]{}).
 				Items([]*request.Item{itm}).
@@ -184,9 +184,9 @@ func TestRequestDocument_Model(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
-			want: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId).CreatedBy(uId).
+			want: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId.Ref()).CreatedBy(uId).
 				Title("ab").Description("abc").
 				UpdatedAt(now).State(request.StateDraft).Reviewers([]idx.ID[accountdomain.User]{}).
 				Items([]*request.Item{lo.Must(request.NewItemWithVersion(itm.Item(), version.Version(uuId).OrRef()))}).
@@ -211,7 +211,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
 			want:    nil,
 			wantErr: true,
@@ -234,7 +234,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
 			want:    nil,
 			wantErr: true,
@@ -257,7 +257,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
 			want:    nil,
 			wantErr: true,
@@ -280,7 +280,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
 			want:    nil,
 			wantErr: true,
@@ -298,41 +298,18 @@ func TestRequestDocument_Model(t *testing.T) {
 				Title:       "ab",
 				Description: "abc",
 				CreatedBy:   uId.String(),
-				Reviewers:   []string{},
+				Reviewers:   []string{"abc"},
 				State:       request.StateDraft.String(),
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      "abc",
+				Thread:      tId.StringRef(),
 			},
 			want:    nil,
 			wantErr: true,
 		},
 		{
 			name: "invalid id 6",
-			rDoc: &RequestDocument{
-				ID:        rId.String(),
-				Workspace: wId.String(),
-				Project:   pId.String(),
-				Items: []RequestItem{{
-					Item:    itm.Item().String(),
-					Version: lo.ToPtr(version.New().String()),
-				}},
-				Title:       "ab",
-				Description: "abc",
-				CreatedBy:   uId.String(),
-				Reviewers:   []string{"abc"},
-				State:       request.StateDraft.String(),
-				UpdatedAt:   now,
-				ApprovedAt:  nil,
-				ClosedAt:    nil,
-				Thread:      tId.String(),
-			},
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name: "invalid id 7",
 			rDoc: &RequestDocument{
 				ID:        rId.String(),
 				Workspace: wId.String(),
@@ -349,7 +326,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
 			want:    nil,
 			wantErr: true,
@@ -372,7 +349,7 @@ func TestRequestDocument_Model(t *testing.T) {
 				UpdatedAt:   now,
 				ApprovedAt:  nil,
 				ClosedAt:    nil,
-				Thread:      tId.String(),
+				Thread:      tId.StringRef(),
 			},
 			want:    nil,
 			wantErr: true,

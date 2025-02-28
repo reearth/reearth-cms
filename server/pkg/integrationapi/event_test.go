@@ -71,7 +71,7 @@ func TestNewEventWith(t *testing.T) {
 	mockTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).NewUUID().
-		CreatedByUser(u.ID()).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(u.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	eID1 := event.NewID()
 	prj := event.Project{
 		ID:    "testID",

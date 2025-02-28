@@ -3,6 +3,7 @@ package request
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -30,7 +31,7 @@ type Request struct {
 	updatedAt   time.Time
 	approvedAt  *time.Time
 	closedAt    *time.Time
-	thread      ThreadID
+	thread      *ThreadID
 }
 
 func (r *Request) ID() ID {
@@ -85,7 +86,7 @@ func (r *Request) ClosedAt() *time.Time {
 	return r.closedAt
 }
 
-func (r *Request) Thread() ThreadID {
+func (r *Request) Thread() *ThreadID {
 	return r.thread
 }
 
@@ -125,4 +126,8 @@ func (r *Request) SetState(state State) {
 
 func (r *Request) SetUpdatedAt(d time.Time) {
 	r.updatedAt = d
+}
+
+func (r *Request) SetThread(thid id.ThreadID) {
+	r.thread = &thid
 }

@@ -41,7 +41,10 @@ func (r *assetResolver) Items(ctx context.Context, obj *gqlmodel.Asset) ([]*gqlm
 
 // Thread is the resolver for the thread field.
 func (r *assetResolver) Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmodel.Thread, error) {
-	return dataloaders(ctx).Thread.Load(obj.ThreadID)
+	if obj.ThreadID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).Thread.Load(*obj.ThreadID)
 }
 
 // CreateAsset is the resolver for the createAsset field.

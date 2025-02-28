@@ -19,7 +19,7 @@ func TestToAsset(t *testing.T) {
 	var pti = asset.PreviewTypeImage
 	uuid := uuid.New().String()
 	thid := id.NewThreadID()
-	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).UUID(uuid).Thread(thid).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).UUID(uuid).Thread(thid.Ref()).MustBuild()
 
 	want1 := Asset{
 		ID:            ID(id1.String()),
@@ -31,7 +31,7 @@ func TestToAsset(t *testing.T) {
 		UUID:          uuid,
 		URL:           "xxx",
 		FileName:      "aaa.jpg",
-		ThreadID:      ID(thid.String()),
+		ThreadID:      lo.ToPtr(ID(thid.String())),
 		Size:          1000,
 	}
 

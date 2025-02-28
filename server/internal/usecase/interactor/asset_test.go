@@ -42,7 +42,7 @@ func TestAsset_FindByID(t *testing.T) {
 		Project(pid).
 		CreatedByUser(uid1).
 		Size(1000).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		NewUUID().
 		MustBuild()
 
@@ -99,7 +99,7 @@ func TestAsset_FindByID(t *testing.T) {
 					Project(id.NewProjectID()).
 					CreatedByUser(accountdomain.NewUserID()).
 					Size(1000).
-					Thread(id.NewThreadID()).
+					Thread(id.NewThreadID().Ref()).
 					NewUUID().
 					MustBuild(),
 				asset.New().
@@ -107,7 +107,7 @@ func TestAsset_FindByID(t *testing.T) {
 					Project(id.NewProjectID()).
 					CreatedByUser(accountdomain.NewUserID()).
 					Size(1000).
-					Thread(id.NewThreadID()).
+					Thread(id.NewThreadID().Ref()).
 					NewUUID().
 					MustBuild(),
 			},
@@ -157,7 +157,7 @@ func TestAsset_DecompressByID(t *testing.T) {
 		CreatedByUser(uid1).
 		Size(1000).
 		FileName("aaa.zip").
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		NewUUID().
 		MustBuild()
 
@@ -252,7 +252,7 @@ func TestAsset_FindFileByID(t *testing.T) {
 		Project(pid).
 		CreatedByUser(uid1).
 		Size(1000).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		NewUUID().
 		MustBuild()
 	af1 := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Build()
@@ -350,7 +350,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 		CreatedAt(tim).
 		CreatedByUser(uid1).
 		Size(1000).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		NewUUID().
 		MustBuild()
 	a2 := asset.New().ID(id2).
@@ -358,7 +358,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 		CreatedAt(tim).
 		CreatedByUser(uid1).
 		Size(1000).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		NewUUID().
 		MustBuild()
 
@@ -380,7 +380,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 			name: "0 count with asset for another workspaces",
 			seeds: asset.List{
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
 			arg:     []id.AssetID{},
 			want:    nil,
@@ -400,9 +400,9 @@ func TestAsset_FindByIDs(t *testing.T) {
 			seeds: asset.List{
 				a1,
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
 			arg:     []id.AssetID{id1},
 			want:    asset.List{a1},
@@ -414,9 +414,9 @@ func TestAsset_FindByIDs(t *testing.T) {
 				a1,
 				a2,
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
 			arg:     []id.AssetID{id1, id2},
 			want:    asset.List{a1, a2},
@@ -454,12 +454,12 @@ func TestAsset_FindByProject(t *testing.T) {
 	aid1 := id.NewAssetID()
 	uid1 := accountdomain.NewUserID()
 	a1 := asset.New().ID(aid1).Project(pid).NewUUID().
-		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	aid2 := id.NewAssetID()
 	uid2 := accountdomain.NewUserID()
 	a2 := asset.New().ID(aid2).Project(pid).NewUUID().
-		CreatedByUser(uid2).Size(1000).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(uid2).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -489,7 +489,7 @@ func TestAsset_FindByProject(t *testing.T) {
 			name: "0 count with asset for another projects",
 			seeds: asset.List{
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
 			args: args{
 				pid:      id.NewProjectID(),
@@ -518,9 +518,9 @@ func TestAsset_FindByProject(t *testing.T) {
 			seeds: asset.List{
 				a1,
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
 			args: args{
 				pid: pid,
@@ -538,9 +538,9 @@ func TestAsset_FindByProject(t *testing.T) {
 				a1,
 				a2,
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
 			args: args{
 				pid: pid,
@@ -645,7 +645,7 @@ func TestAsset_Create(t *testing.T) {
 				FileName("aaa.txt").
 				Size(uint64(buf.Len())).
 				Type(asset.PreviewTypeUnknown.Ref()).
-				Thread(id.NewThreadID()).
+				Thread(id.NewThreadID().Ref()).
 				NewUUID().
 				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusDone)).
 				MustBuild(),
@@ -674,7 +674,7 @@ func TestAsset_Create(t *testing.T) {
 				FileName("aaa.txt").
 				Size(uint64(buf2.Len())).
 				Type(asset.PreviewTypeUnknown.Ref()).
-				Thread(id.NewThreadID()).
+				Thread(id.NewThreadID().Ref()).
 				NewUUID().
 				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusDone)).
 				MustBuild(),
@@ -702,7 +702,7 @@ func TestAsset_Create(t *testing.T) {
 				FileName("aaa.zip").
 				Size(uint64(buf3.Len())).
 				Type(asset.PreviewTypeUnknown.Ref()).
-				Thread(id.NewThreadID()).
+				Thread(id.NewThreadID().Ref()).
 				NewUUID().
 				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress)).
 				MustBuild(),
@@ -731,7 +731,7 @@ func TestAsset_Create(t *testing.T) {
 				FileName("aaa.zip").
 				Size(uint64(buf4.Len())).
 				Type(asset.PreviewTypeUnknown.Ref()).
-				Thread(id.NewThreadID()).
+				Thread(id.NewThreadID().Ref()).
 				NewUUID().
 				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusSkipped)).
 				MustBuild(),
@@ -759,7 +759,7 @@ func TestAsset_Create(t *testing.T) {
 				FileName("AAA.ZIP").
 				Size(uint64(buf5.Len())).
 				Type(asset.PreviewTypeUnknown.Ref()).
-				Thread(id.NewThreadID()).
+				Thread(id.NewThreadID().Ref()).
 				NewUUID().
 				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress)).
 				MustBuild(),
@@ -931,7 +931,7 @@ func TestAsset_Update(t *testing.T) {
 	var ptg = asset.PreviewTypeGeo
 
 	aid1 := id.NewAssetID()
-	thid := id.NewThreadID()
+	thid := id.NewThreadID().Ref()
 	a1 := asset.New().ID(aid1).Project(pid1).NewUUID().
 		CreatedByUser(uid).Size(1000).Thread(thid).MustBuild()
 	a1Updated := asset.New().ID(aid1).Project(pid1).UUID(a1.UUID()).
@@ -940,7 +940,7 @@ func TestAsset_Update(t *testing.T) {
 	pid2 := id.NewProjectID()
 	aid2 := id.NewAssetID()
 	a2 := asset.New().ID(aid2).Project(pid2).NewUUID().
-		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 	acop := &accountusecase.Operator{
 		User:             &uid,
 		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
@@ -1057,7 +1057,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 	ws := workspace.New().NewID().MustBuild()
 	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
 
-	thid := id.NewThreadID()
+	thid := id.NewThreadID().Ref()
 	sp := lo.ToPtr(asset.ArchiveExtractionStatusPending)
 	a1 := asset.New().
 		ID(assetID1).
@@ -1075,7 +1075,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		CreatedByUser(uid).
 		Size(1000).
 		UUID(uuid2).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		ArchiveExtractionStatus(sp).
 		MustBuild()
 	a2f := asset.NewFile().Build()
@@ -1262,12 +1262,12 @@ func TestAsset_Delete(t *testing.T) {
 	proj1 := project.New().NewID().Workspace(ws.ID()).MustBuild()
 	aid1 := id.NewAssetID()
 	a1 := asset.New().ID(aid1).Project(proj1.ID()).NewUUID().
-		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	proj2 := project.New().NewID().MustBuild()
 	aid2 := id.NewAssetID()
 	a2 := asset.New().ID(aid2).Project(proj2.ID()).NewUUID().
-		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	acop := &accountusecase.Operator{
 		User:             &uid,
