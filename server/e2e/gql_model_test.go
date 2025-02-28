@@ -320,27 +320,16 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 func getModels(e *httpexpect.Expect, pId string, sort map[string]string, pagination map[string]any) *httpexpect.Value {
 	requestBody := GraphQLRequest{
 		Query: `query GetModels($input: ModelsInput!){
-  models(input: $input) {
-    nodes{
-        id
-        name
-        createdAt
-				updatedAt
-        order
-        schema{
-            fields{
-                id
-                title
-                typeProperty{
-                    ... on SchemaFieldGeometryObject {
-                        supportedTypes
-                    }
-                }
-            }
-        }
-    }
-  }
-}`,
+			models(input: $input) {
+				nodes{
+						id
+						name
+						createdAt
+						updatedAt
+						order
+				}
+			}
+		}`,
 		Variables: map[string]any{
 			"input": map[string]any{
 				"project":    pId,
@@ -366,13 +355,75 @@ func TestSortModels(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
-	sort := map[string]string{"column": "CREATED_AT", "direction": "DESC"}
+	mid1, _ := createModel(e, pId, "test1", "test", "test-1")
+	mid2, _ := createModel(e, pId, "test2", "test", "test-2")
+	mid3, _ := createModel(e, pId, "test3", "test", "test-3")
+
+	ascSortByCreatedAt := map[string]string{"column": "CREATED_AT", "direction": "ASC"}
+	descSortByCreatedAt := map[string]string{"column": "CREATED_AT", "direction": "DESC"}
+	ascSortByUpdatedAt := map[string]string{"column": "UPDATED_AT", "direction": "ASC"}
+	descSortByUpdatedAt := map[string]string{"column": "UPDATED_AT", "direction": "DESC"}
 	pagination := map[string]any{"last": 10}
-	res := getModels(e, pId, sort, pagination)
-	fmt.Println(res)
-	// res.Object().
-	// 	Value("data").Object().
-	// 	Value("models").Array().Length().NotEqual(0)
+
+	// no sort
+	res := getModels(e, pId, nil, pagination)
+	models := res.Object().
+		Value("data").Object().
+		Value("models").Object().
+		Value("nodes").Array()
+
+	models.Value(0).Object().Value("order").IsEqual(0)
+	models.Value(1).Object().Value("order").IsEqual(1)
+	models.Value(2).Object().Value("order").IsEqual(2)
+
+	// ascending sort by created_at
+	res1 := getModels(e, pId, ascSortByCreatedAt, pagination)
+	models1 := res1.Object().
+		Value("data").Object().
+		Value("models").Object().
+		Value("nodes").Array()
+
+	models1.Value(0).Object().Value("id").IsEqual(mid1)
+	models1.Value(1).Object().Value("id").IsEqual(mid2)
+	models1.Value(2).Object().Value("id").IsEqual(mid3)
+
+	// descending sort by created_at
+	res2 := getModels(e, pId, descSortByCreatedAt, pagination)
+	models2 := res2.Object().
+		Value("data").Object().
+		Value("models").Object().
+		Value("nodes").Array()
+
+	models2.Value(0).Object().Value("id").IsEqual(mid3)
+	models2.Value(1).Object().Value("id").IsEqual(mid2)
+	models2.Value(2).Object().Value("id").IsEqual(mid1)
+
+	updateModel(e, mid1, lo.ToPtr("updated name 1"), lo.ToPtr("updated desc 1"), lo.ToPtr("updated_key 1"), false)
+	updateModel(e, mid2, lo.ToPtr("updated name 2"), lo.ToPtr("updated desc 2"), lo.ToPtr("updated_key 2"), false)
+	updateModel(e, mid3, lo.ToPtr("updated name 3"), lo.ToPtr("updated desc 3"), lo.ToPtr("updated_key 3"), false)
+
+	// ascending sort by updated_at
+	res3 := getModels(e, pId, ascSortByUpdatedAt, pagination)
+	models3 := res3.Object().
+		Value("data").Object().
+		Value("models").Object().
+		Value("nodes").Array()
+	fmt.Println(models3)
+
+	models3.Value(0).Object().Value("id").IsEqual(mid1)
+	models3.Value(1).Object().Value("id").IsEqual(mid2)
+	models3.Value(2).Object().Value("id").IsEqual(mid3)
+
+	// descending sort by updated_at
+	res4 := getModels(e, pId, descSortByUpdatedAt, pagination)
+	models4 := res4.Object().
+		Value("data").Object().
+		Value("models").Object().
+		Value("nodes").Array()
+
+	models4.Value(0).Object().Value("id").IsEqual(mid3)
+	models4.Value(1).Object().Value("id").IsEqual(mid2)
+	models4.Value(2).Object().Value("id").IsEqual(mid1)
 }
 
 func TestCreateModel(t *testing.T) {

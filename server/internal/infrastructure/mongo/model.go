@@ -218,9 +218,8 @@ func sortModels(ms *model.Sort) *usecasex.Sort {
 		key = "createdat"
 	case model.ColumnUpdatedAt:
 		key = "updatedat"
-	}
-	if key == "" {
-		return nil
+	default:
+		key = "order"
 	}
 	return &usecasex.Sort{
 		Key:      key,

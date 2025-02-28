@@ -48,5 +48,8 @@ func ToModelSortColumn(s ModelSortColumn) model.Column {
 	if s == ModelSortColumnCreatedAt {
 		return model.ColumnCreatedAt
 	}
-	return model.ColumnUpdatedAt
+	if s == ModelSortColumnUpdatedAt {
+		return model.ColumnUpdatedAt
+	}
+	return model.ColumnOrder
 }
