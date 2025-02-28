@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -111,6 +112,7 @@ func updateModelsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 
 	return res
 }
+
 func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation DeleteModel($modelId: ID!) {
@@ -135,6 +137,7 @@ func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 
 	return res.Path("$.data.deleteModel.modelId").Raw().(string), res
 }
+
 func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetModel($modelId: ID!) {
@@ -314,6 +317,64 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 		res
 }
 
+func getModels(e *httpexpect.Expect, pId string, sort map[string]string, pagination map[string]any) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `query GetModels($input: ModelsInput!){
+  models(input: $input) {
+    nodes{
+        id
+        name
+        createdAt
+				updatedAt
+        order
+        schema{
+            fields{
+                id
+                title
+                typeProperty{
+                    ... on SchemaFieldGeometryObject {
+                        supportedTypes
+                    }
+                }
+            }
+        }
+    }
+  }
+}`,
+		Variables: map[string]any{
+			"input": map[string]any{
+				"project":    pId,
+				"sort":       sort,
+				"pagination": pagination,
+			},
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func TestSortModels(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	sort := map[string]string{"column": "CREATED_AT", "direction": "DESC"}
+	pagination := map[string]any{"last": 10}
+	res := getModels(e, pId, sort, pagination)
+	fmt.Println(res)
+	// res.Object().
+	// 	Value("data").Object().
+	// 	Value("models").Array().Length().NotEqual(0)
+}
+
 func TestCreateModel(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
@@ -330,6 +391,7 @@ func TestCreateModel(t *testing.T) {
 		HasValue("key", "test-1")
 
 }
+
 func TestUpdateModel(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
