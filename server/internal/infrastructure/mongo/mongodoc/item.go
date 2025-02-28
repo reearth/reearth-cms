@@ -34,9 +34,6 @@ type ItemDocument struct {
 type ItemFieldDocument struct {
 	F         string        `bson:"f,omitempty"`
 	V         ValueDocument `bson:"v,omitempty"`
-	Field     string        `bson:"schemafield,omitempty"` // compat
-	ValueType string        `bson:"valuetype,omitempty"`   // compat
-	Value     any           `bson:"value,omitempty"`       // compat
 	ItemGroup *string
 }
 
@@ -117,22 +114,9 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	}
 
 	fields, err := util.TryMap(d.Fields, func(f ItemFieldDocument) (*item.Field, error) {
-		// compat
-		if f.Field != "" {
-			f.F = f.Field
-		}
-
 		sf, err := item.FieldIDFrom(f.F)
 		if err != nil {
 			return nil, err
-		}
-
-		// compat
-		if f.ValueType != "" {
-			f.Value = ValueDocument{
-				T: f.ValueType,
-				V: f.Value,
-			}
 		}
 		ig := id.ItemGroupIDFromRef(f.ItemGroup)
 		return item.NewField(sf, f.V.MultipleValue(), ig), nil
