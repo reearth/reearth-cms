@@ -209,25 +209,22 @@ func prepare(ids id.ModelIDList, rows model.List) model.List {
 }
 
 func sortModels(ms *model.Sort) *usecasex.Sort {
-	var s *usecasex.Sort
-	if ms != nil {
-		reverted := ms.Direction == model.DirectionDesc
-		s = &usecasex.Sort{
-			Key:      modelSortColumn(ms.Column),
-			Reverted: reverted,
-		}
+	if ms == nil {
+		return nil
 	}
-	return s
-}
-
-func modelSortColumn(c model.Column) string {
-	switch c {
+	key := ""
+	switch ms.Column {
 	case model.ColumnCreatedAt:
-		return "__temp.createdAt"
+		key = "createdat"
 	case model.ColumnUpdatedAt:
-		return "__temp.updateAt"
-	default:
-		return "__temp.updateAt"
+		key = "updatedat"
+	}
+	if key == "" {
+		return nil
+	}
+	return &usecasex.Sort{
+		Key:      key,
+		Reverted: ms.Direction == model.DirectionDesc,
 	}
 }
 
