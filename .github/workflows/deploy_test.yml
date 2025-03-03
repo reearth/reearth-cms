@@ -94,7 +94,7 @@ jobs:
         run: |
           docker pull ${{ secrets.WORKER_IMAGE }}
           docker tag ${{ secrets.WORKER_IMAGE }} ${{ secrets.WORKER_IMAGE_GCP }}
-          docker push ${{ secrets.WORKER_IMAGE_GCP }}
+          docker push ${{ secrets.WORKER_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy reearth-cms-worker \
