@@ -98,7 +98,7 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy reearth-cms-worker \
-            --image ${{ secrets.WORKER_IMAGE_GCP }} \
+            --image ${{ secrets.WORKER_IMAGE_GC }} \
             --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
