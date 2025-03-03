@@ -35,7 +35,7 @@ jobs:
       - name: docker push
         run: |
           docker pull ${{ secrets.SERVER_IMAGE }}
-          docker tag ${{ secrets.SERVER_IMAGE }} ${{ secrets.SERVER_IMAGE_GCP }}
+          docker tag ${{ secrets.SERVER_IMAGE }} ${{ secrets.SERVER_IMAGE_GC }}
           docker push ${{ secrets.SERVER_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
