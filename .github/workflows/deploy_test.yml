@@ -65,7 +65,7 @@ jobs:
         run: |
           docker pull ${{ secrets.WEB_IMAGE }}
           docker tag ${{ secrets.WEB_IMAGE }} ${{ secrets.WEB_IMAGE_GCP }}
-          docker push ${{ secrets.WEB_IMAGE_GCP }}
+          docker push ${{ secrets.WEB_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy reearth-cms-web \
