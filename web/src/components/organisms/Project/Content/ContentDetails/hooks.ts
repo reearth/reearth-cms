@@ -602,7 +602,9 @@ export default () => {
   const versions = useMemo(
     () =>
       versionsData
-        ? fromGraphQLversionsByItem(versionsData.versionsByItem as GQLVersionedItem[]).reverse()
+        ? fromGraphQLversionsByItem(versionsData.versionsByItem as GQLVersionedItem[]).sort(
+            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+          )
         : [],
     [versionsData],
   );
