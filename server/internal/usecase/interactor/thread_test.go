@@ -212,7 +212,7 @@ func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 	pid := id.NewProjectID()
 	uid := accountdomain.NewUserID()
 	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).MustBuild()
-	rt := thread.ResourceTypeItem
+	rt := interfaces.ResourceTypeItem
 	content := "content"
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{

@@ -82,7 +82,7 @@ func (s *Server) createThreadForAsset(ctx context.Context, uc *interfaces.Contai
 	_, comment, err := uc.Thread.CreateThreadWithComment(ctx, interfaces.CreateThreadWithCommentInput{
 		WorkspaceID:  p.Workspace(),
 		ResourceID:   a.ID().String(),
-		ResourceType: thread.ResourceTypeAsset,
+		ResourceType: interfaces.ResourceTypeAsset,
 		Content:      content,
 	}, op)
 	if err != nil {

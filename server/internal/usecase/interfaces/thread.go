@@ -16,10 +16,18 @@ var (
 	ErrCommentDoesNotExist = rerror.NewE(i18n.T("Comment does not exist in this thread"))
 )
 
+type ResourceType string
+
+const (
+	ResourceTypeItem    ResourceType = "item"
+	ResourceTypeAsset   ResourceType = "asset"
+	ResourceTypeRequest ResourceType = "request"
+)
+
 type CreateThreadWithCommentInput struct {
 	WorkspaceID  accountdomain.WorkspaceID
 	ResourceID   string
-	ResourceType thread.ResourceType
+	ResourceType ResourceType
 	Content      string
 }
 

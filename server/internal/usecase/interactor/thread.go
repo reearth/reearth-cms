@@ -61,9 +61,9 @@ func (i *Thread) CreateThreadWithComment(ctx context.Context, input interfaces.C
 	)
 }
 
-func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resourceType thread.ResourceType, resourceID string) error {
+func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resourceType interfaces.ResourceType, resourceID string) error {
 	switch resourceType {
-	case thread.ResourceTypeItem:
+	case interfaces.ResourceTypeItem:
 		iid, err := id.ItemIDFrom(resourceID)
 		if err != nil {
 			return err
@@ -77,7 +77,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return i.repos.Item.Save(ctx, itm.Value())
 		}
 
-	case thread.ResourceTypeAsset:
+	case interfaces.ResourceTypeAsset:
 		aid, err := id.AssetIDFrom(resourceID)
 		if err != nil {
 			return err
@@ -91,7 +91,7 @@ func (i *Thread) linkThreadToResource(ctx context.Context, thID thread.ID, resou
 			return i.repos.Asset.Save(ctx, a)
 		}
 
-	case thread.ResourceTypeRequest:
+	case interfaces.ResourceTypeRequest:
 		rid, err := id.RequestIDFrom(resourceID)
 		if err != nil {
 			return err
