@@ -82,6 +82,6 @@ const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   }
   background-color: ${({ disabled }) => (disabled ? "#f5f5f5" : "#FFF")};
   * {
-    color: ${({ disabled, isError }) => (isError ? "#ff4d4f" : disabled ? "#00000040" : "#000")};
+    ${({ isError }) => isError && "color: #ff4d4f"};
   }
 `;

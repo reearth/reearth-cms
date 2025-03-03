@@ -21,6 +21,7 @@ const ContentDetails: React.FC = () => {
     currentItem,
     initialFormValues,
     initialMetaFormValues,
+    versions,
     itemCreationLoading,
     itemUpdatingLoading,
     requestCreationLoading,
@@ -45,6 +46,7 @@ const ContentDetails: React.FC = () => {
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
+    handleGetVersionedItem,
     handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
@@ -141,6 +143,7 @@ const ContentDetails: React.FC = () => {
       model={currentModel}
       initialFormValues={initialFormValues}
       initialMetaFormValues={initialMetaFormValues}
+      versions={versions}
       loading={itemCreationLoading || itemUpdatingLoading}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
@@ -167,6 +170,7 @@ const ContentDetails: React.FC = () => {
       uploadModalVisibility={uploadModalVisibility}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      onGetVersionedItem={handleGetVersionedItem}
       onUnpublish={handleUnpublish}
       onPublish={handlePublish}
       onUploadModalCancel={handleUploadModalCancel}
