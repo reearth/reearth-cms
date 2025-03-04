@@ -1,4 +1,3 @@
-Asset IDs are required: ""
 At least one asset ID is required: ""
 Comment already exist in this thread: コメントはすでにこのスレッドに存在します。
 Comment does not exist in this thread: コメントはこのスレッドに存在しません。
@@ -21,7 +20,7 @@ duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
 duplicated value: 値が重複しています。
 either model or group should be provided: モデルまたはグループのどちらかを指定してください。
-empty asset ids: アセットIDが空です。
+empty ids list: ""
 failed to auth: 認証に失敗しました。
 failed to create asset: アセットの作成に失敗しました。
 failed to delete file: ファイルの削除に失敗しました。
@@ -44,6 +43,7 @@ invalid document: 無効なドキュメントです。
 invalid email address: 無効なEmailアドレスです。
 invalid field: 無効なフィールドです。
 invalid file: 無効なファイルです。
+invalid input: ""
 invalid key: 無効なキーです。
 invalid lang: 無効な言語です。
 invalid object: 無効なオブジェクトです。
