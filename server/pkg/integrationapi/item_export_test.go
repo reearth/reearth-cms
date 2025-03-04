@@ -93,7 +93,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi1}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 	v1 := version.New()
 	vi1 := version.MustBeValue(v1, nil, version.NewRefs(version.Latest), util.Now(), i1)

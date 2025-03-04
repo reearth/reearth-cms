@@ -48,7 +48,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi1, fi2, fi3, fi4, fi5}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		User(uid).
 		Integration(nid).
 		MustBuild()
@@ -60,7 +60,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		User(uid).
 		Integration(nid).
 		MustBuild()
@@ -160,7 +160,7 @@ func TestExtractProperties(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi1, fi2, fi3, fi4, fi5}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		User(uid).
 		Integration(nid).
 		MustBuild()
@@ -170,7 +170,7 @@ func TestExtractProperties(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi1, fi3}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		User(uid).
 		Integration(nid).
 		MustBuild()

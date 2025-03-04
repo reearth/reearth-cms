@@ -34,10 +34,10 @@ func TestAssetDocument_Model(t *testing.T) {
 				Size:                    123,
 				PreviewType:             "",
 				UUID:                    uuId.String(),
-				Thread:                  tId.String(),
+				Thread:                  tId.StringRef(),
 				ArchiveExtractionStatus: "",
 			},
-			want:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId).UUID(uuId.String()).Size(123).MustBuild(),
+			want:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId.Ref()).UUID(uuId.String()).Size(123).MustBuild(),
 			wantErr: false,
 		},
 	}
@@ -68,7 +68,7 @@ func TestNewAsset(t *testing.T) {
 	}{
 		{
 			name: "new",
-			a:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId).UUID(uuId.String()).Size(123).MustBuild(),
+			a:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId.Ref()).UUID(uuId.String()).Size(123).MustBuild(),
 			want: &AssetDocument{
 				ID:                      aId.String(),
 				Project:                 pId.String(),
@@ -79,7 +79,7 @@ func TestNewAsset(t *testing.T) {
 				Size:                    123,
 				PreviewType:             "",
 				UUID:                    uuId.String(),
-				Thread:                  tId.String(),
+				Thread:                  tId.StringRef(),
 				ArchiveExtractionStatus: "",
 			},
 			aDocId: aId.String(),
