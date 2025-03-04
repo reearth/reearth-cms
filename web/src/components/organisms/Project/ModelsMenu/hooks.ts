@@ -18,6 +18,8 @@ import {
   useCheckGroupKeyAvailabilityLazyQuery,
   Model as GQLModel,
   Group as GQLGroup,
+  ModelSortColumn,
+  SortDirection,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useWorkspace, useProject, useUserRights } from "@reearth-cms/state";
@@ -55,7 +57,16 @@ export default ({ modelId }: Params) => {
   );
 
   const { data } = useGetModelsQuery({
-    variables: { projectId: projectId ?? "", pagination: { first: 100 } },
+    variables: {
+      input: {
+        project: projectId ?? "",
+        sort: {
+          column: ModelSortColumn.CreatedAt,
+          direction: SortDirection.Desc,
+        },
+        pagination: { first: 100 },
+      },
+    },
     skip: !projectId,
   });
 

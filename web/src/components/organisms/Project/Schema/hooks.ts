@@ -36,6 +36,8 @@ import {
   useDeleteModelMutation,
   useCheckModelKeyAvailabilityLazyQuery,
   useModelsByGroupQuery,
+  ModelSortColumn,
+  SortDirection,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
@@ -62,8 +64,14 @@ export default () => {
   const [collapsed, setCollapsed] = useCollapsedModelMenu();
   const { data: modelsData } = useGetModelsQuery({
     variables: {
-      projectId: projectId ?? "",
-      pagination: { first: 100 },
+      input: {
+        project: projectId ?? "",
+        sort: {
+          column: ModelSortColumn.CreatedAt,
+          direction: SortDirection.Desc,
+        },
+        pagination: { first: 100 },
+      },
     },
     skip: !projectId,
   });

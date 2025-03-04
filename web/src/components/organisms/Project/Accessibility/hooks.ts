@@ -12,6 +12,8 @@ import {
   ProjectPublicationScope,
   useUpdateProjectMutation,
   useRegeneratePublicApiTokenMutation,
+  ModelSortColumn,
+  SortDirection
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
@@ -32,8 +34,14 @@ export default () => {
 
   const { data: modelsData } = useGetModelsQuery({
     variables: {
-      projectId: currentProject?.id ?? "",
-      pagination: { first: 100 },
+      input: {
+        project: currentProject?.id ?? "",
+        sort: {
+          column: ModelSortColumn.CreatedAt,
+          direction: SortDirection.Desc,
+        },
+        pagination: { first: 100 },
+      },
     },
     skip: !currentProject?.id,
   });
