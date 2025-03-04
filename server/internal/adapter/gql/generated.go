@@ -442,6 +442,7 @@ type ComplexityRoot struct {
 		DeleteField                        func(childComplexity int, input gqlmodel.DeleteFieldInput) int
 		DeleteGroup                        func(childComplexity int, input gqlmodel.DeleteGroupInput) int
 		DeleteIntegration                  func(childComplexity int, input gqlmodel.DeleteIntegrationInput) int
+		DeleteIntegrations                 func(childComplexity int, input gqlmodel.DeleteIntegrationsInput) int
 		DeleteItem                         func(childComplexity int, input gqlmodel.DeleteItemInput) int
 		DeleteMe                           func(childComplexity int, input gqlmodel.DeleteMeInput) int
 		DeleteModel                        func(childComplexity int, input gqlmodel.DeleteModelInput) int
@@ -968,6 +969,7 @@ type MutationResolver interface {
 	CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	UpdateIntegration(ctx context.Context, input gqlmodel.UpdateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	DeleteIntegration(ctx context.Context, input gqlmodel.DeleteIntegrationInput) (*gqlmodel.DeleteIntegrationPayload, error)
+	DeleteIntegrations(ctx context.Context, input gqlmodel.DeleteIntegrationsInput) (*gqlmodel.DeleteIntegrationsPayload, error)
 	RegenerateIntegrationToken(ctx context.Context, input gqlmodel.RegenerateIntegrationTokenInput) (*gqlmodel.IntegrationPayload, error)
 	CreateWebhook(ctx context.Context, input gqlmodel.CreateWebhookInput) (*gqlmodel.WebhookPayload, error)
 	UpdateWebhook(ctx context.Context, input gqlmodel.UpdateWebhookInput) (*gqlmodel.WebhookPayload, error)
@@ -1580,6 +1582,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 	case "DeleteIntegrationPayload.integrationId":
 		if e.complexity.DeleteIntegrationPayload.IntegrationID == nil {
+			break
+		}
+
+		return e.complexity.DeleteIntegrationPayload.IntegrationID(childComplexity), true
+
+	case "DeleteIntegrationsPayload.integrationIDs":
+		if e.complexity.DeleteIntegrationsPayload.IntegrationIDs == nil {
 			break
 		}
 
@@ -2679,6 +2688,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteIntegration(childComplexity, args["input"].(gqlmodel.DeleteIntegrationInput)), true
+
+	case "Mutation.deleteIntegrations":
+		if e.complexity.Mutation.DeleteIntegrations == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteIntegrations_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteIntegrations(childComplexity, args["input"].(gqlmodel.DeleteIntegrationsInput)), true
 
 	case "Mutation.deleteItem":
 		if e.complexity.Mutation.DeleteItem == nil {
@@ -5729,6 +5750,10 @@ input DeleteIntegrationInput {
   integrationId: ID!
 }
 
+input DeleteIntegrationsInput {
+  integrationIDs: [ID!]
+}
+
 input RegenerateIntegrationTokenInput {
   integrationId: ID!
 }
@@ -5742,12 +5767,17 @@ type DeleteIntegrationPayload {
   integrationId: ID!
 }
 
+type DeleteIntegrationsPayload {
+  integrationIDs: [ID!]
+}
+
 # extend type Query {}
 
 extend type Mutation {
   createIntegration(input: CreateIntegrationInput!): IntegrationPayload
   updateIntegration(input: UpdateIntegrationInput!): IntegrationPayload
   deleteIntegration(input: DeleteIntegrationInput!): DeleteIntegrationPayload
+  deleteIntegrations(input: DeleteIntegrationsInput!): DeleteIntegrationsPayload
   regenerateIntegrationToken(input: RegenerateIntegrationTokenInput!): IntegrationPayload
 }
 `, BuiltIn: false},
@@ -7569,6 +7599,34 @@ func (ec *executionContext) field_Mutation_deleteGroup_argsInput(
 	}
 
 	var zeroVal gqlmodel.DeleteGroupInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteIntegration_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_deleteIntegration_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteIntegration_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.DeleteIntegrationInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.DeleteIntegrationInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDeleteIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.DeleteIntegrationInput
 	return zeroVal, nil
 }
 
@@ -12956,6 +13014,50 @@ func (ec *executionContext) _DeleteGroupPayload_groupId(ctx context.Context, fie
 func (ec *executionContext) fieldContext_DeleteGroupPayload_groupId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteGroupPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteIntegrationPayload_integrationId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteIntegrationPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteIntegrationPayload_integrationId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IntegrationID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteIntegrationPayload_integrationId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteIntegrationPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -19993,6 +20095,62 @@ func (ec *executionContext) fieldContext_Mutation_deleteIntegration(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteIntegration_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteIntegrations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteIntegrations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteIntegrations(rctx, fc.Args["input"].(gqlmodel.DeleteIntegrationsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.DeleteIntegrationsPayload)
+	fc.Result = res
+	return ec.marshalODeleteIntegrationsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteIntegrations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "integrationIDs":
+				return ec.fieldContext_DeleteIntegrationsPayload_integrationIDs(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteIntegrationsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteIntegrations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -37254,6 +37412,33 @@ func (ec *executionContext) unmarshalInputDeleteGroupInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteIntegrationInput(ctx context.Context, obj any) (gqlmodel.DeleteIntegrationInput, error) {
+	var it gqlmodel.DeleteIntegrationInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"integrationId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "integrationId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IntegrationID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputDeleteIntegrationsInput(ctx context.Context, obj any) (gqlmodel.DeleteIntegrationsInput, error) {
 	var it gqlmodel.DeleteIntegrationsInput
 	asMap := map[string]any{}
@@ -42536,6 +42721,45 @@ func (ec *executionContext) _DeleteGroupPayload(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var deleteIntegrationPayloadImplementors = []string{"DeleteIntegrationPayload"}
+
+func (ec *executionContext) _DeleteIntegrationPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteIntegrationPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteIntegrationPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteIntegrationPayload")
+		case "integrationId":
+			out.Values[i] = ec._DeleteIntegrationPayload_integrationId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var deleteIntegrationsPayloadImplementors = []string{"DeleteIntegrationsPayload"}
 
 func (ec *executionContext) _DeleteIntegrationsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteIntegrationsPayload) graphql.Marshaler {
@@ -44860,6 +45084,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteIntegration":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteIntegration(ctx, field)
+			})
+		case "deleteIntegrations":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteIntegrations(ctx, field)
 			})
 		case "regenerateIntegrationToken":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -49887,9 +50115,13 @@ func (ec *executionContext) unmarshalNDeleteGroupInput2githubᚗcomᚋreearthᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNDeleteIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationInput(ctx context.Context, v any) (gqlmodel.DeleteIntegrationInput, error) {
+	res, err := ec.unmarshalInputDeleteIntegrationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNDeleteIntegrationsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationsInput(ctx context.Context, v any) (gqlmodel.DeleteIntegrationsInput, error) {
 	res, err := ec.unmarshalInputDeleteIntegrationsInput(ctx, v)
->>>>>>> 90e1b237 (enhance integration list mapping code and fix variable names)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -52806,6 +53038,13 @@ func (ec *executionContext) marshalODeleteGroupPayload2ᚖgithubᚗcomᚋreearth
 		return graphql.Null
 	}
 	return ec._DeleteGroupPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODeleteIntegrationPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteIntegrationPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteIntegrationPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeleteIntegrationsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteIntegrationsPayload) graphql.Marshaler {
