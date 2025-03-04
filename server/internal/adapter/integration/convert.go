@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/usecasex"
@@ -225,6 +226,33 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 		}
 	}
 	return nil
+}
+
+func toModelSort(sort integrationapi.SortParam, dir *integrationapi.SortDirParam) *model.Sort {
+	sortDir := integrationapi.SortDirParamAsc
+	if dir != nil {
+		sortDir = *dir
+	}
+
+	direction := model.DirectionDesc
+	if sortDir == integrationapi.SortDirParamAsc {
+		direction = model.DirectionAsc
+	}
+
+	var column model.Column
+	switch sort {
+	case integrationapi.SortParamCreatedAt:
+		column = model.ColumnCreatedAt
+	case integrationapi.SortParamUpdatedAt:
+		column = model.ColumnUpdatedAt
+	default:
+		column = model.ColumnOrder
+	}
+
+	return &model.Sort{
+		Column:    column,
+		Direction: direction,
+	}
 }
 
 func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.Condition {
