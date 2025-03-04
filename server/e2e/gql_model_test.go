@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -408,7 +407,6 @@ func TestSortModels(t *testing.T) {
 		Value("data").Object().
 		Value("models").Object().
 		Value("nodes").Array()
-	fmt.Println(models3)
 
 	models3.Value(0).Object().Value("id").IsEqual(mid1)
 	models3.Value(1).Object().Value("id").IsEqual(mid2)
