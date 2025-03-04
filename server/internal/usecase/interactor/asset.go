@@ -617,15 +617,16 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 				return assetIDs, err
 			}
 
-			mapFileNameByUUID := lo.FilterSliceToMap(assets, func(a *asset.Asset) (string, string, bool) {
+			UUIDList := make([]string, 0, len(assets))
+			for _, a := range assets {
 				if a == nil || a.UUID() == "" || a.FileName() == "" {
-					return "", "", false
+					continue
 				}
-				return a.UUID(), a.FileName(), true
-			})
+				UUIDList = append(UUIDList, a.UUID())
+			}
 
 			// deletes assets' files in
-			err = i.gateways.File.DeleteAssets(ctx, mapFileNameByUUID)
+			err = i.gateways.File.DeleteAssets(ctx, UUIDList)
 			if err != nil {
 				return assetIDs, err
 			}
