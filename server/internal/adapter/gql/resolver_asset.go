@@ -117,7 +117,6 @@ func (r *mutationResolver) DeleteAsset(ctx context.Context, input gqlmodel.Delet
 
 // DeleteAssets is the resolver for the deleteAssets field.
 func (r *mutationResolver) DeleteAssets(ctx context.Context, input gqlmodel.DeleteAssetsInput) (*gqlmodel.DeleteAssetsPayload, error) {
-
 	ids, err := gqlmodel.ToIDs[id.Asset](input.AssetIds)
 	if err != nil {
 		return nil, err
