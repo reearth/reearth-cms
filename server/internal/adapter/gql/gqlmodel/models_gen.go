@@ -1982,18 +1982,22 @@ func (e ItemStatus) MarshalGQL(w io.Writer) {
 type ModelSortColumn string
 
 const (
+	ModelSortColumnName      ModelSortColumn = "NAME"
 	ModelSortColumnCreatedAt ModelSortColumn = "CREATED_AT"
 	ModelSortColumnUpdatedAt ModelSortColumn = "UPDATED_AT"
+	ModelSortColumnOrder     ModelSortColumn = "ORDER"
 )
 
 var AllModelSortColumn = []ModelSortColumn{
+	ModelSortColumnName,
 	ModelSortColumnCreatedAt,
 	ModelSortColumnUpdatedAt,
+	ModelSortColumnOrder,
 }
 
 func (e ModelSortColumn) IsValid() bool {
 	switch e {
-	case ModelSortColumnCreatedAt, ModelSortColumnUpdatedAt:
+	case ModelSortColumnName, ModelSortColumnCreatedAt, ModelSortColumnUpdatedAt, ModelSortColumnOrder:
 		return true
 	}
 	return false

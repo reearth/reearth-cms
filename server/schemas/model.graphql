@@ -16,8 +16,10 @@ type Model implements Node {
 }
 
 enum ModelSortColumn {
+  NAME
   CREATED_AT
   UPDATED_AT
+  ORDER
 }
 
 # Inputs

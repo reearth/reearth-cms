@@ -210,17 +210,21 @@ func prepare(ids id.ModelIDList, rows model.List) model.List {
 
 func sortModels(ms *model.Sort) *usecasex.Sort {
 	if ms == nil {
-		return nil
+		return &usecasex.Sort{Key: "order"}
 	}
-	key := ""
+
+	key := "order"
 	switch ms.Column {
 	case model.ColumnCreatedAt:
-		key = "createdat"
+		key = "id"
 	case model.ColumnUpdatedAt:
 		key = "updatedat"
-	default:
+	case model.ColumnName:
+		key = "name"
+	case model.ColumnOrder:
 		key = "order"
 	}
+
 	return &usecasex.Sort{
 		Key:      key,
 		Reverted: ms.Direction == model.DirectionDesc,

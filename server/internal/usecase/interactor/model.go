@@ -53,9 +53,6 @@ func (i Model) FindByProject(ctx context.Context, input interfaces.FindByProject
 	if err != nil {
 		return nil, nil, err
 	}
-	if input.Sort == nil {
-		m = m.Ordered()
-	}
 	return m, p, nil
 }
 

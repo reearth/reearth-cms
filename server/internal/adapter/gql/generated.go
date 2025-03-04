@@ -6304,8 +6304,10 @@ extend type Mutation {
 }
 
 enum ModelSortColumn {
+  NAME
   CREATED_AT
   UPDATED_AT
+  ORDER
 }
 
 # Inputs

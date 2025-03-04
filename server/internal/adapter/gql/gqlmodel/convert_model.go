@@ -45,11 +45,16 @@ func ToModelSortDirection(s *SortDirection) model.Direction {
 }
 
 func ToModelSortColumn(s ModelSortColumn) model.Column {
-	if s == ModelSortColumnCreatedAt {
-		return model.ColumnCreatedAt
+	res := model.ColumnOrder
+	switch s {
+	case ModelSortColumnCreatedAt:
+		res = model.ColumnCreatedAt
+	case ModelSortColumnUpdatedAt:
+		res = model.ColumnUpdatedAt
+	case ModelSortColumnName:
+		res = model.ColumnName
+	case ModelSortColumnOrder:
+		res = model.ColumnOrder
 	}
-	if s == ModelSortColumnUpdatedAt {
-		return model.ColumnUpdatedAt
-	}
-	return model.ColumnOrder
+	return res
 }

@@ -659,9 +659,12 @@ func TestSortModels(t *testing.T) {
 		expected *usecasex.Sort
 	}{
 		{
-			name:  "nil input",
-			input: nil,
-			expected: nil,
+			name:     "nil input",
+			input:    nil,
+			expected: &usecasex.Sort{
+				Key:      "order",
+				Reverted: false,
+			},
 		},
 		{
 			name: "sort by CreatedAt ascending",
@@ -670,7 +673,7 @@ func TestSortModels(t *testing.T) {
 				Direction: model.DirectionAsc,
 			},
 			expected: &usecasex.Sort{
-				Key:      "createdat",
+				Key:      "id",
 				Reverted: false,
 			},
 		},
@@ -681,7 +684,7 @@ func TestSortModels(t *testing.T) {
 				Direction: model.DirectionDesc,
 			},
 			expected: &usecasex.Sort{
-				Key:      "createdat",
+				Key:      "id",
 				Reverted: true,
 			},
 		},
@@ -708,12 +711,37 @@ func TestSortModels(t *testing.T) {
 			},
 		},
 		{
+			name: "sort by name descending",
+			input: &model.Sort{
+				Column:    model.ColumnName,
+				Direction: model.DirectionDesc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "name",
+				Reverted: true,
+			},
+		},
+		{
+			name: "sort by order descending",
+			input: &model.Sort{
+				Column:    model.ColumnOrder,
+				Direction: model.DirectionDesc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "order",
+				Reverted: true,
+			},
+		},
+		{
 			name: "invalid column",
 			input: &model.Sort{
 				Column:    "invalid_column",
 				Direction: model.DirectionAsc,
 			},
-			expected: nil,
+			expected: &usecasex.Sort{
+				Key:      "order",
+				Reverted: false,
+			},
 		},
 	}
 
