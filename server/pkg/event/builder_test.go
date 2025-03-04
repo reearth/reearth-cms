@@ -15,7 +15,7 @@ import (
 var (
 	u = user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a = asset.New().NewID().Project(project.NewID()).NewUUID().
-		Thread(id.NewThreadID()).Size(100).CreatedByUser(u.ID()).
+		Thread(id.NewThreadID().Ref()).Size(100).CreatedByUser(u.ID()).
 		MustBuild()
 )
 

@@ -31,7 +31,7 @@ func TestCommon_createEvent(t *testing.T) {
 	now := util.Now()
 	defer util.MockNow(now)()
 	uID := user.NewID()
-	a := asset.New().NewID().Thread(asset.NewThreadID()).
+	a := asset.New().NewID().Thread(asset.NewThreadID().Ref()).
 		Project(project.NewID()).Size(100).CreatedByUser(uID).NewUUID().MustBuild()
 	ws := workspace.New().NewID().MustBuild()
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").
@@ -78,7 +78,7 @@ func TestCommon_createEvent(t *testing.T) {
 func TestCommon_webhook(t *testing.T) {
 	now := time.Now()
 	uID := user.NewID()
-	a := asset.New().NewID().Thread(asset.NewThreadID()).NewUUID().
+	a := asset.New().NewID().Thread(asset.NewThreadID().Ref()).NewUUID().
 		Project(project.NewID()).Size(100).CreatedByUser(uID).
 		MustBuild()
 	ws := workspace.New().NewID().MustBuild()

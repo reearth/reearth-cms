@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -13,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -54,11 +52,9 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 				pb = pb.Description(*p.Description)
 			}
 			if p.Alias != nil {
-				proj2, _ := i.repos.Project.FindByPublicName(ctx, *p.Alias)
-				if proj2 != nil {
+				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *p.Alias); !ok {
 					return nil, interfaces.ErrProjectAliasAlreadyUsed
 				}
-
 				pb = pb.Alias(*p.Alias)
 			}
 			if len(p.RequestRoles) > 0 {
@@ -95,10 +91,8 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 				proj.UpdateDescription(*p.Description)
 			}
 
-			if p.Alias != nil {
-				proj2, _ := i.repos.Project.FindByPublicName(ctx, *p.Alias)
-
-				if proj2 != nil && proj2.ID() != proj.ID() {
+			if p.Alias != nil && *p.Alias != proj.Alias() {
+				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *p.Alias); !ok {
 					return nil, interfaces.ErrProjectAliasAlreadyUsed
 				}
 
@@ -140,12 +134,7 @@ func (i *Project) CheckAlias(ctx context.Context, alias string) (bool, error) {
 				return false, project.ErrInvalidAlias
 			}
 
-			prj, err := i.repos.Project.FindByPublicName(ctx, alias)
-			if prj == nil && err == nil || err != nil && errors.Is(err, rerror.ErrNotFound) {
-				return true, nil
-			}
-
-			return false, err
+			return i.repos.Project.IsAliasAvailable(ctx, alias)
 		})
 }
 
@@ -182,7 +171,7 @@ func (i *Project) RegenerateToken(ctx context.Context, pId id.ProjectID, operato
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			if p.Publication() == nil || p.Publication().Scope() != project.PublicationScopeLimited  {
+			if p.Publication() == nil || p.Publication().Scope() != project.PublicationScopeLimited {
 				return nil, interfaces.ErrInvalidProject
 			}
 

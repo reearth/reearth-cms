@@ -17,7 +17,7 @@ type ItemDocument struct {
 	ID                   string
 	Project              string
 	Schema               string
-	Thread               string
+	Thread               *string
 	ModelID              string
 	Fields               []ItemFieldDocument
 	Timestamp            time.Time
@@ -34,9 +34,6 @@ type ItemDocument struct {
 type ItemFieldDocument struct {
 	F         string        `bson:"f,omitempty"`
 	V         ValueDocument `bson:"v,omitempty"`
-	Field     string        `bson:"schemafield,omitempty"` // compat
-	ValueType string        `bson:"valuetype,omitempty"`   // compat
-	Value     any           `bson:"value,omitempty"`       // compat
 	ItemGroup *string
 }
 
@@ -62,7 +59,7 @@ func NewVersionedItemConsumer() *VersionedItemConsumer {
 
 func NewItem(i *item.Item) (*ItemDocument, string) {
 	itmId := i.ID().String()
-	d := ItemDocument{
+	return &ItemDocument{
 		ID:           itmId,
 		Schema:       i.Schema().String(),
 		ModelID:      i.Model().String(),
@@ -88,11 +85,8 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Integration:          i.Integration().StringRef(),
 		Assets:               i.AssetIDs().Strings(),
 		IsMetadata:           i.IsMetadata(),
-	}
-	if !i.Thread().IsEmpty() {
-		d.Thread = i.Thread().String()
-	}
-	return &d, itmId
+		Thread:               i.Thread().StringRef(),
+	}, itmId
 }
 
 func (d *ItemDocument) Model() (*item.Item, error) {
@@ -117,22 +111,9 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	}
 
 	fields, err := util.TryMap(d.Fields, func(f ItemFieldDocument) (*item.Field, error) {
-		// compat
-		if f.Field != "" {
-			f.F = f.Field
-		}
-
 		sf, err := item.FieldIDFrom(f.F)
 		if err != nil {
 			return nil, err
-		}
-
-		// compat
-		if f.ValueType != "" {
-			f.Value = ValueDocument{
-				T: f.ValueType,
-				V: f.Value,
-			}
 		}
 		ig := id.ItemGroupIDFromRef(f.ItemGroup)
 		return item.NewField(sf, f.V.MultipleValue(), ig), nil
@@ -152,15 +133,8 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		OriginalItem(id.ItemIDFromRef(d.OriginalItem)).
 		IsMetadata(d.IsMetadata).
 		Fields(fields).
-		Timestamp(d.Timestamp)
-
-	if d.Thread != "" {
-		tid, err := id.ThreadIDFrom(d.Thread)
-		if err != nil {
-			return nil, err
-		}
-		ib.Thread(tid)
-	}
+		Timestamp(d.Timestamp).
+		Thread(id.ThreadIDFromRef(d.Thread))
 
 	if uId := accountdomain.UserIDFromRef(d.User); uId != nil {
 		ib = ib.User(*uId)

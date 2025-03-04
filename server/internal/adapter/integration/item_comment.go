@@ -5,7 +5,11 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -24,7 +28,10 @@ func (s *Server) ItemCommentList(ctx context.Context, request ItemCommentListReq
 	}
 
 	thId := i.Value().Thread()
-	th, err := uc.Thread.FindByID(ctx, thId, op)
+	if thId == nil {
+		return ItemCommentList200JSONResponse{}, nil
+	}
+	th, err := uc.Thread.FindByID(ctx, *thId, op)
 	if err != nil {
 		return ItemCommentList400Response{}, err
 	}
@@ -48,13 +55,36 @@ func (s *Server) ItemCommentCreate(ctx context.Context, request ItemCommentCreat
 		return ItemCommentCreate400Response{}, err
 	}
 
-	thId := i.Value().Thread()
-	_, comment, err := uc.Thread.AddComment(ctx, thId, *request.Body.Content, op)
+	var comment *thread.Comment
+	if i.Value().Thread() == nil {
+		comment, err = s.createThreadForItem(ctx, uc, i.Value(), *request.Body.Content, op)
+	} else {
+		_, comment, err = uc.Thread.AddComment(ctx, *i.Value().Thread(), *request.Body.Content, op)
+	}
+
 	if err != nil {
 		return ItemCommentCreate400Response{}, err
 	}
 
 	return ItemCommentCreate200JSONResponse(*integrationapi.NewComment(comment)), nil
+}
+
+func (s *Server) createThreadForItem(ctx context.Context, uc *interfaces.Container, i *item.Item, content string, op *usecase.Operator) (*thread.Comment, error) {
+	idOrAlias := project.IDOrAlias(i.Project().String())
+	p, err := uc.Project.FindByIDOrAlias(ctx, idOrAlias, op)
+	if err != nil {
+		return nil, err
+	}
+	_, comment, err := uc.Thread.CreateThreadWithComment(ctx, interfaces.CreateThreadWithCommentInput{
+		WorkspaceID:  p.Workspace(),
+		ResourceID:   i.ID().String(),
+		ResourceType: interfaces.ResourceTypeItem,
+		Content:      content,
+	}, op)
+	if err != nil {
+		return nil, err
+	}
+	return comment, nil
 }
 
 func (s *Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdateRequestObject) (ItemCommentUpdateResponseObject, error) {
@@ -69,7 +99,11 @@ func (s *Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdat
 		return ItemCommentUpdate400Response{}, err
 	}
 
-	_, comment, err := uc.Thread.UpdateComment(ctx, i.Value().Thread(), request.CommentId, *request.Body.Content, op)
+	thId := i.Value().Thread()
+	if thId == nil {
+		return ItemCommentUpdate400Response{}, nil
+	}
+	_, comment, err := uc.Thread.UpdateComment(ctx, *thId, request.CommentId, *request.Body.Content, op)
 	if err != nil {
 		return ItemCommentUpdate400Response{}, err
 	}
@@ -90,7 +124,10 @@ func (s *Server) ItemCommentDelete(ctx context.Context, request ItemCommentDelet
 	}
 
 	thId := i.Value().Thread()
-	_, err = uc.Thread.DeleteComment(ctx, thId, request.CommentId, op)
+	if thId == nil {
+		return ItemCommentDelete400Response{}, nil
+	}
+	_, err = uc.Thread.DeleteComment(ctx, *thId, request.CommentId, op)
 	if err != nil {
 		return ItemCommentDelete400Response{}, err
 	}

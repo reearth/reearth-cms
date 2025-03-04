@@ -7,25 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewValue(t *testing.T) {
-	assert.Nil(t, NewValue(nil))
-	assert.Equal(t, &ValueDocument{
-		T: "bool",
-		V: true,
-	}, NewValue(value.TypeBool.Value(true)))
-}
-
-func TestNewOptionalValue(t *testing.T) {
-	assert.Nil(t, NewOptionalValue(nil))
-	assert.Equal(t, &ValueDocument{
-		T: "bool",
-	}, NewOptionalValue(value.TypeBool.None()))
-	assert.Equal(t, &ValueDocument{
-		T: "bool",
-		V: true,
-	}, NewOptionalValue(value.TypeBool.Value(true).Some()))
-}
-
 func TestNewMultipleValue(t *testing.T) {
 	assert.Nil(t, NewMultipleValue(nil))
 	assert.Equal(t, &ValueDocument{

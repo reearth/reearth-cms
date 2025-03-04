@@ -1,6 +1,7 @@
 package gqlmodel
 
 import (
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/samber/lo"
 )
@@ -42,4 +43,20 @@ func ToComment(c *thread.Comment, th *thread.Thread) *Comment {
 		Content:     c.Content(),
 		CreatedAt:   c.CreatedAt(),
 	}
+}
+
+func FromResourceType(p ResourceType) (interfaces.ResourceType, bool) {
+	var p2 interfaces.ResourceType
+	switch p {
+	case ResourceTypeItem:
+		p2 = interfaces.ResourceTypeItem
+	case ResourceTypeAsset:
+		p2 = interfaces.ResourceTypeAsset
+	case ResourceTypeRequest:
+		p2 = interfaces.ResourceTypeRequest
+	default:
+		return "", false
+	}
+
+	return p2, true
 }

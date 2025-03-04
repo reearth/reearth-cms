@@ -61,7 +61,7 @@ func Test_NewAsset(t *testing.T) {
 	uid := user.NewID()
 	pid := project.NewID()
 	a := asset.New().NewID().Project(pid).Size(100).NewUUID().
-		CreatedByUser(uid).Thread(id.NewThreadID()).CreatedAt(timeNow).MustBuild()
+		CreatedByUser(uid).Thread(id.NewThreadID().Ref()).CreatedAt(timeNow).MustBuild()
 
 	f1 := asset.NewFile().Name(name).Path(path).ContentType("s").Size(10).Build()
 

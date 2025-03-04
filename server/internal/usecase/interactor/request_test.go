@@ -34,7 +34,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -43,7 +43,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -130,7 +130,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -139,7 +139,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -148,7 +148,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("xxx").
 		MustBuild()
@@ -237,7 +237,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -246,7 +246,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		State(request.StateDraft).
 		Title("hoge").
@@ -357,7 +357,7 @@ func TestRequest_Approve(t *testing.T) {
 	prj := project.New().NewID().MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
-	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	ctx := context.Background()
@@ -383,7 +383,7 @@ func TestRequest_Approve(t *testing.T) {
 		Project(prj.ID()).
 		Reviewers(accountdomain.UserIDList{u.ID()}).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{ri}).
 		Title("foo").
 		MustBuild()

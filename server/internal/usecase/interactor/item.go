@@ -16,7 +16,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -217,13 +216,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		th, err := thread.New().NewID().Workspace(s.Workspace()).Build()
-		if err != nil {
-			return nil, err
-		}
-		if err := i.repos.Thread.Save(ctx, th); err != nil {
-			return nil, err
-		}
 		isMetadata := false
 		if m.Metadata() != nil && param.SchemaID == *m.Metadata() {
 			isMetadata = true
@@ -235,7 +227,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			IsMetadata(isMetadata).
 			Project(s.Project()).
 			Model(m.ID()).
-			Thread(th.ID()).
 			Fields(fields)
 
 		if operator.AcOperator.User != nil {

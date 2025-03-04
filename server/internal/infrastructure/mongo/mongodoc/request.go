@@ -26,7 +26,7 @@ type RequestDocument struct {
 	UpdatedAt   time.Time
 	ApprovedAt  *time.Time
 	ClosedAt    *time.Time
-	Thread      string
+	Thread      *string
 }
 
 type RequestItem struct {
@@ -76,7 +76,7 @@ func NewRequest(r *request.Request) (*RequestDocument, string) {
 		UpdatedAt:  r.UpdatedAt(),
 		ApprovedAt: r.ApprovedAt(),
 		ClosedAt:   r.ClosedAt(),
-		Thread:     r.Thread().String(),
+		Thread:     r.Thread().StringRef(),
 	}, rid
 
 	return doc, id
@@ -138,11 +138,6 @@ func (d *RequestDocument) Model() (*request.Request, error) {
 		return nil, err
 	}
 
-	tid, err := id.ThreadIDFrom(d.Thread)
-	if err != nil {
-		return nil, err
-	}
-
 	builder := request.New().
 		ID(rid).
 		Project(pid).
@@ -156,7 +151,7 @@ func (d *RequestDocument) Model() (*request.Request, error) {
 		ClosedAt(d.ClosedAt).
 		ApprovedAt(d.ApprovedAt).
 		Reviewers(reviewers).
-		Thread(tid)
+		Thread(id.ThreadIDFromRef(d.Thread))
 
 	return builder.Build()
 }
