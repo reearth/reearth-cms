@@ -164,7 +164,7 @@ func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
-		WithJSON(requestBody).
+		WithBytes([]byte(requestBody.Query)).
 		Expect().
 		Status(http.StatusOK).
 		JSON()
