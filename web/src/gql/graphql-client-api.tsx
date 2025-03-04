@@ -753,6 +753,8 @@ export type ModelPayload = {
 
 export enum ModelSortColumn {
   CreatedAt = 'CREATED_AT',
+  Name = 'NAME',
+  Order = 'ORDER',
   UpdatedAt = 'UPDATED_AT'
 }
 

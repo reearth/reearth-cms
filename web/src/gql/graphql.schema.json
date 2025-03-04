@@ -6722,6 +6722,18 @@
             "deprecationReason": null
           },
           {
+            "name": "NAME",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "ORDER",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "UPDATED_AT",
             "description": null,
             "isDeprecated": false,

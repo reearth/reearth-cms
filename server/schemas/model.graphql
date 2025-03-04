@@ -15,11 +15,6 @@ type Model implements Node {
   order: Int
 }
 
-enum ModelSortColumn {
-  CREATED_AT
-  UPDATED_AT
-}
-
 # Inputs
 input CreateModelInput {
   projectId: ID!
@@ -47,17 +42,6 @@ input DeleteModelInput {
 input PublishModelInput {
   modelId: ID!
   status: Boolean!
-}
-
-input ModelsInput {
-  project: ID!
-  sort: ModelSortOptions
-  pagination: Pagination
-}
-
-input ModelSortOptions {
-  column: ModelSortColumn!
-  direction: SortDirection
 }
 
 # Payloads
@@ -91,7 +75,7 @@ type ModelEdge {
 }
 
 extend type Query {
-  models(input: ModelsInput!): ModelConnection!
+  models(projectId: ID!, pagination: Pagination): ModelConnection!
   checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
