@@ -87,7 +87,7 @@ type Asset struct {
 	ContentEncoding         *string                  `json:"contentEncoding,omitempty"`
 	UUID                    string                   `json:"uuid"`
 	Thread                  *Thread                  `json:"thread,omitempty"`
-	ThreadID                ID                       `json:"threadId"`
+	ThreadID                *ID                      `json:"threadId,omitempty"`
 	URL                     string                   `json:"url"`
 	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
@@ -308,8 +308,11 @@ type CreateRequestInput struct {
 	Items       []*RequestItemInput `json:"items"`
 }
 
-type CreateThreadInput struct {
-	WorkspaceID ID `json:"workspaceId"`
+type CreateThreadWithCommentInput struct {
+	WorkspaceID  ID           `json:"workspaceId"`
+	ResourceID   ID           `json:"resourceId"`
+	ResourceType ResourceType `json:"resourceType"`
+	Content      string       `json:"content"`
 }
 
 type CreateViewInput struct {
@@ -862,7 +865,7 @@ type Request struct {
 	CreatedByID ID             `json:"createdById"`
 	WorkspaceID ID             `json:"workspaceId"`
 	ProjectID   ID             `json:"projectId"`
-	ThreadID    ID             `json:"threadId"`
+	ThreadID    *ID            `json:"threadId,omitempty"`
 	ReviewersID []ID           `json:"reviewersId"`
 	State       RequestState   `json:"state"`
 	CreatedAt   time.Time      `json:"createdAt"`
@@ -1237,10 +1240,6 @@ type Thread struct {
 	Workspace   *Workspace `json:"workspace,omitempty"`
 	WorkspaceID ID         `json:"workspaceId"`
 	Comments    []*Comment `json:"comments"`
-}
-
-type ThreadPayload struct {
-	Thread *Thread `json:"thread"`
 }
 
 type TileResource struct {
@@ -2391,6 +2390,49 @@ func (e *RequestState) UnmarshalGQL(v any) error {
 }
 
 func (e RequestState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ResourceType string
+
+const (
+	ResourceTypeItem    ResourceType = "ITEM"
+	ResourceTypeAsset   ResourceType = "ASSET"
+	ResourceTypeRequest ResourceType = "REQUEST"
+)
+
+var AllResourceType = []ResourceType{
+	ResourceTypeItem,
+	ResourceTypeAsset,
+	ResourceTypeRequest,
+}
+
+func (e ResourceType) IsValid() bool {
+	switch e {
+	case ResourceTypeItem, ResourceTypeAsset, ResourceTypeRequest:
+		return true
+	}
+	return false
+}
+
+func (e ResourceType) String() string {
+	return string(e)
+}
+
+func (e *ResourceType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceType", str)
+	}
+	return nil
+}
+
+func (e ResourceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

@@ -25,9 +25,6 @@ func (b *Builder) Build() (*Request, error) {
 	if b.r.workspace.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if b.r.thread.IsNil() {
-		return nil, ErrInvalidID
-	}
 	if b.r.createdBy.IsNil() {
 		return nil, ErrInvalidID
 	}
@@ -103,7 +100,7 @@ func (b *Builder) Reviewers(r UserIDList) *Builder {
 	return b
 }
 
-func (b *Builder) Thread(t ThreadID) *Builder {
+func (b *Builder) Thread(t *ThreadID) *Builder {
 	b.r.thread = t
 	return b
 }
