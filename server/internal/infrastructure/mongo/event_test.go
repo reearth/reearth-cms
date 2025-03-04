@@ -19,7 +19,7 @@ import (
 func TestEvent_Save(t *testing.T) {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
-	a := asset.New().NewID().Thread(id.NewThreadID()).NewUUID().
+	a := asset.New().NewID().Thread(id.NewThreadID().Ref()).NewUUID().
 		Project(project.NewID()).Size(100).CreatedAt(now).CreatedByUser(u.ID()).MustBuild()
 	eID := event.NewID()
 	ev := event.New[any]().ID(eID).Timestamp(now).Type(event.AssetCreate).
