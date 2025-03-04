@@ -87,6 +87,17 @@ func TestIntegrationCreateItemCommentAPI(t *testing.T) {
 	c.Value("authorId").IsEqual(iId)
 	c.Value("authorType").IsEqual(integrationapi.Integrtaion)
 	c.Value("content").IsEqual("test")
+
+	// item with no thread
+	e.POST("/api/items/{itemId}/comments", itmId7).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"content": "test2",
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().Value("content").IsEqual("test2")
 }
 
 // Patch|/items/{itemId}/comments/{commentId}

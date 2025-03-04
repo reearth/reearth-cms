@@ -2,11 +2,14 @@ import CommentsPanelMolecule from "@reearth-cms/components/molecules/Common/Comm
 import {
   Comment,
   RefetchQueries,
+  ResourceType,
 } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 
 import useHooks from "./hooks";
 
 type Props = {
+  resourceId: string;
+  resourceType: ResourceType;
   emptyText?: string;
   threadId?: string;
   comments?: Comment[];
@@ -16,6 +19,8 @@ type Props = {
 };
 
 const CommentsPanel: React.FC<Props> = ({
+  resourceId,
+  resourceType,
   emptyText,
   threadId,
   comments,
@@ -32,6 +37,8 @@ const CommentsPanel: React.FC<Props> = ({
     handleCommentUpdate,
     handleCommentDelete,
   } = useHooks({
+    resourceId,
+    resourceType,
     threadId,
     refetchQueries,
   });

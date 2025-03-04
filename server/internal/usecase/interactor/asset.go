@@ -19,7 +19,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
-	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -136,7 +135,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		file.Size = size
 	}
 
-	a, f, err := Run2[*asset.Asset, *asset.File](
+	a, f, err := Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
@@ -153,13 +152,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				if err != nil {
 					return nil, nil, err
 				}
-			}
-			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
-			if err != nil {
-				return nil, nil, err
-			}
-			if err := i.repos.Thread.Save(ctx, th); err != nil {
-				return nil, nil, err
 			}
 
 			needDecompress := false
@@ -183,7 +175,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Size(uint64(file.Size)).
 				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).
-				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
 
 			if op.AcOperator.User != nil {

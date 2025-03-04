@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -205,10 +206,14 @@ func TestThread_FindByIDs(t *testing.T) {
 	}
 }
 
-func TestThreadRepo_CreateThread(t *testing.T) {
+func TestThreadRepo_CreateThreadWithComment(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.WorkspaceID{}
+	pid := id.NewProjectID()
 	uid := accountdomain.NewUserID()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).MustBuild()
+	rt := interfaces.ResourceTypeItem
+	content := "content"
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User:               &uid,
@@ -220,19 +225,19 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		arg      accountdomain.WorkspaceID
+		arg      interfaces.CreateThreadWithCommentInput
 		operator *usecase.Operator
 		wantErr  error
 	}{
 		{
 			name:     "Save succeed",
-			arg:      wid,
+			arg:      interfaces.CreateThreadWithCommentInput{WorkspaceID: wid, ResourceID: i.ID().String(), ResourceType: rt, Content: content},
 			operator: op,
 			wantErr:  nil,
 		},
 		{
 			name: "Save error: invalid workspace id",
-			arg:  wid2,
+			arg:  interfaces.CreateThreadWithCommentInput{WorkspaceID: wid2, ResourceID: i.ID().String(), ResourceType: rt, Content: content},
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{
 					User:               &uid,
@@ -244,7 +249,7 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 		},
 		{
 			name: "operator error",
-			arg:  wid,
+			arg:  interfaces.CreateThreadWithCommentInput{},
 			operator: &usecase.Operator{
 				AcOperator: &accountusecase.Operator{},
 			},
@@ -252,7 +257,7 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 		},
 		{
 			name:     "operator succeed",
-			arg:      wid,
+			arg:      interfaces.CreateThreadWithCommentInput{WorkspaceID: wid, ResourceID: i.ID().String(), ResourceType: rt, Content: content},
 			operator: op,
 			wantErr:  nil,
 		},
@@ -263,9 +268,18 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
-			threadUC := NewThread(db, nil)
 
-			th, err := threadUC.CreateThread(ctx, tc.arg, tc.operator)
+			itemUC := NewItem(db, nil)
+			err := itemUC.repos.Item.Save(ctx, i)
+			assert.NoError(t, err)
+
+			threadUC := NewThread(db, nil)
+			th, _, err := threadUC.CreateThreadWithComment(ctx, interfaces.CreateThreadWithCommentInput{
+				WorkspaceID:  tc.arg.WorkspaceID,
+				ResourceID:   tc.arg.ResourceID,
+				ResourceType: tc.arg.ResourceType,
+				Content:      tc.arg.Content,
+			}, tc.operator)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
