@@ -27,7 +27,7 @@ func TestFile_GetURL(t *testing.T) {
 		Size(1000).
 		FileName(n).
 		UUID(u).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		MustBuild()
 
 	expected, err := url.JoinPath(host, s3AssetBasePath, u[:2], u[2:], n)
