@@ -72,9 +72,9 @@ func TestList_ItemsByField(t *testing.T) {
 	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").AsMultiple(), nil)
 	f3 := NewField(id.NewFieldID(), value.TypeBool.Value(true).AsMultiple(), nil)
-	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	type args struct {
 		fid   id.FieldID
 		value any
@@ -127,7 +127,7 @@ func TestVersionedList_FilterFields(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Model(id.NewModelID()).
 		Project(id.NewProjectID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	vl := VersionedList{
@@ -145,7 +145,7 @@ func TestVersionedList_Item(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Model(id.NewModelID()).
 		Project(id.NewProjectID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	v := version.New()
@@ -164,7 +164,7 @@ func TestVersionedList_Unwrap(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Model(id.NewModelID()).
 		Project(id.NewProjectID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	v := version.New()
@@ -183,7 +183,7 @@ func TestToMap(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Model(id.NewModelID()).
 		Project(id.NewProjectID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId1, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	vi1 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i1)
@@ -193,7 +193,7 @@ func TestToMap(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Model(id.NewModelID()).
 		Project(id.NewProjectID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*Field{NewField(fId2, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	vi2 := version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i2)
