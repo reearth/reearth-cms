@@ -46,6 +46,7 @@ var (
 	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
+	aid3   = id.NewAssetID() // no thread
 	auuid1 = uuid.NewString()
 	auuid2 = uuid.NewString()
 	itmId1 = id.NewItemID()
@@ -54,6 +55,7 @@ var (
 	itmId4 = id.NewItemID()
 	itmId5 = id.NewItemID()
 	itmId6 = id.NewItemID()
+	itmId7 = id.NewItemID() // no thread
 	fId1   = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
@@ -380,6 +382,15 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Item.Save(ctx, itm6); err != nil {
 		return err
 	}
+
+	itm7 := item.New().ID(itmId7).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(p.ID()).
+		MustBuild()
+	if err := r.Item.Save(ctx, itm7); err != nil {
+		return err
+	}
 	// endregion
 
 	// region thread & comment
@@ -407,11 +418,21 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		UUID(auuid2).
 		Thread(thId2.Ref()).
 		MustBuild()
+	a3 := asset.New().ID(aid3).
+		Project(p.ID()).
+		CreatedByUser(u.ID()).
+		FileName("ccc.jpg").
+		Size(1000).
+		UUID(uuid.NewString()).
+		MustBuild()
 
 	if err := r.Asset.Save(ctx, a1); err != nil {
 		return err
 	}
 	if err := r.Asset.Save(ctx, a2); err != nil {
+		return err
+	}
+	if err := r.Asset.Save(ctx, a3); err != nil {
 		return err
 	}
 	if err := r.AssetFile.Save(ctx, a1.ID(), f1); err != nil {
