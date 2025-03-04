@@ -217,6 +217,14 @@ func getFSObjectPath(fileUUID, objectName string) string {
 	return filepath.Join(assetDir, fileUUID[:2], fileUUID[2:], objectName)
 }
 
+func getFSObjectFolderPath(fileUUID string) string {
+	if fileUUID == "" || !IsValidUUID(fileUUID) {
+		return ""
+	}
+
+	return filepath.Join(assetDir, fileUUID[:2], fileUUID[2:])
+}
+
 func newUUID() string {
 	return uuid.NewString()
 }
@@ -227,17 +235,17 @@ func IsValidUUID(fileUUID string) bool {
 }
 
 // DeleteAssets deletes assets in batch
-func (f *fileRepo) DeleteAssets(_ context.Context, mapFileNameByUUID map[string]string) error {
-	if len(mapFileNameByUUID) == 0 {
+func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
+	if len(folders) == 0 {
 		return rerror.ErrNotFound
 	}
 	var errs []error
-	for fileUUID, fileName := range mapFileNameByUUID {
+	for _, fileUUID := range folders {
 		if fileUUID == "" || !IsValidUUID(fileUUID) {
 			errs = append(errs, gateway.ErrFileNotFound)
 		}
 
-		p := getFSObjectPath(fileUUID, fileName)
+		p := getFSObjectFolderPath(fileUUID)
 		if err := f.fs.RemoveAll(p); err != nil {
 			errs = append(errs, gateway.ErrInvalidUUID)
 		}

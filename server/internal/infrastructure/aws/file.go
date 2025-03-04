@@ -414,8 +414,8 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 }
 
 // DeleteAssets deletes multiple assets in batch
-func (f *fileRepo) DeleteAssets(ctx context.Context, mapFileNameByUUID map[string]string) error {
-	if len(mapFileNameByUUID) == 0 {
+func (f *fileRepo) DeleteAssets(ctx context.Context, folders []string) error {
+	if len(folders) == 0 {
 		return gateway.ErrInvalidFile
 	}
 
@@ -432,9 +432,9 @@ func (f *fileRepo) DeleteAssets(ctx context.Context, mapFileNameByUUID map[strin
 	sem := make(chan struct{}, maxWorkers)
 
 	var wg sync.WaitGroup
-	resultCh := make(chan deleteResult, len(mapFileNameByUUID))
+	resultCh := make(chan deleteResult, len(folders))
 
-	for _, filename := range mapFileNameByUUID {
+	for _, filename := range folders {
 		if filename == "" {
 			continue
 		}

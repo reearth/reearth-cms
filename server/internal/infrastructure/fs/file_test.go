@@ -128,8 +128,10 @@ func TestFile_DeleteAsset(t *testing.T) {
 }
 
 func TestFile_DeleteAssets(t *testing.T) {
+	uuid1 := newUUID()
+	uuid2 := newUUID()
 	type args struct {
-		ids map[string]string
+		ids []string
 	}
 	tests := []struct {
 		name string
@@ -139,14 +141,14 @@ func TestFile_DeleteAssets(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				ids: map[string]string{newUUID(): "xxx.txt", newUUID(): "yyy/hello.txt"},
+				ids: []string{uuid1, uuid2},
 			},
 			want: nil,
 		},
 		{
 			name: "empty",
 			args: args{
-				ids: map[string]string{},
+				ids: []string{},
 			},
 			want: rerror.ErrNotFound,
 		},
