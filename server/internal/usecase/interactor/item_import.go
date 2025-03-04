@@ -473,7 +473,7 @@ func guessSchemaFields(sp schema.Package, orderedMap *orderedmap.OrderedMap, isG
 	}
 	for _, k := range orderedMap.Keys() {
 		v, _ := orderedMap.Get(k)
-		if v == nil || k == "id" {
+		if k == "id" {
 			continue
 		}
 
@@ -505,26 +505,27 @@ func guessSchemaFields(sp schema.Package, orderedMap *orderedmap.OrderedMap, isG
 
 func fieldFrom(k string, v any, sp schema.Package) interfaces.CreateFieldParam {
 	t := value.TypeText
-	switch reflect.TypeOf(v).Kind() {
-	case reflect.Bool:
-		t = value.TypeBool
-	case reflect.Int:
-	case reflect.Int8:
-	case reflect.Int16:
-	case reflect.Int32:
-	case reflect.Int64:
-	case reflect.Uint:
-	case reflect.Uint8:
-	case reflect.Uint16:
-	case reflect.Uint32:
-	case reflect.Uint64:
-	case reflect.Float32:
-	case reflect.Float64:
-		t = value.TypeNumber
-	case reflect.String:
-		t = value.TypeText
-	default:
-
+	if v != nil {
+		switch reflect.TypeOf(v).Kind() {
+		case reflect.Bool:
+			t = value.TypeBool
+		case reflect.Int:
+		case reflect.Int8:
+		case reflect.Int16:
+		case reflect.Int32:
+		case reflect.Int64:
+		case reflect.Uint:
+		case reflect.Uint8:
+		case reflect.Uint16:
+		case reflect.Uint32:
+		case reflect.Uint64:
+		case reflect.Float32:
+		case reflect.Float64:
+			t = value.TypeNumber
+		case reflect.String:
+			t = value.TypeText
+		default:
+		}
 	}
 	return interfaces.CreateFieldParam{
 		ModelID:     nil,

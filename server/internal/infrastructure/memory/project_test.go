@@ -444,7 +444,7 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 	}
 }
 
-func TestProjectRepo_FindByPublicName(t *testing.T) {
+func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
@@ -468,7 +468,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		seeds   project.List
 		arg     string
 		filter  *repo.WorkspaceFilter
-		want    *project.Project
+		want    bool
 		wantErr error
 		mockErr bool
 	}{
@@ -477,8 +477,8 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			seeds:   project.List{},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			want:    true,
+			wantErr: nil,
 		},
 		{
 			name: "Not found",
@@ -487,8 +487,8 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			want:    true,
+			wantErr: nil,
 		},
 		{
 			name: "public Found",
@@ -497,16 +497,16 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    p1,
+			want:    false,
 			wantErr: nil,
 		},
 		{
-			name: "linited Found",
+			name: "limited Found",
 			seeds: project.List{
 				p2,
 			},
 			arg:     "xyz321",
-			want:    p2,
+			want:    false,
 			filter:  nil,
 			wantErr: nil,
 		},
@@ -519,11 +519,11 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    p1,
+			want:    false,
 			wantErr: nil,
 		},
 		{
-			name: "Filtered should not Found",
+			name: "Filtered should Found",
 			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
@@ -531,8 +531,8 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			want:    false,
+			wantErr: nil,
 		},
 		{
 			name: "Filtered should Found",
@@ -543,7 +543,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
-			want:    p1,
+			want:    false,
 			wantErr: nil,
 		},
 		{
@@ -573,7 +573,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, err := r.FindByPublicName(ctx, tc.arg)
+			got, err := r.IsAliasAvailable(ctx, tc.arg)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
