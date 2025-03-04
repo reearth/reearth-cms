@@ -2029,6 +2029,7 @@ components:
           $ref: '#/components/schemas/Geometry'
         properties:
           type: object
+          x-go-type: orderedmap.OrderedMap
     Geometry:
       type: object
       properties:

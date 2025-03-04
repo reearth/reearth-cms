@@ -6,7 +6,7 @@ export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
 
 export type Request = {
   id: string;
-  threadId: string;
+  threadId?: string;
   title: string;
   description: string;
   comments: Comment[];
