@@ -751,6 +751,24 @@ export type ModelPayload = {
   model: Model;
 };
 
+export enum ModelSortColumn {
+  CreatedAt = 'CREATED_AT',
+  Name = 'NAME',
+  Order = 'ORDER',
+  UpdatedAt = 'UPDATED_AT'
+}
+
+export type ModelSortOptions = {
+  column: ModelSortColumn;
+  direction?: InputMaybe<SortDirection>;
+};
+
+export type ModelsInput = {
+  pagination?: InputMaybe<Pagination>;
+  project: Scalars['ID']['input'];
+  sort?: InputMaybe<ModelSortOptions>;
+};
+
 export type ModelsPayload = {
   __typename?: 'ModelsPayload';
   models: Array<Model>;
@@ -1380,8 +1398,7 @@ export type QueryIsItemReferencedArgs = {
 
 
 export type QueryModelsArgs = {
-  pagination?: InputMaybe<Pagination>;
-  projectId: Scalars['ID']['input'];
+  input: ModelsInput;
 };
 
 
@@ -2623,8 +2640,7 @@ export type PublishItemMutationVariables = Exact<{
 export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', items: Array<{ __typename?: 'Item', id: string, version: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null }> } | null };
 
 export type GetModelsQueryVariables = Exact<{
-  projectId: Scalars['ID']['input'];
-  pagination?: InputMaybe<Pagination>;
+  input: ModelsInput;
 }>;
 
 
@@ -5215,8 +5231,8 @@ export type PublishItemMutationHookResult = ReturnType<typeof usePublishItemMuta
 export type PublishItemMutationResult = Apollo.MutationResult<PublishItemMutation>;
 export type PublishItemMutationOptions = Apollo.BaseMutationOptions<PublishItemMutation, PublishItemMutationVariables>;
 export const GetModelsDocument = gql`
-    query GetModels($projectId: ID!, $pagination: Pagination) {
-  models(projectId: $projectId, pagination: $pagination) {
+    query GetModels($input: ModelsInput!) {
+  models(input: $input) {
     nodes {
       id
       name
@@ -5244,8 +5260,7 @@ export const GetModelsDocument = gql`
  * @example
  * const { data, loading, error } = useGetModelsQuery({
  *   variables: {
- *      projectId: // value for 'projectId'
- *      pagination: // value for 'pagination'
+ *      input: // value for 'input'
  *   },
  * });
  */

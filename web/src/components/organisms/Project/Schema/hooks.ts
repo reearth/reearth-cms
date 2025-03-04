@@ -62,8 +62,10 @@ export default () => {
   const [collapsed, setCollapsed] = useCollapsedModelMenu();
   const { data: modelsData } = useGetModelsQuery({
     variables: {
-      projectId: projectId ?? "",
-      pagination: { first: 100 },
+      input: {
+        project: projectId ?? "",
+        pagination: { first: 100 },
+      },
     },
     skip: !projectId,
   });
