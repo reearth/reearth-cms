@@ -399,7 +399,7 @@ func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error 
 	}
 
 	// Start worker goroutines
-	for i := 0; i < numWorkers; i++ {
+	for range numWorkers {
 		wg.Add(1)
 		go worker()
 	}
