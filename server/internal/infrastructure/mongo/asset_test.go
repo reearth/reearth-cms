@@ -518,14 +518,14 @@ func TestAssetRepo_BatchDelete(t *testing.T) {
 	id1 := id.NewAssetID()
 	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
 	a1 := asset.New().ID(id1).Project(pid1).ArchiveExtractionStatus(s).NewUUID().
-		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	pid2 := id.NewProjectID()
 	uid2 := accountdomain.NewUserID()
 	id2 := id.NewAssetID()
 
 	a2 := asset.New().ID(id2).Project(pid2).ArchiveExtractionStatus(s).NewUUID().
-		CreatedByUser(uid2).Size(1000).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(uid2).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 	initDB := mongotest.Connect(t)
 	type args struct {
 		ids []id.AssetID
