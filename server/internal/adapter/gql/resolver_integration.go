@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/rerror"
 )
 
 // Developer is the resolver for the developer field.
@@ -82,6 +83,27 @@ func (r *mutationResolver) DeleteIntegration(ctx context.Context, input gqlmodel
 
 	return &gqlmodel.DeleteIntegrationPayload{
 		IntegrationID: input.IntegrationID,
+	}, nil
+}
+
+// DeleteIntegrations is the resolver for the deleteIntegrations field.
+func (r *mutationResolver) DeleteIntegrations(ctx context.Context, input gqlmodel.DeleteIntegrationsInput) (*gqlmodel.DeleteIntegrationsPayload, error) {
+	if len(input.IntegrationIDs) == 0 {
+		return nil, rerror.ErrInvalidParams
+	}
+
+	ids, err := gqlmodel.ToIDs[id.Integration](input.IntegrationIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	err = usecases(ctx).Integration.DeleteMany(ctx, ids, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.DeleteIntegrationsPayload{
+		IntegrationIDs: input.IntegrationIDs,
 	}, nil
 }
 
