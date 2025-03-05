@@ -24,7 +24,7 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
         <HistoryCard key={version.version}>
           <HistoryTitle onClick={() => versionClick(version)}>
             <Tooltip title={t(version.status)}>
-              <Badge color={stateColors[version.status]} />
+              <Badge color={stateColors[version.status]} data-testid="requestStatus" />
             </Tooltip>
             {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
             {index === 0 && (
@@ -40,7 +40,10 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
             {version.status === "REVIEW" && (
               <Requests>
                 {version.requests?.map(request => (
-                  <RequestWrapper key={request.id} onClick={() => onNavigateToRequest(request.id)}>
+                  <RequestWrapper
+                    role="link"
+                    key={request.id}
+                    onClick={() => onNavigateToRequest(request.id)}>
                     <Icon icon="pullRequest" />
                     <RequestTitle>{request.title}</RequestTitle>
                   </RequestWrapper>
@@ -101,7 +104,6 @@ const RequestWrapper = styled(Typography.Link)`
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0;
-  color: #1677ff;
 `;
 
 const RequestTitle = styled.span`

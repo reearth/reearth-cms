@@ -1,5 +1,4 @@
 import { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/types";
-import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import {
   Item,
   Comment,
@@ -147,19 +146,27 @@ export const fromGraphQLComment = (GQLComment: GQLComment): Comment => {
   };
 };
 
-export const fromGraphQLversionsByItem = (
-  GQLVersionsByItem: GQLVersionedItem[],
-): VersionedItem[] => {
-  let publicIndex = -1;
-  const result = GQLVersionsByItem.map<VersionedItem>((version, index) => {
-    let status: StateType = "DRAFT";
-    if (version.refs.includes("public")) {
-      status = "PUBLIC";
-      publicIndex = index;
-    }
+export const fromGraphQLversionsByItem = (GQLVersionsByItem: GQLVersionedItem[]): VersionedItem[] =>
+  GQLVersionsByItem.map(version => {
+    const requests =
+      version.value.requests
+        ?.filter(
+          request =>
+            request.state === "WAITING" &&
+            request.items.some(
+              item =>
+                item.item?.value.modelId === version.value.modelId &&
+                item.itemId === version.value.id &&
+                item.version === version.version,
+            ),
+        )
+        .map(request => ({
+          id: request.id,
+          title: request.title,
+        })) ?? [];
     return {
       version: version.version,
-      status,
+      status: version.refs.includes("public") ? "PUBLIC" : requests.length ? "REVIEW" : "DRAFT",
       timestamp: version.value.updatedAt ?? version.value.createdAt,
       creator: { name: version.value.updatedBy?.name ?? version.value.createdBy?.name ?? "" },
       fields: version.value.fields.map(
@@ -171,29 +178,6 @@ export const fromGraphQLversionsByItem = (
             value: field.value,
           }) as ItemField,
       ),
-      requests:
-        version.value.requests
-          ?.filter(
-            request =>
-              request.state === "WAITING" &&
-              request.items.some(
-                item =>
-                  item.item?.value.modelId === version.value.modelId &&
-                  item.itemId === version.value.id &&
-                  item.version === version.version,
-              ),
-          )
-          .map(request => ({
-            id: request.id,
-            title: request.title,
-          })) ?? [],
+      requests,
     };
-  }).map((version, index) => {
-    if (index !== publicIndex && version.requests.length) {
-      version.status = "REVIEW";
-    }
-    return version;
   });
-
-  return result;
-};

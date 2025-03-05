@@ -1,9 +1,7 @@
 import styled from "@emotion/styled";
 
-import Badge from "@reearth-cms/components/atoms/Badge";
-import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
-import { Item, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
-import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
+import Status from "@reearth-cms/components/molecules/Content/Status";
+import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -18,21 +16,6 @@ type Props = {
 
 const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
   const t = useT();
-
-  const getStatusBadge = (status: ItemStatus) => {
-    const itemStatus = status.split("_") as StateType[];
-    return (
-      <>
-        {itemStatus.map((state, index) => (
-          <StyledBadge
-            key={index}
-            color={stateColors[state]}
-            text={index === itemStatus.length - 1 ? t(state) : undefined}
-          />
-        ))}
-      </>
-    );
-  };
 
   return (
     <>
@@ -66,7 +49,9 @@ const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
           <div>
             <CardTitle>{t("Publish State")}</CardTitle>
             <CardValue>
-              <DataTitle>{getStatusBadge(item.status)}</DataTitle>
+              <DataTitle>
+                <Status status={item.status} />
+              </DataTitle>
             </CardValue>
           </div>
         </>
@@ -154,12 +139,6 @@ const ID = styled(DataCommon)`
   background-color: #f0f0f0;
   border-radius: 4px;
   min-width: 0;
-`;
-
-const StyledBadge = styled(Badge)`
-  + * {
-    margin-left: 4px;
-  }
 `;
 
 export default Metadata;

@@ -11,6 +11,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
@@ -581,13 +582,18 @@ const ContentForm: React.FC<Props> = ({
     [allFormsValidate, handleMetaUpdate, initialMetaFormValues, itemId],
   );
 
+  const isInReview = useMemo(
+    () => item?.status === "REVIEW" || item?.status === "PUBLIC_REVIEW",
+    [item?.status],
+  );
+
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
       {
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
-        disabled: item?.status === "PUBLIC" || !hasRequestUpdateRight,
+        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestUpdateRight,
       },
       {
         key: "unpublish",
@@ -603,13 +609,14 @@ const ContentForm: React.FC<Props> = ({
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
-        disabled: item?.status === "PUBLIC" || !hasRequestCreateRight,
+        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight,
       });
     }
     return menuItems;
   }, [
     t,
     onAddItemToRequestModalOpen,
+    isInReview,
     item?.status,
     hasRequestUpdateRight,
     hasPublishRight,
@@ -679,21 +686,43 @@ const ContentForm: React.FC<Props> = ({
                 {itemId && (
                   <>
                     {showPublishAction && (
-                      <Button
-                        type="primary"
-                        onClick={handlePublishSubmit}
-                        loading={publishLoading}
-                        disabled={item?.status === "PUBLIC" || !hasPublishRight}>
-                        {t("Publish")}
-                      </Button>
+                      <Tooltip
+                        placement="bottom"
+                        title={
+                          isInReview
+                            ? t(
+                                "The item is currently under request review and cannot be published.",
+                              )
+                            : null
+                        }>
+                        <Button
+                          type="primary"
+                          onClick={handlePublishSubmit}
+                          loading={publishLoading}
+                          disabled={isInReview || item?.status === "PUBLIC" || !hasPublishRight}>
+                          {t("Publish")}
+                        </Button>
+                      </Tooltip>
                     )}
                     {!showPublishAction && (
-                      <Button
-                        type="primary"
-                        onClick={onModalOpen}
-                        disabled={item?.status === "PUBLIC" || !hasRequestCreateRight}>
-                        {t("New Request")}
-                      </Button>
+                      <Tooltip
+                        placement="bottom"
+                        title={
+                          isInReview
+                            ? t(
+                                "The item is currently under request review and cannot have a new request.",
+                              )
+                            : null
+                        }>
+                        <Button
+                          type="primary"
+                          onClick={onModalOpen}
+                          disabled={
+                            isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight
+                          }>
+                          {t("New Request")}
+                        </Button>
+                      </Tooltip>
                     )}
                     <Dropdown menu={{ items }} trigger={["click"]}>
                       <Button>

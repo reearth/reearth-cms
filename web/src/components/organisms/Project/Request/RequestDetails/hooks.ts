@@ -144,21 +144,18 @@ export default () => {
 
   const [approveRequestMutation, { loading: approveLoading }] = useApproveRequestMutation();
   const handleRequestApprove = useCallback(
-    (requestId: string) =>
-      (async () => {
-        const result = await approveRequestMutation({
-          variables: { requestId },
-          refetchQueries: ["GetRequests", "GetRequest"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to approve request.") });
-        }
-        if (result) {
-          Notification.success({ message: t("Successfully approved request!") });
-          navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-        }
-      })(),
-    [currentWorkspace?.id, projectId, navigate, t, approveRequestMutation],
+    async (requestId: string) => {
+      const result = await approveRequestMutation({
+        variables: { requestId },
+      });
+      if (result.errors) {
+        Notification.error({ message: t("Failed to approve request.") });
+      }
+      if (result) {
+        Notification.success({ message: t("Successfully approved request!") });
+      }
+    },
+    [t, approveRequestMutation],
   );
 
   const [createComment] = useAddCommentMutation({
