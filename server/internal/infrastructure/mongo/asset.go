@@ -74,7 +74,7 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 		return nil, err
 	}
 	if len(res) == 0 {
-		return nil, rerror.ErrNotFound
+		return nil, nil
 	}
 	return filterAssets(ids, res), nil
 }
