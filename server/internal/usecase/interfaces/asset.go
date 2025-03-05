@@ -71,6 +71,8 @@ type Asset interface {
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
+	// BatchDelete deletes assets in batch based on multiple asset IDs
+	BatchDelete(context.Context, id.AssetIDList, *usecase.Operator) ([]id.AssetID, error)
 	DecompressByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (*AssetUpload, error)
 	RetryDecompression(context.Context, string) error
