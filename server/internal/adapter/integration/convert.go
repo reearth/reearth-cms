@@ -239,14 +239,12 @@ func toModelSort(sort integrationapi.SortParam, dir *integrationapi.SortDirParam
 		direction = model.DirectionAsc
 	}
 
-	var column model.Column
+	column := model.ColumnOrder
 	switch sort {
 	case integrationapi.SortParamCreatedAt:
 		column = model.ColumnCreatedAt
 	case integrationapi.SortParamUpdatedAt:
 		column = model.ColumnUpdatedAt
-	default:
-		column = model.ColumnOrder
 	}
 
 	return &model.Sort{

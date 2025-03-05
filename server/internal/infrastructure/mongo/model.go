@@ -209,26 +209,23 @@ func prepare(ids id.ModelIDList, rows model.List) model.List {
 }
 
 func sortModels(ms *model.Sort) *usecasex.Sort {
+	res := usecasex.Sort{Key: "order", Reverted: false}
 	if ms == nil {
-		return &usecasex.Sort{Key: "order"}
+		return &res
 	}
 
-	key := "order"
 	switch ms.Column {
 	case model.ColumnCreatedAt:
-		key = "id"
+		res.Key = "id"
 	case model.ColumnUpdatedAt:
-		key = "updatedat"
-	case model.ColumnName:
-		key = "name"
-	case model.ColumnOrder:
-		key = "order"
+		res.Key = "updatedat"
+	}
+	
+	if ms.Direction == model.DirectionDesc {
+		res.Reverted = true
 	}
 
-	return &usecasex.Sort{
-		Key:      key,
-		Reverted: ms.Direction == model.DirectionDesc,
-	}
+	return &res
 }
 
 func (r *Model) readFilter(filter interface{}) interface{} {

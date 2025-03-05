@@ -712,35 +712,24 @@ func TestSortModels(t *testing.T) {
 			},
 		},
 		{
-			name: "sort by name descending",
-			input: &model.Sort{
-				Column:    model.ColumnName,
-				Direction: model.DirectionDesc,
-			},
-			expected: &usecasex.Sort{
-				Key:      "name",
-				Reverted: true,
-			},
-		},
-		{
-			name: "sort by order descending",
-			input: &model.Sort{
-				Column:    model.ColumnOrder,
-				Direction: model.DirectionDesc,
-			},
-			expected: &usecasex.Sort{
-				Key:      "order",
-				Reverted: true,
-			},
-		},
-		{
 			name: "invalid column",
 			input: &model.Sort{
 				Column:    "invalid_column",
-				Direction: model.DirectionAsc,
+				Direction: model.DirectionDesc,
 			},
 			expected: &usecasex.Sort{
 				Key:      "order",
+				Reverted: true,
+			},
+		},
+		{
+			name: "invalid direction",
+			input: &model.Sort{
+				Column:    model.ColumnUpdatedAt,
+				Direction: "invalid_direction",
+			},
+			expected: &usecasex.Sort{
+				Key:      "updatedat",
 				Reverted: false,
 			},
 		},

@@ -13,7 +13,6 @@ const (
 	ColumnCreatedAt Column = "CREATED_AT"
 	ColumnUpdatedAt Column = "UPDATED_AT"
 	ColumnOrder     Column = "ORDER"
-	ColumnName      Column = "NAME"
 )
 
 type Sort struct {
