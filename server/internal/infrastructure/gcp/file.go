@@ -399,13 +399,17 @@ func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error 
 	}
 
 	// Start worker goroutines
-	for range numWorkers {
+	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
 		go worker()
 	}
 
 	// Send folder names to workers
 	for _, folderName := range folderNames {
+		if folderName == "" {
+			continue
+		}
+
 		if folderName[len(folderName)-1] != '/' {
 			folderName += "/" // Ensure folder names end with "/"
 		}
