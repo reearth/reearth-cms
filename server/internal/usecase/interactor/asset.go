@@ -617,6 +617,10 @@ func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operat
 				return assetIDs, err
 			}
 
+			if assets == nil {
+				return assetIDs, nil
+			}
+
 			UUIDList := make([]string, 0, len(assets))
 			for _, a := range assets {
 				if a == nil || a.UUID() == "" || a.FileName() == "" {
