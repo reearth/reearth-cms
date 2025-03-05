@@ -384,6 +384,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 
 	type args struct {
 		tid   id.ProjectID
+		sort  *model.Sort
 		pInfo *usecasex.Pagination
 	}
 	tests := []struct {
@@ -397,7 +398,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 		{
 			name:    "0 count in empty db",
 			seeds:   model.List{},
-			args:    args{id.NewProjectID(), nil},
+			args:    args{id.NewProjectID(), nil, nil},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -406,7 +407,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 			seeds: model.List{
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{id.NewProjectID(), nil},
+			args:    args{id.NewProjectID(), nil, nil},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -415,7 +416,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 			seeds: model.List{
 				m1,
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -426,7 +427,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -438,7 +439,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1, m2},
 			wantErr: nil,
 		},
@@ -449,7 +450,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{pid1, &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
 			want:    model.List{m1},
 			wantErr: nil,
@@ -461,7 +462,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
 			want:    nil,
 			wantErr: nil,
@@ -488,7 +489,7 @@ func TestModelRepo_FindByProject(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByProject(ctx, tc.args.tid, nil, tc.args.pInfo)
+			got, _, err := r.FindByProject(ctx, tc.args.tid, tc.args.sort, tc.args.pInfo)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -513,6 +514,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 	type args struct {
 		pId     id.ProjectID
 		keyword string
+		sort    *model.Sort
 		pInfo   *usecasex.Pagination
 	}
 	tests := []struct {
@@ -526,7 +528,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 		{
 			name:    "0 count in empty db",
 			seeds:   model.List{},
-			args:    args{id.NewProjectID(), "", nil},
+			args:    args{id.NewProjectID(), "", nil, nil},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -535,7 +537,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 			seeds: model.List{
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{id.NewProjectID(), "", nil},
+			args:    args{id.NewProjectID(), "", nil, nil},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -544,7 +546,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 			seeds: model.List{
 				m1,
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -555,7 +557,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -567,7 +569,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1, m2},
 			wantErr: nil,
 		},
@@ -579,7 +581,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "1", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "1", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -591,7 +593,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "2", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "2", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m2},
 			wantErr: nil,
 		},
@@ -602,7 +604,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
 			want:    model.List{m1},
 			wantErr: nil,
@@ -614,7 +616,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
 			want:    nil,
 			wantErr: nil,
@@ -641,7 +643,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByProjectAndKeyword(ctx, tc.args.pId, tc.args.keyword, tc.args.pInfo)
+			got, _, err := r.FindByProjectAndKeyword(ctx, tc.args.pId, tc.args.keyword, tc.args.sort, tc.args.pInfo)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -659,8 +661,8 @@ func TestSortModels(t *testing.T) {
 		expected *usecasex.Sort
 	}{
 		{
-			name:     "nil input",
-			input:    nil,
+			name:  "nil input",
+			input: nil,
 			expected: &usecasex.Sort{
 				Key:      "order",
 				Reverted: false,

@@ -56,8 +56,8 @@ func (i Model) FindByProject(ctx context.Context, input interfaces.FindByProject
 	return m, p, nil
 }
 
-func (i Model) FindByProjectAndKeyword(ctx context.Context, projectID id.ProjectID, k string, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
-	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, projectID, k, pagination)
+func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.FindByProjectAndKeywordParam, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, params.ProjectID, params.Keyword, params.Sort, params.Pagination)
 	if err != nil {
 		return nil, nil, err
 	}

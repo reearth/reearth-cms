@@ -82,7 +82,7 @@ func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, sort *model
 	}, sortModels(sort), pagination)
 }
 
-func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, sort *model.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -97,7 +97,7 @@ func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k
 		}
 	}
 
-	return r.paginate(ctx, filter, nil, pagination)
+	return r.paginate(ctx, filter, sortModels(sort), pagination)
 }
 
 func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*model.Model, error) {

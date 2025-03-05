@@ -124,6 +124,8 @@ paths:
   '/projects/{projectIdOrAlias}/schemata':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
       - $ref: '#/components/parameters/keywordParam'
