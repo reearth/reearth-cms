@@ -513,6 +513,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 	type args struct {
 		pId     id.ProjectID
 		keyword string
+		sort    *model.Sort
 		pInfo   *usecasex.Pagination
 	}
 	tests := []struct {
@@ -526,7 +527,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 		{
 			name:    "0 count in empty db",
 			seeds:   model.List{},
-			args:    args{id.NewProjectID(), "", nil},
+			args:    args{id.NewProjectID(), "", nil, nil},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -535,7 +536,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 			seeds: model.List{
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{id.NewProjectID(), "", nil},
+			args:    args{id.NewProjectID(), "", nil, nil},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -544,7 +545,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 			seeds: model.List{
 				m1,
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -555,7 +556,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -567,7 +568,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1, m2},
 			wantErr: nil,
 		},
@@ -579,7 +580,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "1", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "1", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m1},
 			wantErr: nil,
 		},
@@ -591,7 +592,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "2", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "2", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    model.List{m2},
 			wantErr: nil,
 		},
@@ -602,7 +603,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
 			want:    model.List{m1},
 			wantErr: nil,
@@ -614,7 +615,7 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
-			args:    args{pid1, "", usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			args:    args{pid1, "", &model.Sort{Column: model.ColumnCreatedAt}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
 			want:    nil,
 			wantErr: nil,
@@ -641,13 +642,103 @@ func TestModelRepo_FindByProjectAndKeyword(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByProjectAndKeyword(ctx, tc.args.pId, tc.args.keyword, tc.args.pInfo)
+			got, _, err := r.FindByProjectAndKeyword(ctx, tc.args.pId, tc.args.keyword, tc.args.sort, tc.args.pInfo)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
 
 			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestSortModels(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *model.Sort
+		expected *usecasex.Sort
+	}{
+		{
+			name:  "nil input",
+			input: nil,
+			expected: &usecasex.Sort{
+				Key:      "order",
+				Reverted: false,
+			},
+		},
+		{
+			name: "sort by CreatedAt ascending",
+			input: &model.Sort{
+				Column:    model.ColumnCreatedAt,
+				Direction: model.DirectionAsc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "id",
+				Reverted: false,
+			},
+		},
+		{
+			name: "sort by CreatedAt descending",
+			input: &model.Sort{
+				Column:    model.ColumnCreatedAt,
+				Direction: model.DirectionDesc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "id",
+				Reverted: true,
+			},
+		},
+		{
+			name: "sort by UpdatedAt ascending",
+			input: &model.Sort{
+				Column:    model.ColumnUpdatedAt,
+				Direction: model.DirectionAsc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "updatedat",
+				Reverted: false,
+			},
+		},
+		{
+			name: "sort by UpdatedAt descending",
+			input: &model.Sort{
+				Column:    model.ColumnUpdatedAt,
+				Direction: model.DirectionDesc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "updatedat",
+				Reverted: true,
+			},
+		},
+		{
+			name: "invalid column",
+			input: &model.Sort{
+				Column:    "invalid_column",
+				Direction: model.DirectionDesc,
+			},
+			expected: &usecasex.Sort{
+				Key:      "order",
+				Reverted: true,
+			},
+		},
+		{
+			name: "invalid direction",
+			input: &model.Sort{
+				Column:    model.ColumnUpdatedAt,
+				Direction: "invalid_direction",
+			},
+			expected: &usecasex.Sort{
+				Key:      "updatedat",
+				Reverted: false,
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := sortModels(tc.input)
+			assert.Equal(t, tc.expected, result)
 		})
 	}
 }

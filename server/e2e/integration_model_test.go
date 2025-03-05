@@ -258,9 +258,9 @@ func TestIntegrationModelDeleteAPI(t *testing.T) {
 
 }
 
-// GET /projects/{projectIdOrKey}/models
+// GET /projects/{projectIdOrAlias}/models
 func TestIntegrationModelFilterAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrKey}/models"
+	endpoint := "/api/projects/{projectIdOrAlias}/models"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	e.GET(endpoint, id.NewProjectID()).
@@ -349,9 +349,9 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 		Expect())
 }
 
-// POST /projects/{projectIdOrKey}/models
+// POST /projects/{projectIdOrAlias}/models
 func TestIntegrationModelCreateAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrKey}/models"
+	endpoint := "/api/projects/{projectIdOrAlias}/models"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	e.POST(endpoint, id.NewProjectID()).

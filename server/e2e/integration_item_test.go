@@ -190,6 +190,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey0).
 		Project(p.ID()).
 		Schema(s0.ID()).
+		UpdatedAt(now.Add(time.Second)).
+		Order(0).
 		MustBuild()
 	if err := r.Model.Save(ctx, m0); err != nil {
 		return err
@@ -204,6 +206,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Project(p.ID()).
 		Schema(s1.ID()).
 		Metadata(s3.ID().Ref()).
+		UpdatedAt(now.Add(2 * time.Second)).
+		Order(1).
 		MustBuild()
 	if err := r.Model.Save(ctx, m1); err != nil {
 		return err
@@ -217,6 +221,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey2).
 		Project(p.ID()).
 		Schema(s2.ID()).
+		UpdatedAt(now.Add(3 * time.Second)).
+		Order(2).
 		MustBuild()
 	if err := r.Model.Save(ctx, m2); err != nil {
 		return err
@@ -246,6 +252,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey3).
 		Project(p.ID()).
 		Schema(s5.ID()).
+		UpdatedAt(now.Add(4 * time.Second)).
+		Order(3).
 		MustBuild()
 	if err := r.Model.Save(ctx, m3); err != nil {
 		return err
@@ -267,6 +275,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey4).
 		Project(p.ID()).
 		Schema(s7.ID()).
+		UpdatedAt(now.Add(5 * time.Second)).
+		Order(4).
 		MustBuild()
 	if err := r.Model.Save(ctx, m4); err != nil {
 		return err
@@ -288,6 +298,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey5).
 		Project(p.ID()).
 		Schema(s8.ID()).
+		UpdatedAt(now.Add(6 * time.Second)).
+		Order(5).
 		MustBuild()
 	if err := r.Model.Save(ctx, m5); err != nil {
 		return err
@@ -480,6 +492,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Project(pid).
 		Schema(dvs1.ID()).
 		Metadata(sm.ID().Ref()).
+		UpdatedAt(now.Add(7 * time.Second)).
+		Order(6).
 		MustBuild()
 
 	if err := r.Model.Save(ctx, dvm); err != nil {

@@ -933,6 +933,12 @@ type ItemsWithProjectAsGeoJSONParamsRef string
 
 // SchemaFilterParams defines parameters for SchemaFilter.
 type SchemaFilterParams struct {
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+
 	// Page Used to select the page
 	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
 
