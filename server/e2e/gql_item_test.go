@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -51,7 +52,7 @@ func createItem(e *httpexpect.Expect, mID, sID string, metaId *string, fields []
 		Status(http.StatusOK).
 		JSON()
 
-	return res.Path("$.data.createItem.item.id").Raw().(string), res
+	return fmt.Sprintf("%v", res.Path("$.data.createItem.item.id").Raw()), res
 }
 
 func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
