@@ -169,7 +169,14 @@ func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 		Status(http.StatusOK).
 		JSON()
 
-	return res.Path("$.data.node.version").Raw().(string), res
+	pathRaw := res.Path("$.data.node.version").Raw()
+
+	pathStr, ok := pathRaw.(string)
+	if !ok {
+		return "", res
+	}
+
+	return pathStr, res
 }
 
 func SearchItem(e *httpexpect.Expect, query, sort, filter, pagination map[string]any) *httpexpect.Value {
