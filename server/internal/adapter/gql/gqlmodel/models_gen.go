@@ -671,17 +671,6 @@ type ModelPayload struct {
 	Model *Model `json:"model"`
 }
 
-type ModelSortOptions struct {
-	Column    ModelSortColumn `json:"column"`
-	Direction *SortDirection  `json:"direction,omitempty"`
-}
-
-type ModelsInput struct {
-	Project    ID                `json:"project"`
-	Sort       *ModelSortOptions `json:"sort,omitempty"`
-	Pagination *Pagination       `json:"pagination,omitempty"`
-}
-
 type ModelsPayload struct {
 	Models []*Model `json:"models"`
 }
@@ -1975,51 +1964,6 @@ func (e *ItemStatus) UnmarshalGQL(v any) error {
 }
 
 func (e ItemStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type ModelSortColumn string
-
-const (
-	ModelSortColumnName      ModelSortColumn = "NAME"
-	ModelSortColumnCreatedAt ModelSortColumn = "CREATED_AT"
-	ModelSortColumnUpdatedAt ModelSortColumn = "UPDATED_AT"
-	ModelSortColumnOrder     ModelSortColumn = "ORDER"
-)
-
-var AllModelSortColumn = []ModelSortColumn{
-	ModelSortColumnName,
-	ModelSortColumnCreatedAt,
-	ModelSortColumnUpdatedAt,
-	ModelSortColumnOrder,
-}
-
-func (e ModelSortColumn) IsValid() bool {
-	switch e {
-	case ModelSortColumnName, ModelSortColumnCreatedAt, ModelSortColumnUpdatedAt, ModelSortColumnOrder:
-		return true
-	}
-	return false
-}
-
-func (e ModelSortColumn) String() string {
-	return string(e)
-}
-
-func (e *ModelSortColumn) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ModelSortColumn(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ModelSortColumn", str)
-	}
-	return nil
-}
-
-func (e ModelSortColumn) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

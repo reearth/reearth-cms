@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
@@ -24,16 +23,8 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 		return nil, err
 	}
 
-	var sort *model.Sort
-	if request.Params.Sort != nil {
-		sort = toModelSort(*request.Params.Sort, request.Params.Dir)
-	}
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	ms, pi, err := uc.Model.FindByProject(ctx, interfaces.FindByProjectParam{
-		ProjectID:  prj.ID(),
-		Sort:       sort,
-		Pagination: p,
-	}, op)
+	ms, pi, err := uc.Model.FindByProject(ctx, prj.ID(), p, op)
 	if err != nil {
 		return nil, err
 	}

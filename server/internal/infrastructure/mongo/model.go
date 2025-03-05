@@ -72,14 +72,14 @@ func (r *Model) FindByIDs(ctx context.Context, ids id.ModelIDList) (model.List, 
 	return prepare(ids, res), nil
 }
 
-func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, sort *model.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
 	return r.paginate(ctx, bson.M{
 		"project": pid.String(),
-	}, sortModels(sort), pagination)
+	}, nil, pagination)
 }
 
 func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, sort *model.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {

@@ -48,8 +48,8 @@ func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, _ *usecase.Opera
 	return i.repos.Model.FindByIDs(ctx, ids)
 }
 
-func (i Model) FindByProject(ctx context.Context, input interfaces.FindByProjectParam, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
-	m, p, err := i.repos.Model.FindByProject(ctx, input.ProjectID, input.Sort, input.Pagination)
+func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	m, p, err := i.repos.Model.FindByProject(ctx, projectID, pagination)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,7 +61,7 @@ func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.Fi
 	if err != nil {
 		return nil, nil, err
 	}
-	return m.Ordered(), p, nil
+	return m, p, nil
 }
 
 func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, _ *usecase.Operator) (*model.Model, error) {
@@ -124,7 +124,7 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	} else {
 		mb = mb.Key(id.RandomKey())
 	}
-	models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+	models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 				return interfaces.ErrOperationDenied
 			}
 
-			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), nil, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 			if err != nil {
 				return err
 			}
