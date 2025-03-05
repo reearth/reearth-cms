@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -170,7 +169,7 @@ func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 		Status(http.StatusOK).
 		JSON()
 
-	return fmt.Sprintf("%v", res.Path("$.data.createItem.item.id").Raw()), res
+	return res.Path("$.data.node.version").Raw().(string), res
 }
 
 func SearchItem(e *httpexpect.Expect, query, sort, filter, pagination map[string]any) *httpexpect.Value {
