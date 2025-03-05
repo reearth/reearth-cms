@@ -52,7 +52,7 @@ func createItem(e *httpexpect.Expect, mID, sID string, metaId *string, fields []
 		Status(http.StatusOK).
 		JSON()
 
-	return fmt.Sprintf("%v", res.Path("$.data.createItem.item.id").Raw()), res
+	return res.Path("$.data.createItem.item.id").Raw().(string), res
 }
 
 func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
@@ -170,7 +170,7 @@ func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 		Status(http.StatusOK).
 		JSON()
 
-	return res.Path("$.data.node.version").Raw().(string), res
+	return fmt.Sprintf("%v", res.Path("$.data.createItem.item.id").Raw()), res
 }
 
 func SearchItem(e *httpexpect.Expect, query, sort, filter, pagination map[string]any) *httpexpect.Value {
