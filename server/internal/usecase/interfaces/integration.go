@@ -47,7 +47,6 @@ type Integration interface {
 	Create(context.Context, CreateIntegrationParam, *usecase.Operator) (*integration.Integration, error)
 	Update(context.Context, id.IntegrationID, UpdateIntegrationParam, *usecase.Operator) (*integration.Integration, error)
 	Delete(context.Context, id.IntegrationID, *usecase.Operator) error
-	// DeleteMany deletes integrations in batch
 	DeleteMany(context.Context, id.IntegrationIDList, *usecase.Operator) error
 	RegenerateToken(context.Context, id.IntegrationID, *usecase.Operator) (*integration.Integration, error)
 
