@@ -64,6 +64,7 @@ test("Request closing and reopening has succeeded", async ({ page }) => {
 
   await page.getByRole("button", { name: "Close" }).click();
   await closeNotification(page);
+  await page.getByLabel("back").click();
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
   await expect(page.locator("tbody").getByText("WAITING")).toBeHidden();
 
