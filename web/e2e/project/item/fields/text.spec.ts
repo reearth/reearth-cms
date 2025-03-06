@@ -88,8 +88,8 @@ test("Text field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("new text1(unique)")).toBeVisible();
   await page.getByText("new text1 description").click();
   await expect(page.getByText("new text1 description")).toBeVisible();
-  await expect(page.getByLabel("new text1(unique)")).toHaveValue("text2");
-  await expect(page.getByRole("textbox").nth(1)).toHaveValue("text1");
+  await expect(page.getByRole("textbox").first()).toHaveValue("text2");
+  await expect(page.getByRole("textbox").last()).toHaveValue("text1");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();

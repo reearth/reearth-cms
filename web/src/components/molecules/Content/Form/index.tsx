@@ -825,25 +825,23 @@ const ContentForm: React.FC<Props> = ({
           )}
         </FormWrapper>
       </Wrapper>
-      {!versionedItem && (
+      {!versionedItem && (model?.metadataSchema.fields || item?.id) && (
         <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
-          {(model?.metadataSchema.fields || item?.id) && (
-            <TabPane tab={t("Meta Data")} key="meta">
-              <Form
-                form={metaForm}
-                layout="vertical"
-                initialValues={initialMetaFormValues}
-                onValuesChange={handleMetaValuesChange}>
-                <TabContent>
-                  <Metadata
-                    item={item}
-                    fields={model?.metadataSchema.fields ?? []}
-                    disabled={fieldDisabled}
-                  />
-                </TabContent>
-              </Form>
-            </TabPane>
-          )}
+          <TabPane tab={t("Meta Data")} key="meta">
+            <Form
+              form={metaForm}
+              layout="vertical"
+              initialValues={initialMetaFormValues}
+              onValuesChange={handleMetaValuesChange}>
+              <TabContent>
+                <Metadata
+                  item={item}
+                  fields={model?.metadataSchema.fields ?? []}
+                  disabled={fieldDisabled}
+                />
+              </TabContent>
+            </Form>
+          </TabPane>
           {versions.length && (
             <TabPane tab={t("Version History")} key="history">
               <TabContent>
