@@ -5,10 +5,10 @@ on:
     - cron: "0 3 * * 1-5"
   workflow_call:
     inputs:
-      REEARTH_CMS_API:
+      api_url:
         required: true
         type: string
-      REEARTH_CMS_E2E_BASEURL:
+      base_url:
         required: true
         type: string
       branch:
@@ -20,8 +20,8 @@ on:
       REEARTH_WEB_E2E_PASSWORD:
         required: true
 env:
-  REEARTH_CMS_API: ${{ inputs.REEARTH_CMS_API || vars.REEARTH_CMS_API }}
-  REEARTH_CMS_E2E_BASEURL: ${{ inputs.REEARTH_CMS_E2E_BASEURL || vars.REEARTH_CMS_E2E_BASEURL }}
+  REEARTH_CMS_API: ${{ inputs.api_url || vars.REEARTH_CMS_API }}
+  REEARTH_CMS_E2E_BASEURL: ${{ inputs.base_url || vars.REEARTH_CMS_E2E_BASEURL }}
   REEARTH_CMS_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
   REEARTH_CMS_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
 jobs:
