@@ -472,8 +472,10 @@ Successfully updated language!: 言語設定の更新に成功しました。
 Failed to delete user.: ユーザーの削除に失敗しました。
 Successfully deleted user!: ユーザーの削除に成功しました。
 Successfully created workspace!: ワークスペースの作成に成功しました。
+Failed to create thread.: スレッドの作成に失敗しました。
 Failed to create comment.: コメントの作成に失敗しました。
 Successfully created comment!: コメントの作成に成功しました。
+An unexpected error occurred.: 予期せぬエラーが発生しました。
 Failed to update comment.: コメントの更新に失敗しました。
 Successfully updated comment!: コメントの更新に成功しました。
 Failed to delete comment.: コメントの削除に失敗しました。

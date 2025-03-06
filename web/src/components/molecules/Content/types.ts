@@ -56,7 +56,7 @@ export type Item = {
   referencedItems: FormItem[];
   fields: ItemField[] | undefined | null;
   metadata: Metadata;
-  threadId: string;
+  threadId?: string;
   comments: Comment[];
   assets: ItemAsset[];
   requests: Pick<Request, "id" | "state" | "title">[];

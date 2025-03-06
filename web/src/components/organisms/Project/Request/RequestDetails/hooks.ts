@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
@@ -14,8 +15,10 @@ import {
   useUpdateCommentMutation,
   useDeleteCommentMutation,
   useGetRequestQuery,
+  useCreateThreadWithCommentMutation,
   Request as GQLRequest,
   RequestState as GQLRequestState,
+  ResourceType as GQLResourceType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -162,22 +165,51 @@ export default () => {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
+  const [createThreadWithComment] = useCreateThreadWithCommentMutation({
+    refetchQueries: ["GetRequests", "GetRequest"],
+  });
+
   const handleCommentCreate = useCallback(
     async (content: string) => {
-      if (!currentRequest?.threadId) return;
-      const comment = await createComment({
-        variables: {
-          threadId: currentRequest.threadId,
-          content,
-        },
-      });
-      if (comment.errors || !comment.data?.addComment) {
-        Notification.error({ message: t("Failed to create comment.") });
-        return;
+      try {
+        if (!currentRequest?.threadId) {
+          const { data, errors } = await createThreadWithComment({
+            variables: {
+              workspaceId: currentWorkspace?.id ?? "",
+              resourceId: currentRequest?.id ?? "",
+              resourceType: ResourceTypes.Request as GQLResourceType,
+              content,
+            },
+          });
+
+          if (errors || !data?.createThreadWithComment?.thread?.id) {
+            Notification.error({ message: t("Failed to create thread.") });
+            return;
+          }
+        } else {
+          const { data: commentData, errors: commentErrors } = await createComment({
+            variables: { threadId: currentRequest?.threadId, content },
+          });
+
+          if (commentErrors || !commentData?.addComment) {
+            Notification.error({ message: t("Failed to create comment.") });
+            return;
+          }
+        }
+        Notification.success({ message: t("Successfully created comment!") });
+      } catch (error) {
+        Notification.error({ message: t("An unexpected error occurred.") });
+        console.error("Error creating comment:", error);
       }
-      Notification.success({ message: t("Successfully created comment!") });
     },
-    [createComment, currentRequest?.threadId, t],
+    [
+      createComment,
+      createThreadWithComment,
+      currentRequest?.id,
+      currentRequest?.threadId,
+      currentWorkspace?.id,
+      t,
+    ],
   );
 
   const handleNavigateToRequestsList = useCallback(() => {
