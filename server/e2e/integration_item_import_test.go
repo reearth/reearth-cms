@@ -208,14 +208,15 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
-	// region strategy="insert" and mutateSchema=false
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	createFieldOfEachType(t, e, mId)
 
 	// 3 items with predefined fields
-	jsonContent := `[{"text": "test1", "bool": true, "number": 1.1},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
+	jsonContent := `[{"text": "test1", "bool": true, "number": 1.1, "text2": null},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
 	aId := uploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
+
+	// region strategy="insert" and mutateSchema=false
 	res := IntegrationModelImportJSON(e, mId, aId, "json", "insert", false, nil)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
@@ -265,9 +266,10 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 		"updatedCount":  0,
 		"ignoredCount":  0,
 	})
-	res.Object().Value("newFields").Array().Length().IsEqual(3)
+	res.Object().Value("newFields").Array().Length().IsEqual(4)
 	// insure the same order of fields
-	res.Path("$.newFields[:].type").Array().IsEqual([]string{"text", "bool", "number"})
+	res.Path("$.newFields[:].key").Array().IsEqual([]string{"text", "bool", "number", "text2"})
+	res.Path("$.newFields[:].type").Array().IsEqual([]string{"text", "bool", "number", "text"})
 
 	obj = e.GET("/api/models/{modelId}/items", mId).
 		// WithHeader("authorization", "Bearer "+secret).
