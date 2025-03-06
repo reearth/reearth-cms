@@ -13,6 +13,7 @@ type command = func(ctx context.Context, dbURL, dbName string, wetRun bool) erro
 
 var commands = map[string]command{
 	"ref-field-schema": RefFieldSchema,
+	"item-migration":   ItemMigration,
 }
 
 func main() {
