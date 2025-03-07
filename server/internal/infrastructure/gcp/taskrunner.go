@@ -219,7 +219,7 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Import.Validate() {
-		return nil
+		return rerror.Fmt("invalid import payload")
 	}
 
 	cb, err := cloudbuild.NewService(ctx)
@@ -238,9 +238,11 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		"-modelId=" + p.Import.ModelId,
 		"-assetId=" + p.Import.AssetId,
 		"-format=" + p.Import.Format,
-		"-geometryFieldKey=" + p.Import.GeometryFieldKey,
 		"-strategy=" + p.Import.Strategy,
 		"-mutateSchema=" + fmt.Sprint(p.Import.MutateSchema),
+	}
+	if p.Import.GeometryFieldKey != "" {
+		args = append(args, fmt.Sprintf("-geometryFieldKey=%s", p.Import.GeometryFieldKey))
 	}
 	if p.Import.UserId != "" {
 		args = append(args, "-userId="+p.Import.UserId)
