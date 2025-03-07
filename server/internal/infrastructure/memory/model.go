@@ -66,12 +66,12 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.P
 	), nil
 }
 
-func (r *Model) FindByProjectAndKeyword(_ context.Context, pid id.ProjectID, k string, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProjectAndKeyword(_ context.Context, pid id.ProjectID, k string, _ *model.Sort, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
-	// TODO: implement pagination
+	// TODO: implement pagination and sorting
 
 	if !r.f.CanRead(pid) {
 		return nil, nil, nil

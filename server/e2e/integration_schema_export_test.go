@@ -42,18 +42,18 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"type": "object",
 		})
 
-	// /api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json
-	e.GET("/api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json", pid, sid1).
+	// /api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json
+	e.GET("/api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json", pid, sid1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json", pid, id.NewSchemaID()).
+	e.GET("/api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json", pid, id.NewSchemaID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/projects/{projectIdOrKey}/schemata/{schemaId}/schema.json", pid, sid1).
+	e.GET("/api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json", pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -73,18 +73,18 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"type": "object",
 		})
 
-	// /api/projects/{projectIdOrKey}/models/{modelId}/schema.json
-	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/schema.json", pid, mId1).
+	// /api/projects/{projectIdOrAlias}/models/{modelId}/schema.json
+	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/schema.json", pid, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/schema.json", pid, id.NewModelID()).
+	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/schema.json", pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/schema.json", pid, mId1).
+	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/schema.json", pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -106,18 +106,18 @@ func TestIntegrationSchemaJSONExportAPI(t *testing.T) {
 			"title":       "m1",
 		})
 
-	// /api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json
-	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json", pid, mId1).
+	// /api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json
+	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json", pid, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json", pid, id.NewModelID()).
+	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json", pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/projects/{projectIdOrKey}/models/{modelId}/metadata_schema.json", pid, mId1).
+	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json", pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
