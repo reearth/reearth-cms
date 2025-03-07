@@ -219,7 +219,7 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Import.Validate() {
-		return nil
+		return rerror.Fmt("invalid import payload")
 	}
 
 	cb, err := cloudbuild.NewService(ctx)

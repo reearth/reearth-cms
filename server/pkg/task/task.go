@@ -1,6 +1,8 @@
 package task
 
 import (
+	"strings"
+
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 )
@@ -87,7 +89,19 @@ type ImportPayload struct {
 }
 
 func (p *ImportPayload) Validate() bool {
-	return p != nil && (p.UserId != "" || p.IntegrationId != "") && p.ModelId != "" && p.AssetId != "" && p.Format != "" && p.GeometryFieldKey != "" && p.Strategy != ""
+	if p == nil {
+		return false
+	}
+	if p.UserId == "" && p.IntegrationId == "" {
+		return false
+	}
+	if p.ModelId == "" || p.AssetId == "" || p.Format == "" || p.Strategy == "" {
+		return false
+	}
+	if strings.ToLower(p.Format) == "geojson" && p.GeometryFieldKey == "" {
+		return false
+	}
+	return true
 }
 
 func (p *ImportPayload) Payload() Payload {
