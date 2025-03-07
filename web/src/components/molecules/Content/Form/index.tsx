@@ -10,11 +10,13 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { emptyConvert } from "@reearth-cms/components/molecules/Common/Form/utils";
-import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
+import Metadata from "@reearth-cms/components/molecules/Content/Form/Metadata";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
@@ -23,6 +25,8 @@ import {
   FormItem,
   ItemField,
   ItemValue,
+  VersionedItem,
+  FormValues,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -34,10 +38,12 @@ import {
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { transformDayjsToString } from "@reearth-cms/utils/format";
+import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
-import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldComponents";
-import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
+import FieldWrapper from "./FieldWrapper";
+import Versions from "./Versions";
+
+const { TabPane } = Tabs;
 
 type Props = {
   title: string;
@@ -54,6 +60,7 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
+  versions: VersionedItem[];
   loading: boolean;
   model?: Model;
   assetList: Asset[];
@@ -106,6 +113,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetVersionedItem: (version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
   onRequestCreate: (data: {
@@ -145,6 +153,7 @@ const ContentForm: React.FC<Props> = ({
   model,
   initialFormValues,
   initialMetaFormValues,
+  versions,
   loading,
   assetList,
   fileList,
@@ -176,6 +185,7 @@ const ContentForm: React.FC<Props> = ({
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableChange,
+  onGetVersionedItem,
   onPublish,
   onUnpublish,
   onAssetTableChange,
@@ -207,10 +217,11 @@ const ContentForm: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
+  const [versionForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(!!itemId);
   const changedKeys = useRef(new Set<string>());
-  const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
+  const referencedItems = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -261,24 +272,26 @@ const ContentForm: React.FC<Props> = ({
         return;
       }
 
-      const [key, value] = Object.entries(changedValues)[0];
-      if (checkIfSingleGroupField(key, value)) {
-        const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
-        const groupFieldValue = initialFormValues[key][groupFieldKey];
-        if (
-          JSON.stringify(emptyConvert(changedFieldValue)) ===
-          JSON.stringify(emptyConvert(groupFieldValue))
+      for (const [key, value] of Object.entries(changedValues)) {
+        if (checkIfSingleGroupField(key, value)) {
+          const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
+          const groupFieldValue = initialFormValues[key][groupFieldKey];
+          if (
+            JSON.stringify(emptyConvert(changedFieldValue)) ===
+            JSON.stringify(emptyConvert(groupFieldValue))
+          ) {
+            changedKeys.current.delete(key);
+          } else if (changedFieldValue !== undefined) {
+            changedKeys.current.add(key);
+          }
+        } else if (
+          JSON.stringify(emptyConvert(value)) ===
+          JSON.stringify(emptyConvert(initialFormValues[key]))
         ) {
           changedKeys.current.delete(key);
-        } else if (changedFieldValue !== undefined) {
+        } else {
           changedKeys.current.add(key);
         }
-      } else if (
-        JSON.stringify(emptyConvert(value)) === JSON.stringify(emptyConvert(initialFormValues[key]))
-      ) {
-        changedKeys.current.delete(key);
-      } else {
-        changedKeys.current.add(key);
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
@@ -354,8 +367,8 @@ const ContentForm: React.FC<Props> = ({
   }, [allFormsValidate, form, initialFormValues, initialMetaFormValues, itemId, metaForm]);
 
   const unpublishedItems = useMemo(
-    () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
-    [formItemsData],
+    () => referencedItems?.filter(item => item.status !== "PUBLIC") ?? [],
+    [referencedItems],
   );
 
   const inputValueGet = useCallback((value: ItemValue, field: Field) => {
@@ -402,6 +415,53 @@ const ContentForm: React.FC<Props> = ({
     }
     return result;
   }, [inputValueGet, metaFieldsMap, metaForm]);
+
+  const [versionedItem, setVersionedItem] = useState<VersionedItem>();
+
+  const versionClick = useCallback(
+    async (versionedItem: VersionedItem) => {
+      const res = await onGetVersionedItem(versionedItem.version);
+      versionForm.setFieldsValue(res);
+      setVersionedItem(versionedItem);
+    },
+    [onGetVersionedItem, versionForm],
+  );
+
+  const versionedItemClose = useCallback(() => {
+    setVersionedItem(undefined);
+  }, []);
+
+  const handleRestore = useCallback(() => {
+    const restore = () => {
+      const values = versionForm.getFieldsValue();
+      form.setFieldsValue(values);
+      handleValuesChange(values);
+      Notification.destroy();
+      versionedItemClose();
+    };
+
+    Notification.info({
+      message: t("Are you sure you want to restore this version’s content?"),
+      description: t(
+        "After saving, a new version will be created while keeping the current version unchanged.",
+      ),
+      btn: (
+        <Space>
+          <Button
+            onClick={() => {
+              Notification.destroy();
+            }}>
+            {t("Cancel")}
+          </Button>
+          <Button type="primary" onClick={restore}>
+            {t("Restore")}
+          </Button>
+        </Space>
+      ),
+      placement: "top",
+      closeIcon: false,
+    });
+  }, [form, handleValuesChange, t, versionForm, versionedItemClose]);
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -459,6 +519,7 @@ const ContentForm: React.FC<Props> = ({
 
       changedKeys.current.clear();
       setIsDisabled(true);
+      versionedItemClose();
     } catch (e) {
       console.error(e);
     }
@@ -466,6 +527,7 @@ const ContentForm: React.FC<Props> = ({
     model,
     form,
     itemId,
+    versionedItemClose,
     onGroupGet,
     modelFields,
     inputValueGet,
@@ -520,13 +582,18 @@ const ContentForm: React.FC<Props> = ({
     [allFormsValidate, handleMetaUpdate, initialMetaFormValues, itemId],
   );
 
+  const isInReview = useMemo(
+    () => item?.status === "REVIEW" || item?.status === "PUBLIC_REVIEW",
+    [item?.status],
+  );
+
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
       {
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
-        disabled: item?.status === "PUBLIC" || !hasRequestUpdateRight,
+        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestUpdateRight,
       },
       {
         key: "unpublish",
@@ -542,13 +609,14 @@ const ContentForm: React.FC<Props> = ({
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
-        disabled: item?.status === "PUBLIC" || !hasRequestCreateRight,
+        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight,
       });
     }
     return menuItems;
   }, [
     t,
     onAddItemToRequestModalOpen,
+    isInReview,
     item?.status,
     hasRequestUpdateRight,
     hasPublishRight,
@@ -577,181 +645,216 @@ const ContentForm: React.FC<Props> = ({
     [hasItemUpdateRight, itemId],
   );
 
+  const [activeKey, setActiveKey] = useState<string>();
+
+  const formWrapperRef = useRef<HTMLDivElement>(null);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+
+  useEffect(() => {
+    if (formWrapperRef.current)
+      setScrollbarWidth(formWrapperRef.current?.offsetWidth - formWrapperRef.current?.clientWidth);
+  }, []);
+
+  const itemHeightsRef = useRef<Record<string, number>>({});
+  const [itemHeights, setItemHeights] = useState<Record<string, number>>({});
+
+  const handleItemHeightChange = useCallback((id: string, height: number) => {
+    itemHeightsRef.current = { ...itemHeightsRef.current, [id]: height };
+    const _height = id.startsWith("version")
+      ? Math.max(
+          itemHeightsRef.current[id] ?? 0,
+          itemHeightsRef.current[id.substring(id.indexOf("_") + 1)] ?? 0,
+        )
+      : Math.max(itemHeightsRef.current[id] ?? 0, itemHeightsRef.current[`version_${id}`] ?? 0);
+    const _id = id.startsWith("version") ? id.substring(id.indexOf("_") + 1) : id;
+
+    setItemHeights(prev => ({ ...prev, [_id]: _height }));
+  }, []);
+
   return (
     <>
-      <StyledForm
-        form={form}
-        layout="vertical"
-        initialValues={initialFormValues}
-        onValuesChange={handleValuesChange}>
-        <PageHeader
-          title={title}
-          onBack={onBack}
-          extra={
-            <>
-              <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
-                {t("Save")}
-              </Button>
-              {itemId && (
-                <>
-                  {showPublishAction && (
-                    <Button
-                      type="primary"
-                      onClick={handlePublishSubmit}
-                      loading={publishLoading}
-                      disabled={item?.status === "PUBLIC" || !hasPublishRight}>
-                      {t("Publish")}
-                    </Button>
-                  )}
-                  {!showPublishAction && (
-                    <Button
-                      type="primary"
-                      onClick={onModalOpen}
-                      disabled={item?.status === "PUBLIC" || !hasRequestCreateRight}>
-                      {t("New Request")}
-                    </Button>
-                  )}
-                  <Dropdown menu={{ items }} trigger={["click"]}>
-                    <Button>
-                      <Icon icon="ellipsis" />
-                    </Button>
-                  </Dropdown>
-                </>
-              )}
-            </>
-          }
-        />
-        <FormItemsWrapper>
-          {model?.schema.fields.map(field => {
-            if (field.type === "Asset") {
-              return (
-                <StyledFormItemWrapper key={field.id}>
-                  <AssetField
-                    field={field}
-                    assetList={assetList}
-                    itemAssets={item?.assets}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    disabled={fieldDisabled}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsGet={onAssetsGet}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
-                    onGetAsset={onGetAsset}
-                  />
-                </StyledFormItemWrapper>
-              );
-            } else if (field.type === "Reference") {
-              return (
-                <StyledFormItemWrapper key={field.id}>
-                  <ReferenceField
-                    field={field}
-                    loading={loadingReference}
-                    linkedItemsModalList={linkedItemsModalList}
-                    formItemsData={formItemsData}
-                    linkItemModalTitle={linkItemModalTitle}
-                    linkItemModalTotalCount={linkItemModalTotalCount}
-                    linkItemModalPage={linkItemModalPage}
-                    linkItemModalPageSize={linkItemModalPageSize}
-                    disabled={fieldDisabled}
-                    onReferenceModelUpdate={onReferenceModelUpdate}
-                    onSearchTerm={onSearchTerm}
-                    onLinkItemTableReload={onLinkItemTableReload}
-                    onLinkItemTableChange={onLinkItemTableChange}
-                    onCheckItemReference={onCheckItemReference}
-                  />
-                </StyledFormItemWrapper>
-              );
-            } else if (field.type === "Group") {
-              return (
-                <StyledFormItemWrapper key={field.id} isFullWidth>
-                  <GroupField
-                    field={field}
-                    form={form}
-                    loadingReference={loadingReference}
-                    linkedItemsModalList={linkedItemsModalList}
-                    linkItemModalTitle={linkItemModalTitle}
-                    formItemsData={formItemsData}
-                    itemAssets={item?.assets}
-                    assetList={assetList}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    linkItemModalTotalCount={linkItemModalTotalCount}
-                    linkItemModalPage={linkItemModalPage}
-                    linkItemModalPageSize={linkItemModalPageSize}
-                    disabled={fieldDisabled}
-                    onSearchTerm={onSearchTerm}
-                    onReferenceModelUpdate={onReferenceModelUpdate}
-                    onLinkItemTableReload={onLinkItemTableReload}
-                    onLinkItemTableChange={onLinkItemTableChange}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsGet={onAssetsGet}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
-                    onGetAsset={onGetAsset}
-                    onGroupGet={onGroupGet}
-                    onCheckItemReference={onCheckItemReference}
-                  />
-                </StyledFormItemWrapper>
-              );
-            } else {
-              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-              return (
-                <StyledFormItemWrapper
-                  key={field.id}
-                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
-                  <FieldComponent field={field} disabled={fieldDisabled} />
-                </StyledFormItemWrapper>
-              );
+      <Wrapper>
+        <HeaderWrapper>
+          <StyledPageHeader
+            title={title}
+            onBack={onBack}
+            extra={
+              <>
+                <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
+                  {t("Save")}
+                </Button>
+                {itemId && (
+                  <>
+                    {showPublishAction && (
+                      <Tooltip
+                        placement="bottom"
+                        title={
+                          isInReview
+                            ? t(
+                                "The item is currently under request review and cannot be published.",
+                              )
+                            : null
+                        }>
+                        <Button
+                          type="primary"
+                          onClick={handlePublishSubmit}
+                          loading={publishLoading}
+                          disabled={isInReview || item?.status === "PUBLIC" || !hasPublishRight}>
+                          {t("Publish")}
+                        </Button>
+                      </Tooltip>
+                    )}
+                    {!showPublishAction && (
+                      <Tooltip
+                        placement="bottom"
+                        title={
+                          isInReview
+                            ? t(
+                                "The item is currently under request review and cannot have a new request.",
+                              )
+                            : null
+                        }>
+                        <Button
+                          type="primary"
+                          onClick={onModalOpen}
+                          disabled={
+                            isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight
+                          }>
+                          {t("New Request")}
+                        </Button>
+                      </Tooltip>
+                    )}
+                    <Dropdown menu={{ items }} trigger={["click"]}>
+                      <Button>
+                        <Icon icon="ellipsis" />
+                      </Button>
+                    </Dropdown>
+                  </>
+                )}
+              </>
             }
-          })}
-        </FormItemsWrapper>
-      </StyledForm>
-      <SideBarWrapper>
-        <Form
-          form={metaForm}
-          layout="vertical"
-          initialValues={initialMetaFormValues}
-          onValuesChange={handleMetaValuesChange}>
-          <ContentSidebarWrapper item={item} onNavigateToRequest={onNavigateToRequest} />
-          {model?.metadataSchema?.fields?.map(field => {
-            const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-            return (
-              <MetaFormItemWrapper key={field.id}>
-                <FieldComponent field={field} disabled={fieldDisabled} />
-              </MetaFormItemWrapper>
-            );
-          })}
-        </Form>
-      </SideBarWrapper>
+          />
+          {versionedItem && (
+            <VersionHeader
+              title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
+              onBack={versionedItemClose}
+              extra={
+                <Button onClick={handleRestore} type="link">
+                  {t("Restore")}
+                </Button>
+              }
+            />
+          )}
+        </HeaderWrapper>
+        <FormWrapper ref={formWrapperRef}>
+          <StyledForm
+            form={form}
+            layout="vertical"
+            initialValues={initialFormValues}
+            onValuesChange={handleValuesChange}
+            scrollbarWidth={scrollbarWidth}>
+            {model?.schema.fields.map(field => (
+              <FieldWrapper
+                key={field.id}
+                field={field}
+                disabled={fieldDisabled}
+                itemHeights={itemHeights}
+                onItemHeightChange={handleItemHeightChange}
+                assetProps={{
+                  assetList,
+                  itemAssets: item?.assets,
+                  fileList,
+                  loadingAssets,
+                  uploading,
+                  uploadModalVisibility,
+                  uploadUrl,
+                  uploadType,
+                  totalCount,
+                  page,
+                  pageSize,
+                  onAssetTableChange,
+                  onUploadModalCancel,
+                  setUploadUrl,
+                  setUploadType,
+                  onAssetsCreate,
+                  onAssetCreateFromUrl,
+                  onAssetsGet,
+                  onAssetsReload,
+                  onAssetSearchTerm,
+                  setFileList,
+                  setUploadModalVisibility,
+                  onGetAsset,
+                }}
+                referenceProps={{
+                  referencedItems,
+                  loading: loadingReference,
+                  linkedItemsModalList,
+                  linkItemModalTitle,
+                  linkItemModalTotalCount,
+                  linkItemModalPage,
+                  linkItemModalPageSize,
+                  onReferenceModelUpdate,
+                  onSearchTerm,
+                  onLinkItemTableReload,
+                  onLinkItemTableChange,
+                  onCheckItemReference,
+                }}
+                groupProps={{ form, onGroupGet }}
+              />
+            ))}
+          </StyledForm>
+          {versionedItem && (
+            <VersionForm
+              form={versionForm}
+              layout="vertical"
+              name="version"
+              scrollbarWidth={scrollbarWidth}>
+              {model?.schema.fields.map(field => (
+                <FieldWrapper
+                  key={field.id}
+                  field={field}
+                  disabled
+                  itemHeights={itemHeights}
+                  onItemHeightChange={handleItemHeightChange}
+                  assetProps={{ onGetAsset }}
+                  referenceProps={{ referencedItems }}
+                  groupProps={{ form, onGroupGet }}
+                />
+              ))}
+            </VersionForm>
+          )}
+        </FormWrapper>
+      </Wrapper>
+      {!versionedItem && (model?.metadataSchema.fields || item?.id) && (
+        <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
+          <TabPane tab={t("Meta Data")} key="meta">
+            <Form
+              form={metaForm}
+              layout="vertical"
+              initialValues={initialMetaFormValues}
+              onValuesChange={handleMetaValuesChange}>
+              <TabContent>
+                <Metadata
+                  item={item}
+                  fields={model?.metadataSchema.fields ?? []}
+                  disabled={fieldDisabled}
+                />
+              </TabContent>
+            </Form>
+          </TabPane>
+          {versions.length && (
+            <TabPane tab={t("Version History")} key="history">
+              <TabContent>
+                <Versions
+                  versions={versions}
+                  versionClick={versionClick}
+                  onNavigateToRequest={onNavigateToRequest}
+                />
+              </TabContent>
+            </TabPane>
+          )}
+        </StyledTabs>
+      )}
       {itemId && (
         <>
           <RequestCreationModal
@@ -791,47 +894,76 @@ const ContentForm: React.FC<Props> = ({
   );
 };
 
-const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
-  max-width: ${({ isFullWidth }) => (isFullWidth ? undefined : "500px")};
-  word-wrap: break-word;
-`;
-
-const StyledForm = styled(Form)`
+const Wrapper = styled.div`
+  display: flex;
+  flex-flow: column;
   flex: 1;
   min-width: 0;
   height: 100%;
+`;
+
+const HeaderWrapper = styled.div`
+  background-color: #fff;
+  display: flex;
+`;
+
+const StyledPageHeader = styled(PageHeader)`
+  flex: 1;
+  min-width: 0;
+`;
+
+const VersionHeader = styled(StyledPageHeader)`
+  background-color: #fafafa !important;
+`;
+
+const FormWrapper = styled.div`
+  border-top: 1px solid #00000008;
+  overflow: hidden auto;
+  display: flex;
+  flex: 1;
+  scrollbar-gutter: stable;
+`;
+
+const StyledTabs = styled(Tabs)`
+  max-height: 100%;
+  background-color: #fafafa;
+  width: 272px;
+  border-left: 1px solid #f0f0f0;
+  .ant-tabs-nav {
+    margin-bottom: 0;
+    padding-left: 20px;
+    background-color: #fff;
+  }
+  .ant-tabs-content-holder {
+    overflow-y: auto;
+  }
+`;
+
+const StyledForm = styled(Form)<{ scrollbarWidth: number }>`
+  flex: 1;
+  min-width: 0;
+  padding: 36px;
   background: #fff;
+  min-height: 100%;
+  height: fit-content;
   label {
     width: 100%;
     display: flex;
   }
+  :last-child {
+    margin-right: ${({ scrollbarWidth }) => `-${scrollbarWidth}px`};
+  }
 `;
 
-const FormItemsWrapper = styled.div`
-  max-height: calc(100% - 72px);
-  overflow-y: auto;
-  padding: 36px;
-  border-top: 1px solid #00000008;
+const VersionForm = styled(StyledForm)`
+  background: #fafafa;
 `;
 
-const SideBarWrapper = styled.div`
-  background-color: #fafafa;
-  padding: 8px;
-  width: 272px;
-  max-height: 100%;
-  overflow-y: auto;
-  overflow-wrap: break-word;
-`;
-
-const MetaFormItemWrapper = styled.div`
-  padding: 12px;
-  margin-bottom: 8px;
-  width: 100%;
+const TabContent = styled.div`
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
-  border-radius: 2px;
+  gap: 8px;
+  padding: 8px;
 `;
 
 export default ContentForm;

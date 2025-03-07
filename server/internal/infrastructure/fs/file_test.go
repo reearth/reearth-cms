@@ -140,7 +140,7 @@ func TestFile_GetURL(t *testing.T) {
 		CreatedByUser(accountdomain.NewUserID()).
 		Size(1000).FileName(n).
 		UUID(u).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		MustBuild()
 
 	expected, err := url.JoinPath(host, assetDir, u[:2], u[2:], url.PathEscape(n))

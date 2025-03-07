@@ -137,9 +137,9 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
 			Logging:     "CLOUD_LOGGING_ONLY",
-			Pool: &cloudbuild.PoolOption{
-				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
-			},
+			// Pool: &cloudbuild.PoolOption{
+			// 	Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
+			// },
 		},
 	}
 
@@ -189,8 +189,7 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
-			Logging:    "CLOUD_LOGGING_ONLY",
+			Logging: "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
 				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
 			},
@@ -239,9 +238,11 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		"-modelId=" + p.Import.ModelId,
 		"-assetId=" + p.Import.AssetId,
 		"-format=" + p.Import.Format,
-		"-geometryFieldKey=" + p.Import.GeometryFieldKey,
 		"-strategy=" + p.Import.Strategy,
 		"-mutateSchema=" + fmt.Sprint(p.Import.MutateSchema),
+	}
+	if p.Import.GeometryFieldKey != "" {
+		args = append(args, fmt.Sprintf("-geometryFieldKey=%s", p.Import.GeometryFieldKey))
 	}
 	if p.Import.UserId != "" {
 		args = append(args, "-userId="+p.Import.UserId)
@@ -283,8 +284,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
-			Logging:    "CLOUD_LOGGING_ONLY",
+			Logging: "CLOUD_LOGGING_ONLY",
 			Pool: &cloudbuild.PoolOption{
 				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
 			},

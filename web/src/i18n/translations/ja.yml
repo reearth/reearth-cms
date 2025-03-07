@@ -46,8 +46,10 @@ Copy URL: URLをコピー
 URL copied!!: URLをコピーしました！
 Unzip: ""
 Asset Type: アセットの種類
-Created Time: 作成日時
-Created By: 作成者
+Asset Information: アセットの情報
+Created at: 作成日時
+Created by: 作成者
+Size: サイズ
 Linked to: リンク先
 Asset: アセット
 Source Code: ソースコード
@@ -69,10 +71,10 @@ Decompressing: 解凍中
 Skipped: スキップ
 Pending: 保留中
 File: ファイル
-Size: サイズ
 Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
+Created By: 作成者
 ID: ""
 input search text: 検索
 Delete: 削除
@@ -137,17 +139,27 @@ Title: タイトル
 Leave: 離れる
 This item has unsaved data: 保存していないデータがあります。
 Are you going to leave?: ページを離れますか？
+Are you sure you want to restore this version’s content?: 本当にこのバージョンを復元しますか？
+After saving, a new version will be created while keeping the current version unchanged.: 保存すると、現在のバージョンはそのままで、新しいバージョンが作成されます。
+Restore: 復元
 Add to Request: 既存のリクエストに追加
 Unpublish: 非公開
 New Request: 新規リクエスト
+The item is currently under request review and cannot be published.: このアイテムは現在リクエストレビュー中のため公開できません。
 Publish: 公開
-Replace item: アイテムを置き換える
-Refer to item: アイテムを参照
+The item is currently under request review and cannot have a new request.: このアイテムは現在リクエストレビュー中のため新たなリクエストは作成できません。
+Version history: バージョン履歴
+Meta Data: メタデータ
+Version History: バージョン履歴
 Item Information: アイテムの情報
 Updated At: 更新日時
 Updated By: 更新者
 Publish State: 公開状態
-Linked Request: リンクされたリクエスト
+Customized meta data: カスタマイズされたメタデータ
+Replace item: アイテムを置き換える
+Refer to item: アイテムを参照
+current: 現在
+Updated by: 更新者
 This item has been referenced: このアイテムは参照されています
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
 State: ステータス
@@ -159,6 +171,9 @@ Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
 We found some referenced items that not published yet. Please select to add the items to the same request.: まだ公開されていない参照アイテムが見つかりました。同じリクエストに追加する場合は選択してください。
+Draft: ドラフト
+Published: 公開
+Review: レビュー
 is: 同値
 is not: 異なる
 contains: 含む
@@ -294,6 +309,7 @@ Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
 Assign to: 割り当てる
+Created Time: 作成日時
 WAITING: レビュー待ち
 APPROVED: 承認済
 CLOSED: クローズ済
@@ -313,7 +329,6 @@ Number: 数値
 GeoJSON Geometry: GeoJSONジオメトリ
 Relation: 関係
 Group: グループ
-Meta Data: メタデータ
 Add Field: フィールドを追加
 optional: 任意
 Update Field: "{{field}}フィールドを更新"
@@ -457,8 +472,10 @@ Successfully updated language!: 言語設定の更新に成功しました。
 Failed to delete user.: ユーザーの削除に失敗しました。
 Successfully deleted user!: ユーザーの削除に成功しました。
 Successfully created workspace!: ワークスペースの作成に成功しました。
+Failed to create thread.: スレッドの作成に失敗しました。
 Failed to create comment.: コメントの作成に失敗しました。
 Successfully created comment!: コメントの作成に成功しました。
+An unexpected error occurred.: 予期せぬエラーが発生しました。
 Failed to update comment.: コメントの更新に失敗しました。
 Successfully updated comment!: コメントの更新に成功しました。
 Failed to delete comment.: コメントの削除に失敗しました。

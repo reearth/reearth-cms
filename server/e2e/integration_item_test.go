@@ -46,6 +46,7 @@ var (
 	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
+	aid3   = id.NewAssetID() // no thread
 	auuid1 = uuid.NewString()
 	auuid2 = uuid.NewString()
 	itmId1 = id.NewItemID()
@@ -54,6 +55,7 @@ var (
 	itmId4 = id.NewItemID()
 	itmId5 = id.NewItemID()
 	itmId6 = id.NewItemID()
+	itmId7 = id.NewItemID() // no thread
 	fId1   = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
@@ -188,6 +190,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey0).
 		Project(p.ID()).
 		Schema(s0.ID()).
+		UpdatedAt(now.Add(time.Second)).
+		Order(0).
 		MustBuild()
 	if err := r.Model.Save(ctx, m0); err != nil {
 		return err
@@ -202,6 +206,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Project(p.ID()).
 		Schema(s1.ID()).
 		Metadata(s3.ID().Ref()).
+		UpdatedAt(now.Add(2 * time.Second)).
+		Order(1).
 		MustBuild()
 	if err := r.Model.Save(ctx, m1); err != nil {
 		return err
@@ -215,6 +221,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey2).
 		Project(p.ID()).
 		Schema(s2.ID()).
+		UpdatedAt(now.Add(3 * time.Second)).
+		Order(2).
 		MustBuild()
 	if err := r.Model.Save(ctx, m2); err != nil {
 		return err
@@ -244,6 +252,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey3).
 		Project(p.ID()).
 		Schema(s5.ID()).
+		UpdatedAt(now.Add(4 * time.Second)).
+		Order(3).
 		MustBuild()
 	if err := r.Model.Save(ctx, m3); err != nil {
 		return err
@@ -265,6 +275,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey4).
 		Project(p.ID()).
 		Schema(s7.ID()).
+		UpdatedAt(now.Add(5 * time.Second)).
+		Order(4).
 		MustBuild()
 	if err := r.Model.Save(ctx, m4); err != nil {
 		return err
@@ -286,6 +298,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey5).
 		Project(p.ID()).
 		Schema(s8.ID()).
+		UpdatedAt(now.Add(6 * time.Second)).
+		Order(5).
 		MustBuild()
 	if err := r.Model.Save(ctx, m5); err != nil {
 		return err
@@ -298,7 +312,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Schema(s1.ID()).
 		Model(m1.ID()).
 		Project(p.ID()).
-		Thread(thId1).
+		Thread(thId1.Ref()).
 		Fields([]*item.Field{
 			item.NewField(fId2, value.TypeAsset.Value(aid1).AsMultiple(), nil),
 		}).
@@ -311,7 +325,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Schema(s2.ID()).
 		Model(m2.ID()).
 		Project(p.ID()).
-		Thread(thId2).
+		Thread(thId2.Ref()).
 		Fields([]*item.Field{
 			item.NewField(fId3, value.TypeReference.Value(itmId1).AsMultiple(), nil),
 		}).
@@ -324,7 +338,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Schema(s3.ID()).
 		Model(m1.ID()).
 		Project(p.ID()).
-		Thread(thId3).
+		Thread(thId3.Ref()).
 		IsMetadata(true).
 		Fields([]*item.Field{
 			item.NewField(fId4, value.TypeBool.Value(true).AsMultiple(), nil),
@@ -338,7 +352,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Schema(s5.ID()).
 		Model(m3.ID()).
 		Project(p.ID()).
-		Thread(thId4).
+		Thread(thId4.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
 			item.NewField(fId6, value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(gId1), value.TypeGroup.Value(gId2)}), nil),
@@ -354,7 +368,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Schema(s7.ID()).
 		Model(m4.ID()).
 		Project(p.ID()).
-		Thread(thId5).
+		Thread(thId5.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
 			item.NewField(fId7, value.MultipleFrom(value.TypeGeometryObject, []*value.Value{value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
@@ -369,7 +383,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Schema(s8.ID()).
 		Model(m5.ID()).
 		Project(p.ID()).
-		Thread(thId6).
+		Thread(thId6.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
 			item.NewField(fId9, value.MultipleFrom(value.TypeNumber, []*value.Value{
@@ -378,6 +392,15 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm6); err != nil {
+		return err
+	}
+
+	itm7 := item.New().ID(itmId7).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(p.ID()).
+		MustBuild()
+	if err := r.Item.Save(ctx, itm7); err != nil {
 		return err
 	}
 	// endregion
@@ -397,7 +420,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		FileName("aaa.jpg").
 		Size(1000).
 		UUID(auuid1).
-		Thread(thId1).
+		Thread(thId1.Ref()).
 		MustBuild()
 	a2 := asset.New().ID(aid2).
 		Project(p.ID()).
@@ -405,13 +428,23 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		FileName("bbb.jpg").
 		Size(1000).
 		UUID(auuid2).
-		Thread(thId2).
+		Thread(thId2.Ref()).
+		MustBuild()
+	a3 := asset.New().ID(aid3).
+		Project(p.ID()).
+		CreatedByUser(u.ID()).
+		FileName("ccc.jpg").
+		Size(1000).
+		UUID(uuid.NewString()).
 		MustBuild()
 
 	if err := r.Asset.Save(ctx, a1); err != nil {
 		return err
 	}
 	if err := r.Asset.Save(ctx, a2); err != nil {
+		return err
+	}
+	if err := r.Asset.Save(ctx, a3); err != nil {
 		return err
 	}
 	if err := r.AssetFile.Save(ctx, a1.ID(), f1); err != nil {
@@ -459,6 +492,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Project(pid).
 		Schema(dvs1.ID()).
 		Metadata(sm.ID().Ref()).
+		UpdatedAt(now.Add(7 * time.Second)).
+		Order(6).
 		MustBuild()
 
 	if err := r.Model.Save(ctx, dvm); err != nil {
@@ -1358,6 +1393,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	sId, _, _ := getModel(e, mId)
 	i1Id, _ := createItem(e, mId, sId, nil, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": fids.numberFId, "value": 1, "type": "Number"},
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
@@ -1368,7 +1404,10 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 	f := features.Value(0).Object()
 	f.Value("id").String().IsEqual(i1Id)
 	f.Value("type").String().IsEqual("Feature")
-	f.Value("properties").Object().Value("text").String().IsEqual("test1")
+	f.Value("properties").Object().IsEqual(map[string]any{
+		"number": 1,
+		"text":   "test1",
+	})
 	g := f.Value("geometry").Object()
 	g.Value("type").String().IsEqual("Point")
 	g.Value("coordinates").Array().IsEqual([]float64{139.28179282584915, 36.58570985749664})
