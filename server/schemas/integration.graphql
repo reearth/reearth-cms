@@ -42,7 +42,7 @@ input DeleteIntegrationInput {
 }
 
 input DeleteIntegrationsInput {
-  integrationIDs: [ID!]
+  integrationIDs: [ID!]!
 }
 
 input RegenerateIntegrationTokenInput {

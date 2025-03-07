@@ -5751,7 +5751,7 @@ input DeleteIntegrationInput {
 }
 
 input DeleteIntegrationsInput {
-  integrationIDs: [ID!]
+  integrationIDs: [ID!]!
 }
 
 input RegenerateIntegrationTokenInput {
@@ -37455,7 +37455,7 @@ func (ec *executionContext) unmarshalInputDeleteIntegrationsInput(ctx context.Co
 		switch k {
 		case "integrationIDs":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationIDs"))
-			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}

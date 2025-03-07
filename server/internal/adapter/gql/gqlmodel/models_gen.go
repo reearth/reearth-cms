@@ -392,7 +392,7 @@ type DeleteIntegrationPayload struct {
 }
 
 type DeleteIntegrationsInput struct {
-	IntegrationIDs []ID `json:"integrationIDs,omitempty"`
+	IntegrationIDs []ID `json:"integrationIDs"`
 }
 
 type DeleteIntegrationsPayload struct {
