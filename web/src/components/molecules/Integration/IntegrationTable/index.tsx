@@ -179,6 +179,7 @@ const IntegrationTable: React.FC<Props> = ({
     <Wrapper>
       <PageHeader
         title={t("Integrations")}
+        style={{ backgroundColor: "#fff" }}
         extra={
           <Button
             type="primary"

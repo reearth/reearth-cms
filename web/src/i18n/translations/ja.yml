@@ -2,7 +2,7 @@ Copy: コピー
 Copied: コピーしました
 Download: ダウンロード
 Loading: ローディング中
-Oops!: ''
+Oops!: ""
 PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
 ITEM NOT FOUND ON SERVER: データが見つかりません。
@@ -44,7 +44,7 @@ This will change the UI language: UIの言語設定を変更します。
 Language: 言語
 Copy URL: URLをコピー
 URL copied!!: URLをコピーしました！
-Unzip: ''
+Unzip: ""
 Asset Type: アセットの種類
 Asset Information: アセットの情報
 Created at: 作成日時
@@ -54,13 +54,13 @@ Linked to: リンク先
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
-PNG/JPEG/TIFF/GIF: ''
-SVG: ''
-GEOJSON/KML/CZML: ''
-3D Tiles: ''
-MVT: ''
-GLTF/GLB: ''
-CSV: ''
+PNG/JPEG/TIFF/GIF: ""
+SVG: ""
+GEOJSON/KML/CZML: ""
+3D Tiles: ""
+MVT: ""
+GLTF/GLB: ""
+CSV: ""
 Unknown Type: 不明
 Decompressing...: 解凍中
 Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
@@ -75,7 +75,7 @@ Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
 Created By: 作成者
-ID: ''
+ID: ""
 input search text: 検索
 Delete: 削除
 Upload Asset: アセットをアップロード
@@ -88,7 +88,7 @@ Upload and Link: アップロードとリンク
 Upload: アップロード
 Asset Uploader: アセットアップローダー
 Local: ローカル
-URL: ''
+URL: ""
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
@@ -111,7 +111,7 @@ Go to Editor: エディタへ移動
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
-OK: ''
+OK: ""
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
@@ -139,17 +139,27 @@ Title: タイトル
 Leave: 離れる
 This item has unsaved data: 保存していないデータがあります。
 Are you going to leave?: ページを離れますか？
+Are you sure you want to restore this version’s content?: 本当にこのバージョンを復元しますか？
+After saving, a new version will be created while keeping the current version unchanged.: 保存すると、現在のバージョンはそのままで、新しいバージョンが作成されます。
+Restore: 復元
 Add to Request: 既存のリクエストに追加
 Unpublish: 非公開
 New Request: 新規リクエスト
+The item is currently under request review and cannot be published.: このアイテムは現在リクエストレビュー中のため公開できません。
 Publish: 公開
-Replace item: アイテムを置き換える
-Refer to item: アイテムを参照
+The item is currently under request review and cannot have a new request.: このアイテムは現在リクエストレビュー中のため新たなリクエストは作成できません。
+Version history: バージョン履歴
+Meta Data: メタデータ
+Version History: バージョン履歴
 Item Information: アイテムの情報
 Updated At: 更新日時
 Updated By: 更新者
 Publish State: 公開状態
-Linked Request: リンクされたリクエスト
+Customized meta data: カスタマイズされたメタデータ
+Replace item: アイテムを置き換える
+Refer to item: アイテムを参照
+current: 現在
+Updated by: 更新者
 This item has been referenced: このアイテムは参照されています
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
 State: ステータス
@@ -161,6 +171,9 @@ Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
 We found some referenced items that not published yet. Please select to add the items to the same request.: まだ公開されていない参照アイテムが見つかりました。同じリクエストに追加する場合は選択してください。
+Draft: ドラフト
+Published: 公開
+Review: レビュー
 is: 同値
 is not: 異なる
 contains: 含む
@@ -187,8 +200,8 @@ Descending: 降順
 Confirm: 確認
 Publish items: アイテムを公開
 All selected items will be published. You can unpublish them anytime.: 選択したアイテムはすべて公開されます。アイテムはいつでも非公開にすることができます。
-'No': いいえ
-'Yes': はい
+"No": いいえ
+"Yes": はい
 Filter: フィルター
 Add Filter: 絞り込む
 Add Sort: 並び替える
@@ -239,7 +252,7 @@ GROUPS: グループ
 Add: 追加
 MODELS: モデル
 My Integration: マイインテグレーション
-Webhook: ''
+Webhook: ""
 New Integration: 新規インテグレーション
 Create: 作成
 Integration Name: インテグレーション名
@@ -316,11 +329,10 @@ Number: 数値
 GeoJSON Geometry: GeoJSONジオメトリ
 Relation: 関係
 Group: グループ
-Meta Data: メタデータ
 Add Field: フィールドを追加
 optional: 任意
-Update Field: '{{field}}フィールドを更新'
-Create Field: '{{field}}フィールドを作成'
+Update Field: "{{field}}フィールドを更新"
+Create Field: "{{field}}フィールドを作成"
 Previous: 戻る
 Next: 次へ
 Reference setting: 参照設定
@@ -491,8 +503,8 @@ Failed to update item.: アイテムの更新に失敗しました。
 Successfully updated Item!: アイテムの更新に成功しました。
 Failed to create request.: リクエストの作成に失敗しました。
 Successfully created request!: リクエストの作成に成功しました。
-Required field error: '{{field}}フィールドは必須項目です!'
-Maximum length error: '{{field}}フィールドの文字数が最大数を超えています!'
+Required field error: "{{field}}フィールドは必須項目です!"
+Maximum length error: "{{field}}フィールドの文字数が最大数を超えています!"
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
 One of the items already exists in the request.: アイテムのいずれかがすでにリクエストに存在します。
