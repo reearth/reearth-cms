@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -190,29 +189,21 @@ func (i Integration) DeleteMany(ctx context.Context, ids id.IntegrationIDList, o
 				return rerror.ErrNotFound
 			}
 
-			finalWorkspaceList := make(workspace.List, 0)
-			workspaceMap := make(map[string]bool, 0)
+			workspaceList, err := i.repos.Workspace.FindByIntegrations(ctx, integrationIDList)
+			if err != nil {
+				return err
+			}
 
-			for _, id := range integrationIDList {
-				// remove the integration from the connected workspaces
-				ws, err := i.repos.Workspace.FindByIntegration(ctx, id)
-				if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-					return err
-				}
-
-				for _, w := range ws {
-					if _, ok := workspaceMap[w.ID().String()]; !ok {
-						workspaceMap[w.ID().String()] = true
-						finalWorkspaceList = append(finalWorkspaceList, w)
-					}
-
+			// remove the integrations from the connected workspaces
+			for _, w := range workspaceList {
+				for _, id := range integrationIDList {
 					if err := w.Members().DeleteIntegration(id); err != nil {
 						return err
 					}
 				}
 			}
 
-			err = i.repos.Workspace.SaveAll(ctx, finalWorkspaceList)
+			err = i.repos.Workspace.SaveAll(ctx, workspaceList)
 			if err != nil {
 				return err
 			}

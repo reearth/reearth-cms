@@ -429,7 +429,7 @@ func TestIntegration_Delete(t *testing.T) {
 	}
 }
 
-func TestIntegration_DeleteInBatch(t *testing.T) {
+func TestIntegration_DeleteMany(t *testing.T) {
 	ts := testSuite()
 
 	wid := accountdomain.NewWorkspaceID()

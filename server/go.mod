@@ -29,22 +29,22 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.17.0
-	github.com/reearth/reearthx v0.0.0-20250130135542-7860571926f2
+	github.com/reearth/reearthx v0.0.0-20250310020752-a44681bed3e2
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.49.1
 	github.com/sendgrid/sendgrid-go v3.16.0+incompatible
 	github.com/spf13/afero v1.12.0
 	github.com/square/mongo-lock v0.0.0-20230808145049-cfcf499f6bf0
 	github.com/stretchr/testify v1.10.0
-	github.com/vektah/gqlparser/v2 v2.5.22
+	github.com/vektah/gqlparser/v2 v2.5.23
 	github.com/vikstrous/dataloadgen v0.0.6
 	go.mongodb.org/mongo-driver v1.17.2
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.59.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.59.0
-	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa
-	golang.org/x/net v0.35.0
-	golang.org/x/text v0.22.0
+	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
+	golang.org/x/net v0.37.0
+	golang.org/x/text v0.23.0
 	google.golang.org/api v0.222.0
 )
 
@@ -124,8 +124,8 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.5.1 // indirect
-	github.com/oasdiff/yaml v0.0.0-20241214135536-5f7845c759c8 // indirect
-	github.com/oasdiff/yaml3 v0.0.0-20241214160948-977117996672 // indirect
+	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 // indirect
+	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
@@ -142,7 +142,7 @@ require (
 	github.com/speakeasy-api/openapi-overlay v0.10.1 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
-	github.com/urfave/cli/v2 v2.27.5 // indirect
+	github.com/urfave/cli/v2 v2.27.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.59.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -171,13 +171,13 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.33.0 // indirect
-	golang.org/x/mod v0.23.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/oauth2 v0.26.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/time v0.10.0 // indirect
-	golang.org/x/tools v0.30.0 // indirect
+	golang.org/x/tools v0.31.0 // indirect
 	google.golang.org/genproto v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
