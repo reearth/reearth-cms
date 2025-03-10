@@ -1,9 +1,7 @@
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { Tag } from "@reearth-cms/components/molecules/Schema/types";
 
-export const stateColors: {
-  [K in StateType]: ColorType;
-} = {
+export const stateColors: Record<StateType, ColorType> = {
   DRAFT: "#BFBFBF",
   PUBLIC: "#52C41A",
   REVIEW: "#FA8C16",
