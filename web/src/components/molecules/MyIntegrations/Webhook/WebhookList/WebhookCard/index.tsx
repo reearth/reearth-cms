@@ -22,6 +22,7 @@ const WebhookCard: React.FC<Props> = ({
   onWebhookSettings,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
 
   const handleWebhookDelete = useCallback(async () => {
     setIsLoading(true);
@@ -33,8 +34,13 @@ const WebhookCard: React.FC<Props> = ({
   }, [onWebhookDelete, webhook.id]);
 
   const handleWebhookUpdate = useCallback(
-    (active: boolean) => {
-      onWebhookUpdate({ ...webhook, active, id: webhook.id });
+    async (active: boolean) => {
+      setIsUpdateLoading(true);
+      try {
+        await onWebhookUpdate({ ...webhook, active });
+      } finally {
+        setIsUpdateLoading(false);
+      }
     },
     [onWebhookUpdate, webhook],
   );
@@ -49,7 +55,8 @@ const WebhookCard: React.FC<Props> = ({
               checkedChildren="ON"
               unCheckedChildren="OFF"
               checked={webhook.active}
-              onChange={handleWebhookUpdate}
+              onClick={handleWebhookUpdate}
+              loading={isUpdateLoading}
             />
           </SwitchWrapper>
         </TitleWrapper>
