@@ -14,6 +14,13 @@ on:
         type: string
         default: 'all'
         description: 'Target to deploy'
+    secrets:
+      GC_PROJECT_ID:
+        required: true
+      GC_SA_EMAIL:
+        required: true
+      GC_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
 
 jobs:
   deploy_server:
