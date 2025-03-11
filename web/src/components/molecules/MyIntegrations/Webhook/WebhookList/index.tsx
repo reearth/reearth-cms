@@ -8,19 +8,19 @@ import { useT, Trans } from "@reearth-cms/i18n";
 import WebhookCard from "./WebhookCard";
 
 type Props = {
-  webhooks?: Webhook[];
+  webhooks: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: Webhook) => Promise<void>;
-  onShowForm: () => void;
   onWebhookSelect: (id: string) => void;
+  onShowForm: () => void;
 };
 
 const WebhookList: React.FC<Props> = ({
   webhooks,
   onWebhookDelete,
   onWebhookUpdate,
-  onShowForm,
   onWebhookSelect,
+  onShowForm,
 }) => {
   const t = useT();
 
@@ -31,7 +31,7 @@ const WebhookList: React.FC<Props> = ({
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
-      {webhooks && webhooks.length > 0 ? (
+      {webhooks.length > 0 ? (
         <ListWrapper>
           {webhooks.map(webhook => (
             <WebhookCard
@@ -39,7 +39,7 @@ const WebhookList: React.FC<Props> = ({
               webhook={webhook}
               onWebhookDelete={onWebhookDelete}
               onWebhookUpdate={onWebhookUpdate}
-              onWebhookSettings={onWebhookSelect}
+              onWebhookSelect={onWebhookSelect}
             />
           ))}
         </ListWrapper>

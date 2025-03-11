@@ -81,8 +81,7 @@ describe("Integration creation modal", () => {
     expect(screen.getByText(`My Integration / ${name}`)).toBeVisible();
     expect(screen.getByRole("tab", { name: "General", selected: true })).toBeVisible();
     expect(screen.getByRole("tab", { name: "Webhook", selected: false })).toBeVisible();
-    expect(screen.getByRole("button", { name: "Save" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "Remove Integration" })).toBeVisible();
+    expect(screen.getByText("Integration Name")).toBeVisible();
 
     await user.click(screen.getByRole("tab", { name: "Webhook" }));
     expect(screen.getByRole("button", { name: "plus New Webhook" })).toBeVisible();

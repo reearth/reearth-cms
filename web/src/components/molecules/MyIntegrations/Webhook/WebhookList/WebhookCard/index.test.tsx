@@ -33,7 +33,7 @@ describe("Webhook card", () => {
       }, 100);
     });
   };
-  const onWebhookSettings = () => {
+  const onWebhookSelect = () => {
     return;
   };
 
@@ -43,7 +43,7 @@ describe("Webhook card", () => {
         webhook={webhook}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdate}
-        onWebhookSettings={onWebhookSettings}
+        onWebhookSelect={onWebhookSelect}
       />,
     );
 
@@ -62,7 +62,7 @@ describe("Webhook card", () => {
         webhook={webhook}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdateMock}
-        onWebhookSettings={onWebhookSettings}
+        onWebhookSelect={onWebhookSelect}
       />,
     );
 
@@ -77,7 +77,7 @@ describe("Webhook card", () => {
         webhook={webhook}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdateMock}
-        onWebhookSettings={onWebhookSettings}
+        onWebhookSelect={onWebhookSelect}
       />,
     );
     expect(screen.queryByLabelText("loading")).not.toBeInTheDocument();
@@ -92,7 +92,7 @@ describe("Webhook card", () => {
         webhook={webhook}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdate}
-        onWebhookSettings={onWebhookSettingsMock}
+        onWebhookSelect={onWebhookSettingsMock}
       />,
     );
 
@@ -107,7 +107,7 @@ describe("Webhook card", () => {
         webhook={webhook}
         onWebhookDelete={onWebhookDeleteMock}
         onWebhookUpdate={onWebhookUpdate}
-        onWebhookSettings={onWebhookSettings}
+        onWebhookSelect={onWebhookSelect}
       />,
     );
 

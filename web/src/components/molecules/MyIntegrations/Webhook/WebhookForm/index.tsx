@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Checkbox, { CheckboxOptionType } from "@reearth-cms/components/atoms/Checkbox";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
@@ -11,6 +11,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
 import {
   WebhookTrigger,
+  TriggerKey,
   WebhookValues,
   NewWebhook,
   Webhook,
@@ -30,7 +31,7 @@ type FormType = {
   name: string;
   url: string;
   secret: string;
-  trigger: string[];
+  trigger?: TriggerKey[];
 };
 
 const WebhookForm: React.FC<Props> = ({
@@ -44,7 +45,7 @@ const WebhookForm: React.FC<Props> = ({
   const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
 
-  const itemOptions: CheckboxOptionType[] = [
+  const itemOptions = [
     { label: t("Create"), value: "onItemCreate" },
     { label: t("Update"), value: "onItemUpdate" },
     { label: t("Delete"), value: "onItemDelete" },
@@ -52,7 +53,7 @@ const WebhookForm: React.FC<Props> = ({
     { label: t("Unpublish"), value: "onItemUnPublish" },
   ];
 
-  const assetOptions: CheckboxOptionType[] = [
+  const assetOptions = [
     { label: t("Upload"), value: "onAssetUpload" },
     { label: t("Decompress"), value: "onAssetDecompress" },
     { label: t("Delete"), value: "onAssetDelete" },
@@ -96,23 +97,24 @@ const WebhookForm: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      const trigger: WebhookTrigger = (values.trigger ?? []).reduce(
-        (ac, a) => ({ ...ac, [a]: true }),
-        {},
-      );
+      const trigger: WebhookTrigger = {};
+      values.trigger?.forEach(t => (trigger[t] = true));
+
       const payload = {
         ...values,
-        active: false,
         trigger,
       };
-      if (webhookInitialValues?.id) {
+      if (webhookInitialValues) {
         await onWebhookUpdate({
           ...payload,
           active: webhookInitialValues.active,
           id: webhookInitialValues.id,
         });
       } else {
-        await onWebhookCreate(payload);
+        await onWebhookCreate({
+          ...payload,
+          active: false,
+        });
       }
       setIsDisabled(true);
     } catch (info) {
@@ -122,7 +124,13 @@ const WebhookForm: React.FC<Props> = ({
 
   return (
     <>
-      <Icon icon="arrowLeft" onClick={onBack} />
+      <Button
+        icon={<Icon icon="arrowLeft" />}
+        onClick={onBack}
+        size="small"
+        color="default"
+        variant="link"
+      />
       <StyledForm
         form={form}
         layout="vertical"
@@ -184,16 +192,16 @@ const WebhookForm: React.FC<Props> = ({
               <StyledCheckboxGroup>
                 <CheckboxLabel>{t("Item")}</CheckboxLabel>
                 <Row>
-                  {itemOptions.map((item, index) => (
-                    <Col key={index}>
+                  {itemOptions.map(item => (
+                    <Col key={item.value}>
                       <Checkbox value={item.value}>{item.label}</Checkbox>
                     </Col>
                   ))}
                 </Row>
                 <CheckboxLabel>{t("Asset")}</CheckboxLabel>
                 <Row>
-                  {assetOptions.map((item, index) => (
-                    <Col key={index}>
+                  {assetOptions.map(item => (
+                    <Col key={item.value}>
                       <Checkbox value={item.value}>{item.label}</Checkbox>
                     </Col>
                   ))}

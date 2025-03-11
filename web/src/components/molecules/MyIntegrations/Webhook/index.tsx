@@ -4,6 +4,7 @@ import {
   Integration,
   Webhook as WebhookType,
   NewWebhook,
+  TriggerKey,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookList";
@@ -32,8 +33,13 @@ const Webhook: React.FC<Props> = ({
     if (!integration.config.webhooks || !webhookId) return;
     const selectedWebhook = integration.config.webhooks.find(webhook => webhook.id === webhookId);
     if (!selectedWebhook) return;
-    const trigger: string[] = [];
-    Object.entries(selectedWebhook?.trigger).forEach(([key, value]) => value && trigger.push(key));
+    const trigger: TriggerKey[] = [];
+    let key: TriggerKey;
+    for (key in selectedWebhook.trigger) {
+      if (selectedWebhook.trigger[key]) {
+        trigger.push(key);
+      }
+    }
     return { ...selectedWebhook, trigger };
   }, [integration.config.webhooks, webhookId]);
 
@@ -71,11 +77,11 @@ const Webhook: React.FC<Props> = ({
     />
   ) : (
     <WebhookList
-      webhooks={integration.config.webhooks}
+      webhooks={integration.config.webhooks ?? []}
       onWebhookDelete={onWebhookDelete}
       onWebhookUpdate={onWebhookUpdate}
-      onShowForm={handleShowForm}
       onWebhookSelect={handleWebhookSelect}
+      onShowForm={handleShowForm}
     />
   );
 };

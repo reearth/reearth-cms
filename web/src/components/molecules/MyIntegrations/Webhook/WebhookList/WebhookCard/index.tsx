@@ -12,14 +12,14 @@ type Props = {
   webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: Webhook) => Promise<void>;
-  onWebhookSettings: (webhookId: string) => void;
+  onWebhookSelect: (webhookId: string) => void;
 };
 
 const WebhookCard: React.FC<Props> = ({
   webhook,
   onWebhookDelete,
   onWebhookUpdate,
-  onWebhookSettings,
+  onWebhookSelect,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
@@ -67,7 +67,7 @@ const WebhookCard: React.FC<Props> = ({
             type="text"
             shape="circle"
             size="small"
-            onClick={() => onWebhookSettings(webhook.id)}
+            onClick={() => onWebhookSelect(webhook.id)}
             icon={<Icon icon="settings" size={16} />}
           />
           <Button
