@@ -119,9 +119,9 @@ jobs:
     with:
       target: web
     secrets:
-      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
+      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
+      GC_PROJECT_ID: ${{ secrets.GC_PROJECT_ID }}
 
   deploy-server:
     needs: [build-server, ci-server]
@@ -130,9 +130,9 @@ jobs:
     with:
       target: server
     secrets:
-      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
+      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
+      GC_PROJECT_ID: ${{ secrets.GC_PROJECT_ID }}
 
   deploy-worker:
     needs: [build-worker, ci-worker]
@@ -141,6 +141,7 @@ jobs:
     with:
       target: worker
     secrets:
-      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
+      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
+      GC_PROJECT_ID: ${{ secrets.GC_PROJECT_ID }}
+

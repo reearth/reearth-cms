@@ -15,31 +15,12 @@ on:
         default: 'all'
         description: 'Target to deploy'
     secrets:
-      GCP_PROJECT_ID:
+      GC_PROJECT_ID:
         required: true
-      GCP_SA_EMAIL:
+      GC_SA_EMAIL:
         required: true
-      GCP_WORKLOAD_IDENTITY_PROVIDER:
+      GC_WORKLOAD_IDENTITY_PROVIDER:
         required: true
-
-env:
-  # TODO: use environment variables
-  GCP_REGION: us-central1
-
-  # server
-  SERVER_IMAGE: reearth/reearth-cms:nightly
-  SERVER_IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/reearth/reearth-cms:nightly
-  SERVER_IMAGE_GCP: us-central1-docker.pkg.dev/reearth-oss/reearth/reearth-cms:nightly
-
-  # web
-  WEB_IMAGE:  reearth/reearth-cms-web:nightly
-  WEB_IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/reearth/reearth-cms-web:nightly
-  WEB_IMAGE_GCP: us-central1-docker.pkg.dev/reearth-oss/reearth/reearth-cms-web:nightly
-
-  # worker
-  WORKER_IMAGE:  reearth/reearth-cms-worker:nightly
-  WORKER_IMAGE_NAME: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/reearth/reearth-cms-worker:nightly
-  WORKER_IMAGE_GCP: us-central1-docker.pkg.dev/reearth-oss/reearth/reearth-cms-worker:nightly
 
 jobs:
   deploy_server:
@@ -52,22 +33,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
         with:
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GC_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
         run: |
-          docker pull $SERVER_IMAGE
-          docker tag $SERVER_IMAGE $SERVER_IMAGE_GCP
-          docker push $SERVER_IMAGE_GCP
+          docker pull ${{ secrets.SERVER_IMAGE }}
+          docker tag ${{ secrets.SERVER_IMAGE }} ${{ secrets.SERVER_IMAGE_GC }}
+          docker push ${{ secrets.SERVER_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy reearth-cms-backend \
-            --image $SERVER_IMAGE_GCP \
-            --region $GCP_REGION \
+            --image ${{ secrets.SERVER_IMAGE_GC }} \
+            --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
 
@@ -81,22 +62,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
         with:
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GC_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
         run: |
-          docker pull $WEB_IMAGE
-          docker tag $WEB_IMAGE $WEB_IMAGE_GCP
-          docker push $WEB_IMAGE_GCP
+          docker pull ${{ secrets.WEB_IMAGE }}
+          docker tag ${{ secrets.WEB_IMAGE }} ${{ secrets.WEB_IMAGE_GC }}
+          docker push ${{ secrets.WEB_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy reearth-cms-web \
-            --image $WEB_IMAGE_GCP \
-            --region $GCP_REGION \
+            --image ${{ secrets.WEB_IMAGE_GC }} \
+            --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
 
@@ -110,21 +91,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
         with:
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GC_SA_EMAIL }}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
         run: |
-          docker pull $WORKER_IMAGE
-          docker tag $WORKER_IMAGE $WORKER_IMAGE_GCP
-          docker push $WORKER_IMAGE_GCP
+          docker pull ${{ secrets.WORKER_IMAGE }}
+          docker tag ${{ secrets.WORKER_IMAGE }} ${{ secrets.WORKER_IMAGE_GC }}
+          docker push ${{ secrets.WORKER_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy reearth-cms-worker \
-            --image $WORKER_IMAGE_GCP \
-            --region $GCP_REGION \
+            --image ${{ secrets.WORKER_IMAGE_GC }} \
+            --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
