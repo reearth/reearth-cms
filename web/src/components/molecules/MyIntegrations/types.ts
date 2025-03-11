@@ -36,16 +36,17 @@ export type Webhook = {
 
 export type NewWebhook = Omit<Webhook, "id">;
 
-export type WebhookTrigger = {
-  onItemCreate?: boolean | null;
-  onItemUpdate?: boolean | null;
-  onItemDelete?: boolean | null;
-  onItemPublish?: boolean | null;
-  onItemUnPublish?: boolean | null;
-  onAssetUpload?: boolean | null;
-  onAssetDecompress?: boolean | null;
-  onAssetDelete?: boolean | null;
-};
+export type TriggerKey =
+  | "onItemCreate"
+  | "onItemUpdate"
+  | "onItemDelete"
+  | "onItemPublish"
+  | "onItemUnPublish"
+  | "onAssetUpload"
+  | "onAssetDecompress"
+  | "onAssetDelete";
+
+export type WebhookTrigger = { [key in TriggerKey]?: boolean | null };
 
 export type WebhookValues = {
   id: string;
@@ -53,5 +54,5 @@ export type WebhookValues = {
   url: string;
   active: boolean;
   secret: string;
-  trigger: string[];
+  trigger: TriggerKey[];
 };
