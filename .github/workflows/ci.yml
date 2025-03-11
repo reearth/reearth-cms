@@ -118,10 +118,7 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: web
-    secrets:
-      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
-      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
-      GC_PROJECT_ID: ${{ secrets.GC_PROJECT_ID }}
+    secrets: inherit
 
   deploy-server:
     needs: [build-server, ci-server]
@@ -129,10 +126,7 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: server
-    secrets:
-      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
-      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
-      GC_PROJECT_ID: ${{ secrets.GC_PROJECT_ID }}
+    secrets: inherit
 
   deploy-worker:
     needs: [build-worker, ci-worker]
@@ -140,8 +134,5 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: worker
-    secrets:
-      GC_SA_EMAIL: ${{ secrets.GC_SA_EMAIL }}
-      GC_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
-      GC_PROJECT_ID: ${{ secrets.GC_PROJECT_ID }}
+    secrets: inherit
 
