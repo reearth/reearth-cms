@@ -1,5 +1,6 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
+import { getId } from "@reearth-cms/e2e/utils/mock";
 
 test.afterEach(async ({ page }) => {
   await page.getByText("Settings").click();
@@ -11,11 +12,11 @@ test.afterEach(async ({ page }) => {
 
 test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "plus New Project" }).click();
+  await page.getByRole("button", { name: "plus New Project" }).last().click();
   await page.getByLabel("Project name").click();
   await page.getByLabel("Project name").fill("project name");
   await page.getByLabel("Project alias").click();
-  await page.getByLabel("Project alias").fill("project alias");
+  await page.getByLabel("Project alias").fill(getId());
   await page.getByLabel("Project description").click();
   await page.getByLabel("Project description").fill("project description");
   await page.getByRole("button", { name: "OK" }).click();

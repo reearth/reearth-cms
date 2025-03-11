@@ -20,6 +20,11 @@ test("authenticate", async ({ page }) => {
     await page.getByLabel("Password").click();
     await page.getByLabel("Password").fill(password as string);
     await page.getByRole("button", { name: "Continue", exact: true }).click();
+    const withoutPasskeyButton = page.getByRole("button", { name: "Continue without passkeys" });
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (await withoutPasskeyButton.isVisible()) {
+      await withoutPasskeyButton.click();
+    }
   } else {
     await page.getByPlaceholder("username/email").click();
     await page.getByPlaceholder("username/email").fill(userName as string);
