@@ -109,7 +109,7 @@ const ModelFieldList: React.FC<Props> = ({
         <EmptyText>
           {t("Empty Schema design.")}
           <br />
-          {t("Please add some field from right panel.")}
+          <Trans i18nKey="importSchema" components={{ l: <a href="/import">import</a> }} />
         </EmptyText>
       ) : (
         <ReactDragListView
