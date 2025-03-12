@@ -133,6 +133,7 @@ const WebhookForm: React.FC<Props> = ({
       />
       <StyledForm
         form={form}
+        name="webhook"
         layout="vertical"
         initialValues={webhookInitialValues}
         onValuesChange={handleValuesChange}>
