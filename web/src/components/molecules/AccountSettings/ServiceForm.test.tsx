@@ -10,12 +10,12 @@ test("Service form works successfully", async () => {
   const user = userEvent.setup();
 
   const lang = "en";
-  const me = { lang };
+  const initialValues = { lang };
   const onLanguageUpdate = () => {
     return Promise.resolve();
   };
 
-  render(<ServiceForm initialValues={me} onLanguageUpdate={onLanguageUpdate} />);
+  render(<ServiceForm initialValues={initialValues} onLanguageUpdate={onLanguageUpdate} />);
 
   const langSelect = screen.getByLabelText("Service Language");
   const saveButton = screen.getByRole("button", { name: "Save" });
