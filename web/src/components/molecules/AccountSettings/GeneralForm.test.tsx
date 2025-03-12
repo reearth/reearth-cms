@@ -32,7 +32,7 @@ test("General form works successfully", async () => {
 
   await user.clear(nameInput);
   expect(saveButton).toHaveAttribute("disabled");
-  await expect.poll(() => screen.getByRole("alert")).toBeVisible();
+  expect(await screen.findByRole("alert")).toBeVisible();
 
   await user.type(nameInput, name);
   expect(saveButton).toHaveAttribute("disabled");
@@ -40,7 +40,7 @@ test("General form works successfully", async () => {
 
   await user.clear(emailInput);
   expect(saveButton).toHaveAttribute("disabled");
-  await expect.poll(() => screen.getByRole("alert")).toBeVisible();
+  expect(await screen.findByRole("alert")).toBeVisible();
 
   await user.type(emailInput, "test@test.com");
   expect(saveButton).not.toHaveAttribute("disabled");

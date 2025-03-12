@@ -277,6 +277,7 @@ const MemberTable: React.FC<Props> = ({
     <PaddedContent>
       <PageHeader
         title={t("Members")}
+        style={{ backgroundColor: "#fff" }}
         extra={
           <Button
             type="primary"

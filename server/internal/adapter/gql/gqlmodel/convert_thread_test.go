@@ -3,6 +3,7 @@ package gqlmodel
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -56,3 +57,30 @@ func TestConvertThread_ToComment(t *testing.T) {
 	got2 := ToComment(comment2, th)
 	assert.Equal(t, want2, got2)
 }
+
+func TestConvertThread_FromResourceType(t *testing.T) {
+	var rt1 = ResourceTypeItem
+	want1 := interfaces.ResourceTypeItem
+	got1, ok1 := FromResourceType(rt1)
+	assert.Equal(t, want1, got1)
+	assert.True(t, ok1)
+
+	var rt2 = ResourceTypeAsset
+	want2 := interfaces.ResourceTypeAsset
+	got2, ok2 := FromResourceType(rt2)
+	assert.Equal(t, want2, got2)
+	assert.True(t, ok2)
+
+	var rt3 = ResourceTypeRequest
+	want3 := interfaces.ResourceTypeRequest
+	got3, ok3 := FromResourceType(rt3)
+	assert.Equal(t, want3, got3)
+	assert.True(t, ok3)
+
+	var rt4 ResourceType = "invalid"
+	want4 := interfaces.ResourceType("")
+	got4, ok4 := FromResourceType(rt4)
+	assert.Equal(t, want4, got4)
+	assert.False(t, ok4)
+}
+

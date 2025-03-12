@@ -2,10 +2,13 @@ package interfaces
 
 import (
 	"context"
+	"io"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -48,6 +51,24 @@ type UpdateItemParam struct {
 	Version    *version.Version
 }
 
+type ImportFormatType string
+
+const (
+	ImportFormatTypeGeoJSON ImportFormatType = "geoJson"
+	ImportFormatTypeJSON    ImportFormatType = "json"
+)
+
+func ImportFormatTypeFromString(s string) ImportFormatType {
+	switch strings.ToLower(s) {
+	case "geojson":
+		return ImportFormatTypeGeoJSON
+	case "json":
+		return ImportFormatTypeJSON
+	default:
+		return ""
+	}
+}
+
 type ImportStrategyType string
 
 const (
@@ -55,6 +76,19 @@ const (
 	ImportStrategyTypeUpdate ImportStrategyType = "update"
 	ImportStrategyTypeUpsert ImportStrategyType = "upsert"
 )
+
+func ImportStrategyTypeFromString(s string) ImportStrategyType {
+	switch s {
+	case "insert":
+		return ImportStrategyTypeInsert
+	case "update":
+		return ImportStrategyTypeUpdate
+	case "upsert":
+		return ImportStrategyTypeUpsert
+	default:
+		return ""
+	}
+}
 
 type ImportItemParam struct {
 	ItemId     *id.ItemID
@@ -66,10 +100,10 @@ type ImportItemsParam struct {
 	ModelID      id.ModelID
 	SP           schema.Package
 	Strategy     ImportStrategyType
+	Format       ImportFormatType
 	MutateSchema bool
-	// GeoField     *string // field key or id
-	Items  []ImportItemParam
-	Fields []CreateFieldParam
+	Reader       io.Reader
+	GeoField     *string // field key or id
 }
 
 type ImportItemsResponse struct {
@@ -78,6 +112,15 @@ type ImportItemsResponse struct {
 	Updated   int
 	Ignored   int
 	NewFields schema.FieldList
+}
+
+// ExportItemsToCSVResponse contains exported csv data from items
+type ExportItemsToCSVResponse struct {
+	PipeReader *io.PipeReader
+}
+
+type ExportItemsToGeoJSONResponse struct {
+	FeatureCollections *integrationapi.FeatureCollection
 }
 
 type Item interface {
@@ -99,4 +142,9 @@ type Item interface {
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
+	TriggerImportJob(context.Context, id.AssetID, id.ModelID, string, string, string, bool, *usecase.Operator) error
+	// ItemsAsCSV exports items data in content to csv file by schema package.
+	ItemsAsCSV(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToCSVResponse, error)
+	// ItemsAsGeoJSON converts items to Geo JSON type given thge schema package.
+	ItemsAsGeoJSON(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToGeoJSONResponse, error)
 }

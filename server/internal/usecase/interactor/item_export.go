@@ -1,14 +1,14 @@
-package integration
+package interactor
 
 import (
 	"encoding/csv"
 	"io"
 
+	"github.com/labstack/gommon/log"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
@@ -27,12 +27,9 @@ func csvFromItems(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) err
 	if !s.IsPointFieldSupported() {
 		return pointFieldIsNotSupportedError
 	}
-
 	go handleCSVGeneration(pw, l, s)
-
 	return nil
 }
-
 func handleCSVGeneration(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) {
 	err := generateCSV(pw, l, s)
 	if err != nil {
@@ -42,20 +39,16 @@ func handleCSVGeneration(pw *io.PipeWriter, l item.VersionedList, s *schema.Sche
 		_ = pw.Close()
 	}
 }
-
 func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
 	w := csv.NewWriter(pw)
 	defer w.Flush()
-
 	headers := integrationapi.BuildCSVHeaders(s)
 	if err := w.Write(headers); err != nil {
 		return err
 	}
-
 	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
 		return !f.IsGeometryField()
 	})
-
 	for _, ver := range l {
 		row, ok := integrationapi.RowFromItem(ver.Value(), nonGeoFields)
 		if ok {
@@ -67,4 +60,3 @@ func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) erro
 
 	return w.Error()
 }
-

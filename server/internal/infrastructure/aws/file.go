@@ -66,12 +66,12 @@ func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string) (gat
 	}, nil
 }
 
-func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadCloser, error) {
+func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
 	p := getS3ObjectPath(u, fn)
 	if p == "" {
-		return nil, rerror.ErrNotFound
+		return nil, nil, rerror.ErrNotFound
 	}
-	return f.read(ctx, p)
+	return f.read(ctx, p, headers)
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
@@ -116,7 +116,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 	if p == "" {
 		return "", 0, gateway.ErrInvalidFile
 	}
-	size, err := f.upload(ctx, p, file.Content)
+	size, err := f.upload(ctx, file, p)
 	if err != nil {
 		return "", 0, rerror.ErrInternalBy(err)
 	}
@@ -143,7 +143,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	if p == "" {
 		return nil, gateway.ErrInvalidFile
 	}
-	contentType := param.ContentType()
+	contentType := param.GetOrGuessContentType()
 	if param.Cursor != "" {
 		cursor, err := parseUploadCursor(param.Cursor)
 		if err != nil {
@@ -274,38 +274,111 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	return file, nil
 }
 
-func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
+func (f *fileRepo) read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
 	if filename == "" {
-		return nil, rerror.ErrNotFound
+		return nil, nil, rerror.ErrNotFound
+	}
+
+	var ifMatch, ifNoneMatch, rang string
+	var ifModifiedSince, ifUnmodifiedSince time.Time
+	if headers != nil {
+		ifMatch = headers["If-Match"]
+		ifNoneMatch = headers["If-None-Match"]
+		rang = headers["Range"]
+
+		if h := headers["If-Modified-Since"]; h != "" {
+			t, err := time.Parse(time.RFC1123, h)
+			if err != nil {
+				return nil, nil, rerror.ErrInvalidParams
+			}
+			ifModifiedSince = t
+		}
+
+		if h := headers["IfUnmodifiedSince"]; h != "" {
+			t, err := time.Parse(time.RFC1123, h)
+			if err != nil {
+				return nil, nil, rerror.ErrInvalidParams
+			}
+			ifUnmodifiedSince = t
+		}
 	}
 
 	resp, err := f.s3Client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(f.bucketName),
-		Key:    aws.String(filename),
+		Bucket:            aws.String(f.bucketName),
+		Key:               aws.String(filename),
+		IfMatch:           lo.EmptyableToPtr(ifMatch),
+		IfModifiedSince:   lo.EmptyableToPtr(ifModifiedSince),
+		IfNoneMatch:       lo.EmptyableToPtr(ifNoneMatch),
+		IfUnmodifiedSince: lo.EmptyableToPtr(ifUnmodifiedSince),
+		Range:             lo.EmptyableToPtr(rang),
 	})
 	if err != nil {
-		return nil, rerror.ErrInternalBy(err)
+		return nil, nil, rerror.ErrInternalBy(err)
 	}
 
-	return resp.Body, nil
+	resheaders := map[string]string{}
+
+	if h := resp.ContentLength; h != nil {
+		resheaders["Content-Length"] = fmt.Sprintf("%d", *h)
+	}
+
+	if h := resp.ContentType; h != nil {
+		resheaders["Content-Type"] = *h
+	}
+
+	if h := resp.LastModified; h != nil {
+		resheaders["Last-Modified"] = h.UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
+	}
+
+	if h := resp.CacheControl; h != nil {
+		resheaders["Cache-Control"] = *h
+	}
+
+	if h := resp.ContentEncoding; h != nil {
+		resheaders["Content-Encoding"] = *h
+	}
+
+	if h := resp.ContentDisposition; h != nil {
+		resheaders["Content-Disposition"] = *h
+	}
+
+	if h := resp.ContentLanguage; h != nil {
+		resheaders["Content-Language"] = *h
+	}
+
+	if h := resp.ETag; h != nil {
+		resheaders["ETag"] = *h
+	}
+
+	if h := resp.AcceptRanges; h != nil {
+		resheaders["Accept-Ranges"] = *h
+	}
+
+	if h := resp.ContentRange; h != nil {
+		resheaders["Content-Range"] = *h
+	}
+
+	return resp.Body, resheaders, nil
 }
 
-func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) (int64, error) {
+func (f *fileRepo) upload(ctx context.Context, file *file.File, filename string) (int64, error) {
 	if filename == "" {
 		return 0, gateway.ErrInvalidFile
 	}
 
-	ba, err := io.ReadAll(content)
+	ba, err := io.ReadAll(file.Content)
 	if err != nil {
 		return 0, rerror.ErrInternalBy(err)
 	}
 	body := bytes.NewReader(ba)
 
 	_, err = f.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:       aws.String(f.bucketName),
-		CacheControl: aws.String(f.cacheControl),
-		Key:          aws.String(filename),
-		Body:         body,
+		Bucket:          aws.String(f.bucketName),
+		CacheControl:    aws.String(f.cacheControl),
+		ContentEncoding: lo.EmptyableToPtr(file.ContentEncoding),
+		ContentType:     aws.String(file.ContentType),
+		Key:             aws.String(filename),
+		Body:            body,
 	})
 	if err != nil {
 		return 0, gateway.ErrFailedToUploadFile

@@ -83,6 +83,15 @@ func TestNewProjectPublication(t *testing.T) {
 			},
 		},
 		{
+			name: "new project publication",
+			args: project.NewPublicationWithToken(project.PublicationScopePublic, true, ""),
+			want: &ProjectPublicationDocument{
+				AssetPublic: true,
+				Scope:       "public",
+				Token:       nil,
+			},
+		},
+		{
 			name: "nil",
 			args: nil,
 			want: nil,

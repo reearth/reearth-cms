@@ -61,9 +61,8 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
                 />
               </>
             )}
-            <Select
+            <StyledSelect
               disabled={disabled}
-              style={{ flex: 1 }}
               value={valueItem}
               onChange={(e: string) => handleInput(e, key)}>
               {selectedValues?.map((value: string) => (
@@ -71,7 +70,7 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
                   {value}
                 </Option>
               ))}
-            </Select>
+            </StyledSelect>
             {!disabled && (
               <FieldButton
                 type="link"
@@ -106,4 +105,9 @@ const FieldWrapper = styled.div`
 const FieldButton = styled(Button)`
   color: #000000d9;
   margin-top: 4px;
+`;
+
+const StyledSelect = styled(Select<string>)`
+  flex: 1;
+  overflow: hidden;
 `;

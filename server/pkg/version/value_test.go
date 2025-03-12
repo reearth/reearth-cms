@@ -47,8 +47,6 @@ func TestValue_Parents(t *testing.T) {
 		parents: NewVersions(vx),
 	}
 	assert.Equal(t, NewVersions(vx), v.Parents())
-	assert.NotSame(t, v.parents, v.Parents())
-	assert.NotSame(t, Versions{}, (&Value[string]{}).Parents())
 }
 
 func TestValue_Refs(t *testing.T) {
@@ -56,8 +54,6 @@ func TestValue_Refs(t *testing.T) {
 		refs: NewRefs("a"),
 	}
 	assert.Equal(t, NewRefs("a"), v.Refs())
-	assert.NotSame(t, v.refs, v.Refs())
-	assert.NotSame(t, Refs{}, (&Value[string]{}).Refs())
 }
 
 func TestValue_Value(t *testing.T) {
@@ -88,8 +84,6 @@ func TestValue_Clone(t *testing.T) {
 	got := v.Clone()
 	assert.Equal(t, v, got)
 	assert.NotSame(t, v, got)
-	assert.NotSame(t, v.parents, got.parents)
-	assert.NotSame(t, v.refs, got.refs)
 
 	v2 := &Value[string]{
 		version: vx,

@@ -84,8 +84,9 @@ reviewer should be owner or maintainer: レビュワーはオーナーもしく�
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。
 unauthorized: 未認証
-unsupported entity: サポートされていないエンティティ
-unsupported geometry type: サポートされていないジオメトリタイプ
+unsupported content encoding: サポートされていないContent-Encodingです。
+unsupported entity: サポートされていないエンティティです。
+unsupported geometry type: サポートされていないジオメトリタイプです。
 unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。

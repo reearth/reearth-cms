@@ -3,48 +3,24 @@ import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
+import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
 
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  itemAssets?: ItemAsset[];
   value?: string[];
   onChange?: (value: string[]) => void;
-  assetList?: Asset[];
-  fileList?: UploadFile[];
-  loadingAssets?: boolean;
-  uploading?: boolean;
-  uploadModalVisibility?: boolean;
-  uploadUrl?: { url: string; autoUnzip: boolean };
-  uploadType?: UploadType;
-  totalCount?: number;
-  page?: number;
-  pageSize?: number;
   disabled?: boolean;
-  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel?: () => void;
-  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType?: (type: UploadType) => void;
-  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet?: () => void;
-  onAssetsReload?: () => void;
-  onAssetSearchTerm?: (term?: string | undefined) => void;
-  setFileList?: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility?: (visible: boolean) => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+} & AssetProps;
 
 const MultiValueAsset: React.FC<Props> = ({
-  itemAssets,
   value = [],
+  disabled,
   onChange,
+  onGetAsset,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -66,8 +42,6 @@ const MultiValueAsset: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  disabled,
-  onGetAsset,
 }) => {
   const t = useT();
   const handleInput = useCallback(

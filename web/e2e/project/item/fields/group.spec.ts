@@ -105,19 +105,19 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByRole("main")).toContainText("new text1(unique)");
   await expect(page.getByRole("main")).toContainText("new text1 description");
-  await expect(page.getByLabel("new text1(unique)")).toHaveValue("new text1");
+  await expect(page.getByRole("textbox")).toHaveValue("new text1");
   await expect(page.getByText("/ 5")).toBeVisible();
   await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
-  await page.getByLabel("new text1(unique)").click();
-  await page.getByLabel("new text1(unique)").fill("text1");
+  await page.getByRole("textbox").click();
+  await page.getByRole("textbox").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByLabel("new text1(unique)")).toHaveValue("text1");
+  await expect(page.getByRole("textbox")).toHaveValue("text1");
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByLabel("new text1(unique)")).toHaveValue("text1");
+  await expect(page.getByRole("textbox")).toHaveValue("text1");
   await page.getByRole("button", { name: "plus New" }).click();
   await page
     .locator("div")

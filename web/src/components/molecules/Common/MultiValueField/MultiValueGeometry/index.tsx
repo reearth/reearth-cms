@@ -113,7 +113,7 @@ export default MultiValueGeometry;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0;
+  margin-bottom: 24px;
 `;
 
 const FieldButton = styled(Button)`

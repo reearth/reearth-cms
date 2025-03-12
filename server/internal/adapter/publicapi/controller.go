@@ -30,7 +30,7 @@ func NewController(project repo.Project, usecases *interfaces.Container, aur ass
 }
 
 func (c *Controller) checkProject(ctx context.Context, prj string) (*project.Project, error) {
-	pr, err := c.project.FindByPublicName(ctx, prj)
+	pr, err := c.project.FindByIDOrAlias(ctx, project.IDOrAlias(prj))
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return nil, rerror.ErrNotFound
