@@ -37,6 +37,7 @@ const Text = styled.p`
 
 const CoverImage = styled.img`
   width: 100%;
+  height: 121px;
   object-fit: cover;
 `;
 

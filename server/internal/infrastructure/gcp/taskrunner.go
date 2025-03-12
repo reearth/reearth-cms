@@ -75,7 +75,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		return decompressAsset(ctx, p, t.conf)
 	}
 	if p.Copy != nil {
-		return copy(ctx, p, t.conf)
+		return copyItems(ctx, p, t.conf)
 	}
 	if p.Import != nil {
 		return importItems(ctx, p, t.conf)
@@ -103,6 +103,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	}
 
 	project := conf.GCPProject
+	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
 
 	machineType := ""
@@ -118,6 +119,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	}
 
 	build := &cloudbuild.Build{
+		Tags:     []string{"cms_decompress-asset"},
 		Timeout:  "86400s", // 1 day
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
@@ -131,9 +133,14 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 				},
 			},
 		},
+		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
 			DiskSizeGb:  diskSizeGb,
+			Logging:     "CLOUD_LOGGING_ONLY",
+			// Pool: &cloudbuild.PoolOption{
+			// 	Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
+			// },
 		},
 	}
 
@@ -150,7 +157,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	return nil
 }
 
-func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
+func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Copy.Validate() {
 		return nil
 	}
@@ -166,6 +173,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	dbSecretName := conf.DBSecretName
 
 	build := &cloudbuild.Build{
+		Tags:     []string{"cms_copy-items"},
 		Timeout:  "86400s", // 1 day
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
@@ -183,8 +191,10 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
-			Logging:    "CLOUD_LOGGING_ONLY",
+			Logging: "CLOUD_LOGGING_ONLY",
+			Pool: &cloudbuild.PoolOption{
+				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
+			},
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
 			SecretManager: []*cloudbuild.SecretManagerSecret{
@@ -211,7 +221,7 @@ func copy(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Import.Validate() {
-		return nil
+		return rerror.Fmt("invalid import payload")
 	}
 
 	cb, err := cloudbuild.NewService(ctx)
@@ -222,6 +232,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	project := conf.GCPProject
 	account := conf.BuildServiceAccount
 	region := conf.GCPRegion
+	singleDb := conf.DBName == conf.AccountDBName
 
 	args := []string{
 		"item",
@@ -229,18 +240,37 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 		"-modelId=" + p.Import.ModelId,
 		"-assetId=" + p.Import.AssetId,
 		"-format=" + p.Import.Format,
-		"-geometryFieldKey=" + p.Import.GeometryFieldKey,
 		"-strategy=" + p.Import.Strategy,
 		"-mutateSchema=" + fmt.Sprint(p.Import.MutateSchema),
 	}
-
+	if p.Import.GeometryFieldKey != "" {
+		args = append(args, fmt.Sprintf("-geometryFieldKey=%s", p.Import.GeometryFieldKey))
+	}
 	if p.Import.UserId != "" {
 		args = append(args, "-userId="+p.Import.UserId)
 	} else if p.Import.IntegrationId != "" {
 		args = append(args, "-integrationId="+p.Import.IntegrationId)
 	}
 
+	availableSecrets := []*cloudbuild.SecretManagerSecret{
+		{
+			VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.DBSecretName),
+			Env:         "REEARTH_CMS_DB",
+		},
+	}
+	stepSecretEnv := []string{
+		"REEARTH_CMS_DB",
+	}
+	if !singleDb {
+		availableSecrets = append(availableSecrets, &cloudbuild.SecretManagerSecret{
+			VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.AccountDBSecretName),
+			Env:         "REEARTH_CMS_DB_USERS",
+		})
+		stepSecretEnv = append(stepSecretEnv, "REEARTH_CMS_DB_USERS")
+	}
+
 	build := &cloudbuild.Build{
+		Tags:     []string{"cms_import-items"},
 		Timeout:  "86400s", // 1 day
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
@@ -248,31 +278,22 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 				Name: conf.CmsImage,
 				Env: []string{
 					"REEARTH_CMS_GCS_BUCKETNAME=" + conf.GCSBucket,
+					"REEARTH_CMS_DB_CMS=" + conf.DBName,
 					"REEARTH_CMS_DB_ACCOUNT=" + conf.AccountDBName,
 				},
-				SecretEnv: []string{
-					"REEARTH_CMS_DB",
-					"REEARTH_CMS_DB_USERS",
-				},
-				Args: args,
+				SecretEnv: stepSecretEnv,
+				Args:      args,
 			},
 		},
 		ServiceAccount: fmt.Sprintf("projects/%s/serviceAccounts/%s", project, account),
 		Options: &cloudbuild.BuildOptions{
-			DiskSizeGb: defaultDiskSizeGb,
-			Logging:    "CLOUD_LOGGING_ONLY",
+			Logging: "CLOUD_LOGGING_ONLY",
+			Pool: &cloudbuild.PoolOption{
+				Name: fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, conf.WorkerPool),
+			},
 		},
 		AvailableSecrets: &cloudbuild.Secrets{
-			SecretManager: []*cloudbuild.SecretManagerSecret{
-				{
-					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.DBSecretName),
-					Env:         "REEARTH_CMS_DB",
-				},
-				{
-					VersionName: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", project, conf.AccountDBSecretName),
-					Env:         "REEARTH_CMS_DB_USERS",
-				},
-			},
+			SecretManager: availableSecrets,
 		},
 	}
 

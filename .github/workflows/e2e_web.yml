@@ -3,6 +3,27 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 3 * * 1-5"
+  workflow_call:
+    inputs:
+      api_url:
+        required: true
+        type: string
+      base_url:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+    secrets:
+      REEARTH_WEB_E2E_USERNAME:
+        required: true
+      REEARTH_WEB_E2E_PASSWORD:
+        required: true
+env:
+  REEARTH_CMS_API: ${{ inputs.api_url || vars.REEARTH_CMS_API }}
+  REEARTH_CMS_E2E_BASEURL: ${{ inputs.base_url || vars.REEARTH_CMS_E2E_BASEURL }}
+  REEARTH_CMS_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
+  REEARTH_CMS_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
 jobs:
   e2e:
     name: playwright
@@ -12,6 +33,9 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: reearth/reearth-cms
+          ref: ${{ inputs.branch || 'main' }}
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -36,13 +60,12 @@ jobs:
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: yarn playwright install-deps chromium
+      - name: Echo info
+        run: |
+          echo "REEARTH_CMS_API is $REEARTH_CMS_API"
+          echo "REEARTH_CMS_E2E_BASEURL is $REEARTH_CMS_E2E_BASEURL"
       - name: Run Playwright tests
         run: yarn e2e
-        env:
-          REEARTH_CMS_API: https://api.cms.test.reearth.dev/api
-          REEARTH_CMS_E2E_BASEURL: https://cms.test.reearth.dev
-          REEARTH_CMS_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
-          REEARTH_CMS_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

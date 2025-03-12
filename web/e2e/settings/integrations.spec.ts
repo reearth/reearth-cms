@@ -1,10 +1,11 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
+import { getId } from "@reearth-cms/e2e/utils/mock";
 
 let id: string;
 
 test.beforeEach(() => {
-  id = Math.ceil(Math.random() * (100000 - 10000) + 10000).toString();
+  id = getId();
 });
 
 test.afterEach(async ({ page }) => {

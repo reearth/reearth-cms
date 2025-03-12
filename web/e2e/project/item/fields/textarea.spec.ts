@@ -49,7 +49,7 @@ test("Textarea field editing has succeeded", async ({ page }) => {
   await expect(page.locator("label")).toContainText("text1");
   await page.getByText("text1 description").click();
   await expect(page.getByRole("main")).toContainText("text1 description");
-  await expect(page.getByLabel("text1")).toHaveValue("text1 default value");
+  await expect(page.getByRole("textbox")).toHaveValue("text1 default value");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
