@@ -5,7 +5,7 @@ import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 
 import ProjectList from "./ProjectList";
 
-describe("ProjectList", () => {
+describe("Project list", () => {
   const hasCreateRight = true;
   const projects: Project[] = [];
   const loading = false;

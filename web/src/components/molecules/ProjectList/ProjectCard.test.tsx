@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 
 import ProjectCard from "./ProjectCard";
 
-test("ProjectCard displays successfully", () => {
+test("Project card displays successfully", () => {
   const name = "name";
   const description = "description";
   const project = {

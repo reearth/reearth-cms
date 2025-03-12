@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 
 import WorkspaceCreationModal from ".";
 
-test("WorkspaceCreationModal works successfully", async () => {
+test("Workspace creation modal works successfully", async () => {
   const user = userEvent.setup();
 
   const onClose = () => {};

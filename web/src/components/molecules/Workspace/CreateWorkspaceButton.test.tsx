@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 
 import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 
-test("CreateWorkspaceButton works successfully", async () => {
+test("Create workspace button works successfully", async () => {
   const user = userEvent.setup();
 
   const onWorkspaceCreate = () => {
