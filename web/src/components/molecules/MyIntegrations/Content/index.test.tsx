@@ -19,7 +19,7 @@ describe("Integration creation modal", () => {
       name: "",
       email: "",
     },
-    iType: "Private",
+    iType: "Private" as const,
     config: {
       webhooks: [
         {

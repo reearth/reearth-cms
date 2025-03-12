@@ -14,7 +14,7 @@ describe("My integration general settings", () => {
       name: "",
       email: "",
     },
-    iType: "Private",
+    iType: "Private" as const,
     config: {
       webhooks: [
         {
