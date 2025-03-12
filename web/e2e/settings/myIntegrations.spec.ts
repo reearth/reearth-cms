@@ -13,7 +13,7 @@ test.beforeEach(async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Create", exact: true }).click();
   await closeNotification(page);
 
-  await page.getByText("namedescription", { exact: true }).first().click();
+  await page.getByText("namedescription", { exact: true }).last().click();
 });
 
 test("MyIntegration CRUD has succeeded", async ({ page }) => {
