@@ -6,17 +6,11 @@ const Workspace: React.FC = () => {
   const {
     coverImageUrl,
     projects,
-    projectModalShown,
-    loadingProjects,
-    workspaceModalShown,
+    loading,
     hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,
-    handleProjectModalOpen,
-    handleProjectModalClose,
     handleProjectNavigation,
-    handleWorkspaceModalClose,
-    handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleProjectAliasCheck,
   } = useHooks();
@@ -25,18 +19,12 @@ const Workspace: React.FC = () => {
     <WorkspaceWrapper
       coverImageUrl={coverImageUrl}
       projects={projects}
-      projectModal={projectModalShown}
-      workspaceModal={workspaceModalShown}
-      loadingProjects={loadingProjects}
+      loading={loading}
       hasCreateRight={hasCreateRight}
       onProjectSearch={handleProjectSearch}
-      onProjectModalOpen={handleProjectModalOpen}
       onProjectNavigation={handleProjectNavigation}
-      onWorkspaceModalClose={handleWorkspaceModalClose}
-      onWorkspaceModalOpen={handleWorkspaceModalOpen}
+      onProjectCreate={handleProjectCreate}
       onWorkspaceCreate={handleWorkspaceCreate}
-      onClose={handleProjectModalClose}
-      onSubmit={handleProjectCreate}
       onProjectAliasCheck={handleProjectAliasCheck}
     />
   );
