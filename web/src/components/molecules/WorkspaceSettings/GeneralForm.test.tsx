@@ -4,7 +4,7 @@ import { expect, test, describe, vi } from "vitest";
 
 import GeneralForm from "./GeneralForm";
 
-describe("GeneralForm", () => {
+describe("General form", () => {
   const user = userEvent.setup();
 
   const workspaceName = "workspaceName";
