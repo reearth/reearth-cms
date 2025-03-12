@@ -1,3 +1,4 @@
+import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
@@ -21,6 +22,7 @@ const ContentDetails: React.FC = () => {
     currentItem,
     initialFormValues,
     initialMetaFormValues,
+    versions,
     itemCreationLoading,
     itemUpdatingLoading,
     requestCreationLoading,
@@ -45,6 +47,7 @@ const ContentDetails: React.FC = () => {
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
+    handleGetVersionedItem,
     handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
@@ -126,6 +129,8 @@ const ContentDetails: React.FC = () => {
       commentsPanel={
         currentItem ? (
           <CommentsPanel
+            resourceId={currentItem?.id ?? ""}
+            resourceType={ResourceTypes.Item}
             comments={currentItem.comments}
             threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}
@@ -141,6 +146,7 @@ const ContentDetails: React.FC = () => {
       model={currentModel}
       initialFormValues={initialFormValues}
       initialMetaFormValues={initialMetaFormValues}
+      versions={versions}
       loading={itemCreationLoading || itemUpdatingLoading}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
@@ -167,6 +173,7 @@ const ContentDetails: React.FC = () => {
       uploadModalVisibility={uploadModalVisibility}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
+      onGetVersionedItem={handleGetVersionedItem}
       onUnpublish={handleUnpublish}
       onPublish={handlePublish}
       onUploadModalCancel={handleUploadModalCancel}

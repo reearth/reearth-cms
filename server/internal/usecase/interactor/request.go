@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/request"
-	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -84,21 +83,11 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		th, err := thread.New().NewID().Workspace(ws.ID()).Build()
-
-		if err != nil {
-			return nil, err
-		}
-		if err := r.repos.Thread.Save(ctx, th); err != nil {
-			return nil, err
-		}
-
 		builder := request.New().
 			NewID().
 			Workspace(ws.ID()).
 			Project(param.ProjectID).
 			CreatedBy(*operator.AcOperator.User).
-			Thread(th.ID()).
 			Items(*items).
 			Title(param.Title)
 

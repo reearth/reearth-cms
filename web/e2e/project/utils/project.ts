@@ -1,9 +1,10 @@
 import { Page } from "@playwright/test";
 
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { getId } from "@reearth-cms/e2e/utils/mock";
 
 export async function createProject(page: Page) {
-  const id = Math.ceil(Math.random() * (100000 - 10000) + 10000).toString();
+  const id = getId();
   await page.getByRole("button", { name: "plus New Project" }).first().click();
   await page.getByRole("dialog").locator("#name").click();
   await page.getByRole("dialog").locator("#name").fill(id);
