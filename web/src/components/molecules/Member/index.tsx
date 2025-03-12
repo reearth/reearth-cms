@@ -21,10 +21,8 @@ type Props = {
   hasInviteRight: boolean;
   hasRemoveRight: boolean;
   hasChangeRoleRight: boolean;
-
   updateLoading: boolean;
   onUpdateRole: (userId: string, role: Role) => Promise<void>;
-
   searchLoading: boolean;
   addLoading: boolean;
   onUserSearch: (nameOrEmail: string) => Promise<User[]>;
@@ -46,10 +44,8 @@ const Member: React.FC<Props> = ({
   hasInviteRight,
   hasRemoveRight,
   hasChangeRoleRight,
-
   updateLoading,
   onUpdateRole,
-
   searchLoading,
   addLoading,
   onUserSearch,

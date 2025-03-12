@@ -10,13 +10,11 @@ describe("Member add modal", () => {
   const open = true;
   const searchLoading = false;
   const addLoading = false;
-  const onClose = () => {
-    return Promise.resolve();
-  };
   const member = { id: "id", name: "name", email: "email@test.com" };
   const onUserSearch = () => {
     return Promise.resolve([member]);
   };
+  const onClose = () => {};
   const onUsersAddToWorkspace = () => {
     return Promise.resolve();
   };
