@@ -131,6 +131,7 @@ export const CREATE_ASSET_UPLOAD = gql`
     $filename: String!
     $cursor: String!
     $contentLength: Int!
+    $contentEncoding: String
   ) {
     createAssetUpload(
       input: {
@@ -138,12 +139,14 @@ export const CREATE_ASSET_UPLOAD = gql`
         filename: $filename
         cursor: $cursor
         contentLength: $contentLength
+        contentEncoding: $contentEncoding
       }
     ) {
       url
       token
       contentType
       contentLength
+      contentEncoding
       next
     }
   }

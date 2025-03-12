@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -92,7 +93,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi1}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 	v1 := version.New()
 	vi1 := version.MustBeValue(v1, nil, version.NewRefs(version.Latest), util.Now(), i1)
@@ -120,7 +121,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 							},
 							Type: lo.ToPtr(GeometryTypePoint),
 						},
-						Properties: &map[string]interface{}{},
+						Properties: orderedmap.New(),
 						Type:       lo.ToPtr(FeatureTypeFeature),
 					},
 				},

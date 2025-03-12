@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -297,10 +298,10 @@ const (
 
 // Feature defines model for Feature.
 type Feature struct {
-	Geometry   *Geometry               `json:"geometry,omitempty"`
-	Id         *id.ItemID              `json:"id,omitempty"`
-	Properties *map[string]interface{} `json:"properties,omitempty"`
-	Type       *FeatureType            `json:"type,omitempty"`
+	Geometry   *Geometry              `json:"geometry,omitempty"`
+	Id         *id.ItemID             `json:"id,omitempty"`
+	Properties *orderedmap.OrderedMap `json:"properties,omitempty"`
+	Type       *FeatureType           `json:"type,omitempty"`
 }
 
 // FeatureType defines model for Feature.Type.
@@ -713,6 +714,7 @@ type CopyModelJSONBody struct {
 
 // ModelImportJSONBody defines parameters for ModelImport.
 type ModelImportJSONBody struct {
+	AsBackground     *bool                       `json:"asBackground,omitempty"`
 	AssetId          id.AssetID                  `json:"assetId"`
 	Format           ModelImportJSONBodyFormat   `json:"format"`
 	GeometryFieldKey *string                     `json:"geometryFieldKey,omitempty"`
@@ -931,6 +933,12 @@ type ItemsWithProjectAsGeoJSONParamsRef string
 
 // SchemaFilterParams defines parameters for SchemaFilter.
 type SchemaFilterParams struct {
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+
 	// Page Used to select the page
 	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
 
@@ -967,6 +975,7 @@ type AssetFilterParamsDir string
 
 // AssetCreateJSONBody defines parameters for AssetCreate.
 type AssetCreateJSONBody struct {
+	ContentEncoding   *string `json:"contentEncoding,omitempty"`
 	SkipDecompression *bool   `json:"skipDecompression"`
 	Token             *string `json:"token,omitempty"`
 	Url               *string `json:"url,omitempty"`
@@ -974,15 +983,19 @@ type AssetCreateJSONBody struct {
 
 // AssetCreateMultipartBody defines parameters for AssetCreate.
 type AssetCreateMultipartBody struct {
+	ContentEncoding   *string             `json:"contentEncoding,omitempty"`
+	ContentType       *string             `json:"contentType,omitempty"`
 	File              *openapi_types.File `json:"file,omitempty"`
 	SkipDecompression *bool               `json:"skipDecompression,omitempty"`
 }
 
 // AssetUploadCreateJSONBody defines parameters for AssetUploadCreate.
 type AssetUploadCreateJSONBody struct {
-	ContentLength *int    `json:"contentLength,omitempty"`
-	Cursor        *string `json:"cursor,omitempty"`
-	Name          *string `json:"name,omitempty"`
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	ContentLength   *int    `json:"contentLength,omitempty"`
+	ContentType     *string `json:"contentType,omitempty"`
+	Cursor          *string `json:"cursor,omitempty"`
+	Name            *string `json:"name,omitempty"`
 }
 
 // FieldCreateJSONBody defines parameters for FieldCreate.

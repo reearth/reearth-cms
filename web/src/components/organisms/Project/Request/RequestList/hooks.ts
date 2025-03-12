@@ -105,7 +105,7 @@ export default () => {
           title: r.title,
           description: r.description ?? "",
           state: r.state,
-          threadId: r.threadId,
+          threadId: r.threadId ?? "",
           comments: r.thread?.comments.map(c => fromGraphQLComment(c as GQLComment)) ?? [],
           reviewers: r.reviewers,
           createdBy: r.createdBy ?? undefined,

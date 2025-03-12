@@ -9,13 +9,15 @@ type Asset implements Node {
   items: [AssetItem!]
   size: FileSize!
   previewType: PreviewType
+  contentEncoding: String
   uuid: String!
   thread: Thread
-  threadId: ID!
+  threadId: ID
   url: String!
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
+
 type AssetItem {
   itemId: ID!
   modelId: ID!
@@ -25,6 +27,7 @@ type AssetFile {
   name: String!
   size: FileSize!
   contentType: String
+  contentEncoding: String
   path: String!
   filePaths: [String!]
 }
@@ -54,6 +57,8 @@ input CreateAssetInput {
   url: String
   token: String
   skipDecompression: Boolean
+  # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
+  contentEncoding: String
 }
 
 # If `cursor` is specified, both `filename` and `contentLength` will be ignored.
@@ -64,6 +69,8 @@ input CreateAssetUploadInput {
   filename: String
   # The size of the file to upload.
   contentLength: Int
+  # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
+  contentEncoding: String
 
   # Required if uploading in multiple parts.
   cursor: String
@@ -111,6 +118,7 @@ type CreateAssetUploadPayload {
   contentType: String
   # The size of the upload.
   contentLength: Int!
+  contentEncoding: String
   # A cursor to obtain the URL for the next PUT request.
   next: String
 }

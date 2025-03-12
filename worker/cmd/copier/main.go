@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"os"
 	"time"
 
@@ -27,7 +26,7 @@ func main() {
 		log.Info("config: .env loaded")
 	}
 
-	dbURI := mustGetEnv("REEARTH_CMS_WORKER_DB")
+	dbURI := mustGetEnv("REEARTH_CMS_DB")
 	collection := mustGetEnv("REEARTH_CMS_COPIER_COLLECTION")
 	filter := mustGetEnv("REEARTH_CMS_COPIER_FILTER")
 	changes := mustGetEnv("REEARTH_CMS_COPIER_CHANGES")
@@ -57,7 +56,6 @@ func initReposWithCollection(ctx context.Context, dbURI, collection string) (*re
 		ctx,
 		options.Client().
 			ApplyURI(dbURI).
-			SetTLSConfig(&tls.Config{InsecureSkipVerify: true}).
 			SetConnectTimeout(10*time.Second).
 			SetMonitor(otelmongo.NewMonitor()),
 	)

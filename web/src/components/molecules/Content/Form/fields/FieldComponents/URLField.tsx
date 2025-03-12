@@ -1,29 +1,30 @@
+import styled from "@emotion/styled";
 import { useMemo, useState } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 import { requiredValidator, urlErrorIndexesGet } from "../utils";
 
-type URLFieldProps = {
-  field: Field;
-  itemGroupId?: string;
-  onMetaUpdate?: () => Promise<void>;
-  disabled: boolean;
-};
-
-const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
+const URLField: React.FC<FieldProps> = ({
+  field,
+  itemGroupId,
+  disabled,
+  itemHeights,
+  onItemHeightChange,
+}) => {
   const t = useT();
 
   const required = useMemo(() => field.required, [field.required]);
   const [errorIndexes, setErrorIndexes] = useState(new Set<number>());
 
   return (
-    <Form.Item
+    <StyledFormItem
       extra={field.description}
       validateStatus="success"
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
@@ -47,23 +48,25 @@ const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, d
         },
       ]}>
       {field.multiple ? (
-        <MultiValueField
-          FieldInput={Input}
-          onBlur={onMetaUpdate}
-          disabled={disabled}
-          required={required}
-          errorIndexes={errorIndexes}
-        />
+        <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+          <MultiValueField
+            FieldInput={Input}
+            disabled={disabled}
+            required={required}
+            errorIndexes={errorIndexes}
+          />
+        </ResponsiveHeight>
       ) : (
-        <Input
-          onBlur={onMetaUpdate}
-          disabled={disabled}
-          required={required}
-          isError={errorIndexes.has(0)}
-        />
+        <Input disabled={disabled} required={required} isError={errorIndexes.has(0)} />
       )}
-    </Form.Item>
+    </StyledFormItem>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+  .ant-input-disabled {
+    color: inherit;
+  }
+`;
 
 export default URLField;

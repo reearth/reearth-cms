@@ -1,6 +1,8 @@
 package task
 
 import (
+	"strings"
+
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 )
@@ -10,6 +12,7 @@ type Payload struct {
 	CompressAsset   *CompressAssetPayload
 	Webhook         *WebhookPayload
 	Copy            *CopyPayload
+	Import          *ImportPayload
 }
 
 type DecompressAssetPayload struct {
@@ -64,11 +67,45 @@ func (p *CopyPayload) Validate() bool {
 type Changes map[string]Change
 type Change struct {
 	Type  ChangeType
-	Value string
+	Value any
 }
 type ChangeType string
 
 const (
-	ChangeTypeSet ChangeType = "set"
-	ChangeTypeNew ChangeType = "new"
+	ChangeTypeSet  ChangeType = "set"
+	ChangeTypeNew  ChangeType = "new"
+	ChangeTypeULID ChangeType = "ulid"
 )
+
+type ImportPayload struct {
+	UserId           string
+	IntegrationId    string
+	ModelId          string
+	AssetId          string
+	Format           string
+	GeometryFieldKey string
+	Strategy         string
+	MutateSchema     bool
+}
+
+func (p *ImportPayload) Validate() bool {
+	if p == nil {
+		return false
+	}
+	if p.UserId == "" && p.IntegrationId == "" {
+		return false
+	}
+	if p.ModelId == "" || p.AssetId == "" || p.Format == "" || p.Strategy == "" {
+		return false
+	}
+	if strings.ToLower(p.Format) == "geojson" && p.GeometryFieldKey == "" {
+		return false
+	}
+	return true
+}
+
+func (p *ImportPayload) Payload() Payload {
+	return Payload{
+		Import: p,
+	}
+}

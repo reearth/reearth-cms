@@ -189,7 +189,11 @@ const IntegrationTable: React.FC<Props> = ({
 
   return (
     <Wrapper>
-      <PageHeader title={t("Integrations")} extra={<ConnectButton />} />
+      <PageHeader
+        title={t("Integrations")}
+        style={{ backgroundColor: "#fff" }}
+        extra={<ConnectButton />}
+      />
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>

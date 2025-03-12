@@ -118,10 +118,7 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: web
-    secrets:
-      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+    secrets: inherit
 
   deploy-server:
     needs: [build-server, ci-server]
@@ -129,10 +126,7 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: server
-    secrets:
-      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+    secrets: inherit
 
   deploy-worker:
     needs: [build-worker, ci-worker]
@@ -140,7 +134,5 @@ jobs:
     uses: ./.github/workflows/deploy_test.yml
     with:
       target: worker
-    secrets:
-      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
-      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+    secrets: inherit
+

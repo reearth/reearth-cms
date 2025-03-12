@@ -3,7 +3,10 @@ package mongo
 import (
 	"context"
 	"errors"
+	"strings"
 
+	"github.com/google/uuid"
+	"github.com/oklog/ulid"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/repo"
@@ -58,8 +61,44 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 		for k, change := range changesMap {
 			switch change.Type {
 			case task.ChangeTypeNew:
-				newId, _ := generateId(change.Value)
-				result[k] = newId
+				str, ok := change.Value.(string)
+				if !ok {
+					return errors.New("invalid change value")
+				}
+				if str == "version" {
+					result[k] = uuid.New()
+				} else {
+					newId, ok := generateId(str)
+					if !ok {
+						return errors.New("invalid type")
+					}
+					result[k] = newId
+				}
+			case task.ChangeTypeULID:
+				if result[k] == nil {
+					continue
+				}
+				u, ok := result[k].(string)
+				if !ok {
+					return errors.New("invalid old id")
+				}
+				newId, err := ulid.Parse(u)
+				if err != nil {
+					return rerror.ErrInternalBy(err)
+				}
+				val, ok := change.Value.(float64)
+				if !ok {
+					return errors.New("invalid millisecond value: not a float64")
+				}
+				if val < 0 || val != float64(uint64(val)) {
+					return errors.New("invalid millisecond value: out of range or not an integer")
+				}
+				v := uint64(val)
+				err = newId.SetTime(v)
+				if err != nil {
+					return rerror.ErrInternalBy(err)
+				}
+				result[k] = strings.ToLower(newId.String())
 			case task.ChangeTypeSet:
 				result[k] = change.Value
 			}

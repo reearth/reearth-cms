@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -18,6 +19,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -51,15 +53,15 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	if err != nil {
 		return nil, nil, err
 	}
-	return m.Ordered(), p, nil
+	return m, p, nil
 }
 
-func (i Model) FindByProjectAndKeyword(ctx context.Context, projectID id.ProjectID, k string, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
-	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, projectID, k, pagination)
+func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.FindByProjectAndKeywordParam, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, params.ProjectID, params.Keyword, params.Sort, params.Pagination)
 	if err != nil {
 		return nil, nil, err
 	}
-	return m.Ordered(), p, nil
+	return m, p, nil
 }
 
 func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, _ *usecase.Operator) (*model.Model, error) {
@@ -372,7 +374,8 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			}
 
 			// Copy items
-			if err := i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID()); err != nil {
+			timestamp := util.Now()
+			if err := i.copyItems(ctx, oldModel.Schema(), newModel.Schema(), newModel.ID(), timestamp, operator); err != nil {
 				return nil, err
 			}
 
@@ -403,7 +406,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 					return nil, err
 				}
 
-				if err := i.copyItems(ctx, *oldModel.Metadata(), newMetaSchema.ID(), newModel.ID()); err != nil {
+				if err := i.copyItems(ctx, *oldModel.Metadata(), newMetaSchema.ID(), newModel.ID(), timestamp, operator); err != nil {
 					return nil, err
 				}
 			}
@@ -413,16 +416,16 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 		})
 }
 
-func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID) error {
+func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID, timestamp time.Time, operator *usecase.Operator) error {
 	collection := "item"
-	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String()})
+	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String(), "__r": bson.M{"$in": []string{"latest"}}})
 	if err != nil {
 		return err
 	}
-	changes, err := json.Marshal(task.Changes{
+	c := task.Changes{
 		"id": {
-			Type:  task.ChangeTypeNew,
-			Value: "item",
+			Type:  task.ChangeTypeULID,
+			Value: timestamp.UnixMilli(),
 		},
 		"schema": {
 			Type:  task.ChangeTypeSet,
@@ -432,7 +435,56 @@ func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.Schema
 			Type:  task.ChangeTypeSet,
 			Value: newModelID.String(),
 		},
-	})
+		"timestamp": {
+			Type:  task.ChangeTypeSet,
+			Value: timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00"), //TODO: should use a better way to format
+		},
+		"updatedbyuser": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"updatedbyintegration": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"originalitem": {
+			Type:  task.ChangeTypeULID,
+			Value: timestamp.UnixMilli(),
+		},
+		"metadataitem": {
+			Type:  task.ChangeTypeULID,
+			Value: timestamp.UnixMilli(),
+		},
+		"thread": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__r": { // tag
+			Type:  task.ChangeTypeSet,
+			Value: []string{"latest"},
+		},
+		"__w": { // parent
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__v": { // version
+			Type:  task.ChangeTypeNew,
+			Value: "version",
+		},
+	}
+	if operator.AcOperator.User != nil {
+		c["user"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: operator.AcOperator.User.String(),
+		}
+	}
+	if operator.Integration != nil {
+		c["integration"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: operator.Integration.String(),
+		}
+	}
+	changes, err := json.Marshal(c)
 	if err != nil {
 		return err
 	}
