@@ -32,7 +32,7 @@ export default () => {
 
   const {
     data,
-    loading: loadingProjects,
+    loading,
     refetch: projectsRefetch,
   } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
@@ -43,14 +43,14 @@ export default () => {
     () =>
       data?.projects.nodes
         .map(project => (project ? fromGraphQLProject(project as GQLProject) : undefined))
-        .filter(project => !!project),
+        .filter(project => !!project) ?? [],
     [data?.projects.nodes],
   );
 
   const projects = useMemo(
     () =>
       searchedProjectName
-        ? allProjects?.filter(project =>
+        ? allProjects.filter(project =>
             project.name.toLocaleLowerCase().includes(searchedProjectName.toLocaleLowerCase()),
           )
         : allProjects,
@@ -134,7 +134,7 @@ export default () => {
   return {
     coverImageUrl,
     projects,
-    loadingProjects,
+    loading,
     hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,

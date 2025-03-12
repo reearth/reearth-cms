@@ -9,7 +9,7 @@ import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
   hasCreateRight: boolean;
-  projects?: ProjectListItem[];
+  projects: ProjectListItem[];
   loading: boolean;
   onProjectNavigation: (projectId: string) => void;
   onProjectCreate: (values: ProjectFormValues) => Promise<void>;
@@ -28,7 +28,7 @@ const ProjectList: React.FC<Props> = ({
 
   return (
     <StyledDashboardBlock>
-      {loading || !projects ? (
+      {loading ? (
         <Loading minHeight="400px" />
       ) : projects.length === 0 ? (
         <EmptyListWrapper>

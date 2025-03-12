@@ -9,8 +9,8 @@ import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/Workspa
 
 type Props = {
   coverImageUrl?: string;
-  projects?: Project[];
-  loadingProjects: boolean;
+  projects: Project[];
+  loading: boolean;
   hasCreateRight: boolean;
   onProjectSearch: (value: string) => void;
   onProjectNavigation: (projectId: string) => void;
@@ -22,7 +22,7 @@ type Props = {
 const WorkspaceWrapper: React.FC<Props> = ({
   coverImageUrl,
   projects,
-  loadingProjects,
+  loading,
   hasCreateRight,
   onProjectSearch,
   onProjectNavigation,
@@ -44,7 +44,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
         <ProjectList
           hasCreateRight={hasCreateRight}
           projects={projects}
-          loading={loadingProjects}
+          loading={loading}
           onProjectNavigation={onProjectNavigation}
           onProjectCreate={onProjectCreate}
           onProjectAliasCheck={onProjectAliasCheck}
