@@ -10,9 +10,7 @@ describe("My integrations", () => {
   const user = userEvent.setup();
 
   const integrations: Integration[] = [];
-  const onIntegrationNavigate = () => {
-    return Promise.resolve();
-  };
+  const onIntegrationNavigate = () => {};
   const createLoading = false;
   const onIntegrationCreate = () => {
     return Promise.resolve();

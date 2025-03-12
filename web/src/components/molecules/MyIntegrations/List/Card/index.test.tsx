@@ -27,9 +27,7 @@ describe("My integrations list", () => {
     iType: "Private",
     config: {},
   };
-  const onIntegrationNavigate = () => {
-    return Promise.resolve();
-  };
+  const onIntegrationNavigate = () => {};
 
   test("Name and description are displayed successfully", () => {
     render(
@@ -41,7 +39,7 @@ describe("My integrations list", () => {
   });
 
   test("Navigation event is fired successfully", async () => {
-    const onIntegrationNavigateMock = vi.fn(onIntegrationNavigate);
+    const onIntegrationNavigateMock = vi.fn();
     render(
       <MyIntegrationCard
         integration={integration}

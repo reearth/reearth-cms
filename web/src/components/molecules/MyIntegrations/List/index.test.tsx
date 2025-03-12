@@ -39,23 +39,20 @@ describe("My integrations list", () => {
       config: {},
     },
   ];
-  const handleIntegrationModalOpen = () => {
-    return Promise.resolve();
-  };
-  const onIntegrationNavigate = () => {
-    return Promise.resolve();
-  };
+  const onIntegrationModalOpen = () => {};
+  const onIntegrationNavigate = () => {};
 
   test("Integrations are displayed successfully", () => {
     render(
       <MyIntegrationList
         integrations={integrations}
-        onIntegrationModalOpen={handleIntegrationModalOpen}
+        onIntegrationModalOpen={onIntegrationModalOpen}
         onIntegrationNavigate={onIntegrationNavigate}
       />,
     );
 
     expect(screen.getByText(name1)).toBeVisible();
     expect(screen.getByText(name2)).toBeVisible();
+    expect(screen.getByRole("button")).toBeVisible();
   });
 });

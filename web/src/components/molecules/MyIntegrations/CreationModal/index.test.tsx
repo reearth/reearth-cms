@@ -9,9 +9,7 @@ describe("Integration creation modal", () => {
 
   const open = true;
   const createLoading = false;
-  const onClose = () => {
-    return Promise.resolve();
-  };
+  const onClose = () => {};
   const onIntegrationCreate = () => {
     return Promise.resolve();
   };
@@ -31,7 +29,7 @@ describe("Integration creation modal", () => {
   });
 
   test("Create event is fired successfully", async () => {
-    const onIntegrationCreateMock = vi.fn(onIntegrationCreate);
+    const onIntegrationCreateMock = vi.fn();
 
     render(
       <IntegrationCreationModal
