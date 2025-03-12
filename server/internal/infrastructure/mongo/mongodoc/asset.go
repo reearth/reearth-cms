@@ -21,7 +21,7 @@ type AssetDocument struct {
 	Size                    uint64
 	PreviewType             string
 	UUID                    string
-	Thread                  string
+	Thread                  *string
 	ArchiveExtractionStatus string
 	FlatFiles               bool
 }
@@ -79,7 +79,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		Size:                    a.Size(),
 		PreviewType:             previewType,
 		UUID:                    a.UUID(),
-		Thread:                  a.Thread().String(),
+		Thread:                  a.Thread().StringRef(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
 		FlatFiles:               a.FlatFiles(),
 	}, aid
@@ -94,10 +94,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	if err != nil {
 		return nil, err
 	}
-	thid, err := id.ThreadIDFrom(d.Thread)
-	if err != nil {
-		return nil, err
-	}
 
 	ab := asset.New().
 		ID(aid).
@@ -107,7 +103,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		UUID(d.UUID).
-		Thread(thid).
+		Thread(id.ThreadIDFromRef(d.Thread)).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus))).
 		FlatFiles(d.FlatFiles)
 

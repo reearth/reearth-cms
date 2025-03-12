@@ -1,10 +1,13 @@
 import { type Dayjs } from "dayjs";
 
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
+
+export type FormValues = Record<string, FormValue | FormGroupValue>;
 
 export type FormValue =
   | string
@@ -53,7 +56,7 @@ export type Item = {
   referencedItems: FormItem[];
   fields: ItemField[] | undefined | null;
   metadata: Metadata;
-  threadId: string;
+  threadId?: string;
   comments: Comment[];
   assets: ItemAsset[];
   requests: Pick<Request, "id" | "state" | "title">[];
@@ -91,4 +94,13 @@ export type Comment = {
   author: { id?: string; name: string; type: "User" | "Integration" | null };
   content: string;
   createdAt: string;
+};
+
+export type VersionedItem = {
+  version: string;
+  status: StateType;
+  timestamp: Date;
+  creator: Pick<User, "name">;
+  fields: ItemField[];
+  requests: Pick<Request, "id" | "title">[];
 };

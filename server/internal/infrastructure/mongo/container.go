@@ -75,6 +75,7 @@ func Init(r *repo.Container) error {
 		r.View.(*View).Init,
 		r.Request.(*Request).Init,
 		r.Project.(*ProjectRepo).Init,
+		r.Item.(*Item).Init,
 		r.Schema.(*Schema).Init,
 		r.Group.(*Group).Init,
 		r.Integration.(*Integration).Init,

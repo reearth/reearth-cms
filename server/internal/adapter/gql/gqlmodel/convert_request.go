@@ -38,7 +38,7 @@ func ToRequest(req *request.Request) *Request {
 		CreatedByID: IDFrom(req.CreatedBy()),
 		WorkspaceID: IDFrom(req.Workspace()),
 		ProjectID:   IDFrom(req.Project()),
-		ThreadID:    IDFrom(req.Thread()),
+		ThreadID:    IDFromRef(req.Thread()),
 		ReviewersID: lo.Map(req.Reviewers(), func(t accountdomain.UserID, _ int) ID { return IDFrom(t) }),
 		State:       ToRequestState(req.State()),
 		CreatedAt:   req.CreatedAt(),
