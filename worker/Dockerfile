@@ -1,4 +1,4 @@
-FROM golang:1.23.3-alpine AS build
+FROM golang:1.24.0-alpine AS build
 
 ARG TAG=release
 ARG REV
@@ -15,7 +15,6 @@ WORKDIR /app
 RUN go mod download
 
 COPY server/pkg/ /app/server/pkg/
-COPY server/internal/infrastructure/ /app/server/internal/infrastructure/
 COPY worker/cmd/ /app/worker/cmd/
 COPY worker/internal/ /app/worker/internal/
 COPY worker/pkg/ /app/worker/pkg/

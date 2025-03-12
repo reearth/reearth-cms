@@ -3,17 +3,12 @@ import styled from "@emotion/styled";
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-type TagFieldProps = {
-  field: Field;
-  disabled: boolean;
-};
-
-const TagField: React.FC<TagFieldProps> = ({ field, disabled }) => {
+const TagField: React.FC<FieldProps> = ({ field, disabled }) => {
   const t = useT();
 
   return (

@@ -57,7 +57,8 @@ type Config struct {
 	// auth for m2m
 	AuthM2M AuthM2MConfig `pp:",omitempty"`
 
-	DB_Account string          `pp:",omitempty"`
+	DB_Account string          `default:"reearth_account" pp:",omitempty"`
+	DB_CMS     string          `default:"reearth_cms" pp:",omitempty"`
 	DB_Users   []appx.NamedURI `pp:",omitempty"`
 }
 
@@ -310,6 +311,14 @@ func ReadConfig(debug bool) (*Config, error) {
 
 	if debug {
 		c.Dev = true
+	}
+
+	if c.Task.DBName == "" {
+		c.Task.DBName = c.DB_CMS
+	}
+
+	if c.Task.AccountDBName == "" {
+		c.Task.AccountDBName = c.DB_Account
 	}
 
 	return &c, err

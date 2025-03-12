@@ -18,7 +18,7 @@ func TestList_CloseAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -28,7 +28,7 @@ func TestList_CloseAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(ItemList{item}).
 		Title("hoge").
 		MustBuild()

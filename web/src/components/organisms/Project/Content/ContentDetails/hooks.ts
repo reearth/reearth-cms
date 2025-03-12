@@ -4,6 +4,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
+  FormValues,
+  FormValue,
+  FormGroupValue,
   FormItem,
   Item,
   ItemStatus,
@@ -13,7 +16,10 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { RequestState, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
+import {
+  fromGraphQLItem,
+  fromGraphQLversionsByItem,
+} from "@reearth-cms/components/organisms/DataConverters/content";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
@@ -21,6 +27,7 @@ import {
   Item as GQLItem,
   Model as GQLModel,
   Group as GQLGroup,
+  VersionedItem as GQLVersionedItem,
   RequestState as GQLRequestState,
   useCreateItemMutation,
   useCreateRequestMutation,
@@ -34,6 +41,7 @@ import {
   StringOperator,
   ItemFieldInput,
   useIsItemReferencedLazyQuery,
+  useVersionsByItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
@@ -289,7 +297,7 @@ export default () => {
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
-    refetchQueries: ["GetItem"],
+    refetchQueries: ["GetItem", "VersionsByItem"],
   });
 
   const handleItemUpdate = useCallback(
@@ -366,18 +374,27 @@ export default () => {
   );
 
   const valueGet = useCallback((field: Field) => {
+    let result: FormValue;
     switch (field.type) {
       case "Select":
-        return field.typeProperty?.selectDefaultValue;
+        result = field.typeProperty?.selectDefaultValue;
+        break;
       case "Integer":
-        return field.typeProperty?.integerDefaultValue;
+        result = field.typeProperty?.integerDefaultValue;
+        break;
       case "Asset":
-        return field.typeProperty?.assetDefaultValue;
+        result = field.typeProperty?.assetDefaultValue;
+        break;
       case "Date":
-        return dateConvert(field.typeProperty?.defaultValue);
+        result = dateConvert(field.typeProperty?.defaultValue);
+        break;
       default:
-        return field.typeProperty?.defaultValue;
+        result = field.typeProperty?.defaultValue;
     }
+    if (field.multiple && !result) {
+      result = [];
+    }
+    return result;
   }, []);
 
   const updateValueConvert = useCallback(({ type, value }: ItemField) => {
@@ -394,28 +411,27 @@ export default () => {
     }
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [initialFormValues, setInitialFormValues] = useState<Record<string, any>>({});
+  const [initialFormValues, setInitialFormValues] = useState<
+    Record<string, FormValue | FormGroupValue>
+  >({});
 
-  useEffect(() => {
-    if (itemLoading) return;
-    const handleInitialValuesSet = async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const initialValues: Record<string, any> = {};
+  const initialValueGet = useCallback(
+    async (fields?: ItemField[]) => {
+      const initialValues: FormValues = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
           initialValues[field.id] = {
-            ...initialValues[field.id],
+            ...(initialValues[field.id] as FormGroupValue),
             ...{ [itemGroupId]: valueGet(field) },
           };
         });
       };
 
-      if (currentItem) {
-        currentItem?.fields?.forEach(field => {
+      if (fields) {
+        fields?.forEach(field => {
           if (field.itemGroupId) {
             initialValues[field.schemaFieldId] = {
-              ...initialValues[field.schemaFieldId],
+              ...(initialValues[field.schemaFieldId] as FormGroupValue),
               ...{ [field.itemGroupId]: updateValueConvert(field) },
             };
           } else {
@@ -442,11 +458,18 @@ export default () => {
           }),
         );
       }
+      return initialValues;
+    },
+    [currentModel, handleGroupGet, updateValueConvert, valueGet],
+  );
 
-      setInitialFormValues(initialValues);
+  useEffect(() => {
+    if (itemLoading) return;
+    const handleInitialValuesSet = async () => {
+      setInitialFormValues(await initialValueGet(currentItem?.fields ?? undefined));
     };
     handleInitialValuesSet();
-  }, [itemLoading, currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
+  }, [currentItem, initialValueGet, itemLoading]);
 
   const initialMetaFormValues: Record<string, unknown> = useMemo(() => {
     const initialValues: Record<string, unknown> = {};
@@ -495,7 +518,7 @@ export default () => {
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetModalRequests", "GetItem"],
+    refetchQueries: ["GetModalRequests", "GetItem", "VersionsByItem"],
   });
 
   const handleRequestCreate = useCallback(
@@ -549,7 +572,7 @@ export default () => {
   const handleCheckItemReference = useCallback(
     async (itemId: string, correspondingFieldId: string, groupId?: string) => {
       const initialValue = groupId
-        ? initialFormValues[groupId][correspondingFieldId]
+        ? (initialFormValues[groupId] as FormGroupValue)[correspondingFieldId]
         : initialFormValues[correspondingFieldId];
       if (initialValue === itemId) {
         return false;
@@ -570,6 +593,30 @@ export default () => {
     return result;
   }, [currentItem, currentModel?.name]);
 
+  const { data: versionsData } = useVersionsByItemQuery({
+    fetchPolicy: "cache-and-network",
+    variables: { itemId: itemId ?? "" },
+    skip: !itemId,
+  });
+
+  const versions = useMemo(
+    () =>
+      versionsData
+        ? fromGraphQLversionsByItem(versionsData.versionsByItem as GQLVersionedItem[]).sort(
+            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+          )
+        : [],
+    [versionsData],
+  );
+
+  const handleGetVersionedItem = useCallback(
+    (version: string) => {
+      const res = versions.find(v => v.version === version);
+      return initialValueGet(res?.fields);
+    },
+    [initialValueGet, versions],
+  );
+
   return {
     loadingReference,
     linkedItemsModalList,
@@ -583,6 +630,7 @@ export default () => {
     currentItem,
     initialFormValues,
     initialMetaFormValues,
+    versions,
     itemCreationLoading,
     itemUpdatingLoading,
     collapsedModelMenu,
@@ -606,6 +654,7 @@ export default () => {
     requestModalTotalCount: totalCount,
     requestModalPage: page,
     requestModalPageSize: pageSize,
+    handleGetVersionedItem,
     handlePublish,
     handleUnpublish,
     handleAddItemToRequest,

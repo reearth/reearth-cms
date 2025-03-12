@@ -7,9 +7,12 @@ import (
 
 type Usecase struct {
 	gateways *gateway.Container
-	webhook  repo.Webhook
+	repos    *repo.Container
 }
 
-func NewUsecase(g *gateway.Container, webhook repo.Webhook) *Usecase {
-	return &Usecase{gateways: g, webhook: webhook}
+func NewUsecase(g *gateway.Container, r *repo.Container) *Usecase {
+	return &Usecase{
+		gateways: g,
+		repos:    r,
+	}
 }

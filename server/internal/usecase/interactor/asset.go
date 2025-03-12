@@ -19,7 +19,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
-	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -83,18 +82,18 @@ func (i *Asset) FindFilesByIDs(ctx context.Context, ids id.AssetIDList, _ *useca
 	return files, nil
 }
 
-func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (io.ReadCloser, error) {
+func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, headers map[string]string, _ *usecase.Operator) (io.ReadCloser, map[string]string, error) {
 	a, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	f, err := i.gateways.File.ReadAsset(ctx, a.UUID(), a.FileName())
+	f, headers, err := i.gateways.File.ReadAsset(ctx, a.UUID(), a.FileName(), headers)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return f, nil
+	return f, headers, nil
 }
 
 func (i *Asset) GetURL(a *asset.Asset) string {
@@ -122,16 +121,21 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 	var uuid string
 	var file *file.File
 	if inp.File != nil {
+		if inp.File.ContentEncoding == "gzip" {
+			inp.File.Name = strings.TrimSuffix(inp.File.Name, ".gz")
+		}
+
 		var size int64
 		file = inp.File
 		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
 		if err != nil {
 			return nil, nil, err
 		}
+
 		file.Size = size
 	}
 
-	a, f, err := Run2[*asset.Asset, *asset.File](
+	a, f, err := Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
@@ -148,13 +152,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				if err != nil {
 					return nil, nil, err
 				}
-			}
-			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
-			if err != nil {
-				return nil, nil, err
-			}
-			if err := i.repos.Thread.Save(ctx, th); err != nil {
-				return nil, nil, err
 			}
 
 			needDecompress := false
@@ -178,7 +175,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Size(uint64(file.Size)).
 				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).
-				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
 
 			if op.AcOperator.User != nil {
@@ -197,7 +193,9 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Name(file.Name).
 				Path(file.Name).
 				Size(uint64(file.Size)).
-				GuessContentType().
+				ContentType(file.ContentType).
+				GuessContentTypeIfEmpty().
+				ContentEncoding(file.ContentEncoding).
 				Build()
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
@@ -304,6 +302,10 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, interfaces.ErrInvalidOperator
 	}
 
+	if inp.ContentEncoding == "gzip" {
+		inp.Filename = strings.TrimSuffix(inp.Filename, ".gz")
+	}
+
 	var param *gateway.IssueUploadAssetParam
 	if inp.Cursor == "" {
 		if inp.Filename == "" {
@@ -314,11 +316,13 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		const week = 7 * 24 * time.Hour
 		expiresAt := time.Now().Add(1 * week)
 		param = &gateway.IssueUploadAssetParam{
-			UUID:          uuid.New().String(),
-			Filename:      inp.Filename,
-			ContentLength: inp.ContentLength,
-			ExpiresAt:     expiresAt,
-			Cursor:        "",
+			UUID:            uuid.New().String(),
+			Filename:        inp.Filename,
+			ContentLength:   inp.ContentLength,
+			ContentType:     inp.ContentType,
+			ContentEncoding: inp.ContentEncoding,
+			ExpiresAt:       expiresAt,
+			Cursor:          "",
 		}
 	} else {
 		wrapped, err := parseWrappedUploadCursor(inp.Cursor)
@@ -333,11 +337,13 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			return nil, fmt.Errorf("unmatched project id(in=%s,db=%s)", inp.ProjectID, au.Project())
 		}
 		param = &gateway.IssueUploadAssetParam{
-			UUID:          wrapped.UUID,
-			Filename:      au.FileName(),
-			ContentLength: au.ContentLength(),
-			ExpiresAt:     au.ExpiresAt(),
-			Cursor:        wrapped.Cursor,
+			UUID:            wrapped.UUID,
+			Filename:        au.FileName(),
+			ContentLength:   au.ContentLength(),
+			ContentEncoding: au.ContentEncoding(),
+			ContentType:     au.ContentType(),
+			ExpiresAt:       au.ExpiresAt(),
+			Cursor:          wrapped.Cursor,
 		}
 	}
 
@@ -363,18 +369,22 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			Project(prj.ID()).
 			FileName(param.Filename).
 			ExpiresAt(param.ExpiresAt).
-			ContentLength(param.ContentLength).
+			ContentLength(uploadLink.ContentLength).
+			ContentType(uploadLink.ContentType).
+			ContentEncoding(uploadLink.ContentEncoding).
 			Build()
 		if err := i.repos.AssetUpload.Save(ctx, u); err != nil {
 			return nil, err
 		}
 	}
+
 	return &interfaces.AssetUpload{
-		URL:           uploadLink.URL,
-		UUID:          param.UUID,
-		ContentType:   uploadLink.ContentType,
-		ContentLength: uploadLink.ContentLength,
-		Next:          wrapUploadCursor(param.UUID, uploadLink.Next),
+		URL:             uploadLink.URL,
+		UUID:            param.UUID,
+		ContentType:     uploadLink.ContentType,
+		ContentLength:   uploadLink.ContentLength,
+		ContentEncoding: uploadLink.ContentEncoding,
+		Next:            wrapUploadCursor(param.UUID, uploadLink.Next),
 	}, nil
 }
 
@@ -492,7 +502,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 					Name(path.Base(f.Name)).
 					Path(f.Name).
 					Size(uint64(f.Size)).
-					GuessContentType().
+					ContentType(f.ContentType).
+					GuessContentTypeIfEmpty().
+					ContentEncoding(f.ContentEncoding).
 					Build(), true
 			})
 

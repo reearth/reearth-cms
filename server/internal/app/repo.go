@@ -23,9 +23,40 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
-const databaseName = "reearth_cms"
+func initAccountDB(client *mongo.Client, txAvailable bool, ctx context.Context, conf *Config) *accountrepo.Container {
+	accountDatabase := conf.DB_Account
+	log.Infof("account database: %s", accountDatabase)
 
-func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
+	accountUsers := make([]accountrepo.User, 0, len(conf.DB_Users))
+	for _, u := range conf.DB_Users {
+		c, err := mongo.Connect(ctx, options.Client().ApplyURI(u.URI).SetMonitor(otelmongo.NewMonitor()))
+		if err != nil {
+			log.Fatalf("mongo error: %+v\n", err)
+		}
+		accountUsers = append(accountUsers, accountmongo.NewUserWithHost(mongox.NewClient(accountDatabase, c), u.Name))
+	}
+
+	acRepos, err := accountmongo.New(ctx, client, accountDatabase, txAvailable, false, accountUsers)
+	if err != nil {
+		log.Fatalf("Failed to init mongo: %+v\n", err)
+	}
+
+	return acRepos
+}
+
+func initCMSDB(client *mongo.Client, txAvailable bool, acRepos *accountrepo.Container, ctx context.Context, conf *Config) *repo.Container {
+	cmsDatabase := conf.DB_CMS
+	log.Infof("cms database: %s", cmsDatabase)
+
+	repos, err := mongorepo.New(ctx, client, cmsDatabase, txAvailable, acRepos)
+	if err != nil {
+		log.Fatalf("Failed to init mongo: %+v\n", err)
+	}
+
+	return repos
+}
+
+func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
 	gateways := &gateway.Container{}
 	acGateways := &accountgateway.Container{}
 
@@ -42,31 +73,11 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
-	accountDatabase := conf.DB_Account
-	if accountDatabase == "" {
-		accountDatabase = databaseName
-	}
-
-	accountUsers := make([]accountrepo.User, 0, len(conf.DB_Users))
-	for _, u := range conf.DB_Users {
-		c, err := mongo.Connect(ctx, options.Client().ApplyURI(u.URI).SetMonitor(otelmongo.NewMonitor()))
-		if err != nil {
-			log.Fatalf("mongo error: %+v\n", err)
-		}
-		accountUsers = append(accountUsers, accountmongo.NewUserWithHost(mongox.NewClient(accountDatabase, c), u.Name))
-	}
-
 	txAvailable := mongox.IsTransactionAvailable(conf.DB)
 
-	acRepos, err := accountmongo.New(ctx, client, accountDatabase, txAvailable, false, accountUsers)
-	if err != nil {
-		log.Fatalf("Failed to init mongo: %+v\n", err)
-	}
+	acRepos := initAccountDB(client, txAvailable, ctx, conf)
+	cmsRepos := initCMSDB(client, txAvailable, acRepos, ctx, conf)
 
-	repos, err := mongorepo.New(ctx, client, databaseName, txAvailable, acRepos)
-	if err != nil {
-		log.Fatalf("Failed to init mongo: %+v\n", err)
-	}
 	// File
 	var fileRepo gateway.File
 	if conf.GCS.BucketName != "" {
@@ -117,7 +128,7 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Infof("task runner: not used")
 	}
 
-	return repos, gateways, acRepos, acGateways
+	return cmsRepos, gateways, acRepos, acGateways
 }
 
 func NewLogMonitor() *event.CommandMonitor {

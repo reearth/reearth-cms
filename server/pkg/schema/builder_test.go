@@ -72,7 +72,10 @@ func TestBuilder_Fields(t *testing.T) {
 	f := []*Field{{name: "N1"}}
 	b.Fields(f)
 	assert.Equal(t, f, b.s.fields)
-	assert.NotSame(t, f, b.s.fields)
+	for i := 0; i < len(f); i++ {
+		assert.Equal(t, f[i], b.s.fields[i])
+		assert.NotSame(t, f[i], b.s.fields[i])
+	}
 }
 
 func TestBuilder_ID(t *testing.T) {
@@ -80,7 +83,6 @@ func TestBuilder_ID(t *testing.T) {
 	sId := NewID()
 	b.ID(sId)
 	assert.Equal(t, sId, b.s.id)
-	assert.NotSame(t, sId, b.s.id)
 }
 
 func TestBuilder_MustBuild(t *testing.T) {
@@ -156,7 +158,6 @@ func TestBuilder_Workspace(t *testing.T) {
 	wId := accountdomain.NewWorkspaceID()
 	b.Workspace(wId)
 	assert.Equal(t, wId, b.s.workspace)
-	assert.NotSame(t, wId, b.s.workspace)
 }
 
 func TestBuilder_Project(t *testing.T) {
@@ -164,7 +165,6 @@ func TestBuilder_Project(t *testing.T) {
 	pId := id.NewProjectID()
 	b.Project(pId)
 	assert.Equal(t, pId, b.s.project)
-	assert.NotSame(t, pId, b.s.project)
 }
 
 func TestBuilder_TitleField(t *testing.T) {

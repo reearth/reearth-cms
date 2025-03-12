@@ -6,8 +6,6 @@ import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -30,7 +28,7 @@ import {
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
@@ -73,7 +71,6 @@ const AssetMolecule: React.FC<Props> = ({
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
-  const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
   const renderPreview = useCallback(() => {
     switch (viewerType) {
@@ -136,9 +133,13 @@ const AssetMolecule: React.FC<Props> = ({
           title={
             <>
               <AssetName>{asset.fileName}</AssetName>
-              <CopyButton
-                copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
-              />
+              <Buttons>
+                <CopyButton
+                  copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
+                  size={16}
+                />
+                <DownloadButton selected={[asset]} onlyIcon />
+              </Buttons>
             </>
           }
           toolbar={
@@ -180,7 +181,7 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton selected={asset ? [asset] : undefined} displayDefaultIcon />
+        <DownloadButton selected={[asset]} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
@@ -190,12 +191,25 @@ const AssetMolecule: React.FC<Props> = ({
             hasUpdateRight={hasUpdateRight}
           />
         </SideBarCard>
-        <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title={t("Created By")}>
-          <Space>
-            <UserAvatar username={asset.createdBy.name} shadow />
-            {asset.createdBy.name}
-          </Space>
+        <SideBarCard title={t("Asset Information")}>
+          <AssetInfo>
+            <InfoRow>
+              <InfoKey>ID</InfoKey>
+              <ID>{asset.id}</ID>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Created at")}</InfoKey>
+              <InfoValue>{dateTimeFormat(asset.createdAt)}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Created by")}</InfoKey>
+              <InfoValue>{asset.createdBy?.name}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Size")}</InfoKey>
+              <InfoValue>{bytesFormat(asset.size)}</InfoValue>
+            </InfoRow>
+          </AssetInfo>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (
@@ -214,6 +228,11 @@ const AssetMolecule: React.FC<Props> = ({
 const AssetName = styled.span`
   min-width: 0;
   word-wrap: break-word;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+  gap: 12px;
 `;
 
 const UnzipButton = styled(Button)`
@@ -247,6 +266,42 @@ const SideBarWrapper = styled.div`
 
 const StyledButton = styled(Button)`
   padding: 0;
+`;
+
+const AssetInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  line-height: 28px;
+`;
+
+const InfoKey = styled.p`
+  font-size: 14px;
+  margin: 0;
+  flex-shrink: 0;
+`;
+
+const InfoValue = styled.p`
+  font-size: 12px;
+  margin: 0;
+  padding: 0px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #8c8c8c;
+`;
+
+const ID = styled(InfoValue)`
+  color: #848484;
+  background-color: #f0f0f0;
+  border-radius: 4px;
 `;
 
 export default AssetMolecule;

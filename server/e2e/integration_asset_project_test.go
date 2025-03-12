@@ -51,10 +51,10 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		Object().
 		HasValue("page", 1).
 		HasValue("perPage", 5).
-		HasValue("totalCount", 2)
+		HasValue("totalCount", 3)
 
 	al := obj.Value("items").Array()
-	al.Length().IsEqual(2)
+	al.Length().IsEqual(3)
 	al.Value(0).Object().
 		HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
@@ -116,7 +116,6 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		// HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("name", "testFile.jpg").
 		HasValue("contentType", "image/jpeg").

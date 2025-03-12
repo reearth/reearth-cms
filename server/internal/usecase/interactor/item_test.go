@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"errors"
+	"io"
 	"testing"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -22,6 +24,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -38,9 +41,9 @@ func TestNewItem(t *testing.T) {
 func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1 := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(id1).Schema(sid).Model(id.NewModelID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	id2 := id.NewItemID()
-	i2 := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -137,7 +140,7 @@ func TestItem_FindByIDs(t *testing.T) {
 		{
 			name: "0 count with item for another workspaces",
 			seeds: item.List{
-				item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild(),
+				item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild(),
 			},
 			arg:     []id.ItemID{},
 			want:    nil,
@@ -185,7 +188,7 @@ func TestItem_FindBySchema(t *testing.T) {
 		Fields([]*item.Field{
 			item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple(), nil),
 		}).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second).UTC())
@@ -196,14 +199,14 @@ func TestItem_FindBySchema(t *testing.T) {
 		Fields([]*item.Field{
 			item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple(), nil),
 		}).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		MustBuild()
 	restore()
 	restore = util.MockNow(time.Now().Truncate(time.Millisecond).Add(time.Second * 2).UTC())
 	i3 := item.New().NewID().
 		Schema(s2.ID()).
 		Model(id.NewModelID()).
-		Project(pid).Thread(id.NewThreadID()).MustBuild()
+		Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 	restore()
 
 	type args struct {
@@ -297,7 +300,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
-	i1 := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -354,11 +357,11 @@ func TestItem_Search(t *testing.T) {
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
-	i1 := item.New().ID(id1).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(id1).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID().Ref()).MustBuild()
 	id2 := id.NewItemID()
-	i2 := item.New().ID(id2).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(id2).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID().Ref()).MustBuild()
 	id3 := id.NewItemID()
-	i3 := item.New().ID(id3).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f2}).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().ID(id3).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f2}).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	wid := accountdomain.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
@@ -482,7 +485,7 @@ func TestItem_IsItemReferenced(t *testing.T) {
 	s1 := schema.New().ID(sid1).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
 	m1 := model.New().NewID().Schema(s1.ID()).Key(id.RandomKey()).Project(s1.Project()).MustBuild()
 	fs1 := []*item.Field{item.NewField(sf1.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple(), nil)}
-	i1 := item.New().NewID().Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID()).Fields(fs1).MustBuild()
+	i1 := item.New().NewID().Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID().Ref()).Fields(fs1).MustBuild()
 
 	cf2 := &schema.CorrespondingField{
 		Title:       "title",
@@ -494,14 +497,14 @@ func TestItem_IsItemReferenced(t *testing.T) {
 	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf2}).MustBuild()
 	m2 := model.New().NewID().Schema(s2.ID()).Key(id.RandomKey()).Project(s2.Project()).MustBuild()
 	fs2 := []*item.Field{item.NewField(sf2.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple(), nil)}
-	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID()).Fields(fs2).MustBuild()
+	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID().Ref()).Fields(fs2).MustBuild()
 
 	fid3 := id.NewFieldID()
 	sf3 := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).ID(fid3).Name("f").Unique(true).Key(id.RandomKey()).MustBuild()
 	s3 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf3}).MustBuild()
 	m3 := model.New().NewID().Schema(s3.ID()).Key(id.RandomKey()).Project(s3.Project()).MustBuild()
 	fs3 := []*item.Field{item.NewField(sf3.ID(), value.TypeReference.Value(nil).AsMultiple(), nil)}
-	i3 := item.New().NewID().Schema(s3.ID()).Model(m3.ID()).Project(s3.Project()).Thread(id.NewThreadID()).Fields(fs3).MustBuild()
+	i3 := item.New().NewID().Schema(s3.ID()).Model(m3.ID()).Project(s3.Project()).Thread(id.NewThreadID().Ref()).Fields(fs3).MustBuild()
 
 	ctx := context.Background()
 	db := memory.New()
@@ -722,9 +725,9 @@ func TestItem_Update(t *testing.T) {
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(id.RandomKey()).MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(id.RandomKey()).Project(s.Project()).MustBuild()
-	i := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().NewID().User(accountdomain.NewUserID()).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().NewID().User(accountdomain.NewUserID()).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	ctx := context.Background()
 	db := memory.New()
@@ -924,9 +927,9 @@ func TestItem_Delete(t *testing.T) {
 	id2 := id.NewItemID()
 	id3 := id.NewItemID()
 	id4 := id.NewItemID()
-	i1 := item.New().ID(id1).User(u.ID()).Schema(s1.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().ID(id2).User(u.ID()).Schema(s2.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().ID(id3).User(u.ID()).Schema(s1.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(id1).User(u.ID()).Schema(s1.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().ID(id2).User(u.ID()).Schema(s2.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().ID(id3).User(u.ID()).Schema(s1.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -990,7 +993,7 @@ func TestWorkFlow(t *testing.T) {
 	prj := project.New().NewID().Workspace(wid).MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
-	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	ctx := context.Background()
@@ -1013,7 +1016,7 @@ func TestWorkFlow(t *testing.T) {
 		Project(prj.ID()).
 		Reviewers(accountdomain.UserIDList{u.ID()}).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{ri}).
 		Title("foo").
 		MustBuild()
@@ -1081,4 +1084,339 @@ func TestWorkFlow(t *testing.T) {
 	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
+}
+
+func TestItem_ItemsAsCSV(t *testing.T) {
+	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
+	w := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
+
+	// Geometry Object type
+	sid1 := id.NewSchemaID()
+	fid1 := id.NewFieldID()
+	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).ID(fid1).MustBuild()
+	s1 := schema.New().ID(sid1).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
+	sp1 := schema.NewPackage(s1, nil, nil, nil)
+	m1 := model.New().NewID().Schema(s1.ID()).Key(id.RandomKey()).Project(s1.Project()).MustBuild()
+	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}").AsMultiple(), nil)
+	fs1 := []*item.Field{fi1}
+	i1 := item.New().ID(id.NewItemID()).Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID().Ref()).Fields(fs1).MustBuild()
+	i1IDStr := i1.ID().String()
+
+	// GeometryEditor type item
+	sid2 := id.NewSchemaID()
+	fid2 := id.NewFieldID()
+	sf2 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).ID(fid2).MustBuild()
+	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf2}).MustBuild()
+	m2 := model.New().NewID().Schema(s2.ID()).Key(id.RandomKey()).Project(s2.Project()).MustBuild()
+	fi2 := item.NewField(sf2.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[  ],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
+	fs2 := []*item.Field{fi2}
+	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID().Ref()).Fields(fs2).MustBuild()
+	sp2 := schema.NewPackage(s2, nil, nil, nil)
+
+	// integer type item
+	fid3 := id.NewFieldID()
+	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
+	tp4 := in4.TypeProperty()
+	sf3 := schema.NewField(tp4).NewID().Name("age").Key(id.RandomKey()).ID(fid3).MustBuild()
+	s3 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf3}).MustBuild()
+	m3 := model.New().NewID().Schema(s3.ID()).Key(id.RandomKey()).Project(s3.Project()).MustBuild()
+	fs3 := []*item.Field{item.NewField(sf3.ID(), value.TypeReference.Value(nil).AsMultiple(), nil)}
+	i3 := item.New().NewID().Schema(s3.ID()).Model(m3.ID()).Project(s3.Project()).Thread(id.NewThreadID().Ref()).Fields(fs3).MustBuild()
+	sp3 := schema.NewPackage(s3, nil, nil, nil)
+
+	page1 := 1
+	perPage1 := 10
+
+	wid := accountdomain.NewWorkspaceID()
+	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
+	}
+
+	opUserNil := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{},
+	}
+	ctx := context.Background()
+
+	type args struct {
+		ctx           context.Context
+		schemaPackage *schema.Package
+		page          *int
+		perPage       *int
+		op            *usecase.Operator
+	}
+	tests := []struct {
+		name        string
+		args        args
+		seedsItems  item.List
+		seedSchemas *schema.Schema
+		seedModels  *model.Model
+		want        []byte
+		wantError   error
+	}{
+		{
+			name: "success",
+			args: args{
+				ctx:           ctx,
+				schemaPackage: sp1,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            op,
+			},
+			seedsItems:  item.List{i1},
+			seedSchemas: s1,
+			seedModels:  m1,
+			want:        []byte("id,location_lat,location_lng\n" + i1IDStr + ",139.28179282584915,36.58570985749664\n"),
+			wantError:   nil,
+		},
+		{
+			name: "success geometry editor type",
+			args: args{
+				ctx:           ctx,
+				schemaPackage: sp2,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            op,
+			},
+			seedsItems:  item.List{i2},
+			seedSchemas: s2,
+			seedModels:  m2,
+			want:        []byte("id,location_lat,location_lng\n"),
+			wantError:   nil,
+		},
+		{
+			name: "error point type is not supported in any geometry field non geometry field",
+			args: args{
+				ctx:           ctx,
+				schemaPackage: sp3,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            op,
+			},
+			seedsItems:  item.List{i3},
+			seedSchemas: s3,
+			seedModels:  m3,
+			want:        []byte(nil),
+			wantError:   pointFieldIsNotSupportedError,
+		},
+		{
+			name: "error operator user is nil",
+			args: args{
+				ctx:           ctx,
+				schemaPackage: sp3,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            opUserNil,
+			},
+			want:      []byte(nil),
+			wantError: interfaces.ErrInvalidOperator,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			db := memory.New()
+			for _, seed := range tt.seedsItems {
+				err := db.Item.Save(ctx, seed)
+				assert.NoError(t, err)
+			}
+
+			if tt.seedSchemas != nil {
+				err := db.Schema.Save(ctx, tt.seedSchemas)
+				assert.NoError(t, err)
+			}
+			if tt.seedModels != nil {
+				err := db.Model.Save(ctx, tt.seedModels)
+				assert.NoError(t, err)
+			}
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
+
+			pr, err := itemUC.ItemsAsCSV(ctx, tt.args.schemaPackage, tt.args.page, tt.args.perPage, tt.args.op)
+
+			var result []byte
+			if pr.PipeReader != nil {
+				result, _ = io.ReadAll(pr.PipeReader)
+			}
+
+			assert.Equal(t, tt.want, result)
+			assert.Equal(t, tt.wantError, err)
+		})
+	}
+}
+
+func TestItem_ItemsAsGeoJSON(t *testing.T) {
+	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
+	w := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
+
+	sid1 := id.NewSchemaID()
+	fid1 := id.NewFieldID()
+	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).ID(fid1).MustBuild()
+	s1 := schema.New().ID(sid1).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
+	sp1 := schema.NewPackage(s1, nil, nil, nil)
+	m1 := model.New().NewID().Schema(s1.ID()).Key(id.RandomKey()).Project(s1.Project()).MustBuild()
+	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}").AsMultiple(), nil)
+	fs1 := []*item.Field{fi1}
+	i1 := item.New().ID(id.NewItemID()).Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID().Ref()).Fields(fs1).MustBuild()
+
+	v1 := version.New()
+	vi1 := version.MustBeValue(v1, nil, version.NewRefs(version.Latest), util.Now(), i1)
+	// with geometry fields
+	ver1 := item.VersionedList{vi1}
+
+	fc1, _ := featureCollectionFromItems(ver1, s1)
+
+	sid2 := id.NewSchemaID()
+	fid2 := id.NewFieldID()
+	sf2 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("geo2").Key(id.RandomKey()).ID(fid2).MustBuild()
+	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf2}).MustBuild()
+	sp2 := schema.NewPackage(s2, nil, nil, nil)
+	m2 := model.New().NewID().Schema(s2.ID()).Key(id.RandomKey()).Project(s2.Project()).MustBuild()
+	fi2 := item.NewField(sf2.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
+	fs2 := []*item.Field{fi2}
+	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID().Ref()).Fields(fs2).MustBuild()
+	v2 := version.New()
+	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
+
+	ver2 := item.VersionedList{vi2}
+	fc2, _ := featureCollectionFromItems(ver2, s2)
+
+	fid3 := id.NewFieldID()
+	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
+	tp4 := in4.TypeProperty()
+	sf3 := schema.NewField(tp4).NewID().Name("age").Key(id.RandomKey()).ID(fid3).MustBuild()
+	s3 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf3}).MustBuild()
+	sp3 := schema.NewPackage(s3, nil, nil, nil)
+	m3 := model.New().NewID().Schema(s3.ID()).Key(id.RandomKey()).Project(s3.Project()).MustBuild()
+	fs3 := []*item.Field{item.NewField(sf3.ID(), value.TypeReference.Value(nil).AsMultiple(), nil)}
+	i3 := item.New().NewID().Schema(s3.ID()).Model(m3.ID()).Project(s3.Project()).Thread(id.NewThreadID().Ref()).Fields(fs3).MustBuild()
+
+	page1 := 1
+	perPage1 := 10
+
+	wid := accountdomain.NewWorkspaceID()
+	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
+	}
+
+	opUserNil := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{},
+	}
+
+	type args struct {
+		ctx           context.Context
+		schemaPackage *schema.Package
+		page          *int
+		perPage       *int
+		op            *usecase.Operator
+	}
+	tests := []struct {
+		name        string
+		args        args
+		seedsItems  item.List
+		seedSchemas *schema.Schema
+		seedModels  *model.Model
+		want        *integrationapi.FeatureCollection
+		wantError   error
+	}{
+		{
+			name: "success",
+			args: args{
+				ctx:           context.Background(),
+				schemaPackage: sp1,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            op,
+			},
+			seedsItems:  item.List{i1},
+			seedSchemas: s1,
+			seedModels:  m1,
+			want:        fc1,
+			wantError:   nil,
+		},
+		{
+			name: "success geometry editor type",
+			args: args{
+				ctx:           context.Background(),
+				schemaPackage: sp2,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            op,
+			},
+			seedsItems:  item.List{i2},
+			seedSchemas: s2,
+			seedModels:  m2,
+			want:        fc2,
+			wantError:   nil,
+		},
+		{
+			name: "error no geometry field in this model / integer",
+			args: args{
+				ctx:           context.Background(),
+				schemaPackage: sp3,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            op,
+			},
+			seedsItems:  item.List{i3},
+			seedSchemas: s3,
+			seedModels:  m3,
+			want:        nil,
+			wantError:   rerror.NewE(i18n.T("no geometry field in this model")),
+		},
+		{
+			name: "error operator user is nil",
+			args: args{
+				ctx:           context.Background(),
+				schemaPackage: sp3,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            opUserNil,
+			},
+			want:      nil,
+			wantError: interfaces.ErrInvalidOperator,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+
+			db := memory.New()
+
+			for _, seed := range tt.seedsItems {
+				err := db.Item.Save(ctx, seed)
+				assert.NoError(t, err)
+			}
+
+			if tt.seedSchemas != nil {
+				err := db.Schema.Save(ctx, tt.seedSchemas)
+				assert.NoError(t, err)
+			}
+			if tt.seedModels != nil {
+				err := db.Model.Save(ctx, tt.seedModels)
+				assert.NoError(t, err)
+			}
+			itemUC := NewItem(db, nil)
+			itemUC.ignoreEvent = true
+			result, err := itemUC.ItemsAsGeoJSON(ctx, tt.args.schemaPackage, tt.args.page, tt.args.perPage, tt.args.op)
+
+			assert.Equal(t, tt.want, result.FeatureCollections)
+			assert.Equal(t, tt.wantError, err)
+		})
+	}
 }
