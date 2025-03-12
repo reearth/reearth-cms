@@ -32,6 +32,14 @@ export type MetadataField = Field & {
   type: Extract<FieldType, "Tag" | "Bool" | "Checkbox" | "Date" | "Text" | "URL">;
 };
 
+export type FieldProps = {
+  field: Field;
+  itemGroupId?: string;
+  disabled: boolean;
+  itemHeights?: Record<string, number>;
+  onItemHeightChange?: (id: string, height: number) => void;
+};
+
 export type FieldType =
   | "Text"
   | "TextArea"

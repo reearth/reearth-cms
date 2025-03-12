@@ -30,8 +30,8 @@ func TestCopier_Copy(t *testing.T) {
 	sid1 := id.NewSchemaID()
 	mid2 := id.NewModelID()
 	sid2 := id.NewSchemaID()
-	i1 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).MustBuild()
+	i2 := item.New().ID(id.NewItemID()).Schema(sid1).Model(mid1).Project(id.NewProjectID()).MustBuild()
 
 	_, err := iCol.InsertMany(ctx, []any{i1, i2})
 	assert.NoError(t, err)
