@@ -14,10 +14,7 @@ export type Integration = {
   };
 };
 
-export enum IntegrationType {
-  Private = "Private",
-  Public = "Public",
-}
+export type IntegrationType = "Private" | "Public";
 
 export type Webhook = {
   id: string;
