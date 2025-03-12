@@ -4,7 +4,7 @@ import { expect, test, describe } from "vitest";
 
 import IntegrationWrapper from ".";
 
-describe("IntegrationWrapper", () => {
+describe("Integration wrapper", () => {
   const user = userEvent.setup();
 
   const workspaceIntegrations = [

@@ -21,11 +21,9 @@ const Integration: React.FC = () => {
     hasConnectRight,
     hasUpdateRight,
     hasDeleteRight,
-
     myIntegrations,
     addLoading,
     handleIntegrationConnect,
-
     selectedIntegration,
     updateLoading,
     handleUpdateIntegration,

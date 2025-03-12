@@ -21,11 +21,9 @@ type Props = {
   hasConnectRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
-
   myIntegrations?: Integration[];
   addLoading: boolean;
   onIntegrationConnect: (integrationId: string) => Promise<void>;
-
   selectedIntegration?: WorkspaceIntegration;
   updateLoading: boolean;
   onUpdateIntegration: (role: Role) => Promise<void>;
@@ -45,11 +43,9 @@ const IntegrationWrapper: React.FC<Props> = ({
   hasConnectRight,
   hasUpdateRight,
   hasDeleteRight,
-
   myIntegrations,
   addLoading,
   onIntegrationConnect,
-
   selectedIntegration,
   updateLoading,
   onUpdateIntegration,

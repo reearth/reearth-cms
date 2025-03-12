@@ -4,7 +4,7 @@ import { expect, test, describe, vi } from "vitest";
 
 import IntegrationCard from "./IntegrationCard";
 
-describe("IntegrationCard", () => {
+describe("Integration card", () => {
   const user = userEvent.setup();
 
   const name = "name";

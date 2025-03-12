@@ -6,7 +6,7 @@ import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integrat
 
 import IntegrationTable from ".";
 
-describe("IntegrationTable", () => {
+describe("Integration table", () => {
   const user = userEvent.setup();
 
   const workspaceIntegrations: WorkspaceIntegration[] = [];

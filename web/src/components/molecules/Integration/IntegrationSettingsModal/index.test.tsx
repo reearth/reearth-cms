@@ -4,7 +4,7 @@ import { expect, test, describe, vi } from "vitest";
 
 import IntegrationSettingsModal from ".";
 
-describe("IntegrationSettingsModal", () => {
+describe("Integration settings modal", () => {
   const user = userEvent.setup();
 
   const name = "name";
