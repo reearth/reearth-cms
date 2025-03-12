@@ -4,9 +4,7 @@ import { expect, test } from "vitest";
 import WorkspaceHeader from "./WorkspaceHeader";
 
 const hasCreateRight = true;
-const onProjectSearch = () => {
-  return;
-};
+const onProjectSearch = () => {};
 const onProjectCreate = () => {
   return Promise.resolve();
 };

@@ -9,12 +9,8 @@ const coverImageUrl = undefined;
 const projects: Project[] = [];
 const loading = false;
 const hasCreateRight = true;
-const onProjectSearch = () => {
-  return;
-};
-const onProjectNavigation = () => {
-  return;
-};
+const onProjectSearch = () => {};
+const onProjectNavigation = () => {};
 const onProjectCreate = () => {
   return Promise.resolve();
 };
