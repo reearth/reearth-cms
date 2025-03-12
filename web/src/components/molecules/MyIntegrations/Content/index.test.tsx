@@ -55,9 +55,7 @@ describe("Integration creation modal", () => {
   const onWebhookUpdate = () => {
     return Promise.resolve();
   };
-  const onIntegrationHeaderBack = () => {
-    return Promise.resolve();
-  };
+  const onIntegrationHeaderBack = () => {};
 
   test("Title and tabs are displayed successfully", async () => {
     render(

@@ -30,9 +30,7 @@ describe("Webhook form", () => {
     ],
   };
   const loading = false;
-  const onBack = () => {
-    return;
-  };
+  const onBack = () => {};
   const onWebhookCreate = () => {
     return Promise.resolve();
   };

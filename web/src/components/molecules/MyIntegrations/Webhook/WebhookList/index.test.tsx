@@ -16,12 +16,8 @@ describe("Webhook list", () => {
   const onWebhookUpdate = async () => {
     return Promise.resolve();
   };
-  const onWebhookSelect = () => {
-    return;
-  };
-  const onShowForm = () => {
-    return;
-  };
+  const onWebhookSelect = () => {};
+  const onShowForm = () => {};
 
   test("No webhook text and document link are displayed successfully", async () => {
     render(

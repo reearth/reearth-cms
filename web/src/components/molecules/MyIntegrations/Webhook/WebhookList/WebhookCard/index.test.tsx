@@ -33,9 +33,7 @@ describe("Webhook card", () => {
       }, 100);
     });
   };
-  const onWebhookSelect = () => {
-    return;
-  };
+  const onWebhookSelect = () => {};
 
   test("Name, url, status, setting button, and delete button are displayed successfully", async () => {
     render(
