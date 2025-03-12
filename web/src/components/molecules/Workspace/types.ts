@@ -36,7 +36,6 @@ export type Workspace = {
 };
 
 export type WorkspaceSettings = {
-  id: string;
   tiles?: ResourceList<TileResource>;
   terrains?: ResourceList<TerrainResource>;
 };
