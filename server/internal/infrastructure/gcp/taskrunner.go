@@ -119,6 +119,7 @@ func decompressAsset(ctx context.Context, p task.Payload, conf *TaskConfig) erro
 	}
 
 	build := &cloudbuild.Build{
+		Tags:     []string{"cms_decompress-asset"},
 		Timeout:  "86400s", // 1 day
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
@@ -172,6 +173,7 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	dbSecretName := conf.DBSecretName
 
 	build := &cloudbuild.Build{
+		Tags:     []string{"cms_copy-items"},
 		Timeout:  "86400s", // 1 day
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
@@ -219,7 +221,7 @@ func copyItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 
 func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	if !p.Import.Validate() {
-		return nil
+		return rerror.Fmt("invalid import payload")
 	}
 
 	cb, err := cloudbuild.NewService(ctx)
@@ -268,6 +270,7 @@ func importItems(ctx context.Context, p task.Payload, conf *TaskConfig) error {
 	}
 
 	build := &cloudbuild.Build{
+		Tags:     []string{"cms_import-items"},
 		Timeout:  "86400s", // 1 day
 		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{

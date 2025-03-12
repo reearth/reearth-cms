@@ -1,10 +1,12 @@
+import { User } from "@reearth-cms/components/molecules/Member/types";
+
 export type Integration = {
   id: string;
   name: string;
   description?: string | null;
   logoUrl: string;
   developerId: string;
-  developer: Developer;
+  developer: User;
   iType: IntegrationType;
   config: {
     token?: string;
@@ -14,16 +16,7 @@ export type Integration = {
 
 export type IntegrationInfo = Pick<Integration, "name" | "description" | "logoUrl">;
 
-export type Developer = {
-  id: string;
-  name: string;
-  email: string;
-};
-
-export enum IntegrationType {
-  Private = "Private",
-  Public = "Public",
-}
+export type IntegrationType = "Private" | "Public";
 
 export type Webhook = {
   id: string;
@@ -48,11 +41,6 @@ export type TriggerKey =
 
 export type WebhookTrigger = { [key in TriggerKey]?: boolean | null };
 
-export type WebhookValues = {
-  id: string;
-  name: string;
-  url: string;
-  active: boolean;
-  secret: string;
+export type WebhookValues = Webhook & {
   trigger: TriggerKey[];
 };
