@@ -73,15 +73,13 @@ export default () => {
   });
 
   const handlePublicUpdate = useCallback(
-    async (settings: FormType, changedModels: Map<string, boolean>) => {
+    async ({ scope, assetPublic }: FormType, changedModels: Map<string, boolean>) => {
       if (!currentProject?.id) return;
       setUpdateLoading(true);
       try {
-        const { alias, scope, assetPublic } = settings;
         if (initialValues.scope !== scope || initialValues.assetPublic !== assetPublic) {
           const projRes = await updateProjectMutation({
             variables: {
-              alias,
               projectId: currentProject.id,
               publication: {
                 scope: scopeConvert(scope),

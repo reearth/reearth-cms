@@ -4,7 +4,7 @@ import { expect, test, describe } from "vitest";
 
 import CreateProjectButton from "./CreateProjectButton";
 
-describe("CreateProjectButton", () => {
+describe("Create project button", () => {
   const user = userEvent.setup();
 
   const onProjectCreate = () => {

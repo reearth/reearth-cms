@@ -32,6 +32,14 @@ export type MetadataField = Field & {
   type: Extract<FieldType, "Tag" | "Bool" | "Checkbox" | "Date" | "Text" | "URL">;
 };
 
+export type FieldProps = {
+  field: Field;
+  itemGroupId?: string;
+  disabled: boolean;
+  itemHeights?: Record<string, number>;
+  onItemHeightChange?: (id: string, height: number) => void;
+};
+
 export type FieldType =
   | "Text"
   | "TextArea"
@@ -81,11 +89,11 @@ export type CorrespondingField = {
 };
 
 export type TypeProperty = {
-  defaultValue?: string | boolean | string[] | boolean[];
+  defaultValue?: string | string[] | boolean | boolean[] | null;
   maxLength?: number;
-  assetDefaultValue?: string;
-  selectDefaultValue?: string | string[];
-  integerDefaultValue?: number;
+  assetDefaultValue?: string | string[] | null;
+  selectDefaultValue?: string | string[] | null;
+  integerDefaultValue?: number | number[] | null;
   min?: number;
   max?: number;
   numberMin?: number;

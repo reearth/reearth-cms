@@ -26,9 +26,6 @@ func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gq
 	}
 
 	op := getOperator(ctx)
-	if err != nil {
-		return nil, []error{err}
-	}
 
 	res, err := c.usecase.FindByIDs(ctx, iIDs, op)
 	if err != nil {

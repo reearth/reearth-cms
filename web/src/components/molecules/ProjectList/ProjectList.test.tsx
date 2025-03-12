@@ -1,9 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, describe } from "vitest";
 
+import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+
 import ProjectList from "./ProjectList";
 
-describe("ProjectList", () => {
+describe("Project list", () => {
+  const hasCreateRight = true;
+  const projects: Project[] = [];
   const loading = false;
   const onProjectNavigation = () => {
     return Promise.resolve();
@@ -18,9 +22,9 @@ describe("ProjectList", () => {
   test("Loading displays successfully", () => {
     render(
       <ProjectList
-        hasCreateRight={true}
-        projects={undefined}
-        loading={loading}
+        hasCreateRight={hasCreateRight}
+        projects={projects}
+        loading={true}
         onProjectNavigation={onProjectNavigation}
         onProjectCreate={onProjectCreate}
         onProjectAliasCheck={onProjectAliasCheck}
@@ -33,8 +37,8 @@ describe("ProjectList", () => {
   test("Creating button and document link displays successfully", () => {
     render(
       <ProjectList
-        hasCreateRight={true}
-        projects={[]}
+        hasCreateRight={hasCreateRight}
+        projects={projects}
         loading={loading}
         onProjectNavigation={onProjectNavigation}
         onProjectCreate={onProjectCreate}
@@ -50,7 +54,7 @@ describe("ProjectList", () => {
     render(
       <ProjectList
         hasCreateRight={false}
-        projects={[]}
+        projects={projects}
         loading={loading}
         onProjectNavigation={onProjectNavigation}
         onProjectCreate={onProjectCreate}
@@ -64,7 +68,7 @@ describe("ProjectList", () => {
   test("Project cards display successfully", () => {
     const name = "name";
     const description = "description";
-    const projects = [
+    const testProjects = [
       {
         id: "id1",
         name,
@@ -79,8 +83,8 @@ describe("ProjectList", () => {
 
     render(
       <ProjectList
-        hasCreateRight={true}
-        projects={projects}
+        hasCreateRight={hasCreateRight}
+        projects={testProjects}
         loading={loading}
         onProjectNavigation={onProjectNavigation}
         onProjectCreate={onProjectCreate}
@@ -88,6 +92,6 @@ describe("ProjectList", () => {
       />,
     );
 
-    expect(screen.getAllByText(name).length).toBe(projects.length);
+    expect(screen.getAllByText(name).length).toBe(testProjects.length);
   });
 });

@@ -57,6 +57,91 @@ func TestIntegrationModelGetAPI(t *testing.T) {
 	obj.Value("lastModified").NotNull()
 }
 
+// POST /models/{modelId}/copy
+func TestIntegrationModelCopy(t *testing.T) {
+	endpoint := "/api/models/{modelId}/copy"
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.POST(endpoint, id.NewModelID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(endpoint, id.NewModelID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(endpoint, id.NewModelID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	oldModelId := mId1.String()
+	oldModel := e.GET("/api/models/{modelId}", oldModelId).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	newName := "new name"
+	newKey := id.RandomKey().Ref().StringRef()
+	newModel := e.POST(endpoint, oldModelId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"name": newName,
+			"key":  newKey,
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	newModel.
+		ContainsKey("id").
+		ContainsKey("projectId").
+		ContainsKey("schemaId").
+		ContainsKey("public").
+		ContainsKey("createdAt").
+		ContainsKey("updatedAt").
+		ContainsKey("key")
+
+	newModelID := newModel.Value("id").String()
+	newModelID.NotEqual(oldModelId)
+	copiedModel := e.GET("/api/models/{modelId}", newModelID.Raw()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	copiedModel.
+		HasValue("id", newModelID.Raw()).
+		HasValue("projectId", oldModel.Value("projectId").String().Raw()).
+		HasValue("public", oldModel.Value("public").Boolean().Raw()).
+		HasValue("name", newName).
+		HasValue("key", newKey).
+		HasValue("description", oldModel.Value("description").String().Raw())
+
+	copiedModel.Value("schemaId").NotNull()
+	oldSchemaId := oldModel.Value("schemaId").String()
+	copiedSchemaId := copiedModel.Value("schemaId").String()
+	copiedSchemaId.NotEqual(oldSchemaId.Raw())
+
+	oldSchema := oldModel.Value("schema").Object()
+	copiedSchema := copiedModel.Value("schema").Object()
+	copiedSchema.Value("fields").Array().Length().IsEqual(oldSchema.Value("fields").Array().Length().Raw())
+	copiedSchema.Value("titleField").String().IsEqual(oldSchema.Value("titleField").String().Raw())
+
+	copiedModel.Value("metadataSchemaId").NotNull()
+	oldMetadataSchemaId := oldModel.Value("metadataSchemaId").String()
+	copiedMetadataSchemaId := copiedModel.Value("metadataSchemaId").String()
+	copiedMetadataSchemaId.NotEqual(oldMetadataSchemaId.Raw())
+
+	oldMetadataSchema := oldModel.Value("metadataSchema").Object()
+	copiedMetadataSchema := copiedModel.Value("metadataSchema").Object()
+	copiedMetadataSchema.Value("fields").Array().Length().IsEqual(oldMetadataSchema.Value("fields").Array().Length().Raw())
+}
+
 // PATCH /models/{modelId}
 func TestIntegrationModelUpdateAPI(t *testing.T) {
 	endpoint := "/api/models/{modelId}"
@@ -173,9 +258,9 @@ func TestIntegrationModelDeleteAPI(t *testing.T) {
 
 }
 
-// GET /projects/{projectIdOrKey}/models
+// GET /projects/{projectIdOrAlias}/models
 func TestIntegrationModelFilterAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrKey}/models"
+	endpoint := "/api/projects/{projectIdOrAlias}/models"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	e.GET(endpoint, id.NewProjectID()).
@@ -264,9 +349,9 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 		Expect())
 }
 
-// POST /projects/{projectIdOrKey}/models
+// POST /projects/{projectIdOrAlias}/models
 func TestIntegrationModelCreateAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrKey}/models"
+	endpoint := "/api/projects/{projectIdOrAlias}/models"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	e.POST(endpoint, id.NewProjectID()).

@@ -6,7 +6,7 @@ type Request implements Node {
   createdById: ID!
   workspaceId: ID!
   projectId: ID!
-  threadId: ID!
+  threadId: ID
   reviewersId: [ID!]!
   state: RequestState!
   createdAt: DateTime!

@@ -1,3 +1,4 @@
+import { NetworkStatus } from "@apollo/client";
 import { Ion, Viewer as CesiumViewer } from "cesium";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -47,14 +48,14 @@ export default (assetId?: string) => {
   const [collapsed, setCollapsed] = useState(true);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
-  const { data: rawAsset, loading } = useGetAssetItemQuery({
+  const { data: rawAsset, networkStatus } = useGetAssetItemQuery({
     variables: {
       assetId: assetId ?? "",
     },
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: rawFile, loading: loading2 } = useGetAssetFileQuery({
+  const { data: rawFile, loading: fileLoading } = useGetAssetFileQuery({
     variables: {
       assetId: assetId ?? "",
     },
@@ -240,7 +241,7 @@ export default (assetId?: string) => {
   return {
     asset,
     assetFileExt,
-    isLoading: loading || loading2,
+    isLoading: networkStatus === NetworkStatus.loading || fileLoading,
     selectedPreviewType,
     isModalVisible,
     collapsed,

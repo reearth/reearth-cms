@@ -1,6 +1,8 @@
 package file
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"mime"
@@ -15,10 +17,11 @@ import (
 )
 
 type File struct {
-	Content     io.ReadCloser
-	Name        string
-	Size        int64
-	ContentType string
+	Content         io.ReadCloser
+	Name            string
+	Size            int64
+	ContentType     string
+	ContentEncoding string
 }
 
 func FromMultipart(multipartReader *multipart.Reader, formName string) (*File, error) {
@@ -53,13 +56,21 @@ func FromMultipart(multipartReader *multipart.Reader, formName string) (*File, e
 	return nil, rerror.NewE(i18n.T("file not found"))
 }
 
-func FromURL(rawURL string) (*File, error) {
+func FromURL(ctx context.Context, rawURL string) (*File, error) {
 	URL, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := http.Get(URL.String())
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, URL.String(), nil)
+	if err != nil {
+		return nil, errors.New("failed to request")
+	}
+
+	// TODO: support gzip
+	// req.Header.Set("Accept-Encoding", "gzip")
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
 	}
@@ -69,6 +80,10 @@ func FromURL(rawURL string) (*File, error) {
 	}
 
 	ct := res.Header.Get("Content-Type")
+	ce := res.Header.Get("Content-Encoding")
+	if ce != "" && ce != "gzip" {
+		return nil, fmt.Errorf("unsupported content encoding: %s", ce)
+	}
 	fs, _ := strconv.ParseInt(res.Header.Get("Content-Length"), 10, 64)
 
 	fn := path.Base(URL.Path)
@@ -78,9 +93,10 @@ func FromURL(rawURL string) (*File, error) {
 	}
 
 	return &File{
-		Content:     res.Body,
-		Name:        fn,
-		ContentType: ct,
-		Size:        fs,
+		Content:         res.Body,
+		Name:            fn,
+		ContentType:     ct,
+		ContentEncoding: ce,
+		Size:            fs,
 	}, nil
 }

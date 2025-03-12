@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 
 import ProjectCreationModal from ".";
 
-test("ProjectCreationModal works successfully", async () => {
+test("Project creation modal works successfully", async () => {
   const user = userEvent.setup();
 
   const onClose = () => {};
@@ -36,7 +36,7 @@ test("ProjectCreationModal works successfully", async () => {
   await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
 
   await user.clear(aliasInput);
-  await expect.poll(() => screen.getByRole("alert")).toBeVisible();
+  expect(await screen.findByRole("alert")).toBeVisible();
   await expect.poll(() => saveButton).toHaveAttribute("disabled");
 
   await user.type(aliasInput, "alias");
@@ -44,7 +44,7 @@ test("ProjectCreationModal works successfully", async () => {
   await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
 
   await user.clear(nameInput);
-  await expect.poll(() => screen.getByRole("alert")).toBeVisible();
+  expect(await screen.findByRole("alert")).toBeVisible();
   await expect.poll(() => saveButton).toHaveAttribute("disabled");
 
   await user.type(nameInput, "a");

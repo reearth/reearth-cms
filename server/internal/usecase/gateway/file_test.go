@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIssueUploadAssetParam_ContentType(t *testing.T) {
+func TestIssueUploadAssetParam_GetOrGuessContentType(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields IssueUploadAssetParam
@@ -39,7 +39,7 @@ func TestIssueUploadAssetParam_ContentType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, tt.fields.ContentType())
+			assert.Equal(t, tt.want, tt.fields.GetOrGuessContentType())
 		})
 	}
 }

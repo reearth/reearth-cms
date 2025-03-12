@@ -3,6 +3,7 @@ package fs
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"net/url"
@@ -42,9 +43,9 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	}, nil
 }
 
-func (f *fileRepo) ReadAsset(_ context.Context, fileUUID string, fn string) (io.ReadCloser, error) {
+func (f *fileRepo) ReadAsset(_ context.Context, fileUUID string, fn string, _ map[string]string) (io.ReadCloser, map[string]string, error) {
 	if fileUUID == "" || fn == "" {
-		return nil, rerror.ErrNotFound
+		return nil, nil, rerror.ErrNotFound
 	}
 
 	p := getFSObjectPath(fileUUID, fn)
@@ -96,6 +97,9 @@ func (f *fileRepo) UploadAsset(_ context.Context, file *file.File) (string, int6
 	if file.Size >= fileSizeLimit {
 		return "", 0, gateway.ErrFileTooLarge
 	}
+	if file.ContentEncoding != "" && file.ContentEncoding != "identity" {
+		return "", 0, gateway.ErrUnsupportedContentEncoding
+	}
 
 	fileUUID := newUUID()
 
@@ -134,19 +138,34 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 
 // helpers
 
-func (f *fileRepo) read(filename string) (io.ReadCloser, error) {
+func (f *fileRepo) read(filename string) (io.ReadCloser, map[string]string, error) {
 	if filename == "" {
-		return nil, rerror.ErrNotFound
+		return nil, nil, rerror.ErrNotFound
+	}
+
+	stat, err := f.fs.Stat(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, rerror.ErrInternalBy(err)
 	}
 
 	file, err := f.fs.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, rerror.ErrNotFound
+			return nil, nil, rerror.ErrNotFound
 		}
-		return nil, rerror.ErrInternalBy(err)
+		return nil, nil, rerror.ErrInternalBy(err)
 	}
-	return file, nil
+
+	headers := map[string]string{
+		"Content-Type":   "application/octet-stream",
+		"Last-Modified":  stat.ModTime().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"),
+		"Content-Length": fmt.Sprintf("%d", stat.Size()),
+	}
+
+	return file, headers, nil
 }
 
 func (f *fileRepo) upload(filename string, content io.Reader) (int64, error) {

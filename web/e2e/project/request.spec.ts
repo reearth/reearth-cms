@@ -47,6 +47,7 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await page.getByRole("heading", { name: "Reviewer" }).click();
   await page.getByRole("button", { name: "Approve" }).click();
   await closeNotification(page);
+  await page.getByLabel("back").click();
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
   await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
   await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
@@ -63,6 +64,7 @@ test("Request closing and reopening has succeeded", async ({ page }) => {
 
   await page.getByRole("button", { name: "Close" }).click();
   await closeNotification(page);
+  await page.getByLabel("back").click();
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
   await expect(page.locator("tbody").getByText("WAITING")).toBeHidden();
 
@@ -136,20 +138,19 @@ test("Creating a new request and adding to request has succeeded", async ({ page
 });
 
 test("Navigating between item and request has succeeded", async ({ page }) => {
-  await page.getByRole("button", { name: requestTitle }).first().click();
+  await page.getByRole("tab", { name: "Version History" }).click();
+  await page.getByRole("link", { name: requestTitle }).click();
   await expect(page.getByText(`Request / ${requestTitle}`)).toBeVisible();
   await expect(page.getByRole("heading", { name: requestTitle })).toBeVisible();
+  await page.getByRole("button", { name: "Approve" }).click();
+  await closeNotification(page);
   await page.getByRole("button", { name: itemTitle }).last().click();
+  await expect(page.getByLabel(`${titleFieldName}Title`)).toHaveValue(itemTitle);
   await page.getByLabel(`${titleFieldName}Title`).click();
-  await page.getByLabel(`${titleFieldName}Title`).fill("");
+  await page.getByLabel(`${titleFieldName}Title`).clear();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  const itemId = await page
-    .getByRole("main")
-    .locator("p")
-    .filter({ hasText: "ID" })
-    .locator("div > span")
-    .innerText();
+  const itemId = page.url().split("/").at(-1);
   await expect(page.getByText(`${modelName} / ${itemId}`)).toBeVisible();
   const newRequestTitle = "newRequestTitle";
   await createRequest(page, newRequestTitle);
@@ -157,7 +158,8 @@ test("Navigating between item and request has succeeded", async ({ page }) => {
   await page.getByLabel(`${titleFieldName}Title`).fill("newItemTitle");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await page.getByRole("button", { name: newRequestTitle }).first().click();
+  await page.getByRole("tab", { name: "Version History" }).click();
+  await page.getByRole("link", { name: requestTitle }).click();
   await expect(
     page.getByRole("button", { name: `collapsed ${modelName} / ${itemId}` }),
   ).toBeVisible();

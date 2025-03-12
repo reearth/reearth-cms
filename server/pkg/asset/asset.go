@@ -3,6 +3,7 @@ package asset
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 )
@@ -17,12 +18,14 @@ type Asset struct {
 	size                    uint64
 	previewType             *PreviewType
 	uuid                    string
-	thread                  ThreadID
+	thread                  *ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
 	flatFiles               bool
 }
 
 type URLResolver = func(*Asset) string
+
+// getters
 
 func (a *Asset) ID() ID {
 	return a.id
@@ -74,13 +77,29 @@ func (a *Asset) ArchiveExtractionStatus() *ArchiveExtractionStatus {
 	return a.archiveExtractionStatus
 }
 
+func (a *Asset) Thread() *ThreadID {
+	return a.thread
+}
+
+func (a *Asset) FlatFiles() bool {
+	return a.flatFiles
+}
+
+// setters
+
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
 	a.previewType = util.CloneRef(p)
+}
+
+func (a *Asset) SetThread(thid id.ThreadID) {
+	a.thread = &thid
 }
 
 func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
 	a.archiveExtractionStatus = util.CloneRef(s)
 }
+
+// methods
 
 func (a *Asset) Clone() *Asset {
 	if a == nil {
@@ -97,16 +116,8 @@ func (a *Asset) Clone() *Asset {
 		size:                    a.size,
 		previewType:             a.previewType,
 		uuid:                    a.uuid,
-		thread:                  a.thread.Clone(),
+		thread:                  a.thread.CloneRef(),
 		archiveExtractionStatus: a.archiveExtractionStatus,
 		flatFiles:               a.flatFiles,
 	}
-}
-
-func (a *Asset) Thread() ThreadID {
-	return a.thread
-}
-
-func (a *Asset) FlatFiles() bool {
-	return a.flatFiles
 }

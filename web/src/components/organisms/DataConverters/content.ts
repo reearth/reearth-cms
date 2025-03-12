@@ -4,6 +4,7 @@ import {
   Comment,
   ItemField,
   ItemAsset,
+  VersionedItem,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Schema } from "@reearth-cms/components/molecules/Schema/types";
@@ -13,6 +14,7 @@ import {
   Item as GQLItem,
   Comment as GQLComment,
   Request as GQLRequest,
+  VersionedItem as GQLVersionedItem,
 } from "@reearth-cms/gql/graphql-client-api";
 
 export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined => {
@@ -143,3 +145,39 @@ export const fromGraphQLComment = (GQLComment: GQLComment): Comment => {
     createdAt: GQLComment.createdAt.toString(),
   };
 };
+
+export const fromGraphQLversionsByItem = (GQLVersionsByItem: GQLVersionedItem[]): VersionedItem[] =>
+  GQLVersionsByItem.map(version => {
+    const requests =
+      version.value.requests
+        ?.filter(
+          request =>
+            request.state === "WAITING" &&
+            request.items.some(
+              item =>
+                item.item?.value.modelId === version.value.modelId &&
+                item.itemId === version.value.id &&
+                item.version === version.version,
+            ),
+        )
+        .map(request => ({
+          id: request.id,
+          title: request.title,
+        })) ?? [];
+    return {
+      version: version.version,
+      status: version.refs.includes("public") ? "PUBLIC" : requests.length ? "REVIEW" : "DRAFT",
+      timestamp: version.value.updatedAt ?? version.value.createdAt,
+      creator: { name: version.value.updatedBy?.name ?? version.value.createdBy?.name ?? "" },
+      fields: version.value.fields.map(
+        field =>
+          ({
+            schemaFieldId: field.schemaFieldId,
+            itemGroupId: field.itemGroupId,
+            type: field.type,
+            value: field.value,
+          }) as ItemField,
+      ),
+      requests,
+    };
+  });

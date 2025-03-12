@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 
 import WorkspaceCreationModal from ".";
 
-test("WorkspaceCreationModal works successfully", async () => {
+test("Workspace creation modal works successfully", async () => {
   const user = userEvent.setup();
 
   const onClose = () => {};
@@ -24,5 +24,5 @@ test("WorkspaceCreationModal works successfully", async () => {
   expect(saveButton).not.toHaveAttribute("disabled");
   await user.clear(input);
   expect(saveButton).toHaveAttribute("disabled");
-  expect(screen.queryByRole("alert")).toBeVisible();
+  expect(await screen.findByRole("alert")).toBeVisible();
 });

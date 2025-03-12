@@ -6,7 +6,7 @@ const Workspace: React.FC = () => {
   const {
     coverImageUrl,
     projects,
-    loadingProjects,
+    loading,
     hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,
@@ -19,7 +19,7 @@ const Workspace: React.FC = () => {
     <WorkspaceWrapper
       coverImageUrl={coverImageUrl}
       projects={projects}
-      loadingProjects={loadingProjects}
+      loading={loading}
       hasCreateRight={hasCreateRight}
       onProjectSearch={handleProjectSearch}
       onProjectNavigation={handleProjectNavigation}
