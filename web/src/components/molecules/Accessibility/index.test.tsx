@@ -68,8 +68,9 @@ describe("Accessibility", () => {
     expect(saveButton).toHaveAttribute("disabled");
 
     await user.click(scopeSelect);
-    expect(await screen.findByText("Limited")).toBeVisible();
-    expect(await screen.findByText("Public")).toBeVisible();
+    await expect.poll(() => screen.getByRole("listbox")).toBeVisible();
+    expect(screen.getByText("Limited")).toBeVisible();
+    expect(screen.getByText("Public")).toBeVisible();
   });
 
   test("Toggle save button successfully", async () => {
@@ -91,6 +92,7 @@ describe("Accessibility", () => {
     const scopeSelect = screen.getByRole("combobox");
     const saveButton = screen.getByRole("button", { name: "Save changes" });
     const switches = screen.getAllByRole("switch");
+    const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
 
     await user.click(scopeSelect);
@@ -102,6 +104,14 @@ describe("Accessibility", () => {
     await user.click(await screen.findByText("Private"));
 
     expect(screen.getAllByText("Private")[1]).toBeVisible();
+    await expect.poll(() => saveButton).toHaveAttribute("disabled");
+
+    await user.click(model1Switch);
+    await expect.poll(() => model1Switch).toBeChecked();
+    await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
+
+    await user.click(model1Switch);
+    await expect.poll(() => model1Switch).not.toBeChecked();
     await expect.poll(() => saveButton).toHaveAttribute("disabled");
 
     await user.click(assetSwitch);
