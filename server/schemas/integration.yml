@@ -1360,6 +1360,7 @@ paths:
         - $ref: '#/components/parameters/pageParam'
         - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/keywordParam'
+        - $ref: '#/components/parameters/contentTypesParam'
       responses:
         '200':
           description: assets list
@@ -1381,6 +1382,10 @@ paths:
                   perPage:
                     type: integer
                     minimum: 1
+                  contentTypes:
+                    type: array
+                    items:
+                      type: string
         '400':
           description: Invalid request parameter value
         '401':
@@ -1803,6 +1808,14 @@ components:
       required: false
       schema:
         type: string
+    contentTypesParam:
+      name: contentType
+      in: header
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
   schemas:
     project:
       type: object

@@ -45,9 +45,10 @@ var (
 )
 
 type AssetFilter struct {
-	Sort       *usecasex.Sort
-	Keyword    *string
-	Pagination *usecasex.Pagination
+	Sort        *usecasex.Sort
+	Keyword     *string
+	Pagination  *usecasex.Pagination
+	ContentType *[]string
 }
 
 type AssetUpload struct {

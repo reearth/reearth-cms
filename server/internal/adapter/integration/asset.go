@@ -32,13 +32,13 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	f := interfaces.AssetFilter{
+	filter := interfaces.AssetFilter{
 		Keyword:    request.Params.Keyword,
 		Sort:       sort,
 		Pagination: p,
 	}
 
-	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, f, op)
+	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, filter, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetFilter404Response{}, err
@@ -46,7 +46,19 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 		return AssetFilter400Response{}, err
 	}
 
+	fileMap, err := uc.Asset.FindFilesByIDs(ctx, assets.IDs(), op)
+	if err != nil {
+		return AssetFilter400Response{}, err
+	}
+
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
+		// content type filter
+		if filter.ContentType != nil {
+			file, ok := fileMap[a.ID()]
+			if !ok && lo.Contains(*filter.ContentType, file.ContentType()) {
+				return integrationapi.Asset{}, nil
+			}
+		}
 		aurl := uc.Asset.GetURL(a)
 		aa := integrationapi.NewAsset(a, nil, aurl, true)
 		return *aa, nil
