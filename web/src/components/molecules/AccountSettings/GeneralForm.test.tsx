@@ -32,19 +32,19 @@ test("General form works successfully", async () => {
 
   await user.clear(nameInput);
   expect(saveButton).toHaveAttribute("disabled");
-  expect(await screen.findByRole("alert")).toBeVisible();
+  await expect.poll(() => nameInput).toBeInvalid();
 
   await user.type(nameInput, name);
   expect(saveButton).toHaveAttribute("disabled");
-  await expect.poll(() => screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(nameInput).toBeValid();
 
   await user.clear(emailInput);
   expect(saveButton).toHaveAttribute("disabled");
-  expect(await screen.findByRole("alert")).toBeVisible();
+  await expect.poll(() => emailInput).toBeInvalid();
 
   await user.type(emailInput, "test@test.com");
   expect(saveButton).not.toHaveAttribute("disabled");
-  await expect.poll(() => screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(emailInput).toBeValid();
 
   await user.click(saveButton);
   expect(saveButton).toHaveAttribute("disabled");
