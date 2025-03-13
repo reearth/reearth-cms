@@ -32,6 +32,8 @@ func TestIntegrationSchemaFilterAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 0).
 		WithQuery("perPage", 5).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect().
 		Status(http.StatusNotFound)
 
@@ -91,12 +93,16 @@ func TestIntegrationSchemaFilterAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect())
 
 	assertRes(t, e.GET(endpoint, palias).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect())
 
 	res := e.GET(endpoint, palias).
@@ -104,6 +110,8 @@ func TestIntegrationSchemaFilterAPI(t *testing.T) {
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
 		WithQuery("keyword", "m1").
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect()
 
 	models := res.Status(http.StatusOK).
