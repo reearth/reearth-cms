@@ -14,6 +14,8 @@ export type Integration = {
   };
 };
 
+export type IntegrationInfo = Pick<Integration, "name" | "description" | "logoUrl">;
+
 export type IntegrationType = "Private" | "Public";
 
 export type Webhook = {
@@ -25,17 +27,20 @@ export type Webhook = {
   trigger: WebhookTrigger;
 };
 
-export type WebhookTrigger = {
-  onItemCreate?: boolean | null;
-  onItemUpdate?: boolean | null;
-  onItemDelete?: boolean | null;
-  onItemPublish?: boolean | null;
-  onItemUnPublish?: boolean | null;
-  onAssetUpload?: boolean | null;
-  onAssetDecompress?: boolean | null;
-  onAssetDelete?: boolean | null;
-};
+export type NewWebhook = Omit<Webhook, "id">;
+
+export type TriggerKey =
+  | "onItemCreate"
+  | "onItemUpdate"
+  | "onItemDelete"
+  | "onItemPublish"
+  | "onItemUnPublish"
+  | "onAssetUpload"
+  | "onAssetDecompress"
+  | "onAssetDelete";
+
+export type WebhookTrigger = { [key in TriggerKey]?: boolean | null };
 
 export type WebhookValues = Webhook & {
-  trigger: string[];
+  trigger: TriggerKey[];
 };

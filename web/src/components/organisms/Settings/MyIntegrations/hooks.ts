@@ -14,7 +14,7 @@ import { useT } from "@reearth-cms/i18n";
 export default () => {
   const t = useT();
 
-  const { data } = useGetMeQuery();
+  const { data, loading } = useGetMeQuery();
 
   const [createNewIntegration, { loading: createLoading }] = useCreateIntegrationMutation({
     refetchQueries: ["GetMe"],
@@ -54,6 +54,7 @@ export default () => {
   );
 
   return {
+    loading,
     integrations,
     createLoading,
     handleIntegrationCreate,

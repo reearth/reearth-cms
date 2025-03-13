@@ -259,6 +259,7 @@ describe("Member table", () => {
     await user.click(screen.getByLabelText("Select all"));
     await user.click(screen.getByRole("button", { name: "usergroup-delete Remove" }));
     const dialog = screen.getByRole("dialog");
+    await expect.poll(() => dialog).toBeVisible();
     expect(getByText(dialog, secondMember.name)).toBeVisible();
     expect(getByText(dialog, secondMember.email)).toBeVisible();
     expect(getByText(dialog, thirdMember.name)).toBeVisible();
@@ -300,7 +301,7 @@ describe("Member table", () => {
 
     await user.click(screen.getByRole("button", { name: "Remove" }));
     const dialog = screen.getByRole("dialog");
-    expect(getByText(dialog, secondMember.name)).toBeVisible();
+    await expect.poll(() => getByText(dialog, secondMember.name)).toBeVisible();
     expect(getByText(dialog, secondMember.email)).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Yes" }));

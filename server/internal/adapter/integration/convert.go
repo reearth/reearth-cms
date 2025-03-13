@@ -228,18 +228,20 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 	return nil
 }
 
-func toModelSort(sort integrationapi.SortParam, dir *integrationapi.SortDirParam) *model.Sort {
-	direction := model.DirectionAsc
-	if dir != nil && *dir == integrationapi.SortDirParamDesc {
-		direction = model.DirectionDesc
+func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *model.Sort {
+	direction := model.DirectionDesc
+	if dir != nil && *dir == integrationapi.SortDirParamAsc {
+		direction = model.DirectionAsc
 	}
 
-	column := model.ColumnOrder
-	switch sort {
-	case integrationapi.SortParamCreatedAt:
-		column = model.ColumnCreatedAt
-	case integrationapi.SortParamUpdatedAt:
-		column = model.ColumnUpdatedAt
+	column := model.ColumnCreatedAt
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = model.ColumnCreatedAt
+		case integrationapi.SortParamUpdatedAt:
+			column = model.ColumnUpdatedAt
+		}
 	}
 
 	return &model.Sort{
