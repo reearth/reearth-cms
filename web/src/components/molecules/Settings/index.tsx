@@ -203,7 +203,7 @@ const Settings: React.FC<Props> = ({
 
 export default Settings;
 
-const Title = styled.h1`
+const Title = styled.h3`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
