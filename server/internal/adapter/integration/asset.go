@@ -77,7 +77,7 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 	}
 
 	if len(itemList) == 0 {
-		return AssetFilter404Response{}, rerror.NewE(i18n.T("No assets found"))
+		return AssetFilter404Response{}, rerror.ErrNotFound
 	}
 
 	if len(itemList) < int(pi.TotalCount) {
