@@ -36,22 +36,22 @@ func TestFromPagination(t *testing.T) {
 func TestToModelSort(t *testing.T) {
 	tests := []struct {
 		name     string
-		sort     integrationapi.SortParam
+		sort     *integrationapi.SortParam
 		dir      *integrationapi.SortDirParam
 		expected *model.Sort
 	}{
 		{
 			name: "Default direction (nil dir)",
-			sort: integrationapi.SortParamCreatedAt,
+			sort: lo.ToPtr(integrationapi.SortParamCreatedAt),
 			dir:  nil,
 			expected: &model.Sort{
 				Column:    model.ColumnCreatedAt,
-				Direction: model.DirectionAsc,
+				Direction: model.DirectionDesc,
 			},
 		},
 		{
 			name: "Sort by CreatedAt Asc",
-			sort: integrationapi.SortParamCreatedAt,
+			sort: lo.ToPtr(integrationapi.SortParamCreatedAt),
 			dir:  lo.ToPtr(integrationapi.SortDirParamAsc),
 			expected: &model.Sort{
 				Column:    model.ColumnCreatedAt,
@@ -60,7 +60,7 @@ func TestToModelSort(t *testing.T) {
 		},
 		{
 			name: "Sort by CreatedAt Desc",
-			sort: integrationapi.SortParamCreatedAt,
+			sort: lo.ToPtr(integrationapi.SortParamCreatedAt),
 			dir:  lo.ToPtr(integrationapi.SortDirParamDesc),
 			expected: &model.Sort{
 				Column:    model.ColumnCreatedAt,
@@ -69,7 +69,7 @@ func TestToModelSort(t *testing.T) {
 		},
 		{
 			name: "Sort by UpdatedAt Asc",
-			sort: integrationapi.SortParamUpdatedAt,
+			sort: lo.ToPtr(integrationapi.SortParamUpdatedAt),
 			dir:  lo.ToPtr(integrationapi.SortDirParamAsc),
 			expected: &model.Sort{
 				Column:    model.ColumnUpdatedAt,
@@ -78,7 +78,7 @@ func TestToModelSort(t *testing.T) {
 		},
 		{
 			name: "Sort by UpdatedAt Desc",
-			sort: integrationapi.SortParamUpdatedAt,
+			sort: lo.ToPtr(integrationapi.SortParamUpdatedAt),
 			dir:  lo.ToPtr(integrationapi.SortDirParamDesc),
 			expected: &model.Sort{
 				Column:    model.ColumnUpdatedAt,
@@ -86,11 +86,11 @@ func TestToModelSort(t *testing.T) {
 			},
 		},
 		{
-			name: "Unknown sort param, defaults to ColumnOrder",
-			sort: integrationapi.SortParam("unknown"),
+			name: "Unknown sort param, defaults to ColumnCreatedAt",
+			sort: lo.ToPtr(integrationapi.SortParam("unknown")),
 			dir:  lo.ToPtr(integrationapi.SortDirParamAsc),
 			expected: &model.Sort{
-				Column:    model.ColumnOrder,
+				Column:    model.ColumnCreatedAt,
 				Direction: model.DirectionAsc,
 			},
 		},

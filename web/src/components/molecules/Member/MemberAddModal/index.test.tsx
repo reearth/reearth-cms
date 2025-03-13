@@ -40,7 +40,7 @@ describe("Member add modal", () => {
 
     await user.click(searchInput);
     await user.type(searchInput, "te");
-    expect(await screen.findByText("No result")).toBeVisible();
+    await expect.poll(() => screen.getByText("No result")).toBeVisible();
 
     await user.type(searchInput, "st");
     await expect.poll(() => onUserSearchMock).toHaveBeenCalledWith("test");
@@ -50,7 +50,7 @@ describe("Member add modal", () => {
     expect(screen.getByText(member.name)).toBeVisible();
     expect(screen.getByText(member.email)).toBeVisible();
     await user.click(screen.getByText("Reader"));
-    expect(screen.getByText("Owner")).toBeVisible();
+    await expect.poll(() => screen.getByText("Owner")).toBeVisible();
     expect(screen.getByText("Maintainer")).toBeVisible();
     expect(screen.getByText("Writer")).toBeVisible();
 
@@ -70,7 +70,7 @@ describe("Member add modal", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "loading" })).toBeVisible();
+    await expect.poll(() => screen.getByRole("button", { name: "loading" })).toBeVisible();
     expect(screen.getByRole("button", { name: "loading Add to workspace" })).toBeVisible();
   });
 });
