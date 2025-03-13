@@ -48,9 +48,12 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 		return AssetFilter400Response{}, err
 	}
 
-	fileMap, err := uc.Asset.FindFilesByIDs(ctx, assets.IDs(), op)
-	if err != nil {
-		return AssetFilter400Response{}, err
+	var fileMap map[asset.ID]*asset.File
+	if filter.ContentType != nil {
+		fileMap, err = uc.Asset.FindFilesByIDs(ctx, assets.IDs(), op)
+		if err != nil {
+			return AssetFilter400Response{}, err
+		}
 	}
 
 	itemList, err := util.TryFilterMap(assets, func(a *asset.Asset) (integrationapi.Asset, bool, error) {
