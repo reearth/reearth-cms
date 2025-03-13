@@ -24,7 +24,7 @@ describe("Integration creation modal", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Integration Name")).toBeVisible();
+    await expect.poll(() => screen.getByLabelText("Integration Name")).toBeVisible();
     expect(screen.getByLabelText("Description")).toBeVisible();
   });
 
@@ -80,7 +80,7 @@ describe("Integration creation modal", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "loading Create" })).toBeVisible();
+    await expect.poll(() => screen.getByRole("button", { name: "loading Create" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
   });
 });

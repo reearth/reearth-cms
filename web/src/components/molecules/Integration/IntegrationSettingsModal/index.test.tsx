@@ -34,12 +34,12 @@ describe("Integration settings modal", () => {
       />,
     );
 
-    expect(screen.getByText(name)).toBeVisible();
+    await expect.poll(() => screen.getByText(name)).toBeVisible();
     expect(screen.getByText(description)).toBeVisible();
     expect(screen.getByText("Reader")).toBeVisible();
 
     await user.click(screen.getByLabelText("Role"));
-    expect(screen.getByText("Writer")).toBeVisible();
+    await expect.poll(() => screen.getByText("Writer")).toBeVisible();
     expect(screen.getByText("Maintainer")).toBeVisible();
     expect(screen.getByText("Owner")).toBeVisible();
   });
@@ -54,7 +54,8 @@ describe("Integration settings modal", () => {
         onSubmit={onSubmit}
       />,
     );
-    expect(screen.getByLabelText("loading")).toBeVisible();
+
+    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
   });
 
   test("Save button is toggled successfully", async () => {
@@ -99,7 +100,7 @@ describe("Integration settings modal", () => {
       />,
     );
 
-    expect(screen.getAllByTitle("Reader")[0]).toBeVisible();
+    await expect.poll(() => screen.getAllByTitle("Reader")[0]).toBeVisible();
     expect(saveButton).toBeDisabled();
   });
 

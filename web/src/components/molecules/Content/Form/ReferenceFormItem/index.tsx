@@ -102,7 +102,8 @@ const ReferenceFormItem: React.FC<Props> = ({
           />
           {!disabled && (
             <UnreferButton
-              type="link"
+              color="default"
+              variant="link"
               icon={<Icon icon={"arrowUpRightSlash"} size={16} />}
               onClick={() => {
                 onChange?.();
