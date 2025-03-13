@@ -63,7 +63,7 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 			contentTypeFilterList := convertStringToSlice(*filter.ContentType)
 			file = fileMap[a.ID()]
 
-			if !lo.Contains(contentTypeFilterList, file.ContentType()) {
+			if file == nil || !lo.Contains(contentTypeFilterList, file.ContentType()) {
 				return integrationapi.Asset{}, false, nil
 			}
 		}
