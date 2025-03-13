@@ -137,107 +137,107 @@ func TestIntegrationSchemaFilterSorting(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// createdAt and ascending
-	res1 := e.GET(endpoint, pid).
+	res := e.GET(endpoint, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
 		WithQuery("sort", "createdAt").
 		WithQuery("dir", "asc").
 		Expect()
-	res1.Status(http.StatusOK)
-	models1 := res1.JSON().
+	res.Status(http.StatusOK)
+	models := res.JSON().
 		Object().
 		Value("models").
 		Array()
 
-	models1.Value(0).Object().Value("id").String().IsEqual(mId0.String())
-	models1.Value(1).Object().Value("id").String().IsEqual(mId1.String())
-	models1.Value(2).Object().Value("id").String().IsEqual(mId2.String())
-	models1.Value(3).Object().Value("id").String().IsEqual(mId3.String())
-	models1.Value(4).Object().Value("id").String().IsEqual(mId4.String())
-	models1.Value(5).Object().Value("id").String().IsEqual(mId5.String())
-	models1.Value(6).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(0).Object().Value("id").String().IsEqual(mId0.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(6).Object().Value("id").String().IsEqual(dvmId.String())
 	// createdAt and descending
-	res2 := e.GET(endpoint, pid).
+	res = e.GET(endpoint, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
 		WithQuery("sort", "createdAt").
 		WithQuery("dir", "desc").
 		Expect()
-	res2.Status(http.StatusOK)
-	models2 := res2.JSON().
+	res.Status(http.StatusOK)
+	models = res.JSON().
 		Object().
 		Value("models").
 		Array()
 
-	models2.Value(0).Object().Value("id").String().IsEqual(dvmId.String())
-	models2.Value(1).Object().Value("id").String().IsEqual(mId5.String())
-	models2.Value(2).Object().Value("id").String().IsEqual(mId4.String())
-	models2.Value(3).Object().Value("id").String().IsEqual(mId3.String())
-	models2.Value(4).Object().Value("id").String().IsEqual(mId2.String())
-	models2.Value(5).Object().Value("id").String().IsEqual(mId1.String())
-	models2.Value(6).Object().Value("id").String().IsEqual(mId0.String())
+	models.Value(0).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(6).Object().Value("id").String().IsEqual(mId0.String())
 	// updatedAt and ascending
-	res3 := e.GET(endpoint, pid).
+	res = e.GET(endpoint, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
 		WithQuery("sort", "updatedAt").
 		WithQuery("dir", "asc").
 		Expect()
-	res3.Status(http.StatusOK)
-	models3 := res3.JSON().
+	res.Status(http.StatusOK)
+	models = res.JSON().
 		Object().
 		Value("models").
 		Array()
-	models3.Value(0).Object().Value("id").String().IsEqual(mId0.String())
-	models3.Value(1).Object().Value("id").String().IsEqual(mId1.String())
-	models3.Value(2).Object().Value("id").String().IsEqual(mId2.String())
-	models3.Value(3).Object().Value("id").String().IsEqual(mId3.String())
-	models3.Value(4).Object().Value("id").String().IsEqual(mId4.String())
-	models3.Value(5).Object().Value("id").String().IsEqual(mId5.String())
-	models3.Value(6).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(0).Object().Value("id").String().IsEqual(mId0.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(6).Object().Value("id").String().IsEqual(dvmId.String())
 
 	// updatedAt and descending
-	res4 := e.GET(endpoint, pid).
+	res = e.GET(endpoint, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
 		WithQuery("sort", "updatedAt").
 		WithQuery("dir", "desc").
 		Expect()
-	res4.Status(http.StatusOK)
-	models4 := res4.JSON().
+	res.Status(http.StatusOK)
+	models = res.JSON().
 		Object().
 		Value("models").
 		Array()
-	models4.Value(0).Object().Value("id").String().IsEqual(dvmId.String())
-	models4.Value(1).Object().Value("id").String().IsEqual(mId5.String())
-	models4.Value(2).Object().Value("id").String().IsEqual(mId4.String())
-	models4.Value(3).Object().Value("id").String().IsEqual(mId3.String())
-	models4.Value(4).Object().Value("id").String().IsEqual(mId2.String())
-	models4.Value(5).Object().Value("id").String().IsEqual(mId1.String())
-	models4.Value(6).Object().Value("id").String().IsEqual(mId0.String())
+	models.Value(0).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(6).Object().Value("id").String().IsEqual(mId0.String())
 
 	// no sort provided
-	res5 := e.GET(endpoint, pid).
+	res = e.GET(endpoint, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
 		Expect()
-	res5.Status(http.StatusOK)
-	models5 := res5.JSON().
+	res.Status(http.StatusOK)
+	models = res.JSON().
 		Object().
 		Value("models").
 		Array()
-	models5.Value(0).Object().Value("id").String().IsEqual(mId0.String())
-	models5.Value(1).Object().Value("id").String().IsEqual(mId1.String())
-	models5.Value(2).Object().Value("id").String().IsEqual(mId2.String())
-	models5.Value(3).Object().Value("id").String().IsEqual(mId3.String())
-	models5.Value(4).Object().Value("id").String().IsEqual(mId4.String())
-	models5.Value(5).Object().Value("id").String().IsEqual(mId5.String())
-	models5.Value(6).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(0).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(6).Object().Value("id").String().IsEqual(mId0.String())
 }
 
 // POST /api/models/{modelId}/fields
