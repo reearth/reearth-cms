@@ -86,7 +86,7 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.locator("#root").getByText("Tag2")).toBeVisible();
   await page.getByLabel("Back").click();
   await expect(page.getByText("Tag2")).toBeVisible();
-  await page.getByRole("cell", { name: "Tag2" }).locator("span").nth(1).click();
+  await page.getByRole("cell", { name: "Tag2" }).locator("div").nth(1).click();
   await page
     .locator("div")
     .filter({ hasText: /^Tag1$/ })
