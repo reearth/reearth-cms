@@ -11,11 +11,14 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.1
 	github.com/aws/aws-sdk-go-v2/service/sns v1.34.2
 	github.com/bodgit/sevenzip v1.6.0
+	github.com/google/uuid v1.6.0
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo/v4 v4.13.3
+	github.com/oklog/ulid v1.3.1
+	github.com/reearth/reearth-cms/server v0.0.0-20250313075740-97da4ea2fef9
 	github.com/reearth/reearthx v0.0.0-20250311150653-f0f124027139
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.49.1
