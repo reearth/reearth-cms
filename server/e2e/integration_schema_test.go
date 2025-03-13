@@ -220,7 +220,7 @@ func TestIntegrationSchemaFilterSorting(t *testing.T) {
 	models.Value(5).Object().Value("id").String().IsEqual(mId1.String())
 	models.Value(6).Object().Value("id").String().IsEqual(mId0.String())
 
-	// no sort provided
+	// if no sort is provided default to createdAt and descending
 	res = e.GET(endpoint, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
