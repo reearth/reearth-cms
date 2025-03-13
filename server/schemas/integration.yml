@@ -1383,9 +1383,7 @@ paths:
                     type: integer
                     minimum: 1
                   contentTypes:
-                    type: array
-                    items:
-                      type: string
+                    type: string
         '400':
           description: Invalid request parameter value
         '401':
@@ -1809,13 +1807,12 @@ components:
       schema:
         type: string
     contentTypesParam:
-      name: contentType
-      in: header
+      name: contentTypes
+      in: query
+      description: comma separated content types string
       required: false
       schema:
-        type: array
-        items:
-          type: string
+        type: string
   schemas:
     project:
       type: object

@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/oapi-codegen/runtime"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -33,9 +34,10 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	filter := interfaces.AssetFilter{
-		Keyword:    request.Params.Keyword,
-		Sort:       sort,
-		Pagination: p,
+		Keyword:     request.Params.Keyword,
+		Sort:        sort,
+		Pagination:  p,
+		ContentType: request.Params.ContentTypes,
 	}
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, filter, op)
@@ -51,20 +53,32 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 		return AssetFilter400Response{}, err
 	}
 
-	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		// content type filter
+	itemList, err := util.TryFilterMap(assets, func(a *asset.Asset) (integrationapi.Asset, bool, error) {
+		var file *asset.File
 		if filter.ContentType != nil {
-			file, ok := fileMap[a.ID()]
-			if !ok && lo.Contains(*filter.ContentType, file.ContentType()) {
-				return integrationapi.Asset{}, nil
+
+			contentTypeFilterList := convertStringToSlice(*filter.ContentType)
+			file = fileMap[a.ID()]
+
+			if !lo.Contains(contentTypeFilterList, file.ContentType()) {
+				return integrationapi.Asset{}, false, nil
 			}
 		}
+
 		aurl := uc.Asset.GetURL(a)
-		aa := integrationapi.NewAsset(a, nil, aurl, true)
-		return *aa, nil
+		aa := integrationapi.NewAsset(a, file, aurl, true)
+		return *aa, true, nil
 	})
 	if err != nil {
 		return AssetFilter400Response{}, err
+	}
+
+	if len(itemList) == 0 {
+		return AssetFilter404Response{}, rerror.ErrNotFound
+	}
+
+	if len(itemList) < int(pi.TotalCount) {
+		pi.TotalCount = int64(len(itemList))
 	}
 
 	return AssetFilter200JSONResponse{
@@ -206,4 +220,14 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 		ContentEncoding: lo.EmptyableToPtr(au.ContentEncoding),
 		Next:            lo.EmptyableToPtr(au.Next),
 	}, nil
+}
+
+func convertStringToSlice(input string) []string {
+	splitStrings := strings.Split(input, ",")
+
+	for i := range splitStrings {
+		splitStrings[i] = strings.TrimSpace(splitStrings[i])
+	}
+
+	return splitStrings
 }

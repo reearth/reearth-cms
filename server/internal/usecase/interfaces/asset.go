@@ -48,7 +48,7 @@ type AssetFilter struct {
 	Sort        *usecasex.Sort
 	Keyword     *string
 	Pagination  *usecasex.Pagination
-	ContentType *[]string
+	ContentType *string
 }
 
 type AssetUpload struct {
