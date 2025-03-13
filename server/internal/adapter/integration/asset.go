@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/oapi-codegen/runtime"
@@ -43,6 +44,7 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, filter, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
+			fmt.Println("debug err not found FindByProject: ", err)
 			return AssetFilter404Response{}, err
 		}
 		return AssetFilter400Response{}, err
@@ -77,6 +79,7 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 	}
 
 	if len(itemList) == 0 {
+		fmt.Println("debug err not found item list == 0: ", err)
 		return AssetFilter404Response{}, rerror.ErrNotFound
 	}
 
