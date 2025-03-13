@@ -274,7 +274,7 @@ func TestIntegration_RegenerateToken(t *testing.T) {
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	type args struct {
-		id     integration.ID
+		id integration.ID
 	}
 	tests := []struct {
 		name     string
@@ -425,6 +425,92 @@ func TestIntegration_Delete(t *testing.T) {
 			got, err := db.Integration.FindByID(ctx, tt.args)
 			assert.Nil(t, got)
 			assert.Equal(t, rerror.ErrNotFound, err)
+		})
+	}
+}
+
+func TestIntegration_DeleteMany(t *testing.T) {
+	ts := testSuite()
+
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
+	tests := []struct {
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		args     id.IntegrationIDList
+		wantErr  error
+	}{
+		{
+			name:     "success",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1, ts.I2},
+			args:     []id.IntegrationID{ts.IId1, ts.IId2},
+			wantErr:  nil,
+		},
+		{
+			name:     "success delete some of the data",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1, ts.I2},
+			args:     []id.IntegrationID{ts.IId1},
+			wantErr:  nil,
+		},
+		{
+			name:     "success delete partial data not found",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args:     []id.IntegrationID{ts.IId1, ts.IId2},
+			wantErr:  nil,
+		},
+		{
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds:   []*integration.Integration{ts.I1, ts.I2},
+			args:    []id.IntegrationID{ts.IId1, ts.IId2},
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+				},
+			},
+			seeds:   []*integration.Integration{ts.I1, ts.I2},
+			args:    []id.IntegrationID{ts.IId1, ts.IId2},
+			wantErr: interfaces.ErrOperationDenied,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			defer memory.MockNow(db, ts.Now)
+			for _, s := range tt.seeds {
+				err := db.Integration.Save(ctx, s.Clone())
+				assert.NoError(t, err)
+			}
+
+			i := Integration{
+				repos: db,
+			}
+			err := i.DeleteMany(ctx, tt.args, tt.operator)
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+
+			got, _ := db.Integration.FindByIDs(ctx, tt.args)
+			assert.Nil(t, got)
 		})
 	}
 }

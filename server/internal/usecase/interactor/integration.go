@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -152,6 +153,62 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 			}
 
 			return i.repos.Integration.Remove(ctx, integrationId)
+		})
+}
+
+// DeleteMany deletes multiple integration
+func (i Integration) DeleteMany(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) error {
+	if operator.AcOperator.User == nil {
+		return interfaces.ErrInvalidOperator
+	}
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) error {
+			integrationIDList, err := util.TryMap(ids.Strings(), accountdomain.IntegrationIDFrom)
+			if err != nil {
+				return err
+			}
+
+			integrationList, err := i.repos.Integration.FindByIDs(ctx, ids)
+			if err != nil {
+				return err
+			}
+
+			// check if the operator is the developer of the integrations and if the integration exists
+			foundIntegrationCount := 0
+			for _, in := range integrationList {
+				if in == nil {
+					continue
+				}
+				foundIntegrationCount++
+				if in.Developer() != *operator.AcOperator.User {
+					return interfaces.ErrOperationDenied
+				}
+			}
+
+			if foundIntegrationCount == 0 {
+				return rerror.ErrNotFound
+			}
+
+			workspaceList, err := i.repos.Workspace.FindByIntegrations(ctx, integrationIDList)
+			if err != nil {
+				return err
+			}
+
+			// remove the integrations from the connected workspaces
+			for _, w := range workspaceList {
+				for _, id := range integrationIDList {
+					if err := w.Members().DeleteIntegration(id); err != nil {
+						return err
+					}
+				}
+			}
+
+			err = i.repos.Workspace.SaveAll(ctx, workspaceList)
+			if err != nil {
+				return err
+			}
+
+			return i.repos.Integration.RemoveMany(ctx, ids)
 		})
 }
 
