@@ -36,6 +36,6 @@ test("Workspace wrapper works successfully", () => {
     />,
   );
   expect(screen.getByText(/Welcome/)).toBeVisible();
-  expect(screen.getByRole("textbox")).toBeVisible();
+  expect(screen.getByRole("searchbox")).toBeVisible();
   expect(screen.getByRole("link")).toBeVisible();
 });

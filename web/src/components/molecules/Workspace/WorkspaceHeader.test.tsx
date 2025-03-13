@@ -26,7 +26,7 @@ test("Workspace header works successfully", () => {
     />,
   );
 
-  expect(screen.getByRole("textbox")).toBeVisible();
+  expect(screen.getByRole("searchbox")).toBeVisible();
   expect(screen.getByRole("button", { name: "Create a Workspace" })).toBeVisible();
   expect(screen.getByRole("button", { name: "plus New Project" })).toBeVisible();
 });

@@ -18,11 +18,11 @@ test("Workspace creation modal works successfully", async () => {
   const saveButton = screen.getByRole("button", { name: "OK" });
 
   expect(saveButton).toHaveAttribute("disabled");
-  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(input).toBeValid();
 
   await user.type(input, "test");
   expect(saveButton).not.toHaveAttribute("disabled");
   await user.clear(input);
   expect(saveButton).toHaveAttribute("disabled");
-  expect(await screen.findByRole("alert")).toBeVisible();
+  await expect.poll(() => input).toBeInvalid();
 });
