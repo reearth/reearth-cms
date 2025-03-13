@@ -243,8 +243,9 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 
 			var oldItem *item.Item
 			if itemParam.ItemId != nil {
-				itm := oldItems.Item(*itemParam.ItemId)
-				oldItem = itm.Value()
+				if itm := oldItems.Item(*itemParam.ItemId); itm != nil {
+					oldItem = itm.Value()
+				}
 			}
 
 			// strategy: insert. 	item: exists  				=> ignore

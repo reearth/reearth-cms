@@ -13,7 +13,7 @@ import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
 type Props = {
   schema?: Schema;
   initialFormValues: Record<string, unknown>;
-  referencedItems?: FormItem[];
+  referencedItems: FormItem[];
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
 };
@@ -39,7 +39,7 @@ const RequestItemForm: React.FC<Props> = ({
           } else if (field.type === "Reference") {
             return (
               <div key={field.id}>
-                <ReferenceField field={field} disabled formItemsData={referencedItems} />
+                <ReferenceField field={field} disabled referencedItems={referencedItems} />
               </div>
             );
           } else if (field.type === "Group") {
@@ -48,9 +48,9 @@ const RequestItemForm: React.FC<Props> = ({
                 <GroupField
                   field={field}
                   disabled
-                  onGetAsset={onGetAsset}
-                  formItemsData={referencedItems}
                   onGroupGet={onGroupGet}
+                  assetProps={{ onGetAsset }}
+                  referenceProps={{ referencedItems }}
                 />
               </div>
             );
