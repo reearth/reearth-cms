@@ -127,13 +127,15 @@ const MultiValueColoredTag: React.FC<Props> = ({
             {!props.disabled && (
               <>
                 <FieldButton
-                  type="link"
+                  color="default"
+                  variant="link"
                   icon={<Icon icon="arrowUp" />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
+                  color="default"
+                  variant="link"
                   icon={<Icon icon="arrowDown" />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
@@ -160,7 +162,8 @@ const MultiValueColoredTag: React.FC<Props> = ({
             </Dropdown>
             {!props.disabled && (
               <FieldButton
-                type="link"
+                color="default"
+                variant="link"
                 icon={<Icon icon="delete" />}
                 onClick={() => handleInputDelete(key)}
               />

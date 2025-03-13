@@ -55,13 +55,15 @@ const MultiValueBooleanField: React.FC<Props> = ({
             {!disabled && (
               <>
                 <FieldButton
-                  type="link"
+                  color="default"
+                  variant="link"
                   icon={<Icon icon="arrowUp" />}
                   onClick={() => onChange?.(moveItemInArray(checked, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
+                  color="default"
+                  variant="link"
                   icon={<Icon icon="arrowDown" />}
                   onClick={() => onChange?.(moveItemInArray(checked, key, key + 1))}
                   disabled={key === checked.length - 1}
@@ -77,7 +79,8 @@ const MultiValueBooleanField: React.FC<Props> = ({
             <FlexSpace />
             {!disabled && (
               <FieldButton
-                type="link"
+                color="default"
+                variant="link"
                 icon={<Icon icon="delete" />}
                 onClick={() => handleInputDelete(key)}
               />
