@@ -3,11 +3,10 @@ on:
   workflow_call:
 jobs:
   validate-nginx-config:
-    # TODO: update the referer to tag or commit hash
-    uses: reearth/actions/.github/workflows/validate-nginx-config.yml@feat/nginx-config-validator/1
+    uses: reearth/actions/.github/workflows/validate-nginx-config.yml@dd85721d9bf22ec466ec9446e7b939eb22de900a
     with:
       template_directory: docker
-      template_values: '{"PORT": 8080, "REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}","DUMMY_HEADER_KEY": "DUMMY_HEADER_VALUE"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
+      template_values: '{"PORT": 8080, "REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
       working_directory: web
 
   ci:
