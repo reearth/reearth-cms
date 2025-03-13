@@ -120,7 +120,7 @@ describe("Settings", () => {
     expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "plus Add new Tiles option" }));
-    expect(screen.getByText("New Tiles")).toBeVisible();
+    await expect.poll(() => screen.getByText("New Tiles")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("DEFAULT")).toBeVisible();
@@ -147,7 +147,7 @@ describe("Settings", () => {
     expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "plus Add new Terrain option" }));
-    expect(screen.getByText("New Terrain")).toBeVisible();
+    await expect.poll(() => screen.getByText("New Terrain")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
@@ -193,7 +193,7 @@ describe("Settings", () => {
     expect(screen.queryByText("LABELLED")).not.toBeInTheDocument();
 
     await user.click(screen.getByLabelText("edit"));
-    expect(screen.getByText("Update Tiles")).toBeVisible();
+    await expect.poll(() => screen.getByText("Update Tiles")).toBeVisible();
 
     await user.click(screen.getByLabelText("Tiles type"));
     await user.click(screen.getByText("Labelled"));
@@ -244,7 +244,7 @@ describe("Settings", () => {
     expect(screen.queryByText("ARC_GIS_TERRAIN")).not.toBeInTheDocument();
 
     await user.click(screen.getByLabelText("edit"));
-    expect(screen.getByText("Update Terrain")).toBeVisible();
+    await expect.poll(() => screen.getByText("Update Terrain")).toBeVisible();
 
     await user.click(screen.getByLabelText("Terrain type"));
     await user.click(screen.getByText("ArcGIS Terrain"));

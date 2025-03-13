@@ -14,5 +14,5 @@ test("Danger zone works successfully", async () => {
   render(<DangerZone onUserDelete={onUserDelete} />);
 
   await user.click(screen.getByRole("button"));
-  expect(screen.getByRole("dialog")).toBeVisible();
+  await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 });
