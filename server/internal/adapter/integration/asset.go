@@ -3,7 +3,6 @@ package integration
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/oapi-codegen/runtime"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -218,14 +217,4 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 		ContentEncoding: lo.EmptyableToPtr(au.ContentEncoding),
 		Next:            lo.EmptyableToPtr(au.Next),
 	}, nil
-}
-
-func convertStringToSlice(input string) []string {
-	splitStrings := strings.Split(input, ",")
-
-	for i := range splitStrings {
-		splitStrings[i] = strings.TrimSpace(splitStrings[i])
-	}
-
-	return splitStrings
 }
