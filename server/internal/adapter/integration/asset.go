@@ -32,13 +32,14 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	f := interfaces.AssetFilter{
-		Keyword:    request.Params.Keyword,
-		Sort:       sort,
-		Pagination: p,
+	assetFilter := interfaces.AssetFilter{
+		Keyword:      request.Params.Keyword,
+		Sort:         sort,
+		Pagination:   p,
+		ContentTypes: request.Params.ContentTypes,
 	}
 
-	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, f, op)
+	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, assetFilter, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetFilter404Response{}, err
@@ -46,20 +47,42 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 		return AssetFilter400Response{}, err
 	}
 
-	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
+	isUsingContentTypeFilter := assetFilter.ContentTypes != nil && *assetFilter.ContentTypes != ""
+	var fileMap map[asset.ID]*asset.File
+	if isUsingContentTypeFilter {
+		fileMap, err = uc.Asset.FindFilesByIDs(ctx, assets.IDs(), interfaces.AssetFileFilter{
+			ContentTypes: request.Params.ContentTypes,
+		}, op)
+		if err != nil {
+			return AssetFilter400Response{}, err
+		}
+	}
+
+	filteredAssetList, err := util.TryFilterMap(assets, func(a *asset.Asset) (integrationapi.Asset, bool, error) {
+		var assetFile *asset.File
+		var ok bool
+		if isUsingContentTypeFilter {
+
+			assetFile, ok = fileMap[a.ID()]
+			if !ok || assetFile == nil {
+				return integrationapi.Asset{}, false, nil
+			}
+		}
 		aurl := uc.Asset.GetURL(a)
-		aa := integrationapi.NewAsset(a, nil, aurl, true)
-		return *aa, nil
+		aa := integrationapi.NewAsset(a, assetFile, aurl, true)
+		return *aa, true, nil
 	})
 	if err != nil {
 		return AssetFilter400Response{}, err
 	}
 
+	totalCount := min(len(filteredAssetList), int(pi.TotalCount))
+
 	return AssetFilter200JSONResponse{
-		Items:      &itemList,
+		Items:      &filteredAssetList,
 		Page:       lo.ToPtr(Page(*p.Offset)),
 		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+		TotalCount: &totalCount,
 	}, nil
 }
 

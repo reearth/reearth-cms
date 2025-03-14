@@ -615,6 +615,9 @@ type AssetParam = AssetEmbedding
 // CommentIdParam defines model for commentIdParam.
 type CommentIdParam = id.CommentID
 
+// ContentTypesParam defines model for contentTypesParam.
+type ContentTypesParam = string
+
 // FieldIdOrKeyParam defines model for fieldIdOrKeyParam.
 type FieldIdOrKeyParam = schema.FieldIDOrKey
 
@@ -965,6 +968,9 @@ type AssetFilterParams struct {
 
 	// Keyword keyword string
 	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
+
+	// ContentTypes comma separated content types string
+	ContentTypes *ContentTypesParam `form:"contentTypes,omitempty" json:"contentTypes,omitempty"`
 }
 
 // AssetFilterParamsSort defines parameters for AssetFilter.
