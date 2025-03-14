@@ -68,13 +68,15 @@ func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Ope
 	return files, nil
 }
 
-func (i *Asset) FindFilesByIDs(ctx context.Context, ids id.AssetIDList, _ *usecase.Operator) (map[id.AssetID]*asset.File, error) {
+func (i *Asset) FindFilesByIDs(ctx context.Context, ids id.AssetIDList, assetFileFilter interfaces.AssetFileFilter, _ *usecase.Operator) (map[id.AssetID]*asset.File, error) {
 	_, err := i.repos.Asset.FindByIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 
-	files, err := i.repos.AssetFile.FindByIDs(ctx, ids)
+	files, err := i.repos.AssetFile.FindByIDs(ctx, ids, repo.AssetFileFilter{
+		ContentTypes: assetFileFilter.ContentTypes,
+	})
 	if err != nil {
 		return nil, err
 	}

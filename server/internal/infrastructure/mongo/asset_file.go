@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -74,17 +75,27 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 	return f, nil
 }
 
-func (r *AssetFile) FindByIDs(ctx context.Context, ids id.AssetIDList) (map[id.AssetID]*asset.File, error) {
+func (r *AssetFile) FindByIDs(ctx context.Context, ids id.AssetIDList, assetFileFilter repo.AssetFileFilter) (map[id.AssetID]*asset.File, error) {
 	filesMap := make(map[id.AssetID]*asset.File)
 
-	c := &mongodoc.AssetAndFileConsumer{}
-	if err := r.client.Find(ctx, bson.M{
+	filter := bson.M{
 		"id": bson.M{"$in": ids.Strings()},
-	}, c, options.Find().SetProjection(bson.M{
+	}
+
+	// Set content types filter
+	if assetFileFilter.ContentTypes != nil || len(*assetFileFilter.ContentTypes) > 0 {
+		contentTypes := convertStringToSlice(*assetFileFilter.ContentTypes)
+		filter["file.contenttype"] = bson.M{"$in": contentTypes}
+	}
+
+	option := options.Find().SetProjection(bson.M{
 		"id":        1,
 		"file":      1,
 		"flatfiles": 1,
-	})); err != nil {
+	})
+
+	c := &mongodoc.AssetAndFileConsumer{}
+	if err := r.client.Find(ctx, filter, c, option); err != nil {
 		return nil, err
 	}
 
@@ -171,4 +182,14 @@ func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.F
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
+}
+
+func convertStringToSlice(input string) []string {
+	splitStrings := strings.Split(input, ",")
+
+	for i := range splitStrings {
+		splitStrings[i] = strings.TrimSpace(splitStrings[i])
+	}
+
+	return splitStrings
 }

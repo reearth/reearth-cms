@@ -33,14 +33,14 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	filter := interfaces.AssetFilter{
-		Keyword:     request.Params.Keyword,
-		Sort:        sort,
-		Pagination:  p,
-		ContentType: request.Params.ContentTypes,
+	assetFilter := interfaces.AssetFilter{
+		Keyword:      request.Params.Keyword,
+		Sort:         sort,
+		Pagination:   p,
+		ContentTypes: request.Params.ContentTypes,
 	}
 
-	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, filter, op)
+	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, assetFilter, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetFilter404Response{}, err
@@ -48,49 +48,42 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 		return AssetFilter400Response{}, err
 	}
 
-	isUsingContentTypeFilter := filter.ContentType != nil
-
+	isUsingContentTypeFilter := assetFilter.ContentTypes != nil && *assetFilter.ContentTypes != ""
 	var fileMap map[asset.ID]*asset.File
-	if filter.ContentType != nil {
-		fileMap, err = uc.Asset.FindFilesByIDs(ctx, assets.IDs(), op)
+	if isUsingContentTypeFilter {
+		fileMap, err = uc.Asset.FindFilesByIDs(ctx, assets.IDs(), interfaces.AssetFileFilter{
+			ContentTypes: request.Params.ContentTypes,
+		}, op)
 		if err != nil {
 			return AssetFilter400Response{}, err
 		}
 	}
 
-	itemList, err := util.TryFilterMap(assets, func(a *asset.Asset) (integrationapi.Asset, bool, error) {
-		var file *asset.File
+	filteredAssetList, err := util.TryFilterMap(assets, func(a *asset.Asset) (integrationapi.Asset, bool, error) {
+		var assetFile *asset.File
+		var ok bool
 		if isUsingContentTypeFilter {
 
-			contentTypeFilterList := convertStringToSlice(*filter.ContentType)
-			file = fileMap[a.ID()]
-
-			if file == nil || !lo.Contains(contentTypeFilterList, file.ContentType()) {
+			assetFile, ok = fileMap[a.ID()]
+			if !ok || assetFile == nil {
 				return integrationapi.Asset{}, false, nil
 			}
 		}
-
 		aurl := uc.Asset.GetURL(a)
-		aa := integrationapi.NewAsset(a, file, aurl, true)
+		aa := integrationapi.NewAsset(a, assetFile, aurl, true)
 		return *aa, true, nil
 	})
 	if err != nil {
 		return AssetFilter400Response{}, err
 	}
 
-	if isUsingContentTypeFilter && len(itemList) == 0 {
-		return AssetFilter404Response{}, rerror.ErrNotFound
-	}
-
-	if len(itemList) < int(pi.TotalCount) {
-		pi.TotalCount = int64(len(itemList))
-	}
+	totalCount := min(len(filteredAssetList), int(pi.TotalCount))
 
 	return AssetFilter200JSONResponse{
-		Items:      &itemList,
+		Items:      &filteredAssetList,
 		Page:       lo.ToPtr(Page(*p.Offset)),
 		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+		TotalCount: &totalCount,
 	}, nil
 }
 
