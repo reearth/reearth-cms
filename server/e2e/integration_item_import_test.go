@@ -213,7 +213,10 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	createFieldOfEachType(t, e, mId)
 
 	// 3 items with predefined fields
-	jsonContent := `[{"text": "test1", "bool": true, "number": 1.1, "text2": null},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
+	jsonContent := `[
+	{"text": "test1", "bool": true, "number": 1.1, "text2": null},
+	{"text": "test2", "bool": false, "number": 2},
+	{"text": "test3", "bool": null, "number": null}]`
 	aId := uploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
 
 	// region strategy="insert" and mutateSchema=false
@@ -250,7 +253,7 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	i.Value("fields").Array().Length().IsEqual(3)
 	i = a.Value(2).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(1)
+	i.Value("fields").Array().Length().IsEqual(3)
 	// endregion
 
 	// region strategy="insert" and mutateSchema=true
@@ -288,13 +291,13 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	a.Length().IsEqual(3)
 	i = a.Value(0).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(4)
 	i = a.Value(1).Object()
 	i.Value("id").NotNull()
 	i.Value("fields").Array().Length().IsEqual(3)
 	i = a.Value(2).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(1)
+	i.Value("fields").Array().Length().IsEqual(3)
 	// endregion
 }
 
@@ -358,7 +361,87 @@ func TestIntegrationModelImportJSONWithJsonInput2(t *testing.T) {
 	i.Value("fields").Array().Length().IsEqual(3)
 	i = a.Value(2).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(1)
+	i.Value("fields").Array().Length().IsEqual(3)
+	// endregion
+}
+
+// POST /models/{modelId}/import //body: json, content: json, strategy="upsert"
+func TestIntegrationModelImportJSONWithJsonInput3(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	// region strategy="update" and mutateSchema=true
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+
+	f := createFieldOfEachType(t, e, mId)
+
+	r := e.POST("/api/models/{modelId}/items", mId).
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"id":    f.textFId,
+					"value": "test value",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	iId := r.Value("id").String().Raw()
+
+	jsonContent := `[{"id": "` + iId + `","text": "test1", "bool": true, "number": 1.1},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
+	aId := uploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
+	res := IntegrationModelImportJSON(e, mId, aId, "json", "update", true, nil)
+	res.Object().IsEqual(map[string]any{
+		"modelId":       mId,
+		"itemsCount":    3,
+		"insertedCount": 0,
+		"updatedCount":  1,
+		"ignoredCount":  2,
+		"newFields":     []any{},
+	})
+
+	obj := e.GET("/api/models/{modelId}/items", mId).
+		// WithHeader("authorization", "Bearer "+secret).
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
+
+	a := obj.Value("items").Array()
+	a.Length().IsEqual(1)
+	i := a.Value(0).Object()
+	i.Value("id").NotNull().IsEqual(iId)
+	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().IsEqual([]map[string]any{
+		{
+			"id":    f.textFId,
+			"key":   "text",
+			"type":  "text",
+			"value": "test1",
+		},
+		{
+			"id":    f.boolFId,
+			"key":   "bool",
+			"type":  "bool",
+			"value": true,
+		},
+		{
+			"id":    f.numberFId,
+			"key":   "number",
+			"type":  "number",
+			"value": 1.1,
+		},
+	})
+
 	// endregion
 }
 

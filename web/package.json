@@ -100,7 +100,7 @@
     "@emotion/styled": "11.13.0",
     "@monaco-editor/react": "4.6.0",
     "ajv": "8.17.1",
-    "antd": "5.20.3",
+    "antd": "5.24.3",
     "apollo-upload-client": "18.0.1",
     "aws-amplify": "5.3.21",
     "cesium": "1.120.0",

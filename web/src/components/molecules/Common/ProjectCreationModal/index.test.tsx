@@ -29,25 +29,26 @@ test("Project creation modal works successfully", async () => {
   const saveButton = screen.getByRole("button", { name: "OK" });
 
   expect(saveButton).toHaveAttribute("disabled");
-  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(nameInput).toBeValid();
+  expect(aliasInput).toBeValid();
 
   await user.type(nameInput, "test ");
   expect(aliasInput).toHaveValue("test-");
   await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
 
   await user.clear(aliasInput);
-  expect(await screen.findByRole("alert")).toBeVisible();
+  await expect.poll(() => aliasInput).toBeInvalid();
   await expect.poll(() => saveButton).toHaveAttribute("disabled");
 
   await user.type(aliasInput, "alias");
-  await expect.poll(() => screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(aliasInput).toBeValid();
   await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
 
   await user.clear(nameInput);
-  expect(await screen.findByRole("alert")).toBeVisible();
+  await expect.poll(() => nameInput).toBeInvalid();
   await expect.poll(() => saveButton).toHaveAttribute("disabled");
 
   await user.type(nameInput, "a");
-  await expect.poll(() => screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(aliasInput).toBeValid();
   await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
 });
