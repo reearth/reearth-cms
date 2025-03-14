@@ -14,7 +14,7 @@ import { Project } from "../Workspace/types";
 type Props = {
   project: Project;
   hasUpdateRight: boolean;
-  onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
+  onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 

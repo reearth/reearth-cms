@@ -10,15 +10,14 @@ import { useT } from "@reearth-cms/i18n";
 import { Project } from "../Workspace/types";
 
 type RequestOptionsData = {
-  id: string;
   role: string;
-  needRequest: JSX.Element;
+  needRequest: Role;
 };
 
 type Props = {
   project: Project;
   hasUpdateRight: boolean;
-  onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
+  onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
 };
 
 const ProjectRequestOptions: React.FC<Props> = ({
@@ -31,13 +30,13 @@ const ProjectRequestOptions: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setRequestRoles(project.requestRoles ?? []);
+    setRequestRoles(project.requestRoles);
   }, [project.requestRoles]);
 
   const isDisabled = useMemo(
     () =>
-      requestRoles.length === project.requestRoles?.length &&
-      requestRoles.every(value => project.requestRoles?.includes(value)),
+      requestRoles.length === project.requestRoles.length &&
+      requestRoles.every(value => project.requestRoles.includes(value)),
     [project.requestRoles, requestRoles],
   );
 
@@ -52,99 +51,43 @@ const ProjectRequestOptions: React.FC<Props> = ({
       dataIndex: "needRequest",
       key: "needRequest",
       align: "right",
+      render: role => (
+        <Switch
+          checked={requestRoles?.includes(role)}
+          onChange={(value: boolean) => {
+            if (value) {
+              setRequestRoles(prev => [...prev, role]);
+            } else {
+              setRequestRoles(prev => prev?.filter(p => p !== role));
+            }
+          }}
+          disabled={!hasUpdateRight || role === "READER"}
+        />
+      ),
     },
   ];
 
-  const dataSource: RequestOptionsData[] = useMemo(() => {
-    const columns = [
+  const dataSource: RequestOptionsData[] = useMemo(
+    () => [
       {
-        id: "OWNER",
-        key: "OWNER",
-        role: "Owner",
-        needRequest: (
-          <Switch
-            checked={requestRoles?.includes("OWNER")}
-            onChange={(value: boolean) => {
-              if (!Array.isArray(requestRoles)) {
-                setRequestRoles([]);
-              }
-              if (value) {
-                setRequestRoles(roles => [...(roles as Role[]), "OWNER"]);
-              } else {
-                setRequestRoles(requestRoles?.filter(role => role !== "OWNER"));
-              }
-            }}
-            disabled={!hasUpdateRight}
-          />
-        ),
+        role: t("Owner"),
+        needRequest: "OWNER",
       },
       {
-        id: "MAINTAINER",
-        key: "MAINTAINER",
-        role: "Maintainer",
-        needRequest: (
-          <Switch
-            checked={requestRoles?.includes("MAINTAINER")}
-            onChange={(value: boolean) => {
-              if (!Array.isArray(requestRoles)) {
-                setRequestRoles([]);
-              }
-              if (value) {
-                setRequestRoles(roles => [...(roles as Role[]), "MAINTAINER"]);
-              } else {
-                setRequestRoles(requestRoles?.filter(role => role !== "MAINTAINER"));
-              }
-            }}
-            disabled={!hasUpdateRight}
-          />
-        ),
+        role: t("Maintainer"),
+        needRequest: "MAINTAINER",
       },
       {
-        id: "WRITER",
-        key: "WRITER",
-        role: "Writer",
-        needRequest: (
-          <Switch
-            checked={requestRoles?.includes("WRITER")}
-            onChange={(value: boolean) => {
-              if (!Array.isArray(requestRoles)) {
-                setRequestRoles([]);
-              }
-              if (value) {
-                setRequestRoles(roles => [...(roles as Role[]), "WRITER"]);
-              } else {
-                setRequestRoles(requestRoles?.filter(role => role !== "WRITER"));
-              }
-            }}
-            disabled={!hasUpdateRight}
-          />
-        ),
+        role: t("Writer"),
+        needRequest: "WRITER",
       },
       {
-        id: "READER",
-        key: "READER",
-        role: "Reader",
-        needRequest: (
-          <Switch
-            checked={requestRoles?.includes("READER")}
-            onChange={(value: boolean) => {
-              if (!Array.isArray(requestRoles)) {
-                setRequestRoles([]);
-              }
-              if (value) {
-                setRequestRoles(roles => [...(roles as Role[]), "READER"]);
-              } else {
-                setRequestRoles(requestRoles?.filter(role => role !== "READER"));
-              }
-            }}
-            disabled={true}
-          />
-        ),
+        role: t("Reader"),
+        needRequest: "READER",
       },
-    ];
-
-    return columns;
-  }, [hasUpdateRight, requestRoles]);
+    ],
+    [t],
+  );
 
   const handleSave = useCallback(async () => {
     setIsLoading(true);
