@@ -83,7 +83,7 @@ func (r *AssetFile) FindByIDs(ctx context.Context, ids id.AssetIDList, assetFile
 	}
 
 	// Set content types filter
-	if assetFileFilter.ContentTypes != nil || len(*assetFileFilter.ContentTypes) > 0 {
+	if assetFileFilter.ContentTypes != nil && len(*assetFileFilter.ContentTypes) > 0 {
 		contentTypes := convertStringToSlice(*assetFileFilter.ContentTypes)
 		filter["file.contenttype"] = bson.M{"$in": contentTypes}
 	}

@@ -65,10 +65,9 @@ func (r *AssetFile) FindByIDs(ctx context.Context, ids id.AssetIDList, assetFile
 		}).Clone()
 
 		if f == nil {
-			return nil, rerror.ErrNotFound
+			continue
 		}
 
-		// Filter based on ContentTypes
 		if len(contentTypes) > 0 && !lo.Contains(contentTypes, f.ContentType()) {
 			continue
 		}
