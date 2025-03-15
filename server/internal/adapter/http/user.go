@@ -55,6 +55,7 @@ type CreateUserInput struct {
 	WorkspaceID *id.WorkspaceID       `json:"workspaceId"`
 }
 
+// test
 type SignupOutput struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
