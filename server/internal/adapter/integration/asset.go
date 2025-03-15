@@ -145,6 +145,27 @@ func (s *Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObje
 	}, nil
 }
 
+func (s *Server) AssetBatchDelete(ctx context.Context, request AssetBatchDeleteRequestObject) (AssetBatchDeleteResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	if request.Body == nil || len(*request.Body.AssetIDs) == 0 {
+		return AssetBatchDelete400Response{}, rerror.NewE(i18n.T("At least one asset ID is required"))
+	}
+
+	ids, err := uc.Asset.BatchDelete(ctx, *request.Body.AssetIDs, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetBatchDelete404Response{}, err
+		}
+		return AssetBatchDelete400Response{}, err
+	}
+
+	return AssetBatchDelete200JSONResponse{
+		Ids: &ids,
+	}, nil
+}
+
 func (s *Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (AssetGetResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)

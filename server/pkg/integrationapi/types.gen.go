@@ -660,6 +660,11 @@ type SortParam string
 // WorkspaceIdParam defines model for workspaceIdParam.
 type WorkspaceIdParam = accountdomain.WorkspaceID
 
+// AssetBatchDeleteJSONBody defines parameters for AssetBatchDelete.
+type AssetBatchDeleteJSONBody struct {
+	AssetIDs *[]id.AssetID `json:"assetIDs,omitempty"`
+}
+
 // AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
 type AssetCommentCreateJSONBody struct {
 	Content *string `json:"content,omitempty"`
@@ -1022,6 +1027,9 @@ type ProjectFilterParams struct {
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
+
+// AssetBatchDeleteJSONRequestBody defines body for AssetBatchDelete for application/json ContentType.
+type AssetBatchDeleteJSONRequestBody AssetBatchDeleteJSONBody
 
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
 type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody

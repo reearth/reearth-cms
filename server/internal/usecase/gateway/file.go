@@ -22,6 +22,8 @@ var (
 	ErrFileNotFound               error = rerror.NewE(i18n.T("file not found"))
 	ErrUnsupportedOperation       error = rerror.NewE(i18n.T("unsupported operation"))
 	ErrUnsupportedContentEncoding error = rerror.NewE(i18n.T("unsupported content encoding"))
+	ErrInvalidUUID                error = rerror.NewE(i18n.T("invalid uuid"))
+	ErrInvalidInput               error = rerror.NewE(i18n.T("invalid input"))
 )
 
 type FileEntry struct {
@@ -63,6 +65,8 @@ type File interface {
 	GetAssetFiles(context.Context, string) ([]FileEntry, error)
 	UploadAsset(context.Context, *file.File) (string, int64, error)
 	DeleteAsset(context.Context, string, string) error
+	// DeleteAssets deletes assets in batch based on multiple asset IDs
+	DeleteAssets(context.Context, []string) error
 	GetURL(*asset.Asset) string
 	IssueUploadAssetLink(context.Context, IssueUploadAssetParam) (*UploadAssetLink, error)
 	UploadedAsset(context.Context, *asset.Upload) (*file.File, error)
