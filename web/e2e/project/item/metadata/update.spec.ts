@@ -38,6 +38,8 @@ test("Updating metadata added later from table has succeeded", async ({ page }) 
 
 test("Updating metadata added later from edit page has succeeded", async ({ page }) => {
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(300);
   await page.getByLabel("boolean").click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
