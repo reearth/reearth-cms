@@ -109,7 +109,16 @@ const ModelFieldList: React.FC<Props> = ({
         <EmptyText>
           {t("Empty Schema design.")}
           <br />
-          <Trans i18nKey="importSchema" components={{ l: <a href="/import">import</a> }} />
+          <Trans
+            i18nKey="importSchema"
+            components={{
+              l: (
+                <ImportButton type="link">
+                  import
+                </ImportButton>
+              ),
+            }}
+          />
         </EmptyText>
       ) : (
         <ReactDragListView
@@ -175,6 +184,10 @@ const DragIcon = styled(Icon)`
   :active {
     cursor: grabbing;
   }
+`;
+
+const ImportButton = styled(Button)`
+  margin: 0;
 `;
 
 const StyledIcon = styled(Icon)`
