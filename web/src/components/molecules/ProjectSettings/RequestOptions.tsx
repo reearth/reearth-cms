@@ -7,65 +7,68 @@ import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project } from "../Workspace/types";
-
 type RequestOptionsData = {
   role: string;
   needRequest: Role;
 };
 
 type Props = {
-  project: Project;
+  initialRequestRoles: Role[];
   hasUpdateRight: boolean;
   onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
 };
 
-const ProjectRequestOptions: React.FC<Props> = ({
-  project,
+const RequestOptions: React.FC<Props> = ({
+  initialRequestRoles,
   hasUpdateRight,
   onProjectRequestRolesUpdate,
 }) => {
   const t = useT();
   const [requestRoles, setRequestRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
 
   useEffect(() => {
-    setRequestRoles(project.requestRoles);
-  }, [project.requestRoles]);
+    setRequestRoles(initialRequestRoles);
+  }, [initialRequestRoles]);
 
-  const isDisabled = useMemo(
-    () =>
-      requestRoles.length === project.requestRoles.length &&
-      requestRoles.every(value => project.requestRoles.includes(value)),
-    [project.requestRoles, requestRoles],
+  const handleChange = useCallback(
+    (isChecked: boolean, role: Role) => {
+      const newRequestRoles = isChecked
+        ? [...requestRoles, role]
+        : requestRoles.filter(p => p !== role);
+      setRequestRoles(newRequestRoles);
+      setIsDisabled(
+        newRequestRoles.length === initialRequestRoles.length &&
+          newRequestRoles.every(r => initialRequestRoles.includes(r)),
+      );
+    },
+    [initialRequestRoles, requestRoles],
   );
 
-  const columns: TableColumnsType<RequestOptionsData> = [
-    {
-      title: t("Role"),
-      dataIndex: "role",
-      key: "role",
-    },
-    {
-      title: t("Need request"),
-      dataIndex: "needRequest",
-      key: "needRequest",
-      align: "right",
-      render: role => (
-        <Switch
-          checked={requestRoles?.includes(role)}
-          onChange={(value: boolean) => {
-            if (value) {
-              setRequestRoles(prev => [...prev, role]);
-            } else {
-              setRequestRoles(prev => prev?.filter(p => p !== role));
-            }
-          }}
-          disabled={!hasUpdateRight || role === "READER"}
-        />
-      ),
-    },
-  ];
+  const columns: TableColumnsType<RequestOptionsData> = useMemo(
+    () => [
+      {
+        title: t("Role"),
+        dataIndex: "role",
+      },
+      {
+        title: t("Need request"),
+        dataIndex: "needRequest",
+        align: "right",
+        render: role => (
+          <Switch
+            checked={requestRoles.includes(role)}
+            onChange={(value: boolean) => {
+              handleChange(value, role);
+            }}
+            disabled={!hasUpdateRight || role === "READER"}
+          />
+        ),
+      },
+    ],
+    [handleChange, hasUpdateRight, requestRoles, t],
+  );
 
   const dataSource: RequestOptionsData[] = useMemo(
     () => [
@@ -91,8 +94,11 @@ const ProjectRequestOptions: React.FC<Props> = ({
 
   const handleSave = useCallback(async () => {
     setIsLoading(true);
+    setIsDisabled(true);
     try {
       await onProjectRequestRolesUpdate(requestRoles);
+    } catch (_) {
+      setIsDisabled(false);
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +119,7 @@ const ProjectRequestOptions: React.FC<Props> = ({
   );
 };
 
-export default ProjectRequestOptions;
+export default RequestOptions;
 
 const SeondaryText = styled.div`
   color: #00000073;

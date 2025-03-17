@@ -3,8 +3,8 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Loading from "@reearth-cms/components/atoms/Loading";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import DangerZone from "@reearth-cms/components/molecules/ProjectSettings/DangerZone";
-import ProjectGeneralForm from "@reearth-cms/components/molecules/ProjectSettings/GeneralForm";
-import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
+import GeneralForm from "@reearth-cms/components/molecules/ProjectSettings/GeneralForm";
+import RequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
 import { useT } from "@reearth-cms/i18n";
 
 import { Project } from "../Workspace/types";
@@ -35,7 +35,7 @@ const ProjectSettings: React.FC<Props> = ({
   ) : (
     <InnerContent title={`${t("Project Settings")} / ${project.name}`}>
       <ContentSection title={t("General")}>
-        <ProjectGeneralForm
+        <GeneralForm
           project={project}
           hasUpdateRight={hasUpdateRight}
           onProjectUpdate={onProjectUpdate}
@@ -43,8 +43,8 @@ const ProjectSettings: React.FC<Props> = ({
         />
       </ContentSection>
       <ContentSection title={t("Request")}>
-        <ProjectRequestOptions
-          project={project}
+        <RequestOptions
+          initialRequestRoles={project.requestRoles}
           hasUpdateRight={hasUpdateRight}
           onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         />

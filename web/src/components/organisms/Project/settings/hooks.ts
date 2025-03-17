@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
+import useHooks from "@reearth-cms/components/organisms/Workspace/hooks";
 import {
   useUpdateProjectMutation,
   useDeleteProjectMutation,
@@ -13,6 +14,7 @@ import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights, useProject } from "@reearth-cms/state";
 
 export default () => {
+  const { projectsRefetch } = useHooks();
   const t = useT();
   const navigate = useNavigate();
 
@@ -27,9 +29,7 @@ export default () => {
   const [updateProjectMutation] = useUpdateProjectMutation({
     refetchQueries: ["GetProject"],
   });
-  const [deleteProjectMutation] = useDeleteProjectMutation({
-    refetchQueries: ["GetProjects"],
-  });
+  const [deleteProjectMutation] = useDeleteProjectMutation();
 
   const handleProjectUpdate = useCallback(
     async (name: string, alias: string, description: string) => {
@@ -78,8 +78,9 @@ export default () => {
       return;
     }
     Notification.success({ message: t("Successfully deleted project!") });
+    projectsRefetch();
     navigate(`/workspace/${workspaceId}`);
-  }, [projectId, deleteProjectMutation, t, navigate, workspaceId]);
+  }, [projectId, deleteProjectMutation, t, projectsRefetch, navigate, workspaceId]);
 
   const [CheckProjectAlias] = useCheckProjectAliasLazyQuery({
     fetchPolicy: "no-cache",
