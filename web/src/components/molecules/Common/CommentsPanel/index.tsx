@@ -121,6 +121,19 @@ const CommentsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  .ant-comment-inner {
+    padding: 0;
+  }
+  .ant-comment-content-author {
+    margin-right: 48px;
+    overflow-wrap: anywhere;
+  }
+  .ant-comment-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+  }
 `;
 
 const EmptyText = styled.p`

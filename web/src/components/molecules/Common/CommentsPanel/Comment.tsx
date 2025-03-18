@@ -54,10 +54,7 @@ const Comment: React.FC<Props> = ({
     }
   }, [comment.content, comment.id, value, onCommentUpdate]);
 
-  const fromNow = useMemo(
-    () => dayjs(comment.createdAt?.toString()).fromNow(),
-    [comment.createdAt],
-  );
+  const fromNow = useMemo(() => dayjs(comment.createdAt.toString()).fromNow(), [comment.createdAt]);
 
   const actions = useMemo(() => {
     const result = [];
@@ -87,7 +84,7 @@ const Comment: React.FC<Props> = ({
   ]);
 
   return (
-    <StyledComment
+    <AntDComment
       actions={actions}
       author={comment.author.name}
       avatar={
@@ -119,22 +116,6 @@ const Comment: React.FC<Props> = ({
     />
   );
 };
-
-const StyledComment = styled(AntDComment)`
-  .ant-comment-inner {
-    padding: 0;
-  }
-  .ant-comment-content-author {
-    margin-right: 48px;
-    overflow-wrap: anywhere;
-  }
-  .ant-comment-actions {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-  }
-`;
 
 const StyledIcon = styled(Icon)`
   border-radius: 50%;
