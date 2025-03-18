@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
-import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
@@ -92,33 +93,29 @@ const ThreadCommentMolecule: React.FC<Props> = ({
       avatar={
         comment.author.type === "Integration" ? (
           <Badge count={<StyledIcon icon="api" size={8} color="#BFBFBF" />} offset={[0, 24]}>
-            <UserAvatar
-              username={comment.author.name}
-              anonymous={comment.author.name === "Anonymous"}
-            />
+            <UserAvatar username={comment.author.name} />
           </Badge>
         ) : (
-          <UserAvatar
-            username={comment.author.name}
-            anonymous={comment.author.name === "Anonymous"}
-          />
+          <UserAvatar username={comment.author.name} />
         )
       }
       content={
-        <>
-          <Form.Item hidden={!showEditor}>
-            <TextArea onChange={handleChange} value={value} rows={4} />
-          </Form.Item>
-          <div hidden={showEditor}>{comment.content}</div>
-        </>
-      }
-      datetime={
-        comment.createdAt && (
-          <Tooltip title={dateTimeFormat(comment.createdAt)}>
-            <span>{fromNow}</span>
-          </Tooltip>
+        showEditor ? (
+          <TextArea onChange={handleChange} value={value} autoSize={{ maxRows: 4 }} />
+        ) : (
+          <ReactMarkdown
+            components={{
+              a(props) {
+                const { node, ...rest } = props;
+                return <a target="_blank" {...rest} />;
+              },
+            }}
+            remarkPlugins={[remarkGfm]}>
+            {comment.content}
+          </ReactMarkdown>
         )
       }
+      datetime={<Tooltip title={dateTimeFormat(comment.createdAt)}>{fromNow}</Tooltip>}
     />
   );
 };

@@ -18,13 +18,13 @@ import { useT } from "@reearth-cms/i18n";
 import { useWorkspaceId, useUserRights } from "@reearth-cms/state";
 
 type Params = {
-  resourceId: string;
+  resourceId?: string;
   resourceType: ResourceType;
   threadId?: string;
   refetchQueries: RefetchQueries;
 };
 
-export default ({ resourceType, resourceId, threadId, refetchQueries }: Params) => {
+export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) => {
   const t = useT();
   const [currentWorkspaceId] = useWorkspaceId();
 
