@@ -21,7 +21,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-import ImportModal from "./ImportModal";
+import ImportModal from "./ImportSchemaModal";
 
 type Props = {
   data?: Model | Group;
@@ -61,13 +61,31 @@ const Schema: React.FC<Props> = ({
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
   const [visible, setVisible] = useState(false);
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
+  const [selectFileModalVisible, setSelectFileModalVisible] = useState(false);
 
-  const importSchema = useCallback(async () => {
-    console.log("import schema");
+  const nextSchemaImportPage = () => {
+    setCurrentImportSchemaModalPage(currentImportSchemaModalPage + 1);
+  };
+
+  const handleSelectSchemaFileModalOpen = useCallback(() => {
+    setSelectFileModalVisible(true);
+  }, []);
+
+  const handleSelectSchemaFileModalClose = useCallback(() => {
+    setSelectFileModalVisible(false);
+  }, []);
+
+  const handleSchemaImportModalOpen = useCallback(async () => {
     setVisible(true);
   }, []);
 
-  const handleModelImport = useCallback(() => {
+  const handleSchemaImportModalClose = useCallback(async () => {
+    setVisible(false);
+    setCurrentImportSchemaModalPage(0);
+  }, []);
+
+  const handleSchemaImport = useCallback(() => {
     Modal.confirm({
       title: t("Are you sure you want to overwrite current schema?"),
       content: (
@@ -77,10 +95,10 @@ const Schema: React.FC<Props> = ({
       cancelText: t("Cancel"),
       okText: t("Continue"),
       async onOk() {
-        await importSchema();
+        await handleSchemaImportModalOpen();
       },
     });
-  }, [importSchema, t]);
+  }, [handleSchemaImportModalOpen, t]);
 
   const dropdownItems = useMemo(
     () => [
@@ -95,7 +113,7 @@ const Schema: React.FC<Props> = ({
         key: "import",
         label: t("Import"),
         icon: <StyledIcon icon="import" />,
-        onClick: handleModelImport,
+        onClick: handleSchemaImport,
         disabled: !hasUpdateRight,
       },
       {
@@ -107,7 +125,7 @@ const Schema: React.FC<Props> = ({
         disabled: !hasDeleteRight,
       },
     ],
-    [handleModelImport, hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
+    [handleSchemaImport, hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
   );
 
   const DropdownMenu = useCallback(
@@ -132,6 +150,7 @@ const Schema: React.FC<Props> = ({
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
+            onSchemaImport={handleSchemaImport}
           />
         </div>
       ),
@@ -202,7 +221,16 @@ const Schema: React.FC<Props> = ({
               )}
             </>
           )}
-          <ImportModal visible={visible} />
+
+          <ImportModal
+            visible={visible}
+            selectFileModalVisible={selectFileModalVisible}
+            currentImportSchemaModalPage={currentImportSchemaModalPage}
+            nextSchemaImportPage={nextSchemaImportPage}
+            onSelectFile={handleSelectSchemaFileModalOpen}
+            onSelectSchemaFileModalClose={handleSelectSchemaFileModalClose}
+            onSchemaImportModalClose={handleSchemaImportModalClose}
+          />
         </Content>
       }
       right={

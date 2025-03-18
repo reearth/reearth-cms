@@ -20,6 +20,7 @@ type Props = {
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
+  onSchemaImport?: () => void;
 };
 
 const { confirm } = Modal;
@@ -31,6 +32,7 @@ const ModelFieldList: React.FC<Props> = ({
   onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
+  onSchemaImport,
 }) => {
   const t = useT();
 
@@ -113,7 +115,7 @@ const ModelFieldList: React.FC<Props> = ({
             i18nKey="importSchema"
             components={{
               l: (
-                <ImportButton type="link">
+                <ImportButton type="link" onClick={onSchemaImport}>
                   import
                 </ImportButton>
               ),
@@ -187,7 +189,7 @@ const DragIcon = styled(Icon)`
 `;
 
 const ImportButton = styled(Button)`
-  margin: 0;
+  padding: 0;
 `;
 
 const StyledIcon = styled(Icon)`
