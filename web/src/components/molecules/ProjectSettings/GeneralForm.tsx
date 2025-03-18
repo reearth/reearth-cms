@@ -14,7 +14,7 @@ import { Project } from "../Workspace/types";
 type Props = {
   project: Project;
   hasUpdateRight: boolean;
-  onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
+  onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
@@ -24,7 +24,7 @@ type FormType = {
   description: string;
 };
 
-const ProjectGeneralForm: React.FC<Props> = ({
+const GeneralForm: React.FC<Props> = ({
   project,
   hasUpdateRight,
   onProjectUpdate,
@@ -55,20 +55,20 @@ const ProjectGeneralForm: React.FC<Props> = ({
         clearTimeout(timeout.current);
         timeout.current = null;
       }
-      if (
-        project.name === values.name &&
-        project.alias === values.alias &&
-        project.description === values.description
-      ) {
-        setIsDisabled(true);
-        return;
-      }
       const validate = async () => {
         const hasError = await form
           .validateFields()
           .then(() => false)
           .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
-        setIsDisabled(hasError);
+        if (
+          project.name === values.name &&
+          project.alias === values.alias &&
+          project.description === values.description
+        ) {
+          setIsDisabled(true);
+        } else {
+          setIsDisabled(hasError);
+        }
       };
       timeout.current = setTimeout(validate, 300);
     },
@@ -154,4 +154,4 @@ const StyledForm = styled(Form<FormType>)`
   max-width: 400px;
 `;
 
-export default ProjectGeneralForm;
+export default GeneralForm;
