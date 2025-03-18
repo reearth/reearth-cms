@@ -21,7 +21,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-import ImportModal from "./ImportSchemaModal";
+import ImportSchemaModal from "./ImportSchemaModal";
 
 type Props = {
   data?: Model | Group;
@@ -60,13 +60,13 @@ const Schema: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
-  const [visible, setVisible] = useState(false);
-  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
+  const [importSchemaModalVisible, setImportSchemaModalVisible] = useState(false);
   const [selectFileModalVisible, setSelectFileModalVisible] = useState(false);
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
 
-  const nextSchemaImportPage = () => {
+  const nextSchemaImportPage = useCallback(() => {
     setCurrentImportSchemaModalPage(currentImportSchemaModalPage + 1);
-  };
+  }, [currentImportSchemaModalPage]);
 
   const handleSelectSchemaFileModalOpen = useCallback(() => {
     setSelectFileModalVisible(true);
@@ -77,11 +77,11 @@ const Schema: React.FC<Props> = ({
   }, []);
 
   const handleSchemaImportModalOpen = useCallback(async () => {
-    setVisible(true);
+    setImportSchemaModalVisible(true);
   }, []);
 
   const handleSchemaImportModalClose = useCallback(async () => {
-    setVisible(false);
+    setImportSchemaModalVisible(false);
     setCurrentImportSchemaModalPage(0);
   }, []);
 
@@ -221,15 +221,14 @@ const Schema: React.FC<Props> = ({
               )}
             </>
           )}
-
-          <ImportModal
-            visible={visible}
+          <ImportSchemaModal
+            visible={importSchemaModalVisible}
             selectFileModalVisible={selectFileModalVisible}
-            currentImportSchemaModalPage={currentImportSchemaModalPage}
-            nextSchemaImportPage={nextSchemaImportPage}
+            currentPage={currentImportSchemaModalPage}
+            nextPage={nextSchemaImportPage}
             onSelectFile={handleSelectSchemaFileModalOpen}
             onSelectSchemaFileModalClose={handleSelectSchemaFileModalClose}
-            onSchemaImportModalClose={handleSchemaImportModalClose}
+            onModalClose={handleSchemaImportModalClose}
           />
         </Content>
       }

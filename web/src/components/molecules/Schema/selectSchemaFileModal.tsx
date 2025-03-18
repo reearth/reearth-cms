@@ -6,10 +6,13 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   visible: boolean;
-  onSelectSchemaFileModalClose: () => void;
+  onModalClose: () => void;
 };
 
-const SelectSchemaFileModal: React.FC<Props> = ({ visible, onSelectSchemaFileModalClose }) => {
+const SelectSchemaFileModal: React.FC<Props> = ({
+  visible,
+  onModalClose: onSelectSchemaFileModalClose,
+}) => {
   const t = useT();
 
   return (
