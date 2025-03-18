@@ -1,5 +1,4 @@
 import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList";
-import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import { useT } from "@reearth-cms/i18n";
 
@@ -51,7 +50,7 @@ const AssetList: React.FC = () => {
       commentsPanel={
         <CommentsPanel
           resourceId={selectedAsset?.id ?? ""}
-          resourceType={ResourceTypes.Asset}
+          resourceType={"ASSET"}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
           emptyText={

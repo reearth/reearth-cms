@@ -1,4 +1,3 @@
-import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import RequestListMolecule from "@reearth-cms/components/molecules/Request/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import { useT } from "@reearth-cms/i18n";
@@ -40,7 +39,7 @@ const RequestList: React.FC = () => {
       commentsPanel={
         <CommentsPanel
           resourceId={selectedRequest?.id ?? ""}
-          resourceType={ResourceTypes.Request}
+          resourceType={"REQUEST"}
           collapsed={collapsedCommentsPanel}
           onCollapse={collapseCommentsPanel}
           emptyText={
