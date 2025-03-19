@@ -1,12 +1,15 @@
 import styled from "@emotion/styled";
+import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Progress from "@reearth-cms/components/atoms/Progress";
 import Steps from "@reearth-cms/components/atoms/Step";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Trans, useT } from "@reearth-cms/i18n";
 
+import useHooks from "./hooks";
 import SelectSchemaFileModal from "./selectSchemaFileModal";
 
 type Props = {
@@ -30,6 +33,33 @@ const ImportSchemaModal: React.FC<Props> = ({
 }) => {
   const t = useT();
 
+  const {
+    workspaceId,
+    projectId,
+    assetList,
+    loading,
+    totalCount,
+    selectedAsset,
+    uploadProps,
+    fileList,
+    uploadType,
+    uploadUrl,
+    uploading,
+    setUploadUrl,
+    setUploadType,
+    hasCreateRight,
+    uploadModalVisibility,
+    displayUploadModal,
+    page,
+    pageSize,
+    handleSelect,
+    handleSearchTerm,
+    handleAssetsReload,
+    handleAssetTableChange,
+    handleUploadModalCancel,
+    handleUploadAndLink,
+  } = useHooks();
+
   const steps = [
     {
       title: "Select file",
@@ -37,10 +67,31 @@ const ImportSchemaModal: React.FC<Props> = ({
         <>
           <div>
             <h2>{t("Select file")}</h2>
-            <AssetButton onClick={onSelectFile}>
-              <Icon icon="plus" size={14} />
-              <AssetButtonTitle>{t("Select")}</AssetButtonTitle>
-            </AssetButton>
+            {selectedAsset ? (
+              <AssetWrapper>
+                <AssetDetailsWrapper>
+                  <AssetButton enabled={!!selectedAsset} onClick={onSelectFile}>
+                    <Icon icon="folder" size={24} />
+                    <AssetName>{selectedAsset?.fileName}</AssetName>
+                  </AssetButton>
+                  <Tooltip title={selectedAsset.fileName}>
+                    {
+                      <Link
+                        to={`/workspace/${workspaceId}/project/${projectId}/asset/${selectedAsset.id}`}
+                        target="_blank">
+                        <AssetLinkedName type="link">{selectedAsset.fileName}</AssetLinkedName>
+                      </Link>
+                    }
+                  </Tooltip>
+                </AssetDetailsWrapper>
+                <Space />
+              </AssetWrapper>
+            ) : (
+              <AssetButton onClick={onSelectFile}>
+                <Icon icon="linkSolid" size={14} />
+                <AssetButtonTitle>{t("Asset")}</AssetButtonTitle>
+              </AssetButton>
+            )}
           </div>
           <div>
             <h2>{t("Notes")}</h2>
@@ -125,6 +176,28 @@ const ImportSchemaModal: React.FC<Props> = ({
         <SelectSchemaFileModal
           visible={selectFileModalVisible}
           onModalClose={onSelectSchemaFileModalClose}
+          linkedAsset={selectedAsset}
+          assetList={assetList}
+          loading={loading}
+          uploadProps={uploadProps}
+          uploading={uploading}
+          fileList={fileList}
+          uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
+          displayUploadModal={displayUploadModal}
+          hasCreateRight={hasCreateRight}
+          uploadModalVisibility={uploadModalVisibility}
+          page={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
+          onSelect={handleSelect}
+          onSearchTerm={handleSearchTerm}
+          onAssetsReload={handleAssetsReload}
+          onAssetTableChange={handleAssetTableChange}
+          onUploadModalCancel={handleUploadModalCancel}
+          onUploadAndLink={handleUploadAndLink}
         />
       </>
     </StyledModal>
@@ -152,9 +225,46 @@ const AssetButton = styled(Button)<{ enabled?: boolean }>`
   flex-flow: column;
 `;
 
+const Space = styled.div`
+  flex: 1;
+`;
+
+const AssetWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
+const AssetLinkedName = styled(Button)<{ disabled?: boolean }>`
+  color: ${({ disabled }) => (disabled ? "#00000040" : "#1890ff")};
+  margin-left: 12px;
+  span {
+    text-align: start;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
+  }
+`;
+
+const AssetDetailsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const AssetName = styled.div`
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 const AssetButtonTitle = styled.div`
   margin-top: 4px;
 `;
+
 const TemplateFileLink = styled(Button)`
   padding: 0;
 `;
