@@ -1730,6 +1730,47 @@ func (e BoolOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type ContentTypesEnum string
+
+const (
+	ContentTypesEnumJSON    ContentTypesEnum = "JSON"
+	ContentTypesEnumGeojson ContentTypesEnum = "GEOJSON"
+)
+
+var AllContentTypesEnum = []ContentTypesEnum{
+	ContentTypesEnumJSON,
+	ContentTypesEnumGeojson,
+}
+
+func (e ContentTypesEnum) IsValid() bool {
+	switch e {
+	case ContentTypesEnumJSON, ContentTypesEnumGeojson:
+		return true
+	}
+	return false
+}
+
+func (e ContentTypesEnum) String() string {
+	return string(e)
+}
+
+func (e *ContentTypesEnum) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ContentTypesEnum(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ContentTypesEnum", str)
+	}
+	return nil
+}
+
+func (e ContentTypesEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type FieldType string
 
 const (

@@ -1360,7 +1360,6 @@ paths:
         - $ref: '#/components/parameters/pageParam'
         - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/keywordParam'
-        - $ref: '#/components/parameters/contentTypesParam'
       responses:
         '200':
           description: assets list
@@ -1382,8 +1381,6 @@ paths:
                   perPage:
                     type: integer
                     minimum: 1
-                  contentTypes:
-                    type: string
         '400':
           description: Invalid request parameter value
         '401':
@@ -1803,13 +1800,6 @@ components:
       name: keyword
       in: query
       description: keyword string
-      required: false
-      schema:
-        type: string
-    contentTypesParam:
-      name: contentTypes
-      in: query
-      description: comma separated content types string
       required: false
       schema:
         type: string
