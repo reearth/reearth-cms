@@ -1534,6 +1534,45 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
+  '/assets':
+    delete:
+      operationId: AssetBatchDelete
+      summary: delete assets in batch
+      tags:
+        - Assets
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetIDs:
+                  type: array
+                  items:
+                    type: string
+                    x-go-type: id.AssetID
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ids:
+                    type: array
+                    items:
+                      x-go-type: id.AssetID
+                      type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/assets/{assetId}/comments':
     parameters:
       - $ref: '#/components/parameters/assetIdParam'

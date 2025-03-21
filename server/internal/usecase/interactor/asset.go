@@ -597,6 +597,57 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 	)
 }
 
+// BatchDelete deletes assets in batch based on multiple asset IDs
+func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operator *usecase.Operator) (result []id.AssetID, err error) {
+
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return assetIDs, interfaces.ErrInvalidOperator
+	}
+
+	if len(assetIDs) == 0 {
+		return nil, interfaces.ErrEmptyIDsList
+	}
+
+	return Run1(
+		ctx, operator, i.repos,
+		Usecase().Transaction(),
+		func(ctx context.Context) (id.AssetIDList, error) {
+			assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			if len(assetIDs) != len(assets) {
+				return assetIDs, interfaces.ErrPartialNotFound
+			}
+
+			if assets == nil {
+				return assetIDs, nil
+			}
+
+			UUIDList := lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
+				if a == nil || a.UUID() == "" || a.FileName() == "" {
+					return "", false
+				}
+				return a.UUID(), true
+			})
+
+			// deletes assets' files in
+			err = i.gateways.File.DeleteAssets(ctx, UUIDList)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			err = i.repos.Asset.BatchDelete(ctx, assetIDs)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			return assetIDs, nil
+		},
+	)
+}
+
 func (i *Asset) event(ctx context.Context, e Event) error {
 	if i.ignoreEvent {
 		return nil

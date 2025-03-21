@@ -73,6 +73,9 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	if err != nil {
 		return nil, err
 	}
+	if len(res) == 0 {
+		return nil, nil
+	}
 	return filterAssets(ids, res), nil
 }
 
@@ -130,6 +133,14 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{
 		"id": id.String(),
 	}))
+}
+
+// BatchDelete deletes assets in batch based on multiple asset IDs
+func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
+	filter := bson.M{
+		"id": bson.M{"$in": ids.Strings()},
+	}
+	return r.client.RemoveAll(ctx, r.writeFilter(filter))
 }
 
 func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {

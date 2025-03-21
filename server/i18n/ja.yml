@@ -1,3 +1,4 @@
+At least one asset ID is required: アセットIDは少なくとも1つ必要です。
 Comment already exist in this thread: コメントはすでにこのスレッドに存在します。
 Comment does not exist in this thread: コメントはこのスレッドに存在しません。
 File is missing: ファイルがありません
@@ -19,6 +20,7 @@ duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
 duplicated value: 値が重複しています。
 either model or group should be provided: モデルまたはグループのどちらかを指定してください。
+empty ids list: IDリストが空です。
 failed to auth: 認証に失敗しました。
 failed to create asset: アセットの作成に失敗しました。
 failed to delete file: ファイルの削除に失敗しました。
@@ -41,6 +43,7 @@ invalid document: 無効なドキュメントです。
 invalid email address: 無効なEmailアドレスです。
 invalid field: 無効なフィールドです。
 invalid file: 無効なファイルです。
+invalid input: 無効な入力です。
 invalid key: 無効なキーです。
 invalid lang: 無効な言語です。
 invalid object: 無効なオブジェクトです。
@@ -50,6 +53,7 @@ invalid project: 無効なプロジェクトです。
 invalid smtp url: 無効なSMTP URLです。
 invalid type: 無効な型です。
 invalid type property: 無効な型プロパティです。
+invalid uuid: 無効なUUIDです。
 invalid value: 無効な値です。
 invalid values: 無効な値です。
 item field required: このフィールドは必須項目です。
@@ -73,6 +77,7 @@ one or more items not found: 対象のアイテムが見つかりませんでし
 only requests with status waiting can be approved: レビュー待ちのリクエストのみ承認可能です。
 only reviewers can approve: レビュワーのみ承認可能です。
 operation denied: 操作が拒否されました。
+partial not found: 部分が見つかりませんでした。
 point type is not supported in any geometry field in this model: このモデルのどのジオメトリフィールドでも、ポイントタイプはサポートされていません。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
 project alias is not set: プロジェクトエイリアスが設定されていません。
