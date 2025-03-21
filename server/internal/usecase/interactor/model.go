@@ -235,6 +235,9 @@ func (i Model) Publish(ctx context.Context, params []interfaces.PublishModelPara
 			if len(ml) != len(mIds) {
 				return rerror.ErrNotFound
 			}
+			if len(lo.UniqMap(ml, func(m *model.Model, _ int) id.ProjectID { return m.Project() })) != 1 {
+				return rerror.ErrInvalidParams
+			}
 			if !operator.IsMaintainingProject(ml[0].Project()) {
 				return interfaces.ErrOperationDenied
 			}
