@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
@@ -19,6 +20,8 @@ import {
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+
+import ImportSchemaModal from "./ImportSchemaModal";
 
 type Props = {
   data?: Model | Group;
@@ -57,6 +60,45 @@ const Schema: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
+  const [importSchemaModalVisible, setImportSchemaModalVisible] = useState(false);
+  const [selectFileModalVisible, setSelectFileModalVisible] = useState(false);
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
+
+  const nextSchemaImportPage = useCallback(() => {
+    setCurrentImportSchemaModalPage(currentImportSchemaModalPage + 1);
+  }, [currentImportSchemaModalPage]);
+
+  const handleSelectSchemaFileModalOpen = useCallback(() => {
+    setSelectFileModalVisible(true);
+  }, []);
+
+  const handleSelectSchemaFileModalClose = useCallback(() => {
+    setSelectFileModalVisible(false);
+  }, []);
+
+  const handleSchemaImportModalOpen = useCallback(async () => {
+    setImportSchemaModalVisible(true);
+  }, []);
+
+  const handleSchemaImportModalClose = useCallback(async () => {
+    setImportSchemaModalVisible(false);
+    setCurrentImportSchemaModalPage(0);
+  }, []);
+
+  const handleSchemaImport = useCallback(() => {
+    Modal.confirm({
+      title: t("Are you sure you want to overwrite current schema?"),
+      content: (
+        <>{t("Importing a new schema will replace the existing fields and cannot be undone.")}</>
+      ),
+      icon: <Icon icon="exclamationCircle" />,
+      cancelText: t("Cancel"),
+      okText: t("Continue"),
+      async onOk() {
+        await handleSchemaImportModalOpen();
+      },
+    });
+  }, [handleSchemaImportModalOpen, t]);
 
   const dropdownItems = useMemo(
     () => [
@@ -68,6 +110,13 @@ const Schema: React.FC<Props> = ({
         disabled: !hasUpdateRight,
       },
       {
+        key: "import",
+        label: t("Import"),
+        icon: <StyledIcon icon="import" />,
+        onClick: handleSchemaImport,
+        disabled: !hasUpdateRight,
+      },
+      {
         key: "delete",
         label: t("Delete"),
         icon: <StyledIcon icon="delete" />,
@@ -76,7 +125,7 @@ const Schema: React.FC<Props> = ({
         disabled: !hasDeleteRight,
       },
     ],
-    [hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
+    [handleSchemaImport, hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
   );
 
   const DropdownMenu = useCallback(
@@ -101,6 +150,7 @@ const Schema: React.FC<Props> = ({
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
+            onSchemaImport={handleSchemaImport}
           />
         </div>
       ),
@@ -171,6 +221,17 @@ const Schema: React.FC<Props> = ({
               )}
             </>
           )}
+          <ImportSchemaModal
+            visible={importSchemaModalVisible}
+            selectFileModalVisible={selectFileModalVisible}
+            currentPage={currentImportSchemaModalPage}
+            nextPage={nextSchemaImportPage}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
+            onSelectFile={handleSelectSchemaFileModalOpen}
+            onSelectSchemaFileModalClose={handleSelectSchemaFileModalClose}
+            onModalClose={handleSchemaImportModalClose}
+          />
         </Content>
       }
       right={
