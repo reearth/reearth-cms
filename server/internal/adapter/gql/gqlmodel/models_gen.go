@@ -358,7 +358,7 @@ type DeleteAssetPayload struct {
 }
 
 type DeleteAssetsInput struct {
-	AssetIds []ID `json:"assetIds,omitempty"`
+	AssetIds []ID `json:"assetIds"`
 }
 
 type DeleteAssetsPayload struct {

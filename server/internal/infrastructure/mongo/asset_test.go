@@ -575,8 +575,9 @@ func TestAssetRepo_BatchDelete(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			assert.NoError(t, err)
-			_, err = r.FindByIDs(ctx, tc.args.ids)
+			assetsFinal, err := r.FindByIDs(ctx, tc.args.ids)
 			assert.ErrorIs(t, err, nil)
+			assert.Nil(t, assetsFinal)
 		})
 	}
 }

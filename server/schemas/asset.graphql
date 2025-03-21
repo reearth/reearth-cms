@@ -86,7 +86,7 @@ input DeleteAssetInput {
 }
 
 input DeleteAssetsInput {
-  assetIds: [ID!]
+  assetIds: [ID!]!
 }
 
 input DecompressAssetInput {

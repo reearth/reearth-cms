@@ -64,6 +64,13 @@ func TestFile_GetGCSObjectPathFolder(t *testing.T) {
 			want: path.Join(gcsAssetBasePath, u[:2], u[2:]),
 		},
 		{
+			name: "invalid uuid",
+			args: args{
+				uuid: "testing",
+			},
+			want: "",
+		},
+		{
 			name: "empty",
 			args: args{
 				uuid: "",

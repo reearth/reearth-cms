@@ -242,12 +242,12 @@ func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
 	var errs []error
 	for _, fileUUID := range folders {
 		if fileUUID == "" || !IsValidUUID(fileUUID) {
-			errs = append(errs, gateway.ErrFileNotFound)
+			errs = append(errs, gateway.ErrInvalidUUID)
 		}
 
 		p := getFSObjectFolderPath(fileUUID)
 		if err := f.fs.RemoveAll(p); err != nil {
-			errs = append(errs, gateway.ErrInvalidUUID)
+			errs = append(errs, gateway.ErrFileNotFound)
 		}
 	}
 	if len(errs) > 0 {

@@ -2,6 +2,7 @@ package fs
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -152,8 +153,16 @@ func TestFile_DeleteAssets(t *testing.T) {
 			},
 			want: rerror.ErrNotFound,
 		},
+		{
+			name: "invalid uuid",
+			args: args{
+				ids: []string{"-"},
+			},
+			want: rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", []error{gateway.ErrInvalidUUID})),
+		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			fs := mockFs()
@@ -161,7 +170,10 @@ func TestFile_DeleteAssets(t *testing.T) {
 
 			err := f.DeleteAssets(context.Background(), tt.args.ids)
 			assert.Equal(t, tt.want, err)
-
+			for _, id := range tt.args.ids {
+				_, err := fs.Stat(getFSObjectPath(id, "xxx.txt"))
+				assert.ErrorIs(t, err, os.ErrNotExist)
+			}
 		})
 	}
 }
