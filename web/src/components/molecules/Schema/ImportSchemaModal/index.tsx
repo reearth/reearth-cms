@@ -9,12 +9,12 @@ import { Trans, useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "../fieldTypes";
 import useHooks from "../hooks";
-import SelectFileModal from "../SelectFileModal";
 import { Field, FieldType } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
 import SchemaPreviewStep from "./SchemaPreviewStep";
+import SelectFileModal from "./SelectFileModal";
 
 type Props = {
   visible: boolean;
@@ -160,7 +160,6 @@ const ImportSchemaModal: React.FC<Props> = ({
           onSelectFile={onSelectFile}
           workspaceId={workspaceId}
           projectId={projectId}
-          t={t}
         />
       ),
     },
@@ -175,13 +174,12 @@ const ImportSchemaModal: React.FC<Props> = ({
           onFieldDelete={confirmFieldDeletion}
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
-          t={t}
         />
       ),
     },
     {
       title: "Importing",
-      content: <ImportingStep t={t} />,
+      content: <ImportingStep percent={75} />,
     },
   ];
 

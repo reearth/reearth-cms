@@ -5,61 +5,63 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { Trans } from "@reearth-cms/i18n";
+import { useT, Trans } from "@reearth-cms/i18n";
 
-type FileSelectionStepProps = {
+type Props = {
   selectedAsset?: ItemAsset;
   onSelectFile: () => void;
   workspaceId?: string;
   projectId?: string;
-  t: (key: string) => string;
 };
 
-const FileSelectionStep: React.FC<FileSelectionStepProps> = ({
+const FileSelectionStep: React.FC<Props> = ({
   selectedAsset,
   onSelectFile,
   workspaceId,
   projectId,
-  t,
-}) => (
-  <>
-    <Section>
-      <SectionTitle>{t("Select file")}</SectionTitle>
-      {selectedAsset ? (
-        <AssetWrapper>
-          <AssetDetailsWrapper>
-            <AssetButton enabled={!!selectedAsset} onClick={onSelectFile}>
-              <Icon icon="folder" size={24} />
-              <AssetName>{selectedAsset?.fileName}</AssetName>
-            </AssetButton>
-            <Tooltip title={selectedAsset.fileName}>
-              <Link
-                to={`/workspace/${workspaceId}/project/${projectId}/asset/${selectedAsset.id}`}
-                target="_blank">
-                <AssetLinkedName type="link">{selectedAsset.fileName}</AssetLinkedName>
-              </Link>
-            </Tooltip>
-          </AssetDetailsWrapper>
-          <Space />
-        </AssetWrapper>
-      ) : (
-        <AssetButton onClick={onSelectFile}>
-          <Icon icon="plus" size={14} />
-          <AssetButtonTitle>{t("Select")}</AssetButtonTitle>
-        </AssetButton>
-      )}
-    </Section>
-    <Section>
-      <SectionTitle>{t("Notes")}</SectionTitle>
-      <Trans
-        i18nKey="importSchemaNotes"
-        components={{
-          l: <TemplateFileLink type="link">template file</TemplateFileLink>,
-        }}
-      />
-    </Section>
-  </>
-);
+}) => {
+  const t = useT();
+
+  return (
+    <>
+      <Section>
+        <SectionTitle>{t("Select file")}</SectionTitle>
+        {selectedAsset ? (
+          <AssetWrapper>
+            <AssetDetailsWrapper>
+              <AssetButton enabled={!!selectedAsset} onClick={onSelectFile}>
+                <Icon icon="folder" size={24} />
+                <AssetName>{selectedAsset?.fileName}</AssetName>
+              </AssetButton>
+              <Tooltip title={selectedAsset.fileName}>
+                <Link
+                  to={`/workspace/${workspaceId}/project/${projectId}/asset/${selectedAsset.id}`}
+                  target="_blank">
+                  <AssetLinkedName type="link">{selectedAsset.fileName}</AssetLinkedName>
+                </Link>
+              </Tooltip>
+            </AssetDetailsWrapper>
+            <Space />
+          </AssetWrapper>
+        ) : (
+          <AssetButton onClick={onSelectFile}>
+            <Icon icon="plus" size={14} />
+            <AssetButtonTitle>{t("Select")}</AssetButtonTitle>
+          </AssetButton>
+        )}
+      </Section>
+      <Section>
+        <SectionTitle>{t("Notes")}</SectionTitle>
+        <Trans
+          i18nKey="importSchemaNotes"
+          components={{
+            l: <TemplateFileLink type="link">template file</TemplateFileLink>,
+          }}
+        />
+      </Section>
+    </>
+  );
+};
 
 export default FileSelectionStep;
 
