@@ -23,8 +23,8 @@ const FileSelectionStep: React.FC<FileSelectionStepProps> = ({
   t,
 }) => (
   <>
-    <div style={{ marginTop: 24 }}>
-      <h3>{t("Select file")}</h3>
+    <Section>
+      <SectionTitle>{t("Select file")}</SectionTitle>
       {selectedAsset ? (
         <AssetWrapper>
           <AssetDetailsWrapper>
@@ -48,20 +48,26 @@ const FileSelectionStep: React.FC<FileSelectionStepProps> = ({
           <AssetButtonTitle>{t("Select")}</AssetButtonTitle>
         </AssetButton>
       )}
-    </div>
-    <div style={{ marginTop: 24 }}>
-      <h3>{t("Notes")}</h3>
+    </Section>
+    <Section>
+      <SectionTitle>{t("Notes")}</SectionTitle>
       <Trans
         i18nKey="importSchemaNotes"
         components={{
           l: <TemplateFileLink type="link">template file</TemplateFileLink>,
         }}
       />
-    </div>
+    </Section>
   </>
 );
 
 export default FileSelectionStep;
+
+const Section = styled.div`
+  margin-top: 24px;
+`;
+
+const SectionTitle = styled.h3``;
 
 const AssetButton = styled(Button)<{ enabled?: boolean }>`
   width: 104px;

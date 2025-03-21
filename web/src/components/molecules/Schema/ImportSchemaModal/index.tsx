@@ -116,10 +116,10 @@ const ImportSchemaModal: React.FC<Props> = ({
     return Object.entries(fieldTypes).map(([key, value]) => ({
       value: key,
       label: (
-        <div style={{ width: "100%", display: "flex", justifyContent: "start", gap: 8 }}>
+        <FieldTypeLabel>
           <Icon icon={value.icon} color={value.color} />
           <span>{value.title}</span>
-        </div>
+        </FieldTypeLabel>
       ),
     }));
   }, []);
@@ -214,10 +214,8 @@ const ImportSchemaModal: React.FC<Props> = ({
         },
       }}>
       <>
-        <Steps current={currentPage} items={items} style={{ display: "none" }} />
-        <div className="steps-content" style={{ height: "100%" }}>
-          {stepComponents[currentPage].content}
-        </div>
+        <HiddenSteps current={currentPage} items={items} />
+        <StepsContent>{stepComponents[currentPage].content}</StepsContent>
         <SelectFileModal
           visible={selectFileModalVisible}
           onModalClose={onSelectSchemaFileModalClose}
@@ -258,4 +256,19 @@ const StyledModal = styled(Modal)`
       padding-left: 12px;
     }
   }
+`;
+
+const HiddenSteps = styled(Steps)`
+  display: none;
+`;
+
+const StepsContent = styled.div`
+  height: 100%;
+`;
+
+const FieldTypeLabel = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: start;
+  gap: 8px;
 `;
