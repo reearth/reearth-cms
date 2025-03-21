@@ -6,6 +6,7 @@ import (
 	"path"
 	"reflect"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -249,10 +250,10 @@ type FeatureType string
 const FeatureTypeFeature FeatureType = "Feature"
 
 type Feature struct {
-	Geometry   *Geometry               `json:"geometry,omitempty"`
-	Id         *string                 `json:"id,omitempty"`
-	Properties *map[string]interface{} `json:"properties,omitempty"`
-	Type       *FeatureType            `json:"type,omitempty"`
+	Geometry   *Geometry              `json:"geometry,omitempty"`
+	Id         *string                `json:"id,omitempty"`
+	Properties *orderedmap.OrderedMap `json:"properties,omitempty"`
+	Type       *FeatureType           `json:"type,omitempty"`
 }
 
 type GeometryCollectionType string

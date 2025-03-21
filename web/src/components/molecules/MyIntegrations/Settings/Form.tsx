@@ -12,18 +12,17 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import {
+  Integration,
+  IntegrationInfo,
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  integration: Integration;
+  integration: IntegrationInfo & Pick<Integration, "config">;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
-  onIntegrationUpdate: (data: {
-    name: string;
-    description: string;
-    logoUrl: string;
-  }) => Promise<void>;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
 };
 

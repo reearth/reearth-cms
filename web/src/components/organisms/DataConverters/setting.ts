@@ -20,7 +20,6 @@ export const fromGraphQLWorkspaceSettings = (
   GQLWorkspaceSettings: GQLWorkspaceSettings,
 ): WorkspaceSettings => {
   return {
-    id: GQLWorkspaceSettings.id,
     tiles: {
       resources:
         GQLWorkspaceSettings.tiles?.resources.map(resource => ({

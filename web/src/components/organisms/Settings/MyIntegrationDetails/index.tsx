@@ -4,8 +4,8 @@ import useHooks from "./hooks";
 
 const MyIntegrationDetails: React.FC = () => {
   const {
+    loading,
     selectedIntegration,
-    webhookInitialValues,
     updateIntegrationLoading,
     regenerateLoading,
     createWebhookLoading,
@@ -16,14 +16,13 @@ const MyIntegrationDetails: React.FC = () => {
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
-    handleWebhookSelect,
     handleIntegrationHeaderBack,
   } = useHooks();
 
-  return selectedIntegration ? (
+  return (
     <MyIntegrationContent
+      loading={loading}
       integration={selectedIntegration}
-      webhookInitialValues={webhookInitialValues}
       updateIntegrationLoading={updateIntegrationLoading}
       regenerateLoading={regenerateLoading}
       createWebhookLoading={createWebhookLoading}
@@ -34,10 +33,9 @@ const MyIntegrationDetails: React.FC = () => {
       onWebhookCreate={handleWebhookCreate}
       onWebhookDelete={handleWebhookDelete}
       onWebhookUpdate={handleWebhookUpdate}
-      onWebhookSelect={handleWebhookSelect}
       onIntegrationHeaderBack={handleIntegrationHeaderBack}
     />
-  ) : null;
+  );
 };
 
 export default MyIntegrationDetails;

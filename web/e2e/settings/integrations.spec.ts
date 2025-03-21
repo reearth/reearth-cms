@@ -1,10 +1,11 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
+import { getId } from "@reearth-cms/e2e/utils/mock";
 
 let id: string;
 
 test.beforeEach(() => {
-  id = Math.ceil(Math.random() * (100000 - 10000) + 10000).toString();
+  id = getId();
 });
 
 test.afterEach(async ({ page }) => {
@@ -18,16 +19,12 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
 
-  await page
-    .locator("div")
-    .filter({ hasText: /^Create new integration$/ })
-    .nth(1)
-    .click();
+  await page.getByRole("button", { name: "plus Create new integration" }).click();
   await page.getByLabel("Integration Name").click();
   await page.getByLabel("Integration Name").fill(id);
   await page.getByLabel("Description").click();
   await page.getByLabel("Description").fill("e2e integration description");
-  await page.getByRole("button", { name: "Create" }).click();
+  await page.getByRole("button", { name: "Create", exact: true }).click();
   await closeNotification(page);
   await page.getByText("Integrations", { exact: true }).click();
   await page.getByRole("button", { name: "api Connect Integration" }).first().click();

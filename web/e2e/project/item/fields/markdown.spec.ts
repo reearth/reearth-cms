@@ -46,10 +46,9 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("text1");
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator("label")).toContainText("text1");
-  await page.getByText("text1 description").click();
+  await expect(page.getByText("text1", { exact: true })).toBeVisible();
   await expect(page.getByRole("main")).toContainText("text1 description");
-  await expect(page.getByLabel("text1")).toHaveValue("text1 default value");
+  await expect(page.getByText("text1 default value").last()).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
