@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
+import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comment";
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
@@ -40,27 +40,28 @@ const RequestThread: React.FC<Props> = ({
 }) => {
   return (
     <ContentWrapper>
-      <ThreadWrapper>
-        <CommentsContainer>
-          <RequestDescription
-            currentRequest={currentRequest}
-            onGetAsset={onGetAsset}
-            onGroupGet={onGroupGet}
-            onNavigateToItemEdit={onNavigateToItemEdit}
-          />
-          {currentRequest.comments && currentRequest.comments?.length > 0 && (
-            <RequestCommentList
-              me={me}
-              hasCommentUpdateRight={hasCommentUpdateRight}
-              hasCommentDeleteRight={hasCommentDeleteRight}
-              comments={currentRequest.comments}
+      <RequestDescription
+        currentRequest={currentRequest}
+        onGetAsset={onGetAsset}
+        onGroupGet={onGroupGet}
+        onNavigateToItemEdit={onNavigateToItemEdit}
+      />
+      {currentRequest.comments && currentRequest.comments.length > 0 && (
+        <CommentWrapper>
+          {currentRequest.comments.map(comment => (
+            <Comment
+              key={comment.id}
+              userId={me?.id ?? ""}
+              hasUpdateRight={hasCommentUpdateRight}
+              hasDeleteRight={hasCommentDeleteRight}
+              comment={comment}
               onCommentUpdate={onCommentUpdate}
               onCommentDelete={onCommentDelete}
             />
-          )}
-        </CommentsContainer>
-        <RequestStatus requestState={currentRequest.state} />
-      </ThreadWrapper>
+          ))}
+        </CommentWrapper>
+      )}
+      <RequestStatus requestState={currentRequest.state} />
       <ThreadDivider />
       <StyledAntDComment
         avatar={<UserAvatar username={me?.name} />}
@@ -77,19 +78,46 @@ const RequestThread: React.FC<Props> = ({
 
 export default RequestThread;
 
-const ThreadWrapper = styled.div`
-  overflow: auto;
-`;
-
-const CommentsContainer = styled.div`
-  overflow: auto;
-`;
-
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+`;
+
+const CommentWrapper = styled.div`
+  .ant-comment-inner {
+    padding: 0;
+    margin-top: 35px;
+  }
+  .ant-comment-content-author {
+    padding-right: 48px;
+    overflow-wrap: anywhere;
+  }
+  .ant-comment-avatar {
+    background-color: #f5f5f5;
+    margin-right: 0;
+    padding-right: 12px;
+  }
+  .ant-comment-content {
+    padding: 12px 24px;
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 4px;
+      height: 24px;
+      background-color: #d9d9d9;
+      left: 16px;
+      top: -30px;
+    }
+  }
+  .ant-comment-actions {
+    position: absolute;
+    top: 12px;
+    right: 24px;
+    margin: 0;
+  }
 `;
 
 const ThreadDivider = styled.div`

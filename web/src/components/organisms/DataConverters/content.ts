@@ -1,7 +1,7 @@
 import { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import {
   Item,
-  Comment,
   ItemField,
   ItemAsset,
   VersionedItem,

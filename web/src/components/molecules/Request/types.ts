@@ -1,4 +1,5 @@
-import { Comment, FormItem } from "@reearth-cms/components/molecules/Content/types";
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 

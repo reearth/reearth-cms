@@ -13,10 +13,4 @@ export type RefetchQueries = (
   | "GetRequests"
 )[];
 
-export const ResourceTypes = {
-  Item: "ITEM",
-  Asset: "ASSET",
-  Request: "REQUEST",
-} as const;
-
-export type ResourceType = (typeof ResourceTypes)[keyof typeof ResourceTypes] | undefined;
+export type ResourceType = "ITEM" | "ASSET" | "REQUEST";

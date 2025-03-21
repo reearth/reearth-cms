@@ -6,6 +6,10 @@ import Form from "@reearth-cms/components/atoms/Form";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 
+type FormValues = {
+  content: string;
+};
+
 type EditorProps = {
   isInputDisabled: boolean;
   onCommentCreate: (content: string) => Promise<void>;
@@ -14,7 +18,7 @@ type EditorProps = {
 const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
   const t = useT();
 
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -26,7 +30,7 @@ const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => 
     setIsSubmitDisabled(true);
     try {
       const values = await form.validateFields();
-      await onCommentCreate?.(values.content);
+      await onCommentCreate(values.content);
       form.resetFields();
     } catch (_) {
       setIsSubmitDisabled(false);
@@ -36,17 +40,11 @@ const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => 
   }, [form, onCommentCreate]);
 
   return (
-    <StyledForm form={form} layout="vertical">
-      <Form.Item name="content">
-        <TextArea
-          maxLength={1000}
-          showCount
-          autoSize={{ maxRows: 4 }}
-          onChange={handleChange}
-          disabled={isInputDisabled}
-        />
-      </Form.Item>
-      <StyledFormItem>
+    <Form form={form}>
+      <StyledFormItem name="content">
+        <TextArea autoSize={{ maxRows: 4 }} onChange={handleChange} disabled={isInputDisabled} />
+      </StyledFormItem>
+      <ButtonWrapper>
         <Button
           disabled={isSubmitDisabled}
           loading={submitting}
@@ -55,18 +53,17 @@ const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => 
           size="small">
           {t("Comment")}
         </Button>
-      </StyledFormItem>
-    </StyledForm>
+      </ButtonWrapper>
+    </Form>
   );
 };
 
 export default Editor;
 
-const StyledForm = styled(Form)`
-  padding: 12px;
-`;
-
 const StyledFormItem = styled(Form.Item)`
-  margin: 0 4px 4px 0;
-  float: right;
+  margin-bottom: 14px;
+`;
+const ButtonWrapper = styled.div`
+  padding-right: 4px;
+  text-align: right;
 `;
