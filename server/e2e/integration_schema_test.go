@@ -9,9 +9,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-// GET /projects/{projectIdOrKey}/schemata
-func TestIntegrationScemaFilterAPI(t *testing.T) {
-	endpoint := "/api/projects/{projectIdOrKey}/schemata"
+// GET /projects/{projectIdOrAlias}/schemata
+func TestIntegrationSchemaFilterAPI(t *testing.T) {
+	endpoint := "/api/projects/{projectIdOrAlias}/schemata"
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	e.GET(endpoint, id.NewProjectID()).
@@ -32,6 +32,8 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 0).
 		WithQuery("perPage", 5).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect().
 		Status(http.StatusNotFound)
 
@@ -91,12 +93,16 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect())
 
 	assertRes(t, e.GET(endpoint, palias).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect())
 
 	res := e.GET(endpoint, palias).
@@ -104,6 +110,8 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
 		WithQuery("keyword", "m1").
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect()
 
 	models := res.Status(http.StatusOK).
@@ -129,6 +137,115 @@ func TestIntegrationScemaFilterAPI(t *testing.T) {
 	obj1.Value("createdAt").NotNull()
 	obj1.Value("updatedAt").NotNull()
 	obj1.Value("lastModified").NotNull()
+}
+
+// GET /projects/{projectIdOrAlias}/schemata with sorting
+func TestIntegrationSchemaFilterSorting(t *testing.T) {
+	endpoint := "/api/projects/{projectIdOrAlias}/schemata"
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	// createdAt and ascending
+	res := e.GET(endpoint, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 10).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
+		Expect()
+	res.Status(http.StatusOK)
+	models := res.JSON().
+		Object().
+		Value("models").
+		Array()
+
+	models.Value(0).Object().Value("id").String().IsEqual(mId0.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(6).Object().Value("id").String().IsEqual(dvmId.String())
+	// createdAt and descending
+	res = e.GET(endpoint, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 10).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "desc").
+		Expect()
+	res.Status(http.StatusOK)
+	models = res.JSON().
+		Object().
+		Value("models").
+		Array()
+
+	models.Value(0).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(6).Object().Value("id").String().IsEqual(mId0.String())
+	// updatedAt and ascending
+	res = e.GET(endpoint, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 10).
+		WithQuery("sort", "updatedAt").
+		WithQuery("dir", "asc").
+		Expect()
+	res.Status(http.StatusOK)
+	models = res.JSON().
+		Object().
+		Value("models").
+		Array()
+	models.Value(0).Object().Value("id").String().IsEqual(mId0.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(6).Object().Value("id").String().IsEqual(dvmId.String())
+
+	// updatedAt and descending
+	res = e.GET(endpoint, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 10).
+		WithQuery("sort", "updatedAt").
+		WithQuery("dir", "desc").
+		Expect()
+	res.Status(http.StatusOK)
+	models = res.JSON().
+		Object().
+		Value("models").
+		Array()
+	models.Value(0).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(6).Object().Value("id").String().IsEqual(mId0.String())
+
+	// if no sort is provided default to createdAt and descending
+	res = e.GET(endpoint, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 10).
+		Expect()
+	res.Status(http.StatusOK)
+	models = res.JSON().
+		Object().
+		Value("models").
+		Array()
+	models.Value(0).Object().Value("id").String().IsEqual(dvmId.String())
+	models.Value(1).Object().Value("id").String().IsEqual(mId5.String())
+	models.Value(2).Object().Value("id").String().IsEqual(mId4.String())
+	models.Value(3).Object().Value("id").String().IsEqual(mId3.String())
+	models.Value(4).Object().Value("id").String().IsEqual(mId2.String())
+	models.Value(5).Object().Value("id").String().IsEqual(mId1.String())
+	models.Value(6).Object().Value("id").String().IsEqual(mId0.String())
 }
 
 // POST /api/models/{modelId}/fields

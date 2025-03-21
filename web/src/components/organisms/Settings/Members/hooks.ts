@@ -1,8 +1,8 @@
-import { Key, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User, Role } from "@reearth-cms/components/molecules/Member/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -34,23 +34,13 @@ export default () => {
     [userRights?.members.changeRole],
   );
 
-  const [roleModalShown, setRoleModalShown] = useState(false);
-  const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<UserMember>();
-  const [searchTerm, setSearchTerm] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
-    selectedRowKeys: [],
-  });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
+  const [searchTerm, setSearchTerm] = useState<string>();
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
     setPage(1);
   }, []);
-
-  const [searchedUsers, setSearchedUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   const {
     data: workspaceData,
@@ -102,39 +92,15 @@ export default () => {
     fetchPolicy: "no-cache",
   });
 
-  const handleUserAdd = useCallback((user: User) => {
-    setSelectedUsers(prev => [...prev, user]);
-  }, []);
-
   const handleUserSearch = useCallback(
     async (keyword: string) => {
-      if (keyword) {
-        try {
-          const res = await getUsersQuery({ variables: { keyword } });
-          if (res.error) {
-            throw new Error(res.error.message);
-          }
-          const users = res.data?.userSearch;
-          if (users?.length) {
-            const newUsers: User[] = [];
-            users.forEach(user => {
-              const isMember = !!workspaceUserMembers?.some(member => member.userId === user.id);
-              const isSelected = selectedUsers.some(selectedUser => selectedUser.id === user.id);
-              if (!isMember && !isSelected) {
-                newUsers.push(user);
-              }
-            });
-            setSearchedUsers(newUsers);
-          } else {
-            setSearchedUsers([]);
-          }
-        } catch (error) {
-          console.error(error);
-          setSearchedUsers([]);
-        }
+      const res = await getUsersQuery({ variables: { keyword } });
+      if (res.error) {
+        throw new Error(res.error.message);
       }
+      return res.data?.userSearch ?? [];
     },
-    [getUsersQuery, selectedUsers, workspaceUserMembers],
+    [getUsersQuery],
   );
 
   const [addUsersToWorkspaceMutation, { loading: addLoading }] = useAddUsersToWorkspaceMutation();
@@ -159,7 +125,7 @@ export default () => {
   const [updateMemberOfWorkspaceMutation, { loading: updateLoading }] =
     useUpdateMemberOfWorkspaceMutation();
 
-  const handleMemberOfWorkspaceUpdate = useCallback(
+  const handleUpdateRole = useCallback(
     async (userId: string, role: Role) => {
       if (!workspaceId) return;
       const result = await updateMemberOfWorkspaceMutation({
@@ -185,33 +151,32 @@ export default () => {
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
 
-  const [RemoveMultipleMembersFromWorkspaceMutation] =
+  const [removeMultipleMembersFromWorkspaceMutation] =
     useRemoveMultipleMembersFromWorkspaceMutation();
 
   const handleMemberRemoveFromWorkspace = useCallback(
     async (userIds: string[]) => {
       if (!workspaceId) return;
-      const result = await RemoveMultipleMembersFromWorkspaceMutation({
+      const result = await removeMultipleMembersFromWorkspaceMutation({
         variables: { workspaceId, userIds },
       });
       if (result.errors) {
         Notification.error({
           message: t("Failed to remove member(s) from the workspace."),
         });
-      } else {
-        Notification.success({
-          message: t("Successfully removed member(s) from the workspace!"),
-        });
-        setSelection({ selectedRowKeys: [] });
+        throw new Error();
       }
+      Notification.success({
+        message: t("Successfully removed member(s) from the workspace!"),
+      });
     },
-    [workspaceId, RemoveMultipleMembersFromWorkspaceMutation, t],
+    [workspaceId, removeMultipleMembersFromWorkspaceMutation, t],
   );
 
   const handleLeave = useCallback(
     async (userId: string) => {
       if (!workspaceId) return;
-      const result = await RemoveMultipleMembersFromWorkspaceMutation({
+      const result = await removeMultipleMembersFromWorkspaceMutation({
         variables: { workspaceId, userIds: [userId] },
       });
       if (result.errors) {
@@ -228,33 +193,13 @@ export default () => {
     },
     [
       workspaceId,
-      RemoveMultipleMembersFromWorkspaceMutation,
+      removeMultipleMembersFromWorkspaceMutation,
       t,
       refetchMe,
       navigate,
       me.myWorkspace,
     ],
   );
-
-  const handleRoleModalClose = useCallback(() => {
-    setRoleModalShown(false);
-    setSelectedMember(undefined);
-  }, []);
-
-  const handleRoleModalOpen = useCallback((member: UserMember) => {
-    setRoleModalShown(true);
-    setSelectedMember(member);
-  }, []);
-
-  const handleMemberAddModalClose = useCallback(() => {
-    setMemberAddModalShown(false);
-    setSelectedMember(undefined);
-  }, []);
-
-  const handleMemberAddModalOpen = useCallback(() => {
-    setMemberAddModalShown(true);
-    setSelectedMember(undefined);
-  }, []);
 
   const handleReload = useCallback(() => {
     refetch();
@@ -266,32 +211,18 @@ export default () => {
   }, []);
 
   return {
-    me,
+    workspaceUserMembers,
+    userId: me.id,
     isAbleToLeave,
-    searchedUsers,
     handleSearchTerm,
-    setSearchedUsers,
-    selectedUsers,
-    setSelectedUsers,
     handleUserSearch,
     searchLoading,
-    handleUserAdd,
     addLoading,
     handleUsersAddToWorkspace,
     updateLoading,
-    handleMemberOfWorkspaceUpdate,
-    selectedMember,
-    roleModalShown,
+    handleUpdateRole,
     handleMemberRemoveFromWorkspace,
     handleLeave,
-    handleRoleModalClose,
-    handleRoleModalOpen,
-    handleMemberAddModalClose,
-    handleMemberAddModalOpen,
-    MemberAddModalShown,
-    workspaceUserMembers,
-    selection,
-    setSelection,
     page,
     pageSize,
     handleTableChange,

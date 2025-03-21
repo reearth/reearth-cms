@@ -10,21 +10,17 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User, Role } from "@reearth-cms/components/molecules/Member/types";
-import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   open: boolean;
-  searchedUsers: User[];
-  selectedUsers: User[];
+  workspaceUserMembers?: UserMember[];
   searchLoading: boolean;
   addLoading: boolean;
-  onUserSearch: (nameOrEmail: string) => Promise<void>;
-  onUserAdd: (user: User) => void;
+  onUserSearch: (nameOrEmail: string) => Promise<User[]>;
   onClose: () => void;
   onSubmit: (users: MemberInput[]) => Promise<void>;
-  setSearchedUsers: (user: User[]) => void;
-  setSelectedUsers: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
 type FormValues = { search: string } & Record<string, Role>;
@@ -33,16 +29,12 @@ const { Option } = Select;
 
 const MemberAddModal: React.FC<Props> = ({
   open,
-  searchedUsers,
-  selectedUsers,
+  workspaceUserMembers,
   searchLoading,
   addLoading,
   onUserSearch,
-  onUserAdd,
   onClose,
   onSubmit,
-  setSearchedUsers,
-  setSelectedUsers,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
@@ -54,6 +46,8 @@ const MemberAddModal: React.FC<Props> = ({
     }[]
   >([]);
   const [isResultOpen, setIsResultOpen] = useState(false);
+  const [searchedUsers, setSearchedUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   const resultClear = useCallback(() => {
     setIsResultOpen(false);
@@ -68,9 +62,27 @@ const MemberAddModal: React.FC<Props> = ({
         clearTimeout(timeout.current);
         timeout.current = null;
       }
-      const search = () => {
-        onUserSearch(value);
+      const search = async () => {
         setIsResultOpen(true);
+        if (value.length > 2) {
+          try {
+            const users = await onUserSearch(value);
+            const newUsers: User[] = [];
+            users.forEach(user => {
+              const isMember = !!workspaceUserMembers?.some(member => member.userId === user.id);
+              const isSelected = selectedUsers.some(selectedUser => selectedUser.id === user.id);
+              if (!isMember && !isSelected) {
+                newUsers.push(user);
+              }
+            });
+            setSearchedUsers(newUsers);
+          } catch (e) {
+            console.error(e);
+            setSearchedUsers([]);
+          }
+        } else {
+          setSearchedUsers([]);
+        }
       };
       if (value) {
         timeout.current = setTimeout(search, 300);
@@ -78,7 +90,7 @@ const MemberAddModal: React.FC<Props> = ({
         resultClear();
       }
     },
-    [resultClear, onUserSearch],
+    [onUserSearch, setSearchedUsers, workspaceUserMembers, selectedUsers, resultClear],
   );
 
   useEffect(() => {
@@ -102,13 +114,20 @@ const MemberAddModal: React.FC<Props> = ({
     }
   }, [searchedUsers]);
 
+  const handleUserAdd = useCallback(
+    (user: User) => {
+      setSelectedUsers(prev => [...prev, user]);
+    },
+    [setSelectedUsers],
+  );
+
   const handleSelect = useCallback(
     (user: User) => {
-      onUserAdd(user);
+      handleUserAdd(user);
       resultClear();
       form.resetFields(["search"]);
     },
-    [onUserAdd, resultClear, form],
+    [handleUserAdd, resultClear, form],
   );
 
   const handleMemberRemove = useCallback(

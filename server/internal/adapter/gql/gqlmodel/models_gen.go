@@ -394,6 +394,14 @@ type DeleteIntegrationPayload struct {
 	IntegrationID ID `json:"integrationId"`
 }
 
+type DeleteIntegrationsInput struct {
+	IntegrationIDs []ID `json:"integrationIDs"`
+}
+
+type DeleteIntegrationsPayload struct {
+	IntegrationIDs []ID `json:"integrationIDs,omitempty"`
+}
+
 type DeleteItemInput struct {
 	ItemID ID `json:"itemId"`
 }

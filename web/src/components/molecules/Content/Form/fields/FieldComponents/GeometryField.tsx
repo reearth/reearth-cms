@@ -3,19 +3,20 @@ import { useMemo, useRef, useCallback } from "react";
 import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
-type DefaultFieldProps = {
-  field: Field;
-  itemGroupId?: string;
-  disabled: boolean;
-};
-
-const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
+const GeometryField: React.FC<FieldProps> = ({
+  field,
+  itemGroupId,
+  disabled,
+  itemHeights,
+  onItemHeightChange,
+}) => {
   const t = useT();
   const errorSet = useRef(new Set<number>());
 
@@ -52,13 +53,15 @@ const GeometryField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabl
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueGeometry
-          supportedTypes={supportedTypes}
-          isEditor={isEditor}
-          disabled={disabled}
-          errorAdd={errorAdd}
-          errorDelete={errorDelete}
-        />
+        <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+          <MultiValueGeometry
+            supportedTypes={supportedTypes}
+            isEditor={isEditor}
+            disabled={disabled}
+            errorAdd={errorAdd}
+            errorDelete={errorDelete}
+          />
+        </ResponsiveHeight>
       ) : (
         <GeometryItem
           supportedTypes={supportedTypes}
