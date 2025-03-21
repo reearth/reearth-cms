@@ -829,6 +829,14 @@ type PublishModelPayload struct {
 	Status  bool `json:"status"`
 }
 
+type PublishModelsInput struct {
+	Models []*PublishModelInput `json:"models"`
+}
+
+type PublishModelsPayload struct {
+	Models []*PublishModelPayload `json:"models"`
+}
+
 type Query struct {
 }
 

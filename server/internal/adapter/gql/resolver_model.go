@@ -118,14 +118,47 @@ func (r *mutationResolver) PublishModel(ctx context.Context, input gqlmodel.Publ
 		return nil, err
 	}
 
-	s, err := usecases(ctx).Model.Publish(ctx, mid, input.Status, getOperator(ctx))
+	param := interfaces.PublishModelParam{
+		ModelID: mid,
+		Public:  input.Status,
+	}
+	err = usecases(ctx).Model.Publish(ctx, []interfaces.PublishModelParam{param}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.PublishModelPayload{
 		ModelID: input.ModelID,
-		Status:  s,
+		Status:  input.Status,
+	}, nil
+}
+
+// PublishModels is the resolver for the publishModels field.
+func (r *mutationResolver) PublishModels(ctx context.Context, input gqlmodel.PublishModelsInput) (*gqlmodel.PublishModelsPayload, error) {
+	params := make([]interfaces.PublishModelParam, len(input.Models))
+	for i, m := range input.Models {
+		mid, err := gqlmodel.ToID[id.Model](m.ModelID)
+		if err != nil {
+			return nil, err
+		}
+		params[i] = interfaces.PublishModelParam{
+			ModelID: mid,
+			Public:  m.Status,
+		}
+	}
+
+	err := usecases(ctx).Model.Publish(ctx, params, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.PublishModelsPayload{
+		Models: lo.Map(input.Models, func(m *gqlmodel.PublishModelInput, _ int) *gqlmodel.PublishModelPayload {
+			return &gqlmodel.PublishModelPayload{
+				ModelID: m.ModelID,
+				Status:  m.Status,
+			}
+		}),
 	}, nil
 }
 
