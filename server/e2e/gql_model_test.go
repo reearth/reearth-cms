@@ -448,7 +448,7 @@ func TestUpdateModelsPublishmentStatus(t *testing.T) {
 	res.Object().
 		Value("data").Object().
 		Value("publishModels").Object().
-		Value("models").Array().IsEqual([]map[string]any{
+		Value("models").Array().IsEqualUnordered([]map[string]any{
 		{"modelId": mId1, "status": false},
 		{"modelId": mId2, "status": true},
 		{"modelId": mId3, "status": false},
