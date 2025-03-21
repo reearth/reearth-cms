@@ -5,17 +5,17 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
+import Button from "@reearth-cms/components/atoms/Button";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-  me?: User;
+  userId: string;
   hasUpdateRight: boolean | null;
   hasDeleteRight: boolean | null;
   comment: CommentType;
@@ -24,7 +24,7 @@ type Props = {
 };
 
 const Comment: React.FC<Props> = ({
-  me,
+  userId,
   hasUpdateRight,
   hasDeleteRight,
   comment,
@@ -54,19 +54,29 @@ const Comment: React.FC<Props> = ({
     }
   }, [comment.content, comment.id, value, onCommentUpdate]);
 
-  const fromNow = useMemo(() => dayjs(comment.createdAt.toString()).fromNow(), [comment.createdAt]);
+  const fromNow = useMemo(() => dayjs(comment.createdAt).fromNow(), [comment.createdAt]);
 
   const actions = useMemo(() => {
     const result = [];
-    const isMine = me?.id === comment.author.id;
+    const isMine = userId === comment.author.id;
     if (hasDeleteRight || (hasDeleteRight === null && isMine)) {
-      result.push(<Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />);
+      result.push(
+        <Button
+          color="default"
+          variant="link"
+          size="small"
+          icon={<Icon icon="delete" size={12} />}
+          onClick={() => onCommentDelete(comment.id)}
+        />,
+      );
     }
     if (hasUpdateRight || (hasUpdateRight === null && isMine)) {
       result.push(
-        <Icon
-          key="edit"
-          icon={showEditor ? "check" : "edit"}
+        <Button
+          color="default"
+          variant="link"
+          size="small"
+          icon={<Icon icon={showEditor ? "check" : "edit"} size={12} />}
           onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
         />,
       );
@@ -78,7 +88,7 @@ const Comment: React.FC<Props> = ({
     handleSubmit,
     hasDeleteRight,
     hasUpdateRight,
-    me?.id,
+    userId,
     onCommentDelete,
     showEditor,
   ]);

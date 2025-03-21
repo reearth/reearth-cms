@@ -13,12 +13,7 @@ dayjs.extend(utc);
 describe("Comments panel", () => {
   const user = userEvent.setup();
 
-  const me = {
-    id: "",
-    name: "",
-    email: "",
-    lang: "",
-  };
+  const userId = "userId";
   const hasCreateRight = true;
   const hasUpdateRight = true;
   const hasDeleteRight = true;
@@ -39,7 +34,7 @@ describe("Comments panel", () => {
   test("Title, placeholder, input, button, and unfold icon are visible successfully", async () => {
     render(
       <CommentsPanel
-        me={me}
+        userId={userId}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -68,7 +63,7 @@ describe("Comments panel", () => {
   test("Correct placeholder is visible when no comment exists successfully", async () => {
     render(
       <CommentsPanel
-        me={me}
+        userId={userId}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -90,7 +85,7 @@ describe("Comments panel", () => {
   test("Comment panel is collapsed successfully", async () => {
     render(
       <CommentsPanel
-        me={me}
+        userId={userId}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -112,7 +107,7 @@ describe("Comments panel", () => {
   test("Textbox is disabled according to user right successfully", async () => {
     render(
       <CommentsPanel
-        me={me}
+        userId={userId}
         hasCreateRight={false}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -135,7 +130,7 @@ describe("Comments panel", () => {
 
     render(
       <CommentsPanel
-        me={me}
+        userId={userId}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -170,7 +165,7 @@ describe("Comments panel", () => {
     const onCollapseMock = vi.fn();
     const { rerender } = render(
       <CommentsPanel
-        me={me}
+        userId={userId}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -189,7 +184,7 @@ describe("Comments panel", () => {
 
     rerender(
       <CommentsPanel
-        me={me}
+        userId={userId}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}

@@ -27,7 +27,7 @@ const CommentsPanel: React.FC<Props> = ({
   refetchQueries,
 }) => {
   const {
-    me,
+    userId,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -43,7 +43,7 @@ const CommentsPanel: React.FC<Props> = ({
 
   return (
     <CommentsPanelWrapper
-      me={me}
+      userId={userId}
       hasCreateRight={hasCreateRight}
       hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}

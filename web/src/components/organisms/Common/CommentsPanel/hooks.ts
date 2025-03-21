@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
   RefetchQueries,
   ResourceType,
@@ -10,12 +9,11 @@ import {
   ResourceType as GQLResourceType,
   useAddCommentMutation,
   useDeleteCommentMutation,
-  useGetMeQuery,
   useUpdateCommentMutation,
   useCreateThreadWithCommentMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspaceId, useUserRights } from "@reearth-cms/state";
+import { useWorkspaceId, useUserRights, useUserId } from "@reearth-cms/state";
 
 type Params = {
   resourceId?: string;
@@ -27,6 +25,7 @@ type Params = {
 export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) => {
   const t = useT();
   const [currentWorkspaceId] = useWorkspaceId();
+  const [userId] = useUserId();
 
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.comment.create, [userRights?.comment.create]);
@@ -38,19 +37,6 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
     () => userRights?.comment.delete !== undefined && userRights.comment.delete,
     [userRights?.comment.delete],
   );
-
-  const { data: userData } = useGetMeQuery();
-
-  const me: User | undefined = useMemo(() => {
-    return userData?.me
-      ? {
-          id: userData.me.id,
-          name: userData.me.name,
-          lang: userData.me.lang,
-          email: userData.me.email,
-        }
-      : undefined;
-  }, [userData]);
 
   const [createThreadWithComment] = useCreateThreadWithCommentMutation({
     refetchQueries,
@@ -150,7 +136,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
   );
 
   return {
-    me,
+    userId: userId ?? "",
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,

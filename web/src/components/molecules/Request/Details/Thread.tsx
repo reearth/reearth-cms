@@ -51,7 +51,7 @@ const RequestThread: React.FC<Props> = ({
           {currentRequest.comments.map(comment => (
             <Comment
               key={comment.id}
-              me={me}
+              userId={me?.id ?? ""}
               hasUpdateRight={hasCommentUpdateRight}
               hasDeleteRight={hasCommentDeleteRight}
               comment={comment}

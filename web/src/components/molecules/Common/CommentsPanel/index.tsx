@@ -2,7 +2,6 @@ import styled from "@emotion/styled";
 import { useRef, useEffect } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comment";
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
@@ -11,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 import Editor from "./Editor";
 
 type Props = {
-  me?: User;
+  userId: string;
   hasCreateRight: boolean;
   hasUpdateRight: boolean | null;
   hasDeleteRight: boolean | null;
@@ -25,7 +24,7 @@ type Props = {
 };
 
 const CommentsPanel: React.FC<Props> = ({
-  me,
+  userId,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
@@ -66,7 +65,7 @@ const CommentsPanel: React.FC<Props> = ({
                 comments.map(comment => (
                   <Comment
                     key={comment.id}
-                    me={me}
+                    userId={userId}
                     hasUpdateRight={hasUpdateRight}
                     hasDeleteRight={hasDeleteRight}
                     comment={comment}
