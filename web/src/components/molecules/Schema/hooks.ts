@@ -4,11 +4,7 @@ import { useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile as RawUploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import {
-  Asset,
-  SortType,
-  UploadFile,
-} from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType, UploadFile } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { uploadFiles } from "@reearth-cms/components/organisms/Project/Asset/AssetList/upload";
 import {
@@ -26,7 +22,6 @@ import { ItemAsset } from "../Content/types";
 
 export default () => {
   const t = useT();
-
   const { workspaceId, projectId } = useParams();
 
   const [page, setPage] = useState(1);
@@ -34,7 +29,6 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sort, setSort] = useState<SortType | undefined>();
   const [selectedAsset, setSelectedAsset] = useState<ItemAsset>();
-
   const [fileList, setFileList] = useState<RawUploadFile[]>([]);
   const [uploadUrl, setUploadUrl] = useState({
     url: "",
@@ -47,29 +41,36 @@ export default () => {
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.asset.create, [userRights?.asset.create]);
 
-  const params = {
+  const queryParams = {
     fetchPolicy: "cache-and-network" as const,
     variables: {
       projectId: projectId ?? "",
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      pagination: {
+        first: pageSize,
+        offset: (page - 1) * pageSize,
+      },
       sort: sort
         ? {
             sortBy: sort.type as GQLSortType,
             direction: sort.direction as GQLSortDirection,
           }
-        : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
+        : {
+            sortBy: "DATE" as GQLSortType,
+            direction: "DESC" as GQLSortDirection,
+          },
       keyword: searchTerm,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
   };
-  const { data, loading, refetch } = useGetAssetsQuery(params);
+
+  const { data, loading, refetch } = useGetAssetsQuery(queryParams);
 
   const assetList = useMemo(
     () =>
       (data?.assets.nodes
         .map(asset => fromGraphQLAsset(asset as GQLAsset))
-        .filter(asset => !!asset) as Asset[]) ?? [],
+        .filter(Boolean) as Asset[]) ?? [],
     [data?.assets.nodes],
   );
 
@@ -91,8 +92,19 @@ export default () => {
     [],
   );
 
-  const handleSelect = useCallback((selectedAsset: ItemAsset) => {
-    setSelectedAsset(selectedAsset);
+  const handleSelect = useCallback((asset: ItemAsset) => {
+    setSelectedAsset(asset);
+  }, []);
+
+  const displayUploadModal = useCallback(() => {
+    setUploadModalVisibility(true);
+  }, []);
+
+  const handleUploadModalCancel = useCallback(() => {
+    setUploadModalVisibility(false);
+    setFileList([]);
+    setUploadUrl({ url: "", autoUnzip: true });
+    setUploadType("local");
   }, []);
 
   const uploadProps: UploadProps = {
@@ -104,31 +116,20 @@ export default () => {
     accept: "*",
     listType: "picture",
     onRemove: () => {
-      setFileList?.([]);
+      setFileList([]);
     },
     beforeUpload: file => {
-      setFileList?.([file]);
+      setFileList([file]);
       return false;
     },
     fileList,
   };
 
-  const displayUploadModal = useCallback(() => {
-    setUploadModalVisibility?.(true);
-  }, [setUploadModalVisibility]);
-
-  const handleUploadModalCancel = useCallback(() => {
-    setUploadModalVisibility(false);
-    setFileList([]);
-    setUploadUrl({ url: "", autoUnzip: true });
-    setUploadType("local");
-  }, [setUploadModalVisibility, setFileList, setUploadUrl, setUploadType]);
-
   const [createAssetUploadMutation] = useCreateAssetUploadMutation();
   const [createAssetMutation] = useCreateAssetMutation();
 
   const handleAssetsCreate = useCallback(
-    async (files: RawUploadFile[]) => {
+    async (files: RawUploadFile[]): Promise<(Asset | undefined)[]> => {
       if (!projectId) return [];
       setUploading(true);
 
@@ -137,7 +138,7 @@ export default () => {
       try {
         results = (
           await uploadFiles<UploadFile, Asset | undefined>(
-            files as unknown as UploadFile[], // TODO: refactor
+            files as unknown as UploadFile[],
             async ({ contentLength, contentEncoding, cursor, filename }) => {
               const result = await createAssetUploadMutation({
                 variables: {
@@ -183,13 +184,13 @@ export default () => {
           )
         ).filter(Boolean);
 
-        if (results?.length > 0) {
+        if (results.length > 0) {
           handleUploadModalCancel();
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
         }
-      } catch (e) {
-        console.error("upload error", e);
+      } catch (error) {
+        console.error("Asset upload error:", error);
         Notification.error({ message: t("Failed to add one or more assets.") });
       } finally {
         setUploading(false);
@@ -199,18 +200,19 @@ export default () => {
     },
     [
       projectId,
-      handleUploadModalCancel,
-      createAssetMutation,
       createAssetUploadMutation,
+      createAssetMutation,
       t,
+      handleUploadModalCancel,
       refetch,
     ],
   );
 
   const handleAssetCreateFromUrl = useCallback(
-    async (url: string, autoUnzip: boolean) => {
+    async (url: string, autoUnzip: boolean): Promise<Asset | undefined> => {
       if (!projectId) return undefined;
       setUploading(true);
+
       try {
         const result = await createAssetMutation({
           variables: {
@@ -220,28 +222,33 @@ export default () => {
             skipDecompression: !autoUnzip,
           },
         });
+
         if (result.data?.createAsset) {
           handleUploadModalCancel();
           Notification.success({ message: t("Successfully added asset!") });
           await refetch();
           return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
         }
-      } catch {
+      } catch (error) {
+        console.error("URL asset creation error:", error);
         Notification.error({ message: t("Failed to add asset.") });
       } finally {
         setUploading(false);
       }
+
+      return undefined;
     },
     [projectId, createAssetMutation, handleUploadModalCancel, t, refetch],
   );
 
-  const handleAssetUpload = useCallback(async () => {
-    if (uploadType === "url" && uploadUrl) {
-      return (await handleAssetCreateFromUrl?.(uploadUrl.url, uploadUrl.autoUnzip)) ?? undefined;
-    } else if (fileList) {
-      const assets = await handleAssetsCreate?.(fileList);
-      return assets && assets?.length > 0 ? assets[0] : undefined;
+  const handleAssetUpload = useCallback(async (): Promise<Asset | undefined> => {
+    if (uploadType === "url" && uploadUrl.url) {
+      return handleAssetCreateFromUrl(uploadUrl.url, uploadUrl.autoUnzip);
+    } else if (fileList.length > 0) {
+      const assets = await handleAssetsCreate(fileList);
+      return assets && assets.length > 0 ? assets[0] : undefined;
     }
+    return undefined;
   }, [fileList, handleAssetCreateFromUrl, handleAssetsCreate, uploadType, uploadUrl]);
 
   const handleUploadAndLink = useCallback(async () => {
@@ -266,13 +273,13 @@ export default () => {
     setUploadType,
     uploadModalVisibility,
     totalCount: data?.assets.totalCount ?? 0,
+    hasCreateRight,
     handleSearchTerm,
     handleAssetsReload,
     handleAssetTableChange,
     handleSelect,
-    hasCreateRight,
     handleUploadModalCancel,
     displayUploadModal,
     handleUploadAndLink,
   };
-};
+}

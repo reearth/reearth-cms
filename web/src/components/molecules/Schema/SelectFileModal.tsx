@@ -49,7 +49,7 @@ type Props = {
   onUploadAndLink: () => void;
 };
 
-const SelectSchemaFileModal: React.FC<Props> = ({
+const SelectFileModal: React.FC<Props> = ({
   visible,
   onModalClose,
   linkedAsset,
@@ -76,46 +76,42 @@ const SelectSchemaFileModal: React.FC<Props> = ({
   onUploadAndLink,
 }) => {
   const t = useT();
-
   const resetFlag = useRef(false);
 
-  const options: OptionConfig = useMemo(
-    () => ({
-      search: true,
-      reload: onAssetsReload,
-    }),
-    [onAssetsReload],
-  );
-
-  const toolbar: ListToolBarProps = {
-    search: (
-      <Search
-        allowClear
-        placeholder={t("input search text")}
-        onSearch={(value: string) => {
-          onSearchTerm?.(value);
-        }}
-        key={+resetFlag.current}
-      />
-    ),
-  };
-
-  const pagination = useMemo(
-    () => ({
-      showSizeChanger: true,
-      current: page,
-      total: totalCount,
-      pageSize: pageSize,
-    }),
-    [page, pageSize, totalCount],
-  );
-
-  const onLinkClick = useCallback(
-    (isLink: boolean, asset: Asset) => {
+  const handleAssetLink = useCallback(
+    (asset: Asset) => {
+      const isLink = asset.id !== linkedAsset?.id;
       onModalClose();
-      if (isLink) onSelect({ id: asset.id, fileName: asset.fileName });
+      if (isLink) {
+        onSelect({ id: asset.id, fileName: asset.fileName });
+      }
     },
-    [onModalClose, onSelect],
+    [linkedAsset?.id, onModalClose, onSelect],
+  );
+
+  const handleTableChange = useCallback(
+    (
+      pagination: TablePaginationConfig,
+      sorter: SorterResult<unknown> | SorterResult<unknown>[],
+    ) => {
+      const currentPage = pagination.current ?? 1;
+      const currentPageSize = pagination.pageSize ?? 10;
+
+      let sort: SortType | undefined;
+      if (!Array.isArray(sorter) && sorter.columnKey) {
+        const validSortColumns = ["DATE", "NAME", "SIZE"];
+        if (validSortColumns.includes(sorter.columnKey as string)) {
+          const direction = sorter.order === "ascend" ? "ASC" : "DESC";
+          sort = {
+            direction,
+            type: sorter.columnKey as "DATE" | "NAME" | "SIZE",
+          };
+        }
+      }
+
+      onAssetTableChange?.(currentPage, currentPageSize, sort);
+    },
+    [onAssetTableChange],
   );
 
   const columns: StretchColumn<Asset>[] = useMemo(
@@ -133,7 +129,7 @@ const SelectSchemaFileModal: React.FC<Props> = ({
             <Button
               type="link"
               icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
-              onClick={() => onLinkClick(isLink, asset)}
+              onClick={() => handleAssetLink(asset)}
             />
           );
         },
@@ -150,7 +146,7 @@ const SelectSchemaFileModal: React.FC<Props> = ({
         title: t("Size"),
         dataIndex: "size",
         key: "size",
-        render: (_text, record) => bytesFormat(record.size),
+        render: (_, record) => bytesFormat(record.size),
         ellipsis: true,
         width: 130,
         minWidth: 130,
@@ -170,7 +166,7 @@ const SelectSchemaFileModal: React.FC<Props> = ({
         ellipsis: true,
         width: 130,
         minWidth: 130,
-        render: (_text, record) => dateTimeFormat(record.createdAt),
+        render: (_, record) => dateTimeFormat(record.createdAt),
       },
       {
         title: t("Created By"),
@@ -187,31 +183,36 @@ const SelectSchemaFileModal: React.FC<Props> = ({
         ),
       },
     ],
-    [linkedAsset?.id, onLinkClick, t],
+    [linkedAsset?.id, handleAssetLink, t],
   );
 
-  const handleChange = useCallback(
-    (
-      pagination: TablePaginationConfig,
-      sorter: SorterResult<unknown> | SorterResult<unknown>[],
-    ) => {
-      const page = pagination.current ?? 1;
-      const pageSize = pagination.pageSize ?? 10;
-      let sort: SortType | undefined;
-      if (!Array.isArray(sorter)) {
-        if (
-          sorter.columnKey === "DATE" ||
-          sorter.columnKey === "NAME" ||
-          sorter.columnKey === "SIZE"
-        ) {
-          const direction = sorter.order === "ascend" ? "ASC" : "DESC";
-          const type = sorter.columnKey;
-          sort = { direction, type };
-        }
-      }
-      onAssetTableChange?.(page, pageSize, sort);
-    },
-    [onAssetTableChange],
+  const toolbar: ListToolBarProps = {
+    search: (
+      <Search
+        allowClear
+        placeholder={t("input search text")}
+        onSearch={(value: string) => onSearchTerm?.(value)}
+        key={+resetFlag.current}
+      />
+    ),
+  };
+
+  const tableOptions: OptionConfig = useMemo(
+    () => ({
+      search: true,
+      reload: onAssetsReload,
+    }),
+    [onAssetsReload],
+  );
+
+  const pagination = useMemo(
+    () => ({
+      showSizeChanger: true,
+      current: page,
+      total: totalCount,
+      pageSize: pageSize,
+    }),
+    [page, pageSize, totalCount],
   );
 
   return (
@@ -253,20 +254,18 @@ const SelectSchemaFileModal: React.FC<Props> = ({
         dataSource={assetList}
         columns={columns}
         search={false}
-        options={options}
+        options={tableOptions}
         pagination={pagination}
         toolbar={toolbar}
         loading={loading}
-        onChange={(pagination, _, sorter) => {
-          handleChange(pagination, sorter);
-        }}
+        onChange={handleTableChange}
         heightOffset={0}
       />
     </StyledModal>
   );
 };
 
-export default SelectSchemaFileModal;
+export default SelectFileModal;
 
 const StyledModal = styled(Modal)`
   .ant-pro-card-body {
