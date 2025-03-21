@@ -111,6 +111,40 @@ func updateModelsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 
 	return res
 }
+
+func publishModels(e *httpexpect.Expect, models map[string]bool) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation PublishModels($models:[PublishModelInput!]!) {
+				  publishModels(input: {models: $models}) {
+					models {
+					  modelId
+					  status
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"models": lo.MapToSlice(models, func(k string, v bool) any {
+				return map[string]any{
+					"modelId": k,
+					"status":  v,
+				}
+			}),
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
 func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation DeleteModel($modelId: ID!) {
@@ -135,6 +169,7 @@ func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 
 	return res.Path("$.data.deleteModel.modelId").Raw().(string), res
 }
+
 func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetModel($modelId: ID!) {
@@ -330,6 +365,7 @@ func TestCreateModel(t *testing.T) {
 		HasValue("key", "test-1")
 
 }
+
 func TestUpdateModel(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
@@ -373,4 +409,49 @@ func TestUpdateModelsOrder(t *testing.T) {
 		Value("node").Object().
 		HasValue("id", mId3).
 		HasValue("order", 2)
+}
+
+func TestUpdateModelsPublishmentStatus(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+
+	mId1, _ := createModel(e, pId, "test1", "test", "test-1")
+	mId2, _ := createModel(e, pId, "test2", "test", "test-2")
+	mId3, _ := createModel(e, pId, "test3", "test", "test-3")
+	mId4, _ := createModel(e, pId, "test4", "test", "test-4")
+
+	res := publishModels(e, map[string]bool{
+		mId1: true,
+		mId2: false,
+		mId3: true,
+		mId4: false,
+	})
+
+	res.Object().
+		Value("data").Object().
+		Value("publishModels").Object().
+		Value("models").Array().IsEqualUnordered([]map[string]any{
+		{"modelId": mId1, "status": true},
+		{"modelId": mId2, "status": false},
+		{"modelId": mId3, "status": true},
+		{"modelId": mId4, "status": false},
+	})
+
+	res = publishModels(e, map[string]bool{
+		mId1: false,
+		mId2: true,
+		mId3: false,
+		mId4: true,
+	})
+
+	res.Object().
+		Value("data").Object().
+		Value("publishModels").Object().
+		Value("models").Array().IsEqualUnordered([]map[string]any{
+		{"modelId": mId1, "status": false},
+		{"modelId": mId2, "status": true},
+		{"modelId": mId3, "status": false},
+		{"modelId": mId4, "status": true},
+	})
 }

@@ -221,23 +221,39 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 		})
 }
 
-func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator *usecase.Operator) (bool, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) (_ bool, err error) {
-			m, err := i.repos.Model.FindByID(ctx, modelID)
+func (i Model) Publish(ctx context.Context, params []interfaces.PublishModelParam, operator *usecase.Operator) error {
+	if len(params) == 0 {
+		return rerror.ErrInvalidParams
+	}
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) error {
+			mIds := lo.Map(params, func(p interfaces.PublishModelParam, _ int) id.ModelID { return p.ModelID })
+			ml, err := i.repos.Model.FindByIDs(ctx, mIds)
 			if err != nil {
-				return false, err
+				return err
 			}
-			if !operator.IsMaintainingProject(m.Project()) {
-				return m.Public(), interfaces.ErrOperationDenied
+			if len(ml) != len(mIds) {
+				return rerror.ErrNotFound
+			}
+			if len(lo.UniqMap(ml, func(m *model.Model, _ int) id.ProjectID { return m.Project() })) != 1 {
+				return rerror.ErrInvalidParams
+			}
+			if !operator.IsMaintainingProject(ml[0].Project()) {
+				return interfaces.ErrOperationDenied
 			}
 
-			m.SetPublic(b)
-
-			if err := i.repos.Model.Save(ctx, m); err != nil {
-				return false, err
+			for _, p := range params {
+				m := ml.Model(p.ModelID)
+				if m == nil {
+					return rerror.ErrNotFound
+				}
+				m.SetPublic(p.Public)
 			}
-			return b, nil
+
+			if err := i.repos.Model.SaveAll(ctx, ml); err != nil {
+				return err
+			}
+			return nil
 		})
 }
 
