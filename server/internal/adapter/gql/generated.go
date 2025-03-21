@@ -559,7 +559,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		AssetFile                 func(childComplexity int, assetID gqlmodel.ID) int
-		Assets                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) int
+		Assets                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination, contentTypes []*gqlmodel.ContentTypesEnum) int
 		CheckGroupKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
@@ -1023,7 +1023,7 @@ type QueryResolver interface {
 	Node(ctx context.Context, id gqlmodel.ID, typeArg gqlmodel.NodeType) (gqlmodel.Node, error)
 	Nodes(ctx context.Context, id []gqlmodel.ID, typeArg gqlmodel.NodeType) ([]gqlmodel.Node, error)
 	AssetFile(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.AssetFile, error)
-	Assets(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error)
+	Assets(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination, contentTypes []*gqlmodel.ContentTypesEnum) (*gqlmodel.AssetConnection, error)
 	Groups(ctx context.Context, projectID *gqlmodel.ID, modelID *gqlmodel.ID) ([]*gqlmodel.Group, error)
 	ModelsByGroup(ctx context.Context, groupID gqlmodel.ID) ([]*gqlmodel.Model, error)
 	CheckGroupKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
@@ -3421,7 +3421,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Assets(childComplexity, args["projectId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.AssetSort), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Assets(childComplexity, args["projectId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.AssetSort), args["pagination"].(*gqlmodel.Pagination), args["contentTypes"].([]*gqlmodel.ContentTypesEnum)), true
 
 	case "Query.checkGroupKeyAvailability":
 		if e.complexity.Query.CheckGroupKeyAvailability == nil {
@@ -5279,6 +5279,11 @@ enum AssetSortType {
   NAME
 }
 
+enum ContentTypesEnum {
+  JSON
+  GEOJSON
+}
+
 input AssetSort {
   sortBy: AssetSortType!
   direction: SortDirection
@@ -5286,7 +5291,7 @@ input AssetSort {
 
 extend type Query {
   assetFile(assetId: ID!): AssetFile!
-  assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
+  assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination, contentTypes:[ContentTypesEnum]): AssetConnection!
 }
 
 extend type Mutation {
@@ -8802,6 +8807,11 @@ func (ec *executionContext) field_Query_assets_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["pagination"] = arg3
+	arg4, err := ec.field_Query_assets_argsContentTypes(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["contentTypes"] = arg4
 	return args, nil
 }
 func (ec *executionContext) field_Query_assets_argsProjectID(
@@ -8873,6 +8883,24 @@ func (ec *executionContext) field_Query_assets_argsPagination(
 	}
 
 	var zeroVal *gqlmodel.Pagination
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_assets_argsContentTypes(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]*gqlmodel.ContentTypesEnum, error) {
+	if _, ok := rawArgs["contentTypes"]; !ok {
+		var zeroVal []*gqlmodel.ContentTypesEnum
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("contentTypes"))
+	if tmp, ok := rawArgs["contentTypes"]; ok {
+		return ec.unmarshalOContentTypesEnum2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx, tmp)
+	}
+
+	var zeroVal []*gqlmodel.ContentTypesEnum
 	return zeroVal, nil
 }
 
@@ -24616,7 +24644,7 @@ func (ec *executionContext) _Query_assets(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Assets(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.AssetSort), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Assets(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.AssetSort), fc.Args["pagination"].(*gqlmodel.Pagination), fc.Args["contentTypes"].([]*gqlmodel.ContentTypesEnum))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -53183,6 +53211,83 @@ func (ec *executionContext) unmarshalOConditionInput2ᚖgithubᚗcomᚋreearth�
 	}
 	res, err := ec.unmarshalInputConditionInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOContentTypesEnum2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx context.Context, v any) ([]*gqlmodel.ContentTypesEnum, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*gqlmodel.ContentTypesEnum, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOContentTypesEnum2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOContentTypesEnum2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ContentTypesEnum) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOContentTypesEnum2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOContentTypesEnum2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx context.Context, v any) (*gqlmodel.ContentTypesEnum, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.ContentTypesEnum)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOContentTypesEnum2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ContentTypesEnum) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOCorrespondingFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingFieldInput(ctx context.Context, v any) (*gqlmodel.CorrespondingFieldInput, error) {
