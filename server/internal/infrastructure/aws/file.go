@@ -10,6 +10,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -407,6 +408,79 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	})
 	if err != nil {
 		return rerror.ErrInternalBy(err)
+	}
+
+	return nil
+}
+
+// DeleteAssets deletes multiple assets in batch
+func (f *fileRepo) DeleteAssets(ctx context.Context, folders []string) error {
+	if len(folders) == 0 {
+		return gateway.ErrInvalidFile
+	}
+
+	const maxWorkers = 10 // Limit concurrent operations
+	type deleteResult struct {
+		filename string
+		err      error
+	}
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Create a worker pool with limited concurrency
+	sem := make(chan struct{}, maxWorkers)
+
+	var wg sync.WaitGroup
+	resultCh := make(chan deleteResult, len(folders))
+
+	for _, filename := range folders {
+		if filename == "" {
+			continue
+		}
+
+		wg.Add(1)
+		go func(fn string) {
+			defer wg.Done()
+
+			// Acquire semaphore
+			select {
+			case sem <- struct{}{}:
+				defer func() { <-sem }()
+			case <-ctx.Done():
+				resultCh <- deleteResult{filename: fn, err: ctx.Err()}
+				return
+			}
+
+			// Perform deletion
+			err := f.delete(ctx, fn)
+			resultCh <- deleteResult{filename: fn, err: err}
+
+			// Cancel context on first error to stop other operations
+			if err != nil {
+				cancel()
+			}
+		}(filename)
+	}
+
+	// Close result channel after all goroutines complete
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
+
+	// Collect all errors
+	var errors []error
+	var failedFiles []string
+	for result := range resultCh {
+		if result.err != nil {
+			errors = append(errors, fmt.Errorf("failed to delete %s: %w", result.filename, result.err))
+			failedFiles = append(failedFiles, result.filename)
+		}
+	}
+
+	if len(errors) > 0 {
+		return fmt.Errorf("failed to delete %d files (%v): %v", len(errors), failedFiles, errors[0])
 	}
 
 	return nil

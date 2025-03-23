@@ -27,6 +27,9 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// delete assets in batch
+	// (DELETE /assets)
+	AssetBatchDelete(ctx echo.Context) error
 	// delete asset
 	// (DELETE /assets/{assetId})
 	AssetDelete(ctx echo.Context, assetId AssetIdParam) error
@@ -176,6 +179,17 @@ type ServerInterface interface {
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// AssetBatchDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetBatchDelete(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetBatchDelete(ctx)
+	return err
 }
 
 // AssetDelete converts echo context to params.
@@ -1559,6 +1573,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.DELETE(baseURL+"/assets", wrapper.AssetBatchDelete)
 	router.DELETE(baseURL+"/assets/:assetId", wrapper.AssetDelete)
 	router.GET(baseURL+"/assets/:assetId", wrapper.AssetGet)
 	router.GET(baseURL+"/assets/:assetId/comments", wrapper.AssetCommentList)
@@ -1614,6 +1629,48 @@ type NotFoundErrorResponse struct {
 }
 
 type UnauthorizedErrorResponse struct {
+}
+
+type AssetBatchDeleteRequestObject struct {
+	Body *AssetBatchDeleteJSONRequestBody
+}
+
+type AssetBatchDeleteResponseObject interface {
+	VisitAssetBatchDeleteResponse(w http.ResponseWriter) error
+}
+
+type AssetBatchDelete200JSONResponse struct {
+	Ids *[]id.AssetID `json:"ids,omitempty"`
+}
+
+func (response AssetBatchDelete200JSONResponse) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetBatchDelete400Response struct {
+}
+
+func (response AssetBatchDelete400Response) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetBatchDelete401Response = UnauthorizedErrorResponse
+
+func (response AssetBatchDelete401Response) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetBatchDelete404Response struct {
+}
+
+func (response AssetBatchDelete404Response) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type AssetDeleteRequestObject struct {
@@ -3778,6 +3835,9 @@ func (response ProjectFilter500Response) VisitProjectFilterResponse(w http.Respo
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// delete assets in batch
+	// (DELETE /assets)
+	AssetBatchDelete(ctx context.Context, request AssetBatchDeleteRequestObject) (AssetBatchDeleteResponseObject, error)
 	// delete asset
 	// (DELETE /assets/{assetId})
 	AssetDelete(ctx context.Context, request AssetDeleteRequestObject) (AssetDeleteResponseObject, error)
@@ -3934,6 +3994,35 @@ func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareF
 type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
+}
+
+// AssetBatchDelete operation middleware
+func (sh *strictHandler) AssetBatchDelete(ctx echo.Context) error {
+	var request AssetBatchDeleteRequestObject
+
+	var body AssetBatchDeleteJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetBatchDelete(ctx.Request().Context(), request.(AssetBatchDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetBatchDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetBatchDeleteResponseObject); ok {
+		return validResponse.VisitAssetBatchDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
 }
 
 // AssetDelete operation middleware

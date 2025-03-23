@@ -217,6 +217,14 @@ func getFSObjectPath(fileUUID, objectName string) string {
 	return filepath.Join(assetDir, fileUUID[:2], fileUUID[2:], objectName)
 }
 
+func getFSObjectFolderPath(fileUUID string) string {
+	if fileUUID == "" || !IsValidUUID(fileUUID) {
+		return ""
+	}
+
+	return filepath.Join(assetDir, fileUUID[:2], fileUUID[2:])
+}
+
 func newUUID() string {
 	return uuid.NewString()
 }
@@ -224,4 +232,26 @@ func newUUID() string {
 func IsValidUUID(fileUUID string) bool {
 	_, err := uuid.Parse(fileUUID)
 	return err == nil
+}
+
+// DeleteAssets deletes assets in batch
+func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
+	if len(folders) == 0 {
+		return rerror.ErrNotFound
+	}
+	var errs []error
+	for _, fileUUID := range folders {
+		if fileUUID == "" || !IsValidUUID(fileUUID) {
+			errs = append(errs, gateway.ErrInvalidUUID)
+		}
+
+		p := getFSObjectFolderPath(fileUUID)
+		if err := f.fs.RemoveAll(p); err != nil {
+			errs = append(errs, gateway.ErrFileNotFound)
+		}
+	}
+	if len(errs) > 0 {
+		return rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", errs))
+	}
+	return nil
 }
