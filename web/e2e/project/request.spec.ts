@@ -97,27 +97,26 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
   await page.getByLabel("edit").locator("svg").click();
 
-  await page.locator("#content").click();
-  await page.locator("#content").fill("comment");
+  await page.getByRole("textbox").click();
+  await page.getByRole("textbox").fill("comment");
   await page.getByRole("button", { name: "Comment" }).click();
   await closeNotification(page);
-  await expect(page.getByText("comment").nth(1)).toBeVisible();
+  await expect(page.getByText("comment", { exact: true })).toBeVisible();
   await page.getByLabel("edit").locator("svg").click();
-  await page.locator("textarea").filter({ hasText: "comment" }).click();
-  await page.locator("textarea").filter({ hasText: "comment" }).fill("new comment");
-  await page.getByLabel("check").locator("svg").first().click();
+  await page.getByRole("textbox").filter({ hasText: "comment" }).click();
+  await page.getByRole("textbox").filter({ hasText: "comment" }).fill("new comment");
+  await page.getByRole("button", { name: "check" }).click();
   await closeNotification(page);
-  await expect(page.getByText("new comment").nth(1)).toBeVisible();
-  await page.getByLabel("delete").locator("svg").click();
+  await expect(page.getByText("new comment")).toBeVisible();
+  await page.getByRole("button", { name: "delete" }).click();
   await closeNotification(page);
-  await expect(page.getByText("new comment").nth(1)).toBeHidden();
+  await expect(page.getByText("new comment")).toBeHidden();
 });
 
+// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on Request page has succeeded", async ({ page }) => {
   await page.getByText("Request", { exact: true }).click();
   await page.getByRole("button", { name: "0" }).click();
-  await expect(page.getByText("CommentsNo comments.0 / 1000Comment")).toBeVisible();
-
   await crudComment(page);
 });
 
