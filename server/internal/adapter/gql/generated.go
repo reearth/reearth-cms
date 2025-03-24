@@ -123,6 +123,16 @@ type ComplexityRoot struct {
 		ModelID func(childComplexity int) int
 	}
 
+	AssetSchemaField struct {
+		FieldName func(childComplexity int) int
+		FieldType func(childComplexity int) int
+	}
+
+	AssetSchemaFieldResult struct {
+		Fields     func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
 	BasicFieldCondition struct {
 		FieldID  func(childComplexity int) int
 		Operator func(childComplexity int) int
@@ -1352,6 +1362,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AssetItem.ModelID(childComplexity), true
+
+	case "AssetSchemaField.field_name":
+		if e.complexity.AssetSchemaField.FieldName == nil {
+			break
+		}
+
+		return e.complexity.AssetSchemaField.FieldName(childComplexity), true
+
+	case "AssetSchemaField.field_type":
+		if e.complexity.AssetSchemaField.FieldType == nil {
+			break
+		}
+
+		return e.complexity.AssetSchemaField.FieldType(childComplexity), true
+
+	case "AssetSchemaFieldResult.fields":
+		if e.complexity.AssetSchemaFieldResult.Fields == nil {
+			break
+		}
+
+		return e.complexity.AssetSchemaFieldResult.Fields(childComplexity), true
+
+	case "AssetSchemaFieldResult.total_count":
+		if e.complexity.AssetSchemaFieldResult.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.AssetSchemaFieldResult.TotalCount(childComplexity), true
 
 	case "BasicFieldCondition.fieldId":
 		if e.complexity.BasicFieldCondition.FieldID == nil {
@@ -3484,6 +3522,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.AssetFile(childComplexity, args["assetId"].(gqlmodel.ID)), true
 
+	case "Query.assetSchemaFields":
+		if e.complexity.Query.AssetSchemaFields == nil {
+			break
+		}
+
+		args, err := ec.field_Query_assetSchemaFields_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AssetSchemaFields(childComplexity, args["assetId"].(gqlmodel.ID)), true
+
 	case "Query.assets":
 		if e.complexity.Query.Assets == nil {
 			break
@@ -5398,6 +5448,16 @@ enum AssetSortType {
 input AssetSort {
   sortBy: AssetSortType!
   direction: SortDirection
+}
+
+type AssetSchemaField {
+  field_name: String!
+  field_type: String!
+}
+
+type AssetSchemaFieldResult {
+  total_count: Int!
+  fields: [AssetSchemaField!]!
 }
 
 extend type Query {
@@ -8991,7 +9051,7 @@ func (ec *executionContext) field_Query_assetFile_argsAssetID(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_assets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Query_assetSchemaFields_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := ec.field_Query_assets_argsInput(ctx, rawArgs)
@@ -11555,6 +11615,188 @@ func (ec *executionContext) fieldContext_AssetItem_modelId(_ context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AssetSchemaField_field_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetSchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetSchemaField_field_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FieldName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AssetSchemaField_field_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AssetSchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AssetSchemaField_field_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetSchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetSchemaField_field_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FieldType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AssetSchemaField_field_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AssetSchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AssetSchemaFieldResult_total_count(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetSchemaFieldResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetSchemaFieldResult_total_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AssetSchemaFieldResult_total_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AssetSchemaFieldResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AssetSchemaFieldResult_fields(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetSchemaFieldResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetSchemaFieldResult_fields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fields, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.AssetSchemaField)
+	fc.Result = res
+	return ec.marshalNAssetSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSchemaFieldᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AssetSchemaFieldResult_fields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AssetSchemaFieldResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "field_name":
+				return ec.fieldContext_AssetSchemaField_field_name(ctx, field)
+			case "field_type":
+				return ec.fieldContext_AssetSchemaField_field_type(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AssetSchemaField", field.Name)
 		},
 	}
 	return fc, nil
@@ -25118,6 +25360,67 @@ func (ec *executionContext) fieldContext_Query_assets(ctx context.Context, field
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_assets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_assetSchemaFields(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_assetSchemaFields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AssetSchemaFields(rctx, fc.Args["assetId"].(gqlmodel.ID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.AssetSchemaFieldResult)
+	fc.Result = res
+	return ec.marshalNAssetSchemaFieldResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSchemaFieldResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_assetSchemaFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total_count":
+				return ec.fieldContext_AssetSchemaFieldResult_total_count(ctx, field)
+			case "fields":
+				return ec.fieldContext_AssetSchemaFieldResult_fields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AssetSchemaFieldResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_assetSchemaFields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -42856,6 +43159,94 @@ func (ec *executionContext) _AssetItem(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var assetSchemaFieldImplementors = []string{"AssetSchemaField"}
+
+func (ec *executionContext) _AssetSchemaField(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AssetSchemaField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, assetSchemaFieldImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AssetSchemaField")
+		case "field_name":
+			out.Values[i] = ec._AssetSchemaField_field_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "field_type":
+			out.Values[i] = ec._AssetSchemaField_field_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var assetSchemaFieldResultImplementors = []string{"AssetSchemaFieldResult"}
+
+func (ec *executionContext) _AssetSchemaFieldResult(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AssetSchemaFieldResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, assetSchemaFieldResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AssetSchemaFieldResult")
+		case "total_count":
+			out.Values[i] = ec._AssetSchemaFieldResult_total_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "fields":
+			out.Values[i] = ec._AssetSchemaFieldResult_fields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var basicFieldConditionImplementors = []string{"BasicFieldCondition", "Condition"}
 
 func (ec *executionContext) _BasicFieldCondition(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.BasicFieldCondition) graphql.Marshaler {
@@ -46875,6 +47266,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_assets(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "assetSchemaFields":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_assetSchemaFields(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

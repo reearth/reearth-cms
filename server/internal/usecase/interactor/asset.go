@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -768,4 +769,123 @@ func (i *Asset) event(ctx context.Context, e Event) error {
 
 func (i *Asset) RetryDecompression(ctx context.Context, id string) error {
 	return i.gateways.TaskRunner.Retry(ctx, id)
+}
+
+// GeoJSONFeature represents a basic GeoJSON structure
+type GeoJSONFeature struct {
+	Type       string                 `json:"type"`
+	Geometry   map[string]interface{} `json:"geometry"`
+	Properties map[string]interface{} `json:"properties"`
+}
+
+func (i *Asset) ConvertToSchemaFields(ctx context.Context, assetID id.AssetID, operator *usecase.Operator) (*interfaces.AssetSchemaFieldsData, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return &interfaces.AssetSchemaFieldsData{}, interfaces.ErrInvalidOperator
+	}
+
+	asset, err := i.repos.Asset.FindByID(ctx, assetID)
+	if err != nil {
+		return &interfaces.AssetSchemaFieldsData{}, err
+	}
+
+	assetFileData, err := i.repos.AssetFile.FindByID(ctx, assetID)
+	if err != nil {
+		return &interfaces.AssetSchemaFieldsData{}, err
+	}
+
+	// check if file is a json or geojson
+	if assetFileData.ContentType() != "application/json" && assetFileData.ContentType() != "application/geo+json" {
+		return &interfaces.AssetSchemaFieldsData{}, interfaces.ErrInvalidContentTypeForSchemaConversion
+	}
+
+	// read file
+	file, _, err := i.gateways.File.ReadAsset(ctx, asset.UUID(), assetFileData.Path(), nil)
+	if err != nil {
+		return &interfaces.AssetSchemaFieldsData{}, err
+	}
+	// read file content
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return &interfaces.AssetSchemaFieldsData{}, err
+	}
+
+	schemaFieldData, err := extractSchemaFieldData(assetFileData.ContentType(), content)
+	if err != nil {
+		return &interfaces.AssetSchemaFieldsData{}, err
+	}
+	return schemaFieldData, nil
+}
+
+func extractSchemaFieldData(contentType string, content []byte) (*interfaces.AssetSchemaFieldsData, error) {
+	result := &interfaces.AssetSchemaFieldsData{}
+
+	switch contentType {
+	case "application/json":
+		var raw map[string]any
+		if err := json.Unmarshal(content, &raw); err != nil {
+			return result, err
+		}
+
+		// ✅ Detect JSON Schema
+		if isJSONSchema(raw) {
+			// Extract from "properties"
+			if props, ok := raw["properties"].(map[string]interface{}); ok {
+				for key, val := range props {
+					if def, ok := val.(map[string]interface{}); ok {
+						result.Fields = append(result.Fields, interfaces.AssetSchemaField{
+							FieldName: key,
+							FieldType: def["type"].(string),
+						})
+					}
+				}
+				result.TotalCount = len(result.Fields)
+				return result, nil
+			}
+		} else {
+			return result, interfaces.ErrInvalidJSONSchema
+		}
+
+	case "application/geo+json":
+		var geoData GeoJSONFeature
+		if err := json.Unmarshal(content, &geoData); err != nil {
+			return result, err
+		}
+		for key, value := range geoData.Properties {
+			result.Fields = append(result.Fields, interfaces.AssetSchemaField{
+				FieldName: key,
+				FieldType: detectFieldType(value),
+			})
+		}
+	}
+
+	result.TotalCount = len(result.Fields)
+	return result, nil
+}
+
+func isJSONSchema(data map[string]interface{}) bool {
+	_, hasSchema := data["$schema"]
+	_, hasProperties := data["properties"]
+	typeVal, isTypeObj := data["type"].(string)
+	return hasSchema && hasProperties && isTypeObj && typeVal == "object"
+}
+
+func detectFieldType(value any) string {
+	switch v := value.(type) {
+	case string:
+		return "string"
+	case float64:
+		// If the number is whole, assume it's an integer
+		if v == float64(int(v)) {
+			return "integer"
+		}
+		return "float"
+	case bool:
+		return "boolean"
+	case map[string]interface{}:
+		return "object"
+	case []interface{}:
+		return "array"
+	default:
+		return "unknown"
+	}
 }
