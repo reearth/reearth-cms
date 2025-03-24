@@ -149,6 +149,11 @@ enum AssetSortType {
   NAME
 }
 
+enum ContentTypesEnum {
+  JSON
+  GEOJSON
+}
+
 input AssetSort {
   sortBy: AssetSortType!
   direction: SortDirection
@@ -156,7 +161,7 @@ input AssetSort {
 
 extend type Query {
   assetFile(assetId: ID!): AssetFile!
-  assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
+  assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination, contentTypes:[ContentTypesEnum]): AssetConnection!
 }
 
 extend type Mutation {
