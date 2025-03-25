@@ -829,17 +829,23 @@ func extractSchemaFieldData(contentType string, content []byte) (*interfaces.Ass
 		// ✅ Detect JSON Schema
 		if isJSONSchema(raw) {
 			// Extract from "properties"
-			if props, ok := raw["properties"].(map[string]interface{}); ok {
+			if props, ok := raw["properties"].(map[string]any); ok {
 				for key, val := range props {
 					if def, ok := val.(map[string]interface{}); ok {
+						typeValue, ok := def["type"].(string)
+						if !ok {
+							continue
+						}
 						result.Fields = append(result.Fields, interfaces.AssetSchemaField{
 							FieldName: key,
-							FieldType: def["type"].(string),
+							FieldType: typeValue,
 						})
 					}
 				}
 				result.TotalCount = len(result.Fields)
 				return result, nil
+			} else {
+				return result, interfaces.ErrInvalidJSONSchema
 			}
 		} else {
 			return result, interfaces.ErrInvalidJSONSchema
@@ -850,6 +856,11 @@ func extractSchemaFieldData(contentType string, content []byte) (*interfaces.Ass
 		if err := json.Unmarshal(content, &geoData); err != nil {
 			return result, err
 		}
+
+		if geoData.Properties == nil {
+			return result, nil
+		}
+
 		for key, value := range geoData.Properties {
 			result.Fields = append(result.Fields, interfaces.AssetSchemaField{
 				FieldName: key,
