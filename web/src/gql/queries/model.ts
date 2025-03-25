@@ -204,6 +204,17 @@ export const UPDATE_MODEL = gql`
   }
 `;
 
+export const PUBLISH_MODELS = gql`
+  mutation PublishModels($models: [PublishModelInput!]!) {
+    publishModels(input: { models: $models }) {
+      models {
+        modelId
+        status
+      }
+    }
+  }
+`;
+
 export const GET_MODEL_KEY_AVAILABILITY = gql`
   query CheckModelKeyAvailability($projectId: ID!, $key: String!) {
     checkModelKeyAvailability(projectId: $projectId, key: $key) {

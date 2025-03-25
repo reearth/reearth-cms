@@ -5,7 +5,7 @@ import { FormType, PublicScope } from "@reearth-cms/components/molecules/Accessi
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import {
-  useUpdateModelMutation,
+  usePublishModelsMutation,
   useGetModelsQuery,
   Model as GQLModel,
   ProjectPublicationScope,
@@ -68,12 +68,12 @@ export default () => {
   }, []);
 
   const [updateProjectMutation] = useUpdateProjectMutation();
-  const [updateModelMutation] = useUpdateModelMutation({
+  const [publishModelsMutation] = usePublishModelsMutation({
     refetchQueries: ["GetModels"],
   });
 
   const handlePublicUpdate = useCallback(
-    async ({ scope, assetPublic }: FormType, changedModels: Map<string, boolean>) => {
+    async ({ scope, assetPublic }: FormType, models: { modelId: string; status: boolean }[]) => {
       if (!currentProject?.id) return;
       setUpdateLoading(true);
       try {
@@ -91,15 +91,15 @@ export default () => {
             throw new Error();
           }
         }
-        if (changedModels.size) {
-          changedModels.forEach(async (value, modelId) => {
-            const modelRes = await updateModelMutation({
-              variables: { modelId, public: value },
-            });
-            if (modelRes.errors) {
-              throw new Error();
-            }
+        if (models.length) {
+          const res = await publishModelsMutation({
+            variables: {
+              models,
+            },
           });
+          if (res.errors) {
+            throw new Error();
+          }
         }
         Notification.success({
           message: t("Successfully updated publication settings!"),
@@ -115,9 +115,9 @@ export default () => {
       currentProject?.id,
       initialValues.assetPublic,
       initialValues.scope,
+      publishModelsMutation,
       scopeConvert,
       t,
-      updateModelMutation,
       updateProjectMutation,
     ],
   );

@@ -32,7 +32,10 @@ type Props = {
   apiUrl: string;
   alias: string;
   token: string;
-  onPublicUpdate: (settings: FormType, changedModels: Map<string, boolean>) => Promise<void>;
+  onPublicUpdate: (
+    settings: FormType,
+    models: { modelId: string; status: boolean }[],
+  ) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
 };
 
@@ -145,7 +148,13 @@ const Accessibility: React.FC<Props> = ({
   );
   const handleSave = useCallback(async () => {
     try {
-      await onPublicUpdate(form.getFieldsValue(), changedModels.current);
+      await onPublicUpdate(
+        form.getFieldsValue(),
+        Array.from(changedModels.current, ([modelId, status]) => ({
+          modelId,
+          status,
+        })),
+      );
       changedModels.current.clear();
       setIsSaveDisabled(true);
     } catch (e) {
