@@ -41,7 +41,7 @@ type Props = {
   onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
-  onSelect: (selectedAsset: ItemAsset) => void;
+  onAssetSelect: (id: string) => void;
   onAssetsReload?: () => void;
   onSearchTerm?: (term?: string) => void;
   displayUploadModal: () => void;
@@ -68,7 +68,7 @@ const SelectFileModal: React.FC<Props> = ({
   onAssetTableChange,
   setUploadUrl,
   setUploadType,
-  onSelect,
+  onAssetSelect,
   onAssetsReload,
   onSearchTerm,
   displayUploadModal,
@@ -83,11 +83,16 @@ const SelectFileModal: React.FC<Props> = ({
       const isLink = asset.id !== linkedAsset?.id;
       onModalClose();
       if (isLink) {
-        onSelect({ id: asset.id, fileName: asset.fileName });
+        onAssetSelect(asset.id);
       }
     },
-    [linkedAsset?.id, onModalClose, onSelect],
+    [linkedAsset?.id, onAssetSelect, onModalClose],
   );
+
+  const handleModalAfterClose = useCallback(() => {
+    onSearchTerm?.();
+    resetFlag.current = !resetFlag.current;
+  }, [onSearchTerm]);
 
   const handleTableChange = useCallback(
     (
@@ -221,10 +226,7 @@ const SelectFileModal: React.FC<Props> = ({
       centered
       open={visible}
       onCancel={onModalClose}
-      afterClose={() => {
-        onSearchTerm?.();
-        resetFlag.current = !resetFlag.current;
-      }}
+      afterClose={handleModalAfterClose}
       footer={[
         <UploadAsset
           key={1}

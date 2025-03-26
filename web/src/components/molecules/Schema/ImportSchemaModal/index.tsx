@@ -5,10 +5,17 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
+import {
+  UploadProps,
+  UploadFile,
+  UploadFile as RawUploadFile,
+} from "@reearth-cms/components/atoms/Upload";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "../fieldTypes";
-import useHooks from "../hooks";
 import { Field, FieldType } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
@@ -17,10 +24,38 @@ import SchemaPreviewStep from "./SchemaPreviewStep";
 import SelectFileModal from "./SelectFileModal";
 
 type Props = {
+  workspaceId?: string;
+  projectId?: string;
   visible: boolean;
   selectFileModalVisible: boolean;
   currentPage: number;
   nextPage: () => void;
+  assetList: Asset[];
+  loading: boolean;
+  totalCount: number;
+  selectedAsset?: ItemAsset;
+  fileList: RawUploadFile[];
+  uploadType: UploadType;
+  uploadUrl: {
+    url: string;
+    autoUnzip: boolean;
+  };
+  uploading: boolean;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadType: (type: UploadType) => void;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  hasCreateRight: boolean;
+  uploadModalVisibility: boolean;
+  displayUploadModal: () => void;
+  page: number;
+  pageSize: number;
+  onSearchTerm: (term?: string) => void;
+  onAssetsReload: () => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  onAssetSelect: (id: string) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onUploadModalCancel: () => void;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   onSelectFile: () => void;
@@ -29,10 +64,35 @@ type Props = {
 };
 
 const ImportSchemaModal: React.FC<Props> = ({
+  workspaceId,
+  projectId,
   visible,
   selectFileModalVisible,
   currentPage,
   nextPage,
+  assetList,
+  loading,
+  totalCount,
+  selectedAsset,
+  fileList,
+  uploadType,
+  uploadUrl,
+  uploading,
+  setUploadUrl,
+  setUploadType,
+  setFileList,
+  hasCreateRight,
+  uploadModalVisibility,
+  displayUploadModal,
+  page,
+  pageSize,
+  onSearchTerm,
+  onAssetsReload,
+  onAssetTableChange,
+  onAssetSelect,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
+  onUploadModalCancel,
   hasUpdateRight,
   hasDeleteRight,
   onSelectFile,
@@ -124,32 +184,37 @@ const ImportSchemaModal: React.FC<Props> = ({
     }));
   }, []);
 
-  const {
-    workspaceId,
-    projectId,
-    assetList,
-    loading,
-    totalCount,
-    selectedAsset,
-    uploadProps,
+  const uploadProps: UploadProps = {
+    name: "file",
+    multiple: false,
+    maxCount: 1,
+    directory: false,
+    showUploadList: true,
+    accept: "*",
+    listType: "picture",
+    onRemove: () => {
+      setFileList([]);
+    },
+    beforeUpload: file => {
+      setFileList([file]);
+      return false;
+    },
     fileList,
-    uploadType,
-    uploadUrl,
-    uploading,
-    setUploadUrl,
-    setUploadType,
-    hasCreateRight,
-    uploadModalVisibility,
-    displayUploadModal,
-    page,
-    pageSize,
-    handleSelect,
-    handleSearchTerm,
-    handleAssetsReload,
-    handleAssetTableChange,
-    handleUploadModalCancel,
-    handleUploadAndLink,
-  } = useHooks();
+  };
+
+  const handleAssetUpload = useCallback(async () => {
+    if (uploadType === "url" && uploadUrl) {
+      return (await onAssetCreateFromUrl?.(uploadUrl.url, uploadUrl.autoUnzip)) ?? undefined;
+    } else if (fileList) {
+      const assets = await onAssetsCreate?.(fileList);
+      return assets && assets?.length > 0 ? assets[0] : undefined;
+    }
+  }, [fileList, onAssetCreateFromUrl, onAssetsCreate, uploadType, uploadUrl]);
+
+  const handleUploadAndLink = useCallback(async () => {
+    const asset = await handleAssetUpload();
+    if (asset) onAssetSelect(asset.id);
+  }, [handleAssetUpload, onAssetSelect]);
 
   const stepComponents = [
     {
@@ -233,11 +298,11 @@ const ImportSchemaModal: React.FC<Props> = ({
           page={page}
           pageSize={pageSize}
           totalCount={totalCount}
-          onSelect={handleSelect}
-          onSearchTerm={handleSearchTerm}
-          onAssetsReload={handleAssetsReload}
-          onAssetTableChange={handleAssetTableChange}
-          onUploadModalCancel={handleUploadModalCancel}
+          onAssetSelect={onAssetSelect}
+          onSearchTerm={onSearchTerm}
+          onAssetsReload={onAssetsReload}
+          onAssetTableChange={onAssetTableChange}
+          onUploadModalCancel={onUploadModalCancel}
           onUploadAndLink={handleUploadAndLink}
         />
       </>

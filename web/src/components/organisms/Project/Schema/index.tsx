@@ -13,6 +13,8 @@ const ProjectSchema: React.FC = () => {
   const t = useT();
 
   const {
+    workspaceId,
+    projectId,
     assetList,
     fileList,
     loading,
@@ -25,17 +27,19 @@ const ProjectSchema: React.FC = () => {
     setUploadType,
     setFileList,
     setUploadModalVisibility,
+    selectedAsset,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleSearchTerm,
     handleAssetsGet,
     handleAssetsReload,
+    handleAssetSelect,
     totalCount,
     page,
     pageSize,
     handleAssetTableChange,
     handleGetAsset,
-  } = useAssetHooks(false);
+  } = useAssetHooks(true);
 
   const {
     data,
@@ -88,9 +92,32 @@ const ProjectSchema: React.FC = () => {
         data={data}
         collapsed={collapsed}
         selectedSchemaType={selectedSchemaType}
+        workspaceId={workspaceId}
+        projectId={projectId}
+        page={page}
+        pageSize={pageSize}
+        assetList={assetList}
+        loading={loading}
+        selectedAsset={selectedAsset}
+        fileList={fileList}
+        uploadType={uploadType}
+        uploadUrl={uploadUrl}
+        uploading={uploading}
+        setUploadUrl={setUploadUrl}
+        setUploadType={setUploadType}
+        setFileList={setFileList}
+        uploadModalVisibility={uploadModalVisibility}
+        totalCount={totalCount}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
+        onSearchTerm={handleSearchTerm}
+        onAssetsReload={handleAssetsReload}
+        onAssetTableChange={handleAssetTableChange}
+        onAssetSelect={handleAssetSelect}
+        onAssetsCreate={handleAssetsCreate}
+        onAssetCreateFromUrl={handleAssetCreateFromUrl}
+        onUploadModalCancel={handleUploadModalCancel}
         onModalOpen={handleModalOpen}
         onDeletionModalOpen={handleDeletionModalOpen}
         modelsMenu={
