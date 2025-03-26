@@ -29,26 +29,27 @@ type Props = {
   visible: boolean;
   selectFileModalVisible: boolean;
   currentPage: number;
-  nextPage: () => void;
   assetList: Asset[];
   loading: boolean;
   totalCount: number;
   selectedAsset?: ItemAsset;
   fileList: RawUploadFile[];
+  progress: number;
   uploadType: UploadType;
-  uploadUrl: {
-    url: string;
-    autoUnzip: boolean;
-  };
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
+  uploadModalVisibility: boolean;
+  page: number;
+  pageSize: number;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
+  displayUploadModal: () => void;
+  toSchemaPreviewStep: () => void;
+  toImportingStep: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  hasCreateRight: boolean;
-  uploadModalVisibility: boolean;
-  displayUploadModal: () => void;
-  page: number;
-  pageSize: number;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
@@ -56,8 +57,6 @@ type Props = {
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onUploadModalCancel: () => void;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
   onSelectFile: () => void;
   onSelectSchemaFileModalClose: () => void;
   onModalClose: () => void;
@@ -69,12 +68,14 @@ const ImportSchemaModal: React.FC<Props> = ({
   visible,
   selectFileModalVisible,
   currentPage,
-  nextPage,
+  toSchemaPreviewStep,
+  toImportingStep,
   assetList,
   loading,
   totalCount,
   selectedAsset,
   fileList,
+  progress,
   uploadType,
   uploadUrl,
   uploading,
@@ -244,7 +245,7 @@ const ImportSchemaModal: React.FC<Props> = ({
     },
     {
       title: "Importing",
-      content: <ImportingStep percent={75} />,
+      content: <ImportingStep progress={progress} />,
     },
   ];
 
@@ -260,12 +261,12 @@ const ImportSchemaModal: React.FC<Props> = ({
       footer={
         <>
           {currentPage === 0 && (
-            <Button type="primary" disabled={!selectedAsset} onClick={nextPage}>
+            <Button type="primary" disabled={!selectedAsset} onClick={toSchemaPreviewStep}>
               {t("Next")}
             </Button>
           )}
           {currentPage === 1 && (
-            <Button type="primary" onClick={nextPage}>
+            <Button type="primary" onClick={toImportingStep}>
               {t("Import Schema")}
             </Button>
           )}

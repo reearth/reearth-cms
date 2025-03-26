@@ -8,17 +8,17 @@ import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
+  projectId?: string;
+  workspaceId?: string;
   selectedAsset?: ItemAsset;
   onSelectFile: () => void;
-  workspaceId?: string;
-  projectId?: string;
 };
 
 const FileSelectionStep: React.FC<Props> = ({
+  projectId,
+  workspaceId,
   selectedAsset,
   onSelectFile,
-  workspaceId,
-  projectId,
 }) => {
   const t = useT();
 

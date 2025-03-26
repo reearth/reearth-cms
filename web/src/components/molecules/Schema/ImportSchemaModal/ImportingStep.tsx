@@ -4,16 +4,16 @@ import Progress from "@reearth-cms/components/atoms/Progress";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  percent: number;
+  progress: number;
 };
 
-const ImportingStep: React.FC<Props> = ({ percent }) => {
+const ImportingStep: React.FC<Props> = ({ progress }) => {
   const t = useT();
 
   return (
     <Container>
-      <Progress type="circle" percent={percent} />
-      <StatusText>{t("Importing...")}</StatusText>
+      <Progress type="circle" percent={progress} />
+      <StatusText>{progress < 100 ? t("Importing...") : t("Import successful!")}</StatusText>
     </Container>
   );
 };

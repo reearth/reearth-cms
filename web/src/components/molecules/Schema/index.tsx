@@ -44,10 +44,7 @@ type Props = {
   hasDeleteRight: boolean;
   fileList: UploadFile[];
   uploadType: UploadType;
-  uploadUrl: {
-    url: string;
-    autoUnzip: boolean;
-  };
+  uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
@@ -113,6 +110,7 @@ const Schema: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
+  const [progress, _setProgress] = useState(0);
   const [importSchemaModalVisible, setImportSchemaModalVisible] = useState(false);
   const [selectFileModalVisible, setSelectFileModalVisible] = useState(false);
   const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
@@ -122,9 +120,13 @@ const Schema: React.FC<Props> = ({
     setUploadModalVisibility(true);
   }, []);
 
-  const nextSchemaImportPage = useCallback(() => {
-    setCurrentImportSchemaModalPage(currentImportSchemaModalPage + 1);
-  }, [currentImportSchemaModalPage]);
+  const toSchemaPreviewStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(2);
+  }, []);
+
+  const toImportingStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(3);
+  }, []);
 
   const handleSelectSchemaFileModalOpen = useCallback(() => {
     setSelectFileModalVisible(true);
@@ -290,7 +292,8 @@ const Schema: React.FC<Props> = ({
             visible={importSchemaModalVisible}
             selectFileModalVisible={selectFileModalVisible}
             currentPage={currentImportSchemaModalPage}
-            nextPage={nextSchemaImportPage}
+            toSchemaPreviewStep={toSchemaPreviewStep}
+            toImportingStep={toImportingStep}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
             displayUploadModal={displayUploadModal}
@@ -300,6 +303,7 @@ const Schema: React.FC<Props> = ({
             uploadType={uploadType}
             uploadUrl={uploadUrl}
             uploading={uploading}
+            progress={progress}
             setUploadUrl={setUploadUrl}
             setUploadType={setUploadType}
             setFileList={setFileList}
