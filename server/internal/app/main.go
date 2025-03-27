@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/net/http2"
+	"google.golang.org/grpc"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -43,8 +44,9 @@ func Start(debug bool, version string) {
 }
 
 type WebServer struct {
-	address   string
-	appServer *echo.Echo
+	address        string
+	appServer      *echo.Echo
+	internalServer *grpc.Server
 }
 
 type ServerConfig struct {
@@ -77,6 +79,7 @@ func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
 	}
 
 	w.appServer = initEcho(cfg)
+	w.internalServer = initGrpc(cfg)
 	return w
 }
 
@@ -87,12 +90,22 @@ func (w *WebServer) Run(ctx context.Context) {
 	if w.appServer.Debug {
 		debugLog += " with debug mode"
 	}
-	log.Infof("server: started%s at http://%s", debugLog, w.address)
 
 	go func() {
 		err := w.appServer.StartH2CServer(w.address, &http2.Server{})
 		log.Fatalc(ctx, err.Error())
 	}()
+	log.Infof("server: started%s at http://%s", debugLog, w.address)
+
+	go func() {
+		l, err := net.Listen("tcp", ":50051")
+		if err != nil {
+			log.Fatalc(ctx, err.Error())
+		}
+		err = w.internalServer.Serve(l)
+		log.Fatalc(ctx, err.Error())
+	}()
+	log.Infof("server: started internal grpc server at :50051")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
