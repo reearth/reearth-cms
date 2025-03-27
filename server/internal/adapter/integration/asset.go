@@ -18,6 +18,7 @@ import (
 )
 
 var ErrFileIsMissing = rerror.NewE(i18n.T("File is missing"))
+var ErrAtLeastOneAssetID = rerror.NewE(i18n.T("At least one asset ID is required"))
 
 func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error) {
 	op := adapter.Operator(ctx)
@@ -142,6 +143,27 @@ func (s *Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObje
 
 	return AssetDelete200JSONResponse{
 		Id: &aId,
+	}, nil
+}
+
+func (s *Server) AssetBatchDelete(ctx context.Context, request AssetBatchDeleteRequestObject) (AssetBatchDeleteResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	if request.Body == nil || len(*request.Body.AssetIDs) == 0 {
+		return AssetBatchDelete400Response{}, ErrAtLeastOneAssetID
+	}
+
+	ids, err := uc.Asset.BatchDelete(ctx, *request.Body.AssetIDs, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetBatchDelete404Response{}, err
+		}
+		return AssetBatchDelete400Response{}, err
+	}
+
+	return AssetBatchDelete200JSONResponse{
+		Ids: &ids,
 	}, nil
 }
 

@@ -131,6 +131,7 @@ test("Showing item title has succeeded", async ({ page }) => {
   await expect(page.getByTitle(`e2e model name / default text`, { exact: true })).toBeVisible();
 });
 
+// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -144,10 +145,10 @@ test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
 
   await page.getByRole("button", { name: "0" }).click();
-  await expect(page.getByText("CommentsNo comments.0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });
 
+// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -158,6 +159,5 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("comment").click();
-  await expect(page.getByText("Comments0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });

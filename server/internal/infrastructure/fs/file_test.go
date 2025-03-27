@@ -2,6 +2,7 @@ package fs
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -125,6 +126,56 @@ func TestFile_DeleteAsset(t *testing.T) {
 	f1, _ := NewFile(fs1, "https://example.com/assets")
 	err1 := f1.DeleteAsset(context.Background(), u1, n1)
 	assert.Same(t, gateway.ErrInvalidFile, err1)
+}
+
+func TestFile_DeleteAssets(t *testing.T) {
+	uuid1 := newUUID()
+	uuid2 := newUUID()
+	type args struct {
+		ids []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want error
+	}{
+		{
+			name: "success",
+			args: args{
+				ids: []string{uuid1, uuid2},
+			},
+			want: nil,
+		},
+		{
+			name: "empty",
+			args: args{
+				ids: []string{},
+			},
+			want: rerror.ErrNotFound,
+		},
+		{
+			name: "invalid uuid",
+			args: args{
+				ids: []string{"-"},
+			},
+			want: rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", []error{gateway.ErrInvalidUUID})),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fs := mockFs()
+			f, _ := NewFile(fs, "xxx.txt")
+
+			err := f.DeleteAssets(context.Background(), tt.args.ids)
+			assert.Equal(t, tt.want, err)
+			for _, id := range tt.args.ids {
+				_, err := fs.Stat(getFSObjectPath(id, "xxx.txt"))
+				assert.ErrorIs(t, err, os.ErrNotExist)
+			}
+		})
+	}
 }
 
 func TestFile_GetURL(t *testing.T) {

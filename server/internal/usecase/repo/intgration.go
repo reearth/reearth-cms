@@ -15,4 +15,5 @@ type Integration interface {
 	FindByToken(context.Context, string) (*integration.Integration, error)
 	Save(context.Context, *integration.Integration) error
 	Remove(context.Context, id.IntegrationID) error
+	RemoveMany(context.Context, id.IntegrationIDList) error
 }
