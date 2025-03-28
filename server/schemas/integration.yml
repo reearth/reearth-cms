@@ -48,7 +48,7 @@ paths:
           description: Internal server error
     post:
       operationId: ProjectCreate
-      summary: create a project
+      summary: Create a project
       tags:
         - Projects
       security:
@@ -72,7 +72,7 @@ paths:
                     type: string
                     enum: [READER, WRITER, OWNER, MAINTAINER]
       responses:
-        '200':
+        '201':
           description: A JSON object of the created project
           content:
             application/json:
@@ -149,19 +149,19 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
-          description: Not found
+          description: Project Not found
         '500':
           description: Internal server error
     delete:
       operationId: ProjectDelete
-      summary: delete a project
+      summary: Delete a project
       tags:
         - Projects
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: delete a project
+          description: The project was deleted successfully
           content:
             application/json:
               schema:
