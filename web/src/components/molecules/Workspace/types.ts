@@ -13,6 +13,8 @@ export type Project = {
   token: string;
 };
 
+export type ProjectListItem = Pick<Project, "id" | "name" | "description">;
+
 export type UserMember = {
   userId: string;
   role: Role;
@@ -34,7 +36,6 @@ export type Workspace = {
 };
 
 export type WorkspaceSettings = {
-  id: string;
   tiles?: ResourceList<TileResource>;
   terrains?: ResourceList<TerrainResource>;
 };

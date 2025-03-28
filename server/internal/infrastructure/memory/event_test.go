@@ -19,7 +19,7 @@ func TestEvent_FindByID(t *testing.T) {
 	now := time.Now()
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).NewUUID().
-		CreatedByUser(u.ID()).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(u.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	eID1 := event.NewID()
 	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).MustBuild()
 
@@ -45,7 +45,7 @@ func TestEvent_Save(t *testing.T) {
 	now := time.Now()
 	u := user.New().NewID().Email("hoge@example.com").Name("John").MustBuild()
 	a := asset.New().NewID().Project(project.NewID()).Size(100).NewUUID().
-		CreatedByUser(u.ID()).Thread(id.NewThreadID()).MustBuild()
+		CreatedByUser(u.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	eID1 := event.NewID()
 	ev := event.New[any]().ID(eID1).Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).MustBuild()
 

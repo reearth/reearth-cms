@@ -87,7 +87,7 @@ type Asset struct {
 	ContentEncoding         *string                  `json:"contentEncoding,omitempty"`
 	UUID                    string                   `json:"uuid"`
 	Thread                  *Thread                  `json:"thread,omitempty"`
-	ThreadID                ID                       `json:"threadId"`
+	ThreadID                *ID                      `json:"threadId,omitempty"`
 	URL                     string                   `json:"url"`
 	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
@@ -308,8 +308,11 @@ type CreateRequestInput struct {
 	Items       []*RequestItemInput `json:"items"`
 }
 
-type CreateThreadInput struct {
-	WorkspaceID ID `json:"workspaceId"`
+type CreateThreadWithCommentInput struct {
+	WorkspaceID  ID           `json:"workspaceId"`
+	ResourceID   ID           `json:"resourceId"`
+	ResourceType ResourceType `json:"resourceType"`
+	Content      string       `json:"content"`
 }
 
 type CreateViewInput struct {
@@ -354,6 +357,14 @@ type DeleteAssetPayload struct {
 	AssetID ID `json:"assetId"`
 }
 
+type DeleteAssetsInput struct {
+	AssetIds []ID `json:"assetIds"`
+}
+
+type DeleteAssetsPayload struct {
+	AssetIds []ID `json:"assetIds,omitempty"`
+}
+
 type DeleteCommentInput struct {
 	ThreadID  ID `json:"threadId"`
 	CommentID ID `json:"commentId"`
@@ -389,6 +400,14 @@ type DeleteIntegrationInput struct {
 
 type DeleteIntegrationPayload struct {
 	IntegrationID ID `json:"integrationId"`
+}
+
+type DeleteIntegrationsInput struct {
+	IntegrationIDs []ID `json:"integrationIDs"`
+}
+
+type DeleteIntegrationsPayload struct {
+	IntegrationIDs []ID `json:"integrationIDs,omitempty"`
 }
 
 type DeleteItemInput struct {
@@ -810,6 +829,14 @@ type PublishModelPayload struct {
 	Status  bool `json:"status"`
 }
 
+type PublishModelsInput struct {
+	Models []*PublishModelInput `json:"models"`
+}
+
+type PublishModelsPayload struct {
+	Models []*PublishModelPayload `json:"models"`
+}
+
 type Query struct {
 }
 
@@ -851,7 +878,7 @@ type Request struct {
 	CreatedByID ID             `json:"createdById"`
 	WorkspaceID ID             `json:"workspaceId"`
 	ProjectID   ID             `json:"projectId"`
-	ThreadID    ID             `json:"threadId"`
+	ThreadID    *ID            `json:"threadId,omitempty"`
 	ReviewersID []ID           `json:"reviewersId"`
 	State       RequestState   `json:"state"`
 	CreatedAt   time.Time      `json:"createdAt"`
@@ -1228,10 +1255,6 @@ type Thread struct {
 	Comments    []*Comment `json:"comments"`
 }
 
-type ThreadPayload struct {
-	Thread *Thread `json:"thread"`
-}
-
 type TileResource struct {
 	ID    ID                `json:"id"`
 	Type  TileType          `json:"type"`
@@ -1589,7 +1612,7 @@ func (e ArchiveExtractionStatus) String() string {
 	return string(e)
 }
 
-func (e *ArchiveExtractionStatus) UnmarshalGQL(v interface{}) error {
+func (e *ArchiveExtractionStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1632,7 +1655,7 @@ func (e AssetSortType) String() string {
 	return string(e)
 }
 
-func (e *AssetSortType) UnmarshalGQL(v interface{}) error {
+func (e *AssetSortType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1673,7 +1696,7 @@ func (e BasicOperator) String() string {
 	return string(e)
 }
 
-func (e *BasicOperator) UnmarshalGQL(v interface{}) error {
+func (e *BasicOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1714,7 +1737,7 @@ func (e BoolOperator) String() string {
 	return string(e)
 }
 
-func (e *BoolOperator) UnmarshalGQL(v interface{}) error {
+func (e *BoolOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1767,7 +1790,7 @@ func (e FieldType) String() string {
 	return string(e)
 }
 
-func (e *FieldType) UnmarshalGQL(v interface{}) error {
+func (e *FieldType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1812,7 +1835,7 @@ func (e GeometryEditorSupportedType) String() string {
 	return string(e)
 }
 
-func (e *GeometryEditorSupportedType) UnmarshalGQL(v interface{}) error {
+func (e *GeometryEditorSupportedType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1863,7 +1886,7 @@ func (e GeometryObjectSupportedType) String() string {
 	return string(e)
 }
 
-func (e *GeometryObjectSupportedType) UnmarshalGQL(v interface{}) error {
+func (e *GeometryObjectSupportedType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1904,7 +1927,7 @@ func (e IntegrationType) String() string {
 	return string(e)
 }
 
-func (e *IntegrationType) UnmarshalGQL(v interface{}) error {
+func (e *IntegrationType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1951,7 +1974,7 @@ func (e ItemStatus) String() string {
 	return string(e)
 }
 
-func (e *ItemStatus) UnmarshalGQL(v interface{}) error {
+func (e *ItemStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1996,7 +2019,7 @@ func (e MultipleOperator) String() string {
 	return string(e)
 }
 
-func (e *MultipleOperator) UnmarshalGQL(v interface{}) error {
+func (e *MultipleOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2057,7 +2080,7 @@ func (e NodeType) String() string {
 	return string(e)
 }
 
-func (e *NodeType) UnmarshalGQL(v interface{}) error {
+func (e *NodeType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2098,7 +2121,7 @@ func (e NullableOperator) String() string {
 	return string(e)
 }
 
-func (e *NullableOperator) UnmarshalGQL(v interface{}) error {
+func (e *NullableOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2143,7 +2166,7 @@ func (e NumberOperator) String() string {
 	return string(e)
 }
 
-func (e *NumberOperator) UnmarshalGQL(v interface{}) error {
+func (e *NumberOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2184,7 +2207,7 @@ func (e OperatorType) String() string {
 	return string(e)
 }
 
-func (e *OperatorType) UnmarshalGQL(v interface{}) error {
+func (e *OperatorType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2237,7 +2260,7 @@ func (e PreviewType) String() string {
 	return string(e)
 }
 
-func (e *PreviewType) UnmarshalGQL(v interface{}) error {
+func (e *PreviewType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2280,7 +2303,7 @@ func (e ProjectPublicationScope) String() string {
 	return string(e)
 }
 
-func (e *ProjectPublicationScope) UnmarshalGQL(v interface{}) error {
+func (e *ProjectPublicationScope) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2325,7 +2348,7 @@ func (e RequestState) String() string {
 	return string(e)
 }
 
-func (e *RequestState) UnmarshalGQL(v interface{}) error {
+func (e *RequestState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2339,6 +2362,49 @@ func (e *RequestState) UnmarshalGQL(v interface{}) error {
 }
 
 func (e RequestState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ResourceType string
+
+const (
+	ResourceTypeItem    ResourceType = "ITEM"
+	ResourceTypeAsset   ResourceType = "ASSET"
+	ResourceTypeRequest ResourceType = "REQUEST"
+)
+
+var AllResourceType = []ResourceType{
+	ResourceTypeItem,
+	ResourceTypeAsset,
+	ResourceTypeRequest,
+}
+
+func (e ResourceType) IsValid() bool {
+	switch e {
+	case ResourceTypeItem, ResourceTypeAsset, ResourceTypeRequest:
+		return true
+	}
+	return false
+}
+
+func (e ResourceType) String() string {
+	return string(e)
+}
+
+func (e *ResourceType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceType", str)
+	}
+	return nil
+}
+
+func (e ResourceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -2370,7 +2436,7 @@ func (e Role) String() string {
 	return string(e)
 }
 
-func (e *Role) UnmarshalGQL(v interface{}) error {
+func (e *Role) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2429,7 +2495,7 @@ func (e SchemaFieldTagColor) String() string {
 	return string(e)
 }
 
-func (e *SchemaFieldTagColor) UnmarshalGQL(v interface{}) error {
+func (e *SchemaFieldTagColor) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2500,7 +2566,7 @@ func (e SchemaFieldType) String() string {
 	return string(e)
 }
 
-func (e *SchemaFieldType) UnmarshalGQL(v interface{}) error {
+func (e *SchemaFieldType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2541,7 +2607,7 @@ func (e SortDirection) String() string {
 	return string(e)
 }
 
-func (e *SortDirection) UnmarshalGQL(v interface{}) error {
+func (e *SortDirection) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2590,7 +2656,7 @@ func (e StringOperator) String() string {
 	return string(e)
 }
 
-func (e *StringOperator) UnmarshalGQL(v interface{}) error {
+func (e *StringOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2633,7 +2699,7 @@ func (e TerrainType) String() string {
 	return string(e)
 }
 
-func (e *TerrainType) UnmarshalGQL(v interface{}) error {
+func (e *TerrainType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2676,7 +2742,7 @@ func (e Theme) String() string {
 	return string(e)
 }
 
-func (e *Theme) UnmarshalGQL(v interface{}) error {
+func (e *Theme) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2729,7 +2795,7 @@ func (e TileType) String() string {
 	return string(e)
 }
 
-func (e *TileType) UnmarshalGQL(v interface{}) error {
+func (e *TileType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2780,7 +2846,7 @@ func (e TimeOperator) String() string {
 	return string(e)
 }
 
-func (e *TimeOperator) UnmarshalGQL(v interface{}) error {
+func (e *TimeOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

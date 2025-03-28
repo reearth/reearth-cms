@@ -2,6 +2,7 @@ package fs
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -127,6 +128,56 @@ func TestFile_DeleteAsset(t *testing.T) {
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 }
 
+func TestFile_DeleteAssets(t *testing.T) {
+	uuid1 := newUUID()
+	uuid2 := newUUID()
+	type args struct {
+		ids []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want error
+	}{
+		{
+			name: "success",
+			args: args{
+				ids: []string{uuid1, uuid2},
+			},
+			want: nil,
+		},
+		{
+			name: "empty",
+			args: args{
+				ids: []string{},
+			},
+			want: rerror.ErrNotFound,
+		},
+		{
+			name: "invalid uuid",
+			args: args{
+				ids: []string{"-"},
+			},
+			want: rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", []error{gateway.ErrInvalidUUID})),
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fs := mockFs()
+			f, _ := NewFile(fs, "xxx.txt")
+
+			err := f.DeleteAssets(context.Background(), tt.args.ids)
+			assert.Equal(t, tt.want, err)
+			for _, id := range tt.args.ids {
+				_, err := fs.Stat(getFSObjectPath(id, "xxx.txt"))
+				assert.ErrorIs(t, err, os.ErrNotExist)
+			}
+		})
+	}
+}
+
 func TestFile_GetURL(t *testing.T) {
 	host := "https://example.com"
 	fs := mockFs()
@@ -140,7 +191,7 @@ func TestFile_GetURL(t *testing.T) {
 		CreatedByUser(accountdomain.NewUserID()).
 		Size(1000).FileName(n).
 		UUID(u).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		MustBuild()
 
 	expected, err := url.JoinPath(host, assetDir, u[:2], u[2:], url.PathEscape(n))

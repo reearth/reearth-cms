@@ -20,7 +20,7 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 	for _, s2 := range gsList {
 		groupFields = append(groupFields, toItemFields(i.Fields(), s2, true)...)
 	}
-	itm := Item{
+	return &Item{
 		ID:                     IDFrom(i.ID()),
 		ProjectID:              IDFrom(i.Project()),
 		SchemaID:               IDFrom(i.Schema()),
@@ -37,11 +37,8 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 		Fields:                 append(itemFields, groupFields...),
 		Version:                vi.Version().String(),
 		Title:                  i.GetTitle(s),
+		ThreadID:               IDFromRef(i.Thread()),
 	}
-	if !i.Thread().Ref().IsNil() {
-		itm.ThreadID = IDFromRef(i.Thread().Ref())
-	}
-	return &itm
 }
 func toItemFields(fields item.Fields, s *schema.Schema, isGroupSchema bool) []*ItemField {
 	var res []*ItemField

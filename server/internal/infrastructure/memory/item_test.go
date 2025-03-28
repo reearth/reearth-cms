@@ -23,7 +23,7 @@ import (
 
 func TestItem_FindByID(t *testing.T) {
 	ctx := context.Background()
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 
@@ -39,9 +39,9 @@ func TestItem_FindByID(t *testing.T) {
 func TestItem_Remove(t *testing.T) {
 	ctx := context.Background()
 	pid, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	r := NewItem()
 	_ = r.Save(ctx, i1)
@@ -70,8 +70,8 @@ func TestItem_Remove(t *testing.T) {
 
 func TestItem_Save(t *testing.T) {
 	ctx := context.Background()
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID().Ref()).Project(id.NewProjectID()).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID().Ref()).Project(id.NewProjectID()).MustBuild()
 	pf := repo.ProjectFilter{
 		Readable: []id.ProjectID{i.Project()},
 		Writable: []id.ProjectID{i.Project()},
@@ -92,8 +92,8 @@ func TestItem_Save(t *testing.T) {
 
 func TestItem_FindByIDs(t *testing.T) {
 	ctx := context.Background()
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID().Ref()).Project(id.NewProjectID()).MustBuild()
+	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Thread(id.NewThreadID().Ref()).Project(id.NewProjectID()).MustBuild()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
@@ -109,7 +109,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	now := util.Now()
 	defer util.MockNow(now)()
 	ctx := context.Background()
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 
@@ -133,8 +133,8 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 	defer util.MockNow(now)()
 	ctx := context.Background()
 	iid1, iid2 := item.NewID(), item.NewID()
-	i1 := item.New().ID(iid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).Timestamp(util.Now()).MustBuild()
-	i2 := item.New().ID(iid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).Timestamp(util.Now().Add(time.Second)).MustBuild()
+	i1 := item.New().ID(iid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Timestamp(util.Now()).MustBuild()
+	i2 := item.New().ID(iid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).Timestamp(util.Now().Add(time.Second)).MustBuild()
 	r := NewItem()
 	_ = r.Save(ctx, i1)
 
@@ -164,8 +164,8 @@ func TestItem_FindBySchema(t *testing.T) {
 	ctx := context.Background()
 	sid1, sid2 := id.NewSchemaID(), id.NewSchemaID()
 	pid1, pid2 := id.NewProjectID(), id.NewProjectID()
-	i1 := item.New().NewID().Schema(sid1).Project(pid1).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Schema(sid2).Project(pid2).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().NewID().Schema(sid1).Project(pid1).Model(id.NewModelID()).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().Schema(sid2).Project(pid2).Model(id.NewModelID()).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	r := NewItem().Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{pid1},
@@ -192,9 +192,9 @@ func TestItem_FindByFieldValue(t *testing.T) {
 	pid := id.NewProjectID()
 	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple(), nil)
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
-	i := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)
@@ -218,8 +218,8 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple(), nil)
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
 	mid := id.NewModelID()
-	i := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)
@@ -241,7 +241,7 @@ func TestItem_UpdateRef(t *testing.T) {
 
 	vx := version.Ref("xxx")
 	ctx := context.Background()
-	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	v, _ := r.FindByID(ctx, i.ID(), nil)
@@ -265,9 +265,9 @@ func TestItem_FindByAssets(t *testing.T) {
 	f1 := item.NewField(sf1, value.TypeAsset.Value(aid1).AsMultiple(), nil)
 	f2 := item.NewField(sf2, value.TypeAsset.Value(aid2).AsMultiple(), nil)
 	f3 := item.NewField(sf2, value.TypeText.Value("xxx").AsMultiple(), nil)
-	i := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1, f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f3}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1, f2}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f3}).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)

@@ -19,7 +19,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
-	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -136,7 +135,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		file.Size = size
 	}
 
-	a, f, err := Run2[*asset.Asset, *asset.File](
+	a, f, err := Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
@@ -153,13 +152,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				if err != nil {
 					return nil, nil, err
 				}
-			}
-			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
-			if err != nil {
-				return nil, nil, err
-			}
-			if err := i.repos.Thread.Save(ctx, th); err != nil {
-				return nil, nil, err
 			}
 
 			needDecompress := false
@@ -183,7 +175,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Size(uint64(file.Size)).
 				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).
-				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
 
 			if op.AcOperator.User != nil {
@@ -602,6 +593,57 @@ func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Op
 			}
 
 			return aId, nil
+		},
+	)
+}
+
+// BatchDelete deletes assets in batch based on multiple asset IDs
+func (i *Asset) BatchDelete(ctx context.Context, assetIDs id.AssetIDList, operator *usecase.Operator) (result []id.AssetID, err error) {
+
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return assetIDs, interfaces.ErrInvalidOperator
+	}
+
+	if len(assetIDs) == 0 {
+		return nil, interfaces.ErrEmptyIDsList
+	}
+
+	return Run1(
+		ctx, operator, i.repos,
+		Usecase().Transaction(),
+		func(ctx context.Context) (id.AssetIDList, error) {
+			assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			if len(assetIDs) != len(assets) {
+				return assetIDs, interfaces.ErrPartialNotFound
+			}
+
+			if assets == nil {
+				return assetIDs, nil
+			}
+
+			UUIDList := lo.FilterMap(assets, func(a *asset.Asset, _ int) (string, bool) {
+				if a == nil || a.UUID() == "" || a.FileName() == "" {
+					return "", false
+				}
+				return a.UUID(), true
+			})
+
+			// deletes assets' files in
+			err = i.gateways.File.DeleteAssets(ctx, UUIDList)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			err = i.repos.Asset.BatchDelete(ctx, assetIDs)
+			if err != nil {
+				return assetIDs, err
+			}
+
+			return assetIDs, nil
 		},
 	)
 }

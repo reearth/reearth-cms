@@ -660,6 +660,11 @@ type SortParam string
 // WorkspaceIdParam defines model for workspaceIdParam.
 type WorkspaceIdParam = accountdomain.WorkspaceID
 
+// AssetBatchDeleteJSONBody defines parameters for AssetBatchDelete.
+type AssetBatchDeleteJSONBody struct {
+	AssetIDs *[]id.AssetID `json:"assetIDs,omitempty"`
+}
+
 // AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
 type AssetCommentCreateJSONBody struct {
 	Content *string `json:"content,omitempty"`
@@ -933,6 +938,12 @@ type ItemsWithProjectAsGeoJSONParamsRef string
 
 // SchemaFilterParams defines parameters for SchemaFilter.
 type SchemaFilterParams struct {
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+
 	// Page Used to select the page
 	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
 
@@ -1016,6 +1027,9 @@ type ProjectFilterParams struct {
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
+
+// AssetBatchDeleteJSONRequestBody defines body for AssetBatchDelete for application/json ContentType.
+type AssetBatchDeleteJSONRequestBody AssetBatchDeleteJSONBody
 
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
 type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody

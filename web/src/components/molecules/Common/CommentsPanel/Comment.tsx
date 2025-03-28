@@ -5,27 +5,26 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
+import Button from "@reearth-cms/components/atoms/Button";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
-import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-  me?: User;
+  userId: string;
   hasUpdateRight: boolean | null;
   hasDeleteRight: boolean | null;
-  comment: Comment;
+  comment: CommentType;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
 };
 
-const CommentMolecule: React.FC<Props> = ({
-  me,
+const Comment: React.FC<Props> = ({
+  userId,
   hasUpdateRight,
   hasDeleteRight,
   comment,
@@ -46,7 +45,7 @@ const CommentMolecule: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     try {
       if (comment.content !== value) {
-        await onCommentUpdate?.(comment.id, value);
+        await onCommentUpdate(comment.id, value);
       }
     } catch (info) {
       console.log("Validate Failed:", info);
@@ -55,22 +54,29 @@ const CommentMolecule: React.FC<Props> = ({
     }
   }, [comment.content, comment.id, value, onCommentUpdate]);
 
-  const fromNow = useMemo(
-    () => dayjs(comment.createdAt?.toString()).fromNow(),
-    [comment.createdAt],
-  );
+  const fromNow = useMemo(() => dayjs(comment.createdAt).fromNow(), [comment.createdAt]);
 
   const actions = useMemo(() => {
     const result = [];
-    const isMine = me?.id === comment.author.id;
+    const isMine = userId === comment.author.id;
     if (hasDeleteRight || (hasDeleteRight === null && isMine)) {
-      result.push(<Icon key="delete" icon="delete" onClick={() => onCommentDelete(comment.id)} />);
+      result.push(
+        <Button
+          color="default"
+          variant="link"
+          size="small"
+          icon={<Icon icon="delete" size={12} />}
+          onClick={() => onCommentDelete(comment.id)}
+        />,
+      );
     }
     if (hasUpdateRight || (hasUpdateRight === null && isMine)) {
       result.push(
-        <Icon
-          key="edit"
-          icon={showEditor ? "check" : "edit"}
+        <Button
+          color="default"
+          variant="link"
+          size="small"
+          icon={<Icon icon={showEditor ? "check" : "edit"} size={12} />}
           onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
         />,
       );
@@ -82,70 +88,44 @@ const CommentMolecule: React.FC<Props> = ({
     handleSubmit,
     hasDeleteRight,
     hasUpdateRight,
-    me?.id,
+    userId,
     onCommentDelete,
     showEditor,
   ]);
 
   return (
-    <StyledComment
+    <AntDComment
       actions={actions}
       author={comment.author.name}
       avatar={
         comment.author.type === "Integration" ? (
           <Badge count={<StyledIcon icon="api" size={8} color="#BFBFBF" />} offset={[0, 24]}>
-            <UserAvatar
-              username={comment.author.name}
-              anonymous={comment.author.name === "Anonymous"}
-            />
+            <UserAvatar username={comment.author.name} />
           </Badge>
         ) : (
-          <UserAvatar
-            username={comment.author.name}
-            anonymous={comment.author.name === "Anonymous"}
-          />
+          <UserAvatar username={comment.author.name} />
         )
       }
       content={
-        <>
-          <Form.Item hidden={!showEditor}>
-            <TextArea onChange={handleChange} value={value} rows={4} maxLength={1000} showCount />
-          </Form.Item>
-          <div hidden={showEditor}>
-            <ReactMarkdown
-              components={{
-                a(props) {
-                  const { node, ...rest } = props;
-                  return <a target="_blank" {...rest} />;
-                },
-              }}
-              remarkPlugins={[remarkGfm]}>
-              {comment.content}
-            </ReactMarkdown>
-          </div>
-        </>
+        showEditor ? (
+          <TextArea onChange={handleChange} value={value} autoSize={{ maxRows: 4 }} />
+        ) : (
+          <ReactMarkdown
+            components={{
+              a(props) {
+                const { node, ...rest } = props;
+                return <a target="_blank" {...rest} />;
+              },
+            }}
+            remarkPlugins={[remarkGfm]}>
+            {comment.content}
+          </ReactMarkdown>
+        )
       }
-      datetime={
-        <Tooltip title={dateTimeFormat(comment.createdAt)}>
-          <span>{fromNow}</span>
-        </Tooltip>
-      }
+      datetime={<Tooltip title={dateTimeFormat(comment.createdAt)}>{fromNow}</Tooltip>}
     />
   );
 };
-
-const StyledComment = styled(AntDComment)`
-  .ant-comment-content-author {
-    margin-right: 48px;
-    overflow-wrap: anywhere;
-  }
-  .ant-comment-actions {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-  }
-`;
 
 const StyledIcon = styled(Icon)`
   border-radius: 50%;
@@ -153,4 +133,4 @@ const StyledIcon = styled(Icon)`
   padding: 3px;
 `;
 
-export default CommentMolecule;
+export default Comment;
