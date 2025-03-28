@@ -128,13 +128,13 @@ paths:
       operationId: GroupFilter
       security:
         - bearerAuth: []
-      summary: Returns a list of groups.
+      summary: Returns a list of groups in a project.
       tags:
         - Groups
-      description: Returns a list of groups.
+      description: Returns a list of groups belonging to the specified project.
       responses:
         '200':
-          description: A JSON array of user names
+          description: A list of groups in the project.
           content:
             application/json:
               schema:
@@ -158,12 +158,12 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
-          description: Not found
+          description: Project not found
         '500':
           description: Internal server error
     post:
-      operationId: GroupCreate
-      summary: create a group
+      operationId: CreateGroup
+      summary: Create a new group in a project.
       tags:
         - Groups
       security:
@@ -174,16 +174,19 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - name
+                - key
               properties:
                 name:
                   type: string
-                description:
-                  type: string
                 key:
                   type: string
+                description:
+                  type: string
       responses:
-        '200':
-          description: A JSON object of group
+        '201':
+          description: The created group.
           content:
             application/json:
               schema:
@@ -192,6 +195,10 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '409':
+          description: Group key already exists
+        '500':
+          description: Internal server error
   '/projects/{projectIdOrAlias}/schemata':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
@@ -568,13 +575,13 @@ paths:
       operationId: GroupGet
       security:
         - bearerAuth: []
-      summary: Returns a group.
+      summary: Retrieve a specific group.
       tags:
         - Groups
-      description: Returns a group.
+      description: Returns details of a group.
       responses:
         '200':
-          description: A JSON array of user names
+          description: Group details.
           content:
             application/json:
               schema:
@@ -584,17 +591,17 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
-          description: Not found
+          description: Group not found
         '500':
           description: Internal server error
     patch:
       operationId: GroupUpdate
       security:
         - bearerAuth: []
-      summary: Update a group.
+      summary: Update a group's details.
       tags:
         - Groups
-      description: Update a group.
+      description: Updates the name, key, or description of a group.
       requestBody:
         required: true
         content:
@@ -610,7 +617,7 @@ paths:
                   type: string
       responses:
         '200':
-          description: A JSON object of group
+          description: The updated group.
           content:
             application/json:
               schema:
@@ -619,16 +626,22 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '409':
+          description: Group key conflict
+        '500':
+          description: Internal server error
     delete:
-      operationId: GroupDelete
-      summary: delete a group
+      operationId: DeleteGroup
+      summary: Delete a group.
       tags:
         - Groups
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: delete a group
+          description: Group successfully deleted.
           content:
             application/json:
               schema:
@@ -641,6 +654,10 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
   '/schemata/{schemaId}/fields':
     parameters:
       - $ref: '#/components/parameters/schemaIdParam'
@@ -1296,13 +1313,13 @@ paths:
       operationId: GroupGetWithProject
       security:
         - bearerAuth: []
-      summary: Returns a group.
+      summary: Retrieve a group within a project.
       tags:
         - Groups
-      description: Returns a group.
+      description: Returns details of a specific group within the specified project.
       responses:
         '200':
-          description: A JSON array of user names
+          description: Group details.
           content:
             application/json:
               schema:
@@ -1312,33 +1329,33 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
-          description: Not found
+          description: Group not found
         '500':
           description: Internal server error
     patch:
-      operationId: GroupUpdateWithProject
+      operationId: UpdateGroupInProject
       security:
-        - bearerAuth: [ ]
-      summary: Update a group.
+        - bearerAuth: []
+      summary: Update a group's details within a project.
       tags:
         - Groups
-      description: Update a group.
+      description: Updates the name, key, or description of a group within a specific project.
       requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  description:
-                    type: string
-                  key:
-                    type: string
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
       responses:
         '200':
-          description: A JSON object of group
+          description: The updated group.
           content:
             application/json:
               schema:
@@ -1348,20 +1365,22 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
-          description: Not found
+          description: Group not found
+        '409':
+          description: Group key conflict
         '500':
           description: Internal server error
     delete:
-      operationId: GroupDeleteWithProject
+      operationId: DeleteGroupInProject
       security:
-        - bearerAuth: [ ]
-      summary: Delete a group.
+        - bearerAuth: []
+      summary: Delete a group within a project.
       tags:
         - Groups
-      description: Delete a group.
+      description: Deletes a group within a specified project.
       responses:
         '200':
-          description: The group id
+          description: Group successfully deleted.
           content:
             application/json:
               schema:
@@ -1375,7 +1394,7 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
-          description: Not found
+          description: Group not found
         '500':
           description: Internal server error
   '/items/{itemId}':
