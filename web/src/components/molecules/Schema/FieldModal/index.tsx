@@ -11,12 +11,10 @@ import Radio from "@reearth-cms/components/atoms/Radio";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
+import { DefaultAssetProps } from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs/AssetField";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
@@ -43,28 +41,7 @@ type Props = {
   handleFieldKeyUnique: (key: string) => boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetSearchTerm: (term?: string) => void;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  assetProps: DefaultAssetProps;
 };
 
 const initialValues: FormValues = {
@@ -91,31 +68,10 @@ const FieldModal: React.FC<Props> = ({
   fieldLoading,
   selectedType,
   selectedField,
+  handleFieldKeyUnique,
   onClose,
   onSubmit,
-  handleFieldKeyUnique,
-  assetList,
-  fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetSearchTerm,
-  onAssetsGet,
-  onAssetsReload,
-  setFileList,
-  setUploadModalVisibility,
-  onGetAsset,
+  assetProps,
 }) => {
   const t = useT();
 
@@ -360,28 +316,7 @@ const FieldModal: React.FC<Props> = ({
               min={min}
               max={max}
               selectedType={selectedType}
-              assetList={assetList}
-              fileList={fileList}
-              loadingAssets={loadingAssets}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              uploadUrl={uploadUrl}
-              uploadType={uploadType}
-              totalCount={totalCount}
-              page={page}
-              pageSize={pageSize}
-              onAssetTableChange={onAssetTableChange}
-              onUploadModalCancel={onUploadModalCancel}
-              setUploadUrl={setUploadUrl}
-              setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
-              onAssetCreateFromUrl={onAssetCreateFromUrl}
-              onAssetSearchTerm={onAssetSearchTerm}
-              onAssetsGet={onAssetsGet}
-              onAssetsReload={onAssetsReload}
-              setFileList={setFileList}
-              setUploadModalVisibility={setUploadModalVisibility}
-              onGetAsset={onGetAsset}
+              assetProps={assetProps}
             />
           </TabPane>
         </Tabs>

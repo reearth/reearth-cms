@@ -377,6 +377,15 @@ export type DeleteAssetPayload = {
   assetId: Scalars['ID']['output'];
 };
 
+export type DeleteAssetsInput = {
+  assetIds: Array<Scalars['ID']['input']>;
+};
+
+export type DeleteAssetsPayload = {
+  __typename?: 'DeleteAssetsPayload';
+  assetIds?: Maybe<Array<Scalars['ID']['output']>>;
+};
+
 export type DeleteCommentInput = {
   commentId: Scalars['ID']['input'];
   threadId: Scalars['ID']['input'];
@@ -416,6 +425,15 @@ export type DeleteIntegrationInput = {
 export type DeleteIntegrationPayload = {
   __typename?: 'DeleteIntegrationPayload';
   integrationId: Scalars['ID']['output'];
+};
+
+export type DeleteIntegrationsInput = {
+  integrationIDs: Array<Scalars['ID']['input']>;
+};
+
+export type DeleteIntegrationsPayload = {
+  __typename?: 'DeleteIntegrationsPayload';
+  integrationIDs?: Maybe<Array<Scalars['ID']['output']>>;
 };
 
 export type DeleteItemInput = {
@@ -797,10 +815,12 @@ export type Mutation = {
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   decompressAsset?: Maybe<DecompressAssetPayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
+  deleteAssets?: Maybe<DeleteAssetsPayload>;
   deleteComment?: Maybe<DeleteCommentPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
   deleteGroup?: Maybe<DeleteGroupPayload>;
   deleteIntegration?: Maybe<DeleteIntegrationPayload>;
+  deleteIntegrations?: Maybe<DeleteIntegrationsPayload>;
   deleteItem?: Maybe<DeleteItemPayload>;
   deleteMe?: Maybe<DeleteMePayload>;
   deleteModel?: Maybe<DeleteModelPayload>;
@@ -811,6 +831,7 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
+  publishModels?: Maybe<PublishModelsPayload>;
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
   regeneratePublicApiToken?: Maybe<ProjectPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveIntegrationFromWorkspacePayload>;
@@ -935,6 +956,11 @@ export type MutationDeleteAssetArgs = {
 };
 
 
+export type MutationDeleteAssetsArgs = {
+  input: DeleteAssetsInput;
+};
+
+
 export type MutationDeleteCommentArgs = {
   input: DeleteCommentInput;
 };
@@ -952,6 +978,11 @@ export type MutationDeleteGroupArgs = {
 
 export type MutationDeleteIntegrationArgs = {
   input: DeleteIntegrationInput;
+};
+
+
+export type MutationDeleteIntegrationsArgs = {
+  input: DeleteIntegrationsInput;
 };
 
 
@@ -1002,6 +1033,11 @@ export type MutationPublishItemArgs = {
 
 export type MutationPublishModelArgs = {
   input: PublishModelInput;
+};
+
+
+export type MutationPublishModelsArgs = {
+  input: PublishModelsInput;
 };
 
 
@@ -1311,6 +1347,15 @@ export type PublishModelPayload = {
   __typename?: 'PublishModelPayload';
   modelId: Scalars['ID']['output'];
   status: Scalars['Boolean']['output'];
+};
+
+export type PublishModelsInput = {
+  models: Array<PublishModelInput>;
+};
+
+export type PublishModelsPayload = {
+  __typename?: 'PublishModelsPayload';
+  models: Array<PublishModelPayload>;
 };
 
 export type Query = {
@@ -2356,6 +2401,13 @@ export type DeleteAssetMutationVariables = Exact<{
 
 
 export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset?: { __typename?: 'DeleteAssetPayload', assetId: string } | null };
+
+export type DeleteAssetsMutationVariables = Exact<{
+  assetIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAssetsMutation = { __typename?: 'Mutation', deleteAssets?: { __typename?: 'DeleteAssetsPayload', assetIds?: Array<string> | null } | null };
 
 export type DecompressAssetMutationVariables = Exact<{
   assetId: Scalars['ID']['input'];
@@ -3669,6 +3721,39 @@ export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
 export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
 export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
+export const DeleteAssetsDocument = gql`
+    mutation DeleteAssets($assetIds: [ID!]!) {
+  deleteAssets(input: {assetIds: $assetIds}) {
+    assetIds
+  }
+}
+    `;
+export type DeleteAssetsMutationFn = Apollo.MutationFunction<DeleteAssetsMutation, DeleteAssetsMutationVariables>;
+
+/**
+ * __useDeleteAssetsMutation__
+ *
+ * To run a mutation, you first call `useDeleteAssetsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAssetsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAssetsMutation, { data, loading, error }] = useDeleteAssetsMutation({
+ *   variables: {
+ *      assetIds: // value for 'assetIds'
+ *   },
+ * });
+ */
+export function useDeleteAssetsMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAssetsMutation, DeleteAssetsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAssetsMutation, DeleteAssetsMutationVariables>(DeleteAssetsDocument, options);
+      }
+export type DeleteAssetsMutationHookResult = ReturnType<typeof useDeleteAssetsMutation>;
+export type DeleteAssetsMutationResult = Apollo.MutationResult<DeleteAssetsMutation>;
+export type DeleteAssetsMutationOptions = Apollo.BaseMutationOptions<DeleteAssetsMutation, DeleteAssetsMutationVariables>;
 export const DecompressAssetDocument = gql`
     mutation DecompressAsset($assetId: ID!) {
   decompressAsset(input: {assetId: $assetId}) {

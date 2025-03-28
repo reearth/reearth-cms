@@ -17,14 +17,14 @@ const { Panel } = Collapse;
 
 type Props = {
   currentRequest: Request;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onAssetGet: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onNavigateToItemEdit: (modelId: string, itemId: string) => void;
 };
 
 export const RequestDescription: React.FC<Props> = ({
   currentRequest,
-  onGetAsset,
+  onAssetGet,
   onGroupGet,
   onNavigateToItemEdit,
 }) => {
@@ -73,7 +73,7 @@ export const RequestDescription: React.FC<Props> = ({
                       schema={item.schema}
                       initialFormValues={item.initialValues}
                       referencedItems={item.referencedItems}
-                      onGetAsset={onGetAsset}
+                      onAssetGet={onAssetGet}
                       onGroupGet={onGroupGet}
                     />
                   </StyledPanel>

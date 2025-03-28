@@ -13,7 +13,6 @@ import Space from "@reearth-cms/components/atoms/Space";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { emptyConvert } from "@reearth-cms/components/molecules/Common/Form/utils";
 import Metadata from "@reearth-cms/components/molecules/Content/Form/Metadata";
@@ -63,13 +62,8 @@ type Props = {
   versions: VersionedItem[];
   loading: boolean;
   model?: Model;
-  assetList: Asset[];
-  fileList: UploadFile[];
+  assets: Asset[];
   loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
   requestModalShown: boolean;
   requestCreationLoading: boolean;
   addItemToRequestModalShown: boolean;
@@ -94,9 +88,6 @@ type Props = {
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
   onItemCreate: (data: {
     schemaId: string;
     metaSchemaId?: string;
@@ -110,9 +101,7 @@ type Props = {
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  onAssetSearchTerm: (term: string) => void;
   onGetVersionedItem: (version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
@@ -128,7 +117,7 @@ type Props = {
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onAssetGet: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (
     itemId: string,
@@ -155,13 +144,8 @@ const ContentForm: React.FC<Props> = ({
   initialMetaFormValues,
   versions,
   loading,
-  assetList,
-  fileList,
+  assets,
   loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
   requestModalShown,
   addItemToRequestModalShown,
   workspaceUserMembers,
@@ -189,9 +173,6 @@ const ContentForm: React.FC<Props> = ({
   onPublish,
   onUnpublish,
   onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
   onItemCreate,
@@ -201,15 +182,13 @@ const ContentForm: React.FC<Props> = ({
   onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
   onRequestCreate,
   onChange,
   onModalClose,
   onModalOpen,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
-  onGetAsset,
+  onAssetGet,
   onGroupGet,
   onCheckItemReference,
   onNavigateToRequest,
@@ -761,29 +740,19 @@ const ContentForm: React.FC<Props> = ({
                 itemHeights={itemHeights}
                 onItemHeightChange={handleItemHeightChange}
                 assetProps={{
-                  assetList,
+                  assets,
                   itemAssets: item?.assets,
-                  fileList,
                   loadingAssets,
-                  uploading,
-                  uploadModalVisibility,
-                  uploadUrl,
-                  uploadType,
                   totalCount,
                   page,
                   pageSize,
                   onAssetTableChange,
-                  onUploadModalCancel,
-                  setUploadUrl,
-                  setUploadType,
                   onAssetsCreate,
                   onAssetCreateFromUrl,
                   onAssetsGet,
                   onAssetsReload,
                   onAssetSearchTerm,
-                  setFileList,
-                  setUploadModalVisibility,
-                  onGetAsset,
+                  onAssetGet,
                 }}
                 referenceProps={{
                   referencedItems,
@@ -816,7 +785,7 @@ const ContentForm: React.FC<Props> = ({
                   disabled
                   itemHeights={itemHeights}
                   onItemHeightChange={handleItemHeightChange}
-                  assetProps={{ onGetAsset }}
+                  assetProps={{ onAssetGet }}
                   referenceProps={{ referencedItems }}
                   groupProps={{ form, onGroupGet }}
                 />

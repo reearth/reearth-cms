@@ -13,28 +13,18 @@ const ProjectSchema: React.FC = () => {
   const t = useT();
 
   const {
-    assetList,
-    fileList,
+    assets,
     loading,
-    uploading,
-    uploadModalVisibility,
-    uploadUrl,
-    uploadType,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    setFileList,
-    setUploadModalVisibility,
+    totalCount,
+    page,
+    pageSize,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleSearchTerm,
     handleAssetsGet,
     handleAssetsReload,
-    totalCount,
-    page,
-    pageSize,
     handleAssetTableChange,
-    handleGetAsset,
+    handleAssetGet,
   } = useAssetHooks(false);
 
   const {
@@ -155,28 +145,20 @@ const ProjectSchema: React.FC = () => {
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldModalClose}
           onSubmit={selectedField ? handleFieldUpdate : handleFieldCreate}
-          onAssetTableChange={handleAssetTableChange}
-          totalCount={totalCount}
-          page={page}
-          pageSize={pageSize}
-          assetList={assetList}
-          fileList={fileList}
-          loadingAssets={loading}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          onUploadModalCancel={handleUploadModalCancel}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onAssetsCreate={handleAssetsCreate}
-          onAssetCreateFromUrl={handleAssetCreateFromUrl}
-          onAssetSearchTerm={handleSearchTerm}
-          onAssetsGet={handleAssetsGet}
-          onAssetsReload={handleAssetsReload}
-          setFileList={setFileList}
-          setUploadModalVisibility={setUploadModalVisibility}
-          onGetAsset={handleGetAsset}
+          assetProps={{
+            assets,
+            loadingAssets: loading,
+            totalCount,
+            page,
+            pageSize,
+            onAssetGet: handleAssetGet,
+            onAssetTableChange: handleAssetTableChange,
+            onAssetsCreate: handleAssetsCreate,
+            onAssetCreateFromUrl: handleAssetCreateFromUrl,
+            onAssetsGet: handleAssetsGet,
+            onAssetsReload: handleAssetsReload,
+            onAssetSearchTerm: handleSearchTerm,
+          }}
         />
       )}
     </>

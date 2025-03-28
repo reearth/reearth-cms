@@ -1,67 +1,51 @@
+import { useState, useCallback } from "react";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 
-import UploadModal from "../UploadModal/UploadModal";
+import UploadModal from "../UploadModal";
 
 type Props = {
-  alsoLink?: boolean;
-  uploadProps: UploadProps;
-  fileList?: UploadFile<File>[];
-  uploading?: boolean;
-  uploadModalVisibility?: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType?: UploadType;
   hasCreateRight: boolean;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType?: (type: UploadType) => void;
-  onUploadModalClose?: () => void;
-  displayUploadModal: () => void;
-  onUploadModalCancel?: () => void;
-  onUpload: () => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onLink?: (assetId: string) => void;
 };
 
 const UploadAsset: React.FC<Props> = ({
-  alsoLink,
-  uploadProps,
-  fileList,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
   hasCreateRight,
-  onUploadModalClose,
-  displayUploadModal,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onUpload,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
+  onLink,
 }) => {
   const t = useT();
+  const [isOpen, setIsOpen] = useState(false);
+  const modalOpen = useCallback(() => {
+    setIsOpen(true);
+  }, []);
+
+  const modalClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
   return (
     <>
       <Button
         type="primary"
         icon={<Icon icon="upload" />}
-        onClick={displayUploadModal}
+        onClick={modalOpen}
         disabled={!hasCreateRight}>
         {t("Upload Asset")}
       </Button>
       <UploadModal
-        alsoLink={alsoLink}
-        uploadProps={uploadProps}
-        fileList={fileList}
-        uploading={uploading}
-        uploadUrl={uploadUrl}
-        uploadType={uploadType}
-        setUploadUrl={setUploadUrl}
-        setUploadType={setUploadType}
-        onUploadModalClose={onUploadModalClose}
-        onUpload={onUpload}
-        visible={uploadModalVisibility}
-        onCancel={onUploadModalCancel}
+        isOpen={isOpen}
+        onAssetsCreate={onAssetsCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
+        modalClose={modalClose}
+        onLink={onLink}
       />
     </>
   );

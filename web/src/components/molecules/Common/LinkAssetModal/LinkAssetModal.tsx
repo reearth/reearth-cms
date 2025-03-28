@@ -12,9 +12,8 @@ import {
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
-import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
@@ -26,56 +25,40 @@ type Props = {
   visible: boolean;
   onLinkAssetModalCancel: () => void;
   linkedAsset?: ItemAsset;
-  assetList?: Asset[];
-  fileList?: UploadFile<File>[];
+  assets?: Asset[];
   loading?: boolean;
-  uploading?: boolean;
-  uploadProps: UploadProps;
-  uploadModalVisibility?: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType?: UploadType;
   totalCount?: number;
   page?: number;
   pageSize?: number;
   hasCreateRight: boolean;
   onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType?: (type: UploadType) => void;
   onChange?: (value: string) => void;
   onSelect: (selectedAsset: ItemAsset) => void;
   onAssetsReload?: () => void;
-  onSearchTerm?: (term?: string) => void;
-  displayUploadModal: () => void;
-  onUploadModalCancel?: () => void;
-  onUploadAndLink: () => void;
+  onSearchTerm?: (term: string) => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onLink: (assetId: string) => void;
 };
 
 const LinkAssetModal: React.FC<Props> = ({
   visible,
   onLinkAssetModalCancel,
   linkedAsset,
-  assetList,
-  fileList,
+  assets,
   loading,
-  uploading,
-  uploadProps,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
   totalCount,
   page,
   pageSize,
   hasCreateRight,
   onAssetTableChange,
-  setUploadUrl,
-  setUploadType,
   onChange,
   onSelect,
   onAssetsReload,
   onSearchTerm,
-  displayUploadModal,
-  onUploadModalCancel,
-  onUploadAndLink,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
+  onLink,
 }) => {
   const t = useT();
   const resetFlag = useRef(false);
@@ -223,26 +206,15 @@ const LinkAssetModal: React.FC<Props> = ({
       open={visible}
       onCancel={onLinkAssetModalCancel}
       afterClose={() => {
-        onSearchTerm?.();
+        onSearchTerm?.("");
         resetFlag.current = !resetFlag.current;
       }}
       footer={[
         <UploadAsset
-          key={1}
-          alsoLink
-          fileList={fileList}
-          uploading={uploading}
-          uploadProps={uploadProps}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
           hasCreateRight={hasCreateRight}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          displayUploadModal={displayUploadModal}
-          onUploadModalCancel={onUploadModalCancel}
-          onUpload={onUploadAndLink}
-          onUploadModalClose={onLinkAssetModalCancel}
+          onAssetsCreate={onAssetsCreate}
+          onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onLink={onLink}
         />,
       ]}
       width="70vw"
@@ -252,7 +224,7 @@ const LinkAssetModal: React.FC<Props> = ({
         },
       }}>
       <ResizableProTable
-        dataSource={assetList}
+        dataSource={assets}
         columns={columns}
         search={false}
         options={options}

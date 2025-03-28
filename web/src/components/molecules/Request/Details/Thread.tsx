@@ -20,7 +20,7 @@ type Props = {
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onAssetGet: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onNavigateToItemEdit: (modelId: string, itemId: string) => void;
 };
@@ -34,7 +34,7 @@ const RequestThread: React.FC<Props> = ({
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
-  onGetAsset,
+  onAssetGet,
   onGroupGet,
   onNavigateToItemEdit,
 }) => {
@@ -42,7 +42,7 @@ const RequestThread: React.FC<Props> = ({
     <ContentWrapper>
       <RequestDescription
         currentRequest={currentRequest}
-        onGetAsset={onGetAsset}
+        onAssetGet={onAssetGet}
         onGroupGet={onGroupGet}
         onNavigateToItemEdit={onNavigateToItemEdit}
       />

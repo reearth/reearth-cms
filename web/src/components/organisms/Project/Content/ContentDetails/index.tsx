@@ -72,28 +72,18 @@ const ContentDetails: React.FC = () => {
   } = useHooks();
 
   const {
-    assetList,
-    fileList,
+    assets,
     loading,
-    uploading,
-    uploadModalVisibility,
-    uploadUrl,
-    uploadType,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    setFileList,
-    setUploadModalVisibility,
+    totalCount,
+    page,
+    pageSize,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleAssetsGet,
     handleAssetsReload,
     handleSearchTerm: handleAssetSearchTerm,
-    totalCount,
-    page,
-    pageSize,
     handleAssetTableChange,
-    handleGetAsset,
+    handleAssetGet,
   } = useAssetHooks(false);
 
   return (
@@ -161,30 +151,20 @@ const ContentDetails: React.FC = () => {
         />
       }
       onChange={handleAddItemToRequest}
-      assetList={assetList}
+      assets={assets}
       onAssetTableChange={handleAssetTableChange}
       totalCount={totalCount}
       page={page}
       pageSize={pageSize}
-      fileList={fileList}
       loadingAssets={loading}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
       onGetVersionedItem={handleGetVersionedItem}
       onUnpublish={handleUnpublish}
       onPublish={handlePublish}
-      onUploadModalCancel={handleUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetsGet={handleAssetsGet}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleAssetSearchTerm}
-      setFileList={setFileList}
-      setUploadModalVisibility={setUploadModalVisibility}
       requestModalShown={requestModalShown}
       addItemToRequestModalShown={addItemToRequestModalShown}
       onRequestCreate={handleRequestCreate}
@@ -193,7 +173,7 @@ const ContentDetails: React.FC = () => {
       onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
       workspaceUserMembers={workspaceUserMembers}
-      onGetAsset={handleGetAsset}
+      onAssetGet={handleAssetGet}
       onGroupGet={handleGroupGet}
       onCheckItemReference={handleCheckItemReference}
       onNavigateToRequest={handleNavigateToRequest}

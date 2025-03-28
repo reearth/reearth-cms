@@ -1,62 +1,36 @@
 import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList";
-import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 
 import useHooks from "./hooks";
 
 const AssetList: React.FC = () => {
   const {
-    assetList,
-    selection,
-    fileList,
-    uploading,
-    uploadModalVisibility,
+    userId,
+    hasCreateRight,
+    hasDeleteRight,
+    assets,
     loading,
     deleteLoading,
-    uploadUrl,
-    uploadType,
-    selectedAsset,
-    collapsed,
+    handleAssetsCreate,
+    handleAssetCreateFromUrl,
+    handleSearchTerm,
+    handleAssetsReload,
+    handleAssetDelete,
+    handleNavigateToAsset,
+    handleAssetItemSelect,
     totalCount,
     page,
     pageSize,
     sort,
     searchTerm,
     columns,
-    hasCreateRight,
-    hasDeleteRight,
     handleColumnsChange,
-    handleToggleCommentMenu,
-    handleAssetItemSelect,
-    handleAssetSelect,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    handleSelect,
-    setFileList,
-    setUploadModalVisibility,
-    handleAssetsCreate,
-    handleAssetCreateFromUrl,
-    handleAssetDelete,
-    handleSearchTerm,
-    handleAssetsReload,
-    handleNavigateToAsset,
     handleAssetTableChange,
   } = useHooks(true);
 
   return (
     <AssetListBody
-      commentsPanel={
-        <CommentsPanel
-          resourceId={selectedAsset?.id}
-          resourceType={"ASSET"}
-          collapsed={collapsed}
-          onCollapse={handleToggleCommentMenu}
-          comments={selectedAsset?.comments}
-          threadId={selectedAsset?.threadId}
-          refetchQueries={["GetAssetsItems"]}
-        />
-      }
-      assetList={assetList}
+      userId={userId}
+      assets={assets}
       onAssetTableChange={handleAssetTableChange}
       totalCount={totalCount}
       page={page}
@@ -65,31 +39,17 @@ const AssetList: React.FC = () => {
       searchTerm={searchTerm}
       columns={columns}
       onColumnsChange={handleColumnsChange}
-      fileList={fileList}
-      selection={selection}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
       loading={loading}
       deleteLoading={deleteLoading}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
       hasCreateRight={hasCreateRight}
       hasDeleteRight={hasDeleteRight}
       onAssetItemSelect={handleAssetItemSelect}
-      onAssetSelect={handleAssetSelect}
-      onUploadModalCancel={handleUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
-      selectedAsset={selectedAsset}
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetDelete={handleAssetDelete}
       onAssetsReload={handleAssetsReload}
       onSearchTerm={handleSearchTerm}
-      onEdit={handleNavigateToAsset}
-      onSelect={handleSelect}
-      setFileList={setFileList}
-      setUploadModalVisibility={setUploadModalVisibility}
+      onNavigateToAsset={handleNavigateToAsset}
     />
   );
 };

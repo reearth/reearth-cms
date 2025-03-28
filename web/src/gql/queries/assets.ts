@@ -115,6 +115,14 @@ export const DELETE_ASSET = gql`
   }
 `;
 
+export const DELETE_ASSETS = gql`
+  mutation DeleteAssets($assetIds: [ID!]!) {
+    deleteAssets(input: { assetIds: $assetIds }) {
+      assetIds
+    }
+  }
+`;
+
 export const DECOMPRESS_ASSET = gql`
   mutation DecompressAsset($assetId: ID!) {
     decompressAsset(input: { assetId: $assetId }) {

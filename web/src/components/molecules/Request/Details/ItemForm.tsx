@@ -14,7 +14,7 @@ type Props = {
   schema?: Schema;
   initialFormValues: Record<string, unknown>;
   referencedItems: FormItem[];
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onAssetGet: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
@@ -22,7 +22,7 @@ const RequestItemForm: React.FC<Props> = ({
   schema,
   initialFormValues,
   referencedItems,
-  onGetAsset,
+  onAssetGet,
   onGroupGet,
 }) => {
   const [form] = Form.useForm();
@@ -33,7 +33,7 @@ const RequestItemForm: React.FC<Props> = ({
           if (field.type === "Asset") {
             return (
               <div key={field.id}>
-                <AssetField field={field} disabled onGetAsset={onGetAsset} />
+                <AssetField field={field} disabled onAssetGet={onAssetGet} />
               </div>
             );
           } else if (field.type === "Reference") {
@@ -49,7 +49,7 @@ const RequestItemForm: React.FC<Props> = ({
                   field={field}
                   disabled
                   onGroupGet={onGroupGet}
-                  assetProps={{ onGetAsset }}
+                  assetProps={{ onAssetGet }}
                   referenceProps={{ referencedItems }}
                 />
               </div>

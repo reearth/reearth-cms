@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
+import { Key, useMemo, useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -32,37 +32,34 @@ import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 import { compressedFileFormats } from "../../Common/Asset";
 
 type Props = {
-  assetList: Asset[];
-  selection: {
-    selectedRowKeys: Key[];
-  };
+  userId: string;
+  assets: Asset[];
   loading: boolean;
   deleteLoading: boolean;
-  selectedAsset?: Asset;
+  selectedAssetId: string;
   totalCount: number;
   page: number;
   pageSize: number;
   sort?: SortType;
   searchTerm: string;
   columns: Record<string, ColumnsState>;
-  hasDeleteRight: boolean;
+  hasDeleteRight: boolean | null;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
-  onEdit: (assetId: string) => void;
-  onSearchTerm: (term?: string) => void;
-  onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
+  onNavigateToAsset: (assetId: string) => void;
+  onSearchTerm: (term: string) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
 };
 
 const AssetListTable: React.FC<Props> = ({
-  assetList,
-  selection,
+  userId,
+  assets,
   loading,
   deleteLoading,
-  selectedAsset,
+  selectedAssetId,
   totalCount,
   page,
   pageSize,
@@ -73,14 +70,15 @@ const AssetListTable: React.FC<Props> = ({
   onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
-  onEdit,
+  onNavigateToAsset,
   onSearchTerm,
-  onSelect,
   onAssetsReload,
   onAssetDelete,
   onAssetTableChange,
 }) => {
   const t = useT();
+  const [selection, setSelection] = useState<Key[]>([]);
+  const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
 
   const sortOrderGet = useCallback(
     (key: AssetSortType) =>
@@ -91,10 +89,14 @@ const AssetListTable: React.FC<Props> = ({
   const columns: StretchColumn<Asset>[] = useMemo(
     () => [
       {
-        title: "",
         hideInSetting: true,
         render: (_, asset) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
+          <Button
+            color="primary"
+            variant="link"
+            icon={<Icon icon="edit" />}
+            onClick={() => onNavigateToAsset(asset.id)}
+          />
         ),
         key: "EDIT_ICON",
         align: "center",
@@ -103,19 +105,16 @@ const AssetListTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
-        dataIndex: "commentsCount",
-        key: "commentsCount",
+        dataIndex: "comments",
         hideInSetting: true,
-        render: (_, asset) => {
-          return (
-            <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
-              <CustomTag
-                value={asset.comments?.length || 0}
-                color={asset.id === selectedAsset?.id ? "#87e8de" : undefined}
-              />
-            </CommentsButton>
-          );
-        },
+        render: (_, asset) => (
+          <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
+            <CustomTag
+              value={asset.comments.length || 0}
+              color={asset.id === selectedAssetId ? "#87e8de" : undefined}
+            />
+          </CommentsButton>
+        ),
         align: "center",
         width: 48,
         minWidth: 48,
@@ -143,14 +142,12 @@ const AssetListTable: React.FC<Props> = ({
       {
         title: t("Preview Type"),
         dataIndex: "previewType",
-        key: "previewType",
         width: 145,
         minWidth: 145,
       },
       {
         title: t("Status"),
         dataIndex: "archiveExtractionStatus",
-        key: "archiveExtractionStatus",
         render: (_, asset) => {
           const assetExtension = getExtension(asset.fileName);
           return (
@@ -175,7 +172,6 @@ const AssetListTable: React.FC<Props> = ({
       {
         title: t("Created By"),
         dataIndex: "createdBy",
-        key: "createdBy",
         render: (_, item) => (
           <Space>
             <UserAvatar username={item.createdBy.name} size={"small"} />
@@ -189,36 +185,32 @@ const AssetListTable: React.FC<Props> = ({
       {
         title: t("ID"),
         dataIndex: "id",
-        key: "id",
         width: 240,
         minWidth: 240,
         ellipsis: true,
       },
       {
         title: t("Linked to"),
-        key: "linkedTo",
+        dataIndex: "items",
         render: (_, asset) => {
           if (asset.items.length === 1) {
             return (
-              <StyledButton type="link" onClick={() => onAssetItemSelect(asset?.items[0])}>
-                {asset?.items[0].itemId}
+              <StyledButton type="link" onClick={() => onAssetItemSelect(asset.items[0])}>
+                {asset.items[0].itemId}
               </StyledButton>
             );
-          }
-          if (asset.items.length > 1) {
-            const content = (
-              <>
-                {asset.items.map(item => (
+          } else if (asset.items.length > 1) {
+            return (
+              <Popover
+                placement="bottom"
+                title={t("Linked to")}
+                content={asset.items.map(item => (
                   <div key={item.itemId}>
                     <Button type="link" onClick={() => onAssetItemSelect(item)}>
                       {item.itemId}
                     </Button>
                   </div>
-                ))}
-              </>
-            );
-            return (
-              <Popover placement="bottom" title={t("Linked to")} content={content}>
+                ))}>
                 <MoreItemsButton type="default">
                   <Icon icon="linked" /> x{asset.items.length}
                 </MoreItemsButton>
@@ -230,7 +222,7 @@ const AssetListTable: React.FC<Props> = ({
         minWidth: 230,
       },
     ],
-    [onAssetItemSelect, onAssetSelect, onEdit, selectedAsset?.id, sortOrderGet, t],
+    [onAssetItemSelect, onAssetSelect, onNavigateToAsset, selectedAssetId, sortOrderGet, t],
   );
 
   const options: OptionConfig = useMemo(
@@ -254,10 +246,17 @@ const AssetListTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
-      onChange: onSelect,
+      selectedRowKeys: selection,
+      onChange: (selectedRowKeys, selectedRows) => {
+        setSelection(selectedRowKeys);
+        if (hasDeleteRight === null) {
+          setIsDeleteDisabled(selectedRows.some(row => row.createdBy.id !== userId));
+        } else {
+          setIsDeleteDisabled(!hasDeleteRight);
+        }
+      },
     }),
-    [onSelect, selection.selectedRowKeys],
+    [hasDeleteRight, selection, userId],
   );
 
   const toolbar: ListToolBarProps = useMemo(
@@ -266,9 +265,7 @@ const AssetListTable: React.FC<Props> = ({
         <Search
           allowClear
           placeholder={t("input search text")}
-          onSearch={(value: string) => {
-            onSearchTerm(value);
-          }}
+          onSearch={onSearchTerm}
           defaultValue={searchTerm}
         />
       ),
@@ -276,9 +273,16 @@ const AssetListTable: React.FC<Props> = ({
     [onSearchTerm, searchTerm, t],
   );
 
+  const handleDelete = useCallback(
+    async (ids: string[]) => {
+      await onAssetDelete(ids);
+      setSelection([]);
+    },
+    [onAssetDelete],
+  );
+
   const alertOptions = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (props: any) => {
+    (props: { selectedRows: Asset[]; selectedRowKeys: Key[] }) => {
       return (
         <Space size={4}>
           <DownloadButton
@@ -291,16 +295,16 @@ const AssetListTable: React.FC<Props> = ({
             type="link"
             size="small"
             icon={<Icon icon="delete" />}
-            onClick={() => onAssetDelete(props.selectedRowKeys)}
+            onClick={() => handleDelete(props.selectedRowKeys.map(key => key.toString()))}
             danger
             loading={deleteLoading}
-            disabled={!hasDeleteRight}>
+            disabled={isDeleteDisabled}>
             {t("Delete")}
           </Button>
         </Space>
       );
     },
-    [deleteLoading, hasDeleteRight, onAssetDelete, t],
+    [deleteLoading, handleDelete, isDeleteDisabled, t],
   );
 
   const handleChange = useCallback(
@@ -327,16 +331,15 @@ const AssetListTable: React.FC<Props> = ({
 
   return (
     <ResizableProTable
-      dataSource={assetList}
+      rowKey="id"
+      dataSource={assets}
       columns={columns}
       columnsState={{
-        defaultValue: {},
         value: columnsState,
         onChange: onColumnsChange,
       }}
       tableAlertOptionRender={alertOptions}
       search={false}
-      rowKey="id"
       options={options}
       pagination={pagination}
       toolbar={toolbar}

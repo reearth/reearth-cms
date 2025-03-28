@@ -2,7 +2,6 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
@@ -44,13 +43,8 @@ type Props = {
   itemLoading: boolean;
   loading: boolean;
   requestCreationLoading: boolean;
-  assetList: Asset[];
-  fileList: UploadFile[];
+  assets: Asset[];
   loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
   commentsPanel?: JSX.Element;
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
@@ -79,9 +73,6 @@ type Props = {
   onRequestTableReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onCollapse: (collapse: boolean) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
   onItemCreate: (data: {
     schemaId: string;
     metaSchemaId?: string;
@@ -95,9 +86,7 @@ type Props = {
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  onAssetSearchTerm: (term: string) => void;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -110,7 +99,7 @@ type Props = {
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onAssetGet: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (
     itemId: string,
@@ -141,13 +130,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   itemLoading,
   loading,
   requestCreationLoading,
-  assetList,
-  fileList,
+  assets,
   loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
   commentsPanel,
   requestModalShown,
   addItemToRequestModalShown,
@@ -175,9 +159,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onPublish,
   onUnpublish,
   onCollapse,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
   onItemCreate,
   onItemUpdate,
   onMetaItemUpdate,
@@ -187,8 +168,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
   onRequestCreate,
   onChange,
   onModalClose,
@@ -196,7 +175,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onAssetTableChange,
-  onGetAsset,
+  onAssetGet,
   onGroupGet,
   onCheckItemReference,
   onNavigateToRequest,
@@ -251,24 +230,16 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             initialFormValues={initialFormValues}
             initialMetaFormValues={initialMetaFormValues}
             versions={versions}
-            assetList={assetList}
+            assets={assets}
             onAssetTableChange={onAssetTableChange}
             totalCount={totalCount}
             page={page}
             pageSize={pageSize}
-            fileList={fileList}
             loadingAssets={loadingAssets}
-            uploading={uploading}
-            uploadModalVisibility={uploadModalVisibility}
-            uploadUrl={uploadUrl}
-            uploadType={uploadType}
             onGetVersionedItem={onGetVersionedItem}
             onPublish={onPublish}
             onUnpublish={onUnpublish}
             onChange={onChange}
-            onUploadModalCancel={onUploadModalCancel}
-            setUploadUrl={setUploadUrl}
-            setUploadType={setUploadType}
             onBack={onBack}
             onItemCreate={onItemCreate}
             onItemUpdate={onItemUpdate}
@@ -278,8 +249,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onAssetsGet={onAssetsGet}
             onAssetsReload={onAssetsReload}
             onAssetSearchTerm={onAssetSearchTerm}
-            setFileList={setFileList}
-            setUploadModalVisibility={setUploadModalVisibility}
             requestModalShown={requestModalShown}
             addItemToRequestModalShown={addItemToRequestModalShown}
             onRequestCreate={onRequestCreate}
@@ -288,7 +257,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
             onAddItemToRequestModalClose={onAddItemToRequestModalClose}
             workspaceUserMembers={workspaceUserMembers}
-            onGetAsset={onGetAsset}
+            onAssetGet={onAssetGet}
             onGroupGet={onGroupGet}
             onCheckItemReference={onCheckItemReference}
             onNavigateToRequest={onNavigateToRequest}

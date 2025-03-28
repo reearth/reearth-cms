@@ -29,7 +29,7 @@ const RequestDetails: React.FC = () => {
     handleNavigateToItemEdit,
   } = useHooks();
 
-  const { handleGetAsset } = useAssetHooks(false);
+  const { handleAssetGet } = useAssetHooks(false);
 
   const { workspaceUserMembers, handleGroupGet } = useContentHooks();
 
@@ -57,7 +57,7 @@ const RequestDetails: React.FC = () => {
       onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
       onNavigateToItemEdit={handleNavigateToItemEdit}
-      onGetAsset={handleGetAsset}
+      onAssetGet={handleAssetGet}
       onGroupGet={handleGroupGet}
     />
   );

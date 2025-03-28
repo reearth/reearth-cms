@@ -15,34 +15,7 @@ type Props = {
   disabled?: boolean;
 } & AssetProps;
 
-const MultiValueAsset: React.FC<Props> = ({
-  value = [],
-  disabled,
-  onChange,
-  onGetAsset,
-  itemAssets,
-  assetList,
-  fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetsGet,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
-}) => {
+const MultiValueAsset: React.FC<Props> = ({ value = [], onChange, disabled, ...props }) => {
   const t = useT();
   const handleInput = useCallback(
     (e: string, id: number) => {
@@ -91,32 +64,10 @@ const MultiValueAsset: React.FC<Props> = ({
               </>
             )}
             <AssetItem
-              itemAssets={itemAssets}
-              disabled={disabled}
               value={valueItem}
-              assetList={assetList}
-              fileList={fileList}
-              loadingAssets={loadingAssets}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              uploadUrl={uploadUrl}
-              uploadType={uploadType}
-              totalCount={totalCount}
-              page={page}
-              pageSize={pageSize}
-              onAssetTableChange={onAssetTableChange}
-              onUploadModalCancel={onUploadModalCancel}
-              setUploadUrl={setUploadUrl}
-              setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
-              onAssetCreateFromUrl={onAssetCreateFromUrl}
-              onAssetsGet={onAssetsGet}
-              onAssetsReload={onAssetsReload}
-              onAssetSearchTerm={onAssetSearchTerm}
-              setFileList={setFileList}
-              setUploadModalVisibility={setUploadModalVisibility}
               onChange={(e: string) => handleInput(e, key)}
-              onGetAsset={onGetAsset}
+              disabled={disabled}
+              {...props}
             />
             {!disabled && (
               <FieldButton
