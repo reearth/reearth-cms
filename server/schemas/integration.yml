@@ -46,6 +46,134 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '500':
           description: Internal server error
+    post:
+      operationId: ProjectCreate
+      summary: create a project
+      tags:
+        - Projects
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                alias:
+                  type: string
+                requestRoles:
+                  type: array
+                  items:
+                    type: string
+                    enum: [READER, WRITER, OWNER, MAINTAINER]
+      responses:
+        '200':
+          description: A JSON object of the created project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/{workspaceId}/projects/{projectIdOrAlias}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+    get:
+      operationId: ProjectGet
+      security:
+        - bearerAuth: []
+      summary: Returns a project.
+      tags:
+        - Projects
+      description: Returns a project.
+      responses:
+        '200':
+          description: A JSON object of the project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    patch:
+      operationId: ProjectUpdate
+      security:
+        - bearerAuth: []
+      summary: Update a project.
+      tags:
+        - Projects
+      description: Update a project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                alias:
+                  type: string
+                publication:
+                  $ref: '#/components/schemas/ProjectPublication'
+                requestRoles:
+                  type: array
+                  items:
+                    type: string
+                    enum: [READER, WRITER, OWNER, MAINTAINER]
+      responses:
+        '200':
+          description: A JSON object of the updated project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    delete:
+      operationId: ProjectDelete
+      summary: delete a project
+      tags:
+        - Projects
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: delete a project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.ProjectID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
   '/projects/{projectIdOrAlias}/models':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
@@ -301,7 +429,7 @@ paths:
             description: Invalid request parameter value
           '401':
             $ref: '#/components/responses/UnauthorizedError'
-  /models/{modelId}/schema.json:
+  '/models/{modelId}/schema.json':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
     get:
@@ -329,7 +457,7 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-  /models/{modelId}/metadata_schema.json:
+  '/models/{modelId}/metadata_schema.json':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
     get:
@@ -1864,6 +1992,23 @@ components:
         updatedAt:
           type: string
           format: date-time
+        publication:
+          $ref: '#/components/schemas/projectPublication'
+        requestRoles:
+          type: array
+          items:
+            type: string
+            enum: [READER, WRITER, OWNER, MAINTAINER]
+    projectPublication:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum: [PUBLIC, LIMITED, PRIVATE]
+        assetPublic:
+          type: boolean
+        token:
+          type: string
     model:
       type: object
       properties:
