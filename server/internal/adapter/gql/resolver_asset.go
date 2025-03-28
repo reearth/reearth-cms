@@ -115,6 +115,27 @@ func (r *mutationResolver) DeleteAsset(ctx context.Context, input gqlmodel.Delet
 	return &gqlmodel.DeleteAssetPayload{AssetID: gqlmodel.IDFrom(res)}, nil
 }
 
+// DeleteAssets is the resolver for the deleteAssets field.
+func (r *mutationResolver) DeleteAssets(ctx context.Context, input gqlmodel.DeleteAssetsInput) (*gqlmodel.DeleteAssetsPayload, error) {
+	ids, err := gqlmodel.ToIDs[id.Asset](input.AssetIds)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := usecases(ctx).Asset.BatchDelete(ctx, ids, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	// code to return deleted ids in []gqlmodel.ID
+	deletedIds := make([]gqlmodel.ID, 0, len(res))
+	for _, id := range res {
+		deletedIds = append(deletedIds, gqlmodel.IDFrom(id))
+	}
+
+	return &gqlmodel.DeleteAssetsPayload{AssetIds: deletedIds}, nil
+}
+
 // DecompressAsset is the resolver for the decompressAsset field.
 func (r *mutationResolver) DecompressAsset(ctx context.Context, input gqlmodel.DecompressAssetInput) (*gqlmodel.DecompressAssetPayload, error) {
 	aid, err := gqlmodel.ToID[id.Asset](input.AssetID)

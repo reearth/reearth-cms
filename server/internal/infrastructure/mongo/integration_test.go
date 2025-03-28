@@ -337,3 +337,63 @@ func TestIntegrationRepo_Remove(t *testing.T) {
 		})
 	}
 }
+
+func TestIntegrationRepo_RemoveMany(t *testing.T) {
+	_, _, _, iId1, _, i1, _ := testSuite()
+	_, _, _, iId2, _, i2, _ := testSuite()
+
+	tests := []struct {
+		name    string
+		seeds   integration.List
+		arg     id.IntegrationIDList
+		wantErr error
+	}{
+		{
+			name:    "Success delete multiple data",
+			seeds:   integration.List{i1, i2},
+			arg:     id.IntegrationIDList{iId1, iId2},
+			wantErr: nil,
+		},
+		{
+			name:    "Success delete data",
+			seeds:   integration.List{i1, i2},
+			arg:     id.IntegrationIDList{iId1},
+			wantErr: nil,
+		},
+		{
+			name:    "Success delete data",
+			seeds:   integration.List{i1},
+			arg:     id.IntegrationIDList{iId1, iId2},
+			wantErr: nil,
+		},
+	}
+	initDB := mongotest.Connect(t)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+			r := NewIntegration(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p.Clone())
+				if tc.wantErr != nil {
+					assert.ErrorIs(t, err, tc.wantErr)
+					return
+				}
+			}
+
+			err := r.RemoveMany(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+
+			for _, id := range tc.arg {
+				_, err := r.FindByID(ctx, id)
+				assert.Equal(t, rerror.ErrNotFound, err)
+			}
+		})
+	}
+}

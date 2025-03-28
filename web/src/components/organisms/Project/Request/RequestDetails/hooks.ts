@@ -4,7 +4,6 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
@@ -176,7 +175,7 @@ export default () => {
             variables: {
               workspaceId: currentWorkspace?.id ?? "",
               resourceId: currentRequest?.id ?? "",
-              resourceType: ResourceTypes.Request as GQLResourceType,
+              resourceType: GQLResourceType.Request,
               content,
             },
           });
