@@ -121,11 +121,11 @@ const Schema: React.FC<Props> = ({
   }, []);
 
   const toSchemaPreviewStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(2);
+    setCurrentImportSchemaModalPage(1);
   }, []);
 
   const toImportingStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(3);
+    setCurrentImportSchemaModalPage(2);
   }, []);
 
   const handleSelectSchemaFileModalOpen = useCallback(() => {
