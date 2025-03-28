@@ -196,6 +196,19 @@ func (r *queryResolver) Assets(ctx context.Context, projectID gqlmodel.ID, keywo
 	return loaders(ctx).Asset.FindByProject(ctx, projectID, keyword, sort, pagination)
 }
 
+// AssetSchemaFields is the resolver for the assetSchemaFields field.
+func (r *queryResolver) AssetSchemaFields(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.AssetSchemaFieldResult, error) {
+	id, err := id.AssetIDFrom(string(assetID))
+	if err != nil {
+		return nil, err
+	}
+	fields, err := usecases(ctx).Asset.ConvertToSchemaFields(ctx, id, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	return gqlmodel.AssetsToSchemaFieldData(fields), nil
+}
+
 // Asset returns AssetResolver implementation.
 func (r *Resolver) Asset() AssetResolver { return &assetResolver{r} }
 
