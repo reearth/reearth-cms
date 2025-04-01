@@ -67,10 +67,7 @@ paths:
                 alias:
                   type: string
                 requestRoles:
-                  type: array
-                  items:
-                    type: string
-                    enum: [READER, WRITER, OWNER, MAINTAINER]
+                  $ref: '#/components/schemas/requestRoles'
       responses:
         '201':
           description: A JSON object of the created project
@@ -82,6 +79,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/{workspaceId}/projects/{projectIdOrAlias}':
     parameters:
       - $ref: '#/components/parameters/workspaceIdParam'
@@ -133,10 +132,7 @@ paths:
                 publication:
                   $ref: '#/components/schemas/projectPublication'
                 requestRoles:
-                  type: array
-                  items:
-                    type: string
-                    enum: [READER, WRITER, OWNER, MAINTAINER]
+                  $ref: '#/components/schemas/requestRoles'
       responses:
         '200':
           description: A JSON object of the updated project
@@ -174,6 +170,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/projects/{projectIdOrAlias}/models':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
@@ -1995,10 +1993,7 @@ components:
         publication:
           $ref: '#/components/schemas/projectPublication'
         requestRoles:
-          type: array
-          items:
-            type: string
-            enum: [READER, WRITER, OWNER, MAINTAINER]
+          $ref: '#/components/schemas/requestRoles'    
     projectPublication:
       type: object
       properties:
@@ -2009,6 +2004,11 @@ components:
           type: boolean
         token:
           type: string
+    requestRoles:
+      type: array
+      items:
+        type: string
+        enum: [READER, WRITER, OWNER, MAINTAINER]
     model:
       type: object
       properties:

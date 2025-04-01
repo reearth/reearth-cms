@@ -7,8 +7,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -252,4 +254,53 @@ func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirPara
 
 func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.Condition {
 	return condition.Into()
+}
+
+func fromProjectPublication(p *integrationapi.ProjectPublication) *interfaces.UpdateProjectPublicationParam {
+	if p == nil {
+		return nil
+	}
+
+	return &interfaces.UpdateProjectPublicationParam{
+		Scope:       lo.ToPtr(fromProjectPublicationScope(p.Scope)),
+		AssetPublic: p.AssetPublic,
+	}
+}
+
+func fromRequestRoles(roles *integrationapi.RequestRoles) []workspace.Role {
+	if roles == nil {
+		return nil
+	}
+	return lo.Map(*roles, func(r string, _ int) workspace.Role {
+		return fromRequestRole(r)
+	})
+}
+
+func fromRequestRole(r string) workspace.Role {
+	switch r {
+	case "OWNER":
+		return workspace.RoleOwner
+	case "MAINTAINER":
+		return workspace.RoleMaintainer
+	case "WRITER":
+		return workspace.RoleWriter
+	case "READER":
+		return workspace.RoleReader
+	}
+	return workspace.RoleReader
+}
+
+func fromProjectPublicationScope(p *integrationapi.ProjectPublicationScope) project.PublicationScope {
+	if p == nil {
+		return project.PublicationScopePrivate
+	}
+	switch *p {
+	case integrationapi.PUBLIC:
+		return project.PublicationScopePublic
+	case integrationapi.PRIVATE:
+		return project.PublicationScopePrivate
+	case integrationapi.LIMITED:
+		return project.PublicationScopeLimited
+	}
+	return project.PublicationScopePrivate
 }
