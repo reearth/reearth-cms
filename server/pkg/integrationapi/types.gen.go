@@ -147,6 +147,21 @@ const (
 	FieldSelectorTypeStatus           FieldSelectorType = "status"
 )
 
+// Defines values for ProjectRequestRoles.
+const (
+	ProjectRequestRolesMAINTAINER ProjectRequestRoles = "MAINTAINER"
+	ProjectRequestRolesOWNER      ProjectRequestRoles = "OWNER"
+	ProjectRequestRolesREADER     ProjectRequestRoles = "READER"
+	ProjectRequestRolesWRITER     ProjectRequestRoles = "WRITER"
+)
+
+// Defines values for ProjectPublicationScope.
+const (
+	LIMITED ProjectPublicationScope = "LIMITED"
+	PRIVATE ProjectPublicationScope = "PRIVATE"
+	PUBLIC  ProjectPublicationScope = "PUBLIC"
+)
+
 // Defines values for RefOrVersionRef.
 const (
 	RefOrVersionRefLatest RefOrVersionRef = "latest"
@@ -294,6 +309,22 @@ const (
 const (
 	AssetFilterParamsDirAsc  AssetFilterParamsDir = "asc"
 	AssetFilterParamsDirDesc AssetFilterParamsDir = "desc"
+)
+
+// Defines values for ProjectCreateJSONBodyRequestRoles.
+const (
+	ProjectCreateJSONBodyRequestRolesMAINTAINER ProjectCreateJSONBodyRequestRoles = "MAINTAINER"
+	ProjectCreateJSONBodyRequestRolesOWNER      ProjectCreateJSONBodyRequestRoles = "OWNER"
+	ProjectCreateJSONBodyRequestRolesREADER     ProjectCreateJSONBodyRequestRoles = "READER"
+	ProjectCreateJSONBodyRequestRolesWRITER     ProjectCreateJSONBodyRequestRoles = "WRITER"
+)
+
+// Defines values for ProjectUpdateJSONBodyRequestRoles.
+const (
+	MAINTAINER ProjectUpdateJSONBodyRequestRoles = "MAINTAINER"
+	OWNER      ProjectUpdateJSONBodyRequestRoles = "OWNER"
+	READER     ProjectUpdateJSONBodyRequestRoles = "READER"
+	WRITER     ProjectUpdateJSONBodyRequestRoles = "WRITER"
 )
 
 // Feature defines model for Feature.
@@ -516,14 +547,29 @@ type Model struct {
 
 // Project defines model for project.
 type Project struct {
-	Alias       *string                    `json:"alias,omitempty"`
-	CreatedAt   *time.Time                 `json:"createdAt,omitempty"`
-	Description *string                    `json:"description,omitempty"`
-	Id          *id.ProjectID              `json:"id,omitempty"`
-	Name        *string                    `json:"name,omitempty"`
-	UpdatedAt   *time.Time                 `json:"updatedAt,omitempty"`
-	WorkspaceId *accountdomain.WorkspaceID `json:"workspaceId,omitempty"`
+	Alias        *string                    `json:"alias,omitempty"`
+	CreatedAt    *time.Time                 `json:"createdAt,omitempty"`
+	Description  *string                    `json:"description,omitempty"`
+	Id           *id.ProjectID              `json:"id,omitempty"`
+	Name         *string                    `json:"name,omitempty"`
+	Publication  *ProjectPublication        `json:"publication,omitempty"`
+	RequestRoles *[]ProjectRequestRoles     `json:"requestRoles,omitempty"`
+	UpdatedAt    *time.Time                 `json:"updatedAt,omitempty"`
+	WorkspaceId  *accountdomain.WorkspaceID `json:"workspaceId,omitempty"`
 }
+
+// ProjectRequestRoles defines model for Project.RequestRoles.
+type ProjectRequestRoles string
+
+// ProjectPublication defines model for projectPublication.
+type ProjectPublication struct {
+	AssetPublic *bool                    `json:"assetPublic,omitempty"`
+	Scope       *ProjectPublicationScope `json:"scope,omitempty"`
+	Token       *string                  `json:"token,omitempty"`
+}
+
+// ProjectPublicationScope defines model for ProjectPublication.Scope.
+type ProjectPublicationScope string
 
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
@@ -1028,6 +1074,38 @@ type ProjectFilterParams struct {
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
 
+// ProjectCreateJSONBody defines parameters for ProjectCreate.
+type ProjectCreateJSONBody struct {
+	Alias        *string                              `json:"alias,omitempty"`
+	Description  *string                              `json:"description,omitempty"`
+	Name         *string                              `json:"name,omitempty"`
+	RequestRoles *[]ProjectCreateJSONBodyRequestRoles `json:"requestRoles,omitempty"`
+}
+
+// ProjectCreateParams defines parameters for ProjectCreate.
+type ProjectCreateParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
+// ProjectCreateJSONBodyRequestRoles defines parameters for ProjectCreate.
+type ProjectCreateJSONBodyRequestRoles string
+
+// ProjectUpdateJSONBody defines parameters for ProjectUpdate.
+type ProjectUpdateJSONBody struct {
+	Alias        *string                              `json:"alias,omitempty"`
+	Description  *string                              `json:"description,omitempty"`
+	Name         *string                              `json:"name,omitempty"`
+	Publication  *ProjectPublication                  `json:"publication,omitempty"`
+	RequestRoles *[]ProjectUpdateJSONBodyRequestRoles `json:"requestRoles,omitempty"`
+}
+
+// ProjectUpdateJSONBodyRequestRoles defines parameters for ProjectUpdate.
+type ProjectUpdateJSONBodyRequestRoles string
+
 // AssetBatchDeleteJSONRequestBody defines body for AssetBatchDelete for application/json ContentType.
 type AssetBatchDeleteJSONRequestBody AssetBatchDeleteJSONBody
 
@@ -1093,6 +1171,12 @@ type FieldCreateJSONRequestBody FieldCreateJSONBody
 
 // FieldUpdateJSONRequestBody defines body for FieldUpdate for application/json ContentType.
 type FieldUpdateJSONRequestBody FieldUpdateJSONBody
+
+// ProjectCreateJSONRequestBody defines body for ProjectCreate for application/json ContentType.
+type ProjectCreateJSONRequestBody ProjectCreateJSONBody
+
+// ProjectUpdateJSONRequestBody defines body for ProjectUpdate for application/json ContentType.
+type ProjectUpdateJSONRequestBody ProjectUpdateJSONBody
 
 // AsPoint returns the union data inside the Geometry_Coordinates as a Point
 func (t Geometry_Coordinates) AsPoint() (Point, error) {

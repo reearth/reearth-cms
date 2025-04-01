@@ -131,7 +131,7 @@ paths:
                 alias:
                   type: string
                 publication:
-                  $ref: '#/components/schemas/ProjectPublication'
+                  $ref: '#/components/schemas/projectPublication'
                 requestRoles:
                   type: array
                   items:

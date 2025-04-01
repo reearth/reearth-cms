@@ -174,6 +174,18 @@ type ServerInterface interface {
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error
+	// Create a project
+	// (POST /{workspaceId}/projects)
+	ProjectCreate(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectCreateParams) error
+	// Delete a project
+	// (DELETE /{workspaceId}/projects/{projectIdOrAlias})
+	ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// Returns a project.
+	// (GET /{workspaceId}/projects/{projectIdOrAlias})
+	ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// Update a project.
+	// (PATCH /{workspaceId}/projects/{projectIdOrAlias})
+	ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -1545,6 +1557,118 @@ func (w *ServerInterfaceWrapper) ProjectFilter(ctx echo.Context) error {
 	return err
 }
 
+// ProjectCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ProjectCreateParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectCreate(ctx, workspaceId, params)
+	return err
+}
+
+// ProjectDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectDelete(ctx, workspaceId, projectIdOrAlias)
+	return err
+}
+
+// ProjectGet converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectGet(ctx, workspaceId, projectIdOrAlias)
+	return err
+}
+
+// ProjectUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectUpdate(ctx, workspaceId, projectIdOrAlias)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -1622,6 +1746,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PATCH(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
 	router.GET(baseURL+"/schemata/:schemaId/schema.json", wrapper.SchemaByIDAsJSON)
 	router.GET(baseURL+"/:workspaceId/projects", wrapper.ProjectFilter)
+	router.POST(baseURL+"/:workspaceId/projects", wrapper.ProjectCreate)
+	router.DELETE(baseURL+"/:workspaceId/projects/:projectIdOrAlias", wrapper.ProjectDelete)
+	router.GET(baseURL+"/:workspaceId/projects/:projectIdOrAlias", wrapper.ProjectGet)
+	router.PATCH(baseURL+"/:workspaceId/projects/:projectIdOrAlias", wrapper.ProjectUpdate)
 
 }
 
@@ -3833,6 +3961,174 @@ func (response ProjectFilter500Response) VisitProjectFilterResponse(w http.Respo
 	return nil
 }
 
+type ProjectCreateRequestObject struct {
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	Params      ProjectCreateParams
+	Body        *ProjectCreateJSONRequestBody
+}
+
+type ProjectCreateResponseObject interface {
+	VisitProjectCreateResponse(w http.ResponseWriter) error
+}
+
+type ProjectCreate201JSONResponse Project
+
+func (response ProjectCreate201JSONResponse) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectCreate400Response struct {
+}
+
+func (response ProjectCreate400Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectCreate401Response = UnauthorizedErrorResponse
+
+func (response ProjectCreate401Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectDeleteRequestObject struct {
+	WorkspaceId      WorkspaceIdParam      `json:"workspaceId"`
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+}
+
+type ProjectDeleteResponseObject interface {
+	VisitProjectDeleteResponse(w http.ResponseWriter) error
+}
+
+type ProjectDelete200JSONResponse struct {
+	Id *id.ProjectID `json:"id,omitempty"`
+}
+
+func (response ProjectDelete200JSONResponse) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectDelete400Response struct {
+}
+
+func (response ProjectDelete400Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectDelete401Response = UnauthorizedErrorResponse
+
+func (response ProjectDelete401Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectGetRequestObject struct {
+	WorkspaceId      WorkspaceIdParam      `json:"workspaceId"`
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+}
+
+type ProjectGetResponseObject interface {
+	VisitProjectGetResponse(w http.ResponseWriter) error
+}
+
+type ProjectGet200JSONResponse Project
+
+func (response ProjectGet200JSONResponse) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectGet400Response struct {
+}
+
+func (response ProjectGet400Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectGet401Response = UnauthorizedErrorResponse
+
+func (response ProjectGet401Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectGet404Response struct {
+}
+
+func (response ProjectGet404Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectGet500Response struct {
+}
+
+func (response ProjectGet500Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ProjectUpdateRequestObject struct {
+	WorkspaceId      WorkspaceIdParam      `json:"workspaceId"`
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	Body             *ProjectUpdateJSONRequestBody
+}
+
+type ProjectUpdateResponseObject interface {
+	VisitProjectUpdateResponse(w http.ResponseWriter) error
+}
+
+type ProjectUpdate200JSONResponse Project
+
+func (response ProjectUpdate200JSONResponse) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectUpdate400Response struct {
+}
+
+func (response ProjectUpdate400Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectUpdate401Response = UnauthorizedErrorResponse
+
+func (response ProjectUpdate401Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectUpdate404Response struct {
+}
+
+func (response ProjectUpdate404Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectUpdate500Response struct {
+}
+
+func (response ProjectUpdate500Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// delete assets in batch
@@ -3982,6 +4278,18 @@ type StrictServerInterface interface {
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error)
+	// Create a project
+	// (POST /{workspaceId}/projects)
+	ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error)
+	// Delete a project
+	// (DELETE /{workspaceId}/projects/{projectIdOrAlias})
+	ProjectDelete(ctx context.Context, request ProjectDeleteRequestObject) (ProjectDeleteResponseObject, error)
+	// Returns a project.
+	// (GET /{workspaceId}/projects/{projectIdOrAlias})
+	ProjectGet(ctx context.Context, request ProjectGetRequestObject) (ProjectGetResponseObject, error)
+	// Update a project.
+	// (PATCH /{workspaceId}/projects/{projectIdOrAlias})
+	ProjectUpdate(ctx context.Context, request ProjectUpdateRequestObject) (ProjectUpdateResponseObject, error)
 }
 
 type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
@@ -5388,83 +5696,205 @@ func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceId
 	return nil
 }
 
+// ProjectCreate operation middleware
+func (sh *strictHandler) ProjectCreate(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectCreateParams) error {
+	var request ProjectCreateRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.Params = params
+
+	var body ProjectCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectCreate(ctx.Request().Context(), request.(ProjectCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectCreateResponseObject); ok {
+		return validResponse.VisitProjectCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectDelete operation middleware
+func (sh *strictHandler) ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+	var request ProjectDeleteRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.ProjectIdOrAlias = projectIdOrAlias
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectDelete(ctx.Request().Context(), request.(ProjectDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectDeleteResponseObject); ok {
+		return validResponse.VisitProjectDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectGet operation middleware
+func (sh *strictHandler) ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+	var request ProjectGetRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.ProjectIdOrAlias = projectIdOrAlias
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectGet(ctx.Request().Context(), request.(ProjectGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectGetResponseObject); ok {
+		return validResponse.VisitProjectGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectUpdate operation middleware
+func (sh *strictHandler) ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+	var request ProjectUpdateRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.ProjectIdOrAlias = projectIdOrAlias
+
+	var body ProjectUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectUpdate(ctx.Request().Context(), request.(ProjectUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectUpdateResponseObject); ok {
+		return validResponse.VisitProjectUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"t8Fm8LyH+TSr+dPT0/8CAAD//9zml9ChxAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

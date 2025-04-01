@@ -47,3 +47,19 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, err
 }
+
+func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error) {
+	panic("not implemented")
+}
+
+func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject) (ProjectGetResponseObject, error) {
+	panic("not implemented")
+}
+
+func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequestObject) (ProjectUpdateResponseObject, error) {
+	panic("not implemented")
+}
+
+func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequestObject) (ProjectDeleteResponseObject, error) {
+	panic("not implemented")
+}
