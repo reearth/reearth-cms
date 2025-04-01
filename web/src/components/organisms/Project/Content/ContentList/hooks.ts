@@ -613,6 +613,7 @@ export default () => {
   );
 
   return {
+    userId: userId ?? "",
     currentModel,
     loading,
     deleteLoading,

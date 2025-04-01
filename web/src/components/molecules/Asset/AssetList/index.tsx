@@ -8,7 +8,9 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
-import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import CommentsPanelWrapper, {
+  CommentProps,
+} from "@reearth-cms/components/molecules/Common/CommentsPanel";
 import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
@@ -35,6 +37,7 @@ type Props = {
   onNavigateToAsset: (assetId: string) => void;
   onAssetsReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  commentProps: CommentProps;
 };
 
 const AssetList: React.FC<Props> = ({
@@ -59,6 +62,7 @@ const AssetList: React.FC<Props> = ({
   onNavigateToAsset,
   onAssetsReload,
   onAssetTableChange,
+  commentProps,
 }) => {
   const t = useT();
   const [collapsed, setCollapsed] = useState(true);
@@ -122,14 +126,14 @@ const AssetList: React.FC<Props> = ({
         </Wrapper>
       }
       right={
-        <CommentsPanel
+        <CommentsPanelWrapper
+          userId={userId}
           resourceId={selectedAsset?.id}
-          resourceType={"ASSET"}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
           comments={selectedAsset?.comments}
           threadId={selectedAsset?.threadId}
-          refetchQueries={["GetAssetsItems"]}
+          {...commentProps}
         />
       }
     />

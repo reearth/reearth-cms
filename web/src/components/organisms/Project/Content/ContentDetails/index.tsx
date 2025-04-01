@@ -1,5 +1,5 @@
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
-import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import useCommentHooks from "@reearth-cms/components/organisms/Common/CommentsPanel/hooks";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
@@ -10,6 +10,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    userId,
     loadingReference,
     linkedItemsModalList,
     showPublishAction,
@@ -86,8 +87,15 @@ const ContentDetails: React.FC = () => {
     handleAssetGet,
   } = useAssetHooks(false);
 
+  const { handleCommentCreate, handleCommentUpdate, handleCommentDelete, ...commentProps } =
+    useCommentHooks({
+      resourceType: "ITEM",
+      refetchQueries: ["GetItem"],
+    });
+
   return (
     <ContentDetailsMolecule
+      userId={userId}
       hasRequestCreateRight={hasRequestCreateRight}
       hasRequestUpdateRight={hasRequestUpdateRight}
       hasPublishRight={hasPublishRight}
@@ -115,19 +123,6 @@ const ContentDetails: React.FC = () => {
       requestModalPageSize={requestModalPageSize}
       collapsed={collapsedModelMenu}
       onCollapse={collapseModelMenu}
-      commentsPanel={
-        currentItem ? (
-          <CommentsPanel
-            resourceId={currentItem.id}
-            resourceType={"ITEM"}
-            comments={currentItem.comments}
-            threadId={currentItem.threadId}
-            collapsed={collapsedCommentsPanel}
-            onCollapse={collapseCommentsPanel}
-            refetchQueries={["GetItem"]}
-          />
-        ) : undefined
-      }
       title={title}
       item={currentItem}
       itemId={itemId}
@@ -177,6 +172,14 @@ const ContentDetails: React.FC = () => {
       onGroupGet={handleGroupGet}
       onCheckItemReference={handleCheckItemReference}
       onNavigateToRequest={handleNavigateToRequest}
+      commentCollapsed={collapsedCommentsPanel}
+      onCollapseComment={collapseCommentsPanel}
+      commentProps={{
+        onCommentCreate: handleCommentCreate,
+        onCommentUpdate: handleCommentUpdate,
+        onCommentDelete: handleCommentDelete,
+        ...commentProps,
+      }}
     />
   );
 };

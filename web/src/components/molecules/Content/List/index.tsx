@@ -5,6 +5,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import CommentsPanelWrapper, {
+  CommentProps,
+} from "@reearth-cms/components/molecules/Common/CommentsPanel";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -19,7 +22,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  commentsPanel: JSX.Element;
+  userId: string;
   viewsMenu: JSX.Element;
   collapsed: boolean;
   model?: Model;
@@ -67,10 +70,13 @@ type Props = {
   hasPublishRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
+  commentCollapsed: boolean;
+  onCollapseComment: (value: boolean) => void;
+  commentProps: CommentProps;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
-  commentsPanel,
+  userId,
   viewsMenu,
   collapsed,
   model,
@@ -118,6 +124,9 @@ const ContentListMolecule: React.FC<Props> = ({
   hasPublishRight,
   hasRequestUpdateRight,
   showPublishAction,
+  commentCollapsed,
+  onCollapseComment,
+  commentProps,
 }) => {
   const t = useT();
 
@@ -198,11 +207,20 @@ const ContentListMolecule: React.FC<Props> = ({
           )}
         </Content>
       }
-      right={commentsPanel}
+      right={
+        <CommentsPanelWrapper
+          userId={userId}
+          resourceId={selectedItem?.id}
+          collapsed={commentCollapsed}
+          onCollapse={onCollapseComment}
+          comments={selectedItem?.comments}
+          threadId={selectedItem?.threadId}
+          {...commentProps}
+        />
+      }
     />
   );
 };
-
 const Content = styled.div`
   width: 100%;
   background-color: #fff;

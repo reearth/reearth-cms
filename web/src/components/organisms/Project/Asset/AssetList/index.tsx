@@ -1,4 +1,5 @@
-import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList";
+import AssetListWrapper from "@reearth-cms/components/molecules/Asset/AssetList";
+import useCommentHooks from "@reearth-cms/components/organisms/Common/CommentsPanel/hooks";
 
 import useHooks from "./hooks";
 
@@ -27,29 +28,41 @@ const AssetList: React.FC = () => {
     handleAssetTableChange,
   } = useHooks(true);
 
+  const { handleCommentCreate, handleCommentUpdate, handleCommentDelete, ...commentProps } =
+    useCommentHooks({
+      resourceType: "ASSET",
+      refetchQueries: ["GetAssetsItems"],
+    });
+
   return (
-    <AssetListBody
+    <AssetListWrapper
       userId={userId}
       assets={assets}
-      onAssetTableChange={handleAssetTableChange}
+      loading={loading}
+      deleteLoading={deleteLoading}
       totalCount={totalCount}
       page={page}
       pageSize={pageSize}
       sort={sort}
       searchTerm={searchTerm}
       columns={columns}
-      onColumnsChange={handleColumnsChange}
-      loading={loading}
-      deleteLoading={deleteLoading}
       hasCreateRight={hasCreateRight}
       hasDeleteRight={hasDeleteRight}
+      onColumnsChange={handleColumnsChange}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetDelete={handleAssetDelete}
-      onAssetsReload={handleAssetsReload}
       onSearchTerm={handleSearchTerm}
       onNavigateToAsset={handleNavigateToAsset}
+      onAssetsReload={handleAssetsReload}
+      onAssetTableChange={handleAssetTableChange}
+      commentProps={{
+        onCommentCreate: handleCommentCreate,
+        onCommentUpdate: handleCommentUpdate,
+        onCommentDelete: handleCommentDelete,
+        ...commentProps,
+      }}
     />
   );
 };

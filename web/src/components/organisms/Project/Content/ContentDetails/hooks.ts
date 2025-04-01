@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
   FormValues,
   FormValue,
@@ -33,7 +32,6 @@ import {
   useCreateRequestMutation,
   useGetItemQuery,
   useGetModelLazyQuery,
-  useGetMeQuery,
   useUpdateItemMutation,
   useSearchItemQuery,
   useGetGroupLazyQuery,
@@ -44,7 +42,7 @@ import {
   useVersionsByItemQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { useCollapsedModelMenu, useUserId, useUserRights } from "@reearth-cms/state";
 import { newID } from "@reearth-cms/utils/id";
 
 import { dateConvert } from "./utils";
@@ -71,9 +69,9 @@ export default () => {
     pageSize,
     showPublishAction,
   } = useContentHooks();
+  const [userId] = useUserId();
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: userData } = useGetMeQuery();
 
   const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
@@ -181,17 +179,6 @@ export default () => {
       .filter((contentTableField): contentTableField is FormItem => !!contentTableField);
   }, [itemsData?.searchItem.nodes]);
 
-  const me: User | undefined = useMemo(() => {
-    return userData?.me
-      ? {
-          id: userData.me.id,
-          name: userData.me.name,
-          lang: userData.me.lang,
-          email: userData.me.email,
-        }
-      : undefined;
-  }, [userData]);
-
   const currentItem: Item | undefined = useMemo(
     () => fromGraphQLItem(data?.node as GQLItem),
     [data?.node],
@@ -200,9 +187,9 @@ export default () => {
   const hasItemUpdateRight = useMemo(
     () =>
       userRights?.content.update === null
-        ? currentItem?.createdBy?.id === me?.id
+        ? currentItem?.createdBy?.id === userId
         : !!userRights?.content.update,
-    [currentItem?.createdBy?.id, me?.id, userRights?.content.update],
+    [currentItem?.createdBy?.id, userId, userRights?.content.update],
   );
 
   const [getGroup] = useGetGroupLazyQuery({
@@ -618,6 +605,7 @@ export default () => {
   );
 
   return {
+    userId: userId ?? "",
     loadingReference,
     linkedItemsModalList,
     showPublishAction,

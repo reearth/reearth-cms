@@ -1,10 +1,11 @@
 import RequestListMolecule from "@reearth-cms/components/molecules/Request/List";
-import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import useCommentHooks from "@reearth-cms/components/organisms/Common/CommentsPanel/hooks";
 
 import useHooks from "./hooks";
 
 const RequestList: React.FC = () => {
   const {
+    userId,
     requests,
     loading,
     collapsedCommentsPanel,
@@ -31,19 +32,15 @@ const RequestList: React.FC = () => {
     hasCloseRight,
   } = useHooks();
 
+  const { handleCommentCreate, handleCommentUpdate, handleCommentDelete, ...commentProps } =
+    useCommentHooks({
+      resourceType: "REQUEST",
+      refetchQueries: ["GetRequests"],
+    });
+
   return (
     <RequestListMolecule
-      commentsPanel={
-        <CommentsPanel
-          resourceId={selectedRequest?.id}
-          resourceType={"REQUEST"}
-          collapsed={collapsedCommentsPanel}
-          onCollapse={collapseCommentsPanel}
-          comments={selectedRequest?.comments}
-          threadId={selectedRequest?.threadId}
-          refetchQueries={["GetRequests"]}
-        />
-      }
+      userId={userId}
       requests={requests}
       onRequestSelect={handleRequestSelect}
       loading={loading}
@@ -66,6 +63,14 @@ const RequestList: React.FC = () => {
       columns={columns}
       onColumnsChange={handleColumnsChange}
       hasCloseRight={hasCloseRight}
+      commentCollapsed={collapsedCommentsPanel}
+      onCollapseComment={collapseCommentsPanel}
+      commentProps={{
+        onCommentCreate: handleCommentCreate,
+        onCommentUpdate: handleCommentUpdate,
+        onCommentDelete: handleCommentDelete,
+        ...commentProps,
+      }}
     />
   );
 };

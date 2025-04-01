@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comment";
@@ -9,34 +9,60 @@ import { useT } from "@reearth-cms/i18n";
 
 import Editor from "./Editor";
 
-type Props = {
-  userId: string;
+export type CommentProps = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean | null;
   hasDeleteRight: boolean | null;
+  onCommentCreate: (content: string, resourceId: string, threadId: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string, threadId: string) => Promise<void>;
+  onCommentDelete: (commentId: string, threadId: string) => Promise<void>;
+};
+
+type Props = {
+  userId: string;
   resourceId?: string;
+  threadId?: string;
   comments?: CommentType[];
   collapsed: boolean;
   onCollapse: (value: boolean) => void;
-  onCommentCreate: (content: string) => Promise<void>;
-  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
-  onCommentDelete: (commentId: string) => Promise<void>;
-};
+} & CommentProps;
 
 const CommentsPanel: React.FC<Props> = ({
   userId,
-  hasCreateRight,
-  hasUpdateRight,
-  hasDeleteRight,
   resourceId,
+  threadId,
   comments,
   collapsed,
   onCollapse,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
 }) => {
   const t = useT();
+
+  const handleCommentCreate = useCallback(
+    async (content: string) => {
+      await onCommentCreate(content, resourceId ?? "", threadId ?? "");
+    },
+    [onCommentCreate, resourceId, threadId],
+  );
+
+  const handleCommentUpdate = useCallback(
+    async (commentId: string, content: string) => {
+      await onCommentUpdate(commentId, content, threadId ?? "");
+    },
+    [onCommentUpdate, threadId],
+  );
+
+  const handleCommentDelete = useCallback(
+    async (commentId: string) => {
+      await onCommentDelete(commentId, threadId ?? "");
+    },
+    [onCommentDelete, threadId],
+  );
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -69,8 +95,8 @@ const CommentsPanel: React.FC<Props> = ({
                     hasUpdateRight={hasUpdateRight}
                     hasDeleteRight={hasDeleteRight}
                     comment={comment}
-                    onCommentUpdate={onCommentUpdate}
-                    onCommentDelete={onCommentDelete}
+                    onCommentUpdate={handleCommentUpdate}
+                    onCommentDelete={handleCommentDelete}
                   />
                 ))
               ) : (
@@ -83,7 +109,7 @@ const CommentsPanel: React.FC<Props> = ({
             </CommentsContainer>
             <Editor
               isInputDisabled={!comments || !hasCreateRight}
-              onCommentCreate={onCommentCreate}
+              onCommentCreate={handleCommentCreate}
             />
           </>
         )}

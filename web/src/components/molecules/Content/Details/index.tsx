@@ -3,6 +3,9 @@ import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/co
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import CommentsPanelWrapper, {
+  CommentProps,
+} from "@reearth-cms/components/molecules/Common/CommentsPanel";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import {
@@ -22,6 +25,7 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
+  userId: string;
   hasRequestCreateRight: boolean;
   hasRequestUpdateRight: boolean;
   hasPublishRight: boolean;
@@ -45,7 +49,6 @@ type Props = {
   requestCreationLoading: boolean;
   assets: Asset[];
   loadingAssets: boolean;
-  commentsPanel?: JSX.Element;
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
   workspaceUserMembers: UserMember[];
@@ -107,9 +110,13 @@ type Props = {
     groupId?: string,
   ) => Promise<boolean>;
   onNavigateToRequest: (id: string) => void;
+  commentCollapsed: boolean;
+  onCollapseComment: (value: boolean) => void;
+  commentProps: CommentProps;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  userId,
   hasRequestCreateRight,
   hasRequestUpdateRight,
   hasPublishRight,
@@ -132,7 +139,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestCreationLoading,
   assets,
   loadingAssets,
-  commentsPanel,
   requestModalShown,
   addItemToRequestModalShown,
   workspaceUserMembers,
@@ -179,6 +185,9 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onGroupGet,
   onCheckItemReference,
   onNavigateToRequest,
+  commentCollapsed,
+  onCollapseComment,
+  commentProps,
 }) => {
   return (
     <ComplexInnerContents
@@ -264,7 +273,19 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           />
         )
       }
-      right={commentsPanel}
+      right={
+        item && (
+          <CommentsPanelWrapper
+            userId={userId}
+            resourceId={item.id}
+            collapsed={commentCollapsed}
+            onCollapse={onCollapseComment}
+            comments={item.comments}
+            threadId={item.threadId}
+            {...commentProps}
+          />
+        )
+      }
     />
   );
 };

@@ -1,5 +1,5 @@
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
-import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import useCommentHooks from "@reearth-cms/components/organisms/Common/CommentsPanel/hooks";
 import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
@@ -10,6 +10,7 @@ const ContentList: React.FC = () => {
   const t = useT();
 
   const {
+    userId,
     currentModel,
     contentTableFields,
     contentTableColumns,
@@ -63,19 +64,15 @@ const ContentList: React.FC = () => {
     handleRequestTableReload,
   } = useHooks();
 
+  const { handleCommentCreate, handleCommentUpdate, handleCommentDelete, ...commentProps } =
+    useCommentHooks({
+      resourceType: "ITEM",
+      refetchQueries: ["SearchItem"],
+    });
+
   return (
     <ContentListMolecule
-      commentsPanel={
-        <CommentsPanel
-          resourceId={selectedItem?.id}
-          resourceType={"ITEM"}
-          collapsed={collapsedCommentsPanel}
-          onCollapse={collapseCommentsPanel}
-          comments={selectedItem?.comments}
-          threadId={selectedItem?.threadId}
-          refetchQueries={["SearchItem"]}
-        />
-      }
+      userId={userId}
       modelsMenu={
         <ModelsMenu
           title={t("Content")}
@@ -138,6 +135,14 @@ const ContentList: React.FC = () => {
       hasPublishRight={hasPublishRight}
       hasRequestUpdateRight={hasRequestUpdateRight}
       showPublishAction={showPublishAction}
+      commentCollapsed={collapsedCommentsPanel}
+      onCollapseComment={collapseCommentsPanel}
+      commentProps={{
+        onCommentCreate: handleCommentCreate,
+        onCommentUpdate: handleCommentUpdate,
+        onCommentDelete: handleCommentDelete,
+        ...commentProps,
+      }}
     />
   );
 };

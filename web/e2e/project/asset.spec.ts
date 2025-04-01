@@ -15,8 +15,8 @@ const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b
 const upload = async (page: Page, url: string) => {
   await page.getByRole("button", { name: "upload Upload Asset" }).click();
   await page.getByRole("tab", { name: "URL" }).click();
-  await page.getByPlaceholder("Please input a valid URL").click();
-  await page.getByPlaceholder("Please input a valid URL").fill(url);
+  await page.getByRole("textbox").click();
+  await page.getByRole("textbox").fill(url);
   await page.getByRole("button", { name: "Upload", exact: true }).click();
   await closeNotification(page);
 };

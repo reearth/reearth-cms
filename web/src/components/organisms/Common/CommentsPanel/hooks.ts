@@ -13,19 +13,16 @@ import {
   useCreateThreadWithCommentMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspaceId, useUserRights, useUserId } from "@reearth-cms/state";
+import { useWorkspaceId, useUserRights } from "@reearth-cms/state";
 
 type Params = {
-  resourceId?: string;
   resourceType: ResourceType;
-  threadId?: string;
   refetchQueries: RefetchQueries;
 };
 
-export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) => {
+export default ({ resourceType, refetchQueries }: Params) => {
   const t = useT();
   const [currentWorkspaceId] = useWorkspaceId();
-  const [userId] = useUserId();
 
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.comment.create, [userRights?.comment.create]);
@@ -47,13 +44,13 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
   });
 
   const handleCommentCreate = useCallback(
-    async (content: string) => {
+    async (content: string, resourceId: string, threadId: string) => {
       try {
         if (!threadId) {
           const { data, errors } = await createThreadWithComment({
             variables: {
               workspaceId: currentWorkspaceId ?? "",
-              resourceId: resourceId ?? "",
+              resourceId,
               resourceType: resourceType as GQLResourceType,
               content,
             },
@@ -79,15 +76,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
         console.error("Error creating comment:", error);
       }
     },
-    [
-      threadId,
-      createComment,
-      t,
-      createThreadWithComment,
-      currentWorkspaceId,
-      resourceId,
-      resourceType,
-    ],
+    [createComment, t, createThreadWithComment, currentWorkspaceId, resourceType],
   );
 
   const [updateComment] = useUpdateCommentMutation({
@@ -95,7 +84,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
   });
 
   const handleCommentUpdate = useCallback(
-    async (commentId: string, content: string) => {
+    async (commentId: string, content: string, threadId: string) => {
       if (!threadId) return;
       const comment = await updateComment({
         variables: {
@@ -110,7 +99,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
       }
       Notification.success({ message: t("Successfully updated comment!") });
     },
-    [updateComment, threadId, t],
+    [updateComment, t],
   );
 
   const [deleteComment] = useDeleteCommentMutation({
@@ -118,7 +107,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
   });
 
   const handleCommentDelete = useCallback(
-    async (commentId: string) => {
+    async (commentId: string, threadId: string) => {
       if (!threadId) return;
       const comment = await deleteComment({
         variables: {
@@ -132,11 +121,10 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
       }
       Notification.success({ message: t("Successfully deleted comment!") });
     },
-    [deleteComment, threadId, t],
+    [deleteComment, t],
   );
 
   return {
-    userId: userId ?? "",
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,

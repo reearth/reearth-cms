@@ -35,12 +35,12 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 import { getExtension } from "@reearth-cms/utils/file";
 
-export default (assetId?: string) => {
+export default () => {
   const t = useT();
   const [userId] = useUserId();
   const [userRights] = useUserRights();
   const navigate = useNavigate();
-  const { workspaceId, projectId } = useParams();
+  const { workspaceId, projectId, assetId } = useParams();
   const location = useLocation();
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
   const [decompressing, setDecompressing] = useState(false);
@@ -239,6 +239,7 @@ export default (assetId?: string) => {
   }, [location.state, navigate, projectId, workspaceId]);
 
   return {
+    userId: userId ?? "",
     asset,
     assetFileExt,
     isLoading: networkStatus === NetworkStatus.loading || fileLoading,

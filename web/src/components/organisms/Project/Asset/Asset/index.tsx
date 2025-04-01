@@ -1,16 +1,14 @@
-import { useParams } from "react-router-dom";
-
 import Loading from "@reearth-cms/components/atoms/Loading";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
-import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import useCommentHooks from "@reearth-cms/components/organisms/Common/CommentsPanel/hooks";
 import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
 
 import useHooks from "./hooks";
 
 const Asset: React.FC = () => {
-  const { assetId } = useParams();
   const {
+    userId,
     asset,
     assetFileExt,
     isLoading,
@@ -32,25 +30,21 @@ const Asset: React.FC = () => {
     handleBack,
     handleSave,
     handleGetViewer,
-  } = useHooks(assetId);
+  } = useHooks();
 
   const { workspaceSettings } = useSettingsHooks();
+
+  const { handleCommentCreate, handleCommentUpdate, handleCommentDelete, ...commentProps } =
+    useCommentHooks({
+      resourceType: "ASSET",
+      refetchQueries: ["GetAssetItem"],
+    });
 
   return isLoading ? (
     <Loading spinnerSize="large" minHeight="100vh" />
   ) : asset ? (
     <AssetWrapper
-      commentsPanel={
-        <CommentsPanel
-          resourceId={asset.id}
-          resourceType={"ASSET"}
-          comments={asset.comments}
-          threadId={asset.threadId}
-          collapsed={collapsed}
-          onCollapse={handleToggleCommentMenu}
-          refetchQueries={["GetAssetItem"]}
-        />
-      }
+      userId={userId}
       asset={asset}
       assetFileExt={assetFileExt}
       selectedPreviewType={selectedPreviewType}
@@ -70,6 +64,14 @@ const Asset: React.FC = () => {
       onSave={handleSave}
       onGetViewer={handleGetViewer}
       workspaceSettings={workspaceSettings}
+      collapsed={collapsed}
+      onCollapse={handleToggleCommentMenu}
+      commentProps={{
+        onCommentCreate: handleCommentCreate,
+        onCommentUpdate: handleCommentUpdate,
+        onCommentDelete: handleCommentDelete,
+        ...commentProps,
+      }}
     />
   ) : (
     <NotFound />

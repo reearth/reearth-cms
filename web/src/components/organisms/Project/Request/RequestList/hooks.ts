@@ -203,6 +203,7 @@ export default () => {
   }, []);
 
   return {
+    userId: userId ?? "",
     requests,
     loading,
     collapsedCommentsPanel,

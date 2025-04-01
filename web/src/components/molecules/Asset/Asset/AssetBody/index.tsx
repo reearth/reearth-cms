@@ -7,11 +7,14 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
 import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
+import CommentsPanelWrapper, {
+  CommentProps,
+} from "@reearth-cms/components/molecules/Common/CommentsPanel";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  commentsPanel: JSX.Element;
+  userId: string;
   asset: Asset;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
@@ -31,9 +34,13 @@ type Props = {
   onSave: () => void;
   onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
+  collapsed: boolean;
+  onCollapse: (value: boolean) => void;
+  commentProps: CommentProps;
 };
 
 const AssetWrapper: React.FC<Props> = ({
+  userId,
   asset,
   assetFileExt,
   selectedPreviewType,
@@ -41,7 +48,6 @@ const AssetWrapper: React.FC<Props> = ({
   viewerType,
   displayUnzipFileList,
   decompressing,
-  commentsPanel,
   isSaveDisabled,
   updateLoading,
   hasUpdateRight,
@@ -54,6 +60,9 @@ const AssetWrapper: React.FC<Props> = ({
   onSave,
   onGetViewer,
   workspaceSettings,
+  collapsed,
+  onCollapse,
+  commentProps,
 }) => {
   const t = useT();
 
@@ -89,7 +98,17 @@ const AssetWrapper: React.FC<Props> = ({
           />
         </Wrapper>
       }
-      right={commentsPanel}
+      right={
+        <CommentsPanelWrapper
+          userId={userId}
+          resourceId={asset.id}
+          collapsed={collapsed}
+          onCollapse={onCollapse}
+          comments={asset.comments}
+          threadId={asset.threadId}
+          {...commentProps}
+        />
+      }
     />
   );
 };

@@ -4,12 +4,15 @@ import { Key } from "react";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
+import CommentsPanelWrapper, {
+  CommentProps,
+} from "@reearth-cms/components/molecules/Common/CommentsPanel";
 import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  commentsPanel: JSX.Element;
+  userId: string;
   requests: Request[];
   loading: boolean;
   selectedRequest?: Request;
@@ -40,10 +43,13 @@ type Props = {
   columns: Record<string, ColumnsState>;
   onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   hasCloseRight: boolean;
+  commentCollapsed: boolean;
+  onCollapseComment: (value: boolean) => void;
+  commentProps: CommentProps;
 };
 
 const RequestListMolecule: React.FC<Props> = ({
-  commentsPanel,
+  userId,
   requests,
   loading,
   selectedRequest,
@@ -66,6 +72,9 @@ const RequestListMolecule: React.FC<Props> = ({
   columns,
   onColumnsChange,
   hasCloseRight,
+  commentCollapsed,
+  onCollapseComment,
+  commentProps,
 }) => {
   const t = useT();
 
@@ -100,7 +109,17 @@ const RequestListMolecule: React.FC<Props> = ({
           />
         </Content>
       }
-      right={commentsPanel}
+      right={
+        <CommentsPanelWrapper
+          userId={userId}
+          resourceId={selectedRequest?.id}
+          collapsed={commentCollapsed}
+          onCollapse={onCollapseComment}
+          comments={selectedRequest?.comments}
+          threadId={selectedRequest?.threadId}
+          {...commentProps}
+        />
+      }
     />
   );
 };

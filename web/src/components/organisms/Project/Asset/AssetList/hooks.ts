@@ -81,6 +81,8 @@ export default (isItemsRequired: boolean) => {
     }
   }, [getAssets, isItemsRequired]);
 
+  const totalCount = useMemo(() => data?.assets.totalCount ?? 0, [data?.assets.totalCount]);
+
   const assets = useMemo(
     () =>
       (data?.assets.nodes
@@ -277,7 +279,7 @@ export default (isItemsRequired: boolean) => {
     handleAssetDelete,
     handleNavigateToAsset,
     handleAssetItemSelect,
-    totalCount: data?.assets.totalCount ?? 0,
+    totalCount,
     page,
     pageSize,
     sort,
