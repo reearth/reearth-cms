@@ -1,12 +1,9 @@
 import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList";
-import { ResourceTypes } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
-import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
 const AssetList: React.FC = () => {
-  const t = useT();
   const {
     assetList,
     selection,
@@ -50,15 +47,10 @@ const AssetList: React.FC = () => {
     <AssetListBody
       commentsPanel={
         <CommentsPanel
-          resourceId={selectedAsset?.id ?? ""}
-          resourceType={ResourceTypes.Asset}
+          resourceId={selectedAsset?.id}
+          resourceType={"ASSET"}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
-          emptyText={
-            selectedAsset
-              ? t("No comments.")
-              : t("Please click the comment bubble in the table to check comments.")
-          }
           comments={selectedAsset?.comments}
           threadId={selectedAsset?.threadId}
           refetchQueries={["GetAssetsItems"]}

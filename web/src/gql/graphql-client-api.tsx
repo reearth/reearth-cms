@@ -377,6 +377,15 @@ export type DeleteAssetPayload = {
   assetId: Scalars['ID']['output'];
 };
 
+export type DeleteAssetsInput = {
+  assetIds: Array<Scalars['ID']['input']>;
+};
+
+export type DeleteAssetsPayload = {
+  __typename?: 'DeleteAssetsPayload';
+  assetIds?: Maybe<Array<Scalars['ID']['output']>>;
+};
+
 export type DeleteCommentInput = {
   commentId: Scalars['ID']['input'];
   threadId: Scalars['ID']['input'];
@@ -416,6 +425,15 @@ export type DeleteIntegrationInput = {
 export type DeleteIntegrationPayload = {
   __typename?: 'DeleteIntegrationPayload';
   integrationId: Scalars['ID']['output'];
+};
+
+export type DeleteIntegrationsInput = {
+  integrationIDs: Array<Scalars['ID']['input']>;
+};
+
+export type DeleteIntegrationsPayload = {
+  __typename?: 'DeleteIntegrationsPayload';
+  integrationIDs?: Maybe<Array<Scalars['ID']['output']>>;
 };
 
 export type DeleteItemInput = {
@@ -797,10 +815,12 @@ export type Mutation = {
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   decompressAsset?: Maybe<DecompressAssetPayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
+  deleteAssets?: Maybe<DeleteAssetsPayload>;
   deleteComment?: Maybe<DeleteCommentPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
   deleteGroup?: Maybe<DeleteGroupPayload>;
   deleteIntegration?: Maybe<DeleteIntegrationPayload>;
+  deleteIntegrations?: Maybe<DeleteIntegrationsPayload>;
   deleteItem?: Maybe<DeleteItemPayload>;
   deleteMe?: Maybe<DeleteMePayload>;
   deleteModel?: Maybe<DeleteModelPayload>;
@@ -811,6 +831,7 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
+  publishModels?: Maybe<PublishModelsPayload>;
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
   regeneratePublicApiToken?: Maybe<ProjectPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveIntegrationFromWorkspacePayload>;
@@ -935,6 +956,11 @@ export type MutationDeleteAssetArgs = {
 };
 
 
+export type MutationDeleteAssetsArgs = {
+  input: DeleteAssetsInput;
+};
+
+
 export type MutationDeleteCommentArgs = {
   input: DeleteCommentInput;
 };
@@ -952,6 +978,11 @@ export type MutationDeleteGroupArgs = {
 
 export type MutationDeleteIntegrationArgs = {
   input: DeleteIntegrationInput;
+};
+
+
+export type MutationDeleteIntegrationsArgs = {
+  input: DeleteIntegrationsInput;
 };
 
 
@@ -1002,6 +1033,11 @@ export type MutationPublishItemArgs = {
 
 export type MutationPublishModelArgs = {
   input: PublishModelInput;
+};
+
+
+export type MutationPublishModelsArgs = {
+  input: PublishModelsInput;
 };
 
 
@@ -1311,6 +1347,15 @@ export type PublishModelPayload = {
   __typename?: 'PublishModelPayload';
   modelId: Scalars['ID']['output'];
   status: Scalars['Boolean']['output'];
+};
+
+export type PublishModelsInput = {
+  models: Array<PublishModelInput>;
+};
+
+export type PublishModelsPayload = {
+  __typename?: 'PublishModelsPayload';
+  models: Array<PublishModelPayload>;
 };
 
 export type Query = {
@@ -2574,6 +2619,13 @@ export type IsItemReferencedQueryVariables = Exact<{
 
 export type IsItemReferencedQuery = { __typename?: 'Query', isItemReferenced: boolean };
 
+export type VersionsByItemQueryVariables = Exact<{
+  itemId: Scalars['ID']['input'];
+}>;
+
+
+export type VersionsByItemQuery = { __typename?: 'Query', versionsByItem: Array<{ __typename?: 'VersionedItem', version: string, refs: Array<string>, value: { __typename?: 'Item', id: string, version: string, modelId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, requests?: Array<{ __typename?: 'Request', id: string, title: string, state: RequestState, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, item?: { __typename?: 'VersionedItem', value: { __typename?: 'Item', modelId: string } } | null }> }> | null } }> };
+
 export type SearchItemQueryVariables = Exact<{
   searchItemInput: SearchItemInput;
 }>;
@@ -2664,6 +2716,13 @@ export type UpdateModelMutationVariables = Exact<{
 
 
 export type UpdateModelMutation = { __typename?: 'Mutation', updateModel?: { __typename?: 'ModelPayload', model: { __typename?: 'Model', id: string, name: string } } | null };
+
+export type PublishModelsMutationVariables = Exact<{
+  models: Array<PublishModelInput> | PublishModelInput;
+}>;
+
+
+export type PublishModelsMutation = { __typename?: 'Mutation', publishModels?: { __typename?: 'PublishModelsPayload', models: Array<{ __typename?: 'PublishModelPayload', modelId: string, status: boolean }> } | null };
 
 export type CheckModelKeyAvailabilityQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -4831,6 +4890,91 @@ export type IsItemReferencedQueryHookResult = ReturnType<typeof useIsItemReferen
 export type IsItemReferencedLazyQueryHookResult = ReturnType<typeof useIsItemReferencedLazyQuery>;
 export type IsItemReferencedSuspenseQueryHookResult = ReturnType<typeof useIsItemReferencedSuspenseQuery>;
 export type IsItemReferencedQueryResult = Apollo.QueryResult<IsItemReferencedQuery, IsItemReferencedQueryVariables>;
+export const VersionsByItemDocument = gql`
+    query VersionsByItem($itemId: ID!) {
+  versionsByItem(itemId: $itemId) {
+    version
+    refs
+    value {
+      id
+      version
+      modelId
+      status
+      createdAt
+      updatedAt
+      createdBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
+      }
+      updatedBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
+      }
+      fields {
+        schemaFieldId
+        itemGroupId
+        type
+        value
+      }
+      requests {
+        id
+        title
+        state
+        items {
+          itemId
+          version
+          item {
+            value {
+              modelId
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useVersionsByItemQuery__
+ *
+ * To run a query within a React component, call `useVersionsByItemQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVersionsByItemQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVersionsByItemQuery({
+ *   variables: {
+ *      itemId: // value for 'itemId'
+ *   },
+ * });
+ */
+export function useVersionsByItemQuery(baseOptions: Apollo.QueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables> & ({ variables: VersionsByItemQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+      }
+export function useVersionsByItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+        }
+export function useVersionsByItemSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+        }
+export type VersionsByItemQueryHookResult = ReturnType<typeof useVersionsByItemQuery>;
+export type VersionsByItemLazyQueryHookResult = ReturnType<typeof useVersionsByItemLazyQuery>;
+export type VersionsByItemSuspenseQueryHookResult = ReturnType<typeof useVersionsByItemSuspenseQuery>;
+export type VersionsByItemQueryResult = Apollo.QueryResult<VersionsByItemQuery, VersionsByItemQueryVariables>;
 export const SearchItemDocument = gql`
     query SearchItem($searchItemInput: SearchItemInput!) {
   searchItem(input: $searchItemInput) {
@@ -5553,6 +5697,42 @@ export function useUpdateModelMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UpdateModelMutationHookResult = ReturnType<typeof useUpdateModelMutation>;
 export type UpdateModelMutationResult = Apollo.MutationResult<UpdateModelMutation>;
 export type UpdateModelMutationOptions = Apollo.BaseMutationOptions<UpdateModelMutation, UpdateModelMutationVariables>;
+export const PublishModelsDocument = gql`
+    mutation PublishModels($models: [PublishModelInput!]!) {
+  publishModels(input: {models: $models}) {
+    models {
+      modelId
+      status
+    }
+  }
+}
+    `;
+export type PublishModelsMutationFn = Apollo.MutationFunction<PublishModelsMutation, PublishModelsMutationVariables>;
+
+/**
+ * __usePublishModelsMutation__
+ *
+ * To run a mutation, you first call `usePublishModelsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishModelsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishModelsMutation, { data, loading, error }] = usePublishModelsMutation({
+ *   variables: {
+ *      models: // value for 'models'
+ *   },
+ * });
+ */
+export function usePublishModelsMutation(baseOptions?: Apollo.MutationHookOptions<PublishModelsMutation, PublishModelsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishModelsMutation, PublishModelsMutationVariables>(PublishModelsDocument, options);
+      }
+export type PublishModelsMutationHookResult = ReturnType<typeof usePublishModelsMutation>;
+export type PublishModelsMutationResult = Apollo.MutationResult<PublishModelsMutation>;
+export type PublishModelsMutationOptions = Apollo.BaseMutationOptions<PublishModelsMutation, PublishModelsMutationVariables>;
 export const CheckModelKeyAvailabilityDocument = gql`
     query CheckModelKeyAvailability($projectId: ID!, $key: String!) {
   checkModelKeyAvailability(projectId: $projectId, key: $key) {

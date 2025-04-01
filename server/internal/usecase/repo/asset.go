@@ -21,6 +21,8 @@ type Asset interface {
 	FindByIDs(context.Context, id.AssetIDList) ([]*asset.Asset, error)
 	Save(context.Context, *asset.Asset) error
 	Delete(context.Context, id.AssetID) error
+	// BatchDelete deletes assets in batch based on multiple asset IDs
+	BatchDelete(context.Context, id.AssetIDList) error
 }
 
 type AssetFile interface {

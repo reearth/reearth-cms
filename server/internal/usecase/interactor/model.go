@@ -53,15 +53,15 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	if err != nil {
 		return nil, nil, err
 	}
-	return m.Ordered(), p, nil
+	return m, p, nil
 }
 
-func (i Model) FindByProjectAndKeyword(ctx context.Context, projectID id.ProjectID, k string, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
-	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, projectID, k, pagination)
+func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.FindByProjectAndKeywordParam, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, params.ProjectID, params.Keyword, params.Sort, params.Pagination)
 	if err != nil {
 		return nil, nil, err
 	}
-	return m.Ordered(), p, nil
+	return m, p, nil
 }
 
 func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, _ *usecase.Operator) (*model.Model, error) {
@@ -221,23 +221,39 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 		})
 }
 
-func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator *usecase.Operator) (bool, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) (_ bool, err error) {
-			m, err := i.repos.Model.FindByID(ctx, modelID)
+func (i Model) Publish(ctx context.Context, params []interfaces.PublishModelParam, operator *usecase.Operator) error {
+	if len(params) == 0 {
+		return rerror.ErrInvalidParams
+	}
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) error {
+			mIds := lo.Map(params, func(p interfaces.PublishModelParam, _ int) id.ModelID { return p.ModelID })
+			ml, err := i.repos.Model.FindByIDs(ctx, mIds)
 			if err != nil {
-				return false, err
+				return err
 			}
-			if !operator.IsMaintainingProject(m.Project()) {
-				return m.Public(), interfaces.ErrOperationDenied
+			if len(ml) != len(mIds) {
+				return rerror.ErrNotFound
+			}
+			if len(lo.UniqMap(ml, func(m *model.Model, _ int) id.ProjectID { return m.Project() })) != 1 {
+				return rerror.ErrInvalidParams
+			}
+			if !operator.IsMaintainingProject(ml[0].Project()) {
+				return interfaces.ErrOperationDenied
 			}
 
-			m.SetPublic(b)
-
-			if err := i.repos.Model.Save(ctx, m); err != nil {
-				return false, err
+			for _, p := range params {
+				m := ml.Model(p.ModelID)
+				if m == nil {
+					return rerror.ErrNotFound
+				}
+				m.SetPublic(p.Public)
 			}
-			return b, nil
+
+			if err := i.repos.Model.SaveAll(ctx, ml); err != nil {
+				return err
+			}
+			return nil
 		})
 }
 

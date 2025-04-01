@@ -33,7 +33,14 @@ func (s *Server) SchemaFilter(ctx context.Context, request SchemaFilterRequestOb
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	ms, pi, err := uc.Model.FindByProjectAndKeyword(ctx, prj.ID(), lo.FromPtrOr(request.Params.Keyword, ""), p, op)
+	params := interfaces.FindByProjectAndKeywordParam{
+		ProjectID:  prj.ID(),
+		Keyword:    lo.FromPtrOr(request.Params.Keyword, ""),
+		Sort:       toModelSort(request.Params.Sort, request.Params.Dir),
+		Pagination: p,
+	}
+
+	ms, pi, err := uc.Model.FindByProjectAndKeyword(ctx, params, op)
 	if err != nil {
 		return nil, err
 	}

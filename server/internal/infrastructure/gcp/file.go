@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -133,6 +134,21 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 	}
 
 	return f.delete(ctx, p)
+}
+
+// DeleteAssets deletes assets data in batch
+func (f *fileRepo) DeleteAssets(ctx context.Context, UUIDs []string) error {
+	paths := make([]string, 0)
+	for _, uuid := range UUIDs {
+		path := getGCSObjectPathFolder(uuid)
+		if path == "" {
+			return gateway.ErrInvalidFile
+		}
+
+		paths = append(paths, path)
+	}
+
+	return f.batchDelete(ctx, paths)
 }
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
@@ -353,12 +369,113 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
+func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error {
+	if len(folderNames) == 0 {
+		return gateway.ErrInvalidInput
+	}
+
+	// Get the bucket reference
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: batch delete bucket error: %+v\n", err)
+		return err
+	}
+
+	const numWorkers = 5 // Limit concurrency workers
+
+	// Create channels for folder names and errors
+	folderChan := make(chan string, len(folderNames))
+	errChan := make(chan error, numWorkers)
+	var wg sync.WaitGroup
+
+	// Worker function to delete folders
+	worker := func() {
+		defer wg.Done()
+		for folderName := range folderChan {
+			if err := f.deleteFolder(ctx, bucket, folderName); err != nil {
+				errChan <- fmt.Errorf("failed to delete folder %s: %w", folderName, err)
+			}
+		}
+	}
+
+	// Start worker goroutines
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go worker()
+	}
+
+	// Send folder names to workers
+	for _, folderName := range folderNames {
+		if folderName == "" {
+			continue
+		}
+
+		if folderName[len(folderName)-1] != '/' {
+			folderName += "/" // Ensure folder names end with "/"
+		}
+		folderChan <- folderName
+	}
+	close(folderChan) // Close channel after sending all folder names
+
+	// Wait for all workers to finish
+	wg.Wait()
+	close(errChan)
+
+	// Collect errors
+	var finalErr error
+	for err := range errChan {
+		if err != nil {
+			finalErr = fmt.Errorf("batch delete encountered errors: %w", err)
+		}
+	}
+
+	if finalErr != nil {
+		log.Errorf("Batch delete completed with errors.")
+		return finalErr
+	}
+
+	return nil
+}
+
+func (f *fileRepo) deleteFolder(ctx context.Context, bucket *storage.BucketHandle, folderPrefix string) error {
+	it := bucket.Objects(ctx, &storage.Query{Prefix: folderPrefix})
+
+	for {
+		objAttrs, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Errorf("gcs: list objects error: %+v\n", err)
+			return err
+		}
+
+		obj := bucket.Object(objAttrs.Name)
+		if err := obj.Delete(ctx); err != nil {
+			if errors.Is(err, storage.ErrObjectNotExist) {
+				continue
+			}
+			log.Errorf("gcs: delete object %s error: %+v\n", objAttrs.Name, err)
+			return err
+		}
+	}
+
+	return nil
+}
+
 func getGCSObjectPath(uuid, objectName string) string {
 	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
 	}
 
 	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:], objectName)
+}
+
+func getGCSObjectPathFolder(uuid string) string {
+	if uuid == "" || !IsValidUUID(uuid) {
+		return ""
+	}
+	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:])
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
