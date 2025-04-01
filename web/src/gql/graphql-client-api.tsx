@@ -2724,6 +2724,13 @@ export type UpdateModelMutationVariables = Exact<{
 
 export type UpdateModelMutation = { __typename?: 'Mutation', updateModel?: { __typename?: 'ModelPayload', model: { __typename?: 'Model', id: string, name: string } } | null };
 
+export type PublishModelsMutationVariables = Exact<{
+  models: Array<PublishModelInput> | PublishModelInput;
+}>;
+
+
+export type PublishModelsMutation = { __typename?: 'Mutation', publishModels?: { __typename?: 'PublishModelsPayload', models: Array<{ __typename?: 'PublishModelPayload', modelId: string, status: boolean }> } | null };
+
 export type CheckModelKeyAvailabilityQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
   key: Scalars['String']['input'];
@@ -5730,6 +5737,42 @@ export function useUpdateModelMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UpdateModelMutationHookResult = ReturnType<typeof useUpdateModelMutation>;
 export type UpdateModelMutationResult = Apollo.MutationResult<UpdateModelMutation>;
 export type UpdateModelMutationOptions = Apollo.BaseMutationOptions<UpdateModelMutation, UpdateModelMutationVariables>;
+export const PublishModelsDocument = gql`
+    mutation PublishModels($models: [PublishModelInput!]!) {
+  publishModels(input: {models: $models}) {
+    models {
+      modelId
+      status
+    }
+  }
+}
+    `;
+export type PublishModelsMutationFn = Apollo.MutationFunction<PublishModelsMutation, PublishModelsMutationVariables>;
+
+/**
+ * __usePublishModelsMutation__
+ *
+ * To run a mutation, you first call `usePublishModelsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishModelsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishModelsMutation, { data, loading, error }] = usePublishModelsMutation({
+ *   variables: {
+ *      models: // value for 'models'
+ *   },
+ * });
+ */
+export function usePublishModelsMutation(baseOptions?: Apollo.MutationHookOptions<PublishModelsMutation, PublishModelsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishModelsMutation, PublishModelsMutationVariables>(PublishModelsDocument, options);
+      }
+export type PublishModelsMutationHookResult = ReturnType<typeof usePublishModelsMutation>;
+export type PublishModelsMutationResult = Apollo.MutationResult<PublishModelsMutation>;
+export type PublishModelsMutationOptions = Apollo.BaseMutationOptions<PublishModelsMutation, PublishModelsMutationVariables>;
 export const CheckModelKeyAvailabilityDocument = gql`
     query CheckModelKeyAvailability($projectId: ID!, $key: String!) {
   checkModelKeyAvailability(projectId: $projectId, key: $key) {
