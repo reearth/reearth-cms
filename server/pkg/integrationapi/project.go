@@ -14,33 +14,41 @@ func NewProject(p *project.Project) Project {
 		Description:  lo.ToPtr(p.Description()),
 		Alias:        lo.ToPtr(p.Alias()),
 		Publication:  ToProjectPublication(p.Publication()),
-		RequestRoles: lo.ToPtr(ToRequestRoles(p.RequestRoles())),
+		RequestRoles: ToRequestRoles(p.RequestRoles()),
 		CreatedAt:    lo.ToPtr(p.CreatedAt()),
 		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
 	}
 }
 
-func ToRequestRoles(roles []workspace.Role) RequestRoles {
+func ToRequestRoles(roles []workspace.Role) *[]ProjectRequestRole {
 	if roles == nil {
 		return nil
 	}
-	return lo.Map(roles, func(r workspace.Role, _ int) string {
-		return ToRequestRole(r)
+	res := lo.FilterMap(roles, func(r workspace.Role, _ int) (ProjectRequestRole, bool) {
+		role := ToRequestRole(r)
+		if role != nil {
+			return *role, true
+		}
+		return "", false
 	})
+	if len(res) == 0 {
+		return nil
+	}
+	return &res
 }
 
-func ToRequestRole(r workspace.Role) string {
+func ToRequestRole(r workspace.Role) *ProjectRequestRole {
 	switch r {
 	case workspace.RoleOwner:
-		return "OWNER"
+		return lo.ToPtr(OWNER)
 	case workspace.RoleMaintainer:
-		return "MAINTAINER"
+		return lo.ToPtr(MAINTAINER)
 	case workspace.RoleWriter:
-		return "WRITER"
+		return lo.ToPtr(WRITER)
 	case workspace.RoleReader:
-		return "READER"
+		return lo.ToPtr(READER)
 	}
-	return "READER"
+	return nil
 }
 
 func ToProjectPublication(p *project.Publication) *ProjectPublication {

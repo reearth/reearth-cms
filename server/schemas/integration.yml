@@ -67,7 +67,9 @@ paths:
                 alias:
                   type: string
                 requestRoles:
-                  $ref: '#/components/schemas/requestRoles'
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/projectRequestRole'
       responses:
         '201':
           description: A JSON object of the created project
@@ -132,7 +134,9 @@ paths:
                 publication:
                   $ref: '#/components/schemas/projectPublication'
                 requestRoles:
-                  $ref: '#/components/schemas/requestRoles'
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/projectRequestRole'
       responses:
         '200':
           description: A JSON object of the updated project
@@ -1993,7 +1997,9 @@ components:
         publication:
           $ref: '#/components/schemas/projectPublication'
         requestRoles:
-          $ref: '#/components/schemas/requestRoles'    
+          type: array
+          items:
+            $ref: '#/components/schemas/projectRequestRole'
     projectPublication:
       type: object
       properties:
@@ -2004,11 +2010,9 @@ components:
           type: boolean
         token:
           type: string
-    requestRoles:
-      type: array
-      items:
-        type: string
-        enum: [READER, WRITER, OWNER, MAINTAINER]
+    projectRequestRole:
+      type: string
+      enum: [READER, WRITER, MAINTAINER, OWNER]
     model:
       type: object
       properties:

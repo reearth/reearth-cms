@@ -154,6 +154,14 @@ const (
 	PUBLIC  ProjectPublicationScope = "PUBLIC"
 )
 
+// Defines values for ProjectRequestRole.
+const (
+	MAINTAINER ProjectRequestRole = "MAINTAINER"
+	OWNER      ProjectRequestRole = "OWNER"
+	READER     ProjectRequestRole = "READER"
+	WRITER     ProjectRequestRole = "WRITER"
+)
+
 // Defines values for RefOrVersionRef.
 const (
 	RefOrVersionRefLatest RefOrVersionRef = "latest"
@@ -529,7 +537,7 @@ type Project struct {
 	Id           *id.ProjectID              `json:"id,omitempty"`
 	Name         *string                    `json:"name,omitempty"`
 	Publication  *ProjectPublication        `json:"publication,omitempty"`
-	RequestRoles *RequestRoles              `json:"requestRoles,omitempty"`
+	RequestRoles *[]ProjectRequestRole      `json:"requestRoles,omitempty"`
 	UpdatedAt    *time.Time                 `json:"updatedAt,omitempty"`
 	WorkspaceId  *accountdomain.WorkspaceID `json:"workspaceId,omitempty"`
 }
@@ -544,6 +552,9 @@ type ProjectPublication struct {
 // ProjectPublicationScope defines model for ProjectPublication.Scope.
 type ProjectPublicationScope string
 
+// ProjectRequestRole defines model for projectRequestRole.
+type ProjectRequestRole string
+
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
 	Ref     *RefOrVersionRef    `json:"ref,omitempty"`
@@ -552,9 +563,6 @@ type RefOrVersion struct {
 
 // RefOrVersionRef defines model for RefOrVersion.Ref.
 type RefOrVersionRef string
-
-// RequestRoles defines model for requestRoles.
-type RequestRoles = []string
 
 // Schema defines model for schema.
 type Schema struct {
@@ -1052,10 +1060,10 @@ type ProjectFilterParams struct {
 
 // ProjectCreateJSONBody defines parameters for ProjectCreate.
 type ProjectCreateJSONBody struct {
-	Alias        *string       `json:"alias,omitempty"`
-	Description  *string       `json:"description,omitempty"`
-	Name         *string       `json:"name,omitempty"`
-	RequestRoles *RequestRoles `json:"requestRoles,omitempty"`
+	Alias        *string               `json:"alias,omitempty"`
+	Description  *string               `json:"description,omitempty"`
+	Name         *string               `json:"name,omitempty"`
+	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
 }
 
 // ProjectCreateParams defines parameters for ProjectCreate.
@@ -1069,11 +1077,11 @@ type ProjectCreateParams struct {
 
 // ProjectUpdateJSONBody defines parameters for ProjectUpdate.
 type ProjectUpdateJSONBody struct {
-	Alias        *string             `json:"alias,omitempty"`
-	Description  *string             `json:"description,omitempty"`
-	Name         *string             `json:"name,omitempty"`
-	Publication  *ProjectPublication `json:"publication,omitempty"`
-	RequestRoles *RequestRoles       `json:"requestRoles,omitempty"`
+	Alias        *string               `json:"alias,omitempty"`
+	Description  *string               `json:"description,omitempty"`
+	Name         *string               `json:"name,omitempty"`
+	Publication  *ProjectPublication   `json:"publication,omitempty"`
+	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
 }
 
 // AssetBatchDeleteJSONRequestBody defines body for AssetBatchDelete for application/json ContentType.

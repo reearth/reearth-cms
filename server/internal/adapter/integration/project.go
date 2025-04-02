@@ -80,7 +80,7 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 		Description:  lo.ToPtr(p.Description()),
 		Alias:        lo.ToPtr(p.Alias()),
 		Publication:  integrationapi.ToProjectPublication(p.Publication()),
-		RequestRoles: lo.ToPtr(integrationapi.ToRequestRoles(p.RequestRoles())),
+		RequestRoles: integrationapi.ToRequestRoles(p.RequestRoles()),
 		CreatedAt:    lo.ToPtr(p.CreatedAt()),
 		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
 	}, nil
@@ -113,7 +113,7 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 		Description:  lo.ToPtr(p.Description()),
 		Alias:        lo.ToPtr(p.Alias()),
 		Publication:  integrationapi.ToProjectPublication(p.Publication()),
-		RequestRoles: lo.ToPtr(integrationapi.ToRequestRoles(p.RequestRoles())),
+		RequestRoles: integrationapi.ToRequestRoles(p.RequestRoles()),
 		CreatedAt:    lo.ToPtr(p.CreatedAt()),
 		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
 	}, nil
@@ -132,7 +132,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	}
 
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:  *request.ProjectIdOrAlias.ID(),
+		ID:           *request.ProjectIdOrAlias.ID(),
 		Name:         request.Body.Name,
 		Description:  request.Body.Description,
 		Alias:        request.Body.Alias,
@@ -150,7 +150,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		Description:  lo.ToPtr(p.Description()),
 		Alias:        lo.ToPtr(p.Alias()),
 		Publication:  integrationapi.ToProjectPublication(p.Publication()),
-		RequestRoles: lo.ToPtr(integrationapi.ToRequestRoles(p.RequestRoles())),
+		RequestRoles: integrationapi.ToRequestRoles(p.RequestRoles()),
 		CreatedAt:    lo.ToPtr(p.CreatedAt()),
 		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
 	}, nil
