@@ -129,9 +129,7 @@ const UploadModal: React.FC<Props> = ({
           minHeight: "50vh",
         },
       }}>
-      <div>
-        <h2>{t("Asset Uploader")}</h2>
-      </div>
+      <h2>{t("Asset Uploader")}</h2>
       <Form
         form={form}
         initialValues={initialValues}
