@@ -29,6 +29,7 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	if err != nil {
 		return nil, err
 	}
+
 	if len(res) == 0 {
 		return ProjectFilter200JSONResponse{
 			Projects:   nil,
@@ -47,7 +48,7 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 		Page:       lo.ToPtr(Page(*p.Offset)),
 		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
-	}, err
+	}, nil
 }
 
 func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error) {
@@ -73,17 +74,7 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 		return nil, err
 	}
 
-	return ProjectCreate201JSONResponse{
-		Id:           p.ID().Ref(),
-		WorkspaceId:  p.Workspace().Ref(),
-		Name:         lo.ToPtr(p.Name()),
-		Description:  lo.ToPtr(p.Description()),
-		Alias:        lo.ToPtr(p.Alias()),
-		Publication:  integrationapi.ToProjectPublication(p.Publication()),
-		RequestRoles: integrationapi.ToRequestRoles(p.RequestRoles()),
-		CreatedAt:    lo.ToPtr(p.CreatedAt()),
-		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
-	}, nil
+	return ProjectCreate201JSONResponse(integrationapi.NewProject(p)), nil
 }
 
 func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject) (ProjectGetResponseObject, error) {
@@ -101,22 +92,12 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return ProjectGet400Response{}, err
+			return ProjectGet404Response{}, err
 		}
 		return nil, err
 	}
 
-	return ProjectGet200JSONResponse{
-		Id:           p.ID().Ref(),
-		WorkspaceId:  p.Workspace().Ref(),
-		Name:         lo.ToPtr(p.Name()),
-		Description:  lo.ToPtr(p.Description()),
-		Alias:        lo.ToPtr(p.Alias()),
-		Publication:  integrationapi.ToProjectPublication(p.Publication()),
-		RequestRoles: integrationapi.ToRequestRoles(p.RequestRoles()),
-		CreatedAt:    lo.ToPtr(p.CreatedAt()),
-		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
-	}, nil
+	return ProjectGet200JSONResponse(integrationapi.NewProject(p)), nil
 }
 
 func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequestObject) (ProjectUpdateResponseObject, error) {
@@ -131,8 +112,13 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		return ProjectUpdate404Response{}, rerror.ErrNotFound
 	}
 
+	id := request.ProjectIdOrAlias.ID()
+	if id == nil {
+		return ProjectUpdate400Response{}, rerror.ErrInvalidParams
+	}
+
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:           *request.ProjectIdOrAlias.ID(),
+		ID:           *id,
 		Name:         request.Body.Name,
 		Description:  request.Body.Description,
 		Alias:        request.Body.Alias,
@@ -143,17 +129,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		return ProjectUpdate400Response{}, err
 	}
 
-	return ProjectUpdate200JSONResponse{
-		Id:           p.ID().Ref(),
-		WorkspaceId:  p.Workspace().Ref(),
-		Name:         lo.ToPtr(p.Name()),
-		Description:  lo.ToPtr(p.Description()),
-		Alias:        lo.ToPtr(p.Alias()),
-		Publication:  integrationapi.ToProjectPublication(p.Publication()),
-		RequestRoles: integrationapi.ToRequestRoles(p.RequestRoles()),
-		CreatedAt:    lo.ToPtr(p.CreatedAt()),
-		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
-	}, nil
+	return ProjectUpdate200JSONResponse(integrationapi.NewProject(p)), nil
 }
 
 func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequestObject) (ProjectDeleteResponseObject, error) {
@@ -168,12 +144,17 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 		return ProjectDelete404Response{}, rerror.ErrNotFound
 	}
 
-	err := uc.Project.Delete(ctx, *request.ProjectIdOrAlias.ID(), op)
+	id := request.ProjectIdOrAlias.ID()
+	if id == nil {
+		return ProjectDelete400Response{}, rerror.ErrInvalidParams
+	}
+
+	err := uc.Project.Delete(ctx, *id, op)
 	if err != nil {
 		return ProjectDelete400Response{}, err
 	}
 
 	return ProjectDelete200JSONResponse{
-		Id: request.ProjectIdOrAlias.ID(),
+		Id: id,
 	}, nil
 }
