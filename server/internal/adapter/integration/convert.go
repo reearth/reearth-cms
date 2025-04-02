@@ -260,7 +260,6 @@ func fromProjectPublication(p *integrationapi.ProjectPublication) *interfaces.Up
 	if p == nil {
 		return nil
 	}
-
 	return &interfaces.UpdateProjectPublicationParam{
 		Scope:       lo.ToPtr(fromProjectPublicationScope(p.Scope)),
 		AssetPublic: p.AssetPublic,

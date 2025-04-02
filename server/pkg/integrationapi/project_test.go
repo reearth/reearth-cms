@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -41,4 +42,75 @@ func Test_NewProject(t *testing.T) {
 			assert.Equal(t, tt.want, result)
 		})
 	}
+}
+
+func Test_ToRequestRole(t *testing.T) {
+	// owner
+	assert.Equal(t, lo.ToPtr(OWNER), ToRequestRole(workspace.RoleOwner))
+
+	// maintainer
+	assert.Equal(t, lo.ToPtr(MAINTAINER), ToRequestRole(workspace.RoleMaintainer))
+
+	// writer
+	assert.Equal(t, lo.ToPtr(WRITER), ToRequestRole(workspace.RoleWriter))
+
+	// reader
+	assert.Equal(t, lo.ToPtr(READER), ToRequestRole(workspace.RoleReader))
+
+	// unknown
+	assert.Nil(t, ToRequestRole("UNKNOWN_ROLE"))
+}
+
+func Test_ToRequestRoles(t *testing.T) {
+	// nil input
+	assert.Nil(t, ToRequestRoles(nil))
+
+	// all valid roles
+	input := []workspace.Role{
+		workspace.RoleOwner,
+		workspace.RoleMaintainer,
+		workspace.RoleWriter,
+		workspace.RoleReader,
+	}
+	expected := &[]ProjectRequestRole{OWNER, MAINTAINER, WRITER, READER}
+	assert.Equal(t, expected, ToRequestRoles(input))
+
+	// includes unknown role
+	input = []workspace.Role{
+		workspace.RoleOwner,
+		"UNKNOWN_ROLE",
+		workspace.RoleReader,
+	}
+	expected = &[]ProjectRequestRole{OWNER, READER}
+	assert.Equal(t, expected, ToRequestRoles(input))
+
+	// all unknown
+	input = []workspace.Role{"BAD", "UNKNOWN"}
+	assert.Nil(t, ToRequestRoles(input))
+}
+
+func Test_ToProjectPublicationScope(t *testing.T) {
+	// public
+	assert.Equal(t, lo.ToPtr(PUBLIC), ToProjectPublicationScope(project.PublicationScopePublic))
+
+	// private
+	assert.Equal(t, lo.ToPtr(PRIVATE), ToProjectPublicationScope(project.PublicationScopePrivate))
+
+	// limited
+	assert.Equal(t, lo.ToPtr(LIMITED), ToProjectPublicationScope(project.PublicationScopeLimited))
+
+	// unknown
+	assert.Nil(t, ToProjectPublicationScope("SOMETHING_ELSE"))
+}
+
+func Test_ToProjectPublication(t *testing.T) {
+	// nil input
+	assert.Nil(t, ToProjectPublication(nil))
+
+	// valid input
+	pub := project.NewPublication(project.PublicationScopeLimited, true)
+	result := ToProjectPublication(pub)
+	assert.NotNil(t, result)
+	assert.Equal(t, lo.ToPtr(LIMITED), result.Scope)
+	assert.Equal(t, lo.ToPtr(true), result.AssetPublic)
 }
