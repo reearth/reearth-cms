@@ -267,27 +267,31 @@ func fromProjectPublication(p *integrationapi.ProjectPublication) *interfaces.Up
 	}
 }
 
-func fromRequestRoles(roles *integrationapi.RequestRoles) []workspace.Role {
+func fromRequestRoles(roles *[]integrationapi.ProjectRequestRole) []workspace.Role {
 	if roles == nil {
 		return nil
 	}
-	return lo.Map(*roles, func(r string, _ int) workspace.Role {
-		return fromRequestRole(r)
+	return lo.FilterMap(*roles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
+		res := fromRequestRole(r)
+		if res == nil {
+			return workspace.Role(""), false
+		}
+		return *res, true
 	})
 }
 
-func fromRequestRole(r string) workspace.Role {
+func fromRequestRole(r integrationapi.ProjectRequestRole) *workspace.Role {
 	switch r {
-	case "OWNER":
-		return workspace.RoleOwner
-	case "MAINTAINER":
-		return workspace.RoleMaintainer
-	case "WRITER":
-		return workspace.RoleWriter
-	case "READER":
-		return workspace.RoleReader
+	case integrationapi.OWNER:
+		return lo.ToPtr(workspace.RoleOwner)
+	case integrationapi.MAINTAINER:
+		return lo.ToPtr(workspace.RoleMaintainer)
+	case integrationapi.WRITER:
+		return lo.ToPtr(workspace.RoleWriter)
+	case integrationapi.READER:
+		return lo.ToPtr(workspace.RoleReader)
 	}
-	return workspace.RoleReader
+	return nil
 }
 
 func fromProjectPublicationScope(p *integrationapi.ProjectPublicationScope) project.PublicationScope {
