@@ -201,4 +201,36 @@ describe("UploadModal", () => {
     await user.click(screen.getByRole("button", { name: "Upload and Link" }));
     await expect.poll(() => onLinkMock).toHaveBeenCalledWith(id);
   });
+
+  test("Multiple files are accepted successfully", async () => {
+    render(
+      <UploadModal
+        isOpen={isOpen}
+        onAssetsCreate={onAssetsCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
+        modalClose={modalClose}
+        onLink={onLink}
+      />,
+    );
+
+    const modal = screen.getByRole("dialog");
+    const fileInput = modal.querySelector("input[type='file']");
+    expect(fileInput).toHaveAttribute("multiple");
+  });
+
+  test("Only single file is accepted successfully", async () => {
+    render(
+      <UploadModal
+        isOpen={isOpen}
+        onAssetsCreate={onAssetsCreate}
+        onAssetCreateFromUrl={onAssetCreateFromUrl}
+        modalClose={modalClose}
+        onLink={() => {}}
+      />,
+    );
+
+    const modal = screen.getByRole("dialog");
+    const fileInput = modal.querySelector("input[type='file']");
+    expect(fileInput).not.toHaveAttribute("multiple");
+  });
 });
