@@ -178,14 +178,14 @@ type ServerInterface interface {
 	// (POST /{workspaceId}/projects)
 	ProjectCreate(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectCreateParams) error
 	// Delete a project
-	// (DELETE /{workspaceId}/projects/{projectIdOrAlias})
-	ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// (DELETE /{workspaceId}/projects/{projectId})
+	ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
 	// Returns a project.
-	// (GET /{workspaceId}/projects/{projectIdOrAlias})
-	ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// (GET /{workspaceId}/projects/{projectId})
+	ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
 	// Update a project.
-	// (PATCH /{workspaceId}/projects/{projectIdOrAlias})
-	ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// (PATCH /{workspaceId}/projects/{projectId})
+	ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -1602,18 +1602,18 @@ func (w *ServerInterfaceWrapper) ProjectDelete(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
 	}
 
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ProjectDelete(ctx, workspaceId, projectIdOrAlias)
+	err = w.Handler.ProjectDelete(ctx, workspaceId, projectId)
 	return err
 }
 
@@ -1628,18 +1628,18 @@ func (w *ServerInterfaceWrapper) ProjectGet(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
 	}
 
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ProjectGet(ctx, workspaceId, projectIdOrAlias)
+	err = w.Handler.ProjectGet(ctx, workspaceId, projectId)
 	return err
 }
 
@@ -1654,18 +1654,18 @@ func (w *ServerInterfaceWrapper) ProjectUpdate(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
 	}
 
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectIdParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ProjectUpdate(ctx, workspaceId, projectIdOrAlias)
+	err = w.Handler.ProjectUpdate(ctx, workspaceId, projectId)
 	return err
 }
 
@@ -1747,9 +1747,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/schemata/:schemaId/schema.json", wrapper.SchemaByIDAsJSON)
 	router.GET(baseURL+"/:workspaceId/projects", wrapper.ProjectFilter)
 	router.POST(baseURL+"/:workspaceId/projects", wrapper.ProjectCreate)
-	router.DELETE(baseURL+"/:workspaceId/projects/:projectIdOrAlias", wrapper.ProjectDelete)
-	router.GET(baseURL+"/:workspaceId/projects/:projectIdOrAlias", wrapper.ProjectGet)
-	router.PATCH(baseURL+"/:workspaceId/projects/:projectIdOrAlias", wrapper.ProjectUpdate)
+	router.DELETE(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectDelete)
+	router.GET(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectGet)
+	router.PATCH(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectUpdate)
 
 }
 
@@ -4004,8 +4004,8 @@ func (response ProjectCreate404Response) VisitProjectCreateResponse(w http.Respo
 }
 
 type ProjectDeleteRequestObject struct {
-	WorkspaceId      WorkspaceIdParam      `json:"workspaceId"`
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	ProjectId   ProjectIdParam   `json:"projectId"`
 }
 
 type ProjectDeleteResponseObject interface {
@@ -4047,8 +4047,8 @@ func (response ProjectDelete404Response) VisitProjectDeleteResponse(w http.Respo
 }
 
 type ProjectGetRequestObject struct {
-	WorkspaceId      WorkspaceIdParam      `json:"workspaceId"`
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	ProjectId   ProjectIdParam   `json:"projectId"`
 }
 
 type ProjectGetResponseObject interface {
@@ -4096,9 +4096,9 @@ func (response ProjectGet500Response) VisitProjectGetResponse(w http.ResponseWri
 }
 
 type ProjectUpdateRequestObject struct {
-	WorkspaceId      WorkspaceIdParam      `json:"workspaceId"`
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	Body             *ProjectUpdateJSONRequestBody
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	ProjectId   ProjectIdParam   `json:"projectId"`
+	Body        *ProjectUpdateJSONRequestBody
 }
 
 type ProjectUpdateResponseObject interface {
@@ -4298,13 +4298,13 @@ type StrictServerInterface interface {
 	// (POST /{workspaceId}/projects)
 	ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error)
 	// Delete a project
-	// (DELETE /{workspaceId}/projects/{projectIdOrAlias})
+	// (DELETE /{workspaceId}/projects/{projectId})
 	ProjectDelete(ctx context.Context, request ProjectDeleteRequestObject) (ProjectDeleteResponseObject, error)
 	// Returns a project.
-	// (GET /{workspaceId}/projects/{projectIdOrAlias})
+	// (GET /{workspaceId}/projects/{projectId})
 	ProjectGet(ctx context.Context, request ProjectGetRequestObject) (ProjectGetResponseObject, error)
 	// Update a project.
-	// (PATCH /{workspaceId}/projects/{projectIdOrAlias})
+	// (PATCH /{workspaceId}/projects/{projectId})
 	ProjectUpdate(ctx context.Context, request ProjectUpdateRequestObject) (ProjectUpdateResponseObject, error)
 }
 
@@ -5745,11 +5745,11 @@ func (sh *strictHandler) ProjectCreate(ctx echo.Context, workspaceId WorkspaceId
 }
 
 // ProjectDelete operation middleware
-func (sh *strictHandler) ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+func (sh *strictHandler) ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
 	var request ProjectDeleteRequestObject
 
 	request.WorkspaceId = workspaceId
-	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ProjectId = projectId
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.ProjectDelete(ctx.Request().Context(), request.(ProjectDeleteRequestObject))
@@ -5771,11 +5771,11 @@ func (sh *strictHandler) ProjectDelete(ctx echo.Context, workspaceId WorkspaceId
 }
 
 // ProjectGet operation middleware
-func (sh *strictHandler) ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+func (sh *strictHandler) ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
 	var request ProjectGetRequestObject
 
 	request.WorkspaceId = workspaceId
-	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ProjectId = projectId
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.ProjectGet(ctx.Request().Context(), request.(ProjectGetRequestObject))
@@ -5797,11 +5797,11 @@ func (sh *strictHandler) ProjectGet(ctx echo.Context, workspaceId WorkspaceIdPar
 }
 
 // ProjectUpdate operation middleware
-func (sh *strictHandler) ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+func (sh *strictHandler) ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
 	var request ProjectUpdateRequestObject
 
 	request.WorkspaceId = workspaceId
-	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ProjectId = projectId
 
 	var body ProjectUpdateJSONRequestBody
 	if err := ctx.Bind(&body); err != nil {
@@ -5907,10 +5907,10 @@ var swaggerSpec = []string{
 	"VfGqh2pTsDhjnLJtH+K6lakT+Cn8n49f31jWfF1WA/I1nIJfUaxGDfctL1ct61+O9DtU5u9LQfeloAOU",
 	"49ejuLHgvraUfvfr51+iLJNS7fsQpe9LFmdz1et7O7W3UwOUrG8imdslgbvP2u5o1nYTmVpfwvXxnrJb",
 	"vkAxSMjZZV2PXGveZRlkZl9gE9uMA6cE3Vl3ylXaSNmTrdzsVmNO6f6zFw1QdNc2F5Zj/dXF0YytHnhj",
-	"pjDwugilGHFvxNF2BkBNkiEn7JKm0FuXLou+Q9X4/zqYD8v1vUNQ4iamHTvxOlKETiWlR8Hq/Yln/7pp",
-	"wWXG3NqSyzy/z7E6dpf1HvFATysJeBbHwPkkS9OHl4+B/AXlRgy0nqFjeh/UxQsb/ixfX1XeaRV+Dufq",
-	"yGtbPtVfYNDhDJ02rA393f7hXeoiu7GP74jsC6fH7vnk7Smy+WTQDiq0AWPwvEf+NOv109PT/wIAAP//",
-	"bpeJoQ/FAAA=",
+	"pjDwugilGHFvxNF2BkBNkiEn7JKm0FuXLou+Q9X4/zqYD8v1vUNQ4iamHTvxOlKETiWlR8Hq/YmbJmxa",
+	"aZnBtrbWMs/vc56O3V69RzzQ00oCnsUxcD7J0vTh5Qs/fzO5Ufith+eY3gd1gcKGv8fXV4d3Wnefw6s6",
+	"8tqWM/VsFbacmtMGsqG/1D+8E11kN/bxHSF94fTYPS+8PQ02HwnaQU02YAye95CfZoV+enr6XwAAAP//",
+	"TV364gHFAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

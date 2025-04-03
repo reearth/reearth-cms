@@ -80,10 +80,10 @@ func TestIntegrationProjectCreateAPI(t *testing.T) {
 		Keys().ContainsAll("id", "createdAt")
 }
 
-// GET /{workspaceId}/projects/{projectIdOrAlias}
+// GET /{workspaceId}/projects/{projectId}
 func TestIntegrationProjectGetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
-	endpoint := "/api/{workspaceId}/projects/{projectIdOrAlias}"
+	endpoint := "/api/{workspaceId}/projects/{projectId}"
 
 	// Unauthorized
 	e.GET(endpoint, wId0, pid).
@@ -102,10 +102,10 @@ func TestIntegrationProjectGetAPI(t *testing.T) {
 		HasValue("workspaceId", wId0.String())
 }
 
-// PATCH /{workspaceId}/projects/{projectIdOrAlias}
+// PATCH /{workspaceId}/projects/{projectId}
 func TestIntegrationProjectUpdateAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
-	endpoint := "/api/{workspaceId}/projects/{projectIdOrAlias}"
+	endpoint := "/api/{workspaceId}/projects/{projectId}"
 
 	// Unauthorized
 	e.PATCH(endpoint, wId0, pid).
@@ -139,7 +139,7 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 		Keys().ContainsAll("id", "createdAt", "updatedAt")
 }
 
-// DELETE /{workspaceId}/projects/{projectIdOrAlias}
+// DELETE /{workspaceId}/projects/{projectId}
 func TestIntegrationProjectDeleteAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
@@ -158,12 +158,12 @@ func TestIntegrationProjectDeleteAPI(t *testing.T) {
 	projectIDToDelete := createRes.Value("id").String().Raw()
 
 	// Unauthorized
-	e.DELETE("/api/{workspaceId}/projects/{projectIdOrAlias}", wId0, projectIDToDelete).
+	e.DELETE("/api/{workspaceId}/projects/{projectId}", wId0, projectIDToDelete).
 		Expect().
 		Status(http.StatusUnauthorized)
 
 	// Authorized delete
-	del := e.DELETE("/api/{workspaceId}/projects/{projectIdOrAlias}", wId0, projectIDToDelete).
+	del := e.DELETE("/api/{workspaceId}/projects/{projectId}", wId0, projectIDToDelete).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).

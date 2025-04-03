@@ -64,7 +64,8 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 		return ProjectGet404Response{}, rerror.ErrNotFound
 	}
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	idOrAlias := project.IDOrAlias(request.ProjectId.String())
+	p, err := uc.Project.FindByIDOrAlias(ctx, idOrAlias, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectGet404Response{}, err
@@ -121,11 +122,6 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		return ProjectUpdate404Response{}, rerror.ErrNotFound
 	}
 
-	id := request.ProjectIdOrAlias.ID()
-	if id == nil {
-		return ProjectUpdate400Response{}, rerror.ErrInvalidParams
-	}
-
 	var roles []workspace.Role
 	if request.Body.RequestRoles != nil {
 		roles = lo.FilterMap(*request.Body.RequestRoles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
@@ -147,7 +143,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	}
 
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:           *id,
+		ID:           request.ProjectId,
 		Name:         request.Body.Name,
 		Description:  request.Body.Description,
 		Alias:        request.Body.Alias,
@@ -176,12 +172,8 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 		return ProjectDelete404Response{}, rerror.ErrNotFound
 	}
 
-	id := request.ProjectIdOrAlias.ID()
-	if id == nil {
-		return ProjectDelete400Response{}, rerror.ErrInvalidParams
-	}
-
-	err := uc.Project.Delete(ctx, *id, op)
+	id := request.ProjectId
+	err := uc.Project.Delete(ctx, id, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectDelete404Response{}, err
@@ -190,6 +182,6 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 	}
 
 	return ProjectDelete200JSONResponse{
-		Id: id,
+		Id: &id,
 	}, nil
 }
