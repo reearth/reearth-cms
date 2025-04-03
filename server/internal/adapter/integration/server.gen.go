@@ -4003,6 +4003,14 @@ func (response ProjectCreate404Response) VisitProjectCreateResponse(w http.Respo
 	return nil
 }
 
+type ProjectCreate500Response struct {
+}
+
+func (response ProjectCreate500Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type ProjectDeleteRequestObject struct {
 	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
 	ProjectId   ProjectIdParam   `json:"projectId"`
@@ -4043,6 +4051,14 @@ type ProjectDelete404Response struct {
 
 func (response ProjectDelete404Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectDelete500Response struct {
+}
+
+func (response ProjectDelete500Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
 	return nil
 }
 
@@ -5907,10 +5923,10 @@ var swaggerSpec = []string{
 	"VfGqh2pTsDhjnLJtH+K6lakT+Cn8n49f31jWfF1WA/I1nIJfUaxGDfctL1ct61+O9DtU5u9LQfeloAOU",
 	"49ejuLHgvraUfvfr51+iLJNS7fsQpe9LFmdz1et7O7W3UwOUrG8imdslgbvP2u5o1nYTmVpfwvXxnrJb",
 	"vkAxSMjZZV2PXGveZRlkZl9gE9uMA6cE3Vl3ylXaSNmTrdzsVmNO6f6zFw1QdNc2F5Zj/dXF0YytHnhj",
-	"pjDwugilGHFvxNF2BkBNkiEn7JKm0FuXLou+Q9X4/zqYD8v1vUNQ4iamHTvxOlKETiWlR8Hq/YmbJmxa",
-	"aZnBtrbWMs/vc56O3V69RzzQ00oCnsUxcD7J0vTh5Qs/fzO5Ufith+eY3gd1gcKGv8fXV4d3Wnefw6s6",
-	"8tqWM/VsFbacmtMGsqG/1D+8E11kN/bxHSF94fTYPS+8PQ02HwnaQU02YAye95CfZoV+enr6XwAAAP//",
-	"TV364gHFAAA=",
+	"pjDwugilGHFvxNF2BkBNkiEn7JKm0FuXLou+Q9X4/zqYD8v1vUNQ4iamHTvxlvxanrkv6i496ljvfdyk",
+	"YtO6zAy2tZWZeX6f03fsZuw94oGeVhLwLI6B80mWpg9v9q3nRqi0Hsxjeh/UBSEb/tZfX/vwRu2CV17b",
+	"ctSebciWE3naQDZwQmADDnqR3djHd4T0hdNj9zz89jTYfIBoBzXZgDF43gOEmhX66enpfwEAAP//jNrI",
+	"SV3FAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

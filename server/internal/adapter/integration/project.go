@@ -13,6 +13,9 @@ import (
 	"github.com/samber/lo"
 )
 
+// TODO: should be moved to reearthx/rerror
+var ErrUnauthorized = errors.New("unauthorized")
+
 func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
@@ -22,13 +25,16 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	}
 
 	if !op.AllReadableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectFilter404Response{}, rerror.ErrNotFound
+		return ProjectFilter401Response{}, ErrUnauthorized
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, p, op)
 	if err != nil {
-		return ProjectFilter400Response{}, err
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ProjectFilter404Response{}, err
+		}
+		return ProjectFilter500Response{}, rerror.ErrInternalBy(err)
 	}
 
 	if len(res) == 0 {
@@ -61,7 +67,7 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 	}
 
 	if !op.AllReadableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectGet404Response{}, rerror.ErrNotFound
+		return ProjectGet401Response{}, ErrUnauthorized
 	}
 
 	idOrAlias := project.IDOrAlias(request.ProjectId.String())
@@ -70,7 +76,7 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectGet404Response{}, err
 		}
-		return ProjectGet400Response{}, err
+		return ProjectGet500Response{}, rerror.ErrInternalBy(err)
 	}
 
 	return ProjectGet200JSONResponse(integrationapi.NewProject(p)), nil
@@ -85,7 +91,7 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 	}
 
 	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectCreate404Response{}, rerror.ErrNotFound
+		return ProjectCreate401Response{}, ErrUnauthorized
 	}
 
 	var roles []workspace.Role
@@ -104,7 +110,7 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 		RequestRoles: roles,
 	}, op)
 	if err != nil {
-		return ProjectCreate400Response{}, err
+		return ProjectCreate500Response{}, rerror.ErrInternalBy(err)
 	}
 
 	return ProjectCreate201JSONResponse(integrationapi.NewProject(p)), nil
@@ -119,7 +125,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	}
 
 	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectUpdate404Response{}, rerror.ErrNotFound
+		return ProjectUpdate401Response{}, ErrUnauthorized
 	}
 
 	var roles []workspace.Role
@@ -154,7 +160,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectUpdate404Response{}, err
 		}
-		return ProjectUpdate400Response{}, err
+		return ProjectUpdate500Response{}, rerror.ErrInternalBy(err)
 	}
 
 	return ProjectUpdate200JSONResponse(integrationapi.NewProject(p)), nil
@@ -169,7 +175,7 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 	}
 
 	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectDelete404Response{}, rerror.ErrNotFound
+		return ProjectDelete401Response{}, ErrUnauthorized
 	}
 
 	id := request.ProjectId
@@ -178,7 +184,7 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectDelete404Response{}, err
 		}
-		return ProjectDelete400Response{}, err
+		return ProjectDelete500Response{}, rerror.ErrInternalBy(err)
 	}
 
 	return ProjectDelete200JSONResponse{
