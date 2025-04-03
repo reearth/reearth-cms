@@ -107,22 +107,19 @@ func TestToModelSort(t *testing.T) {
 }
 
 func Test_fromProjectPublicationScope(t *testing.T) {
-	// nil scope
-	assert.Nil(t, fromProjectPublicationScope(nil))
-
 	// public
 	expected := lo.ToPtr(project.PublicationScopePublic)
-	actual := fromProjectPublicationScope(lo.ToPtr(integrationapi.PUBLIC))
+	actual := fromProjectPublicationScope(integrationapi.PUBLIC)
 	assert.Equal(t, expected, actual)
 
 	// private
 	expected = lo.ToPtr(project.PublicationScopePrivate)
-	actual = fromProjectPublicationScope(lo.ToPtr(integrationapi.PRIVATE))
+	actual = fromProjectPublicationScope(integrationapi.PRIVATE)
 	assert.Equal(t, expected, actual)
 
 	// limited
 	expected = lo.ToPtr(project.PublicationScopeLimited)
-	actual = fromProjectPublicationScope(lo.ToPtr(integrationapi.LIMITED))
+	actual = fromProjectPublicationScope(integrationapi.LIMITED)
 	assert.Equal(t, expected, actual)
 }
 

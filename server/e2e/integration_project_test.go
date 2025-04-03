@@ -115,7 +115,7 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	// Authorized update
+	// Authorized update public scope
 	res := e.PATCH(endpoint, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
@@ -137,6 +137,32 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 		HasValue("requestRoles", []string{"OWNER", "READER"}).
 		HasValue("workspaceId", wId0.String()).
 		Keys().ContainsAll("id", "createdAt", "updatedAt")
+
+	// Authorized update limited scope
+	res = e.PATCH(endpoint, wId0, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{
+			"name":         "Updated Project Name 2",
+			"description":  "Updated Description 2",
+			"alias":        "updated-alias-2",
+			"publication":  map[string]any{"scope": "LIMITED", "assetPublic": true},
+			"requestRoles": []string{"WRITER"},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	res.HasValue("name", "Updated Project Name 2").
+		HasValue("description", "Updated Description 2").
+		HasValue("alias", "updated-alias-2").
+		HasValue("requestRoles", []string{"WRITER"}).
+		HasValue("workspaceId", wId0.String()).
+		Keys().ContainsAll("id", "createdAt", "updatedAt")
+	
+	res.Value("publication").Object().Value("scope").IsEqual("LIMITED")
+	res.Value("publication").Object().Value("assetPublic").IsEqual(true)
+	res.Value("publication").Object().Value("token").String().NotEmpty()
 }
 
 // DELETE /{workspaceId}/projects/{projectId}

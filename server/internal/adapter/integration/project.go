@@ -131,7 +131,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	if request.Body.Publication != nil {
 		var scope *project.PublicationScope
 		if request.Body.Publication.Scope != nil {
-			scope = fromProjectPublicationScope(request.Body.Publication.Scope)
+			scope = fromProjectPublicationScope(*request.Body.Publication.Scope)
 		}
 		pub = &interfaces.UpdateProjectPublicationParam{
 			Scope:       scope,

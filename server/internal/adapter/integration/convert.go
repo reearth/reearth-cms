@@ -281,11 +281,8 @@ func fromRequestRole(r integrationapi.ProjectRequestRole) *workspace.Role {
 	}
 }
 
-func fromProjectPublicationScope(p *integrationapi.ProjectPublicationScope) *project.PublicationScope {
-	if p == nil {
-		return nil
-	}
-	switch *p {
+func fromProjectPublicationScope(p integrationapi.ProjectPublicationScope) *project.PublicationScope {
+	switch p {
 	case integrationapi.PUBLIC:
 		return lo.ToPtr(project.PublicationScopePublic)
 	case integrationapi.PRIVATE:
