@@ -124,19 +124,22 @@ func Test_fromProjectPublication(t *testing.T) {
 
 func Test_fromProjectPublicationScope(t *testing.T) {
 	// nil scope
-	assert.Equal(t, project.PublicationScopePrivate, fromProjectPublicationScope(nil))
+	assert.Nil(t, fromProjectPublicationScope(nil))
 
 	// public
-	scope := integrationapi.PUBLIC
-	assert.Equal(t, project.PublicationScopePublic, fromProjectPublicationScope(&scope))
+	expected := lo.ToPtr(project.PublicationScopePublic)
+	actual := fromProjectPublicationScope(lo.ToPtr(integrationapi.PUBLIC))
+	assert.Equal(t, expected, actual)
 
 	// private
-	scope = integrationapi.PRIVATE
-	assert.Equal(t, project.PublicationScopePrivate, fromProjectPublicationScope(&scope))
+	expected = lo.ToPtr(project.PublicationScopePrivate)
+	actual = fromProjectPublicationScope(lo.ToPtr(integrationapi.PRIVATE))
+	assert.Equal(t, expected, actual)
 
 	// limited
-	scope = integrationapi.LIMITED
-	assert.Equal(t, project.PublicationScopeLimited, fromProjectPublicationScope(&scope))
+	expected = lo.ToPtr(project.PublicationScopeLimited)
+	actual = fromProjectPublicationScope(lo.ToPtr(integrationapi.LIMITED))
+	assert.Equal(t, expected, actual)
 }
 
 func Test_fromRequestRole(t *testing.T) {

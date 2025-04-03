@@ -261,7 +261,7 @@ func fromProjectPublication(p *integrationapi.ProjectPublication) *interfaces.Up
 		return nil
 	}
 	return &interfaces.UpdateProjectPublicationParam{
-		Scope:       lo.ToPtr(fromProjectPublicationScope(p.Scope)),
+		Scope:       fromProjectPublicationScope(p.Scope),
 		AssetPublic: p.AssetPublic,
 	}
 }
@@ -289,21 +289,23 @@ func fromRequestRole(r integrationapi.ProjectRequestRole) *workspace.Role {
 		return lo.ToPtr(workspace.RoleWriter)
 	case integrationapi.READER:
 		return lo.ToPtr(workspace.RoleReader)
+	default:
+		return nil
 	}
-	return nil
 }
 
-func fromProjectPublicationScope(p *integrationapi.ProjectPublicationScope) project.PublicationScope {
+func fromProjectPublicationScope(p *integrationapi.ProjectPublicationScope) *project.PublicationScope {
 	if p == nil {
-		return project.PublicationScopePrivate
+		return nil
 	}
 	switch *p {
 	case integrationapi.PUBLIC:
-		return project.PublicationScopePublic
+		return lo.ToPtr(project.PublicationScopePublic)
 	case integrationapi.PRIVATE:
-		return project.PublicationScopePrivate
+		return lo.ToPtr(project.PublicationScopePrivate)
 	case integrationapi.LIMITED:
-		return project.PublicationScopeLimited
+		return lo.ToPtr(project.PublicationScopeLimited)
+	default:
+		return nil
 	}
-	return project.PublicationScopePrivate
 }

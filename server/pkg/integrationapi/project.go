@@ -47,8 +47,9 @@ func ToRequestRole(r workspace.Role) *ProjectRequestRole {
 		return lo.ToPtr(WRITER)
 	case workspace.RoleReader:
 		return lo.ToPtr(READER)
+	default:
+		return nil
 	}
-	return nil
 }
 
 func ToProjectPublication(p *project.Publication) *ProjectPublication {
@@ -71,6 +72,7 @@ func ToProjectPublicationScope(p project.PublicationScope) *ProjectPublicationSc
 		return lo.ToPtr(PRIVATE)
 	case project.PublicationScopeLimited:
 		return lo.ToPtr(LIMITED)
+	default:
+		return nil
 	}
-	return nil
 }
