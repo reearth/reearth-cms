@@ -13,9 +13,6 @@ import (
 	"github.com/samber/lo"
 )
 
-// TODO: should be moved to reearthx/rerror
-var ErrUnauthorized = errors.New("unauthorized")
-
 func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
@@ -25,7 +22,7 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	}
 
 	if !op.AllReadableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectFilter401Response{}, ErrUnauthorized
+		return ProjectFilter404Response{}, rerror.ErrNotFound
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
@@ -67,7 +64,7 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 	}
 
 	if !op.AllReadableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectGet401Response{}, ErrUnauthorized
+		return ProjectGet404Response{}, rerror.ErrNotFound
 	}
 
 	idOrAlias := project.IDOrAlias(request.ProjectId.String())
@@ -91,15 +88,12 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 	}
 
 	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectCreate401Response{}, ErrUnauthorized
+		return ProjectCreate404Response{}, rerror.ErrNotFound
 	}
 
 	var roles []workspace.Role
 	if request.Body.RequestRoles != nil {
-		roles = lo.FilterMap(*request.Body.RequestRoles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
-			res := fromRequestRole(r)
-			return *res, res != nil
-		})
+		roles = fromRequestRoles(*request.Body.RequestRoles)
 	}
 
 	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
@@ -125,15 +119,12 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	}
 
 	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectUpdate401Response{}, ErrUnauthorized
+		return ProjectUpdate404Response{}, rerror.ErrNotFound
 	}
 
 	var roles []workspace.Role
 	if request.Body.RequestRoles != nil {
-		roles = lo.FilterMap(*request.Body.RequestRoles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
-			res := fromRequestRole(r)
-			return *res, res != nil
-		})
+		roles = fromRequestRoles(*request.Body.RequestRoles)
 	}
 
 	var pub *interfaces.UpdateProjectPublicationParam
@@ -175,7 +166,7 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 	}
 
 	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectDelete401Response{}, ErrUnauthorized
+		return ProjectDelete404Response{}, rerror.ErrNotFound
 	}
 
 	id := request.ProjectId

@@ -256,6 +256,16 @@ func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.C
 	return condition.Into()
 }
 
+func fromRequestRoles(roles []integrationapi.ProjectRequestRole) []workspace.Role {
+	return lo.FilterMap(roles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
+		role := fromRequestRole(r)
+		if role != nil {
+			return *role, true
+		}
+		return workspace.Role(""), false
+	})
+}
+
 func fromRequestRole(r integrationapi.ProjectRequestRole) *workspace.Role {
 	switch r {
 	case integrationapi.OWNER:

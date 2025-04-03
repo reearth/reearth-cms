@@ -126,6 +126,27 @@ func Test_fromProjectPublicationScope(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func Test_fromRequestRoles(t *testing.T) {
+	// empty input
+	input := []integrationapi.ProjectRequestRole{}
+	expected := []workspace.Role{}
+	assert.Equal(t, expected, fromRequestRoles(input))
+
+	// valid input
+	input = []integrationapi.ProjectRequestRole{
+		integrationapi.OWNER,
+		integrationapi.WRITER,
+		"UNKNOWN",
+		integrationapi.READER,
+	}
+	expected = []workspace.Role{
+		workspace.RoleOwner,
+		workspace.RoleWriter,
+		workspace.RoleReader,
+	}
+	assert.Equal(t, expected, fromRequestRoles(input))
+}
+
 func Test_fromRequestRole(t *testing.T) {
 	// owner"
 	input := integrationapi.OWNER
