@@ -7,34 +7,38 @@ import (
 )
 
 func NewProject(p *project.Project) Project {
+	var publication *ProjectPublication = nil
+	if p.Publication() != nil {
+		publication = &ProjectPublication{
+			Scope:       ToProjectPublicationScope(p.Publication().Scope()),
+			AssetPublic: lo.ToPtr(p.Publication().AssetPublic()),
+			Token:       lo.ToPtr(p.Publication().Token()),
+		}
+	}
+
+	var requestRoles *[]ProjectRequestRole = nil
+	if p.RequestRoles() != nil {
+		r := lo.FilterMap(p.RequestRoles(), func(r workspace.Role, _ int) (ProjectRequestRole, bool) {
+			role := ToRequestRole(r)
+			if role != nil {
+				return *role, true
+			}
+			return "", false
+		})
+		requestRoles = &r
+	}
+
 	return Project{
 		Id:           p.ID().Ref(),
 		WorkspaceId:  p.Workspace().Ref(),
 		Name:         lo.ToPtr(p.Name()),
 		Description:  lo.ToPtr(p.Description()),
 		Alias:        lo.ToPtr(p.Alias()),
-		Publication:  ToProjectPublication(p.Publication()),
-		RequestRoles: ToRequestRoles(p.RequestRoles()),
+		Publication:  publication,
+		RequestRoles: requestRoles,
 		CreatedAt:    lo.ToPtr(p.CreatedAt()),
 		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
 	}
-}
-
-func ToRequestRoles(roles []workspace.Role) *[]ProjectRequestRole {
-	if roles == nil {
-		return nil
-	}
-	res := lo.FilterMap(roles, func(r workspace.Role, _ int) (ProjectRequestRole, bool) {
-		role := ToRequestRole(r)
-		if role != nil {
-			return *role, true
-		}
-		return "", false
-	})
-	if len(res) == 0 {
-		return nil
-	}
-	return &res
 }
 
 func ToRequestRole(r workspace.Role) *ProjectRequestRole {
@@ -49,18 +53,6 @@ func ToRequestRole(r workspace.Role) *ProjectRequestRole {
 		return lo.ToPtr(READER)
 	default:
 		return nil
-	}
-}
-
-func ToProjectPublication(p *project.Publication) *ProjectPublication {
-	if p == nil {
-		return nil
-	}
-
-	return &ProjectPublication{
-		Scope:       ToProjectPublicationScope(p.Scope()),
-		AssetPublic: lo.ToPtr(p.AssetPublic()),
-		Token:       lo.ToPtr(p.Token()),
 	}
 }
 

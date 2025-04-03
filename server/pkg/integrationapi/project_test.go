@@ -61,34 +61,6 @@ func Test_ToRequestRole(t *testing.T) {
 	assert.Nil(t, ToRequestRole("UNKNOWN_ROLE"))
 }
 
-func Test_ToRequestRoles(t *testing.T) {
-	// nil input
-	assert.Nil(t, ToRequestRoles(nil))
-
-	// all valid roles
-	input := []workspace.Role{
-		workspace.RoleOwner,
-		workspace.RoleMaintainer,
-		workspace.RoleWriter,
-		workspace.RoleReader,
-	}
-	expected := &[]ProjectRequestRole{OWNER, MAINTAINER, WRITER, READER}
-	assert.Equal(t, expected, ToRequestRoles(input))
-
-	// includes unknown role
-	input = []workspace.Role{
-		workspace.RoleOwner,
-		"UNKNOWN_ROLE",
-		workspace.RoleReader,
-	}
-	expected = &[]ProjectRequestRole{OWNER, READER}
-	assert.Equal(t, expected, ToRequestRoles(input))
-
-	// all unknown
-	input = []workspace.Role{"BAD", "UNKNOWN"}
-	assert.Nil(t, ToRequestRoles(input))
-}
-
 func Test_ToProjectPublicationScope(t *testing.T) {
 	// public
 	assert.Equal(t, lo.ToPtr(PUBLIC), ToProjectPublicationScope(project.PublicationScopePublic))
@@ -101,16 +73,4 @@ func Test_ToProjectPublicationScope(t *testing.T) {
 
 	// unknown
 	assert.Nil(t, ToProjectPublicationScope("SOMETHING_ELSE"))
-}
-
-func Test_ToProjectPublication(t *testing.T) {
-	// nil input
-	assert.Nil(t, ToProjectPublication(nil))
-
-	// valid input
-	pub := project.NewPublication(project.PublicationScopeLimited, true)
-	result := ToProjectPublication(pub)
-	assert.NotNil(t, result)
-	assert.Equal(t, lo.ToPtr(LIMITED), result.Scope)
-	assert.Equal(t, lo.ToPtr(true), result.AssetPublic)
 }
