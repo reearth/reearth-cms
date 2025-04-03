@@ -27,7 +27,7 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, p, op)
 	if err != nil {
-		return nil, err
+		return ProjectFilter400Response{}, err
 	}
 
 	if len(res) == 0 {
@@ -71,7 +71,7 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 		RequestRoles: fromRequestRoles(request.Body.RequestRoles),
 	}, op)
 	if err != nil {
-		return nil, err
+		return ProjectCreate400Response{}, err
 	}
 
 	return ProjectCreate201JSONResponse(integrationapi.NewProject(p)), nil
@@ -94,7 +94,7 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectGet404Response{}, err
 		}
-		return nil, err
+		return ProjectGet400Response{}, err
 	}
 
 	return ProjectGet200JSONResponse(integrationapi.NewProject(p)), nil
