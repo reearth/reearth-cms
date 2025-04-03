@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
@@ -51,32 +52,6 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	}, nil
 }
 
-func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	if request.WorkspaceId.IsEmpty() {
-		return ProjectCreate400Response{}, rerror.ErrInvalidParams
-	}
-
-	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
-		return ProjectCreate404Response{}, rerror.ErrNotFound
-	}
-
-	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
-		WorkspaceID:  request.WorkspaceId,
-		Name:         request.Body.Name,
-		Description:  request.Body.Description,
-		Alias:        request.Body.Alias,
-		RequestRoles: fromRequestRoles(request.Body.RequestRoles),
-	}, op)
-	if err != nil {
-		return ProjectCreate400Response{}, err
-	}
-
-	return ProjectCreate201JSONResponse(integrationapi.NewProject(p)), nil
-}
-
 func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject) (ProjectGetResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
@@ -100,6 +75,40 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 	return ProjectGet200JSONResponse(integrationapi.NewProject(p)), nil
 }
 
+func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	if request.WorkspaceId.IsEmpty() {
+		return ProjectCreate400Response{}, rerror.ErrInvalidParams
+	}
+
+	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
+		return ProjectCreate404Response{}, rerror.ErrNotFound
+	}
+
+	var roles []workspace.Role
+	if request.Body.RequestRoles != nil {
+		roles = lo.FilterMap(*request.Body.RequestRoles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
+			res := fromRequestRole(r)
+			return *res, res != nil
+		})
+	}
+
+	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
+		WorkspaceID:  request.WorkspaceId,
+		Name:         request.Body.Name,
+		Description:  request.Body.Description,
+		Alias:        request.Body.Alias,
+		RequestRoles: roles,
+	}, op)
+	if err != nil {
+		return ProjectCreate400Response{}, err
+	}
+
+	return ProjectCreate201JSONResponse(integrationapi.NewProject(p)), nil
+}
+
 func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequestObject) (ProjectUpdateResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
@@ -117,13 +126,33 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		return ProjectUpdate400Response{}, rerror.ErrInvalidParams
 	}
 
+	var roles []workspace.Role
+	if request.Body.RequestRoles != nil {
+		roles = lo.FilterMap(*request.Body.RequestRoles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
+			res := fromRequestRole(r)
+			return *res, res != nil
+		})
+	}
+
+	var pub *interfaces.UpdateProjectPublicationParam
+	if request.Body.Publication != nil {
+		var scope *project.PublicationScope
+		if request.Body.Publication.Scope != nil {
+			scope = fromProjectPublicationScope(request.Body.Publication.Scope)
+		}
+		pub = &interfaces.UpdateProjectPublicationParam{
+			Scope:       scope,
+			AssetPublic: request.Body.Publication.AssetPublic,
+		}
+	}
+
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
 		ID:           *id,
 		Name:         request.Body.Name,
 		Description:  request.Body.Description,
 		Alias:        request.Body.Alias,
-		Publication:  fromProjectPublication(request.Body.Publication),
-		RequestRoles: fromRequestRoles(request.Body.RequestRoles),
+		Publication:  pub,
+		RequestRoles: roles,
 	}, op)
 	if err != nil {
 		return ProjectUpdate400Response{}, err

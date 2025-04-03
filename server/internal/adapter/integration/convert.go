@@ -256,29 +256,6 @@ func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.C
 	return condition.Into()
 }
 
-func fromProjectPublication(p *integrationapi.ProjectPublication) *interfaces.UpdateProjectPublicationParam {
-	if p == nil {
-		return nil
-	}
-	return &interfaces.UpdateProjectPublicationParam{
-		Scope:       fromProjectPublicationScope(p.Scope),
-		AssetPublic: p.AssetPublic,
-	}
-}
-
-func fromRequestRoles(roles *[]integrationapi.ProjectRequestRole) []workspace.Role {
-	if roles == nil {
-		return nil
-	}
-	return lo.FilterMap(*roles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
-		res := fromRequestRole(r)
-		if res == nil {
-			return workspace.Role(""), false
-		}
-		return *res, true
-	})
-}
-
 func fromRequestRole(r integrationapi.ProjectRequestRole) *workspace.Role {
 	switch r {
 	case integrationapi.OWNER:

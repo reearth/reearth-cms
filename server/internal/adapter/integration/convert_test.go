@@ -106,22 +106,6 @@ func TestToModelSort(t *testing.T) {
 	}
 }
 
-func Test_fromProjectPublication(t *testing.T) {
-	// nil input
-	assert.Nil(t, fromProjectPublication(nil))
-
-	// valid input
-	scope := integrationapi.PUBLIC
-	pub := &integrationapi.ProjectPublication{
-		Scope:       &scope,
-		AssetPublic: lo.ToPtr(true),
-	}
-	result := fromProjectPublication(pub)
-	assert.NotNil(t, result)
-	assert.Equal(t, project.PublicationScopePublic, *result.Scope)
-	assert.Equal(t, true, *result.AssetPublic)
-}
-
 func Test_fromProjectPublicationScope(t *testing.T) {
 	// nil scope
 	assert.Nil(t, fromProjectPublicationScope(nil))
@@ -167,23 +151,4 @@ func Test_fromRequestRole(t *testing.T) {
 	input = "UNKNOWN_ROLE"
 	expected = nil
 	assert.Equal(t, expected, fromRequestRole(input))
-}
-
-func Test_fromRequestRoles(t *testing.T) {
-	// nil input
-	assert.Nil(t, fromRequestRoles(nil))
-
-	// valid roles
-	input := &[]integrationapi.ProjectRequestRole{
-		integrationapi.OWNER,
-		integrationapi.WRITER,
-		"UNKNOWN",
-		integrationapi.READER,
-	}
-	expected := []workspace.Role{
-		workspace.RoleOwner,
-		workspace.RoleWriter,
-		workspace.RoleReader,
-	}
-	assert.Equal(t, expected, fromRequestRoles(input))
 }
