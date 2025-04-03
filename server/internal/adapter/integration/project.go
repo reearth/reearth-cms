@@ -155,6 +155,9 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		RequestRoles: roles,
 	}, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ProjectUpdate404Response{}, err
+		}
 		return ProjectUpdate400Response{}, err
 	}
 
@@ -180,6 +183,9 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 
 	err := uc.Project.Delete(ctx, *id, op)
 	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ProjectDelete404Response{}, err
+		}
 		return ProjectDelete400Response{}, err
 	}
 
