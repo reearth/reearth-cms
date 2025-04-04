@@ -767,7 +767,7 @@ paths:
         '500':
           description: Internal server error
     delete:
-      operationId: DeleteGroup
+      operationId: GroupDelete
       summary: Delete a group.
       tags:
         - Groups
@@ -1467,7 +1467,7 @@ paths:
         '500':
           description: Internal server error
     patch:
-      operationId: UpdateGroupInProject
+      operationId: GroupUpdateWithProject
       security:
         - bearerAuth: []
       summary: Update a group's details within a project.
@@ -1505,7 +1505,7 @@ paths:
         '500':
           description: Internal server error
     delete:
-      operationId: DeleteGroupInProject
+      operationId: GroupDeleteWithProject
       security:
         - bearerAuth: []
       summary: Delete a group within a project.
@@ -2339,6 +2339,39 @@ components:
         lastModified:
           type: string
           format: date-time
+    group:
+      type: object
+      required:
+        - id
+        - schemaId
+        - projectId
+        - name
+        - description
+        - key
+        - schema
+        - fields
+      properties:
+        id:
+          x-go-type: id.GroupID
+          type: string
+        schemaId:
+          x-go-type: id.SchemaID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        schema:
+          $ref: '#/components/schemas/schema'
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/schemaField'
     schema:
       type: object
       properties:
