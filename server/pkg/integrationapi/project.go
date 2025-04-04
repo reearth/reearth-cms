@@ -7,17 +7,15 @@ import (
 )
 
 func NewProject(p *project.Project) Project {
-	var publication *ProjectPublication = nil
+	publication := &ProjectPublication{Scope: lo.ToPtr(PRIVATE)}
 	if p.Publication() != nil {
-		publication = &ProjectPublication{
-			Scope:       ToProjectPublicationScope(p.Publication().Scope()),
-			AssetPublic: lo.ToPtr(p.Publication().AssetPublic()),
-			Token:       lo.ToPtr(p.Publication().Token()),
-		}
+		publication.Scope = ToProjectPublicationScope(p.Publication().Scope())
+		publication.AssetPublic = lo.ToPtr(p.Publication().AssetPublic())
+		publication.Token = lo.ToPtr(p.Publication().Token())
 	}
 
 	var requestRoles *[]ProjectRequestRole = nil
-	if p.RequestRoles() != nil {
+	if len(p.RequestRoles()) > 0 {
 		r := lo.FilterMap(p.RequestRoles(), func(r workspace.Role, _ int) (ProjectRequestRole, bool) {
 			role := ToRequestRole(r)
 			if role != nil {
@@ -29,15 +27,15 @@ func NewProject(p *project.Project) Project {
 	}
 
 	return Project{
-		Id:           p.ID().Ref(),
-		WorkspaceId:  p.Workspace().Ref(),
-		Name:         lo.ToPtr(p.Name()),
-		Description:  lo.ToPtr(p.Description()),
-		Alias:        lo.ToPtr(p.Alias()),
+		Id:           p.ID(),
+		WorkspaceId:  p.Workspace(),
+		Name:         p.Name(),
+		Description:  p.Description(),
+		Alias:        p.Alias(),
 		Publication:  publication,
 		RequestRoles: requestRoles,
-		CreatedAt:    lo.ToPtr(p.CreatedAt()),
-		UpdatedAt:    lo.ToPtr(p.UpdatedAt()),
+		CreatedAt:    p.CreatedAt(),
+		UpdatedAt:    p.UpdatedAt(),
 	}
 }
 

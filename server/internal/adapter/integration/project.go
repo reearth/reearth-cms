@@ -21,7 +21,7 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 		return ProjectFilter400Response{}, rerror.ErrInvalidParams
 	}
 
-	if !op.AllReadableWorkspaces().Has(request.WorkspaceId) {
+	if !op.IsReadableWorkspace(request.WorkspaceId) {
 		return ProjectFilter404Response{}, rerror.ErrNotFound
 	}
 
@@ -63,7 +63,7 @@ func (s *Server) ProjectGet(ctx context.Context, request ProjectGetRequestObject
 		return ProjectGet400Response{}, rerror.ErrInvalidParams
 	}
 
-	if !op.AllReadableWorkspaces().Has(request.WorkspaceId) {
+	if !op.IsReadableWorkspace(request.WorkspaceId) {
 		return ProjectGet404Response{}, rerror.ErrNotFound
 	}
 
@@ -87,13 +87,16 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 		return ProjectCreate400Response{}, rerror.ErrInvalidParams
 	}
 
-	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
+	if !op.IsWritableWorkspace(request.WorkspaceId) {
 		return ProjectCreate404Response{}, rerror.ErrNotFound
 	}
 
 	var roles []workspace.Role
 	if request.Body.RequestRoles != nil {
-		roles = fromRequestRoles(*request.Body.RequestRoles)
+		var ok bool
+		if roles, ok = fromRequestRoles(*request.Body.RequestRoles); !ok {
+			return ProjectCreate400Response{}, rerror.ErrInvalidParams
+		}
 	}
 
 	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
@@ -118,13 +121,16 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		return ProjectUpdate400Response{}, rerror.ErrInvalidParams
 	}
 
-	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
+	if !op.IsWritableWorkspace(request.WorkspaceId) {
 		return ProjectUpdate404Response{}, rerror.ErrNotFound
 	}
 
 	var roles []workspace.Role
 	if request.Body.RequestRoles != nil {
-		roles = fromRequestRoles(*request.Body.RequestRoles)
+		var ok bool
+		if roles,ok = fromRequestRoles(*request.Body.RequestRoles); !ok {
+			return ProjectUpdate400Response{}, rerror.ErrInvalidParams
+		}
 	}
 
 	var pub *interfaces.UpdateProjectPublicationParam
@@ -165,7 +171,7 @@ func (s *Server) ProjectDelete(ctx context.Context, request ProjectDeleteRequest
 		return ProjectDelete400Response{}, rerror.ErrInvalidParams
 	}
 
-	if !op.AllWritableWorkspaces().Has(request.WorkspaceId) {
+	if !op.IsWritableWorkspace(request.WorkspaceId) {
 		return ProjectDelete404Response{}, rerror.ErrNotFound
 	}
 

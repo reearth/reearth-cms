@@ -23,14 +23,14 @@ func Test_NewProject(t *testing.T) {
 			name: "success",
 			p:    p1,
 			want: Project{
-				Id:           p1.ID().Ref(),
-				WorkspaceId:  p1.Workspace().Ref(),
-				Alias:        lo.ToPtr(p1.Alias()),
-				Name:         lo.ToPtr(p1.Name()),
-				Description:  lo.ToPtr(p1.Description()),
-				CreatedAt:    lo.ToPtr(p1.CreatedAt()),
-				UpdatedAt:    lo.ToPtr(p1.UpdatedAt()),
-				Publication:  nil,
+				Id:           p1.ID(),
+				WorkspaceId:  p1.Workspace(),
+				Alias:        p1.Alias(),
+				Name:         p1.Name(),
+				Description:  p1.Description(),
+				CreatedAt:    p1.CreatedAt(),
+				UpdatedAt:    p1.UpdatedAt(),
+				Publication:  &ProjectPublication{Scope: lo.ToPtr(PRIVATE)},
 				RequestRoles: nil,
 			},
 		},
@@ -45,32 +45,41 @@ func Test_NewProject(t *testing.T) {
 }
 
 func Test_ToRequestRole(t *testing.T) {
-	// owner
-	assert.Equal(t, lo.ToPtr(OWNER), ToRequestRole(workspace.RoleOwner))
+	t.Run("owner", func(t *testing.T) {
+		assert.Equal(t, lo.ToPtr(OWNER), ToRequestRole(workspace.RoleOwner))
+	})
 
-	// maintainer
-	assert.Equal(t, lo.ToPtr(MAINTAINER), ToRequestRole(workspace.RoleMaintainer))
+	t.Run("maintainer", func(t *testing.T) {
+		assert.Equal(t, lo.ToPtr(MAINTAINER), ToRequestRole(workspace.RoleMaintainer))
+	})
 
-	// writer
-	assert.Equal(t, lo.ToPtr(WRITER), ToRequestRole(workspace.RoleWriter))
+	t.Run("writer", func(t *testing.T) {
+		assert.Equal(t, lo.ToPtr(WRITER), ToRequestRole(workspace.RoleWriter))
+	})
 
-	// reader
-	assert.Equal(t, lo.ToPtr(READER), ToRequestRole(workspace.RoleReader))
+	t.Run("reader", func(t *testing.T) {
+		assert.Equal(t, lo.ToPtr(READER), ToRequestRole(workspace.RoleReader))
+	})
 
-	// unknown
-	assert.Nil(t, ToRequestRole("UNKNOWN_ROLE"))
+	t.Run("unknown role", func(t *testing.T) {
+		assert.Nil(t, ToRequestRole("UNKNOWN_ROLE"))
+	})
 }
 
 func Test_ToProjectPublicationScope(t *testing.T) {
-	// public
-	assert.Equal(t, lo.ToPtr(PUBLIC), ToProjectPublicationScope(project.PublicationScopePublic))
+	t.Run("public", func(t *testing.T) {
+		assert.Equal(t, lo.ToPtr(PUBLIC), ToProjectPublicationScope(project.PublicationScopePublic))
+	})
 
-	// private
-	assert.Equal(t, lo.ToPtr(PRIVATE), ToProjectPublicationScope(project.PublicationScopePrivate))
+	t.Run("private", func(t *testing.T) {
+		assert.Equal(t, lo.ToPtr(PRIVATE), ToProjectPublicationScope(project.PublicationScopePrivate))
+	})
 
-	// limited
-	assert.Equal(t, lo.ToPtr(LIMITED), ToProjectPublicationScope(project.PublicationScopeLimited))
+	t.Run("limited", func(t *testing.T) {
+		assert.Equal(t, lo.ToPtr(LIMITED), ToProjectPublicationScope(project.PublicationScopeLimited))
+	})
 
-	// unknown
-	assert.Nil(t, ToProjectPublicationScope("SOMETHING_ELSE"))
+	t.Run("unknown scope", func(t *testing.T) {
+		assert.Nil(t, ToProjectPublicationScope("SOMETHING_ELSE"))
+	})
 }

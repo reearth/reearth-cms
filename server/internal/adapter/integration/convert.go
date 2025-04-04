@@ -256,27 +256,35 @@ func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.C
 	return condition.Into()
 }
 
-func fromRequestRoles(roles []integrationapi.ProjectRequestRole) []workspace.Role {
-	return lo.FilterMap(roles, func(r integrationapi.ProjectRequestRole, _ int) (workspace.Role, bool) {
-		if role := fromRequestRole(r); role != nil {
-			return *role, true
+func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Role, bool) {
+	if len(roles) == 0 {
+		return nil, true
+	}
+
+	result := make([]workspace.Role, 0, len(roles))
+	for _, r := range roles {
+		role, ok := fromRequestRole(r)
+		if !ok {
+			return nil, false
 		}
-		return workspace.Role(""), false
-	})
+		result = append(result, *role)
+	}
+	return result, true
 }
 
-func fromRequestRole(r integrationapi.ProjectRequestRole) *workspace.Role {
+
+func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool) {
 	switch r {
 	case integrationapi.OWNER:
-		return lo.ToPtr(workspace.RoleOwner)
+		return lo.ToPtr(workspace.RoleOwner), true
 	case integrationapi.MAINTAINER:
-		return lo.ToPtr(workspace.RoleMaintainer)
+		return lo.ToPtr(workspace.RoleMaintainer), true
 	case integrationapi.WRITER:
-		return lo.ToPtr(workspace.RoleWriter)
+		return lo.ToPtr(workspace.RoleWriter), true
 	case integrationapi.READER:
-		return lo.ToPtr(workspace.RoleReader)
+		return lo.ToPtr(workspace.RoleReader), true
 	default:
-		return nil
+		return nil, false
 	}
 }
 

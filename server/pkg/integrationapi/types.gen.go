@@ -531,15 +531,15 @@ type Model struct {
 
 // Project defines model for project.
 type Project struct {
-	Alias        *string                    `json:"alias,omitempty"`
-	CreatedAt    *time.Time                 `json:"createdAt,omitempty"`
-	Description  *string                    `json:"description,omitempty"`
-	Id           *id.ProjectID              `json:"id,omitempty"`
-	Name         *string                    `json:"name,omitempty"`
-	Publication  *ProjectPublication        `json:"publication,omitempty"`
-	RequestRoles *[]ProjectRequestRole      `json:"requestRoles,omitempty"`
-	UpdatedAt    *time.Time                 `json:"updatedAt,omitempty"`
-	WorkspaceId  *accountdomain.WorkspaceID `json:"workspaceId,omitempty"`
+	Alias        string                    `json:"alias"`
+	CreatedAt    time.Time                 `json:"createdAt"`
+	Description  string                    `json:"description"`
+	Id           id.ProjectID              `json:"id"`
+	Name         string                    `json:"name"`
+	Publication  *ProjectPublication       `json:"publication,omitempty"`
+	RequestRoles *[]ProjectRequestRole     `json:"requestRoles,omitempty"`
+	UpdatedAt    time.Time                 `json:"updatedAt"`
+	WorkspaceId  accountdomain.WorkspaceID `json:"workspaceId"`
 }
 
 // ProjectPublication defines model for projectPublication.

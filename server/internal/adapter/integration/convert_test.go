@@ -124,49 +124,79 @@ func Test_fromProjectPublicationScope(t *testing.T) {
 }
 
 func Test_fromRequestRoles(t *testing.T) {
-	// empty input
-	input := []integrationapi.ProjectRequestRole{}
-	expected := []workspace.Role{}
-	assert.Equal(t, expected, fromRequestRoles(input))
+	t.Run("empty input", func(t *testing.T) {
+		input := []integrationapi.ProjectRequestRole{}
+		actual, ok := fromRequestRoles(input)
+		assert.True(t, ok)
+		assert.Nil(t, actual)
+	})
 
-	// valid input
-	input = []integrationapi.ProjectRequestRole{
-		integrationapi.OWNER,
-		integrationapi.WRITER,
-		"UNKNOWN",
-		integrationapi.READER,
-	}
-	expected = []workspace.Role{
-		workspace.RoleOwner,
-		workspace.RoleWriter,
-		workspace.RoleReader,
-	}
-	assert.Equal(t, expected, fromRequestRoles(input))
+	t.Run("invalid input", func(t *testing.T) {
+		input := []integrationapi.ProjectRequestRole{
+			integrationapi.OWNER,
+			integrationapi.WRITER,
+			"UNKNOWN",
+			integrationapi.READER,
+		}
+		actual, ok := fromRequestRoles(input)
+		assert.False(t, ok)
+		assert.Nil(t, actual)
+	})
+
+	t.Run("valid input", func(t *testing.T) {
+		input := []integrationapi.ProjectRequestRole{
+			integrationapi.OWNER,
+			integrationapi.WRITER,
+			integrationapi.READER,
+		}
+		actual, ok := fromRequestRoles(input)
+		assert.True(t, ok)
+		expected := []workspace.Role{
+			workspace.RoleOwner,
+			workspace.RoleWriter,
+			workspace.RoleReader,
+		}
+		assert.Equal(t, expected, actual)
+	})
 }
 
 func Test_fromRequestRole(t *testing.T) {
-	// owner"
-	input := integrationapi.OWNER
-	expected := lo.ToPtr(workspace.RoleOwner)
-	assert.Equal(t, expected, fromRequestRole(input))
+	t.Run("owner", func(t *testing.T) {
+		input := integrationapi.OWNER
+		actual, ok := fromRequestRole(input)
+		expected := lo.ToPtr(workspace.RoleOwner)
+		assert.True(t, ok)
+		assert.Equal(t, expected, actual)
+	})
 
-	// maintainer"
-	input = integrationapi.MAINTAINER
-	expected = lo.ToPtr(workspace.RoleMaintainer)
-	assert.Equal(t, expected, fromRequestRole(input))
+	t.Run("maintainer", func(t *testing.T) {
+		input := integrationapi.MAINTAINER
+		actual, ok := fromRequestRole(input)
+		expected := lo.ToPtr(workspace.RoleMaintainer)
+		assert.True(t, ok)
+		assert.Equal(t, expected, actual)
+	})
 
-	// writer"
-	input = integrationapi.WRITER
-	expected = lo.ToPtr(workspace.RoleWriter)
-	assert.Equal(t, expected, fromRequestRole(input))
+	t.Run("writer", func(t *testing.T) {
+		input := integrationapi.WRITER
+		actual, ok := fromRequestRole(input)
+		expected := lo.ToPtr(workspace.RoleWriter)
+		assert.True(t, ok)
+		assert.Equal(t, expected, actual)
+	})
 
-	// reader"
-	input = integrationapi.READER
-	expected = lo.ToPtr(workspace.RoleReader)
-	assert.Equal(t, expected, fromRequestRole(input))
+	t.Run("reader", func(t *testing.T) {
+		input := integrationapi.READER
+		actual, ok := fromRequestRole(input)
+		expected := lo.ToPtr(workspace.RoleReader)
+		assert.True(t, ok)
+		assert.Equal(t, expected, actual)
+	})
 
-	// unknown"
-	input = "UNKNOWN_ROLE"
-	expected = nil
-	assert.Equal(t, expected, fromRequestRole(input))
+	t.Run("unknown role", func(t *testing.T) {
+		input := integrationapi.ProjectRequestRole("UNKNOWN_ROLE")
+		actual, ok := fromRequestRole(input)
+		assert.False(t, ok)
+		assert.Nil(t, actual)
+	})
 }

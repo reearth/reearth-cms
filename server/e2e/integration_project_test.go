@@ -197,4 +197,10 @@ func TestIntegrationProjectDeleteAPI(t *testing.T) {
 		Object()
 
 	del.HasValue("id", projectIDToDelete)
+
+	// Verify the project is deleted
+	e.GET("/api/{workspaceId}/projects/{projectId}", wId0, projectIDToDelete).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
 }
