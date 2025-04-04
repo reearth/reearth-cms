@@ -6,11 +6,13 @@ package gql
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -165,9 +167,13 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 		ContentEncoding: lo.FromPtr(input.ContentEncoding),
 		Cursor:          lo.FromPtr(input.Cursor),
 	}, getOperator(ctx))
+	if err != nil && errors.Is(err, rerror.ErrNotFound) {
+		return &gqlmodel.CreateAssetUploadPayload{}, nil
+	}
 	if err != nil {
 		return nil, err
 	}
+
 	return &gqlmodel.CreateAssetUploadPayload{
 		URL:             au.URL,
 		Token:           au.UUID,
