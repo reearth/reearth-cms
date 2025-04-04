@@ -5,8 +5,12 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
+import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
@@ -20,13 +24,40 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
+import { ItemAsset } from "../Content/types";
+
+import ImportSchemaModal from "./ImportSchemaModal";
+
 type Props = {
+  workspaceId?: string;
+  projectId?: string;
   data?: Model | Group;
   collapsed: boolean;
+  page: number;
+  pageSize: number;
+  assetList: Asset[];
+  loading: boolean;
+  selectedAsset?: ItemAsset;
   selectedSchemaType: SelectedSchemaType;
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  fileList: UploadFile[];
+  uploadType: UploadType;
+  uploadUrl: { url: string; autoUnzip: boolean };
+  uploading: boolean;
+  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadType: (type: UploadType) => void;
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  uploadModalVisibility: boolean;
+  totalCount: number;
+  onSearchTerm: (term?: string) => void;
+  onAssetsReload: () => void;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  onAssetSelect: (id?: string) => void;
+  onUploadModalCancel: () => void;
   onModalOpen: () => void;
   onDeletionModalOpen: () => void;
   modelsMenu: JSX.Element;
@@ -39,12 +70,34 @@ type Props = {
 };
 
 const Schema: React.FC<Props> = ({
+  workspaceId,
+  projectId,
   data,
   collapsed,
+  page,
+  pageSize,
+  assetList,
+  loading,
+  selectedAsset,
   selectedSchemaType,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  fileList,
+  uploadType,
+  uploadUrl,
+  uploading,
+  setUploadUrl,
+  setUploadType,
+  setFileList,
+  totalCount,
+  onSearchTerm,
+  onAssetsReload,
+  onAssetTableChange,
+  onAssetSelect,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
+  onUploadModalCancel,
   onModalOpen,
   onDeletionModalOpen,
   modelsMenu,
@@ -57,6 +110,56 @@ const Schema: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
+  const [progress, _setProgress] = useState(0);
+  const [importSchemaModalVisible, setImportSchemaModalVisible] = useState(false);
+  const [selectFileModalVisible, setSelectFileModalVisible] = useState(false);
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
+  const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
+
+  const displayUploadModal = useCallback(() => {
+    setUploadModalVisibility(true);
+  }, []);
+
+  const toSchemaPreviewStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(1);
+  }, []);
+
+  const toImportingStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(2);
+  }, []);
+
+  const handleSelectSchemaFileModalOpen = useCallback(() => {
+    setSelectFileModalVisible(true);
+  }, []);
+
+  const handleSelectSchemaFileModalClose = useCallback(() => {
+    setSelectFileModalVisible(false);
+  }, []);
+
+  const handleSchemaImportModalOpen = useCallback(async () => {
+    setImportSchemaModalVisible(true);
+  }, []);
+
+  const handleSchemaImportModalClose = useCallback(async () => {
+    setImportSchemaModalVisible(false);
+    setCurrentImportSchemaModalPage(0);
+    onAssetSelect(undefined);
+  }, [onAssetSelect]);
+
+  const handleSchemaImport = useCallback(() => {
+    Modal.confirm({
+      title: t("Are you sure you want to overwrite current schema?"),
+      content: (
+        <>{t("Importing a new schema will replace the existing fields and cannot be undone.")}</>
+      ),
+      icon: <Icon icon="exclamationCircle" />,
+      cancelText: t("Cancel"),
+      okText: t("Continue"),
+      async onOk() {
+        await handleSchemaImportModalOpen();
+      },
+    });
+  }, [handleSchemaImportModalOpen, t]);
 
   const dropdownItems = useMemo(
     () => [
@@ -68,6 +171,13 @@ const Schema: React.FC<Props> = ({
         disabled: !hasUpdateRight,
       },
       {
+        key: "import",
+        label: t("Import"),
+        icon: <StyledIcon icon="import" />,
+        onClick: handleSchemaImport,
+        disabled: !hasUpdateRight,
+      },
+      {
         key: "delete",
         label: t("Delete"),
         icon: <StyledIcon icon="delete" />,
@@ -76,7 +186,7 @@ const Schema: React.FC<Props> = ({
         disabled: !hasDeleteRight,
       },
     ],
-    [hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
+    [handleSchemaImport, hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
   );
 
   const DropdownMenu = useCallback(
@@ -101,6 +211,7 @@ const Schema: React.FC<Props> = ({
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
+            onSchemaImport={handleSchemaImport}
           />
         </div>
       ),
@@ -171,6 +282,44 @@ const Schema: React.FC<Props> = ({
               )}
             </>
           )}
+          <ImportSchemaModal
+            workspaceId={workspaceId}
+            projectId={projectId}
+            page={page}
+            pageSize={pageSize}
+            assetList={assetList}
+            loading={loading}
+            visible={importSchemaModalVisible}
+            selectFileModalVisible={selectFileModalVisible}
+            currentPage={currentImportSchemaModalPage}
+            toSchemaPreviewStep={toSchemaPreviewStep}
+            toImportingStep={toImportingStep}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
+            displayUploadModal={displayUploadModal}
+            fileList={fileList}
+            totalCount={totalCount}
+            selectedAsset={selectedAsset}
+            uploadType={uploadType}
+            uploadUrl={uploadUrl}
+            uploading={uploading}
+            progress={progress}
+            setUploadUrl={setUploadUrl}
+            setUploadType={setUploadType}
+            setFileList={setFileList}
+            hasCreateRight={hasCreateRight}
+            uploadModalVisibility={uploadModalVisibility}
+            onSearchTerm={onSearchTerm}
+            onAssetsReload={onAssetsReload}
+            onAssetTableChange={onAssetTableChange}
+            onAssetSelect={onAssetSelect}
+            onAssetsCreate={onAssetsCreate}
+            onAssetCreateFromUrl={onAssetCreateFromUrl}
+            onUploadModalCancel={onUploadModalCancel}
+            onSelectFile={handleSelectSchemaFileModalOpen}
+            onSelectSchemaFileModalClose={handleSelectSchemaFileModalClose}
+            onModalClose={handleSchemaImportModalClose}
+          />
         </Content>
       }
       right={

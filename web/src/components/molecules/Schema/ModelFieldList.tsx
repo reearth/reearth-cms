@@ -20,6 +20,7 @@ type Props = {
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
+  onSchemaImport?: () => void;
 };
 
 const { confirm } = Modal;
@@ -31,6 +32,7 @@ const ModelFieldList: React.FC<Props> = ({
   onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
+  onSchemaImport,
 }) => {
   const t = useT();
 
@@ -109,7 +111,16 @@ const ModelFieldList: React.FC<Props> = ({
         <EmptyText>
           {t("Empty Schema design.")}
           <br />
-          {t("Please add some field from right panel.")}
+          <Trans
+            i18nKey="importSchema"
+            components={{
+              l: (
+                <ImportButton type="link" onClick={onSchemaImport}>
+                  import
+                </ImportButton>
+              ),
+            }}
+          />
         </EmptyText>
       ) : (
         <ReactDragListView
@@ -175,6 +186,10 @@ const DragIcon = styled(Icon)`
   :active {
     cursor: grabbing;
   }
+`;
+
+const ImportButton = styled(Button)`
+  padding: 0;
 `;
 
 const StyledIcon = styled(Icon)`

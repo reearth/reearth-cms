@@ -296,7 +296,7 @@ export default (isItemsRequired: boolean) => {
   );
 
   const handleAssetSelect = useCallback(
-    (id: string) => {
+    (id?: string) => {
       setSelectedAssetId(id);
       setCollapsed(false);
     },
@@ -340,6 +340,8 @@ export default (isItemsRequired: boolean) => {
   }, []);
 
   return {
+    workspaceId,
+    projectId,
     assetList,
     selection,
     fileList,
