@@ -1,19 +1,19 @@
 module github.com/reearth/reearth-cms/server
 
-go 1.24.0
+go 1.24.2
 
 require (
-	cloud.google.com/go/pubsub v1.47.0
-	cloud.google.com/go/storage v1.50.0
-	github.com/99designs/gqlgen v0.17.66
+	cloud.google.com/go/pubsub v1.48.1
+	cloud.google.com/go/storage v1.51.0
+	github.com/99designs/gqlgen v0.17.70
 	github.com/avast/retry-go/v4 v4.6.1
 	github.com/aws/aws-sdk-go-v2 v1.36.3
-	github.com/aws/aws-sdk-go-v2/config v1.29.9
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.1
-	github.com/aws/aws-sdk-go-v2/service/sns v1.34.2
+	github.com/aws/aws-sdk-go-v2/config v1.29.13
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.1
+	github.com/aws/aws-sdk-go-v2/service/sns v1.34.3
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/gavv/httpexpect/v2 v2.17.0
-	github.com/getkin/kin-openapi v0.129.0
+	github.com/getkin/kin-openapi v0.131.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
@@ -33,19 +33,19 @@ require (
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.49.1
 	github.com/sendgrid/sendgrid-go v3.16.0+incompatible
-	github.com/spf13/afero v1.12.0
+	github.com/spf13/afero v1.14.0
 	github.com/square/mongo-lock v0.0.0-20230808145049-cfcf499f6bf0
 	github.com/stretchr/testify v1.10.0
 	github.com/vektah/gqlparser/v2 v2.5.23
 	github.com/vikstrous/dataloadgen v0.0.6
-	go.mongodb.org/mongo-driver v1.17.3
+	go.mongodb.org/mongo-driver/v2 v2.1.0
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.60.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.60.0
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
-	golang.org/x/net v0.37.0
+	golang.org/x/net v0.38.0
 	golang.org/x/text v0.23.0
-	google.golang.org/api v0.224.0
+	google.golang.org/api v0.228.0
 )
 
 require (
