@@ -292,7 +292,7 @@ func TestPreviewType_String(t *testing.T) {
 
 func TestPreviewType_StringRef(t *testing.T) {
 	var pt1 *PreviewType
-	var pt2 *PreviewType = lo.ToPtr(PreviewTypeImage)
+	var pt2 = lo.ToPtr(PreviewTypeImage)
 	s := string(*pt2)
 
 	tests := []struct {
