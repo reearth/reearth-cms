@@ -49,7 +49,7 @@ func (c *GroupLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID) 
 		return nil, err
 	}
 
-	res, err := c.usecase.FindByProject(ctx, pId, getOperator(ctx))
+	res, _, err := c.usecase.FindByProject(ctx, pId, nil, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

@@ -38,16 +38,20 @@ func (i Group) FindByIDs(ctx context.Context, ids id.GroupIDList, operator *usec
 	return i.repos.Group.FindByIDs(ctx, ids)
 }
 
-func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operator *usecase.Operator) (group.List, error) {
+func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (group.List,*usecasex.PageInfo, error) {
 	g, err := i.repos.Group.FindByProject(ctx, projectID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return g.Ordered(), nil
+	return g.Ordered(), nil, nil
 }
 
 func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, operator *usecase.Operator) (*group.Group, error) {
 	return i.repos.Group.FindByKey(ctx, pid, group)
+}
+
+func (i Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, idOrKey group.IDOrKey, operator *usecase.Operator) (*group.Group, error) {
+	panic("not implemented")
 }
 
 func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, operator *usecase.Operator) (*group.Group, error) {
