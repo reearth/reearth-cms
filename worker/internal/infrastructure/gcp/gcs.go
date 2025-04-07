@@ -59,7 +59,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 
 	object := bucket.Retryer(storage.WithPolicy(storage.RetryAlways)).Object(name)
 	writer := object.NewWriter(ctx)
-	writer.ObjectAttrs.CacheControl = f.cacheControl
+	writer.CacheControl = f.cacheControl
 	return writer, nil
 }
 
