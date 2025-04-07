@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -59,20 +60,20 @@ func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List,
 	return group.List(result).SortByID(), nil
 }
 
-func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
+func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID, p *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
-		return nil, r.err
+		return nil, nil, r.err
 	}
 
 	if !r.f.CanRead(pid) {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	result := group.List(r.data.FindAll(func(_ id.GroupID, m *group.Group) bool {
 		return m.Project() == pid
 	})).SortByID()
 
-	return result, nil
+	return result, nil, nil
 }
 
 func (r *Group) FindByKey(ctx context.Context, pid id.ProjectID, key string) (*group.Group, error) {

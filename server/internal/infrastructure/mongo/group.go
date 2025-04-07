@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -59,17 +60,17 @@ func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List,
 	return prepareGroups(list, res), nil
 }
 
-func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
+func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID, p *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
-		return nil, nil
+		return nil, nil, nil
 	}
 	res, err := r.find(ctx, bson.M{
 		"project": pid.String(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return res, nil
+	return res, nil, nil
 }
 
 func (r *Group) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*group.Group, error) {

@@ -39,11 +39,11 @@ func (i Group) FindByIDs(ctx context.Context, ids id.GroupIDList, operator *usec
 }
 
 func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (group.List,*usecasex.PageInfo, error) {
-	g, err := i.repos.Group.FindByProject(ctx, projectID)
+	g, p, err := i.repos.Group.FindByProject(ctx, projectID, pagination)
 	if err != nil {
 		return nil, nil, err
 	}
-	return g.Ordered(), nil, nil
+	return g.Ordered(), p, nil
 }
 
 func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, operator *usecase.Operator) (*group.Group, error) {
@@ -92,7 +92,7 @@ func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, op
 				mb = mb.Description(*param.Description)
 			}
 
-			groups, err := i.repos.Group.FindByProject(ctx, param.ProjectId)
+			groups, _, err := i.repos.Group.FindByProject(ctx, param.ProjectId, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -280,7 +280,7 @@ func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *us
 			if !operator.IsMaintainingProject(pid) {
 				return nil, interfaces.ErrOperationDenied
 			}
-			groups, err := i.repos.Group.FindByProject(ctx, pid)
+			groups, _, err := i.repos.Group.FindByProject(ctx, pid, nil)
 			if err != nil {
 				return nil, err
 			}
