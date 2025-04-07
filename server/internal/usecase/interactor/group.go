@@ -38,7 +38,7 @@ func (i Group) FindByIDs(ctx context.Context, ids id.GroupIDList, operator *usec
 	return i.repos.Group.FindByIDs(ctx, ids)
 }
 
-func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (group.List,*usecasex.PageInfo, error) {
+func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (group.List, *usecasex.PageInfo, error) {
 	g, p, err := i.repos.Group.FindByProject(ctx, projectID, pagination)
 	if err != nil {
 		return nil, nil, err
@@ -280,7 +280,8 @@ func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *us
 			if !operator.IsMaintainingProject(pid) {
 				return nil, interfaces.ErrOperationDenied
 			}
-			groups, _, err := i.repos.Group.FindByProject(ctx, pid, nil)
+			p := &usecasex.Pagination{Cursor: &usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}}
+			groups, _, err := i.repos.Group.FindByProject(ctx, pid, p)
 			if err != nil {
 				return nil, err
 			}
