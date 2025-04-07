@@ -76,7 +76,7 @@ func unaryAuthInterceptor(cfg *ServerConfig) grpc.UnaryServerInterceptor {
 		}
 		// The keys within metadata.MD are normalized to lowercase.
 		// See: https://godoc.org/google.golang.org/grpc/metadata#New
-		if md["authorization"][0] != "Bearer 123" {
+		if md["authorization"][0] != "Bearer "+cfg.Config.InternalApi.Token {
 			log.Errorf("unaryAuthInterceptor: invalid token")
 			return nil, errors.New("unauthorized")
 		}
@@ -139,6 +139,7 @@ func unaryAttachUsecaseInterceptor(cfg *ServerConfig) grpc.UnaryServerIntercepto
 
 		uc := interactor.New(r2, cfg.Gateways, ar2, cfg.AcGateways, interactor.ContainerConfig{})
 		ctx = adapter.AttachUsecases(ctx, &uc)
+		ctx = adapter.AttachGateways(ctx, cfg.Gateways)
 
 		return handler(ctx, req)
 	}

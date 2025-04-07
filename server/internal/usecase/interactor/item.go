@@ -900,7 +900,7 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package,
 		// fromPagination
 		paginationOffset := fromPagination(page, perPage)
 
-		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+		items, pi, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
 		if err != nil {
 			return interfaces.ExportItemsToGeoJSONResponse{}, err
 		}
@@ -912,6 +912,7 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package,
 
 		return interfaces.ExportItemsToGeoJSONResponse{
 			FeatureCollections: featureCollections,
+			PageInfo:           pi,
 		}, nil
 	})
 }

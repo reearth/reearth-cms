@@ -44,8 +44,9 @@ func Start(debug bool, version string) {
 }
 
 type WebServer struct {
-	address        string
+	appAddress     string
 	appServer      *echo.Echo
+	internalPort   string
 	internalServer *grpc.Server
 }
 
@@ -75,11 +76,14 @@ func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
 	address := host + ":" + port
 
 	w := &WebServer{
-		address: address,
+		appAddress: address,
 	}
-
 	w.appServer = initEcho(cfg)
-	w.internalServer = initGrpc(cfg)
+
+	if cfg.Config.InternalApi.Active {
+		w.internalPort = ":" + cfg.Config.InternalApi.Port
+		w.internalServer = initGrpc(cfg)
+	}
 	return w
 }
 
@@ -92,20 +96,22 @@ func (w *WebServer) Run(ctx context.Context) {
 	}
 
 	go func() {
-		err := w.appServer.StartH2CServer(w.address, &http2.Server{})
+		err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
 		log.Fatalc(ctx, err.Error())
 	}()
-	log.Infof("server: started%s at http://%s", debugLog, w.address)
+	log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
 
-	go func() {
-		l, err := net.Listen("tcp", ":50051")
-		if err != nil {
+	if w.internalServer != nil {
+		go func() {
+			l, err := net.Listen("tcp", w.internalPort)
+			if err != nil {
+				log.Fatalc(ctx, err.Error())
+			}
+			err = w.internalServer.Serve(l)
 			log.Fatalc(ctx, err.Error())
-		}
-		err = w.internalServer.Serve(l)
-		log.Fatalc(ctx, err.Error())
-	}()
-	log.Infof("server: started internal grpc server at :50051")
+		}()
+		log.Infof("server: started internal grpc server at %s", w.internalPort)
+	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)

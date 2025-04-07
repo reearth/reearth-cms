@@ -117,7 +117,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 	if p == "" {
 		return "", 0, gateway.ErrInvalidFile
 	}
-	size, err := f.upload(ctx, file, p)
+	size, err := f.Upload(ctx, file, p)
 	if err != nil {
 		return "", 0, rerror.ErrInternalBy(err)
 	}
@@ -135,6 +135,10 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return getURL(f.baseURL.String(), a.UUID(), a.FileName())
+}
+
+func (f *fileRepo) GetBaseURL() string {
+	return f.baseURL.String()
 }
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
@@ -362,7 +366,7 @@ func (f *fileRepo) read(ctx context.Context, filename string, headers map[string
 	return resp.Body, resheaders, nil
 }
 
-func (f *fileRepo) upload(ctx context.Context, file *file.File, filename string) (int64, error) {
+func (f *fileRepo) Upload(ctx context.Context, file *file.File, filename string) (int64, error) {
 	if filename == "" {
 		return 0, gateway.ErrInvalidFile
 	}

@@ -90,7 +90,7 @@ func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string) ([]gateway.
 	return fileEntries, nil
 }
 
-func (f *fileRepo) UploadAsset(_ context.Context, file *file.File) (string, int64, error) {
+func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, int64, error) {
 	if file == nil {
 		return "", 0, gateway.ErrInvalidFile
 	}
@@ -105,7 +105,7 @@ func (f *fileRepo) UploadAsset(_ context.Context, file *file.File) (string, int6
 
 	p := getFSObjectPath(fileUUID, file.Name)
 
-	size, err := f.upload(p, file.Content)
+	size, err := f.Upload(ctx, file, p)
 	if err != nil {
 		return "", 0, err
 	}
@@ -126,6 +126,10 @@ func (f *fileRepo) DeleteAsset(_ context.Context, fileUUID string, fn string) er
 func (f *fileRepo) GetURL(a *asset.Asset) string {
 	fileUUID := a.UUID()
 	return f.urlBase.JoinPath(assetDir, fileUUID[:2], fileUUID[2:], url.PathEscape(a.FileName())).String()
+}
+
+func (f *fileRepo) GetBaseURL() string {
+	return f.urlBase.String()
 }
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
@@ -168,8 +172,8 @@ func (f *fileRepo) read(filename string) (io.ReadCloser, map[string]string, erro
 	return file, headers, nil
 }
 
-func (f *fileRepo) upload(filename string, content io.Reader) (int64, error) {
-	if filename == "" || content == nil {
+func (f *fileRepo) Upload(_ context.Context, file *file.File, filename string) (int64, error) {
+	if filename == "" || file == nil || file.Content == nil {
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
@@ -188,7 +192,7 @@ func (f *fileRepo) upload(filename string, content io.Reader) (int64, error) {
 	}()
 
 	var size int64
-	if size, err = io.Copy(dest, content); err != nil {
+	if size, err = io.Copy(dest, file.Content); err != nil {
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
