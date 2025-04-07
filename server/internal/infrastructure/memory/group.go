@@ -60,10 +60,12 @@ func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List,
 	return group.List(result).SortByID(), nil
 }
 
-func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID, p *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
+func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID, _ *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
+
+	// TODO: implement pagination
 
 	if !r.f.CanRead(pid) {
 		return nil, nil, nil
