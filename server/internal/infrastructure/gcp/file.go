@@ -312,18 +312,18 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 	}
 
 	writer := object.NewWriter(ctx)
-	writer.ObjectAttrs.CacheControl = f.cacheControl
+	writer.CacheControl = f.cacheControl
 
 	if file.ContentType == "" {
-		writer.ObjectAttrs.ContentType = getContentType(file.Name)
+		writer.ContentType = getContentType(file.Name)
 	} else {
-		writer.ObjectAttrs.ContentType = file.ContentType
+		writer.ContentType = file.ContentType
 	}
 
 	if file.ContentEncoding == "gzip" {
-		writer.ObjectAttrs.ContentEncoding = "gzip"
-		if writer.ObjectAttrs.ContentType == "" || writer.ObjectAttrs.ContentType == "application/gzip" {
-			writer.ObjectAttrs.ContentType = "application/octet-stream"
+		writer.ContentEncoding = "gzip"
+		if writer.ContentType == "" || writer.ContentType == "application/gzip" {
+			writer.ContentType = "application/octet-stream"
 		}
 	}
 

@@ -120,7 +120,7 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		count++
 
 		if err := decoder.Decode(&rawJSON); err != nil {
-			return res.Into(), fmt.Errorf("Error decoding raw message: %v\n", err)
+			return res.Into(), fmt.Errorf("error decoding raw message: %v", err)
 		}
 
 		// guess schema fields from first object using ordered map to keep fields order
@@ -225,10 +225,7 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 		return err
 	}
 
-	isMetadata := false
-	if m.Metadata() != nil && s.ID() == *m.Metadata() {
-		isMetadata = true
-	}
+	isMetadata := m.Metadata() != nil && s.ID() == *m.Metadata()
 
 	type itemChanges struct {
 		oldFields item.Fields

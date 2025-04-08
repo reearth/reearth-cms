@@ -216,10 +216,8 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		isMetadata := false
-		if m.Metadata() != nil && param.SchemaID == *m.Metadata() {
-			isMetadata = true
-		}
+		isMetadata := m.Metadata() != nil && param.SchemaID == *m.Metadata()
+
 		fields = append(fields, groupFields...)
 		ib := item.New().
 			NewID().
