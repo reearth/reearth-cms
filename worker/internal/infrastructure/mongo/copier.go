@@ -44,7 +44,12 @@ func (r *Copier) Copy(ctx context.Context, f bson.M, changesMap task.Changes) er
 		}
 		return rerror.ErrInternalBy(err)
 	}
-	defer cursor.Close(ctx)
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			log.Errorf("reearth-cms/worker: failed to close cursor: %v\n", err)
+		}
+	}(cursor, ctx)
 
 	var bulkModels []mongo.WriteModel
 	for cursor.Next(ctx) {

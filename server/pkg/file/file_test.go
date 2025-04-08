@@ -23,7 +23,12 @@ func TestFromURL(t *testing.T) {
 	t.Run("with gzip encoding", func(t *testing.T) {
 		URL := "https://cms.com/xyz/test.txt.gz"
 		f := lo.Must(os.Open("testdata/test.txt"))
-		defer f.Close()
+		defer func(f *os.File) {
+			err := f.Close()
+			if err != nil {
+				t.Fatalf("failed to close file: %v", err)
+			}
+		}(f)
 		z := lo.Must(io.ReadAll(f))
 
 		httpmock.RegisterResponder("GET", URL, func(r *http.Request) (*http.Response, error) {
@@ -42,7 +47,12 @@ func TestFromURL(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		URL := "https://cms.com/xyz/test.txt"
 		f := lo.Must(os.Open("testdata/test.txt"))
-		defer f.Close()
+		defer func(f *os.File) {
+			err := f.Close()
+			if err != nil {
+				t.Fatalf("failed to close file: %v", err)
+			}
+		}(f)
 		z := lo.Must(io.ReadAll(f))
 
 		httpmock.RegisterResponder("GET", URL, func(r *http.Request) (*http.Response, error) {

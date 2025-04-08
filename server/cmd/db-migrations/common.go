@@ -26,7 +26,12 @@ func BatchUpdate[T Entity](ctx context.Context, col *mongo.Collection, filter bs
 	if err != nil {
 		return 0, fmt.Errorf("failed to query collection: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		err := cursor.Close(ctx)
+		if err != nil {
+			fmt.Printf("failed to close cursor: %v\n", err)
+		}
+	}()
 
 	// Process documents in batches
 	batch := make([]mongo.WriteModel, 0, batchSize)

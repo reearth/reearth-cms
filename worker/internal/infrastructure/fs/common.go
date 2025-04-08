@@ -3,5 +3,5 @@ package fs
 import "errors"
 
 var (
-	invalidBaseURLErr = errors.New("invalid base URL")
+	errInvalidBaseURL = errors.New("invalid base URL")
 )
