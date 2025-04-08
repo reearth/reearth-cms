@@ -296,7 +296,7 @@ paths:
         '500':
           description: Internal server error
     post:
-      operationId: CreateGroup
+      operationId: GroupCreate
       summary: Create a new group in a project.
       tags:
         - Groups
@@ -329,8 +329,6 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-        '409':
-          description: Group key already exists
         '500':
           description: Internal server error
   '/projects/{projectIdOrAlias}/schemata':
@@ -762,8 +760,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Group not found
-        '409':
-          description: Group key conflict
         '500':
           description: Internal server error
     delete:
@@ -1500,8 +1496,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Group not found
-        '409':
-          description: Group key conflict
         '500':
           description: Internal server error
     delete:

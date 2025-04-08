@@ -20,20 +20,20 @@ func (s *Server) GroupFilter(ctx context.Context, request GroupFilterRequestObje
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupFilter404Response{}, err
 		}
-		return nil, err
+		return GroupFilter500Response{}, err
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	gs, pi, err := uc.Group.FindByProject(ctx, prj.ID(), p, op)
 	if err != nil {
-		return nil, err
+		return GroupFilter500Response{}, err
 	}
 
 	groups := make([]integrationapi.Group, 0, len(gs))
 	for _, g := range gs {
 		ss, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
 		if err != nil {
-			return nil, err
+			return GroupFilter500Response{}, err
 		}
 		groups = append(groups, integrationapi.NewGroup(g, ss))
 	}
@@ -46,16 +46,16 @@ func (s *Server) GroupFilter(ctx context.Context, request GroupFilterRequestObje
 	}, nil
 }
 
-func (s *Server) CreateGroup(ctx context.Context, request CreateGroupRequestObject) (CreateGroupResponseObject, error) {
+func (s *Server) GroupCreate(ctx context.Context, request GroupCreateRequestObject) (GroupCreateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
 	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return CreateGroup400Response{}, err
+			return GroupCreate400Response{}, err
 		}
-		return nil, err
+		return GroupCreate500Response{}, err
 	}
 
 	input := interfaces.CreateGroupParam{
@@ -66,17 +66,14 @@ func (s *Server) CreateGroup(ctx context.Context, request CreateGroupRequestObje
 	}
 	g, err := uc.Group.Create(ctx, input, op)
 	if err != nil {
-		if errors.Is(err, interfaces.ErrGroupKeyConflict) {
-			return CreateGroup409Response{}, err
-		}
-		return CreateGroup400Response{}, err
+		return GroupCreate400Response{}, err
 	}
 	ss, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
 	if err != nil {
-		return nil, err
+		return GroupCreate500Response{}, err
 	}
 
-	return CreateGroup201JSONResponse(integrationapi.NewGroup(g, ss)), nil
+	return GroupCreate201JSONResponse(integrationapi.NewGroup(g, ss)), nil
 }
 
 func (s *Server) GroupGet(ctx context.Context, request GroupGetRequestObject) (GroupGetResponseObject, error) {
@@ -88,7 +85,7 @@ func (s *Server) GroupGet(ctx context.Context, request GroupGetRequestObject) (G
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupGet404Response{}, err
 		}
-		return nil, err
+		return GroupGet500Response{}, err
 	}
 
 	return GroupGet200JSONResponse(integrationapi.NewGroup(g, nil)), nil
@@ -109,14 +106,11 @@ func (s *Server) GroupUpdate(ctx context.Context, request GroupUpdateRequestObje
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupUpdate404Response{}, err
 		}
-		if errors.Is(err, interfaces.ErrGroupKeyConflict) {
-			return GroupUpdate409Response{}, err
-		}
 		return GroupUpdate400Response{}, err
 	}
 	ss, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
 	if err != nil {
-		return nil, err
+		return GroupUpdate500Response{}, err
 	}
 
 	return GroupUpdate200JSONResponse(integrationapi.NewGroup(g, ss)), nil
@@ -148,7 +142,7 @@ func (s *Server) GroupGetWithProject(ctx context.Context, request GroupGetWithPr
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupGetWithProject404Response{}, err
 		}
-		return nil, err
+		return GroupGetWithProject500Response{}, err
 	}
 
 	g, err := uc.Group.FindByIDOrKey(ctx, prj.ID(), request.GroupIdOrKey, op)
@@ -156,11 +150,11 @@ func (s *Server) GroupGetWithProject(ctx context.Context, request GroupGetWithPr
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupGetWithProject404Response{}, err
 		}
-		return nil, err
+		return GroupGetWithProject500Response{}, err
 	}
 	ss, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
 	if err != nil {
-		return nil, err
+		return GroupGetWithProject500Response{}, err
 	}
 
 	return GroupGetWithProject200JSONResponse(integrationapi.NewGroup(g, ss)), nil
@@ -175,7 +169,7 @@ func (s *Server) GroupUpdateWithProject(ctx context.Context, request GroupUpdate
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupUpdateWithProject404Response{}, err
 		}
-		return nil, err
+		return GroupUpdateWithProject500Response{}, err
 	}
 
 	g, err := uc.Group.FindByIDOrKey(ctx, prj.ID(), request.GroupIdOrKey, op)
@@ -183,7 +177,7 @@ func (s *Server) GroupUpdateWithProject(ctx context.Context, request GroupUpdate
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupUpdateWithProject404Response{}, err
 		}
-		return nil, err
+		return GroupUpdateWithProject500Response{}, err
 	}
 
 	input := interfaces.UpdateGroupParam{
@@ -194,14 +188,11 @@ func (s *Server) GroupUpdateWithProject(ctx context.Context, request GroupUpdate
 	}
 	g, err = uc.Group.Update(ctx, input, op)
 	if err != nil {
-		if errors.Is(err, interfaces.ErrGroupKeyConflict) {
-			return GroupUpdateWithProject409Response{}, err
-		}
 		return GroupUpdateWithProject400Response{}, err
 	}
 	ss, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
 	if err != nil {
-		return nil, err
+		return GroupUpdateWithProject500Response{}, err
 	}
 
 	return GroupUpdateWithProject200JSONResponse(integrationapi.NewGroup(g, ss)), nil
@@ -216,7 +207,7 @@ func (s *Server) GroupDeleteWithProject(ctx context.Context, request GroupDelete
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupDeleteWithProject404Response{}, err
 		}
-		return nil, err
+		return GroupDeleteWithProject500Response{}, err
 	}
 
 	g, err := uc.Group.FindByIDOrKey(ctx, prj.ID(), request.GroupIdOrKey, op)
@@ -224,7 +215,7 @@ func (s *Server) GroupDeleteWithProject(ctx context.Context, request GroupDelete
 		if errors.Is(err, rerror.ErrNotFound) {
 			return GroupDeleteWithProject404Response{}, err
 		}
-		return nil, err
+		return GroupDeleteWithProject500Response{}, err
 	}
 
 	err = uc.Group.Delete(ctx, g.ID(), op)

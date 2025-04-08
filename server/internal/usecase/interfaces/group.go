@@ -13,7 +13,6 @@ import (
 )
 
 var ErrDelGroupUsed = rerror.NewE(i18n.T("can't delete a group as it's used by some models"))
-var ErrGroupKeyConflict = rerror.NewE(i18n.T("group key already exists"))
 
 type CreateGroupParam struct {
 	ProjectId   id.ProjectID

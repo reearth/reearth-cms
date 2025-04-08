@@ -887,15 +887,15 @@ type GroupFilterParams struct {
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
 
-// CreateGroupJSONBody defines parameters for CreateGroup.
-type CreateGroupJSONBody struct {
+// GroupCreateJSONBody defines parameters for GroupCreate.
+type GroupCreateJSONBody struct {
 	Description *string `json:"description,omitempty"`
 	Key         string  `json:"key"`
 	Name        string  `json:"name"`
 }
 
-// CreateGroupParams defines parameters for CreateGroup.
-type CreateGroupParams struct {
+// GroupCreateParams defines parameters for GroupCreate.
+type GroupCreateParams struct {
 	// Page Used to select the page
 	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
 
@@ -1181,8 +1181,8 @@ type ItemFilterJSONRequestBody ItemFilterJSONBody
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
 
-// CreateGroupJSONRequestBody defines body for CreateGroup for application/json ContentType.
-type CreateGroupJSONRequestBody CreateGroupJSONBody
+// GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
+type GroupCreateJSONRequestBody GroupCreateJSONBody
 
 // GroupUpdateWithProjectJSONRequestBody defines body for GroupUpdateWithProject for application/json ContentType.
 type GroupUpdateWithProjectJSONRequestBody GroupUpdateWithProjectJSONBody
