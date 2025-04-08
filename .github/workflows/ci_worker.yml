@@ -22,6 +22,11 @@ jobs:
           working-directory: worker
           args: --config=../.golangci.yml
           skip-cache: true
+      - name: Check go.mod tidiness
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+        working-directory: worker
   ci-server-test:
     name: test
     runs-on: ubuntu-latest
