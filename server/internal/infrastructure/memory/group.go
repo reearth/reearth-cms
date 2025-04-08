@@ -97,6 +97,27 @@ func (r *Group) FindByKey(ctx context.Context, pid id.ProjectID, key string) (*g
 	return g, nil
 }
 
+func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDOrKey) (*group.Group, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	groupID := g.ID()
+	key := g.Key()
+	if groupID == nil && (key == nil || *key == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	m := r.data.Find(func(_ id.GroupID, m *group.Group) bool {
+		return r.f.CanRead(m.Project()) && (groupID != nil && m.ID() == *groupID || key != nil && m.Key().String() == *key)
+	})
+	if m == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return m, nil
+}
+
 func (r *Group) SaveAll(ctx context.Context, groups group.List) error {
 	if r.err != nil {
 		return r.err

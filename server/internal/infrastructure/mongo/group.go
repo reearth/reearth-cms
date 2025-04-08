@@ -83,6 +83,26 @@ func (r *Group) FindByKey(ctx context.Context, projectID id.ProjectID, key strin
 	})
 }
 
+func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDOrKey) (*group.Group, error) {
+	gid := g.ID()
+	key := g.Key()
+	if gid == nil && (key == nil || *key == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	filter := bson.M{
+		"project": pid.String(),
+	}
+	if gid != nil {
+		filter["id"] = gid.String()
+	}
+	if key != nil {
+		filter["key"] = *key
+	}
+
+	return r.findOne(ctx, filter)
+}
+
 func (r *Group) Save(ctx context.Context, group *group.Group) error {
 	if !r.f.CanWrite(group.Project()) {
 		return repo.ErrOperationDenied

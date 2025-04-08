@@ -51,7 +51,7 @@ func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, op
 }
 
 func (i Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, idOrKey group.IDOrKey, operator *usecase.Operator) (*group.Group, error) {
-	panic("not implemented")
+	return i.repos.Group.FindByIDOrKey(ctx, pid, idOrKey)
 }
 
 func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, operator *usecase.Operator) (*group.Group, error) {

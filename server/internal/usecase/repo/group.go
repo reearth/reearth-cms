@@ -13,6 +13,7 @@ type Group interface {
 	FindByID(context.Context, id.GroupID) (*group.Group, error)
 	FindByIDs(context.Context, id.GroupIDList) (group.List, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination) (group.List, *usecasex.PageInfo,error)
+	FindByIDOrKey(context.Context, id.ProjectID, group.IDOrKey) (*group.Group, error)
 	FindByKey(context.Context, id.ProjectID, string) (*group.Group, error)
 	Save(context.Context, *group.Group) error
 	SaveAll(context.Context, group.List) error
