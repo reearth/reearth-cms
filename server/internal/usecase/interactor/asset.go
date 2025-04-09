@@ -86,6 +86,15 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter inte
 	return al, pi, nil
 }
 
+func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+	return i.repos.Asset.Search(ctx, projectID, repo.AssetFilter{
+		Sort:         filter.Sort,
+		Keyword:      filter.Keyword,
+		Pagination:   filter.Pagination,
+		ContentTypes: filter.ContentTypes,
+	})
+}
+
 func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, error) {
 	_, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {

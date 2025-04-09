@@ -93,6 +93,7 @@ type Asset struct {
 	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
 	Public                  bool                     `json:"public"`
+	ContentType             *string                  `json:"contentType,omitempty"`
 }
 
 func (Asset) IsNode()        {}
@@ -122,6 +123,12 @@ type AssetFile struct {
 type AssetItem struct {
 	ItemID  ID `json:"itemId"`
 	ModelID ID `json:"modelId"`
+}
+
+type AssetQueryInput struct {
+	Project      ID                  `json:"project"`
+	Q            *string             `json:"q,omitempty"`
+	ContentTypes []*ContentTypesEnum `json:"contentTypes,omitempty"`
 }
 
 type AssetSort struct {
@@ -1219,6 +1226,12 @@ type SchemaMarkdownTextInput struct {
 	MaxLength    *int `json:"maxLength,omitempty"`
 }
 
+type SearchAssetsInput struct {
+	Query      *AssetQueryInput `json:"query"`
+	Sort       *AssetSort       `json:"sort,omitempty"`
+	Pagination *Pagination      `json:"pagination,omitempty"`
+}
+
 type SearchItemInput struct {
 	Query      *ItemQueryInput `json:"query"`
 	Sort       *ItemSortInput  `json:"sort,omitempty"`
@@ -1816,6 +1829,61 @@ func (e *BoolOperator) UnmarshalJSON(b []byte) error {
 }
 
 func (e BoolOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ContentTypesEnum string
+
+const (
+	ContentTypesEnumJSON    ContentTypesEnum = "JSON"
+	ContentTypesEnumGeojson ContentTypesEnum = "GEOJSON"
+)
+
+var AllContentTypesEnum = []ContentTypesEnum{
+	ContentTypesEnumJSON,
+	ContentTypesEnumGeojson,
+}
+
+func (e ContentTypesEnum) IsValid() bool {
+	switch e {
+	case ContentTypesEnumJSON, ContentTypesEnumGeojson:
+		return true
+	}
+	return false
+}
+
+func (e ContentTypesEnum) String() string {
+	return string(e)
+}
+
+func (e *ContentTypesEnum) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ContentTypesEnum(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ContentTypesEnum", str)
+	}
+	return nil
+}
+
+func (e ContentTypesEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ContentTypesEnum) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ContentTypesEnum) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

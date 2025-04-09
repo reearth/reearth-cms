@@ -202,6 +202,15 @@ func (r *queryResolver) Assets(ctx context.Context, projectID gqlmodel.ID, keywo
 	return loaders(ctx).Asset.FindByProject(ctx, projectID, keyword, sort, pagination)
 }
 
+// SearchAsset is the resolver for the searchAsset field.
+func (r *queryResolver) SearchAsset(ctx context.Context, input gqlmodel.SearchAssetsInput) (*gqlmodel.AssetConnection, error) {
+	return loaders(ctx).Asset.Search(ctx, gqlmodel.AssetQueryInput{
+		Project:      input.Query.Project,
+		Q:            input.Query.Q,
+		ContentTypes: input.Query.ContentTypes,
+	}, input.Sort, input.Pagination)
+}
+
 // Asset returns AssetResolver implementation.
 func (r *Resolver) Asset() AssetResolver { return &assetResolver{r} }
 

@@ -431,6 +431,196 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 	}
 }
 
+func TestAssetRepo_Search(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := accountdomain.NewUserID()
+	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
+	// c := asset.NewFile().Path("/").Build()
+	// f := asset.NewFile().Path("/").Children([]*asset.File{c}).Build()
+	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
+	a1 := asset.New().NewID().Project(pid1).CreatedAt(tim).ArchiveExtractionStatus(s).NewUUID().
+		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+	a2 := asset.New().NewID().Project(pid1).CreatedAt(tim).ArchiveExtractionStatus(s).NewUUID().
+		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+	a1f, a2f := a1.Clone(), a2.Clone()
+	// a1f.SetFile(f)
+	// a2f.SetFile(f)
+
+	type args struct {
+		tid          id.ProjectID
+		pInfo        *usecasex.Pagination
+		keyword      *string
+		contentTypes []string
+	}
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		filter  *repo.ProjectFilter
+		want    []*asset.Asset
+		wantErr error
+	}{
+		{
+			name:    "0 count in empty db",
+			seeds:   []*asset.Asset{},
+			args:    args{tid: id.NewProjectID(), pInfo: nil},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "0 count with asset for another projects",
+			seeds: []*asset.Asset{
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{tid: id.NewProjectID(), pInfo: nil},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "1 count with single asset",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with multi assets",
+			seeds: []*asset.Asset{
+				a1f,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi assets",
+			seeds: []*asset.Asset{
+				a1f,
+				a2f,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name: "get 1st page of 2",
+			seeds: []*asset.Asset{
+				a1f,
+				a2f,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "get last page of 2",
+			seeds: []*asset.Asset{
+				a1f,
+				a2f,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
+			want:    []*asset.Asset{a2},
+			wantErr: nil,
+		},
+		{
+			name: "project filter operation success",
+			seeds: asset.List{
+				a1f,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "project filter operation denied",
+			seeds: asset.List{
+				a1f,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{tid: pid1, pInfo: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "success content type filter",
+			seeds: asset.List{
+				a1f,
+			},
+			args: args{
+				tid:          pid1,
+				pInfo:        usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+				contentTypes: []string{"application/json"},
+			},
+			want:    nil, // currently asset file data is inside the file object in the mongodoc / not a part of main Asset data
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewAsset(client)
+			ctx := context.Background()
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a)
+				assert.NoError(t, err)
+			}
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			got, _, err := r.Search(ctx, tc.args.tid, repo.AssetFilter{
+				Pagination:   tc.args.pInfo,
+				Keyword:      tc.args.keyword,
+				ContentTypes: tc.args.contentTypes,
+			})
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestAssetRepo_Delete(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := accountdomain.NewUserID()
