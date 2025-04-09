@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -101,7 +102,20 @@ func (r *Asset) Search(ctx context.Context, id id.ProjectID, filter repo.AssetFi
 	}
 
 	result := asset.List(r.data.FindAll(func(_ asset.ID, v *asset.Asset) bool {
-		return v.Project() == id
+		// Base filter: project ID match
+		if v.Project() != id {
+			return false
+		}
+
+		// Keyword filter
+		if filter.Keyword != nil && *filter.Keyword != "" {
+			if !strings.Contains(strings.ToLower(v.FileName()), strings.ToLower(*filter.Keyword)) {
+				return false
+			}
+		}
+		// Content type filter can't be performed as it's not stored in memory
+
+		return true
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
