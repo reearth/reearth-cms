@@ -123,5 +123,8 @@ func (w *WebServer) Serve(l net.Listener) error {
 }
 
 func (w *WebServer) Shutdown(ctx context.Context) error {
+	if w.internalServer != nil {
+		w.internalServer.GracefulStop()
+	}
 	return w.appServer.Shutdown(ctx)
 }
