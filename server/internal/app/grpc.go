@@ -22,7 +22,7 @@ import (
 )
 
 func initGrpc(cfg *ServerConfig) *grpc.Server {
-	if cfg.Config == nil {
+	if cfg == nil || cfg.Config == nil {
 		log.Fatalf("ServerConfig.Config is nil")
 	}
 
