@@ -70,16 +70,18 @@ func unaryAuthInterceptor(cfg *ServerConfig) grpc.UnaryServerInterceptor {
 			log.Errorf("unaryAuthInterceptor: no metadata found")
 			return nil, errors.New("unauthorized")
 		}
-		if len(md["authorization"]) < 1 {
+
+		token := tokenFromGrpcMetadata(md)
+		if token == "" {
 			log.Errorf("unaryAuthInterceptor: no token found")
 			return nil, errors.New("unauthorized")
 		}
-		// The keys within metadata.MD are normalized to lowercase.
-		// See: https://godoc.org/google.golang.org/grpc/metadata#New
-		if md["authorization"][0] != "Bearer "+cfg.Config.InternalApi.Token {
+
+		if token != cfg.Config.InternalApi.Token {
 			log.Errorf("unaryAuthInterceptor: invalid token")
 			return nil, errors.New("unauthorized")
 		}
+
 		return handler(ctx, req)
 	}
 }
@@ -143,4 +145,21 @@ func unaryAttachUsecaseInterceptor(cfg *ServerConfig) grpc.UnaryServerIntercepto
 
 		return handler(ctx, req)
 	}
+}
+
+func tokenFromGrpcMetadata(md metadata.MD) string {
+	// The keys within metadata.MD are normalized to lowercase.
+	// See: https://godoc.org/google.golang.org/grpc/metadata#New
+	if len(md["authorization"]) < 1 {
+		return ""
+	}
+	token := md["authorization"][0]
+	if !strings.HasPrefix(token, "Bearer ") {
+		return ""
+	}
+	token = strings.TrimPrefix(md["authorization"][0], "Bearer ")
+	if token == "" {
+		return ""
+	}
+	return token
 }
