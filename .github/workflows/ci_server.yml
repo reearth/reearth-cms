@@ -28,6 +28,11 @@ jobs:
           go mod tidy
           git diff --exit-code go.mod go.sum
         working-directory: server
+      - name: Check gql generation
+        working-directory: server
+        run: |
+          go generate ./internal/adapter/gql
+          git diff --exit-code ./internal/adapter/gql
   ci-server-i18n:
     name: i18n
     runs-on: ubuntu-latest
