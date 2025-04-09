@@ -78,6 +78,7 @@ type ComplexityRoot struct {
 	Asset struct {
 		ArchiveExtractionStatus func(childComplexity int) int
 		ContentEncoding         func(childComplexity int) int
+		ContentType             func(childComplexity int) int
 		CreatedAt               func(childComplexity int) int
 		CreatedBy               func(childComplexity int) int
 		CreatedByID             func(childComplexity int) int
@@ -577,6 +578,7 @@ type ComplexityRoot struct {
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) int
 		Requests                  func(childComplexity int, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) int
+		SearchAsset               func(childComplexity int, input gqlmodel.SearchAssetsInput) int
 		SearchItem                func(childComplexity int, input gqlmodel.SearchItemInput) int
 		UserByNameOrEmail         func(childComplexity int, nameOrEmail string) int
 		UserSearch                func(childComplexity int, keyword string) int
@@ -1030,6 +1032,7 @@ type QueryResolver interface {
 	Nodes(ctx context.Context, id []gqlmodel.ID, typeArg gqlmodel.NodeType) ([]gqlmodel.Node, error)
 	AssetFile(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.AssetFile, error)
 	Assets(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error)
+	SearchAsset(ctx context.Context, input gqlmodel.SearchAssetsInput) (*gqlmodel.AssetConnection, error)
 	Groups(ctx context.Context, projectID *gqlmodel.ID, modelID *gqlmodel.ID) ([]*gqlmodel.Group, error)
 	ModelsByGroup(ctx context.Context, groupID gqlmodel.ID) ([]*gqlmodel.Model, error)
 	CheckGroupKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
@@ -1125,6 +1128,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.ContentEncoding(childComplexity), true
+
+	case "Asset.contentType":
+		if e.complexity.Asset.ContentType == nil {
+			break
+		}
+
+		return e.complexity.Asset.ContentType(childComplexity), true
 
 	case "Asset.createdAt":
 		if e.complexity.Asset.CreatedAt == nil {
@@ -3587,6 +3597,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Requests(childComplexity, args["projectId"].(gqlmodel.ID), args["key"].(*string), args["state"].([]gqlmodel.RequestState), args["createdBy"].(*gqlmodel.ID), args["reviewer"].(*gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination), args["sort"].(*gqlmodel.Sort)), true
 
+	case "Query.searchAsset":
+		if e.complexity.Query.SearchAsset == nil {
+			break
+		}
+
+		args, err := ec.field_Query_searchAsset_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SearchAsset(childComplexity, args["input"].(gqlmodel.SearchAssetsInput)), true
+
 	case "Query.searchItem":
 		if e.complexity.Query.SearchItem == nil {
 			break
@@ -4857,6 +4879,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAddUsersToWorkspaceInput,
 		ec.unmarshalInputAndConditionInput,
 		ec.unmarshalInputApproveRequestInput,
+		ec.unmarshalInputAssetQueryInput,
 		ec.unmarshalInputAssetSort,
 		ec.unmarshalInputBasicFieldConditionInput,
 		ec.unmarshalInputBoolFieldConditionInput,
@@ -4935,6 +4958,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldTypePropertyInput,
 		ec.unmarshalInputSchemaFieldURLInput,
 		ec.unmarshalInputSchemaMarkdownTextInput,
+		ec.unmarshalInputSearchAssetsInput,
 		ec.unmarshalInputSearchItemInput,
 		ec.unmarshalInputSort,
 		ec.unmarshalInputStringFieldConditionInput,
@@ -5180,6 +5204,7 @@ schema {
   url: String!
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
+  contentType: String
 }
 
 type AssetItem {
@@ -5213,6 +5238,11 @@ enum ArchiveExtractionStatus {
   IN_PROGRESS
   DONE
   FAILED
+}
+
+enum ContentTypesEnum {
+  JSON
+  GEOJSON
 }
 
 input CreateAssetInput {
@@ -5255,6 +5285,18 @@ input DeleteAssetsInput {
 
 input DecompressAssetInput {
   assetId: ID!
+}
+
+input AssetQueryInput {
+  project: ID!
+  q: String
+  contentTypes: [ContentTypesEnum]
+}
+
+input SearchAssetsInput {
+  query: AssetQueryInput!
+  sort: AssetSort
+  pagination: Pagination
 }
 
 type CreateAssetPayload {
@@ -5321,6 +5363,7 @@ input AssetSort {
 extend type Query {
   assetFile(assetId: ID!): AssetFile!
   assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
+  searchAsset(input: SearchAssetsInput!): AssetConnection!
 }
 
 extend type Mutation {
@@ -9569,6 +9612,34 @@ func (ec *executionContext) field_Query_requests_argsSort(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Query_searchAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_searchAsset_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_searchAsset_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.SearchAssetsInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.SearchAssetsInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNSearchAssetsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSearchAssetsInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.SearchAssetsInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query_searchItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -10695,6 +10766,47 @@ func (ec *executionContext) fieldContext_Asset_archiveExtractionStatus(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_contentType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_contentType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_contentType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AssetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AssetConnection_edges(ctx, field)
 	if err != nil {
@@ -10818,6 +10930,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(_ context.Context
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Asset_contentType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -11037,6 +11151,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(_ context.Context, field
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Asset_contentType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -12515,6 +12631,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Asset_contentType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -12904,6 +13022,8 @@ func (ec *executionContext) fieldContext_DecompressAssetPayload_asset(_ context.
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Asset_contentType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -16098,6 +16218,8 @@ func (ec *executionContext) fieldContext_Item_assets(_ context.Context, field gr
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Asset_contentType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -24827,6 +24949,71 @@ func (ec *executionContext) fieldContext_Query_assets(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_searchAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_searchAsset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchAsset(rctx, fc.Args["input"].(gqlmodel.SearchAssetsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.AssetConnection)
+	fc.Result = res
+	return ec.marshalNAssetConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_searchAsset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "edges":
+				return ec.fieldContext_AssetConnection_edges(ctx, field)
+			case "nodes":
+				return ec.fieldContext_AssetConnection_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_AssetConnection_pageInfo(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_AssetConnection_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AssetConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_searchAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_groups(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_groups(ctx, field)
 	if err != nil {
@@ -31314,6 +31501,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Asset_contentType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -36247,6 +36436,47 @@ func (ec *executionContext) unmarshalInputApproveRequestInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAssetQueryInput(ctx context.Context, obj any) (gqlmodel.AssetQueryInput, error) {
+	var it gqlmodel.AssetQueryInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"project", "q", "contentTypes"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "project":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("project"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Project = data
+		case "q":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Q = data
+		case "contentTypes":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contentTypes"))
+			data, err := ec.unmarshalOContentTypesEnum2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ContentTypes = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj any) (gqlmodel.AssetSort, error) {
 	var it gqlmodel.AssetSort
 	asMap := map[string]any{}
@@ -40090,6 +40320,47 @@ func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSearchAssetsInput(ctx context.Context, obj any) (gqlmodel.SearchAssetsInput, error) {
+	var it gqlmodel.SearchAssetsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"query", "sort", "pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalNAssetQueryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetQueryInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		case "sort":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+			data, err := ec.unmarshalOAssetSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sort = data
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, obj any) (gqlmodel.SearchItemInput, error) {
 	var it gqlmodel.SearchItemInput
 	asMap := map[string]any{}
@@ -41519,13 +41790,20 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.AndCondition:
-		return ec._AndCondition(ctx, sel, &obj)
-	case *gqlmodel.AndCondition:
+	case gqlmodel.TimeFieldCondition:
+		return ec._TimeFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.TimeFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._AndCondition(ctx, sel, obj)
+		return ec._TimeFieldCondition(ctx, sel, obj)
+	case gqlmodel.StringFieldCondition:
+		return ec._StringFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.StringFieldCondition:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._StringFieldCondition(ctx, sel, obj)
 	case gqlmodel.OrCondition:
 		return ec._OrCondition(ctx, sel, &obj)
 	case *gqlmodel.OrCondition:
@@ -41533,13 +41811,13 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 			return graphql.Null
 		}
 		return ec._OrCondition(ctx, sel, obj)
-	case gqlmodel.BasicFieldCondition:
-		return ec._BasicFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.BasicFieldCondition:
+	case gqlmodel.NumberFieldCondition:
+		return ec._NumberFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.NumberFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._BasicFieldCondition(ctx, sel, obj)
+		return ec._NumberFieldCondition(ctx, sel, obj)
 	case gqlmodel.NullableFieldCondition:
 		return ec._NullableFieldCondition(ctx, sel, &obj)
 	case *gqlmodel.NullableFieldCondition:
@@ -41561,27 +41839,20 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 			return graphql.Null
 		}
 		return ec._BoolFieldCondition(ctx, sel, obj)
-	case gqlmodel.StringFieldCondition:
-		return ec._StringFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.StringFieldCondition:
+	case gqlmodel.BasicFieldCondition:
+		return ec._BasicFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.BasicFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._StringFieldCondition(ctx, sel, obj)
-	case gqlmodel.NumberFieldCondition:
-		return ec._NumberFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.NumberFieldCondition:
+		return ec._BasicFieldCondition(ctx, sel, obj)
+	case gqlmodel.AndCondition:
+		return ec._AndCondition(ctx, sel, &obj)
+	case *gqlmodel.AndCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._NumberFieldCondition(ctx, sel, obj)
-	case gqlmodel.TimeFieldCondition:
-		return ec._TimeFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.TimeFieldCondition:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TimeFieldCondition(ctx, sel, obj)
+		return ec._AndCondition(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41591,83 +41862,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.Asset:
-		return ec._Asset(ctx, sel, &obj)
-	case *gqlmodel.Asset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Asset(ctx, sel, obj)
-	case gqlmodel.Group:
-		return ec._Group(ctx, sel, &obj)
-	case *gqlmodel.Group:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Group(ctx, sel, obj)
-	case gqlmodel.Integration:
-		return ec._Integration(ctx, sel, &obj)
-	case *gqlmodel.Integration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Integration(ctx, sel, obj)
-	case gqlmodel.Item:
-		return ec._Item(ctx, sel, &obj)
-	case *gqlmodel.Item:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Item(ctx, sel, obj)
-	case gqlmodel.View:
-		return ec._View(ctx, sel, &obj)
-	case *gqlmodel.View:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._View(ctx, sel, obj)
-	case gqlmodel.Model:
-		return ec._Model(ctx, sel, &obj)
-	case *gqlmodel.Model:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Model(ctx, sel, obj)
-	case gqlmodel.Project:
-		return ec._Project(ctx, sel, &obj)
-	case *gqlmodel.Project:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Project(ctx, sel, obj)
-	case gqlmodel.Request:
-		return ec._Request(ctx, sel, &obj)
-	case *gqlmodel.Request:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Request(ctx, sel, obj)
-	case gqlmodel.Schema:
-		return ec._Schema(ctx, sel, &obj)
-	case *gqlmodel.Schema:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Schema(ctx, sel, obj)
-	case gqlmodel.User:
-		return ec._User(ctx, sel, &obj)
-	case *gqlmodel.User:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._User(ctx, sel, obj)
-	case gqlmodel.Workspace:
-		return ec._Workspace(ctx, sel, &obj)
-	case *gqlmodel.Workspace:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Workspace(ctx, sel, obj)
 	case gqlmodel.WorkspaceSettings:
 		return ec._WorkspaceSettings(ctx, sel, &obj)
 	case *gqlmodel.WorkspaceSettings:
@@ -41675,6 +41869,83 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._WorkspaceSettings(ctx, sel, obj)
+	case gqlmodel.Workspace:
+		return ec._Workspace(ctx, sel, &obj)
+	case *gqlmodel.Workspace:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Workspace(ctx, sel, obj)
+	case gqlmodel.View:
+		return ec._View(ctx, sel, &obj)
+	case *gqlmodel.View:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._View(ctx, sel, obj)
+	case gqlmodel.User:
+		return ec._User(ctx, sel, &obj)
+	case *gqlmodel.User:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
+	case gqlmodel.Schema:
+		return ec._Schema(ctx, sel, &obj)
+	case *gqlmodel.Schema:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Schema(ctx, sel, obj)
+	case gqlmodel.Request:
+		return ec._Request(ctx, sel, &obj)
+	case *gqlmodel.Request:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Request(ctx, sel, obj)
+	case gqlmodel.Project:
+		return ec._Project(ctx, sel, &obj)
+	case *gqlmodel.Project:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Project(ctx, sel, obj)
+	case gqlmodel.Model:
+		return ec._Model(ctx, sel, &obj)
+	case *gqlmodel.Model:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Model(ctx, sel, obj)
+	case gqlmodel.Item:
+		return ec._Item(ctx, sel, &obj)
+	case *gqlmodel.Item:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Item(ctx, sel, obj)
+	case gqlmodel.Integration:
+		return ec._Integration(ctx, sel, &obj)
+	case *gqlmodel.Integration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Integration(ctx, sel, obj)
+	case gqlmodel.Group:
+		return ec._Group(ctx, sel, &obj)
+	case *gqlmodel.Group:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Group(ctx, sel, obj)
+	case gqlmodel.Asset:
+		return ec._Asset(ctx, sel, &obj)
+	case *gqlmodel.Asset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Asset(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41730,90 +42001,6 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.SchemaFieldText:
-		return ec._SchemaFieldText(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldText:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldText(ctx, sel, obj)
-	case gqlmodel.SchemaFieldTextArea:
-		return ec._SchemaFieldTextArea(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldTextArea:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldTextArea(ctx, sel, obj)
-	case gqlmodel.SchemaFieldRichText:
-		return ec._SchemaFieldRichText(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldRichText:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldRichText(ctx, sel, obj)
-	case gqlmodel.SchemaFieldMarkdown:
-		return ec._SchemaFieldMarkdown(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldMarkdown:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldMarkdown(ctx, sel, obj)
-	case gqlmodel.SchemaFieldAsset:
-		return ec._SchemaFieldAsset(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldAsset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldAsset(ctx, sel, obj)
-	case gqlmodel.SchemaFieldDate:
-		return ec._SchemaFieldDate(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldDate:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldDate(ctx, sel, obj)
-	case gqlmodel.SchemaFieldBool:
-		return ec._SchemaFieldBool(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldBool:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldBool(ctx, sel, obj)
-	case gqlmodel.SchemaFieldSelect:
-		return ec._SchemaFieldSelect(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldSelect:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldSelect(ctx, sel, obj)
-	case gqlmodel.SchemaFieldTag:
-		return ec._SchemaFieldTag(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldTag:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldTag(ctx, sel, obj)
-	case gqlmodel.SchemaFieldInteger:
-		return ec._SchemaFieldInteger(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldInteger:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldInteger(ctx, sel, obj)
-	case gqlmodel.SchemaFieldNumber:
-		return ec._SchemaFieldNumber(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldNumber:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldNumber(ctx, sel, obj)
-	case gqlmodel.SchemaFieldReference:
-		return ec._SchemaFieldReference(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldReference:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldReference(ctx, sel, obj)
 	case gqlmodel.SchemaFieldURL:
 		return ec._SchemaFieldURL(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldURL:
@@ -41821,13 +42008,69 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldURL(ctx, sel, obj)
-	case gqlmodel.SchemaFieldCheckbox:
-		return ec._SchemaFieldCheckbox(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldCheckbox:
+	case gqlmodel.SchemaFieldTextArea:
+		return ec._SchemaFieldTextArea(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldTextArea:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SchemaFieldCheckbox(ctx, sel, obj)
+		return ec._SchemaFieldTextArea(ctx, sel, obj)
+	case gqlmodel.SchemaFieldText:
+		return ec._SchemaFieldText(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldText:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldText(ctx, sel, obj)
+	case gqlmodel.SchemaFieldTag:
+		return ec._SchemaFieldTag(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldTag:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldTag(ctx, sel, obj)
+	case gqlmodel.SchemaFieldSelect:
+		return ec._SchemaFieldSelect(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldSelect:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldSelect(ctx, sel, obj)
+	case gqlmodel.SchemaFieldRichText:
+		return ec._SchemaFieldRichText(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldRichText:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldRichText(ctx, sel, obj)
+	case gqlmodel.SchemaFieldReference:
+		return ec._SchemaFieldReference(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldReference:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldReference(ctx, sel, obj)
+	case gqlmodel.SchemaFieldNumber:
+		return ec._SchemaFieldNumber(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldNumber:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldNumber(ctx, sel, obj)
+	case gqlmodel.SchemaFieldMarkdown:
+		return ec._SchemaFieldMarkdown(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldMarkdown:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldMarkdown(ctx, sel, obj)
+	case gqlmodel.SchemaFieldInteger:
+		return ec._SchemaFieldInteger(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldInteger:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldInteger(ctx, sel, obj)
 	case gqlmodel.SchemaFieldGroup:
 		return ec._SchemaFieldGroup(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldGroup:
@@ -41849,6 +42092,34 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldGeometryEditor(ctx, sel, obj)
+	case gqlmodel.SchemaFieldDate:
+		return ec._SchemaFieldDate(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldDate:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldDate(ctx, sel, obj)
+	case gqlmodel.SchemaFieldCheckbox:
+		return ec._SchemaFieldCheckbox(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldCheckbox:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldCheckbox(ctx, sel, obj)
+	case gqlmodel.SchemaFieldBool:
+		return ec._SchemaFieldBool(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldBool:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldBool(ctx, sel, obj)
+	case gqlmodel.SchemaFieldAsset:
+		return ec._SchemaFieldAsset(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldAsset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldAsset(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -42161,6 +42432,8 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "archiveExtractionStatus":
 			out.Values[i] = ec._Asset_archiveExtractionStatus(ctx, field, obj)
+		case "contentType":
+			out.Values[i] = ec._Asset_contentType(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -46401,6 +46674,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "searchAsset":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_searchAsset(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "groups":
 			field := field
 
@@ -50007,9 +50302,7 @@ func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.S
 
 func (ec *executionContext) unmarshalNAny2ᚕinterfaceᚄ(ctx context.Context, v any) ([]any, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]any, len(vSlice))
 	for i := range vSlice {
@@ -50182,6 +50475,11 @@ func (ec *executionContext) marshalNAssetItem2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._AssetItem(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNAssetQueryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetQueryInput(ctx context.Context, v any) (*gqlmodel.AssetQueryInput, error) {
+	res, err := ec.unmarshalInputAssetQueryInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx context.Context, v any) (gqlmodel.AssetSortType, error) {
 	var res gqlmodel.AssetSortType
 	err := res.UnmarshalGQL(v)
@@ -50352,9 +50650,7 @@ func (ec *executionContext) marshalNCondition2ᚕgithubᚗcomᚋreearthᚋreeart
 
 func (ec *executionContext) unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ConditionInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ConditionInput, len(vSlice))
 	for i := range vSlice {
@@ -50615,9 +50911,7 @@ func (ec *executionContext) marshalNGeometryEditorSupportedType2githubᚗcomᚋr
 
 func (ec *executionContext) unmarshalNGeometryEditorSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedTypeᚄ(ctx context.Context, v any) ([]gqlmodel.GeometryEditorSupportedType, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.GeometryEditorSupportedType, len(vSlice))
 	for i := range vSlice {
@@ -50686,9 +50980,7 @@ func (ec *executionContext) marshalNGeometryObjectSupportedType2githubᚗcomᚋr
 
 func (ec *executionContext) unmarshalNGeometryObjectSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedTypeᚄ(ctx context.Context, v any) ([]gqlmodel.GeometryObjectSupportedType, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.GeometryObjectSupportedType, len(vSlice))
 	for i := range vSlice {
@@ -50855,9 +51147,7 @@ func (ec *executionContext) marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋ
 
 func (ec *executionContext) unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx context.Context, v any) ([]gqlmodel.ID, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.ID, len(vSlice))
 	for i := range vSlice {
@@ -51180,9 +51470,7 @@ func (ec *executionContext) marshalNItemField2ᚖgithubᚗcomᚋreearthᚋreeart
 
 func (ec *executionContext) unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ItemFieldInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ItemFieldInput, len(vSlice))
 	for i := range vSlice {
@@ -51256,9 +51544,7 @@ func (ec *executionContext) marshalNMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 
 func (ec *executionContext) unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInputᚄ(ctx context.Context, v any) ([]*gqlmodel.MemberInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.MemberInput, len(vSlice))
 	for i := range vSlice {
@@ -51704,9 +51990,7 @@ func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearth�
 
 func (ec *executionContext) unmarshalNPublishModelInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInputᚄ(ctx context.Context, v any) ([]*gqlmodel.PublishModelInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.PublishModelInput, len(vSlice))
 	for i := range vSlice {
@@ -51980,9 +52264,7 @@ func (ec *executionContext) marshalNRequestItem2ᚖgithubᚗcomᚋreearthᚋreea
 
 func (ec *executionContext) unmarshalNRequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx context.Context, v any) ([]*gqlmodel.RequestItemInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.RequestItemInput, len(vSlice))
 	for i := range vSlice {
@@ -52066,9 +52348,7 @@ func (ec *executionContext) marshalNResource2ᚕgithubᚗcomᚋreearthᚋreearth
 
 func (ec *executionContext) unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ResourceInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ResourceInput, len(vSlice))
 	for i := range vSlice {
@@ -52240,9 +52520,7 @@ func (ec *executionContext) marshalNSchemaFieldTagValue2ᚖgithubᚗcomᚋreeart
 
 func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInputᚄ(ctx context.Context, v any) ([]*gqlmodel.SchemaFieldTagValueInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.SchemaFieldTagValueInput, len(vSlice))
 	for i := range vSlice {
@@ -52275,6 +52553,11 @@ func (ec *executionContext) unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗc
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNSearchAssetsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSearchAssetsInput(ctx context.Context, v any) (gqlmodel.SearchAssetsInput, error) {
+	res, err := ec.unmarshalInputSearchAssetsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNSearchItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSearchItemInput(ctx context.Context, v any) (gqlmodel.SearchItemInput, error) {
 	res, err := ec.unmarshalInputSearchItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -52297,9 +52580,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 
 func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -52424,9 +52705,7 @@ func (ec *executionContext) unmarshalNUpdateFieldInput2githubᚗcomᚋreearthᚋ
 
 func (ec *executionContext) unmarshalNUpdateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.UpdateFieldInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.UpdateFieldInput, len(vSlice))
 	for i := range vSlice {
@@ -52942,9 +53221,7 @@ func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Conte
 
 func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -53380,9 +53657,7 @@ func (ec *executionContext) unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋ
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ColumnSelectionInput, len(vSlice))
 	for i := range vSlice {
@@ -53415,6 +53690,81 @@ func (ec *executionContext) unmarshalOConditionInput2ᚖgithubᚗcomᚋreearth�
 	}
 	res, err := ec.unmarshalInputConditionInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOContentTypesEnum2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx context.Context, v any) ([]*gqlmodel.ContentTypesEnum, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*gqlmodel.ContentTypesEnum, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOContentTypesEnum2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOContentTypesEnum2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ContentTypesEnum) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOContentTypesEnum2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOContentTypesEnum2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx context.Context, v any) (*gqlmodel.ContentTypesEnum, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.ContentTypesEnum)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOContentTypesEnum2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐContentTypesEnum(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ContentTypesEnum) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOCorrespondingFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingFieldInput(ctx context.Context, v any) (*gqlmodel.CorrespondingFieldInput, error) {
@@ -53647,9 +53997,7 @@ func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑc
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.ID, len(vSlice))
 	for i := range vSlice {
@@ -54087,9 +54435,7 @@ func (ec *executionContext) unmarshalORequestItemInput2ᚕᚖgithubᚗcomᚋreea
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.RequestItemInput, len(vSlice))
 	for i := range vSlice {
@@ -54114,9 +54460,7 @@ func (ec *executionContext) unmarshalORequestState2ᚕgithubᚗcomᚋreearthᚋr
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.RequestState, len(vSlice))
 	for i := range vSlice {
@@ -54212,9 +54556,7 @@ func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearth�
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.Role, len(vSlice))
 	for i := range vSlice {
@@ -54484,9 +54826,7 @@ func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {

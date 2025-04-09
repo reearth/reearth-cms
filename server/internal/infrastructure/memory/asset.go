@@ -81,6 +81,34 @@ func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.
 
 }
 
+func (r *Asset) Search(ctx context.Context, id id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(id) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
+	result := asset.List(r.data.FindAll(func(_ asset.ID, v *asset.Asset) bool {
+		return v.Project() == id
+	})).SortByID()
+
+	var startCursor, endCursor *usecasex.Cursor
+	if len(result) > 0 {
+		startCursor = lo.ToPtr(usecasex.Cursor(result[0].ID().String()))
+		endCursor = lo.ToPtr(usecasex.Cursor(result[len(result)-1].ID().String()))
+	}
+
+	return result, usecasex.NewPageInfo(
+		int64(len(result)),
+		startCursor,
+		endCursor,
+		true,
+		true,
+	), nil
+}
+
 func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
 	if !r.f.CanWrite(a.Project()) {
 		return repo.ErrOperationDenied

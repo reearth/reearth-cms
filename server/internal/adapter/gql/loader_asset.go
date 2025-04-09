@@ -91,3 +91,66 @@ func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 		TotalCount: int(pi.TotalCount),
 	}, nil
 }
+
+func (c *AssetLoader) Search(ctx context.Context, query gqlmodel.AssetQueryInput, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+	projectID, err := gqlmodel.ToID[id.Project](query.Project)
+	if err != nil {
+		return nil, err
+	}
+
+	var contentTypesFilter []string
+	var ok bool
+	// convert ContentTypes to string slice
+	if query.ContentTypes != nil {
+		contentTypesFilter = make([]string, len(query.ContentTypes))
+		for i, ct := range query.ContentTypes {
+			contentTypesFilter[i], ok = MapContentTypeEnum(ct.String())
+			if !ok {
+				return nil, gqlmodel.ErrInvalidContentTypes
+			}
+		}
+	}
+	filter := interfaces.AssetFilter{
+		Keyword:      query.Q,
+		Sort:         sort.Into(),
+		Pagination:   pagination.Into(),
+		ContentTypes: contentTypesFilter,
+	}
+
+	assets, pi, err := c.usecase.Search(ctx, projectID, filter, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	edges := make([]*gqlmodel.AssetEdge, 0, len(assets))
+	nodes := make([]*gqlmodel.Asset, 0, len(assets))
+	for _, a := range assets {
+		asset := gqlmodel.ToAsset(a, c.usecase.GetURL)
+		edges = append(edges, &gqlmodel.AssetEdge{
+			Node:   asset,
+			Cursor: usecasex.Cursor(asset.ID),
+		})
+		nodes = append(nodes, asset)
+	}
+
+	return &gqlmodel.AssetConnection{
+		Edges:      edges,
+		Nodes:      nodes,
+		PageInfo:   gqlmodel.ToPageInfo(pi),
+		TotalCount: int(pi.TotalCount),
+	}, nil
+}
+
+func MapContentTypeEnum(enum string) (string, bool) {
+	enumToMime := map[string]string{
+		"JSON":    "application/json",
+		"GEOJSON": "application/geo+json",
+		"CSV":     "text/csv",
+		"HTML":    "text/html",
+		"XML":     "application/xml",
+		"PDF":     "application/pdf",
+		"PLAIN":   "text/plain",
+	}
+
+	mime, ok := enumToMime[enum]
+	return mime, ok
+}
