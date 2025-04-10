@@ -84,12 +84,12 @@ message CreateProjectResponse {
 
 message ListProjectsResponse {
   repeated Project projects = 1;
-  int32 total_count = 3;
+  int32 total_count = 2;
 }
 
 message ListModelsResponse {
   repeated Model models = 1;
-  int32 total_count = 3;
+  int32 total_count = 2;
 }
 
 message ExportURLResponse {
