@@ -42,7 +42,7 @@ func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest)
 	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
 		WorkspaceID:  wId,
 		Name:         &req.Name,
-		Description:  &req.Description,
+		Description:  req.Description,
 		Alias:        &req.Alias,
 		RequestRoles: []workspace.Role{},
 	}, op)
