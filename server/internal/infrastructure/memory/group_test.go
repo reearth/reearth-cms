@@ -363,7 +363,7 @@ func TestGroupRepo_FindByProject(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByProject(ctx, tc.args.tid, nil)
+			got, err := r.FindByProject(ctx, tc.args.tid)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

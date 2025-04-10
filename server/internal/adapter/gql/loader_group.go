@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -50,9 +49,7 @@ func (c *GroupLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID) 
 		return nil, err
 	}
 
-	// TODO: implement pagination in gql
-	p := &usecasex.Pagination{Cursor: &usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}}
-	res, _, err := c.usecase.FindByProject(ctx, pId, p, getOperator(ctx))
+	res, err := c.usecase.FindByProject(ctx, pId, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

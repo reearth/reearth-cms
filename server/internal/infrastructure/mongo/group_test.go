@@ -10,8 +10,6 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -375,8 +373,7 @@ func TestGroupRepo_FindByProject(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			p := &usecasex.Pagination{Cursor: &usecasex.CursorPagination{First: lo.ToPtr(int64(10))}}
-			got, _, err := r.FindByProject(ctx, tc.args.tid, p)
+			got, err := r.FindByProject(ctx, tc.args.tid)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

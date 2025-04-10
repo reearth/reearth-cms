@@ -60,7 +60,7 @@ func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List,
 	return group.List(result).SortByID(), nil
 }
 
-func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID, _ *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
+func (r *Group) Filter(ctx context.Context, pid id.ProjectID, _ *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -76,6 +76,22 @@ func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID, _ *usecasex
 	})).SortByID()
 
 	return result, nil, nil
+}
+
+func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	if !r.f.CanRead(pid) {
+		return nil, nil
+	}
+
+	result := group.List(r.data.FindAll(func(_ id.GroupID, m *group.Group) bool {
+		return m.Project() == pid
+	})).SortByID()
+
+	return result, nil
 }
 
 func (r *Group) FindByKey(ctx context.Context, pid id.ProjectID, key string) (*group.Group, error) {

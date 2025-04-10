@@ -60,13 +60,26 @@ func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List,
 	return prepareGroups(list, res), nil
 }
 
-func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID, pagination *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
+func (r *Group) Filter(ctx context.Context, pid id.ProjectID, pagination *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
 	return r.paginate(ctx, bson.M{
 		"project": pid.String(),
 	}, nil, pagination)
+}
+
+func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
+	if !r.f.CanRead(pid) {
+		return nil, nil
+	}
+	res, err := r.find(ctx, bson.M{
+		"project": pid.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (r *Group) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*group.Group, error) {
