@@ -72,7 +72,7 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, headers m
 	if p == "" {
 		return nil, nil, rerror.ErrNotFound
 	}
-	return f.read(ctx, p, headers)
+	return f.Read(ctx, p, headers)
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
@@ -279,7 +279,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	return file, nil
 }
 
-func (f *fileRepo) read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
+func (f *fileRepo) Read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
 	if filename == "" {
 		return nil, nil, rerror.ErrNotFound
 	}

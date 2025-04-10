@@ -64,6 +64,7 @@ type File interface {
 	ReadAsset(context.Context, string, string, map[string]string) (io.ReadCloser, map[string]string, error)
 	GetAssetFiles(context.Context, string) ([]FileEntry, error)
 	UploadAsset(context.Context, *file.File) (string, int64, error)
+	Read(context.Context, string, map[string]string) (io.ReadCloser, map[string]string, error)
 	Upload(context.Context, *file.File, string) (int64, error)
 	DeleteAsset(context.Context, string, string) error
 	DeleteAssets(context.Context, []string) error

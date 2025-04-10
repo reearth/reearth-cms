@@ -43,14 +43,14 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	}, nil
 }
 
-func (f *fileRepo) ReadAsset(_ context.Context, fileUUID string, fn string, _ map[string]string) (io.ReadCloser, map[string]string, error) {
+func (f *fileRepo) ReadAsset(ctx context.Context, fileUUID string, fn string, h map[string]string) (io.ReadCloser, map[string]string, error) {
 	if fileUUID == "" || fn == "" {
 		return nil, nil, rerror.ErrNotFound
 	}
 
 	p := getFSObjectPath(fileUUID, fn)
 
-	return f.read(p)
+	return f.Read(ctx, p, h)
 }
 
 func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string) ([]gateway.FileEntry, error) {
@@ -142,7 +142,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 
 // helpers
 
-func (f *fileRepo) read(filename string) (io.ReadCloser, map[string]string, error) {
+func (f *fileRepo) Read(_ context.Context, filename string, _ map[string]string) (io.ReadCloser, map[string]string, error) {
 	if filename == "" {
 		return nil, nil, rerror.ErrNotFound
 	}
