@@ -24,11 +24,12 @@ service ReEarthCMS {
 message Project {
   string id = 1;
   string name = 2;
-  string description = 3;
-  string workspace_id = 4;
-  ProjectPublication publication = 5;
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  string alias = 3;
+  optional string description = 4;
+  string workspace_id = 5;
+  ProjectPublication publication = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
 
 message ProjectPublication {
@@ -59,7 +60,7 @@ message Model {
 message CreateProjectRequest {
   string workspace_id = 1;
   string name = 2;
-  string description = 3;
+  optional string description = 3;
   string alias = 4;
   ProjectPublication publication = 5;
 }

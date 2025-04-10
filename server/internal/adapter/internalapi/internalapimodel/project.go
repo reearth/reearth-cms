@@ -3,6 +3,7 @@ package internalapimodel
 import (
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -14,7 +15,8 @@ func ToProject(p *project.Project) *pb.Project {
 	return &pb.Project{
 		Id:          p.ID().String(),
 		Name:        p.Name(),
-		Description: p.Description(),
+		Alias:       p.Alias(),
+		Description: lo.ToPtr(p.Description()),
 		WorkspaceId: p.Workspace().String(),
 		Publication: ToProjectPublication(p.Publication()),
 		CreatedAt:   timestamppb.New(p.ID().Timestamp()),
