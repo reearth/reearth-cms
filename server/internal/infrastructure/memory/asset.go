@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -79,6 +80,47 @@ func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.
 		true,
 	), nil
 
+}
+
+func (r *Asset) Search(ctx context.Context, id id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(id) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
+	result := asset.List(r.data.FindAll(func(_ asset.ID, v *asset.Asset) bool {
+		// Base filter: project ID match
+		if v.Project() != id {
+			return false
+		}
+
+		// Keyword filter
+		if filter.Keyword != nil && *filter.Keyword != "" {
+			if !strings.Contains(strings.ToLower(v.FileName()), strings.ToLower(*filter.Keyword)) {
+				return false
+			}
+		}
+		// Content type filter can't be performed as it's not stored in memory
+
+		return true
+	})).SortByID()
+
+	var startCursor, endCursor *usecasex.Cursor
+	if len(result) > 0 {
+		startCursor = lo.ToPtr(usecasex.Cursor(result[0].ID().String()))
+		endCursor = lo.ToPtr(usecasex.Cursor(result[len(result)-1].ID().String()))
+	}
+
+	return result, usecasex.NewPageInfo(
+		int64(len(result)),
+		startCursor,
+		endCursor,
+		true,
+		true,
+	), nil
 }
 
 func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
