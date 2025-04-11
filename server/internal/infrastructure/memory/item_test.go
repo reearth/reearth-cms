@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -10,10 +11,13 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -275,4 +279,47 @@ func TestItem_FindByAssets(t *testing.T) {
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)
 	assert.Same(t, wantErr, r.Save(ctx, i))
+}
+func TestItem_Copy(t *testing.T) {
+	ctx := context.Background()
+	r := NewItem()
+
+	s1 := id.NewSchemaID()
+	s2 := id.NewSchemaID()
+	m2 := id.NewModelID()
+	timestamp := time.Now()
+	uid := accountdomain.NewUserID().Ref().StringRef()
+	params := repo.CopyParams{
+		OldSchema:   s1,
+		NewSchema:   s2,
+		NewModel:    m2,
+		Timestamp:   timestamp,
+		User:        uid,
+		Integration: nil,
+	}
+
+	filter, changes, err := r.Copy(ctx, params)
+	assert.NoError(t, err)
+
+	wantFilter, err := json.Marshal(map[string]any{"schema": params.OldSchema.String()})
+	assert.NoError(t, err)
+	assert.Equal(t, filter, lo.ToPtr(string(wantFilter)))
+
+	wantChanges, err := json.Marshal(task.Changes{
+		"id":                   {Type: task.ChangeTypeULID, Value: params.Timestamp.UnixMilli()},
+		"schema":               {Type: task.ChangeTypeSet, Value: params.NewSchema.String()},
+		"modelid":              {Type: task.ChangeTypeSet, Value: params.NewModel.String()},
+		"timestamp":            {Type: task.ChangeTypeSet, Value: params.Timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00")},
+		"updatedbyuser":        {Type: task.ChangeTypeSet, Value: nil},
+		"updatedbyintegration": {Type: task.ChangeTypeSet, Value: nil},
+		"originalitem":         {Type: task.ChangeTypeULID, Value: params.Timestamp.UnixMilli()},
+		"metadataitem":         {Type: task.ChangeTypeULID, Value: params.Timestamp.UnixMilli()},
+		"thread":               {Type: task.ChangeTypeSet, Value: nil},
+		"__r":                  {Type: task.ChangeTypeSet, Value: []string{"latest"}},
+		"__w":                  {Type: task.ChangeTypeSet, Value: nil},
+		"__v":                  {Type: task.ChangeTypeNew, Value: "version"},
+		"user":                 {Type: task.ChangeTypeSet, Value: *params.User},
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, changes, lo.ToPtr(string(wantChanges)))
 }

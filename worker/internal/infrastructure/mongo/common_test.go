@@ -3,5 +3,5 @@ package mongo
 import "github.com/reearth/reearthx/mongox/mongotest"
 
 func init() {
-	mongotest.Env = "REEARTH_CMS_WORKER_DB"
+	mongotest.Env = "REEARTH_CMS_DB"
 }
