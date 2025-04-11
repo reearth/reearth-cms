@@ -147,19 +147,23 @@ const Schema: React.FC<Props> = ({
   }, [onAssetSelect]);
 
   const handleSchemaImport = useCallback(() => {
-    Modal.confirm({
-      title: t("Are you sure you want to overwrite current schema?"),
-      content: (
-        <>{t("Importing a new schema will replace the existing fields and cannot be undone.")}</>
-      ),
-      icon: <Icon icon="exclamationCircle" />,
-      cancelText: t("Cancel"),
-      okText: t("Continue"),
-      async onOk() {
-        await handleSchemaImportModalOpen();
-      },
-    });
-  }, [handleSchemaImportModalOpen, t]);
+    if (data?.schema.fields && data.schema.fields.length > 0) {
+      Modal.confirm({
+        title: t("Are you sure you want to overwrite current schema?"),
+        content: (
+          <>{t("Importing a new schema will replace the existing fields and cannot be undone.")}</>
+        ),
+        icon: <Icon icon="exclamationCircle" />,
+        cancelText: t("Cancel"),
+        okText: t("Continue"),
+        async onOk() {
+          await handleSchemaImportModalOpen();
+        },
+      });
+    } else {
+      handleSchemaImportModalOpen();
+    }
+  }, [data?.schema.fields, handleSchemaImportModalOpen, t]);
 
   const dropdownItems = useMemo(
     () => [
