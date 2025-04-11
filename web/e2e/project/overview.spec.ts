@@ -16,12 +16,9 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
   await expect(page.getByText("No Models yet")).toBeVisible();
   await page.getByRole("button", { name: "plus New Model" }).first().click();
   await expect(page.getByLabel("New Model").getByText("New Model")).toBeVisible();
-  await page.getByLabel("Model name").click();
-  await page.getByLabel("Model name").fill("model name");
-  await page.getByLabel("Model description").click();
-  await page.getByLabel("Model description").fill("model description");
-  await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("model key");
+  await page.getByLabel("Model name").fill("model name");
+  await page.getByLabel("Model description").fill("model description");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByTitle("model name")).toBeVisible();
@@ -30,11 +27,8 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
   await page.getByText("Overview").click();
   await page.getByRole("list").locator("a").click();
   await page.getByText("Edit", { exact: true }).click();
-  await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("new model name");
-  await page.getByLabel("Model description").click();
   await page.getByLabel("Model description").fill("new model description");
-  await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("new-model-key");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);

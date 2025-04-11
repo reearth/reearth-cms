@@ -1,13 +1,13 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
-import { createModel } from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await createModel(page);
+  await createModelFromOverview(page);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await page.getByText("Content").click();
