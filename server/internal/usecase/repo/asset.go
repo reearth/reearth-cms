@@ -20,7 +20,6 @@ type Asset interface {
 	FindByProject(context.Context, id.ProjectID, AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.AssetID) (*asset.Asset, error)
 	FindByIDs(context.Context, id.AssetIDList) ([]*asset.Asset, error)
-	// Search queries assets by project ID and filters
 	Search(context.Context, id.ProjectID, AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error)
 	Save(context.Context, *asset.Asset) error
 	Delete(context.Context, id.AssetID) error
