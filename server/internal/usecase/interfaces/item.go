@@ -121,6 +121,7 @@ type ExportItemsToCSVResponse struct {
 
 type ExportItemsToGeoJSONResponse struct {
 	FeatureCollections *integrationapi.FeatureCollection
+	PageInfo           *usecasex.PageInfo
 }
 
 type Item interface {

@@ -58,6 +58,15 @@ func serveFiles(
 			return r, filename, headers, err
 		}),
 	)
+	ec.GET(
+		"/assets/:filename",
+		fileHandler(func(ctx echo.Context) (io.Reader, string, map[string]string, error) {
+			filename := ctx.Param("filename")
+			h := assetHeaders(ctx.Request().Header)
+			r, headers, err := repo.Read(ctx.Request().Context(), filename, h)
+			return r, filename, headers, err
+		}),
+	)
 }
 
 func assetHeaders(h http.Header) map[string]string {

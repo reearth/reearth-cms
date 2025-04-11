@@ -60,6 +60,15 @@ type Config struct {
 	DB_Account string          `default:"reearth_account" pp:",omitempty"`
 	DB_CMS     string          `default:"reearth_cms" pp:",omitempty"`
 	DB_Users   []appx.NamedURI `pp:",omitempty"`
+
+	// internal api
+	InternalApi InternalApiConfig `pp:",omitempty"`
+}
+
+type InternalApiConfig struct {
+	Active bool   `default:"false" pp:",omitempty"`
+	Port   string `default:"50051" pp:",omitempty"`
+	Token  string `default:"" pp:",omitempty"`
 }
 
 type AuthConfig struct {
@@ -341,6 +350,7 @@ func (c *Config) secrets() []string {
 	s := []string{
 		c.DB,
 		c.Auth0.ClientSecret,
+		c.InternalApi.Token,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)
