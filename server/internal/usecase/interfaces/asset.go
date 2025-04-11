@@ -65,7 +65,6 @@ type Asset interface {
 	FindByUUID(context.Context, string, *usecase.Operator) (*asset.Asset, error)
 	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
 	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
-	// Search queries assets by project ID and filters
 	Search(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
 	FindFileByID(context.Context, id.AssetID, *usecase.Operator) (*asset.File, error)
 	FindFilesByIDs(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]*asset.File, error)
