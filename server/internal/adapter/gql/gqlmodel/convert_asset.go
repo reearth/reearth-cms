@@ -1,6 +1,7 @@
 package gqlmodel
 
 import (
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -140,6 +141,27 @@ func ToAssetFile(a *asset.File) *AssetFile {
 		Path:            a.Path(),
 		FilePaths:       a.FilePaths(),
 	}
+}
+
+func AssetsToSchemaFieldData(data *interfaces.AssetSchemaFieldsData) *AssetSchemaFieldResult {
+	// Return nil if input is nil
+	if data == nil {
+		return nil
+	}
+
+	result := &AssetSchemaFieldResult{
+		TotalCount: data.TotalCount,
+		Fields:     make([]*AssetSchemaField, 0, len(data.Fields)),
+	}
+
+	for _, f := range data.Fields {
+		result.Fields = append(result.Fields, &AssetSchemaField{
+			FieldName: f.FieldName,
+			FieldType: f.FieldType,
+		})
+	}
+
+	return result
 }
 
 func (s *AssetSort) Into() *usecasex.Sort {

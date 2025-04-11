@@ -154,9 +154,20 @@ input AssetSort {
   direction: SortDirection
 }
 
+type AssetSchemaField {
+  field_name: String!
+  field_type: String!
+}
+
+type AssetSchemaFieldResult {
+  total_count: Int!
+  fields: [AssetSchemaField!]!
+}
+
 extend type Query {
   assetFile(assetId: ID!): AssetFile!
   assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
+  assetSchemaFields(assetId: ID!): AssetSchemaFieldResult!
 }
 
 extend type Mutation {

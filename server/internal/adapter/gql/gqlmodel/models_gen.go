@@ -122,6 +122,16 @@ type AssetItem struct {
 	ModelID ID `json:"modelId"`
 }
 
+type AssetSchemaField struct {
+	FieldName string `json:"field_name"`
+	FieldType string `json:"field_type"`
+}
+
+type AssetSchemaFieldResult struct {
+	TotalCount int                 `json:"total_count"`
+	Fields     []*AssetSchemaField `json:"fields"`
+}
+
 type AssetSort struct {
 	SortBy    AssetSortType  `json:"sortBy"`
 	Direction *SortDirection `json:"direction,omitempty"`
