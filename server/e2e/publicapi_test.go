@@ -334,7 +334,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		Body().
-		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,102,0.5,ccc,,aaa,\n", publicAPIItem6ID.String()))
+		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,0.5,102,ccc,,aaa,\n", publicAPIItem6ID.String()))
 
 	// no geometry field
 	e.GET("/api/p/{project}/{model}.csv", publicAPIProjectAlias, publicAPIModelKey3).
