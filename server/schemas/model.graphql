@@ -48,6 +48,15 @@ input PublishModelsInput {
   models: [PublishModelInput!]!
 }
 
+input UpdateModelWithSchemaFieldsInput {
+  modelId: ID
+  name: String
+  description: String
+  key: String
+  public: Boolean!
+  fields: [CreateFieldInput!]
+}
+
 # Payloads
 type ModelPayload {
   model: Model!
@@ -91,6 +100,7 @@ extend type Mutation {
   createModel(input: CreateModelInput!): ModelPayload
   updateModel(input: UpdateModelInput!): ModelPayload
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
+  updateModelWithSchemaFields(input: UpdateModelWithSchemaFieldsInput!): ModelPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
   publishModel(input: PublishModelInput!): PublishModelPayload
   publishModels(input: PublishModelsInput!): PublishModelsPayload

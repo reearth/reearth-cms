@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/samber/lo"
 )
 
@@ -92,6 +93,82 @@ func (r *mutationResolver) UpdateModelsOrder(ctx context.Context, input gqlmodel
 			return gqlmodel.ToModel(mod)
 		}),
 	}, nil
+}
+
+// UpdateModelWithSchemaFields is the resolver for the updateModelWithSchemaFields field.
+func (r *mutationResolver) UpdateModelWithSchemaFields(ctx context.Context, input gqlmodel.UpdateModelWithSchemaFieldsInput) (*gqlmodel.ModelPayload, error) {
+	modelID, err := gqlmodel.ToID[id.Model](*input.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	modelUpdateResponse, err := usecases(ctx).Model.Update(ctx, interfaces.UpdateModelParam{
+		ModelID:     modelID,
+		Name:        input.Name,
+		Description: input.Description,
+		Key:         input.Key,
+		Public:      lo.ToPtr(input.Public),
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	gid := gqlmodel.ToIDRef[id.Group](input.Fields[0].GroupID)
+	param := interfaces.FindOrCreateSchemaParam{
+		ModelID:  &modelID,
+		GroupID:  gid,
+		Metadata: input.Fields[0].Metadata,
+		Create:   true,
+	}
+
+	s, er := usecases(ctx).Model.FindOrCreateSchema(ctx, param, getOperator(ctx))
+	if er != nil {
+		return nil, er
+	}
+
+	// delete current fields if any
+	if len(s.Fields()) > 0 {
+		for _, field := range s.Fields() {
+			if err := usecases(ctx).Schema.DeleteField(ctx, s.ID(), field.ID(), getOperator(ctx)); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	schemaFields := make([]*schema.Field, 0)
+	for _, field := range input.Fields {
+		tp, dv, err := gqlmodel.FromSchemaTypeProperty(field.TypeProperty, field.Type, field.Multiple)
+		if err != nil {
+			return nil, err
+		}
+
+		f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
+			ModelID:      &modelID,
+			SchemaID:     s.ID(),
+			Type:         gqlmodel.FromValueType(field.Type),
+			Name:         field.Title,
+			Description:  field.Description,
+			Key:          field.Key,
+			Multiple:     field.Multiple,
+			Unique:       field.Unique,
+			Required:     field.Required,
+			IsTitle:      field.IsTitle,
+			DefaultValue: dv,
+			TypeProperty: tp,
+		}, getOperator(ctx))
+		if err != nil {
+			return nil, err
+		}
+		schemaFields = append(schemaFields, f)
+	}
+
+	modelPayloadResponse := gqlmodel.ModelPayload{
+		Model: gqlmodel.ToModel(modelUpdateResponse),
+	}
+
+	modelPayloadResponse.Model.Schema = gqlmodel.ToSchema(s)
+
+	return &modelPayloadResponse, nil
 }
 
 // DeleteModel is the resolver for the deleteModel field.
