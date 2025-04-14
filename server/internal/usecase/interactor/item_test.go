@@ -1172,7 +1172,7 @@ func TestItem_ItemsAsCSV(t *testing.T) {
 			seedsItems:  item.List{i1},
 			seedSchemas: s1,
 			seedModels:  m1,
-			want:        []byte("id,location_lat,location_lng\n" + i1IDStr + ",139.28179282584915,36.58570985749664\n"),
+			want:        []byte("id,location_lat,location_lng\n" + i1IDStr + ",36.58570985749664,139.28179282584915\n"),
 			wantError:   nil,
 		},
 		{
