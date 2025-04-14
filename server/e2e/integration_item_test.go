@@ -1439,7 +1439,7 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 	f.Value("properties").Object().Value("integer").Number().IsEqual(30)
 	g := f.Value("geometry").Object()
 	g.Value("type").String().IsEqual("LineString")
-	g.Value("coordinates").Array().IsEqual([][]float64{{36.34793305387103, 139.65439725962517}, {35.910803456352724, 139.61688622815393}})
+	g.Value("coordinates").Array().IsEqual([][]float64{{139.65439725962517, 36.34793305387103}, {139.61688622815393, 35.910803456352724}})
 }
 
 // GET /models/{modelId}/items.csv
