@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/samber/lo"
 )
 
@@ -135,14 +134,13 @@ func (r *mutationResolver) UpdateModelWithSchemaFields(ctx context.Context, inpu
 		}
 	}
 
-	schemaFields := make([]*schema.Field, 0)
 	for _, field := range input.Fields {
 		tp, dv, err := gqlmodel.FromSchemaTypeProperty(field.TypeProperty, field.Type, field.Multiple)
 		if err != nil {
 			return nil, err
 		}
 
-		f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
+		_, err = usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
 			ModelID:      &modelID,
 			SchemaID:     s.ID(),
 			Type:         gqlmodel.FromValueType(field.Type),
@@ -159,7 +157,6 @@ func (r *mutationResolver) UpdateModelWithSchemaFields(ctx context.Context, inpu
 		if err != nil {
 			return nil, err
 		}
-		schemaFields = append(schemaFields, f)
 	}
 
 	modelPayloadResponse := gqlmodel.ModelPayload{
