@@ -523,6 +523,7 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 	res := updateModelWithSchemaFields(e, mId1, "test1", "test", "test-1", false, []map[string]any{
 		{
 			"modelId":     mId1,
+			"name":        "test",
 			"type":        "Text", // capitalized to match enum
 			"title":       "test",
 			"key":         "test-1",
@@ -535,7 +536,7 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 			"metadata":    false,
 			"typeProperty": map[string]any{
 				"text": map[string]any{ // <-- type-specific wrapper
-					"defaultValue": "test",
+					"defaultValue": "",
 					"maxLength":    100,
 				},
 			},
@@ -548,6 +549,7 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 		Value("model").Object().
 		HasValue("description", "test").
 		HasValue("key", "test-1").
+		HasValue("name", "test").
 		HasValue("public", false).
 		Value("schema").Object().
 		Value("fields").Array().Value(0).Object().
