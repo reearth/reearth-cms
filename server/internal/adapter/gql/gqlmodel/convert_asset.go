@@ -37,7 +37,7 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		UUID:                    a.UUID(),
 		URL:                     url,
 		FileName:                a.FileName(),
-		ThreadID:                IDFrom(a.Thread()),
+		ThreadID:                IDFromRef(a.Thread()),
 		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 		Size:                    int64(a.Size()),
 	}
@@ -62,6 +62,8 @@ func FromPreviewType(p *PreviewType) *asset.PreviewType {
 		p2 = asset.PreviewTypeGeoMvt
 	case PreviewTypeModel3d:
 		p2 = asset.PreviewTypeModel3d
+	case PreviewTypeCSV:
+		p2 = asset.PreviewTypeCSV
 	case PreviewTypeUnknown:
 		p2 = asset.PreviewTypeUnknown
 	default:
@@ -90,6 +92,8 @@ func ToPreviewType(p *asset.PreviewType) *PreviewType {
 		p2 = PreviewTypeGeoMvt
 	case asset.PreviewTypeModel3d:
 		p2 = PreviewTypeModel3d
+	case asset.PreviewTypeCSV:
+		p2 = PreviewTypeCSV
 	case asset.PreviewTypeUnknown:
 		p2 = PreviewTypeUnknown
 	default:
@@ -129,11 +133,12 @@ func ToAssetFile(a *asset.File) *AssetFile {
 	}
 
 	return &AssetFile{
-		Name:        a.Name(),
-		Size:        int64(a.Size()),
-		ContentType: lo.ToPtr(a.ContentType()),
-		Path:        a.Path(),
-		Children:    lo.Map(a.Children(), func(c *asset.File, _ int) *AssetFile { return ToAssetFile(c) }),
+		Name:            a.Name(),
+		Size:            int64(a.Size()),
+		ContentType:     lo.EmptyableToPtr(a.ContentType()),
+		ContentEncoding: lo.EmptyableToPtr(a.ContentEncoding()),
+		Path:            a.Path(),
+		FilePaths:       a.FilePaths(),
 	}
 }
 

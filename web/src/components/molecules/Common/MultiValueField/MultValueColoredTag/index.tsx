@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ChangeEvent, useCallback, useEffect, useState, useRef, useMemo } from "react";
+import { ChangeEvent, useCallback, useEffect, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
@@ -11,48 +11,39 @@ import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
 
-export type TagColor =
-  | "MAGENTA"
-  | "RED"
-  | "VOLCANO"
-  | "ORANGE"
-  | "GOLD"
-  | "LIME"
-  | "GREEN"
-  | "CYAN"
-  | "BLUE"
-  | "GEEKBLUE"
-  | "PURPLE";
+const colors = [
+  "MAGENTA",
+  "RED",
+  "VOLCANO",
+  "ORANGE",
+  "GOLD",
+  "LIME",
+  "GREEN",
+  "CYAN",
+  "BLUE",
+  "GEEKBLUE",
+  "PURPLE",
+] as const;
+
+type TagColor = (typeof colors)[number];
 
 type Props = {
-  className?: string;
   value?: { id?: string; name: string; color: TagColor }[];
   onChange?: (value: { id?: string; name: string; color: TagColor }[]) => void;
+  errorIndexes: Set<number>;
 } & TextAreaProps &
   InputProps;
 
-const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange, ...props }) => {
+const MultiValueColoredTag: React.FC<Props> = ({
+  value = [],
+  onChange,
+  errorIndexes,
+  ...props
+}) => {
   const t = useT();
   const [lastColorIndex, setLastColorIndex] = useState(0);
   const [focusedTagIndex, setFocusedTagIndex] = useState<number | null>(null); // New State to hold the focused tag index
   const divRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  const colors: TagColor[] = useMemo(
-    () => [
-      "MAGENTA",
-      "RED",
-      "VOLCANO",
-      "ORANGE",
-      "GOLD",
-      "LIME",
-      "GREEN",
-      "CYAN",
-      "BLUE",
-      "GEEKBLUE",
-      "PURPLE",
-    ],
-    [],
-  );
 
   const handleColorChange = useCallback(
     (color: TagColor, key: number) => {
@@ -75,7 +66,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
         ),
       }));
     },
-    [colors, handleColorChange, t],
+    [handleColorChange, t],
   );
 
   const handleNewTag = useCallback(() => {
@@ -83,7 +74,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
     const payload = !value ? [] : [...value];
     onChange?.([...payload, { color: newColor, name: "Tag" }]);
     setLastColorIndex((lastColorIndex + 1) % colors.length);
-  }, [colors, lastColorIndex, onChange, value]);
+  }, [lastColorIndex, onChange, value]);
 
   const handleInput = useCallback(
     (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {
@@ -129,21 +120,23 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
   }, []);
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>
             {!props.disabled && (
               <>
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowUp" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowDown" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
@@ -155,20 +148,27 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
                 value={valueItem.name}
                 onBlur={() => handleInputBlur()}
+                isError={errorIndexes?.has(key)}
               />
             </StyledDiv>
             <StyledTagContainer
               hidden={focusedTagIndex === key} // Hide tag when it is focused
-              onClick={() => handleTagClick(key)}>
+              onClick={() => handleTagClick(key)}
+              isError={errorIndexes?.has(key)}>
               <StyledTag color={valueItem.color.toLowerCase()}>{valueItem.name}</StyledTag>
             </StyledTagContainer>
             <Dropdown menu={{ items: generateMenuItems(key) }} trigger={["click"]}>
-              <FieldButton type="link" icon={<Icon icon="colorPalette" />} />
+              <FieldButton
+                color="default"
+                variant="link"
+                icon={<Icon icon="colorPalette" size={16} />}
+              />
             </Dropdown>
             {!props.disabled && (
               <FieldButton
-                type="link"
-                icon={<Icon icon="delete" />}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}
@@ -203,9 +203,9 @@ const StyledInput = styled(Input)`
   flex: 1;
 `;
 
-const StyledTagContainer = styled.div`
+const StyledTagContainer = styled.div<{ isError?: boolean }>`
   cursor: pointer;
-  border: 1px solid #d9d9d9;
+  border: 1px solid ${({ isError }) => (isError ? "#ff4d4f" : "#d9d9d9")};
   padding: 4px 11px;
   overflow: auto;
   height: 100%;

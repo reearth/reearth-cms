@@ -3,20 +3,17 @@ import { Key, useCallback } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
 
 type Props = {
-  commentsPanel?: JSX.Element;
+  commentsPanel: JSX.Element;
   assetList: Asset[];
   fileList: UploadFile[];
   selection: {
@@ -25,12 +22,19 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   loading: boolean;
+  deleteLoading: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
-  selectedAsset: Asset | undefined;
+  selectedAsset?: Asset;
   totalCount: number;
   page: number;
   pageSize: number;
+  sort?: SortType;
+  searchTerm: string;
+  columns: Record<string, ColumnsState>;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
@@ -41,15 +45,11 @@ type Props = {
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (assetId: string) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
 };
 
 const AssetList: React.FC<Props> = ({
@@ -60,12 +60,19 @@ const AssetList: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   loading,
+  deleteLoading,
   uploadUrl,
   uploadType,
   selectedAsset,
   totalCount,
   page,
   pageSize,
+  sort,
+  searchTerm,
+  columns,
+  hasCreateRight,
+  hasDeleteRight,
+  onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
   onUploadModalCancel,
@@ -76,7 +83,7 @@ const AssetList: React.FC<Props> = ({
   onAssetDelete,
   onSearchTerm,
   onEdit,
-  setSelection,
+  onSelect,
   setFileList,
   setUploadModalVisibility,
   onAssetsReload,
@@ -124,14 +131,15 @@ const AssetList: React.FC<Props> = ({
             title={t("Asset")}
             extra={
               <UploadAsset
+                uploadProps={uploadProps}
                 fileList={fileList}
                 uploading={uploading}
-                uploadProps={uploadProps}
+                uploadModalVisibility={uploadModalVisibility}
                 uploadUrl={uploadUrl}
                 uploadType={uploadType}
+                hasCreateRight={hasCreateRight}
                 setUploadUrl={setUploadUrl}
                 setUploadType={setUploadType}
-                uploadModalVisibility={uploadModalVisibility}
                 displayUploadModal={displayUploadModal}
                 onUploadModalCancel={onUploadModalCancel}
                 onUpload={handleUpload}
@@ -142,15 +150,21 @@ const AssetList: React.FC<Props> = ({
             assetList={assetList}
             selection={selection}
             loading={loading}
+            deleteLoading={deleteLoading}
             selectedAsset={selectedAsset}
             totalCount={totalCount}
             page={page}
             pageSize={pageSize}
+            sort={sort}
+            searchTerm={searchTerm}
+            columns={columns}
+            hasDeleteRight={hasDeleteRight}
+            onColumnsChange={onColumnsChange}
             onAssetItemSelect={onAssetItemSelect}
             onAssetSelect={onAssetSelect}
             onEdit={onEdit}
             onSearchTerm={onSearchTerm}
-            setSelection={setSelection}
+            onSelect={onSelect}
             onAssetsReload={onAssetsReload}
             onAssetDelete={onAssetDelete}
             onAssetTableChange={onAssetTableChange}
@@ -171,5 +185,5 @@ const Wrapper = styled.div`
 `;
 
 const StyledPageHeader = styled(PageHeader)`
-  margin: 0 8px;
+  border-bottom: 1px solid #00000008;
 `;

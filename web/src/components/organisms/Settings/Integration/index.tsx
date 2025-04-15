@@ -1,8 +1,6 @@
 import { useParams } from "react-router-dom";
 
-import IntegrationConnectModal from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal";
-import IntegrationSettingsModal from "@reearth-cms/components/molecules/Integration/IntegrationSettingsModal";
-import IntegrationTable from "@reearth-cms/components/molecules/Integration/IntegrationTable";
+import IntegrationWrapper from "@reearth-cms/components/molecules/Integration";
 
 import useHooks from "./hooks";
 
@@ -10,47 +8,49 @@ const Integration: React.FC = () => {
   const { workspaceId } = useParams();
 
   const {
-    integrations,
-    workspaceIntegrationMembers,
-    handleIntegrationConnect,
-    handleIntegrationConnectModalClose,
-    handleIntegrationConnectModalOpen,
-    integrationConnectModalShown,
-    handleIntegrationSettingsModalClose,
-    handleIntegrationSettingsModalOpen,
-    integrationSettingsModalShown,
-    handleUpdateIntegration,
-    selectedIntegrationMember,
-    selection,
+    loading,
+    workspaceIntegrations,
     handleSearchTerm,
-    setSelection,
+    handleReload,
+    setSelectedIntegration,
+    deleteLoading,
     handleIntegrationRemove,
+    page,
+    pageSize,
+    handleTableChange,
+    hasConnectRight,
+    hasUpdateRight,
+    hasDeleteRight,
+    myIntegrations,
+    addLoading,
+    handleIntegrationConnect,
+    selectedIntegration,
+    updateLoading,
+    handleUpdateIntegration,
   } = useHooks(workspaceId);
 
   return (
-    <>
-      <IntegrationTable
-        integrationMembers={workspaceIntegrationMembers}
-        selection={selection}
-        onSearchTerm={handleSearchTerm}
-        onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
-        setSelection={setSelection}
-        onIntegrationRemove={handleIntegrationRemove}
-      />
-      <IntegrationConnectModal
-        integrations={integrations}
-        onSubmit={handleIntegrationConnect}
-        open={integrationConnectModalShown}
-        onClose={handleIntegrationConnectModalClose}
-      />
-      <IntegrationSettingsModal
-        selectedIntegrationMember={selectedIntegrationMember}
-        onSubmit={handleUpdateIntegration}
-        open={integrationSettingsModalShown}
-        onClose={handleIntegrationSettingsModalClose}
-      />
-    </>
+    <IntegrationWrapper
+      loading={loading}
+      workspaceIntegrations={workspaceIntegrations}
+      onSearchTerm={handleSearchTerm}
+      onReload={handleReload}
+      setSelectedIntegration={setSelectedIntegration}
+      onIntegrationRemove={handleIntegrationRemove}
+      deleteLoading={deleteLoading}
+      page={page}
+      pageSize={pageSize}
+      onTableChange={handleTableChange}
+      hasConnectRight={hasConnectRight}
+      hasUpdateRight={hasUpdateRight}
+      hasDeleteRight={hasDeleteRight}
+      myIntegrations={myIntegrations}
+      addLoading={addLoading}
+      onIntegrationConnect={handleIntegrationConnect}
+      selectedIntegration={selectedIntegration}
+      updateLoading={updateLoading}
+      onUpdateIntegration={handleUpdateIntegration}
+    />
   );
 };
 

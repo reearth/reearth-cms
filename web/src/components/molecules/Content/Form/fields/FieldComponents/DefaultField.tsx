@@ -1,47 +1,78 @@
+import styled from "@emotion/styled";
+import { useMemo } from "react";
+import { runes } from "runes2";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator } from "../utils";
 
-interface DefaultFieldProps {
-  field: Field;
-  itemGroupId?: string;
-  onMetaUpdate?: () => Promise<void>;
-}
-
-const DefaultField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
+const DefaultField: React.FC<FieldProps> = ({
+  field,
+  itemGroupId,
+  disabled,
+  itemHeights,
+  onItemHeightChange,
+}) => {
   const t = useT();
+  const maxLength = useMemo(() => field.typeProperty?.maxLength, [field.typeProperty?.maxLength]);
+
+  const required = useMemo(() => field.required, [field.required]);
 
   return (
-    <Form.Item
+    <StyledFormItem
       extra={field.description}
+      validateStatus="success"
       rules={[
         {
-          required: field.required,
+          required,
+          validator: requiredValidator,
           message: t("Please input field!"),
+        },
+        {
+          validator: (_, value) => {
+            if (value && maxLength) {
+              if (Array.isArray(value)) {
+                if (value.some(v => typeof v === "string" && maxLength < runes(v).length)) {
+                  return Promise.reject();
+                }
+              } else if (typeof value === "string" && maxLength < runes(value).length) {
+                return Promise.reject();
+              }
+            }
+            return Promise.resolve();
+          },
+          message: "",
         },
       ]}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
+      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueField
-          onBlur={onMetaUpdate}
-          showCount={true}
-          maxLength={field.typeProperty?.maxLength ?? 500}
-          FieldInput={Input}
-        />
+        <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+          <MultiValueField
+            showCount={true}
+            maxLength={maxLength}
+            FieldInput={Input}
+            disabled={disabled}
+            required={required}
+          />
+        </ResponsiveHeight>
       ) : (
-        <Input
-          onBlur={onMetaUpdate}
-          showCount={true}
-          maxLength={field.typeProperty?.maxLength ?? 500}
-        />
+        <Input showCount={true} maxLength={maxLength} disabled={disabled} required={required} />
       )}
-    </Form.Item>
+    </StyledFormItem>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+  .ant-input-disabled {
+    color: inherit;
+  }
+`;
 
 export default DefaultField;

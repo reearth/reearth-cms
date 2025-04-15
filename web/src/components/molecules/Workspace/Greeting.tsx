@@ -3,7 +3,7 @@ import React from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   coverImageUrl?: string;
 };
 
@@ -37,6 +37,7 @@ const Text = styled.p`
 
 const CoverImage = styled.img`
   width: 100%;
+  height: 121px;
   object-fit: cover;
 `;
 

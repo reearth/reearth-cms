@@ -3,7 +3,8 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import {
   fromGraphQLMember,
   fromGraphQLWorkspace,
@@ -12,13 +13,21 @@ import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
   useGetProjectQuery,
-  ProjectPublicationScope,
   WorkspaceMember,
   Workspace as GQLWorkspace,
+  Project as GQLProject,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useProject, useUserId, useWorkspaceId } from "@reearth-cms/state";
+import {
+  useWorkspace,
+  useProject,
+  useUserId,
+  useWorkspaceId,
+  useUserRights,
+} from "@reearth-cms/state";
 import { splitPathname } from "@reearth-cms/utils/path";
+
+import { userRightsGet } from "./utils";
 
 export default () => {
   const t = useT();
@@ -27,10 +36,11 @@ export default () => {
   const navigate = useNavigate();
   const logoUrl = window.REEARTH_CONFIG?.logoUrl;
 
-  const [, setCurrentUserId] = useUserId();
+  const [currentUserId, setCurrentUserId] = useUserId();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
   const [, setCurrentWorkspaceId] = useWorkspaceId();
   const [currentProject, setCurrentProject] = useProject();
+  const [, setUserRights] = useUserRights();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -68,10 +78,18 @@ export default () => {
 
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
-    setCurrentWorkspace(data.me?.myWorkspace ?? undefined);
-    setCurrentWorkspaceId(data.me?.myWorkspace?.id);
+    setCurrentWorkspace(personalWorkspace ?? undefined);
+    setCurrentWorkspaceId(personalWorkspace?.id);
     navigate(`/workspace/${data.me?.myWorkspace?.id}`);
-  }, [data, navigate, setCurrentWorkspace, setCurrentWorkspaceId, currentWorkspace, workspaceId]);
+  }, [
+    data,
+    navigate,
+    setCurrentWorkspace,
+    setCurrentWorkspaceId,
+    currentWorkspace,
+    workspaceId,
+    personalWorkspace,
+  ]);
 
   useEffect(() => {
     if (workspace?.id && workspace.id !== currentWorkspace?.id) {
@@ -83,12 +101,20 @@ export default () => {
     }
   }, [currentWorkspace, workspace, personal, setCurrentWorkspace, setCurrentWorkspaceId]);
 
+  useEffect(() => {
+    const userInfo = currentWorkspace?.members?.find(
+      member => "userId" in member && member.userId === data?.me?.id,
+    );
+    if (userInfo) {
+      setUserRights(userRightsGet((userInfo as UserMember).role));
+    }
+  }, [currentUserId, currentWorkspace, data?.me?.id, setUserRights]);
+
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
   const handleWorkspaceCreate = useCallback(
     async (data: { name: string }) => {
       const results = await createWorkspaceMutation({
         variables: { name: data.name },
-        refetchQueries: ["GetWorkspaces"],
       });
       if (results.data?.createWorkspace) {
         Notification.success({ message: t("Successfully created workspace!") });
@@ -121,15 +147,7 @@ export default () => {
     if (projectId) {
       const project = projectData?.node?.__typename === "Project" ? projectData.node : undefined;
       if (project) {
-        setCurrentProject({
-          id: project.id,
-          name: project.name,
-          description: project.description,
-          scope: convertScope(project.publication?.scope),
-          alias: project.alias,
-          assetPublic: project.publication?.assetPublic,
-          requestRoles: project.requestRoles ?? undefined,
-        });
+        setCurrentProject(fromGraphQLProject(project as GQLProject));
       }
     } else {
       setCurrentProject(undefined);
@@ -161,7 +179,7 @@ export default () => {
   );
 
   const handleWorkspaceNavigation = useCallback(
-    (id: number) => {
+    (id: string) => {
       navigate(`/workspace/${id}`);
     },
     [navigate],
@@ -192,14 +210,4 @@ export default () => {
     handleHomeNavigation,
     logoUrl,
   };
-};
-
-const convertScope = (scope?: ProjectPublicationScope): PublicScope | undefined => {
-  switch (scope) {
-    case "PUBLIC":
-      return "public";
-    case "PRIVATE":
-      return "private";
-  }
-  return "private";
 };

@@ -1,30 +1,29 @@
 import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { modalStateType } from "@reearth-cms/components/organisms/Project/Content/ViewsMenu/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-export interface FormValues {
-  viewId?: string;
-  name: string;
-}
-
-export interface Props {
-  view?: View;
-  open?: boolean;
+type Props = {
+  currentView: CurrentView;
+  open: boolean;
   modalState: modalStateType;
-  submitting?: boolean;
+  submitting: boolean;
   onClose: () => void;
-  onCreate?: (values: FormValues) => Promise<void> | void;
-  OnUpdate?: (values: FormValues) => Promise<void> | void;
-}
+  onCreate: (name: string) => Promise<void>;
+  OnUpdate: (viewId: string, name: string) => Promise<void>;
+};
+
+type FormType = {
+  name: string;
+};
 
 const ViewFormModal: React.FC<Props> = ({
-  view,
+  currentView,
   open,
   modalState,
   submitting,
@@ -33,61 +32,72 @@ const ViewFormModal: React.FC<Props> = ({
   OnUpdate,
 }) => {
   const t = useT();
-  const [form] = Form.useForm();
-  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [form] = Form.useForm<FormType>();
+  const [isDisabled, setIsDisabled] = useState(true);
 
   useEffect(() => {
     if (open) {
-      if (view && modalState === "rename") {
-        form.setFieldsValue(view);
+      if (currentView && modalState === "rename") {
+        form.setFieldsValue(currentView);
       } else {
         form.resetFields();
       }
     }
-  }, [form, view, open, modalState]);
+  }, [form, currentView, open, modalState]);
 
   const handleSubmit = useCallback(async () => {
-    const values = await form.validateFields();
-    if (modalState === "create") {
-      await onCreate?.(values);
-    } else {
-      await OnUpdate?.({ viewId: view?.id, ...values });
+    setIsDisabled(true);
+    try {
+      const values = await form.validateFields();
+      if (modalState === "create") {
+        await onCreate(values.name);
+      } else if (currentView.id) {
+        await OnUpdate(currentView.id, values.name);
+      }
+      onClose();
+      form.resetFields();
+    } catch {
+      setIsDisabled(false);
     }
-    onClose();
-    form.resetFields();
-  }, [form, modalState, onClose, onCreate, OnUpdate, view?.id]);
+  }, [form, modalState, onClose, onCreate, OnUpdate, currentView.id]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
+    setIsDisabled(true);
     onClose();
   }, [form, onClose]);
 
-  const handleValuesChange = useCallback(() => {
-    form
-      .validateFields()
-      .then(() => {
-        setButtonDisabled(false);
-      })
-      .catch(fieldError => {
-        setButtonDisabled(
-          fieldError.errorFields.some((item: FieldError) => item.errors.length > 0),
-        );
-      });
-  }, [form]);
+  const handleValuesChange = useCallback(
+    async (_: unknown, values: FormType) => {
+      if (currentView.name === values.name) {
+        setIsDisabled(true);
+        return;
+      }
+      const hasError = await form
+        .validateFields()
+        .then(() => false)
+        .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+      setIsDisabled(hasError);
+    },
+    [currentView.name, form],
+  );
 
   return (
     <Modal
       open={open}
-      onOk={handleSubmit}
       onCancel={handleClose}
-      okButtonProps={{ disabled: buttonDisabled }}
       title={modalState === "create" ? t("New View") : t("Update View")}
       footer={[
         <Button key="back" onClick={handleClose} disabled={submitting}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" loading={submitting} onClick={handleSubmit}>
-          {submitting ? t("Submitting") : t("OK")}
+        <Button
+          key="submit"
+          type="primary"
+          loading={submitting}
+          onClick={handleSubmit}
+          disabled={isDisabled}>
+          {t("OK")}
         </Button>,
       ]}>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>

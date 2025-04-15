@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import fileDownload from "js-file-download";
 import React, { MouseEventHandler, useCallback } from "react";
 
@@ -5,46 +6,24 @@ import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-export type PreviewType =
-  | "GEO"
-  | "GEO_3D_TILES"
-  | "GEO_MVT"
-  | "IMAGE"
-  | "IMAGE_SVG"
-  | "MODEL_3D"
-  | "UNKNOWN";
-
-export type AssetFile = {
-  children?: AssetFile[];
-  contentType?: string;
-  name: string;
-  path: string;
-  size: number;
-};
-
-export type Asset = {
+type Asset = {
   id: string;
   fileName: string;
   url: string;
-};
-
-export type Comment = {
-  id: string;
-  author: { id?: string; name: string; type: "User" | "Integration" | null };
-  content: string;
-  createdAt: string;
 };
 
 type DownloadButtonProps = {
   title?: string;
   selected?: Asset[];
   displayDefaultIcon?: boolean;
+  onlyIcon?: boolean;
 } & ButtonProps;
 
 const DownloadButton: React.FC<DownloadButtonProps> = ({
   title,
   selected,
   displayDefaultIcon,
+  onlyIcon,
   ...props
 }) => {
   const t = useT();
@@ -58,7 +37,11 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     });
   }, [selected]);
 
-  return (
+  return onlyIcon ? (
+    <IconWrapper role="button" onClick={handleDownload}>
+      <Icon icon="download" />
+    </IconWrapper>
+  ) : (
     <Button
       icon={displayDefaultIcon && <Icon icon="download" />}
       onClick={handleDownload}
@@ -68,5 +51,15 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     </Button>
   );
 };
+
+const IconWrapper = styled.div`
+  display: inline-flex;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #00000073;
+  :hover {
+    color: #000000e0;
+  }
+`;
 
 export default DownloadButton;

@@ -2,7 +2,9 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -14,7 +16,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -23,6 +24,9 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
+
+const maxPerPage = 100
+const defaultPerPage int64 = 50
 
 type Item struct {
 	repos       *repo.Container
@@ -50,7 +54,7 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Opera
 }
 
 func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
-	requests, err := i.repos.Request.FindByItems(ctx, itemsIds)
+	requests, err := i.repos.Request.FindByItems(ctx, itemsIds, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,14 +101,6 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase
 	return res, nil
 }
 
-func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	if !operator.IsReadableProject(projectID) {
-		return nil, nil, rerror.ErrNotFound
-	}
-	// TODO: check operation for projects that publication type is limited
-	return i.repos.Item.FindByProject(ctx, projectID, nil, p)
-}
-
 func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	m, err := i.repos.Model.FindByID(ctx, modelID)
 	if err != nil {
@@ -134,6 +130,10 @@ func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.
 	return res, nil
 }
 
+func (i Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef, _ *usecase.Operator) (item.Versioned, error) {
+	return i.repos.Item.FindVersionByID(ctx, itemID, ver)
+}
+
 func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.VersionedList, error) {
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
@@ -157,10 +157,7 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 		return false, nil
 	}
 
-	for _, f := range s.Fields() {
-		if f.Type() != value.TypeReference {
-			continue
-		}
+	for _, f := range s.FieldsByType(value.TypeReference) {
 		fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
 		if !ok {
 			continue
@@ -186,17 +183,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	}
 
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
-		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
-		if err != nil {
-			return nil, err
-		}
-
-		prj, err := i.repos.Project.FindByID(ctx, s.Project())
-		if err != nil {
-			return nil, err
-		}
-
 		m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+		if err != nil {
+			return nil, err
+		}
+		//if m.Schema() != param.SchemaID {
+		//	return nil, interfaces.ErrInvalidSchema
+		//}
+
+		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 		if err != nil {
 			return nil, err
 		}
@@ -221,18 +216,8 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		th, err := thread.New().NewID().Workspace(s.Workspace()).Build()
+		isMetadata := m.Metadata() != nil && param.SchemaID == *m.Metadata()
 
-		if err != nil {
-			return nil, err
-		}
-		if err := i.repos.Thread.Save(ctx, th); err != nil {
-			return nil, err
-		}
-		isMetadata := false
-		if m.Metadata() != nil && param.SchemaID == *m.Metadata() {
-			isMetadata = true
-		}
 		fields = append(fields, groupFields...)
 		ib := item.New().
 			NewID().
@@ -240,7 +225,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			IsMetadata(isMetadata).
 			Project(s.Project()).
 			Model(m.ID()).
-			Thread(th.ID()).
 			Fields(fields)
 
 		if operator.AcOperator.User != nil {
@@ -292,6 +276,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		if isMetadata {
+			return vi, nil
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
+		if err != nil {
+			return nil, err
+		}
+
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -313,7 +306,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
-func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, op *usecase.Operator) (time.Time, error) {
+func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, _ *usecase.Operator) (time.Time, error) {
 	return i.repos.Item.LastModifiedByModel(ctx, model)
 }
 
@@ -345,11 +338,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
-		if err != nil {
-			return nil, err
-		}
-
-		prj, err := i.repos.Project.FindByID(ctx, s.Project())
 		if err != nil {
 			return nil, err
 		}
@@ -402,10 +390,21 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		// re-fetch item so the new version is returned
+		itm, err = i.repos.Item.FindByID(ctx, param.ItemID, nil)
+		if err != nil {
+			return nil, err
+		}
+
 		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return nil, err
 		}
 		refItems, err := i.getReferencedItems(ctx, fields)
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, s.Project())
 		if err != nil {
 			return nil, err
 		}
@@ -646,28 +645,69 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 	return nil
 }
 
-func (i Item) getItemCorrespondingItems(ctx context.Context, s schema.Schema, itm *item.Item, oldFields item.Fields, fid id.FieldID) (item.List, error) {
+func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, itm *item.Item, oldFields item.Fields) error {
+	for _, sf := range s.FieldsByType(value.TypeReference) {
+		newF := itm.Field(sf.ID())
+		oldF := oldFields.Field(sf.ID())
+
+		if err := i.handleReferenceField(ctx, *sf, itm.ID(), newF, oldF); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (i Item) handleReferenceField(ctx context.Context, sf schema.Field, iID item.ID, newF, oldF *item.Field) error {
+	fr, ok := schema.FieldReferenceFromTypeProperty(sf.TypeProperty())
+	if !ok || !fr.IsTowWay() || newF.Value().Equal(oldF.Value()) {
+		return nil
+	}
+
+	items, err := i.getItemCorrespondingItems(ctx, *fr, newF, oldF)
+	if err != nil {
+		return err
+	}
+
+	for _, cItm := range items {
+		cItm.ClearField(sf.ID())
+		if fr.CorrespondingFieldID() != nil {
+			cItm.ClearField(*fr.CorrespondingFieldID())
+		}
+		if err := i.repos.Item.Save(ctx, cItm); err != nil {
+			return err
+		}
+	}
+
+	refItmId, ok := newF.Value().First().ValueReference()
+	if !ok || refItmId.IsEmpty() {
+		return nil
+	}
+	refItm, _ := items.Item(refItmId)
+	idValue := value.NewMultiple(value.TypeReference, []any{iID})
+	refItm.UpdateFields([]*item.Field{item.NewField(*fr.CorrespondingFieldID(), idValue, nil)})
+	if err := i.repos.Item.Save(ctx, refItm); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (i Item) getItemCorrespondingItems(ctx context.Context, fr schema.FieldReference, newF, oldF *item.Field) (item.List, error) {
 	var ci = make([]*item.Item, 0)
 
-	oldF := oldFields.Field(fid)
 	oldRefId, _ := oldF.Value().First().ValueReference()
 	if !oldRefId.IsEmpty() {
 		oldRefItm, err := i.repos.Item.FindByID(ctx, oldRefId, nil)
-		if err != nil {
+		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, err
 		}
-		ci = append(ci, oldRefItm.Value())
+		if err == nil {
+			ci = append(ci, oldRefItm.Value())
+		}
 	}
 
-	// if the is no change in reference item then there is no more corresponding item
-	newF := itm.Field(fid)
 	newRefId, _ := newF.Value().First().ValueReference()
-	if newRefId == oldRefId {
-		return ci, nil
-	}
-
-	// in case of dereference there is no more corresponding items
-	if newRefId.IsEmpty() {
+	// if there is no change in reference field or if the field is cleared then there is no more corresponding item
+	if newRefId == oldRefId || newRefId.IsEmpty() {
 		return ci, nil
 	}
 
@@ -678,65 +718,22 @@ func (i Item) getItemCorrespondingItems(ctx context.Context, s schema.Schema, it
 	ci = append(ci, newRefItm.Value())
 
 	// if the new referenced item has reference item get it
-	crf, ok := schema.FieldReferenceFromTypeProperty(s.Field(fid).TypeProperty())
-	if !ok || crf.CorrespondingFieldID() == nil {
-		return ci, nil
-	}
-	newRefRefF := newRefItm.Value().Field(*crf.CorrespondingFieldID())
+	newRefRefF := newRefItm.Value().Field(*fr.CorrespondingFieldID())
 	newRefRefId, _ := newRefRefF.Value().First().ValueReference()
 	if !newRefRefId.IsEmpty() {
 		newRefRefItm, err := i.repos.Item.FindByID(ctx, newRefRefId, nil)
-		if err != nil {
+		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, err
 		}
-		ci = append(ci, newRefRefItm.Value())
+		if err == nil {
+			ci = append(ci, newRefRefItm.Value())
+		}
 	}
 	return ci, nil
 }
 
-func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, it *item.Item, oldFields item.Fields) error {
-	sf := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return f.Type() == value.TypeReference
-	})
-	for _, f := range sf {
-		rf, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
-		if !ok {
-			continue
-		}
-		items, err := i.getItemCorrespondingItems(ctx, s, it, oldFields, f.ID())
-		if err != nil {
-			return err
-		}
-
-		for _, itm := range items {
-			itm.ClearField(f.ID())
-			if rf.CorrespondingFieldID() != nil {
-				itm.ClearField(*rf.CorrespondingFieldID())
-			}
-			if err := i.repos.Item.Save(ctx, itm); err != nil {
-				return err
-			}
-		}
-
-		if rf.CorrespondingFieldID() == nil {
-			continue
-		}
-		refItmId, ok := it.Field(f.ID()).Value().First().ValueReference()
-		if !ok || refItmId.IsEmpty() {
-			continue
-		}
-		refItm, _ := items.Item(refItmId)
-		idValue := value.NewMultiple(value.TypeReference, []any{it.ID().String()})
-		refItm.UpdateFields([]*item.Field{item.NewField(*rf.CorrespondingFieldID(), idValue, nil)})
-		if err := i.repos.Item.Save(ctx, refItm); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFieldParam, s *schema.Schema, mId id.ModelID, itemFields item.Fields) (item.Fields, schema.List, error) {
+	// TODO: use schema package to enhance performance
 	var res item.Fields
 	var groupSchemas schema.List
 	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
@@ -833,11 +830,15 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 }
 
 func (i Item) event(ctx context.Context, e Event) error {
+	return i.events(ctx, []Event{e})
+}
+
+func (i Item) events(ctx context.Context, e []Event) error {
 	if i.ignoreEvent {
 		return nil
 	}
 
-	_, err := createEvent(ctx, i.repos, i.gateways, e)
+	_, err := createEvents(ctx, i.repos, i.gateways, e)
 	return err
 }
 
@@ -856,4 +857,83 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 		}
 	}
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
+}
+
+// ItemsAsCSV exports items data in content to csv file by schema package.
+func (i Item) ItemsAsCSV(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToCSVResponse, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return interfaces.ExportItemsToCSVResponse{}, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ExportItemsToCSVResponse, error) {
+
+		// fromPagination
+		paginationOffset := fromPagination(page, perPage)
+
+		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+		if err != nil {
+			return interfaces.ExportItemsToCSVResponse{}, err
+		}
+
+		pr, pw := io.Pipe()
+		err = csvFromItems(pw, items, schemaPackage.Schema())
+		if err != nil {
+			return interfaces.ExportItemsToCSVResponse{}, err
+		}
+
+		return interfaces.ExportItemsToCSVResponse{
+			PipeReader: pr,
+		}, nil
+	})
+}
+
+// ItemsAsGeoJSON converts items to Geo JSON type given the schema package
+func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToGeoJSONResponse, error) {
+
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return interfaces.ExportItemsToGeoJSONResponse{}, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ExportItemsToGeoJSONResponse, error) {
+
+		// fromPagination
+		paginationOffset := fromPagination(page, perPage)
+
+		items, pi, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+		if err != nil {
+			return interfaces.ExportItemsToGeoJSONResponse{}, err
+		}
+
+		featureCollections, err := featureCollectionFromItems(items, schemaPackage.Schema())
+		if err != nil {
+			return interfaces.ExportItemsToGeoJSONResponse{}, err
+		}
+
+		return interfaces.ExportItemsToGeoJSONResponse{
+			FeatureCollections: featureCollections,
+			PageInfo:           pi,
+		}, nil
+	})
+}
+
+func fromPagination(page, perPage *int) *usecasex.Pagination {
+	p := int64(1)
+	if page != nil && *page > 0 {
+		p = int64(*page)
+	}
+
+	pp := defaultPerPage
+	if perPage != nil {
+		if ppr := *perPage; 1 <= ppr {
+			if ppr > maxPerPage {
+				pp = int64(maxPerPage)
+			} else {
+				pp = int64(ppr)
+			}
+		}
+	}
+
+	return usecasex.OffsetPagination{
+		Offset: (p - 1) * pp,
+		Limit:  pp,
+	}.Wrap()
 }

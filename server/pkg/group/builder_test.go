@@ -1,10 +1,10 @@
 package group
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {
@@ -35,7 +35,7 @@ func TestBuilder_Build(t *testing.T) {
 	sId := id.NewSchemaID()
 	type fields struct {
 		m *Group
-		k key.Key
+		k id.Key
 	}
 	tests := []struct {
 		name    string
@@ -52,9 +52,10 @@ func TestBuilder_Build(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
+					order:       1,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want: &Group{
 				id:          mId,
@@ -62,7 +63,8 @@ func TestBuilder_Build(t *testing.T) {
 				schema:      sId,
 				name:        "m1",
 				description: "m1 desc",
-				key:         key.New("T123456"),
+				key:         id.NewKey("T123456"),
+				order:       1,
 			},
 			wantErr: nil,
 		},
@@ -75,9 +77,10 @@ func TestBuilder_Build(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
+					order:       1,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want: &Group{
 				id:          mId,
@@ -85,7 +88,8 @@ func TestBuilder_Build(t *testing.T) {
 				schema:      sId,
 				name:        "m1",
 				description: "m1 desc",
-				key:         key.New("T123456"),
+				key:         id.NewKey("T123456"),
+				order:       1,
 			},
 			wantErr: nil,
 		},
@@ -97,9 +101,10 @@ func TestBuilder_Build(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
+					order:       1,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want:    nil,
 			wantErr: ErrInvalidID,
@@ -112,9 +117,10 @@ func TestBuilder_Build(t *testing.T) {
 					project:     pId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
+					order:       1,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want:    nil,
 			wantErr: ErrInvalidID,
@@ -144,7 +150,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 	sId := id.NewSchemaID()
 	type fields struct {
 		m *Group
-		k key.Key
+		k id.Key
 	}
 	tests := []struct {
 		name    string
@@ -161,9 +167,10 @@ func TestBuilder_MustBuild(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
+					order:       1,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want: &Group{
 				id:          mId,
@@ -171,7 +178,8 @@ func TestBuilder_MustBuild(t *testing.T) {
 				schema:      sId,
 				name:        "m1",
 				description: "m1 desc",
-				key:         key.New("T123456"),
+				key:         id.NewKey("T123456"),
+				order:       1,
 			},
 			wantErr: nil,
 		},
@@ -184,9 +192,10 @@ func TestBuilder_MustBuild(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
+					order:       1,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want: &Group{
 				id:          mId,
@@ -194,7 +203,8 @@ func TestBuilder_MustBuild(t *testing.T) {
 				schema:      sId,
 				name:        "m1",
 				description: "m1 desc",
-				key:         key.New("T123456"),
+				key:         id.NewKey("T123456"),
+				order:       1,
 			},
 			wantErr: nil,
 		},
@@ -207,9 +217,10 @@ func TestBuilder_MustBuild(t *testing.T) {
 					schema:      sId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
+					order:       1,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want:    nil,
 			wantErr: ErrInvalidID,
@@ -222,9 +233,10 @@ func TestBuilder_MustBuild(t *testing.T) {
 					project:     pId,
 					name:        "m1",
 					description: "m1 desc",
-					key:         key.New("T123456"),
+					key:         id.NewKey("T123456"),
+					order:       1,
 				},
-				k: key.New("T123456"),
+				k: id.NewKey("T123456"),
 			},
 			want:    nil,
 			wantErr: ErrInvalidID,
@@ -265,7 +277,7 @@ func TestBuilder_ID(t *testing.T) {
 
 func TestBuilder_Key(t *testing.T) {
 	b := New()
-	k := key.New("xabczz")
+	k := id.NewKey("xabczz")
 	b.Key(k)
 	assert.Equal(t, k, b.group.Key())
 }

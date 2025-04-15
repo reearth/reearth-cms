@@ -16,9 +16,10 @@ import {
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   workspaceSettings: WorkspaceSettings;
-  hasPrivilege: boolean;
+  hasUpdateRight: boolean;
+  loading: boolean;
   onWorkspaceSettingsUpdate: (
     tiles: TileInput[],
     terrains: TerrainInput[],
@@ -28,17 +29,23 @@ export type Props = {
 
 const Settings: React.FC<Props> = ({
   workspaceSettings,
-  hasPrivilege,
+  hasUpdateRight,
+  loading,
   onWorkspaceSettingsUpdate,
 }) => {
   const t = useT();
 
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState<WorkspaceSettings>();
+  const [isDisabled, setIsDisabled] = useState(true);
 
   useEffect(() => {
     setSettings(workspaceSettings);
   }, [workspaceSettings]);
+
+  useEffect(() => {
+    setIsDisabled(JSON.stringify(workspaceSettings) === JSON.stringify(settings));
+  }, [workspaceSettings, settings]);
 
   const tiles: TileInput[] = useMemo(() => {
     if (!settings?.tiles?.resources) return [];
@@ -129,9 +136,14 @@ const Settings: React.FC<Props> = ({
             isTile={true}
             onDelete={handleDelete}
             onDragEnd={handleDragEnd}
+            hasUpdateRight={hasUpdateRight}
           />
         ) : null}
-        <Button type="link" onClick={() => onTileModalOpen()} icon={<Icon icon="plus" />}>
+        <Button
+          type="link"
+          onClick={() => onTileModalOpen()}
+          icon={<Icon icon="plus" />}
+          disabled={!hasUpdateRight}>
           {t("Add new Tiles option")}
         </Button>
         <Divider />
@@ -141,7 +153,7 @@ const Settings: React.FC<Props> = ({
           <Switch
             checked={settings?.terrains?.enabled}
             onChange={onChange}
-            disabled={!hasPrivilege}
+            disabled={!hasUpdateRight}
           />
           <Text>{t("Enable")}</Text>
         </SwitchWrapper>
@@ -154,25 +166,34 @@ const Settings: React.FC<Props> = ({
                 isTile={false}
                 onDelete={handleDelete}
                 onDragEnd={handleDragEnd}
+                hasUpdateRight={hasUpdateRight}
               />
             ) : null}
-            <Button type="link" onClick={() => onTerrainModalOpen()} icon={<Icon icon="plus" />}>
+            <Button
+              type="link"
+              onClick={() => onTerrainModalOpen()}
+              icon={<Icon icon="plus" />}
+              disabled={!hasUpdateRight}>
               {t("Add new Terrain option")}
             </Button>
           </>
         )}
         <ButtonWrapper>
-          <Button type="primary" onClick={handleWorkspaceSettingsSave}>
+          <Button
+            type="primary"
+            onClick={handleWorkspaceSettingsSave}
+            disabled={isDisabled}
+            loading={loading}>
             {t("Save")}
           </Button>
         </ButtonWrapper>
         <FormModal
           open={open}
           onClose={onClose}
-          isTile={isTileRef.current}
           tiles={tiles}
           terrains={terrains}
           setSettings={setSettings}
+          isTile={isTileRef.current}
           index={indexRef.current}
         />
       </ContentSection>
@@ -182,7 +203,7 @@ const Settings: React.FC<Props> = ({
 
 export default Settings;
 
-const Title = styled.h1`
+const Title = styled.h3`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;

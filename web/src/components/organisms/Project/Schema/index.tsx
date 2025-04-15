@@ -49,6 +49,8 @@ const ProjectSchema: React.FC = () => {
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
+    deleteModelLoading,
+    deleteGroupLoading,
     setCollapsed,
     selectedSchemaType,
     handleModelSelect,
@@ -57,6 +59,8 @@ const ProjectSchema: React.FC = () => {
     handleFieldUpdateModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleReferencedModelGet,
+    handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldOrder,
@@ -73,14 +77,20 @@ const ProjectSchema: React.FC = () => {
     groupDeletionModalShown,
     modelModalShown,
     modelDeletionModalShown,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
   } = useHooks();
 
   return (
     <>
       <SchemaMolecule
+        data={data}
         collapsed={collapsed}
         selectedSchemaType={selectedSchemaType}
-        data={data}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         onModalOpen={handleModalOpen}
         onDeletionModalOpen={handleDeletionModalOpen}
         modelsMenu={
@@ -88,9 +98,10 @@ const ProjectSchema: React.FC = () => {
             title={t("Schema")}
             collapsed={collapsed}
             selectedSchemaType={selectedSchemaType}
+            displayGroups
+            titleIcon={"unorderedList"}
             onModelSelect={handleModelSelect}
             onGroupSelect={handleGroupSelect}
-            displayGroups
           />
         }
         setIsMeta={setIsMeta}
@@ -112,6 +123,7 @@ const ProjectSchema: React.FC = () => {
       <DeletionModal
         data={data}
         open={modelDeletionModalShown || groupDeletionModalShown}
+        deleteLoading={deleteModelLoading || deleteGroupLoading}
         onDelete={handleSchemaDelete}
         onClose={handleDeletionModalClose}
         isModel={modelDeletionModalShown}
@@ -122,6 +134,9 @@ const ProjectSchema: React.FC = () => {
           selectedType={selectedType}
           selectedField={selectedField}
           open={fieldModalShown}
+          isLoading={fieldUpdateLoading || fieldCreationLoading}
+          handleReferencedModelGet={handleReferencedModelGet}
+          handleCorrespondingFieldKeyUnique={handleCorrespondingFieldKeyUnique}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldModalClose}
           onSubmit={handleFieldCreate}
@@ -132,6 +147,7 @@ const ProjectSchema: React.FC = () => {
         <FieldModal
           groups={groups}
           selectedType={selectedType}
+          selectedSchemaType={selectedSchemaType}
           isMeta={isMeta}
           open={fieldModalShown}
           fieldLoading={selectedField ? fieldUpdateLoading : fieldCreationLoading}

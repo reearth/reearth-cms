@@ -27,7 +27,7 @@ const ViewerNotSupportedWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  alignitems: center;
+  align-items: center;
 `;
 
 const ViewerNotSupportedText = styled.span`

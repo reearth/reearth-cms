@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
@@ -203,8 +202,8 @@ func TestSchema_Field(t *testing.T) {
 func TestSchema_FieldByIDOrKey(t *testing.T) {
 	f1 := &Field{id: NewFieldID(), name: "f1"}
 	f2 := &Field{id: NewFieldID(), name: "f2"}
-	f3 := &Field{id: NewFieldID(), name: "f3", key: key.New("KEY")}
-	f4 := &Field{id: NewFieldID(), name: "f4", key: key.New("id")}
+	f3 := &Field{id: NewFieldID(), name: "f3", key: id.NewKey("KEY")}
+	f4 := &Field{id: NewFieldID(), name: "f4", key: id.NewKey("id")}
 	s := &Schema{fields: []*Field{f1, f2, f3, f4}}
 
 	assert.Equal(t, f1, s.FieldByIDOrKey(f1.ID().Ref(), nil))
@@ -214,9 +213,9 @@ func TestSchema_FieldByIDOrKey(t *testing.T) {
 	assert.Equal(t, f3, s.FieldByIDOrKey(nil, f3.Key().Ref()))
 	assert.Equal(t, f1, s.FieldByIDOrKey(f1.ID().Ref(), f3.Key().Ref()))
 	assert.Nil(t, s.FieldByIDOrKey(id.NewFieldID().Ref(), nil))
-	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("").Ref()))
-	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("x").Ref()))
-	assert.Nil(t, s.FieldByIDOrKey(nil, key.New("id").Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(nil, id.NewKey("").Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(nil, id.NewKey("x").Ref()))
+	assert.Nil(t, s.FieldByIDOrKey(nil, id.NewKey("id").Ref()))
 }
 
 func TestSchema_Fields(t *testing.T) {
@@ -403,7 +402,7 @@ func TestSchema_TitleField(t *testing.T) {
 }
 
 func TestSchema_SetTitleField(t *testing.T) {
-	sf := NewField(NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf := NewField(NewBool().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	f := []*Field{sf}
 	s := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f).MustBuild()
 
@@ -453,13 +452,13 @@ func TestSchema_HasFieldByKey(t *testing.T) {
 		},
 		{
 			name: "add on not empty array",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", key: key.New("K123123")}}},
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", key: id.NewKey("K123123")}}},
 			fKey: "K123123",
 			want: true,
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", key: key.New("K123123")}, {id: fid2, name: "f2", key: key.New("K111222")}, {id: fid3, name: "f3", key: key.New("K123111")}}},
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1", key: id.NewKey("K123123")}, {id: fid2, name: "f2", key: id.NewKey("K111222")}, {id: fid3, name: "f3", key: id.NewKey("K123111")}}},
 			fKey: "K123123",
 			want: true,
 		},
@@ -479,4 +478,18 @@ func TestSchema_HasFieldByKey(t *testing.T) {
 			assert.Equal(t, tc.want, tc.s.HasFieldByKey(tc.fKey))
 		})
 	}
+}
+
+func TestSchema_CopyFrom(t *testing.T) {
+	fid := id.NewFieldID()
+	s1 := &Schema{id: id.NewSchemaID(), fields: []*Field{{id: id.NewFieldID(), name: "f1", key: id.RandomKey()}}, titleField: fid.Ref()}
+	s2 := &Schema{id: id.NewSchemaID(), fields: []*Field{}}
+	s2.CopyFrom(s1)
+	assert.Equal(t, s1.fields, s2.fields)
+	assert.Equal(t, s1.titleField, s2.titleField)
+
+	s3 := &Schema{id: id.NewSchemaID(), fields: []*Field{}}
+	s3.CopyFrom(nil)
+	assert.Equal(t, 0, len(s3.fields))
+	assert.Nil(t, s3.titleField)
 }

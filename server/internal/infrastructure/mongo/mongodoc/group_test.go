@@ -1,12 +1,13 @@
 package mongodoc
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/pkg/group"
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGroupDocument_Group(t *testing.T) {
@@ -26,13 +27,15 @@ func TestGroupDocument_Group(t *testing.T) {
 				Key:         "mmm123",
 				Project:     pId.String(),
 				Schema:      sId.String(),
+				Order:       1,
 			},
 			want: group.New().ID(mId).
 				Name("abc").
 				Description("xyz").
-				Key(key.New("mmm123")).
+				Key(id.NewKey("mmm123")).
 				Project(pId).
 				Schema(sId).
+				Order(1).
 				MustBuild(),
 			wantErr: false,
 		},
@@ -45,6 +48,7 @@ func TestGroupDocument_Group(t *testing.T) {
 				Key:         "mmm123",
 				Project:     pId.String(),
 				Schema:      sId.String(),
+				Order:       1,
 			},
 			want:    nil,
 			wantErr: true,
@@ -58,6 +62,7 @@ func TestGroupDocument_Group(t *testing.T) {
 				Key:         "mmm123",
 				Project:     "abc",
 				Schema:      sId.String(),
+				Order:       1,
 			},
 			want:    nil,
 			wantErr: true,
@@ -71,6 +76,7 @@ func TestGroupDocument_Group(t *testing.T) {
 				Key:         "mmm123",
 				Project:     pId.String(),
 				Schema:      "abc",
+				Order:       1,
 			},
 			want:    nil,
 			wantErr: true,
@@ -104,9 +110,10 @@ func TestNewGroup(t *testing.T) {
 			args: group.New().ID(mId).
 				Name("abc").
 				Description("xyz").
-				Key(key.New("mmm123")).
+				Key(id.NewKey("mmm123")).
 				Project(pId).
 				Schema(sId).
+				Order(1).
 				MustBuild(),
 			want: &GroupDocument{
 				ID:          mId.String(),
@@ -115,6 +122,7 @@ func TestNewGroup(t *testing.T) {
 				Key:         "mmm123",
 				Project:     pId.String(),
 				Schema:      sId.String(),
+				Order:       1,
 			},
 			wantId: mId.String(),
 		},

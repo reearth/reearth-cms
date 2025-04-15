@@ -1,44 +1,48 @@
 import styled from "@emotion/styled";
 
-import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
+import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
-import { useT } from "@reearth-cms/i18n";
+import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
+import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
+import { useT, Trans } from "@reearth-cms/i18n";
 
-interface Props {
-  className?: string;
-  projects?: Project[];
-  loading?: boolean;
-  onProjectModalOpen: () => void;
-  onProjectNavigation: (project: Project) => void;
-}
+type Props = {
+  hasCreateRight: boolean;
+  projects: ProjectListItem[];
+  loading: boolean;
+  onProjectNavigation: (projectId: string) => void;
+  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
+};
 
 const ProjectList: React.FC<Props> = ({
-  className,
+  hasCreateRight,
   projects,
   loading,
-  onProjectModalOpen,
   onProjectNavigation,
+  onProjectCreate,
+  onProjectAliasCheck,
 }) => {
   const t = useT();
 
   return (
-    <StyledDashboardBlock className={className}>
-      {loading || !projects ? (
+    <StyledDashboardBlock>
+      {loading ? (
         <Loading minHeight="400px" />
       ) : projects.length === 0 ? (
         <EmptyListWrapper>
           <Title>{t("No Projects Yet")}</Title>
+          <Wrapper>
+            <Suggestion>{t("Create a new project")}</Suggestion>
+            <CreateProjectButton
+              hasCreateRight={hasCreateRight}
+              onProjectCreate={onProjectCreate}
+              onProjectAliasCheck={onProjectAliasCheck}
+            />
+          </Wrapper>
           <Suggestion>
-            {t("Create a new project")}{" "}
-            <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
-              {t("New Project")}
-            </Button>
-          </Suggestion>
-          <Suggestion>
-            {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+            <Trans i18nKey="readDocument" components={{ l: <a role="link" href="" /> }} />
           </Suggestion>
         </EmptyListWrapper>
       ) : (
@@ -76,6 +80,12 @@ const EmptyListWrapper = styled.div`
   justify-content: center;
   align-items: center;
   margin-top: 64px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
 `;
 
 const Suggestion = styled.p`

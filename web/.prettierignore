@@ -1,0 +1,35 @@
+# Ignore build artifacts and dependencies:
+build/
+coverage/
+dist/
+node_modules/
+
+# Ignore environment files:
+.env
+.env*
+
+# Ignore storybook files:
+storybook-static/*
+.storybook/public/*
+
+# Ignore logs and temporary files:
+*.log
+*.tmp
+
+# Ignore Playwright test output:
+playwright-report/
+playwright/.cache/
+
+# Ignore GraphQL files:
+src/gql/graphql-client-api.tsx
+src/gql/fragmentMatcher.json
+src/gql/graphql.schema.json
+
+# Ignore Amplify files:
+amplify/*
+
+# Ignore i18n files:
+src/i18n/translations/*
+
+# Ignore miscellaneous:
+.DS_Store

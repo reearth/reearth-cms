@@ -1,7 +1,7 @@
-import moment from "moment";
+import dayjs from "dayjs";
 
 export const dateTimeFormat = (date?: Date | string, format = "YYYY-MM-DD HH:mm", local = true) => {
-  return local ? `${moment.utc(date).local().format(format)}` : `${moment(date).format(format)}`;
+  return local ? `${dayjs.utc(date).local().format(format)}` : `${dayjs(date).format(format)}`;
 };
 
 export const bytesFormat = (bytes: number, decimals = 2) => {
@@ -16,14 +16,15 @@ export const bytesFormat = (bytes: number, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 };
 
-export const transformMomentToString = (value: any) => {
-  if (moment.isMoment(value)) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const transformDayjsToString = (value: any) => {
+  if (dayjs.isDayjs(value)) {
     return value.format("YYYY-MM-DDTHH:mm:ssZ");
   }
 
-  if (Array.isArray(value) && value.every(item => moment.isMoment(item))) {
+  if (Array.isArray(value) && value.every(item => dayjs.isDayjs(item))) {
     return value.map(item => item.format("YYYY-MM-DDTHH:mm:ssZ"));
   }
 
-  return value; // return the original value if it's neither a moment object nor an array of moment objects
+  return value; // return the original value if it's neither a dayjs object nor an array of dayjs objects
 };

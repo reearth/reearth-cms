@@ -18,8 +18,9 @@ const LocalTab: React.FC<Props> = ({ uploadProps }) => {
       <Dragger
         itemRender={(
           _originNode: ReactElement,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           file: UploadFile<any>,
-          _fileList: UploadFile<any>[],
+          _fileList,
           { remove },
         ) => <FileItem file={file} remove={remove} />}
         {...uploadProps}>

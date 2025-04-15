@@ -1,64 +1,72 @@
-import { useTranslation } from "react-i18next";
+import styled from "@emotion/styled";
+import { useMemo, useState } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
-import { validateURL } from "@reearth-cms/utils/regex";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
+import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator, urlErrorIndexesGet } from "../utils";
 
-interface URLFieldProps {
-  field: Field;
-  itemGroupId?: string;
-  onMetaUpdate?: () => Promise<void>;
-}
+const URLField: React.FC<FieldProps> = ({
+  field,
+  itemGroupId,
+  disabled,
+  itemHeights,
+  onItemHeightChange,
+}) => {
+  const t = useT();
 
-const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
-  const { t } = useTranslation();
+  const required = useMemo(() => field.required, [field.required]);
+  const [errorIndexes, setErrorIndexes] = useState(new Set<number>());
 
   return (
-    <Form.Item
+    <StyledFormItem
       extra={field.description}
+      validateStatus="success"
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}
       rules={[
         {
-          required: field.required,
+          required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
         {
-          message: "URL is not valid",
+          message: t("URL is not valid"),
           validator: async (_, value) => {
-            if (value) {
-              if (
-                Array.isArray(value) &&
-                value.some((valueItem: string) => !validateURL(valueItem) && valueItem.length > 0)
-              )
-                return Promise.reject();
-              else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
-                return Promise.reject();
+            const indexes = urlErrorIndexesGet(value);
+            setErrorIndexes(new Set(indexes));
+            if (indexes.length) {
+              return Promise.reject();
             }
             return Promise.resolve();
           },
         },
       ]}>
       {field.multiple ? (
-        <MultiValueField
-          showCount={true}
-          maxLength={field.typeProperty?.maxLength ?? 500}
-          FieldInput={Input}
-          onBlur={onMetaUpdate}
-        />
+        <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+          <MultiValueField
+            FieldInput={Input}
+            disabled={disabled}
+            required={required}
+            errorIndexes={errorIndexes}
+          />
+        </ResponsiveHeight>
       ) : (
-        <Input
-          showCount={true}
-          maxLength={field.typeProperty?.maxLength ?? 500}
-          onBlur={onMetaUpdate}
-        />
+        <Input disabled={disabled} required={required} isError={errorIndexes.has(0)} />
       )}
-    </Form.Item>
+    </StyledFormItem>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+  .ant-input-disabled {
+    color: inherit;
+  }
+`;
 
 export default URLField;

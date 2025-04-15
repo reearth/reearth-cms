@@ -15,6 +15,7 @@ type View struct {
 	sort      *Sort
 	filter    *Condition
 	columns   *ColumnList
+	order     int
 	user      UserID
 	updatedAt time.Time
 }
@@ -25,6 +26,14 @@ func (v *View) Model() ModelID {
 
 func (v *View) ID() ID {
 	return v.id
+}
+
+func (g *View) Order() int {
+	return g.order
+}
+
+func (g *View) SetOrder(order int) {
+	g.order = order
 }
 
 func (v *View) Clone() *View {
@@ -40,6 +49,7 @@ func (v *View) Clone() *View {
 		sort:      v.sort,
 		filter:    v.filter,
 		columns:   v.columns,
+		order:     v.order,
 		user:      v.user.Clone(),
 		updatedAt: lo.FromPtr(&v.updatedAt),
 	}

@@ -2,31 +2,25 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { useT } from "@reearth-cms/i18n";
+import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { useT, Trans } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
-export type Props = {
-  webhooks?: Webhook[];
+type Props = {
+  webhooks: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
-  onWebhookUpdate: (data: {
-    webhookId: string;
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-  }) => Promise<void>;
-  onShowForm: () => void;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
   onWebhookSelect: (id: string) => void;
+  onShowForm: () => void;
 };
 
 const WebhookList: React.FC<Props> = ({
   webhooks,
   onWebhookDelete,
   onWebhookUpdate,
-  onShowForm,
   onWebhookSelect,
+  onShowForm,
 }) => {
   const t = useT();
 
@@ -37,7 +31,7 @@ const WebhookList: React.FC<Props> = ({
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
-      {webhooks && webhooks.length > 0 ? (
+      {webhooks.length > 0 ? (
         <ListWrapper>
           {webhooks.map(webhook => (
             <WebhookCard
@@ -45,7 +39,7 @@ const WebhookList: React.FC<Props> = ({
               webhook={webhook}
               onWebhookDelete={onWebhookDelete}
               onWebhookUpdate={onWebhookUpdate}
-              onWebhookSettings={onWebhookSelect}
+              onWebhookSelect={onWebhookSelect}
             />
           ))}
         </ListWrapper>
@@ -53,13 +47,13 @@ const WebhookList: React.FC<Props> = ({
         <EmptyListWrapper>
           <Title>{t("No Webhook yet")}</Title>
           <Suggestion>
-            {t("Create a new ")}
+            <Text>{t("Create a new")}</Text>
             <Button onClick={onShowForm} type="primary" icon={<Icon icon="plus" />}>
               {t("New Webhook")}
             </Button>
           </Suggestion>
           <Suggestion>
-            {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
+            <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
           </Suggestion>
         </EmptyListWrapper>
       )}
@@ -72,11 +66,15 @@ const ActionWrapper = styled.div`
 `;
 
 const Suggestion = styled.p`
-  margin: 8px 0;
+  margin-bottom: 8px;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
   color: #00000073;
+`;
+
+const Text = styled.span`
+  margin-right: 8px;
 `;
 
 const EmptyListWrapper = styled.div`
@@ -92,11 +90,12 @@ const ListWrapper = styled.div`
   padding: 12px;
 `;
 
-const Title = styled.h1`
+const Title = styled.p`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
   color: #000;
+  margin-bottom: 24px;
 `;
 
 export default WebhookList;

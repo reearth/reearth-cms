@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
@@ -95,7 +94,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			Required(param.Required).
 			Name(param.Name).
 			Description(lo.FromPtr(param.Description)).
-			Key(key.New(param.Key)).
+			Key(id.NewKey(param.Key)).
 			DefaultValue(param.DefaultValue).
 			Build()
 		if err != nil {
@@ -392,7 +391,7 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 	}
 
 	if param.Key != nil {
-		if err := f.SetKey(key.New(*param.Key)); err != nil {
+		if err := f.SetKey(id.NewKey(*param.Key)); err != nil {
 			return err
 		}
 	}

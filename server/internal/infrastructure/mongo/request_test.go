@@ -26,7 +26,7 @@ func TestRequest_Filtered(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -35,7 +35,7 @@ func TestRequest_Filtered(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -88,7 +88,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -97,7 +97,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -151,7 +151,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -160,7 +160,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -205,7 +205,10 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item1, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item2, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item3, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+
 	reviewer := accountdomain.NewUserID()
 	creator := accountdomain.NewUserID()
 	req1 := request.New().
@@ -213,8 +216,8 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(creator).
-		Thread(id.NewThreadID()).
-		Items(request.ItemList{item}).
+		Thread(id.NewThreadID().Ref()).
+		Items(request.ItemList{item1, item3}).
 		Reviewers(accountdomain.UserIDList{reviewer}).
 		Title("foo").
 		MustBuild()
@@ -223,8 +226,8 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
-		Items(request.ItemList{item}).
+		Thread(id.NewThreadID().Ref()).
+		Items(request.ItemList{item2, item3}).
 		State(request.StateDraft).
 		Title("hoge").
 		MustBuild()
@@ -264,6 +267,50 @@ func TestRequest_FindByProject(t *testing.T) {
 				},
 			},
 			want: 1,
+		},
+		{
+			name:  "must find 2",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					Keyword: lo.ToPtr("o"),
+				},
+			},
+			want: 2,
+		},
+		{
+			name:  "must find 1 by id",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					Keyword: lo.ToPtr(req1.ID().String()),
+				},
+			},
+			want: 1,
+		},
+		{
+			name:  "must find 1 by item id",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					Keyword: lo.ToPtr(item1.Item().String()),
+				},
+			},
+			want: 1,
+		},
+		{
+			name:  "must find 2 by item id",
+			seeds: request.List{req1, req2},
+			args: args{
+				projectID: pid,
+				RequestFilter: repo.RequestFilter{
+					Keyword: lo.ToPtr(item3.Item().String()),
+				},
+			},
+			want: 2,
 		},
 		{
 			name:  "must find 1",
@@ -339,7 +386,7 @@ func TestRequest_SaveAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -348,7 +395,7 @@ func TestRequest_SaveAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -357,7 +404,7 @@ func TestRequest_SaveAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("xxx").
 		MustBuild()
@@ -385,7 +432,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(creator).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item1}).
 		Reviewers(accountdomain.UserIDList{reviewer}).
 		Title("foo").
@@ -395,7 +442,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item1, item2}).
 		State(request.StateDraft).
 		Title("hoge").
@@ -405,7 +452,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item2}).
 		Title("xxx").
 		MustBuild()
@@ -448,7 +495,7 @@ func TestRequest_FindByItem(t *testing.T) {
 				err := r.Save(ctx, p)
 				assert.NoError(t, err)
 			}
-			got, _ := r.FindByItems(ctx, tc.input)
+			got, _ := r.FindByItems(ctx, tc.input, nil)
 			assert.Equal(t, tc.want, len(got))
 		})
 	}

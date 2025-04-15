@@ -1,39 +1,55 @@
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import Loading from "@reearth-cms/components/atoms/Loading";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import DangerZone from "@reearth-cms/components/molecules/ProjectSettings/DangerZone";
-import ProjectGeneralForm from "@reearth-cms/components/molecules/ProjectSettings/GeneralForm";
-import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
+import GeneralForm from "@reearth-cms/components/molecules/ProjectSettings/GeneralForm";
+import RequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project, Role } from "../Workspace/types";
+import { Project } from "../Workspace/types";
 
-export type Props = {
+type Props = {
   project?: Project;
-  onProjectUpdate: (name?: string | undefined, description?: string | undefined) => Promise<void>;
-  onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
+  onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
+  onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
   onProjectDelete: () => Promise<void>;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const ProjectSettings: React.FC<Props> = ({
   project,
+  hasUpdateRight,
+  hasDeleteRight,
   onProjectDelete,
   onProjectUpdate,
   onProjectRequestRolesUpdate,
+  onProjectAliasCheck,
 }) => {
   const t = useT();
 
-  return (
-    <InnerContent title={`${t("Project Settings")} / ${project?.name}`}>
+  return !project ? (
+    <Loading minHeight="400px" />
+  ) : (
+    <InnerContent title={`${t("Project Settings")} / ${project.name}`}>
       <ContentSection title={t("General")}>
-        <ProjectGeneralForm project={project} onProjectUpdate={onProjectUpdate} />
+        <GeneralForm
+          project={project}
+          hasUpdateRight={hasUpdateRight}
+          onProjectUpdate={onProjectUpdate}
+          onProjectAliasCheck={onProjectAliasCheck}
+        />
       </ContentSection>
       <ContentSection title={t("Request")}>
-        <ProjectRequestOptions
-          project={project}
+        <RequestOptions
+          initialRequestRoles={project.requestRoles}
+          hasUpdateRight={hasUpdateRight}
           onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         />
       </ContentSection>
-      <DangerZone onProjectDelete={onProjectDelete} />
+      <DangerZone hasDeleteRight={hasDeleteRight} onProjectDelete={onProjectDelete} />
     </InnerContent>
   );
 };

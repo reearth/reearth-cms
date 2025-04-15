@@ -1,6 +1,6 @@
-import { CSSProperties } from "react";
+import styled from "@emotion/styled";
 
-import Select, { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
+import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
 export type PreviewType =
@@ -10,45 +10,46 @@ export type PreviewType =
   | "IMAGE"
   | "IMAGE_SVG"
   | "MODEL_3D"
+  | "CSV"
   | "UNKNOWN";
 
 type Props = {
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
-  style?: CSSProperties;
+  onTypeChange: (value: PreviewType) => void;
   value?: PreviewType;
+  hasUpdateRight: boolean;
 };
 
 type PreviewTypeListItem = {
-  id: number;
   name: string;
   value: PreviewType;
 };
 
-export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, style, value }) => {
+export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value, hasUpdateRight }) => {
   const t = useT();
   const previewTypeList: PreviewTypeListItem[] = [
-    { id: 1, name: t("PNG/JPEG/TIFF/GIF"), value: "IMAGE" },
-    { id: 2, name: t("SVG"), value: "IMAGE_SVG" },
+    { name: t("PNG/JPEG/TIFF/GIF"), value: "IMAGE" },
+    { name: t("SVG"), value: "IMAGE_SVG" },
     {
-      id: 3,
       name: t("GEOJSON/KML/CZML"),
       value: "GEO",
     },
-    { id: 4, name: t("3D Tiles"), value: "GEO_3D_TILES" },
-    { id: 5, name: t("MVT"), value: "GEO_MVT" },
-    { id: 6, name: t("GLTF/GLB"), value: "MODEL_3D" },
-    { id: 7, name: t("Unknown Type"), value: "UNKNOWN" },
+    { name: t("3D Tiles"), value: "GEO_3D_TILES" },
+    { name: t("MVT"), value: "GEO_MVT" },
+    { name: t("GLTF/GLB"), value: "MODEL_3D" },
+    { name: t("CSV"), value: "CSV" },
+    { name: t("Unknown Type"), value: "UNKNOWN" },
   ];
   return (
-    <Select style={style} value={value} onChange={onTypeChange}>
-      {previewTypeList.map((type: PreviewTypeListItem) => (
-        <Select.Option key={type.id} value={type.value}>
+    <StyledSelect value={value} onChange={onTypeChange} disabled={!hasUpdateRight}>
+      {previewTypeList.map((type, index) => (
+        <Select.Option key={index} value={type.value}>
           {type.name}
         </Select.Option>
       ))}
-    </Select>
+    </StyledSelect>
   );
 };
+
+const StyledSelect = styled(Select<PreviewType>)`
+  width: 80%;
+`;

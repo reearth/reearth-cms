@@ -7,23 +7,23 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   onUserDelete: () => Promise<void>;
 };
 
 const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
   const t = useT();
-  const { confirm } = Modal;
 
   const handleAccountDeleteConfirmation = useCallback(() => {
-    confirm({
+    Modal.confirm({
       title: t("Are you sure you want to delete your account?"),
       icon: <Icon icon="exclamationCircle" />,
-      onOk() {
-        onUserDelete();
+      cancelText: t("Cancel"),
+      async onOk() {
+        await onUserDelete();
       },
     });
-  }, [confirm, onUserDelete, t]);
+  }, [onUserDelete, t]);
 
   return (
     <ContentSection title={t("Danger Zone")} danger>
@@ -42,7 +42,7 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
 
 export default DangerZone;
 
-const Title = styled.h1`
+const Title = styled.p`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;

@@ -3,25 +3,32 @@ import React, { useMemo } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
-import { SelectedSchemaType, Tab } from "@reearth-cms/components/molecules/Schema";
 import { useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
-import { FieldType } from "./types";
+import { FieldType, Tab, SelectedSchemaType } from "./types";
 
-export interface Props {
-  className?: string;
-  currentTab?: Tab;
-  selectedSchemaType?: SelectedSchemaType;
+type Props = {
+  currentTab: Tab;
+  selectedSchemaType: SelectedSchemaType;
+  hasCreateRight: boolean;
   addField: (fieldType: FieldType) => void;
-}
+};
 
-type FieldListItem = { title: string; fields: FieldType[] };
+type FieldListItem = {
+  title: string;
+  fields: FieldType[];
+};
 
-const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
+const FieldList: React.FC<Props> = ({
+  currentTab,
+  selectedSchemaType,
+  hasCreateRight,
+  addField,
+}) => {
   const t = useT();
 
-  const group: FieldListItem[] = useMemo(
+  const common: FieldListItem[] = useMemo(
     () => [
       {
         title: t("Text"),
@@ -45,7 +52,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
       },
       {
         title: t("Number"),
-        fields: ["Integer"],
+        fields: ["Integer", "Number"],
       },
       {
         title: t("URL"),
@@ -55,9 +62,19 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
     [t],
   );
 
+  const geometry: FieldListItem = useMemo(
+    () => ({
+      title: t("GeoJSON Geometry"),
+      fields: ["GeometryObject", "GeometryEditor"],
+    }),
+    [t],
+  );
+
+  const group: FieldListItem[] = useMemo(() => [...common, geometry], [common, geometry]);
+
   const data: FieldListItem[] = useMemo(
     () => [
-      ...group,
+      ...common,
       {
         title: t("Relation"),
         fields: ["Reference"],
@@ -66,8 +83,9 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         title: t("Group"),
         fields: ["Group"],
       },
+      geometry,
     ],
-    [group, t],
+    [common, geometry, t],
   );
 
   const meta: FieldListItem[] = useMemo(
@@ -87,15 +105,16 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
 
   return (
     <>
-      <h1>{t("Add Field")}</h1>
+      <StyledTitle>{t("Add Field")}</StyledTitle>
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={dataSource}
+        hasCreateRight={hasCreateRight}
         renderItem={item => (
           <>
-            <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>
-            {(item as FieldListItem).fields?.map(field => (
-              <List.Item key={field} onClick={() => addField(field as FieldType)}>
+            <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
+            {item.fields.map(field => (
+              <List.Item key={field} onClick={hasCreateRight ? () => addField(field) : undefined}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}
@@ -110,6 +129,10 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
   );
 };
 
+const StyledTitle = styled.h1`
+  font-size: 16px;
+`;
+
 const FieldCategoryTitle = styled.h2`
   font-weight: 400;
   font-size: 12px;
@@ -119,13 +142,13 @@ const FieldCategoryTitle = styled.h2`
   color: rgba(0, 0, 0, 0.45);
 `;
 
-const FieldStyledList = styled(List)`
+const FieldStyledList = styled(List<FieldListItem>)<{ hasCreateRight: boolean }>`
   max-height: calc(100% - 34px);
   overflow-y: auto;
   padding-bottom: 24px;
   .ant-list-item {
     background-color: #fff;
-    cursor: pointer;
+    cursor: ${({ hasCreateRight }) => (hasCreateRight ? "pointer" : "not-allowed")};
     + .ant-list-item {
       margin-top: 12px;
     }
@@ -150,7 +173,7 @@ const FieldStyledList = styled(List)`
 
 const Meta = styled(List.Item.Meta)`
   .ant-list-item-meta-description {
-    font-size: 12px;
+    font-size: 12px !important;
   }
 `;
 

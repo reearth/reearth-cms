@@ -12,18 +12,18 @@ import { useT } from "@reearth-cms/i18n";
 
 import HeaderDropdown from "./Dropdown";
 
-interface Props {
-  username?: string;
+type Props = {
+  username: string;
   personalWorkspace?: Workspace;
   currentWorkspace?: Workspace;
-  workspaces?: any[];
+  workspaces?: Workspace[];
   currentProject?: Project;
   onWorkspaceModalOpen: () => void;
   onNavigateToSettings: () => void;
-  onWorkspaceNavigation: (id: number) => void;
+  onWorkspaceNavigation: (id: string) => void;
   onHomeNavigation: () => void;
   logoUrl?: string;
-}
+};
 
 const HeaderMolecule: React.FC<Props> = ({
   username,
@@ -133,13 +133,14 @@ const HeaderMolecule: React.FC<Props> = ({
         items={WorkspacesItems}
         personal={currentIsPersonal}
       />
-      {currentProject?.name && (
-        <CurrentProject>
-          <Break>/</Break>
-          <ProjectText>{currentProject.name}</ProjectText>
-        </CurrentProject>
-      )}
-      <Spacer />
+      <CurrentProject>
+        {currentProject?.name && (
+          <>
+            <Break>/</Break>
+            <ProjectText>{currentProject.name}</ProjectText>
+          </>
+        )}
+      </CurrentProject>
       <AccountDropdown name={username} items={AccountItems} personal={true} />
       {url && (
         <LinkWrapper>
@@ -181,10 +182,6 @@ const LogoIcon = styled.img`
   cursor: pointer;
 `;
 
-const Spacer = styled.div`
-  flex: 1;
-`;
-
 const VerticalDivider = styled.div`
   display: inline-block;
   height: 32px;
@@ -206,6 +203,9 @@ const AccountDropdown = styled(HeaderDropdown)`
 
 const ProjectText = styled.p`
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Break = styled.p`
@@ -218,6 +218,8 @@ const CurrentProject = styled.div`
   display: flex;
   align-items: center;
   color: #dbdbdb;
+  flex: 1;
+  min-width: 0;
 `;
 
 const MenuText = styled.p`

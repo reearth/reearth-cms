@@ -9,15 +9,14 @@ import { useT } from "@reearth-cms/i18n";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  className?: string;
   checked?: boolean[];
   onChange?: (value: (string | number | boolean)[]) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
   disabled?: boolean;
 };
 
 const MultiValueBooleanField: React.FC<Props> = ({
-  className,
   checked = [],
   FieldInput,
   disabled,
@@ -49,21 +48,23 @@ const MultiValueBooleanField: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(checked) &&
         checked?.map((valueItem, key) => (
           <FieldWrapper key={key}>
             {!disabled && (
               <>
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowUp" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(checked, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowDown" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(checked, key, key + 1))}
                   disabled={key === checked.length - 1}
                 />
@@ -72,13 +73,15 @@ const MultiValueBooleanField: React.FC<Props> = ({
             <FieldInput
               onChange={(e: boolean | CheckboxChangeEvent) => handleInput(e, key)}
               checked={valueItem}
+              disabled={disabled}
             />
 
             <FlexSpace />
             {!disabled && (
               <FieldButton
-                type="link"
-                icon={<Icon icon="delete" />}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}

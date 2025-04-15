@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -13,16 +12,16 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
-	rlog "github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho" // nolint:staticcheck
 )
 
 func initEcho(cfg *ServerConfig) *echo.Echo {
 	if cfg.Config == nil {
-		log.Fatalln("ServerConfig.Config is nil")
+		log.Fatalf("ServerConfig.Config is nil")
 	}
 
 	e := echo.New()
@@ -32,7 +31,7 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 	e.HTTPErrorHandler = errorHandler(e.DefaultHTTPErrorHandler)
 
 	// basic middleware
-	logger := rlog.NewEcho()
+	logger := log.NewEcho()
 	e.Logger = logger
 	e.Use(
 		logger.AccessLogger(),
@@ -53,7 +52,7 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 		e.GET("/graphql", echo.WrapHandler(
 			playground.Handler("reearth-cms", "/api/graphql"),
 		))
-		log.Printf("gql: GraphQL Playground is available")
+		log.Infof("gql: GraphQL Playground is available")
 	}
 
 	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
@@ -81,7 +80,7 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 	)
 	api.POST("/signup", Signup(), usecaseMiddleware)
 
-	publicapi.Echo(api.Group("/p", PublicAPIAuthMiddleware(cfg), usecaseMiddleware))
+	publicapi.Echo(api.Group("/p", publicAPIAuthMiddleware(cfg), usecaseMiddleware))
 	integration.RegisterHandlers(api.Group(
 		"",
 		authMiddleware(cfg),

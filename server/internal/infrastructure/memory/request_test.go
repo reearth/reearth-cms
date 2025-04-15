@@ -39,7 +39,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -65,7 +65,7 @@ func TestRequest_SaveAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -75,7 +75,7 @@ func TestRequest_SaveAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -106,7 +106,7 @@ func TestRequest_Save(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -116,7 +116,7 @@ func TestRequest_Save(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -148,7 +148,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -158,7 +158,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -185,7 +185,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -195,7 +195,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("xxx").
 		State(request.StateDraft).
@@ -206,7 +206,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -281,7 +281,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item1}).
 		Title("foo").
 		MustBuild()
@@ -291,7 +291,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item1}).
 		Title("xxx").
 		State(request.StateDraft).
@@ -302,7 +302,7 @@ func TestRequest_FindByItem(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item2}).
 		Title("foo").
 		MustBuild()
@@ -352,7 +352,7 @@ func TestRequest_FindByItem(t *testing.T) {
 				SetRequestError(r, tc.wantErr)
 			}
 
-			got, err := r.FindByItems(ctx, tc.input)
+			got, err := r.FindByItems(ctx, tc.input, nil)
 			if tc.wantErr != nil {
 				assert.Same(t, tc.wantErr, err)
 				return

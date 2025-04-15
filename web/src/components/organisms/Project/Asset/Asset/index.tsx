@@ -1,7 +1,7 @@
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
+import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
@@ -9,8 +9,7 @@ import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General
 import useHooks from "./hooks";
 
 const Asset: React.FC = () => {
-  const navigate = useNavigate();
-  const { workspaceId, projectId, assetId } = useParams();
+  const { assetId } = useParams();
   const {
     asset,
     assetFileExt,
@@ -21,35 +20,32 @@ const Asset: React.FC = () => {
     viewerType,
     displayUnzipFileList,
     decompressing,
+    isSaveDisabled,
+    updateLoading,
+    hasUpdateRight,
     handleAssetDecompress,
     handleAssetItemSelect,
     handleToggleCommentMenu,
-    handleAssetUpdate,
     handleTypeChange,
     handleModalCancel,
     handleFullScreen,
+    handleBack,
+    handleSave,
+    handleGetViewer,
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
 
-  const handleSave = useCallback(async () => {
-    if (assetId) {
-      await handleAssetUpdate(assetId, selectedPreviewType);
-    }
-  }, [assetId, handleAssetUpdate, selectedPreviewType]);
-
-  const handleBack = useCallback(() => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`);
-  }, [navigate, projectId, workspaceId]);
-
   return isLoading ? (
     <Loading spinnerSize="large" minHeight="100vh" />
-  ) : (
+  ) : asset ? (
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
-          comments={asset?.comments}
-          threadId={asset?.threadId}
+          resourceId={asset.id}
+          resourceType={"ASSET"}
+          comments={asset.comments}
+          threadId={asset.threadId}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
           refetchQueries={["GetAssetItem"]}
@@ -62,6 +58,9 @@ const Asset: React.FC = () => {
       viewerType={viewerType}
       displayUnzipFileList={displayUnzipFileList}
       decompressing={decompressing}
+      isSaveDisabled={isSaveDisabled}
+      updateLoading={updateLoading}
+      hasUpdateRight={hasUpdateRight}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
       onTypeChange={handleTypeChange}
@@ -69,8 +68,11 @@ const Asset: React.FC = () => {
       onChangeToFullScreen={handleFullScreen}
       onBack={handleBack}
       onSave={handleSave}
+      onGetViewer={handleGetViewer}
       workspaceSettings={workspaceSettings}
     />
+  ) : (
+    <NotFound />
   );
 };
 

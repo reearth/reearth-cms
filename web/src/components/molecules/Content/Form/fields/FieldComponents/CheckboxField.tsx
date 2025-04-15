@@ -1,16 +1,11 @@
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 
 import FieldTitle from "../../FieldTitle";
 
-interface CheckboxFieldProps {
-  field: Field;
-  onMetaUpdate?: () => void;
-}
-
-const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, onMetaUpdate }) => {
+const CheckboxField: React.FC<FieldProps> = ({ field, disabled }) => {
   return (
     <Form.Item
       extra={field.description}
@@ -18,9 +13,9 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, onMetaUpdate }) =>
       valuePropName="checked"
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
-        <MultiValueBooleanField onChange={onMetaUpdate} FieldInput={Checkbox} />
+        <MultiValueBooleanField FieldInput={Checkbox} disabled={disabled} />
       ) : (
-        <Checkbox onChange={onMetaUpdate} />
+        <Checkbox disabled={disabled} />
       )}
     </Form.Item>
   );

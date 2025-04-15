@@ -13,7 +13,8 @@ import (
 )
 
 func TestToRequest(t *testing.T) {
-	itm, _ := request.NewItem(id.NewItemID())
+	ver := version.New().String()
+	itm, _ := request.NewItem(id.NewItemID(), lo.ToPtr(ver))
 	req := request.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -22,7 +23,7 @@ func TestToRequest(t *testing.T) {
 		Title("foo").
 		Description("xxx").
 		State(request.StateClosed).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Reviewers(accountdomain.UserIDList{accountdomain.NewUserID()}).
 		CreatedBy(accountdomain.NewUserID()).
 		ClosedAt(lo.ToPtr(util.Now())).
@@ -33,14 +34,14 @@ func TestToRequest(t *testing.T) {
 		ID: IDFrom(req.ID()),
 		Items: []*RequestItem{{
 			ItemID: IDFrom(itm.Item()),
-			Ref:    lo.ToPtr(version.Public.String()),
+			Version: lo.ToPtr(ver),
 		}},
 		Title:       "foo",
 		Description: lo.ToPtr("xxx"),
 		CreatedByID: IDFrom(req.CreatedBy()),
 		WorkspaceID: IDFrom(req.Workspace()),
 		ProjectID:   IDFrom(req.Project()),
-		ThreadID:    IDFrom(req.Thread()),
+		ThreadID:    IDFromRef(req.Thread()),
 		ReviewersID: []ID{IDFrom(req.Reviewers()[0])},
 		State:       RequestStateClosed,
 		CreatedAt:   req.CreatedAt(),

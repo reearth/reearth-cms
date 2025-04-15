@@ -13,11 +13,16 @@ import {
   Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.model.update, [userRights?.model.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.model.delete, [userRights?.model.delete]);
+
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
   const t = useT();
@@ -63,7 +68,7 @@ export default () => {
     setModelDeletionModalShown(false);
   }, [setSelectedModel, setModelDeletionModalShown]);
 
-  const [deleteModel] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteLoading }] = useDeleteModelMutation({
     refetchQueries: ["GetModels"],
   });
 
@@ -136,6 +141,10 @@ export default () => {
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
+    deleteLoading,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,

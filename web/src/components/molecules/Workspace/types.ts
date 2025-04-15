@@ -1,28 +1,24 @@
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 
 export type Project = {
   id: string;
   name: string;
-  description?: string;
-  alias?: string;
-  scope?: PublicScope;
-  assetPublic?: boolean;
-  requestRoles?: Role[];
+  description: string;
+  alias: string;
+  scope: PublicScope;
+  assetPublic: boolean;
+  requestRoles: Role[];
+  token: string;
 };
 
-export type User = {
-  name: string;
-};
+export type ProjectListItem = Pick<Project, "id" | "name" | "description">;
 
 export type UserMember = {
   userId: string;
   role: Role;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  user: User;
 };
 
 export type Member = UserMember | IntegrationMember;
@@ -32,8 +28,6 @@ export type MemberInput = {
   role: Role;
 };
 
-export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
-
 export type Workspace = {
   id: string;
   name: string;
@@ -42,7 +36,6 @@ export type Workspace = {
 };
 
 export type WorkspaceSettings = {
-  id: string;
   tiles?: ResourceList<TileResource>;
   terrains?: ResourceList<TerrainResource>;
 };

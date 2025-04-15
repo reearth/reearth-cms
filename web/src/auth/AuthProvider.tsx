@@ -6,16 +6,23 @@ import { getAuthInfo, getSignInCallbackUrl, logInToTenant } from "@reearth-cms/c
 import { useAuth0Auth } from "./Auth0Auth";
 import AuthHook from "./AuthHook";
 import { useCognitoAuth } from "./CognitoAuth";
+import { useFirebaseAuth } from "./FirebaseAuth";
+import FirebaseProvider from "./FirebaseProvider";
 
 export const AuthContext = createContext<AuthHook | null>(null);
 
-const Auth0Wrapper = ({ children }: { children: ReactNode }) => {
+const Auth0Wrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useAuth0Auth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
-const CognitoWrapper = ({ children }: { children: ReactNode }) => {
+const CognitoWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   const auth = useCognitoAuth();
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+};
+
+const FirebaseWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const auth = useFirebaseAuth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
@@ -35,11 +42,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       <Auth0Provider
         domain={domain}
         clientId={clientId}
-        audience={audience}
+        authorizationParams={{
+          audience: audience,
+          scope: "openid profile email offline_access",
+          redirect_uri: getSignInCallbackUrl(),
+        }}
         useRefreshTokens
-        scope="openid profile email"
-        cacheLocation="localstorage"
-        redirectUri={getSignInCallbackUrl()}>
+        useRefreshTokensFallback
+        cacheLocation="localstorage">
         <Auth0Wrapper>{children}</Auth0Wrapper>
       </Auth0Provider>
     ) : null;
@@ -48,6 +58,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   if (authProvider === "cognito") {
     // No specific provider needed for Cognito/AWS Amplify
     return <CognitoWrapper>{children}</CognitoWrapper>;
+  }
+
+  if (authProvider === "firebase") {
+    return (
+      <FirebaseProvider>
+        <FirebaseWrapper>{children}</FirebaseWrapper>
+      </FirebaseProvider>
+    );
   }
 
   return null;

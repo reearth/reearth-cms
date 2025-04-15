@@ -4,24 +4,26 @@ import Groups from "@reearth-cms/components/molecules/Model/ModelsList/Groups";
 import ModelListBody from "@reearth-cms/components/molecules/Model/ModelsList/ModelListBody";
 import ModelListHeader from "@reearth-cms/components/molecules/Model/ModelsList/ModelListHeader";
 import Models from "@reearth-cms/components/molecules/Model/ModelsList/Models";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
+import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema/types";
 
 import useHooks from "./hooks";
 
-interface Props {
+type Props = {
   title: string;
-  collapsed?: boolean;
+  collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
+  titleIcon: string;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
-}
+};
 
 const ModelsMenu: React.FC<Props> = ({
   title,
   collapsed,
   selectedSchemaType,
   displayGroups,
+  titleIcon,
   onModelSelect,
   onGroupSelect,
 }) => {
@@ -32,6 +34,8 @@ const ModelsMenu: React.FC<Props> = ({
     groups,
     modelModalShown,
     groupModalShown,
+    hasCreateRight,
+    hasUpdateRight,
     handleModelModalOpen,
     handleModelModalClose,
     handleGroupModalOpen,
@@ -41,22 +45,25 @@ const ModelsMenu: React.FC<Props> = ({
     handleModelKeyCheck,
     handleGroupKeyCheck,
     handleUpdateModelsOrder,
+    handleUpdateGroupsOrder,
   } = useHooks({
     modelId: selectedSchemaType === "model" ? schemaId : undefined,
   });
 
   return (
     <>
-      <ModelListHeader title={title} collapsed={collapsed} />
-      <ModelListBody>
+      <ModelListHeader title={title} collapsed={collapsed} titleIcon={titleIcon} />
+      <ModelListBody collapsed={collapsed}>
         <Models
           title={title}
           collapsed={collapsed}
           selectedKey={schemaId}
           models={models}
-          onModelSelect={onModelSelect}
-          onModalOpen={handleModelModalOpen}
           open={modelModalShown}
+          hasCreateRight={hasCreateRight}
+          hasUpdateRight={hasUpdateRight}
+          onModalOpen={handleModelModalOpen}
+          onModelSelect={onModelSelect}
           onModelKeyCheck={handleModelKeyCheck}
           onClose={handleModelModalClose}
           onCreate={handleModelCreate}
@@ -68,12 +75,15 @@ const ModelsMenu: React.FC<Props> = ({
             collapsed={collapsed}
             selectedKey={schemaId}
             groups={groups}
-            onGroupSelect={onGroupSelect}
-            onModalOpen={handleGroupModalOpen}
             open={groupModalShown}
+            hasCreateRight={hasCreateRight}
+            hasUpdateRight={hasUpdateRight}
+            onModalOpen={handleGroupModalOpen}
             onGroupKeyCheck={handleGroupKeyCheck}
             onClose={handleGroupModalClose}
             onCreate={handleGroupCreate}
+            onGroupSelect={onGroupSelect}
+            onUpdateGroupsOrder={handleUpdateGroupsOrder}
           />
         )}
       </ModelListBody>

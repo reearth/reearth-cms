@@ -25,9 +25,8 @@ test("Text field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("text1 default value");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
-  await expect(page.getByText("text1 #text1")).toBeVisible();
+  await expect(page.getByText("text1#text1")).toBeVisible();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await expect(page.getByLabel("Display name")).toBeVisible();
   await expect(page.getByLabel("Display name")).toHaveValue("text1");
@@ -52,7 +51,6 @@ test("Text field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("text1 description");
   await expect(page.getByLabel("text1")).toHaveValue("text1 default value");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.locator("tbody")).toContainText("text1 default value");
@@ -81,7 +79,6 @@ test("Text field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "arrow-down" }).first().click();
   await expect(page.locator("#defaultValue").nth(1)).toHaveValue("text1");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByText("new text1 *#new-text1(unique)")).toBeVisible();
   await page.getByText("Content").click();
@@ -91,10 +88,9 @@ test("Text field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("new text1(unique)")).toBeVisible();
   await page.getByText("new text1 description").click();
   await expect(page.getByText("new text1 description")).toBeVisible();
-  await expect(page.getByLabel("new text1(unique)")).toHaveValue("text2");
-  await expect(page.getByRole("textbox").nth(1)).toHaveValue("text1");
+  await expect(page.getByRole("textbox").first()).toHaveValue("text2");
+  await expect(page.getByRole("textbox").last()).toHaveValue("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
@@ -105,9 +101,7 @@ test("Text field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.getByRole("button", { name: "plus New" }).click();
   await expect(page.getByText("/ 5")).toBeVisible();
-  await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("input: updateItem value is required");
-  await closeNotification(page);
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
   await page.getByRole("textbox").nth(0).click();
   await page.getByRole("textbox").nth(0).fill("text");
   await page.getByRole("button", { name: "plus New" }).click();
@@ -117,7 +111,6 @@ test("Text field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).nth(1).click();

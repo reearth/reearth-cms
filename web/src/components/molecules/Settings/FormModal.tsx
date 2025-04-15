@@ -1,11 +1,10 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { Rule } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   TileType,
   TerrainType,
@@ -26,7 +25,7 @@ type FormValues = {
   cesiumIonAccessToken?: string;
 };
 
-const TileTypeFormat: { [key in TileType]: string } = {
+export const TileTypeFormat: { [key in TileType]: string } = {
   DEFAULT: "Default",
   LABELLED: "Labelled",
   ROAD_MAP: "Road Map",
@@ -37,22 +36,21 @@ const TileTypeFormat: { [key in TileType]: string } = {
   URL: "URL",
 };
 
-const TerrainTypeFormat: { [key in TerrainType]: string } = {
+export const TerrainTypeFormat: { [key in TerrainType]: string } = {
   CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
   ARC_GIS_TERRAIN: "ArcGIS Terrain",
   CESIUM_ION: "Cesium Ion",
 };
 
-export interface Props {
-  model?: Model;
-  open?: boolean;
+type Props = {
+  open: boolean;
   onClose: () => void;
   tiles: TileInput[];
   terrains: TerrainInput[];
   setSettings: React.Dispatch<React.SetStateAction<WorkspaceSettings | undefined>>;
   isTile: boolean;
   index?: number;
-}
+};
 
 const FormModal: React.FC<Props> = ({
   open,
@@ -95,6 +93,18 @@ const FormModal: React.FC<Props> = ({
       }
     }
   }, [form, index, isTile, open, options, terrains, tiles]);
+
+  const title = useMemo(
+    () =>
+      index === undefined
+        ? isTile
+          ? t("New Tiles")
+          : t("New Terrain")
+        : isTile
+          ? t("Update Tiles")
+          : t("Update Terrain"),
+    [index, isTile, t],
+  );
 
   const handleClose = useCallback(() => {
     onClose();
@@ -162,7 +172,7 @@ const FormModal: React.FC<Props> = ({
     () => [
       {
         message: t("URL is not valid"),
-        validator: async (_: any, value: string) => {
+        validator: async (_: Rule, value: string) => {
           return value && !validateURL(value) ? Promise.reject() : Promise.resolve();
         },
       },
@@ -174,7 +184,7 @@ const FormModal: React.FC<Props> = ({
     <Modal
       open={open}
       onCancel={handleClose}
-      title={isTile ? t("New Tiles") : t("New Terrain")}
+      title={title}
       footer={[
         <Button key="submit" type="primary" onClick={handleSubmit}>
           OK
@@ -188,31 +198,31 @@ const FormModal: React.FC<Props> = ({
           isTile ? (
             <>
               <Form.Item name="name" label={t("Name")} extra={t("Name of tiles")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="url" label={t("URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
             </>
           ) : (
             <>
               <Form.Item name="name" label={t("Name")} extra={t("Name of terrain")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="cesiumIonAssetId" label={t("Terrain Cesium Ion asset ID")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="cesiumIonAccessToken" label={t("Terrain Cesium Ion access token")}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="url" label={t("Terrain URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
               <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
-                <Input placeholder={t("example")} />
+                <Input />
               </Form.Item>
             </>
           )

@@ -3,17 +3,12 @@ import styled from "@emotion/styled";
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-interface TagFieldProps {
-  field: Field;
-  onMetaUpdate?: () => void;
-}
-
-const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
+const TagField: React.FC<FieldProps> = ({ field, disabled }) => {
   const t = useT();
 
   return (
@@ -28,7 +23,11 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
       ]}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
-        <StyledMultipleSelect onChange={onMetaUpdate} mode="multiple" showArrow allowClear>
+        <StyledMultipleSelect
+          mode="multiple"
+          tagRender={props => <>{props.label}</>}
+          allowClear
+          disabled={disabled}>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
@@ -36,10 +35,12 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select onChange={onMetaUpdate} showArrow allowClear>
+        <Select allowClear disabled={disabled}>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
-              <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              <TagWrapper>
+                <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              </TagWrapper>
             </Select.Option>
           ))}
         </Select>
@@ -51,6 +52,10 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
 export default TagField;
 
 const StyledMultipleSelect = styled(Select)`
+  .ant-select-selection-overflow {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
   .ant-select-selection-overflow-item {
     margin-right: 4px;
   }
@@ -68,4 +73,9 @@ const StyledMultipleSelect = styled(Select)`
   .ant-tag {
     margin-right: 0;
   }
+`;
+
+const TagWrapper = styled.div`
+  overflow-x: auto;
+  overflow-y: hidden;
 `;

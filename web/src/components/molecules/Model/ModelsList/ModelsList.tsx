@@ -5,22 +5,27 @@ import ReactDragListView from "react-drag-listview";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   selectedKey?: string;
   models?: Model[];
-  collapsed?: boolean;
+  collapsed: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
-  onUpdateModelsOrder: (modelIds: string[]) => void;
+  onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
 };
 
 const ModelsList: React.FC<Props> = ({
   selectedKey,
   models,
   collapsed,
+  hasCreateRight,
+  hasUpdateRight,
   onModalOpen,
   onModelSelect,
   onUpdateModelsOrder,
@@ -49,19 +54,38 @@ const ModelsList: React.FC<Props> = ({
     return selectedKey ? [selectedKey] : [];
   }, [selectedKey]);
 
-  const items = useMemo(() => {
-    return models
-      ?.sort((a, b) => {
-        if (a.order !== undefined && b.order !== undefined) {
-          return a.order - b.order;
-        }
-        return 0;
-      })
-      .map(model => ({
-        label: collapsed ? <Icon icon="dot" /> : model.name,
-        key: model.id,
-      }));
-  }, [collapsed, models]);
+  const scrollToSelected = useCallback(
+    (node: HTMLElement | null) => node?.scrollIntoView({ block: "nearest" }),
+    [],
+  );
+
+  const items = useMemo(
+    () =>
+      models
+        ?.sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          return 0;
+        })
+        .map(model => ({
+          label: (
+            <div ref={model.id === selectedKey ? scrollToSelected : undefined}>
+              {collapsed ? (
+                <Tooltip placement="right" title={model.name}>
+                  <span>
+                    <Icon icon="dot" />
+                  </span>
+                </Tooltip>
+              ) : (
+                model.name
+              )}
+            </div>
+          ),
+          key: model.id,
+        })),
+    [collapsed, models, scrollToSelected, selectedKey],
+  );
 
   return (
     <SchemaStyledMenu>
@@ -70,8 +94,12 @@ const ModelsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
-            <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
+            <SchemaStyledMenuTitle>{t("MODELS")}</SchemaStyledMenuTitle>
+            <SchemaAddButton
+              onClick={onModalOpen}
+              icon={<Icon icon="plus" />}
+              type="link"
+              disabled={!hasCreateRight}>
               {!collapsed && t("Add")}
             </SchemaAddButton>
           </SchemaAction>
@@ -79,7 +107,7 @@ const ModelsList: React.FC<Props> = ({
       )}
       <MenuWrapper>
         <ReactDragListView
-          nodeSelector=".ant-menu-item"
+          nodeSelector={hasUpdateRight ? ".ant-menu-item" : undefined}
           lineClassName="dragLine"
           onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
           <StyledMenu
@@ -106,13 +134,7 @@ const SchemaAction = styled.div<{ collapsed?: boolean }>`
 `;
 
 const SchemaAddButton = styled(Button)`
-  color: #1890ff;
   padding: 4px;
-  &:hover,
-  &:active,
-  &:focus {
-    color: #1890ff;
-  }
 `;
 
 const SchemaStyledMenuTitle = styled.h1`
@@ -126,7 +148,6 @@ const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-right: 1px solid #f0f0f0;
 `;
 
 const MenuWrapper = styled.div`
@@ -135,7 +156,8 @@ const MenuWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid #f0f0f0;
-  padding: 12px 20px;
+  padding: 12px 0;
+  justify-content: center;
 `;
 
 const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`

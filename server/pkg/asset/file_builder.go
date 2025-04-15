@@ -29,6 +29,11 @@ func (b *FileBuilder) ContentType(contentType string) *FileBuilder {
 	return b
 }
 
+func (b *FileBuilder) ContentEncoding(contentEncoding string) *FileBuilder {
+	b.f.contentEncoding = contentEncoding
+	return b
+}
+
 func (b *FileBuilder) Path(filePath string) *FileBuilder {
 	if !strings.HasPrefix(filePath, "/") && filePath != "" {
 		filePath = "/" + filePath
@@ -48,8 +53,20 @@ func (b *FileBuilder) Children(children []*File) *FileBuilder {
 	return b
 }
 
+func (b *FileBuilder) Files(files []*File) *FileBuilder {
+	b.f.files = slices.Clone(files)
+	return b
+}
+
 func (b *FileBuilder) GuessContentType() *FileBuilder {
 	b.detectContentType = true
+	return b
+}
+
+func (b *FileBuilder) GuessContentTypeIfEmpty() *FileBuilder {
+	if b.f.contentType == "" {
+		b.detectContentType = true
+	}
 	return b
 }
 

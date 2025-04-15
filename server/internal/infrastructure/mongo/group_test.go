@@ -2,15 +2,15 @@ package mongo
 
 import (
 	"context"
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGroup_Filtered(t *testing.T) {
@@ -33,7 +33,7 @@ func TestGroupRepo_FindByID(t *testing.T) {
 	pid1 := id.NewProjectID()
 	id1 := id.NewGroupID()
 	sid1 := id.NewSchemaID()
-	k := key.New("T123456")
+	k := id.NewKey("T123456")
 	m1 := group.New().ID(id1).Project(pid1).Schema(sid1).Key(k).MustBuild()
 
 	tests := []struct {
@@ -143,7 +143,7 @@ func TestGroupRepo_FindByIDs(t *testing.T) {
 	id2 := id.NewGroupID()
 	sid1 := id.NewSchemaID()
 	sid2 := id.NewSchemaID()
-	k := key.New("T123456")
+	k := id.NewKey("T123456")
 	m1 := group.New().ID(id1).Project(pid1).Schema(sid1).Key(k).MustBuild()
 	m2 := group.New().ID(id2).Project(pid1).Schema(sid2).Key(k).MustBuild()
 
@@ -240,10 +240,8 @@ func TestGroupRepo_FindByIDs(t *testing.T) {
 
 			r := NewGroup(client)
 			ctx := context.Background()
-			for _, a := range tc.seeds {
-				err := r.Save(ctx, a.Clone())
-				assert.NoError(t, err)
-			}
+			err := r.SaveAll(ctx, tc.seeds)
+			assert.NoError(t, err)
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
@@ -266,7 +264,7 @@ func TestGroupRepo_FindByProject(t *testing.T) {
 	id2 := id.NewGroupID()
 	sid1 := id.NewSchemaID()
 	sid2 := id.NewSchemaID()
-	k := key.New("T123456")
+	k := id.NewKey("T123456")
 	m1 := group.New().ID(id1).Project(pid1).Schema(sid1).Key(k).MustBuild()
 	m2 := group.New().ID(id2).Project(pid1).Schema(sid2).Key(k).MustBuild()
 

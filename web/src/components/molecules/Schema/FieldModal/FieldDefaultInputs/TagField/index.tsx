@@ -6,10 +6,10 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+type Props = {
   selectedTags?: { id: string; name: string; color: string }[];
-  multiple?: boolean;
-}
+  multiple: boolean;
+};
 
 const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
   const t = useT();
@@ -17,7 +17,10 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>
       {multiple ? (
-        <StyledMultipleSelect key={selectedTags?.length} mode="multiple" showArrow>
+        <StyledMultipleSelect
+          key={selectedTags?.length}
+          mode="multiple"
+          tagRender={props => <>{props.label}</>}>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
@@ -25,10 +28,12 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select key={selectedTags?.length} showArrow allowClear>
+        <Select key={selectedTags?.length} allowClear>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
-              <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              <TagWrapper>
+                <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              </TagWrapper>
             </Select.Option>
           ))}
         </Select>
@@ -38,6 +43,10 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
 };
 
 const StyledMultipleSelect = styled(Select)`
+  .ant-select-selection-overflow {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
   .ant-select-selection-overflow-item {
     margin-right: 4px;
   }
@@ -55,6 +64,11 @@ const StyledMultipleSelect = styled(Select)`
   .ant-tag {
     margin-right: 0;
   }
+`;
+
+const TagWrapper = styled.div`
+  overflow-x: auto;
+  overflow-y: hidden;
 `;
 
 export default TagField;

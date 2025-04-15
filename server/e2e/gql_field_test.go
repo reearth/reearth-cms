@@ -127,17 +127,20 @@ func updateField(e *httpexpect.Expect, mID, fID, title, desc, key string, multip
 }
 
 type fIds struct {
-	textFId     string
-	textAreaFId string
-	markdownFId string
-	assetFId    string
-	boolFId     string
-	selectFId   string
-	integerFId  string
-	urlFId      string
-	dateFId     string
-	tagFID      string
-	checkFid    string
+	textFId           string
+	textAreaFId       string
+	markdownFId       string
+	assetFId          string
+	boolFId           string
+	selectFId         string
+	integerFId        string
+	numberFId         string
+	urlFId            string
+	dateFId           string
+	tagFID            string
+	checkFid          string
+	geometryObjectFid string
+	geometryEditorFid string
 }
 
 func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds {
@@ -190,6 +193,16 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 			},
 		})
 
+	numberFId, _ := createField(e, mId, "number", "number", "number",
+		false, false, false, false, "Number",
+		map[string]any{
+			"number": map[string]any{
+				"defaultValue": nil,
+				"min":          nil,
+				"max":          nil,
+			},
+		})
+
 	urlFId, _ := createField(e, mId, "url", "url", "url",
 		false, false, false, false, "URL",
 		map[string]any{
@@ -200,7 +213,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		false, false, false, false, "Date",
 		map[string]any{
 			"date": map[string]any{
-				"defaultValue": "2024-01-01T18:06:09+09:00",
+				"defaultValue": nil,
 			},
 		})
 	tagFId, _ := createField(e, mId, "tag", "tag", "m_tag",
@@ -223,6 +236,24 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 			"checkbox": map[string]any{},
 		})
 
+	geometryObjectFId, _ := createField(e, mId, "geometryObject", "geometryObject", "geometryObject",
+		false, false, false, false, "GeometryObject",
+		map[string]any{
+			"geometryObject": map[string]any{
+				"defaultValue":   nil,
+				"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
+			},
+		})
+
+	geometryEditorFId, _ := createField(e, mId, "geometryEditor", "geometryEditor", "geometryEditor",
+		false, false, false, false, "GeometryEditor",
+		map[string]any{
+			"geometryEditor": map[string]any{
+				"defaultValue":   nil,
+				"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
+			},
+		})
+
 	_, _, res := getModel(e, mId)
 
 	res.Object().
@@ -240,24 +271,30 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		boolFId,
 		selectFId,
 		integerFId,
+		numberFId,
 		urlFId,
 		dateFId,
 		tagFId,
 		checkboxFId,
+		geometryObjectFId,
+		geometryEditorFId,
 	}, ids)
 
 	return fIds{
-		textFId:     textFId,
-		textAreaFId: textAreaFId,
-		markdownFId: markdownFId,
-		assetFId:    assetFId,
-		boolFId:     boolFId,
-		selectFId:   selectFId,
-		integerFId:  integerFId,
-		urlFId:      urlFId,
-		dateFId:     dateFId,
-		tagFID:      tagFId,
-		checkFid:    checkboxFId,
+		textFId:           textFId,
+		textAreaFId:       textAreaFId,
+		markdownFId:       markdownFId,
+		assetFId:          assetFId,
+		boolFId:           boolFId,
+		selectFId:         selectFId,
+		integerFId:        integerFId,
+		numberFId:         numberFId,
+		urlFId:            urlFId,
+		dateFId:           dateFId,
+		tagFID:            tagFId,
+		checkFid:          checkboxFId,
+		geometryObjectFid: geometryObjectFId,
+		geometryEditorFid: geometryEditorFId,
 	}
 }
 
@@ -344,7 +381,7 @@ func createMetaFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) m
 }
 
 func TestCreateField(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
@@ -413,7 +450,7 @@ func TestCreateField(t *testing.T) {
 }
 
 func TestClearFieldDefaultValue(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 

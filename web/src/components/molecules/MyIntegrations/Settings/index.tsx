@@ -3,22 +3,37 @@ import styled from "@emotion/styled";
 import Content from "@reearth-cms/components/atoms/Content";
 import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Settings/DangerZone";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import {
+  Integration,
+  IntegrationInfo,
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-export type Props = {
+type Props = {
   integration: Integration;
-  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  updateIntegrationLoading: boolean;
+  regenerateLoading: boolean;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
+  onRegenerateToken: () => Promise<void>;
 };
 
 const MyIntegrationSettings: React.FC<Props> = ({
   integration,
+  updateIntegrationLoading,
+  regenerateLoading,
   onIntegrationUpdate,
   onIntegrationDelete,
+  onRegenerateToken,
 }) => {
   return (
     <Wrapper>
-      <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
+      <MyIntegrationForm
+        integration={integration}
+        updateIntegrationLoading={updateIntegrationLoading}
+        regenerateLoading={regenerateLoading}
+        onIntegrationUpdate={onIntegrationUpdate}
+        onRegenerateToken={onRegenerateToken}
+      />
       <DangerZone onIntegrationDelete={onIntegrationDelete} />
     </Wrapper>
   );

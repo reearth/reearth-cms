@@ -31,14 +31,17 @@ const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 12px;
+  padding: 0 12px 0 20px;
   font-size: 24px;
 `;
 
 const Title = styled.p`
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
+  display: flex;
+  gap: 16px;
+  overflow: hidden;
 `;
 
 const Toolbar = styled.div`

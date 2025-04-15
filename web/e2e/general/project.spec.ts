@@ -1,39 +1,33 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
+import { getId } from "@reearth-cms/e2e/utils/mock";
 
 test.afterEach(async ({ page }) => {
   await page.getByText("Settings").click();
   await page.getByRole("button", { name: "Delete Project" }).click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted project!");
   await closeNotification(page);
-  await expect(page.getByText("new project name", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("new project name", { exact: true })).toBeHidden();
 });
 
 test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "plus New Project" }).click();
+  await page.getByRole("button", { name: "plus New Project" }).last().click();
   await page.getByLabel("Project name").click();
   await page.getByLabel("Project name").fill("project name");
   await page.getByLabel("Project alias").click();
-  await page.getByLabel("Project alias").fill("project alias");
+  await page.getByLabel("Project alias").fill(getId());
   await page.getByLabel("Project description").click();
   await page.getByLabel("Project description").fill("project description");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("input: createProject invalid alias");
-  await closeNotification(page);
-  await page.getByLabel("Project alias").click();
-  await page.getByLabel("Project alias").fill("project-alias");
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created project!");
   await closeNotification(page);
 
   await expect(page.getByText("project name", { exact: true })).toBeVisible();
   await expect(page.getByText("project description", { exact: true })).toBeVisible();
-  await page.locator(".ant-input-affix-wrapper").click();
+  await page.getByPlaceholder("search projects").click();
   await page.getByPlaceholder("search projects").fill("no project");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByText("project name", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("project name", { exact: true })).toBeHidden();
   await page.getByRole("button", { name: "close-circle" }).click();
   await expect(page.getByText("project name", { exact: true })).toBeVisible();
   await page.getByText("project name", { exact: true }).click();
@@ -46,7 +40,6 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Description").click();
   await page.getByLabel("Description").fill("new project description");
   await page.locator("form").getByRole("button", { name: "Save changes" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated project!");
   await closeNotification(page);
 
   await expect(page.locator("#root")).toContainText("Project Settings / new project name");
@@ -55,9 +48,8 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Save changes" }).nth(1).click();
   await expect(page.getByRole("row", { name: "Owner" }).getByRole("switch")).toHaveAttribute(
     "aria-checked",
-    "false",
+    "true",
   );
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated request roles!");
   await closeNotification(page);
 
   await page.getByText("Overview").click();

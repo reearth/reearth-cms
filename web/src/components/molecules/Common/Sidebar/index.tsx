@@ -9,8 +9,10 @@ const Sidebar: React.FC<SiderProps> = ({ collapsible = true, ...siderProps }) =>
 export default Sidebar;
 
 const StyledSidebar = styled(Sider)`
-  background-color: #fff;
-
+  && {
+    background-color: #fff;
+    padding-bottom: 38px;
+  }
   .ant-layout-sider-trigger {
     background-color: #fff;
     border-top: 1px solid #f0f0f0;
@@ -24,10 +26,10 @@ const StyledSidebar = styled(Sider)`
     cursor: pointer;
   }
   .ant-layout-sider-children {
-    height: calc(100% + 12px);
+    border-right: 1px solid #f0f0f0;
   }
   .ant-menu-inline {
-    border-right: 1px solid white;
+    border-right: none !important;
 
     & > li {
       padding: 0 20px;

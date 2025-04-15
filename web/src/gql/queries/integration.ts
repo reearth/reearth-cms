@@ -54,3 +54,17 @@ export const DELETE_INTEGRATION = gql`
     }
   }
 `;
+
+export const REGENERATE_INTEGRATION_TOKEN = gql`
+  mutation regenerateIntegrationToken($integrationId: ID!) {
+    regenerateIntegrationToken(input: { integrationId: $integrationId }) {
+      integration {
+        id
+        name
+        description
+        logoUrl
+        iType
+      }
+    }
+  }
+`;

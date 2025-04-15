@@ -12,3 +12,5 @@ export type RefetchQueries = (
   | "GetAssetsItems"
   | "GetRequests"
 )[];
+
+export type ResourceType = "ITEM" | "ASSET" | "REQUEST";

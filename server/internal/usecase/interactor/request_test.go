@@ -34,7 +34,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -43,7 +43,7 @@ func TestRequest_FindByID(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -130,7 +130,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -139,7 +139,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
@@ -148,7 +148,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		Workspace(wid).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("xxx").
 		MustBuild()
@@ -237,7 +237,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -246,7 +246,7 @@ func TestRequest_FindByProject(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(request.ItemList{item}).
 		State(request.StateDraft).
 		Title("hoge").
@@ -353,21 +353,38 @@ func TestRequest_Approve(t *testing.T) {
 	defer util.MockNow(now)()
 
 	// TODO: add error cases
+	wid := accountdomain.NewWorkspaceID()
 	prj := project.New().NewID().MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
-	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
-	item, _ := request.NewItem(i.ID())
-	wid := accountdomain.NewWorkspaceID()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	// if tc.mockRequestErr {
+	//	memory.SetRequestError(db.Request, tc.wantErr)
+	// }
+	err := db.Project.Save(ctx, prj)
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s)
+	assert.NoError(t, err)
+	err = db.Model.Save(ctx, m)
+	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i)
+	assert.NoError(t, err)
+
+	vi, err := db.Item.FindByID(ctx, i.ID(), nil)
+	assert.NoError(t, err)
+	ri, _ := request.NewItem(i.ID(), lo.ToPtr(vi.Version().String()))
 	req1 := request.New().
 		NewID().
 		Workspace(wid).
 		Project(prj.ID()).
 		Reviewers(accountdomain.UserIDList{u.ID()}).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
-		Items(request.ItemList{item}).
+		Thread(id.NewThreadID().Ref()).
+		Items(request.ItemList{ri}).
 		Title("foo").
 		MustBuild()
 	op := &usecase.Operator{
@@ -376,21 +393,8 @@ func TestRequest_Approve(t *testing.T) {
 			OwningWorkspaces: accountdomain.WorkspaceIDList{wid},
 		},
 	}
-	ctx := context.Background()
 
-	db := memory.New()
-	// if tc.mockRequestErr {
-	//	memory.SetRequestError(db.Request, tc.wantErr)
-	// }
-	err := db.Project.Save(ctx, prj)
-	assert.NoError(t, err)
 	err = db.Request.Save(ctx, req1)
-	assert.NoError(t, err)
-	err = db.Schema.Save(ctx, s)
-	assert.NoError(t, err)
-	err = db.Model.Save(ctx, m)
-	assert.NoError(t, err)
-	err = db.Item.Save(ctx, i)
 	assert.NoError(t, err)
 
 	requestUC := NewRequest(db, nil)

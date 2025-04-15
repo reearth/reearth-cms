@@ -3,28 +3,42 @@ import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/co
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
-import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
+import {
+  Item,
+  FormItem,
+  ItemField,
+  VersionedItem,
+  FormValues,
+} from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import {
+  Request,
+  RequestItem,
+  RequestState,
+} from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 type Props = {
+  hasRequestCreateRight: boolean;
+  hasRequestUpdateRight: boolean;
+  hasPublishRight: boolean;
+  hasItemUpdateRight: boolean;
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
-  showPublishAction?: boolean;
+  showPublishAction: boolean;
   requests: Request[];
-  collapsed?: boolean;
+  collapsed: boolean;
   model?: Model;
   modelsMenu: React.ReactNode;
-  initialFormValues: { [key: string]: any };
-  initialMetaFormValues: { [key: string]: any };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialFormValues: Record<string, any>;
+  initialMetaFormValues: Record<string, unknown>;
+  versions: VersionedItem[];
+  title: string;
   item?: Item;
   itemId?: string;
   itemLoading: boolean;
@@ -44,6 +58,7 @@ type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
+  publishLoading: boolean;
   requestModalLoading: boolean;
   requestModalTotalCount: number;
   requestModalPage: number;
@@ -55,18 +70,15 @@ type Props = {
   onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
+  onGetVersionedItem: (version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
   onLinkItemTableReload: () => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onCollapse?: (collapse: boolean) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  onCollapse: (collapse: boolean) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
@@ -77,13 +89,13 @@ type Props = {
     metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onMetaItemUpdate: (data: { metaItemId: string; metaFields: ItemField[] }) => Promise<void>;
-  onBack: (modelId?: string) => void;
+  onMetaItemUpdate: (data: { metaItemId?: string; metaFields: ItemField[] }) => Promise<void>;
+  onBack: () => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetSearchTerm: (term?: string) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onRequestCreate: (data: {
@@ -91,20 +103,29 @@ type Props = {
     description: string;
     state: RequestState;
     reviewersId: string[];
-    items: {
-      itemId: string;
-    }[];
+    items: RequestItem[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => void;
+  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
+  onNavigateToRequest: (id: string) => void;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  hasRequestCreateRight,
+  hasRequestUpdateRight,
+  hasPublishRight,
+  hasItemUpdateRight,
+  loadingReference,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -113,6 +134,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   modelsMenu,
   initialFormValues,
   initialMetaFormValues,
+  versions,
+  title,
   item,
   itemId,
   itemLoading,
@@ -136,6 +159,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onRequestTableChange,
   onRequestSearchTerm,
   onRequestTableReload,
+  publishLoading,
   requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
@@ -147,6 +171,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableChange,
+  onGetVersionedItem,
   onPublish,
   onUnpublish,
   onCollapse,
@@ -173,6 +198,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAssetTableChange,
   onGetAsset,
   onGroupGet,
+  onCheckItemReference,
+  onNavigateToRequest,
 }) => {
   return (
     <ComplexInnerContents
@@ -191,7 +218,12 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           <NotFound />
         ) : (
           <ContentForm
+            title={title}
             item={item}
+            hasRequestCreateRight={hasRequestCreateRight}
+            hasRequestUpdateRight={hasRequestUpdateRight}
+            hasPublishRight={hasPublishRight}
+            hasItemUpdateRight={hasItemUpdateRight}
             linkItemModalTitle={linkItemModalTitle}
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}
@@ -199,6 +231,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onReferenceModelUpdate={onReferenceModelUpdate}
             onSearchTerm={onSearchTerm}
             onLinkItemTableChange={onLinkItemTableChange}
+            loadingReference={loadingReference}
             linkedItemsModalList={linkedItemsModalList}
             showPublishAction={showPublishAction}
             requests={requests}
@@ -207,6 +240,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onRequestTableChange={onRequestTableChange}
             onRequestSearchTerm={onRequestSearchTerm}
             onRequestTableReload={onRequestTableReload}
+            publishLoading={publishLoading}
             requestModalLoading={requestModalLoading}
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
@@ -216,6 +250,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             model={model}
             initialFormValues={initialFormValues}
             initialMetaFormValues={initialMetaFormValues}
+            versions={versions}
             assetList={assetList}
             onAssetTableChange={onAssetTableChange}
             totalCount={totalCount}
@@ -227,6 +262,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             uploadModalVisibility={uploadModalVisibility}
             uploadUrl={uploadUrl}
             uploadType={uploadType}
+            onGetVersionedItem={onGetVersionedItem}
             onPublish={onPublish}
             onUnpublish={onUnpublish}
             onChange={onChange}
@@ -254,6 +290,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             workspaceUserMembers={workspaceUserMembers}
             onGetAsset={onGetAsset}
             onGroupGet={onGroupGet}
+            onCheckItemReference={onCheckItemReference}
+            onNavigateToRequest={onNavigateToRequest}
           />
         )
       }

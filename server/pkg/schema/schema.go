@@ -2,9 +2,8 @@ package schema
 
 import (
 	"errors"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
@@ -87,7 +86,7 @@ func (s *Schema) Field(fId FieldID) *Field {
 	return f
 }
 
-func (s *Schema) FieldByIDOrKey(fId *FieldID, key *key.Key) *Field {
+func (s *Schema) FieldByIDOrKey(fId *FieldID, key *id.Key) *Field {
 	if s == nil || s.fields == nil {
 		return nil
 	}
@@ -153,4 +152,31 @@ func (s *Schema) Clone() *Schema {
 		fields:     slices.Clone(s.fields),
 		titleField: s.TitleField().CloneRef(),
 	}
+}
+
+func (s *Schema) HasGeometryFields() bool {
+	if s == nil {
+		return false
+	}
+	return len(s.FieldsByType(value.TypeGeometryObject)) > 0 || len(s.FieldsByType(value.TypeGeometryEditor)) > 0
+}
+
+func (s *Schema) IsPointFieldSupported() bool {
+	if s == nil {
+		return false
+	}
+	for _, f := range s.Fields() {
+		if f.SupportsPointField() {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Schema) CopyFrom(s2 *Schema) {
+	if s == nil || s2 == nil {
+		return
+	}
+	s.fields = slices.Clone(s2.fields)
+	s.titleField = s2.TitleField().CloneRef()
 }

@@ -1,21 +1,23 @@
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 
-import { TablePaginationConfig } from "@reearth-cms/components/atoms/ProTable";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 
 export default (
-  itemIds: string[],
+  items: RequestItem[],
   onLinkItemRequestModalCancel: () => void,
   requestList: Request[],
   requestModalTotalCount: number,
   requestModalPage: number,
   requestModalPageSize: number,
-  onChange?: (value: Request, itemIds: string[]) => void,
+  onChange: (value: Request, items: RequestItem[]) => Promise<void>,
 ) => {
   const resetFlag = useRef(false);
+  const selectedRequest = useRef<Request>();
   const [selectedRequestId, setSelectedRequestId] = useState<string>();
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const pagination: TablePaginationConfig = useMemo(
+  const pagination = useMemo(
     () => ({
       showSizeChanger: true,
       current: requestModalPage,
@@ -25,11 +27,30 @@ export default (
     [requestModalPage, requestModalTotalCount, requestModalPageSize],
   );
 
-  const submit = useCallback(() => {
-    onChange?.(requestList.find(request => request.id === selectedRequestId) as Request, itemIds);
-    setSelectedRequestId(undefined);
-    onLinkItemRequestModalCancel();
-  }, [itemIds, onChange, onLinkItemRequestModalCancel, requestList, selectedRequestId]);
+  const select = useCallback((id: string) => {
+    setSelectedRequestId(id);
+  }, []);
 
-  return { pagination, submit, resetFlag, selectedRequestId, setSelectedRequestId };
+  useEffect(() => {
+    setIsDisabled(!selectedRequestId);
+    selectedRequest.current = requestList.find(request => request.id === selectedRequestId);
+  }, [requestList, selectedRequestId]);
+
+  const submit = useCallback(async () => {
+    if (selectedRequest.current) {
+      setIsDisabled(true);
+      setIsLoading(true);
+      try {
+        await onChange(selectedRequest.current, items);
+        setSelectedRequestId(undefined);
+        onLinkItemRequestModalCancel();
+      } catch (_) {
+        setIsDisabled(false);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }, [items, onChange, onLinkItemRequestModalCancel]);
+
+  return { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading };
 };

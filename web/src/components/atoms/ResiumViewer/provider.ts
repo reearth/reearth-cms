@@ -33,7 +33,7 @@ const defaultTile = new ProviderViewModel({
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.AERIAL,
-    }) as any;
+    });
   },
 });
 
@@ -44,7 +44,7 @@ const labelled = new ProviderViewModel({
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.AERIAL_WITH_LABELS,
-    }) as any;
+    });
   },
 });
 
@@ -55,7 +55,7 @@ const roadMap = new ProviderViewModel({
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.ROAD,
-    }) as any;
+    });
   },
 });
 
@@ -76,12 +76,14 @@ const esriTopography = new ProviderViewModel({
     "https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/0/0/0",
   tooltip: "",
   creationFunction: () => {
-    return new ArcGisMapServerImageryProvider({
-      url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",
-      credit:
-        "Copyright: Tiles © Esri — Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Communit",
-      enablePickFeatures: false,
-    });
+    return ArcGisMapServerImageryProvider.fromUrl(
+      "https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",
+      {
+        credit:
+          "Copyright: Tiles © Esri — Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Communit",
+        enablePickFeatures: false,
+      },
+    );
   },
 });
 
@@ -90,7 +92,7 @@ const earthAtNight = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
   creationFunction: () => {
-    return IonImageryProvider.fromAssetId(3812, {}) as any;
+    return IonImageryProvider.fromAssetId(3812, { accessToken });
   },
 });
 
@@ -180,9 +182,9 @@ const arcGis = new ProviderViewModel({
   iconUrl: ArcgisThumbnail,
   tooltip: "",
   creationFunction: () => {
-    return new ArcGISTiledElevationTerrainProvider({
-      url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
-    });
+    return ArcGISTiledElevationTerrainProvider.fromUrl(
+      "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
+    );
   },
 });
 
@@ -198,13 +200,12 @@ const cesiumIonGet = ({
     iconUrl: image || NoImage,
     tooltip: "",
     creationFunction: () => {
-      return new CesiumTerrainProvider({
-        url:
-          url ||
+      return CesiumTerrainProvider.fromUrl(
+        url ||
           IonResource.fromAssetId(parseInt(cesiumIonAssetId, 10), {
             accessToken: cesiumIonAccessToken || accessToken,
           }),
-      });
+      );
     },
   });
 };

@@ -4,19 +4,21 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestList_CloseAll(t *testing.T) {
-	item, _ := NewItem(id.NewItemID())
+	item, _ := NewItem(id.NewItemID(), lo.ToPtr(version.New().String()))
 
 	req1 := New().
 		NewID().
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(ItemList{item}).
 		Title("foo").
 		MustBuild()
@@ -26,7 +28,7 @@ func TestList_CloseAll(t *testing.T) {
 		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
 		CreatedBy(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Items(ItemList{item}).
 		Title("hoge").
 		MustBuild()

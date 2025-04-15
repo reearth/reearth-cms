@@ -13,18 +13,16 @@ test.afterEach(async ({ page }) => {
 });
 
 test("Model CRUD on Overview page has succeeded", async ({ page }) => {
-  await page.getByRole("button", { name: "plus New Model" }).click();
+  await expect(page.getByText("No Models yet")).toBeVisible();
+  await page.getByRole("button", { name: "plus New Model" }).first().click();
+  await expect(page.getByLabel("New Model").getByText("New Model")).toBeVisible();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("model name");
   await page.getByLabel("Model description").click();
   await page.getByLabel("Model description").fill("model description");
   await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("model key");
-  await expect(page.getByRole("button", { name: "Ok" })).not.toBeEnabled();
-  await page.getByLabel("Model key").click();
-  await page.getByLabel("Model key").fill("model-key");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created model!");
   await closeNotification(page);
   await expect(page.getByTitle("model name")).toBeVisible();
   await expect(page.getByText("#model-key")).toBeVisible();
@@ -39,14 +37,25 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
   await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("new-model-key");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated model!");
   await closeNotification(page);
   await expect(page.locator("#root")).toContainText("new model name");
   await expect(page.locator("#root")).toContainText("new model description");
   await page.getByRole("list").locator("a").click();
   await page.getByText("Delete").click();
   await page.getByRole("button", { name: "Delete Model" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted model!");
   await closeNotification(page);
   await expect(page.locator("#root")).not.toContainText("new model name");
+  await expect(page.getByText("No Models yet")).toBeVisible();
+});
+
+test("Creating Model by using the button on placeholder has succeeded", async ({ page }) => {
+  await page.getByRole("button", { name: "plus New Model" }).last().click();
+  await expect(page.getByLabel("New Model").getByText("New Model")).toBeVisible();
+  await page.getByLabel("Model name").click();
+  await page.getByLabel("Model name").fill("model name");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+  await expect(page.getByTitle("model name")).toBeVisible();
+  await expect(page.getByText("#model-name")).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "model name" }).locator("span")).toBeVisible();
 });

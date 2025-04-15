@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useState, FocusEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -8,12 +8,14 @@ import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import Notification from "@reearth-cms/components/atoms/Notification";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
-import { dateTimeFormat, transformMomentToString } from "@reearth-cms/utils/format";
+import { useT } from "@reearth-cms/i18n";
+import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
@@ -24,26 +26,49 @@ type Props = {
 };
 
 export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
+  const t = useT();
+
   const [isEditable, setIsEditable] = useState(false);
+  const [itemState, setItemState] = useState(item);
+
+  const handleTextBlur = useCallback(
+    (e: FocusEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (itemState === value) {
+        return;
+      }
+      update?.(value, index);
+      setItemState(value);
+    },
+    [index, itemState, update],
+  );
 
   const handleUrlBlur = useCallback(
     (e: FocusEvent<HTMLInputElement>) => {
-      if (e.target.value && !validateURL(e.target.value)) return;
-      update?.(e.target.value, index);
+      const value = e.target.value;
+      if (itemState === value) {
+        setIsEditable(false);
+        return;
+      }
+      if (value && !validateURL(value)) {
+        Notification.error({ message: t("Please input a valid URL") });
+        return;
+      }
+      update?.(value, index);
+      setItemState(value);
       setIsEditable(false);
     },
-    [index, update],
+    [index, itemState, t, update],
   );
 
   switch (field.type) {
     case "Text":
       return update ? (
         <StyledInput
+          maxLength={field.typeProperty?.maxLength}
           defaultValue={item}
           placeholder="-"
-          onBlur={e => {
-            update(e.target.value, index);
-          }}
+          onBlur={handleTextBlur}
         />
       ) : (
         item
@@ -53,8 +78,8 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
         <ReactMarkdown
           components={{
             a(props) {
-              const { node: _, ...rest } = props;
-              return <a target="_blank" {...rest} />;
+              delete props.node;
+              return <a target="_blank" {...props} />;
             },
           }}
           remarkPlugins={[remarkGfm]}>
@@ -65,14 +90,14 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
       return update ? (
         <StyledDatePicker
           placeholder="-"
-          defaultValue={item ? moment(item) : undefined}
+          defaultValue={item ? dayjs(item) : undefined}
           suffixIcon={undefined}
           onChange={date => {
-            update(date ? transformMomentToString(date) : "", index);
+            update(date ? transformDayjsToString(date) : "", index);
           }}
         />
       ) : (
-        dateTimeFormat(item)
+        dateTimeFormat(item, "YYYY-MM-DD")
       );
     case "Bool":
       return update ? (
@@ -101,24 +126,24 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
       );
     case "URL":
       return update ? (
-        !item || isEditable ? (
+        !itemState || isEditable ? (
           <StyledInput
-            defaultValue={item}
+            defaultValue={itemState}
             placeholder="-"
             autoFocus={isEditable}
             onBlur={handleUrlBlur}
           />
         ) : (
           <Tooltip
-            showArrow={false}
+            arrow={false}
             placement="right"
             color="#fff"
             overlayStyle={{ paddingLeft: 0 }}
             overlayInnerStyle={{ transform: "translateX(-40px)" }}
             title={<Icon color="#1890ff" icon={"edit"} onClick={() => setIsEditable(true)} />}>
             <UrlWrapper>
-              <a href={item} target="_blank" rel="noreferrer">
-                {item}
+              <a href={itemState} target="_blank" rel="noreferrer">
+                {itemState}
               </a>
             </UrlWrapper>
           </Tooltip>

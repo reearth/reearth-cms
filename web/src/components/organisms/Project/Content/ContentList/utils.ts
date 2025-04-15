@@ -1,4 +1,5 @@
-import { AndCondition } from "@reearth-cms/components/molecules/View/types";
+import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
+import { AndCondition as GQLAndCondition } from "@reearth-cms/gql/graphql-client-api";
 
 export function fileName(url: string | undefined): string {
   if (!url) return "";
@@ -11,11 +12,21 @@ export function fileName(url: string | undefined): string {
   return files.length ? files[files.length - 1] : "";
 }
 
-export function filterConvert(filter: AndCondition) {
+export function filterConvert(filter: GQLAndCondition): AndConditionInput | undefined {
   if (!filter || filter?.conditions?.length === 0) return;
 
-  const convertedFilter: { conditions: any[] } = { conditions: [] };
+  const convertedFilter: {
+    conditions: Record<
+      string,
+      {
+        fieldId: { id: string; type: string };
+        operator: string;
+        value: string;
+      }
+    >[];
+  } = { conditions: [] };
   let key;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for (const c of filter.conditions as any) {
     switch (c.__typename) {
       case "NullableFieldCondition":
@@ -41,7 +52,7 @@ export function filterConvert(filter: AndCondition) {
     }
     convertedFilter.conditions.push({
       [key]: {
-        fieldId: { id: c.fieldId.id, type: c.fieldId.type },
+        fieldId: { id: c.fieldId.id as string, type: c.fieldId.type },
         operator: c[key + "Operator"],
         value: c[key + "Value"],
       },

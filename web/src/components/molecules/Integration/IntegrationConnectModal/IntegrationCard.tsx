@@ -1,22 +1,21 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 
-export type Props = {
-  integration: Integration;
-  integrationSelected: boolean;
+type Props = {
+  name: string;
+  isSelected: boolean;
   onClick: () => void;
 };
 
-const IntegrationCard: React.FC<Props> = ({ integration, integrationSelected, onClick }) => (
-  <CardWrapper onClick={onClick} isSelected={integrationSelected}>
+const IntegrationCard: React.FC<Props> = ({ name, isSelected, onClick }) => (
+  <CardWrapper onClick={onClick} isSelected={isSelected} data-testid="integration">
     <Icon icon="api" size={64} color="#00000040" />
-    <CardTitle>{integration.name}</CardTitle>
+    <CardTitle>{name}</CardTitle>
   </CardWrapper>
 );
 
-const CardWrapper = styled.div<{ isSelected?: boolean }>`
+const CardWrapper = styled.div<{ isSelected: boolean }>`
   cursor: pointer;
   box-shadow: 0px 2px 8px #00000026;
   border: 1px solid #f0f0f0;
@@ -28,12 +27,14 @@ const CardWrapper = styled.div<{ isSelected?: boolean }>`
   margin-bottom: 10px;
 `;
 
-const CardTitle = styled.h5`
+const CardTitle = styled.h3`
   font-weight: 500;
   font-size: 16px;
-  line-height: 24px;
   margin: 0;
   padding-left: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export default IntegrationCard;

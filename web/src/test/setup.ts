@@ -1,18 +1,32 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { type EmotionMatchers, matchers as emotionMatchers } from "@emotion/jest";
-import domMatchers, { type TestingLibraryMatchers } from "@testing-library/jest-dom/matchers";
+import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
-import { afterEach, expect as viExpect } from "vitest";
+import { beforeAll, afterEach, expect } from "vitest";
 
 declare global {
   namespace Vi {
-    type JestAssertion<T = any> = jest.Matchers<void, T> &
-      TestingLibraryMatchers<T, void> &
-      EmotionMatchers;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any , @typescript-eslint/consistent-type-definitions
+    interface JestAssertion<T = any> extends jest.Matchers<void, T>, EmotionMatchers {
+      toHaveStyleRule: EmotionMatchers["toHaveStyleRule"];
+    }
   }
 }
 
-viExpect.extend(domMatchers);
-viExpect.extend(emotionMatchers as any);
+expect.extend(domMatchers);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+expect.extend(emotionMatchers as any);
+
+Object.defineProperty(window, "matchMedia", {
+  value: () => ({
+    addListener: () => {},
+    removeListener: () => {},
+  }),
+});
+
+beforeAll(() => {
+  const { getComputedStyle } = window;
+  window.getComputedStyle = elt => getComputedStyle(elt);
+});
 
 afterEach(cleanup);

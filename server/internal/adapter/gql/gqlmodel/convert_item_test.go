@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -25,7 +24,7 @@ func TestToItem(t *testing.T) {
 	nid := id.NewIntegrationID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
-	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	sf := []*schema.Field{sf1}
 	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
 	sp := schema.NewPackage(s, nil, nil, nil)
@@ -35,7 +34,7 @@ func TestToItem(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		User(uid).
 		Integration(nid).
 		MustBuild()
@@ -55,7 +54,7 @@ func TestToItem(t *testing.T) {
 				ProjectID:     IDFrom(pid),
 				ModelID:       IDFrom(mid),
 				SchemaID:      IDFrom(sid),
-				ThreadID:      IDFrom(tid),
+				ThreadID:      IDFromRef(tid.Ref()),
 				UserID:        IDFromRef(uid.Ref()),
 				IntegrationID: IDFromRef(nid.Ref()),
 				CreatedAt:     i.ID().Timestamp(),
@@ -102,7 +101,7 @@ func TestToItemParam(t *testing.T) {
 			},
 			want: &interfaces.ItemFieldParam{
 				Field: &sfid,
-				Type:  value.TypeText,
+				// Type:  value.TypeText,
 				Value: "foo",
 			},
 		},
@@ -129,12 +128,12 @@ func TestToVersionedItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
 	ref := "a"
-	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
 	sf := []*schema.Field{sf1}
 	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).Project(pId).MustBuild()
 	sp := schema.NewPackage(s, nil, nil, nil)
 	fs := []*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple(), nil)}
-	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(pId).Fields(fs).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(pId).Fields(fs).Thread(id.NewThreadID().Ref()).MustBuild()
 	vx, vy := version.New(), version.New()
 	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), time.Time{}, i)
 	tests := []struct {

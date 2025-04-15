@@ -7,6 +7,7 @@ export const GET_VIEWS = gql`
       name
       modelId
       projectId
+      order
       sort {
         field {
           type
@@ -312,6 +313,16 @@ export const DELETE_VIEW = gql`
   mutation DeleteView($viewId: ID!) {
     deleteView(input: { viewId: $viewId }) {
       viewId
+    }
+  }
+`;
+
+export const UPDATE_VIEWS_ORDER = gql`
+  mutation UpdateViewsOrder($viewIds: [ID!]!) {
+    updateViewsOrder(input: { viewIds: $viewIds }) {
+      views {
+        id
+      }
     }
   }
 `;

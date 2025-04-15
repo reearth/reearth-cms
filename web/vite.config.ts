@@ -1,6 +1,7 @@
-/// <reference types="vitest" />
 /// <reference types="vite/client" />
+/// <reference types="vitest" />
 
+import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
@@ -9,9 +10,22 @@ import react from "@vitejs/plugin-react";
 import { readEnv } from "read-env";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import cesium from "vite-plugin-cesium";
+import tsconfigPaths from "vite-tsconfig-paths";
 import { configDefaults } from "vitest/config";
 
-// https://vitejs.dev/config/
+import pkg from "./package.json";
+
+let commitHash = "";
+try {
+  commitHash = execSync("git rev-parse HEAD").toString().trimEnd();
+} catch {
+  // noop
+}
+
+const cesiumPackageJson = JSON.parse(
+  readFileSync(resolve(__dirname, "node_modules", "cesium", "package.json"), "utf-8"),
+);
+
 export default defineConfig({
   server: {
     port: 3000,
@@ -19,22 +33,24 @@ export default defineConfig({
     host: "127.0.0.1",
   },
   envPrefix: "REEARTH_CMS_",
-  plugins: [react(), yaml(), cesium(), serverHeaders(), config()],
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash)
+  },
+  plugins: [
+    react(),
+    yaml(),
+    cesium({ cesiumBaseUrl: `cesium-${cesiumPackageJson.version}/` }),
+    serverHeaders(),
+    config(),
+    tsconfigPaths()
+  ],
   css: {
     preprocessorOptions: {
       less: {
         javascriptEnabled: true,
       },
     },
-  },
-  resolve: {
-    alias: [
-      { find: "@reearth-cms", replacement: resolve(__dirname, "src") },
-      {
-        find: /^~/,
-        replacement: "",
-      },
-    ],
   },
   test: {
     environment: "jsdom",
@@ -51,6 +67,21 @@ export default defineConfig({
       ],
       reporter: ["text", "json", "lcov"],
     },
+    alias: [
+      { find: "@ant-design/pro-card", replacement: "@ant-design/pro-card/es/index.js" },
+      { find: "@ant-design/pro-components", replacement: "@ant-design/pro-components/es/index.js" },
+      {
+        find: "@ant-design/pro-descriptions",
+        replacement: "@ant-design/pro-descriptions/es/index.js",
+      },
+      { find: "@ant-design/pro-field", replacement: "@ant-design/pro-field/es/index.js" },
+      { find: "@ant-design/pro-form", replacement: "@ant-design/pro-form/es/index.js" },
+      { find: "@ant-design/pro-layout", replacement: "@ant-design/pro-layout/es/index.js" },
+      { find: "@ant-design/pro-list", replacement: "@ant-design/pro-list/es/index.js" },
+      { find: "@ant-design/pro-provider", replacement: "@ant-design/pro-provider/es/index.js" },
+      { find: "@ant-design/pro-table", replacement: "@ant-design/pro-table/es/index.js" },
+      { find: "@ant-design/pro-utils", replacement: "@ant-design/pro-utils/es/index.js" },
+    ],
   },
 });
 
@@ -109,10 +140,10 @@ function config(): Plugin {
   };
 }
 
-function loadJSON(path: string): any {
+function loadJSON(path: string): object {
   try {
     return JSON.parse(readFileSync(path, "utf8")) || {};
-  } catch (err) {
+  } catch (_) {
     return {};
   }
 }

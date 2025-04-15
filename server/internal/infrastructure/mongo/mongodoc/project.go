@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/samber/lo"
 )
 
 type ProjectDocument struct {
@@ -26,6 +27,7 @@ type ProjectDocument struct {
 type ProjectPublicationDocument struct {
 	AssetPublic bool
 	Scope       string
+	Token       *string
 }
 
 func NewProject(project *project.Project) (*ProjectDocument, string) {
@@ -53,10 +55,14 @@ func NewProjectPublication(p *project.Publication) *ProjectPublicationDocument {
 	if p == nil {
 		return nil
 	}
-
+	t := lo.ToPtr(p.Token())
+	if p.Token() == "" {
+		t = nil
+	}
 	return &ProjectPublicationDocument{
 		AssetPublic: p.AssetPublic(),
 		Scope:       string(p.Scope()),
+		Token:       t,
 	}
 }
 
@@ -94,7 +100,11 @@ func (d *ProjectPublicationDocument) Model() *project.Publication {
 	if d == nil {
 		return nil
 	}
-	return project.NewPublication(project.PublicationScope(d.Scope), d.AssetPublic)
+	if d.Token != nil {
+		return project.NewPublicationWithToken(project.PublicationScope(d.Scope), d.AssetPublic, *d.Token)
+	} else {
+		return project.NewPublication(project.PublicationScope(d.Scope), d.AssetPublic)
+	}
 }
 
 type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Project]

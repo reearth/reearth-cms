@@ -19,7 +19,10 @@ func TestNewMultiple(t *testing.T) {
 	assert.NotNil(t, m)
 	assert.Equal(t, TypeBool, m.t)
 	assert.Equal(t, v, m.v)
-	assert.NotSame(t, v, m.v)
+	for i := 0; i < len(v); i++ {
+		assert.Equal(t, v[i], m.v[i])
+		assert.NotSame(t, v[i], m.v[i])
+	}
 }
 
 func TestMultipleFrom(t *testing.T) {
@@ -34,7 +37,10 @@ func TestMultipleFrom(t *testing.T) {
 	assert.NotNil(t, m)
 	assert.Equal(t, TypeBool, m.t)
 	assert.Equal(t, v, m.v)
-	assert.NotSame(t, v, m.v)
+	for i := 0; i < len(v); i++ {
+		assert.Equal(t, v[i], m.v[i])
+		assert.NotSame(t, v[i], m.v[i])
+	}
 }
 
 func TestMultiple_IsEmpty(t *testing.T) {
@@ -106,8 +112,13 @@ func TestMultiple_Clone(t *testing.T) {
 		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
 	}
 
-	assert.Equal(t, m, m.Clone())
-	assert.NotSame(t, m, m.Clone())
+	c := m.Clone()
+	assert.Equal(t, m, c)
+	assert.NotSame(t, m, c)
+	for i := 0; i < len(m.v); i++ {
+		assert.Equal(t, m.v[i], c.v[i])
+		assert.NotSame(t, m.v[i], c.v[i])
+	}
 
 	m = nil
 	assert.Equal(t, m, m.Clone())
@@ -121,7 +132,6 @@ func TestMultiple_Values(t *testing.T) {
 	}
 
 	assert.Equal(t, v, m.Values())
-	assert.NotSame(t, v, m.Values())
 
 	m = nil
 	assert.Nil(t, m.Values())

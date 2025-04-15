@@ -19,7 +19,7 @@ func TestToAsset(t *testing.T) {
 	var pti = asset.PreviewTypeImage
 	uuid := uuid.New().String()
 	thid := id.NewThreadID()
-	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).UUID(uuid).Thread(thid).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).UUID(uuid).Thread(thid.Ref()).MustBuild()
 
 	want1 := Asset{
 		ID:            ID(id1.String()),
@@ -31,7 +31,7 @@ func TestToAsset(t *testing.T) {
 		UUID:          uuid,
 		URL:           "xxx",
 		FileName:      "aaa.jpg",
-		ThreadID:      ID(thid.String()),
+		ThreadID:      lo.ToPtr(ID(thid.String())),
 		Size:          1000,
 	}
 
@@ -114,6 +114,11 @@ func TestConvertAsset_FromPreviewType(t *testing.T) {
 	want9 := asset.PreviewTypeImageSvg
 	got9 := FromPreviewType(&pt9)
 	assert.Equal(t, &want9, got9)
+
+	var pt10 = PreviewTypeCSV
+	want10 := asset.PreviewTypeCSV
+	got10 := FromPreviewType(&pt10)
+	assert.Equal(t, &want10, got10)
 }
 
 func TestConvertAsset_ToPreviewType(t *testing.T) {
@@ -161,6 +166,11 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	want9 := PreviewTypeImageSVG
 	got9 := ToPreviewType(&pt9)
 	assert.Equal(t, &want9, got9)
+
+	var pt10 = asset.PreviewTypeCSV
+	want10 := PreviewTypeCSV
+	got10 := ToPreviewType(&pt10)
+	assert.Equal(t, &want10, got10)
 }
 
 func TestConvertAsset_ToStatus(t *testing.T) {
@@ -202,14 +212,14 @@ func TestConvertAsset_ToStatus(t *testing.T) {
 
 func TestConvertAsset_ToAssetFile(t *testing.T) {
 	c := []*asset.File{}
-	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Path("/").Children(c).Build()
+	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Path("/").Files(c).Build()
 
 	want1 := AssetFile{
 		Name:        "aaa.jpg",
 		Size:        int64(1000),
 		ContentType: lo.ToPtr("image/jpg"),
 		Path:        "/",
-		Children:    lo.Map(c, func(a *asset.File, _ int) *AssetFile { return ToAssetFile(a) }),
+		FilePaths:   f1.FilePaths(),
 	}
 
 	var f2 *asset.File = nil

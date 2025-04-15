@@ -1,4 +1,4 @@
-import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { ItemType } from "antd/lib/menu/interface";
 import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -7,9 +7,9 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   inlineCollapsed: boolean;
-  isPersonalWorkspace?: boolean;
+  isPersonalWorkspace: boolean;
   defaultSelectedKey?: string;
-  onNavigate?: (info: MenuInfo) => void;
+  onNavigate: (info: MenuInfo) => void;
 };
 
 type MenuShowType = "personal" | "notPersonal" | "both";
@@ -61,7 +61,7 @@ const WorkspaceMenu: React.FC<Props> = ({
     {
       label: t("Workspace"),
       key: "workspaceSettings",
-      icon: <Icon icon="workspaceSettings" />,
+      icon: <Icon size={"1em"} icon="workspaceSettings" />,
       show: "notPersonal" as MenuShowType,
     },
     {
@@ -80,7 +80,7 @@ const WorkspaceMenu: React.FC<Props> = ({
   const onClick = useCallback(
     (info: MenuInfo) => {
       changeSelected([info.key]);
-      onNavigate?.(info);
+      onNavigate(info);
     },
     [onNavigate],
   );

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
@@ -17,12 +16,12 @@ func TestNewField(t *testing.T) {
 	now := time.Now()
 	tp := NewText(nil).TypeProperty()
 	dv := tp.Type().Value("aaa")
-	id := id.NewFieldID()
-	k := key.Random()
+	fId := id.NewFieldID()
+	k := id.RandomKey()
 	assert.Equal(
 		t,
 		&Field{
-			id:           id,
+			id:           fId,
 			name:         "name",
 			description:  "a",
 			key:          k,
@@ -35,7 +34,7 @@ func TestNewField(t *testing.T) {
 			defaultValue: dv.AsMultiple(),
 		},
 		NewField(tp).
-			ID(id).
+			ID(fId).
 			Name("name").
 			Description("a").
 			Key(k).
@@ -50,7 +49,7 @@ func TestNewField(t *testing.T) {
 	)
 
 	f := NewField(tp).
-		ID(id).
+		ID(fId).
 		RandomKey().
 		Type(tp).
 		MustBuild()

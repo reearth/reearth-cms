@@ -444,7 +444,7 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 	}
 }
 
-func TestProjectRepo_FindByPublicName(t *testing.T) {
+func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
@@ -468,7 +468,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 		seeds   project.List
 		arg     string
 		filter  *repo.WorkspaceFilter
-		want    *project.Project
+		want    bool
 		wantErr error
 		mockErr bool
 	}{
@@ -477,8 +477,8 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			seeds:   project.List{},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			want:    true,
+			wantErr: nil,
 		},
 		{
 			name: "Not found",
@@ -487,8 +487,8 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			want:    true,
+			wantErr: nil,
 		},
 		{
 			name: "public Found",
@@ -497,16 +497,16 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    p1,
+			want:    false,
 			wantErr: nil,
 		},
 		{
-			name: "linited Found",
+			name: "limited Found",
 			seeds: project.List{
 				p2,
 			},
 			arg:     "xyz321",
-			want:    p2,
+			want:    false,
 			filter:  nil,
 			wantErr: nil,
 		},
@@ -519,11 +519,11 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  nil,
-			want:    p1,
+			want:    false,
 			wantErr: nil,
 		},
 		{
-			name: "Filtered should not Found",
+			name: "Filtered should Found",
 			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
@@ -531,8 +531,8 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    nil,
-			wantErr: rerror.ErrNotFound,
+			want:    false,
+			wantErr: nil,
 		},
 		{
 			name: "Filtered should Found",
@@ -543,7 +543,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 			},
 			arg:     "xyz123",
 			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
-			want:    p1,
+			want:    false,
 			wantErr: nil,
 		},
 		{
@@ -573,7 +573,7 @@ func TestProjectRepo_FindByPublicName(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, err := r.FindByPublicName(ctx, tc.arg)
+			got, err := r.IsAliasAvailable(ctx, tc.arg)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -936,6 +936,85 @@ func TestProjectRepo_Save(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, 1, got)
+		})
+	}
+}
+
+func TestProject_FindByPublicAPIToken(t *testing.T) {
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
+	tid1 := accountdomain.NewWorkspaceID()
+	id1 := id.NewProjectID()
+	pub := project.NewPublication(project.PublicationScopeLimited, false)
+	p1 := project.New().
+		ID(id1).
+		Workspace(tid1).
+		UpdatedAt(mocknow).
+		Publication(pub).
+		MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   project.List
+		arg     string
+		want    *project.Project
+		wantErr error
+		mockErr bool
+	}{
+		{
+			name:    "Not found in empty db",
+			seeds:   project.List{},
+			arg:     "xyz123",
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: project.List{
+				p1,
+			},
+			arg:     "",
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: project.List{
+				p1,
+			},
+			arg:     pub.Token(),
+			want:    p1,
+			wantErr: nil,
+		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
+			defer MockProjectNow(r, mocknow)()
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p.Clone())
+				assert.NoError(t, err)
+			}
+
+			got, err := r.FindByPublicAPIToken(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }

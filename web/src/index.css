@@ -1,29 +1,65 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
 body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 .dragLine {
-    border-bottom: dashed 2px rgba(0, 0, 0, 0.85) !important;
+  border-bottom: dashed 2px rgba(0, 0, 0, 0.85) !important;
 }
 
 .dragLineColumn {
-    border-left: dashed 2px rgba(0, 0, 0, 0.85) !important;
+  border-left: dashed 2px rgba(0, 0, 0, 0.85) !important;
 }
 
-.ant-table-cell{
-    word-break: break-all;
+.ant-table-cell {
+  word-break: break-all;
 }
 
 .hide-icon-button {
-   .ant-btn-compact-last-item{
-        visibility: hidden;
-   } 
+  .ant-btn-compact-last-item {
+    visibility: hidden;
+  }
+}
+
+.ant-layout-sider-children {
+  background-color: #fff;
+}
+
+.ant-layout-sider-trigger {
+  background-color: #fff;
+  color: #002140;
+  height: auto;
+}
+
+.ant-input-textarea-show-count::after {
+  display: none;
+}
+
+.ant-input-outlined.ant-input-disabled textarea[disabled] {
+  color: inherit;
+  cursor: inherit;
+}
+
+.contentPopover {
+  .ant-popover-title,
+  .ant-popover-inner-content {
+    max-width: 20vw;
+  }
+  .ant-popover-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ant-popover-inner-content {
+    max-height: 20vh;
+    overflow: auto;
+  }
 }

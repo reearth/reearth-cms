@@ -59,7 +59,7 @@ func NewAssetFile(f *asset.File, embed bool) *File {
 
 	var children *[]File
 	if embed {
-		children = lo.ToPtr(lo.FilterMap(f.Children(), func(c *asset.File, _ int) (File, bool) {
+		children = lo.ToPtr(lo.FilterMap(f.Files(), func(c *asset.File, _ int) (File, bool) {
 			f := NewAssetFile(c, true)
 			if f == nil {
 				return File{}, false
@@ -97,6 +97,8 @@ func NewPreviewType(pt *asset.PreviewType) *AssetPreviewType {
 		return lo.ToPtr(Image)
 	case asset.PreviewTypeImageSvg:
 		return lo.ToPtr(ImageSvg)
+	case asset.PreviewTypeCSV:
+		return lo.ToPtr(Csv)
 	case asset.PreviewTypeUnknown:
 		return lo.ToPtr(Unknown)
 	default:

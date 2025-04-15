@@ -1,12 +1,16 @@
+import { Key } from "react";
+
 export type MetaDataSchema = {
   id?: string;
-  fields?: Field[];
+  fields?: MetadataField[];
 };
 
 export type Schema = {
   id: string;
   fields: Field[];
 };
+
+type GroupSchema = Schema & { fields: GroupField[] };
 
 export type Field = {
   id: string;
@@ -22,6 +26,20 @@ export type Field = {
   typeProperty?: TypeProperty;
 };
 
+export type GroupField = Field & { type: Exclude<FieldType, "Group"> };
+
+export type MetadataField = Field & {
+  type: Extract<FieldType, "Tag" | "Bool" | "Checkbox" | "Date" | "Text" | "URL">;
+};
+
+export type FieldProps = {
+  field: Field;
+  itemGroupId?: string;
+  disabled: boolean;
+  itemHeights?: Record<string, number>;
+  onItemHeightChange?: (id: string, height: number) => void;
+};
+
 export type FieldType =
   | "Text"
   | "TextArea"
@@ -33,28 +51,61 @@ export type FieldType =
   | "Select"
   | "Tag"
   | "Integer"
-  // | "Float"
+  | "Number"
   | "Reference"
   | "Checkbox"
   | "URL"
-  | "Group";
+  | "Group"
+  | "GeometryObject"
+  | "GeometryEditor";
 
-type Tag = { id: string; name: string; color: string };
+export type Tag = {
+  id: string;
+  name: string;
+  color: string;
+};
+
+export type ObjectSupportedType =
+  | "POINT"
+  | "MULTIPOINT"
+  | "LINESTRING"
+  | "MULTILINESTRING"
+  | "POLYGON"
+  | "MULTIPOLYGON"
+  | "GEOMETRYCOLLECTION";
+
+export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
+
+export type CorrespondingField = {
+  id: string;
+  type: FieldType;
+  title: string;
+  key: Key;
+  description: string;
+  required: boolean;
+  unique: boolean;
+  multiple: boolean;
+  order: number;
+};
 
 export type TypeProperty = {
-  defaultValue?: string | boolean | string[] | boolean[];
+  defaultValue?: string | string[] | boolean | boolean[] | null;
   maxLength?: number;
-  assetDefaultValue?: string;
-  selectDefaultValue?: string | string[];
-  integerDefaultValue?: number;
+  assetDefaultValue?: string | string[] | null;
+  selectDefaultValue?: string | string[] | null;
+  integerDefaultValue?: number | number[] | null;
   min?: number;
   max?: number;
-  correspondingField?: any;
+  numberMin?: number;
+  numberMax?: number;
+  correspondingField?: CorrespondingField;
   modelId?: string;
   groupId?: string;
   tags?: Tag[];
   values?: string[];
-  schema?: { titleFieldId: string | null };
+  schema?: { id: string; titleFieldId: string | null };
+  objectSupportedTypes?: ObjectSupportedType[];
+  editorSupportedTypes?: EditorSupportedType[];
 };
 
 export type FieldTypePropertyInput = {
@@ -65,8 +116,12 @@ export type FieldTypePropertyInput = {
   date?: { defaultValue: string };
   bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
+  tag?: {
+    defaultValue?: string | string[];
+    tags: Tag[];
+  };
+  checkbox?: { defaultValue?: boolean };
   integer?: { defaultValue: number | ""; min: number | null; max: number | null };
-  url?: { defaultValue: string };
   reference?: {
     modelId: string;
     schemaId: string;
@@ -77,14 +132,10 @@ export type FieldTypePropertyInput = {
       required: boolean;
     } | null;
   };
+  url?: { defaultValue: string };
   group?: {
     groupId: string;
   };
-  tag?: {
-    defaultValue?: string;
-    tags: { color: string; id?: string; name: string }[];
-  };
-  checkbox?: { defaultValue?: boolean };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
@@ -96,7 +147,8 @@ export type Group = {
   name: string;
   description: string;
   key: string;
-  schema: Schema;
+  schema: GroupSchema;
+  order: number;
 };
 
 export type ModelFormValues = {
@@ -122,11 +174,16 @@ export type FormValues = {
 };
 
 export type FormTypes = FormValues & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   maxLength?: number;
-  values: string[];
+  values?: string[];
   min?: number;
   max?: number;
-  tags: { color: string; id: string; name: string }[];
+  tags?: Tag[];
   group: string;
+  supportedTypes?: ObjectSupportedType[] | EditorSupportedType;
 };
+
+export type Tab = "fields" | "meta-data";
+export type SelectedSchemaType = "model" | "group";

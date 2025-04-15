@@ -6,6 +6,7 @@ type View implements Node {
   sort: ItemSort
   filter: Condition
   columns: [Column!]
+  order: Int!
 }
 
 type Column {
@@ -37,6 +38,10 @@ input UpdateViewInput {
   columns: [ColumnSelectionInput!]
 }
 
+input UpdateViewsOrderInput {
+  viewIds: [ID!]!
+}
+
 input DeleteViewInput {
   viewId: ID!
 }
@@ -45,6 +50,10 @@ input DeleteViewInput {
 
 type ViewPayload {
   view: View!
+}
+
+type ViewsPayload {
+  views: [View!]!
 }
 
 type DeleteViewPayload {
@@ -58,5 +67,6 @@ extend type Query {
 extend type Mutation {
   createView(input: CreateViewInput!): ViewPayload
   updateView(input: UpdateViewInput!): ViewPayload
+  updateViewsOrder(input: UpdateViewsOrderInput!): ViewsPayload
   deleteView(input: DeleteViewInput!): DeleteViewPayload
 }

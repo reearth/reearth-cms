@@ -7,11 +7,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBuilder_Build(t *testing.T) {
-	i1, _ := NewItem(id.NewItemID())
+	i1, _ := NewItem(id.NewItemID(), lo.ToPtr(version.New().String()))
 	req := &Request{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
@@ -24,7 +25,7 @@ func TestBuilder_Build(t *testing.T) {
 		description: "desc",
 		createdBy:   NewUserID(),
 		reviewers:   []UserID{NewUserID()},
-		thread:      NewThreadID(),
+		thread:      NewThreadID().Ref(),
 	}
 	expected := &Request{
 		id:          req.ID(),
@@ -100,7 +101,7 @@ func TestBuilder_Build(t *testing.T) {
 					id:        NewID(),
 					project:   NewProjectID(),
 					workspace: accountdomain.NewWorkspaceID(),
-					thread:    NewThreadID(),
+					thread:    NewThreadID().Ref(),
 				},
 			},
 			wantErr: ErrInvalidID,
@@ -112,7 +113,7 @@ func TestBuilder_Build(t *testing.T) {
 					id:        NewID(),
 					project:   NewProjectID(),
 					workspace: accountdomain.NewWorkspaceID(),
-					thread:    NewThreadID(),
+					thread:    NewThreadID().Ref(),
 					createdBy: NewUserID(),
 				},
 			},
@@ -125,7 +126,7 @@ func TestBuilder_Build(t *testing.T) {
 					id:        NewID(),
 					project:   NewProjectID(),
 					workspace: accountdomain.NewWorkspaceID(),
-					thread:    NewThreadID(),
+					thread:    NewThreadID().Ref(),
 					createdBy: NewUserID(),
 					items:     ItemList{i1, i1},
 				},
@@ -139,7 +140,7 @@ func TestBuilder_Build(t *testing.T) {
 					id:        NewID(),
 					project:   NewProjectID(),
 					workspace: accountdomain.NewWorkspaceID(),
-					thread:    NewThreadID(),
+					thread:    NewThreadID().Ref(),
 					createdBy: NewUserID(),
 					items: ItemList{{
 						item:    NewItemID(),
@@ -245,7 +246,7 @@ func TestBuilder_State(t *testing.T) {
 
 func TestBuilder_Thread(t *testing.T) {
 	b := &Builder{r: &Request{}}
-	tid := NewThreadID()
+	tid := NewThreadID().Ref()
 	b.Thread(tid)
 	assert.Equal(t, tid, b.r.Thread())
 }

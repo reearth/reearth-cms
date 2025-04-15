@@ -1,12 +1,19 @@
 import styled from "@emotion/styled";
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { ProColumns, ListToolBarProps, OptionConfig } from "@reearth-cms/components/atoms/ProTable";
+import {
+  StretchColumn,
+  ListToolBarProps,
+  OptionConfig,
+} from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
+import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -14,14 +21,14 @@ import { FormItem } from "../types";
 
 import useHooks from "./hooks";
 
-type StretchColumn = ProColumns<FormItem> & { minWidth: number };
-
 type Props = {
-  onChange?: (value: string) => void;
+  visible: boolean;
+  loading: boolean;
+  fieldId: string;
+  itemGroupId?: string;
+  correspondingField?: CorrespondingField;
   linkedItemsModalList?: FormItem[];
-  visible?: boolean;
   linkedItem?: string;
-  correspondingFieldId: string;
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
@@ -30,11 +37,20 @@ type Props = {
   onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
+  onChange?: (value: string) => void;
+  onCheckItemReference: (
+    itemId: string,
+    correspondingFieldId: string,
+    groupId?: string,
+  ) => Promise<boolean>;
 };
 
 const LinkItemModal: React.FC<Props> = ({
   visible,
-  correspondingFieldId,
+  loading,
+  fieldId,
+  itemGroupId,
+  correspondingField,
   linkedItemsModalList,
   linkedItem,
   linkItemModalTitle,
@@ -46,11 +62,11 @@ const LinkItemModal: React.FC<Props> = ({
   onLinkItemTableChange,
   onLinkItemModalCancel,
   onChange,
+  onCheckItemReference,
 }) => {
-  const [hoveredAssetId, setHoveredItemId] = useState<string>();
   const t = useT();
   const { confirm } = Modal;
-  const { value, pagination, handleInput, handleCheckItemReference } = useHooks(
+  const { value, pagination, handleInput } = useHooks(
     linkItemModalTotalCount,
     linkItemModalPage,
     linkItemModalPageSize,
@@ -64,17 +80,27 @@ const LinkItemModal: React.FC<Props> = ({
     [onLinkItemTableReload],
   );
 
+  const handleChange = useCallback(
+    (value: string) => {
+      onChange?.(value);
+      onLinkItemModalCancel();
+    },
+    [onChange, onLinkItemModalCancel],
+  );
+
   const handleClick = useCallback(
     async (link: boolean, item: FormItem) => {
       if (!link) {
-        onChange?.("");
-        onLinkItemModalCancel();
+        handleChange("");
         return;
       }
 
-      const response = await handleCheckItemReference(item.id, correspondingFieldId);
-      const isReferenced = response?.data?.isItemReferenced;
+      if (!correspondingField) {
+        handleChange(item.id);
+        return;
+      }
 
+      const isReferenced = await onCheckItemReference(item.id, fieldId, itemGroupId);
       if (isReferenced) {
         confirm({
           title: t("This item has been referenced"),
@@ -83,19 +109,17 @@ const LinkItemModal: React.FC<Props> = ({
           ),
           icon: <Icon icon="exclamationCircle" />,
           onOk() {
-            onChange?.(item.id);
-            onLinkItemModalCancel();
+            handleChange(item.id);
           },
         });
       } else {
-        onChange?.(item.id);
-        onLinkItemModalCancel();
+        handleChange(item.id);
       }
     },
-    [confirm, correspondingFieldId, handleCheckItemReference, onChange, onLinkItemModalCancel, t],
+    [confirm, correspondingField, fieldId, handleChange, itemGroupId, onCheckItemReference, t],
   );
 
-  const columns: StretchColumn[] = useMemo(
+  const columns: StretchColumn<FormItem>[] = useMemo(
     () => [
       {
         title: "",
@@ -105,16 +129,12 @@ const LinkItemModal: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         render: (_, item) => {
-          const link =
-            (item.id === linkedItem && hoveredAssetId !== item.id) ||
-            (item.id !== linkedItem && hoveredAssetId === item.id);
+          const isLink = item.id !== linkedItem;
           return (
             <Button
               type="link"
-              onMouseEnter={() => setHoveredItemId(item.id)}
-              onMouseLeave={() => setHoveredItemId(undefined)}
-              icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
-              onClick={() => handleClick(link, item)}
+              icon={<Icon icon={isLink ? "arrowUpRight" : "arrowUpRightSlash"} size={18} />}
+              onClick={() => handleClick(isLink, item)}
             />
           );
         },
@@ -142,6 +162,12 @@ const LinkItemModal: React.FC<Props> = ({
         ellipsis: true,
         width: 100,
         minWidth: 100,
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.createdBy} size="small" />
+            {item.createdBy}
+          </Space>
+        ),
       },
       {
         title: t("Created At"),
@@ -153,13 +179,13 @@ const LinkItemModal: React.FC<Props> = ({
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
     ],
-    [t, linkedItem, hoveredAssetId, handleClick],
+    [t, linkedItem, handleClick],
   );
 
   const toolbar: ListToolBarProps = useMemo(
     () => ({
       search: (
-        <Input.Search
+        <Search
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {
@@ -181,10 +207,10 @@ const LinkItemModal: React.FC<Props> = ({
       width="70vw"
       footer={null}
       onCancel={onLinkItemModalCancel}
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px",
+      styles={{
+        body: {
+          height: "70vh",
+        },
       }}>
       <ResizableProTable
         dataSource={linkedItemsModalList}
@@ -193,6 +219,7 @@ const LinkItemModal: React.FC<Props> = ({
         options={options}
         toolbar={toolbar}
         pagination={pagination}
+        loading={loading}
         onChange={pagination => {
           onLinkItemTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}

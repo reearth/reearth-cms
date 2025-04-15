@@ -3,11 +3,9 @@ import { Viewer as CesiumViewer } from "cesium";
 import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -25,11 +23,12 @@ import {
   SvgViewer,
   ImageViewer,
   GltfViewer,
+  CsvViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
@@ -41,18 +40,15 @@ type Props = {
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
+  hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
+  onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-  workspaceSettings?: WorkspaceSettings;
+  onGetViewer: (viewer?: CesiumViewer) => void;
+  workspaceSettings: WorkspaceSettings;
 };
-
-export let viewerRef: CesiumViewer | undefined;
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
@@ -62,64 +58,73 @@ const AssetMolecule: React.FC<Props> = ({
   viewerType,
   displayUnzipFileList,
   decompressing,
+  hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
+  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
-  const formattedCreatedAt = dateTimeFormat(asset.createdAt);
-
-  const getViewer = (viewer: CesiumViewer | undefined) => {
-    viewerRef = viewer;
-  };
 
   const renderPreview = useCallback(() => {
-    switch (true) {
-      case viewerType === "geo":
+    switch (viewerType) {
+      case "geo":
         return (
           <GeoViewer
             url={assetUrl}
             assetFileExt={assetFileExt}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
-      case viewerType === "geo_3d_tiles":
+      case "geo_3d_tiles":
         return (
           <Geo3dViewer
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
-      case viewerType === "geo_mvt":
+      case "geo_mvt":
         return (
-          <MvtViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+          <MvtViewer
+            url={assetUrl}
+            onGetViewer={onGetViewer}
+            workspaceSettings={workspaceSettings}
+          />
         );
-      case viewerType === "image":
+      case "image":
         return <ImageViewer url={assetUrl} />;
-      case viewerType === "image_svg":
+      case "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model_3d":
+      case "model_3d":
         return (
           <GltfViewer
             url={assetUrl}
-            onGetViewer={getViewer}
+            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         );
-      case viewerType === "unknown":
+      case "csv":
+        return (
+          <CsvViewer
+            url={assetUrl}
+            onGetViewer={onGetViewer}
+            workspaceSettings={workspaceSettings}
+          />
+        );
+      case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
+  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
@@ -127,13 +132,14 @@ const AssetMolecule: React.FC<Props> = ({
         <Card
           title={
             <>
-              {asset.fileName}{" "}
-              <CopyIcon
-                icon="copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(asset.url);
-                }}
-              />
+              <AssetName>{asset.fileName}</AssetName>
+              <Buttons>
+                <CopyButton
+                  copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
+                  size={16}
+                />
+                <DownloadButton selected={[asset]} onlyIcon />
+              </Buttons>
             </>
           }
           toolbar={
@@ -175,18 +181,35 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton type="ghost" selected={asset ? [asset] : undefined} displayDefaultIcon />
+        <DownloadButton selected={[asset]} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
-          <StyledPreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
+          <PreviewTypeSelect
+            value={selectedPreviewType}
+            onTypeChange={onTypeChange}
+            hasUpdateRight={hasUpdateRight}
+          />
         </SideBarCard>
-        <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
-        <SideBarCard title={t("Created By")}>
-          <Space>
-            <UserAvatar username={asset.createdBy} shadow />
-            {asset.createdBy}
-          </Space>
+        <SideBarCard title={t("Asset Information")}>
+          <AssetInfo>
+            <InfoRow>
+              <InfoKey>ID</InfoKey>
+              <ID>{asset.id}</ID>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Created at")}</InfoKey>
+              <InfoValue>{dateTimeFormat(asset.createdAt)}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Created by")}</InfoKey>
+              <InfoValue>{asset.createdBy?.name}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Size")}</InfoKey>
+              <InfoValue>{bytesFormat(asset.size)}</InfoValue>
+            </InfoRow>
+          </AssetInfo>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (
@@ -202,11 +225,14 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-const CopyIcon = styled(Icon)<{ selected?: boolean }>`
-  margin-left: 16px;
-  &:active {
-    color: #096dd9;
-  }
+const AssetName = styled.span`
+  min-width: 0;
+  word-wrap: break-word;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+  gap: 12px;
 `;
 
 const UnzipButton = styled(Button)`
@@ -218,6 +244,7 @@ const BodyContainer = styled.div`
   flex-direction: row;
   width: 100%;
   height: calc(100% - 72px);
+  border-top: 1px solid #00000008;
   .ant-tree-show-line .ant-tree-switcher {
     background-color: transparent;
   }
@@ -234,14 +261,47 @@ const BodyWrapper = styled.div`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
-`;
-
-const StyledPreviewTypeSelect = styled(PreviewTypeSelect)`
-  width: 75%;
+  background-color: #fafafa;
 `;
 
 const StyledButton = styled(Button)`
   padding: 0;
+`;
+
+const AssetInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  line-height: 28px;
+`;
+
+const InfoKey = styled.p`
+  font-size: 14px;
+  margin: 0;
+  flex-shrink: 0;
+`;
+
+const InfoValue = styled.p`
+  font-size: 12px;
+  margin: 0;
+  padding: 0px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #8c8c8c;
+`;
+
+const ID = styled(InfoValue)`
+  color: #848484;
+  background-color: #f0f0f0;
+  border-radius: 4px;
 `;
 
 export default AssetMolecule;

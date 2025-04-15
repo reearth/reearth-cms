@@ -6,11 +6,11 @@ frontend:
         - yarn
     build:
       commands:
-        - yarn build 
+        - yarn build
   artifacts:
     baseDirectory: dist
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - node_modules/**/*

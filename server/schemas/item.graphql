@@ -1,7 +1,7 @@
 type Item implements Node {
   id: ID!
   schemaId: ID!
-  threadId: ID!
+  threadId: ID
   modelId: ID!
   projectId: ID!
   integrationId: ID
@@ -16,10 +16,11 @@ type Item implements Node {
   model: Model!
   status: ItemStatus!
   project: Project!
-  thread: Thread!
+  thread: Thread
   fields: [ItemField!]!
   assets: [Asset]!
   referencedItems:[Item!]
+  requests: [Request!]
   createdAt: DateTime!
   updatedAt: DateTime!
   updatedBy: Operator

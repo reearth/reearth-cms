@@ -3,119 +3,51 @@ import { useCallback, useMemo, MouseEvent, useState, useEffect } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import {
   AssetField,
   ReferenceField,
 } from "@reearth-cms/components/molecules/Content/Form/fields/ComplexFieldComponents";
-import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
-import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import { Field, Group, GroupField } from "@reearth-cms/components/molecules/Schema/types";
+
+const { Panel } = Collapse;
 
 type Props = {
   value?: string;
-  onChange?: (value: string) => void;
-  order?: number;
+  disabled: boolean;
+  itemHeights?: Record<string, number>;
+  onItemHeightChange?: (id: string, height: number) => void;
   parentField: Field;
-  linkedItemsModalList?: FormItem[];
-  linkItemModalTitle: string;
-  formItemsData: FormItem[];
-  itemAssets?: ItemAsset[];
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  linkItemModalTotalCount: number;
-  linkItemModalPage: number;
-  linkItemModalPageSize: number;
-  onSearchTerm: (term?: string) => void;
-  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
-  onLinkItemTableReload: () => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  order?: number;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   onDelete?: () => void;
   disableMoveUp?: boolean;
   disableMoveDown?: boolean;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  assetProps: AssetProps;
+  referenceProps: ReferenceProps;
 };
 
 const GroupItem: React.FC<Props> = ({
   value,
-  order,
+  disabled,
+  itemHeights,
+  onItemHeightChange,
   parentField,
-  linkedItemsModalList,
-  linkItemModalTitle,
-  formItemsData,
-  itemAssets,
-  assetList,
-  fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onSearchTerm,
-  linkItemModalTotalCount,
-  linkItemModalPage,
-  linkItemModalPageSize,
-  onReferenceModelUpdate,
-  onLinkItemTableReload,
-  onLinkItemTableChange,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetsGet,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
+  order,
   onMoveUp,
   onMoveDown,
   onDelete,
   disableMoveUp,
   disableMoveDown,
-  onGetAsset,
   onGroupGet,
+  assetProps,
+  referenceProps,
 }) => {
-  const { Panel } = Collapse;
-
-  const [fields, setFields] = useState<Field[]>();
+  const [fields, setFields] = useState<GroupField[]>();
 
   useEffect(() => {
     const handleFieldsSet = async (id: string) => {
@@ -158,6 +90,7 @@ const GroupItem: React.FC<Props> = ({
         header={parentField?.title + (order !== undefined ? ` (${order + 1})` : "")}
         key="1"
         extra={
+          !disabled &&
           order !== undefined && (
             <>
               <IconWrapper disabled={disableMoveUp} onClick={handleMoveUp}>
@@ -172,51 +105,18 @@ const GroupItem: React.FC<Props> = ({
             </>
           )
         }>
-        <FormItemsWrapper>
-          {fields?.map((field: Field) => {
-            const FieldComponent =
-              FIELD_TYPE_COMPONENT_MAP[
-                field.type as
-                  | "Select"
-                  | "Date"
-                  | "Tag"
-                  | "Bool"
-                  | "Checkbox"
-                  | "URL"
-                  | "TextArea"
-                  | "MarkdownText"
-                  | "Integer"
-              ] || DefaultField;
-
+        <div>
+          {fields?.map(field => {
             if (field.type === "Asset") {
               return (
                 <StyledFormItemWrapper key={field.id}>
                   <AssetField
                     field={field}
+                    disabled={disabled}
                     itemGroupId={itemGroupId}
-                    itemAssets={itemAssets}
-                    assetList={assetList}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsGet={onAssetsGet}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
-                    onGetAsset={onGetAsset}
+                    itemHeights={itemHeights}
+                    onItemHeightChange={onItemHeightChange}
+                    {...assetProps}
                   />
                 </StyledFormItemWrapper>
               );
@@ -225,36 +125,39 @@ const GroupItem: React.FC<Props> = ({
                 <StyledFormItemWrapper key={field.id}>
                   <ReferenceField
                     field={field}
+                    disabled={disabled}
                     itemGroupId={itemGroupId}
-                    linkedItemsModalList={linkedItemsModalList}
-                    formItemsData={formItemsData}
-                    linkItemModalTitle={linkItemModalTitle}
-                    linkItemModalTotalCount={linkItemModalTotalCount}
-                    linkItemModalPage={linkItemModalPage}
-                    linkItemModalPageSize={linkItemModalPageSize}
-                    onReferenceModelUpdate={onReferenceModelUpdate}
-                    onSearchTerm={onSearchTerm}
-                    onLinkItemTableReload={onLinkItemTableReload}
-                    onLinkItemTableChange={onLinkItemTableChange}
+                    itemHeights={itemHeights}
+                    onItemHeightChange={onItemHeightChange}
+                    {...referenceProps}
                   />
                 </StyledFormItemWrapper>
               );
             } else {
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
               return (
-                <StyledFormItemWrapper key={field.id}>
-                  <FieldComponent field={field} itemGroupId={itemGroupId} />
+                <StyledFormItemWrapper
+                  key={field.id}
+                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
+                  <FieldComponent
+                    field={field}
+                    itemGroupId={itemGroupId}
+                    disabled={disabled}
+                    itemHeights={itemHeights}
+                    onItemHeightChange={onItemHeightChange}
+                  />
                 </StyledFormItemWrapper>
               );
             }
           })}
-        </FormItemsWrapper>
+        </div>
       </Panel>
     </StyledCollapse>
   );
 };
 
 const StyledCollapse = styled(Collapse)`
-  width: 500px;
+  width: 100%;
 `;
 
 const IconWrapper = styled.span<{ disabled?: boolean }>`
@@ -262,16 +165,9 @@ const IconWrapper = styled.span<{ disabled?: boolean }>`
   display: ${({ disabled }) => (disabled ? "none" : "inline-block")};
 `;
 
-const StyledFormItemWrapper = styled.div`
-  width: 468px;
+const StyledFormItemWrapper = styled.div<{ isFullWidth?: boolean }>`
+  max-width: ${({ isFullWidth }) => (isFullWidth ? undefined : "468px")};
   word-wrap: break-word;
-`;
-
-const FormItemsWrapper = styled.div`
-  width: 50%;
-  @media (max-width: 1200px) {
-    width: 100%;
-  }
 `;
 
 export default GroupItem;

@@ -1,35 +1,44 @@
+import styled from "@emotion/styled";
+
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import { requiredValidator } from "../utils";
 
-interface DefaultFieldProps {
-  field: Field;
-  itemGroupId?: string;
-}
+const { Option } = Select;
 
-const SelectField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
-  const { Option } = Select;
+const SelectField: React.FC<FieldProps> = ({
+  field,
+  itemGroupId,
+  disabled,
+  itemHeights,
+  onItemHeightChange,
+}) => {
   const t = useT();
 
   return (
-    <Form.Item
+    <StyledFormItem
       extra={field.description}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}
       rules={[
         {
           required: field.required,
+          validator: requiredValidator,
           message: t("Please select an option!"),
         },
       ]}>
       {field.multiple ? (
-        <MultiValueSelect selectedValues={field.typeProperty?.values} />
+        <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+          <MultiValueSelect selectedValues={field.typeProperty?.values} disabled={disabled} />
+        </ResponsiveHeight>
       ) : (
-        <Select allowClear>
+        <Select allowClear disabled={disabled}>
           {field.typeProperty?.values?.map((value: string) => (
             <Option key={value} value={value}>
               {value}
@@ -37,8 +46,14 @@ const SelectField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
           ))}
         </Select>
       )}
-    </Form.Item>
+    </StyledFormItem>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+  .ant-select-disabled:not(.ant-select-customize-input) .ant-select-selector {
+    color: inherit;
+  }
+`;
 
 export default SelectField;

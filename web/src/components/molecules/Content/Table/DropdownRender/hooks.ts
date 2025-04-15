@@ -1,4 +1,4 @@
-import { Moment } from "moment";
+import dayjs, { Dayjs } from "dayjs";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -19,9 +19,9 @@ import {
   StringOperator,
   SortDirection,
   FieldType,
-  AndConditionInput,
+  CurrentView,
+  FieldSelector,
 } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 export default (
@@ -30,23 +30,42 @@ export default (
   open: boolean,
   isFilter: boolean,
   index: number,
+  currentView: CurrentView,
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>,
+  onFilterChange: (filter?: ConditionInput[]) => void,
   defaultValue?: DefaultFilterValueType,
-  currentView?: CurrentViewType,
-  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>,
-  onFilterChange?: (filter?: AndConditionInput) => void,
 ) => {
   const t = useT();
   const [form] = Form.useForm();
 
+  const defaultValueGet = useCallback(() => {
+    switch (filter.type) {
+      case "Select":
+      case "Tag":
+      case "Person":
+      case "Bool":
+      case "Checkbox":
+        return defaultValue?.value?.toString();
+      case "Date":
+        return defaultValue && defaultValue.value !== "" ? dayjs(defaultValue.value) : undefined;
+      default:
+        return defaultValue?.value;
+    }
+  }, [defaultValue, filter.type]);
+
   useEffect(() => {
-    if (open && !defaultValue) {
-      form.resetFields();
-      setIsShowInputField(true);
-      if (!isFilter && filterOption.current) {
-        filterOption.current.value = "ASC";
+    if (open) {
+      if (defaultValue) {
+        form.setFieldsValue({ condition: defaultValue.operator, value: defaultValueGet() });
+      } else {
+        form.resetFields();
+        setIsShowInputField(true);
+        if (!isFilter && filterOption.current) {
+          filterOption.current.value = "ASC";
+        }
       }
     }
-  }, [open, form, defaultValue, isFilter]);
+  }, [open, form, defaultValue, isFilter, defaultValueGet]);
 
   const options = useMemo(() => {
     const result: {
@@ -117,7 +136,7 @@ export default (
           );
           break;
         case "Integer":
-          // case "Float":
+        case "Number":
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
@@ -236,31 +255,33 @@ export default (
   const filterValue = useRef<string>();
 
   useEffect(() => {
+    let isShow = true;
     if (defaultValue) {
+      const { operator, operatorType, value } = defaultValue;
       filterOption.current = {
-        value: defaultValue.operator,
-        operatorType: defaultValue.operatorType,
+        value: operator,
+        operatorType,
       };
-      filterValue.current = defaultValue.value;
+      filterValue.current = value;
+      if (
+        operatorType === "nullable" ||
+        operator === TimeOperator.OfThisWeek ||
+        operator === TimeOperator.OfThisMonth ||
+        operator === TimeOperator.OfThisYear
+      ) {
+        isShow = false;
+      }
     } else {
+      const { value, operatorType } = options[0];
       filterOption.current = {
-        value: options[0].value,
-        operatorType: options[0].operatorType,
+        value,
+        operatorType,
       };
+      if (operatorType === "nullable") {
+        isShow = false;
+      }
     }
-
-    if (defaultValue?.operatorType === "nullable") {
-      setIsShowInputField(false);
-    } else if (
-      defaultValue?.operator === TimeOperator.OfThisWeek ||
-      defaultValue?.operator === TimeOperator.OfThisMonth ||
-      defaultValue?.operator === TimeOperator.OfThisYear
-    ) {
-      setIsShowInputField(false);
-      defaultValue.value = "";
-    } else {
-      setIsShowInputField(true);
-    }
+    setIsShowInputField(isShow);
   }, [defaultValue, options]);
 
   const confirm = useCallback(() => {
@@ -268,35 +289,30 @@ export default (
     close();
     if (isFilter) {
       const operatorType = filterOption.current.operatorType;
-      let value: string | boolean | number | Date = filterValue.current ?? "";
       const type =
         typeof filter.dataIndex === "string"
-          ? filter.id
+          ? "ID"
           : filter.dataIndex[0] === "fields"
             ? "FIELD"
             : "META_FIELD";
-      const operatorValue = filterOption.current.value;
-      const currentFilters = currentView?.filter?.conditions
-        ? [...currentView.filter.conditions]
-        : [];
-      const newFilter: {
-        [x: keyof ConditionInput | string]: {
-          fieldId: {
-            type: string;
-            id: string;
-          };
-          operator: Operator | SortDirection;
+      const operatorValue = filterOption.current.value as Operator;
+      const currentFilters =
+        currentView.filter && currentView.filter.and ? [...currentView.filter.and.conditions] : [];
+      const newFilter: Record<
+        string,
+        {
+          fieldId: FieldSelector;
+          operator: Operator;
           value?: string | boolean | number | Date;
-        };
-      } = {
-        [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue },
-      };
+        }
+      > = { [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue } };
 
+      let value: string | boolean | number | Date = filterValue.current ?? "";
       if (filter.type === "Bool" || filter.type === "Checkbox") {
         if (typeof value !== "boolean") {
           value = value === "true";
         }
-      } else if (filter.type === "Integer" /*|| filter.type === "Float"*/) {
+      } else if (filter.type === "Integer" || filter.type === "Number") {
         value = Number(value);
       } else if (filter.type === "Date") {
         value = value ? new Date(value) : new Date();
@@ -317,7 +333,7 @@ export default (
 
       currentFilters[index] = newFilter;
 
-      onFilterChange?.({ conditions: currentFilters.filter(Boolean) });
+      onFilterChange(currentFilters.filter(Boolean));
     } else {
       const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
       let fieldId = "";
@@ -346,7 +362,7 @@ export default (
         },
         direction: direction,
       };
-      setCurrentView?.(prev => ({
+      setCurrentView(prev => ({
         ...prev,
         sort: sort,
       }));
@@ -398,8 +414,8 @@ export default (
   }, []);
 
   const onDateChange: DatePickerProps["onChange"] = useCallback(
-    (_date: Moment | null, dateString: string) => {
-      filterValue.current = dateString;
+    (_date: Dayjs | null, dateString: string | string[]) => {
+      if (typeof dateString === "string") filterValue.current = dateString;
     },
     [],
   );

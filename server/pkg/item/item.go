@@ -20,7 +20,7 @@ type Item struct {
 	project              ProjectID
 	fields               Fields
 	timestamp            time.Time
-	thread               ThreadID
+	thread               *ThreadID
 	user                 *UserID
 	integration          *IntegrationID
 	updatedByUser        *UserID
@@ -131,7 +131,7 @@ func (i *Item) FieldByItemGroupAndID(fid FieldID, igID ItemGroupID) *Field {
 	return ff
 }
 
-func (i *Item) Thread() ThreadID {
+func (i *Item) Thread() *ThreadID {
 	return i.thread
 }
 
@@ -292,4 +292,20 @@ func (i *Item) SetMetadataItem(iid id.ItemID) {
 
 func (i *Item) SetOriginalItem(iid id.ItemID) {
 	i.originalItem = &iid
+}
+
+func (i *Item) SetThread(thid id.ThreadID) {
+	i.thread = &thid
+}
+
+func (i *Item) GetFirstGeometryField() (*Field, bool) {
+	if i == nil {
+		return nil, false
+	}
+	for _, f := range i.Fields() {
+		if f.IsGeometryField() && !f.Value().IsEmpty() {
+			return f, true
+		}
+	}
+	return nil, false
 }

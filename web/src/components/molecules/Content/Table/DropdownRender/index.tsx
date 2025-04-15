@@ -1,7 +1,5 @@
 import styled from "@emotion/styled";
-import { SetStateAction } from "jotai";
-import moment from "moment";
-import { Dispatch } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
@@ -16,8 +14,7 @@ import {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -31,9 +28,9 @@ type Props = {
   open: boolean;
   isFilter: boolean;
   index: number;
-  currentView?: CurrentViewType;
-  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>;
-  onFilterChange?: (filter?: AndConditionInput) => void;
+  currentView: CurrentView;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
+  onFilterChange: (filter?: ConditionInput[]) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -66,10 +63,10 @@ const DropdownRender: React.FC<Props> = ({
     open,
     isFilter,
     index,
-    defaultValue,
     currentView,
     setCurrentView,
     onFilterChange,
+    defaultValue,
   );
   return (
     <StyledForm form={form} name="basic" autoComplete="off" colon={false}>
@@ -79,8 +76,8 @@ const DropdownRender: React.FC<Props> = ({
             style={{ width: 160 }}
             options={options}
             onSelect={onFilterSelect}
-            defaultValue={defaultValue?.operator ?? options[0].value}
-            key={defaultValue?.operator}
+            defaultValue={options[0].value}
+            getPopupContainer={trigger => trigger.parentNode}
           />
         </StyledFormItem>
         {isFilter && isShowInputField && (
@@ -93,8 +90,7 @@ const DropdownRender: React.FC<Props> = ({
               <Select
                 placeholder="Select the value"
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value?.toString()}
-                key={defaultValue?.value}>
+                getPopupContainer={trigger => trigger.parentNode}>
                 {valueOptions.map(option => (
                   <Option key={option.value} value={option.value} label={option.label}>
                     {filter.type === "Tag" ? (
@@ -105,33 +101,17 @@ const DropdownRender: React.FC<Props> = ({
                   </Option>
                 ))}
               </Select>
-            ) : filter.type === "Integer" /*|| filter.type === "Float"*/ ? (
-              <InputNumber
-                onChange={onNumberChange}
-                stringMode
-                defaultValue={defaultValue?.value}
-                style={{ width: "100%" }}
-                placeholder="Enter the value"
-                key={defaultValue?.value}
-              />
+            ) : filter.type === "Integer" || filter.type === "Number" ? (
+              <InputNumber onChange={onNumberChange} stringMode placeholder="Enter the value" />
             ) : filter.type === "Date" ? (
               <DatePicker
                 onChange={onDateChange}
                 style={{ width: "100%" }}
                 placeholder="Select the date"
-                showToday={false}
-                defaultValue={
-                  defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
-                }
-                key={defaultValue?.value}
+                showNow={false}
               />
             ) : (
-              <Input
-                onChange={onInputChange}
-                defaultValue={defaultValue?.value}
-                placeholder="Enter the value"
-                key={defaultValue?.value}
-              />
+              <Input onChange={onInputChange} placeholder="Enter the value" />
             )}
           </StyledFormItem>
         )}
@@ -171,6 +151,10 @@ const StyledFormItem = styled(Form.Item)`
 
 const TextWrapper = styled.span`
   min-width: 137px;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-align: left;
 `;
 

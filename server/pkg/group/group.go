@@ -2,8 +2,8 @@ package group
 
 import (
 	"fmt"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/rerror"
 )
 
@@ -13,7 +13,8 @@ type Group struct {
 	project     ProjectID
 	name        string
 	description string
-	key         key.Key
+	key         id.Key
+	order       int
 }
 
 func (g *Group) ID() ID {
@@ -36,8 +37,16 @@ func (g *Group) Description() string {
 	return g.description
 }
 
-func (g *Group) Key() key.Key {
+func (g *Group) Key() id.Key {
 	return g.key
+}
+
+func (g *Group) Order() int {
+	return g.order
+}
+
+func (g *Group) SetOrder(order int) {
+	g.order = order
 }
 
 func (g *Group) Clone() *Group {
@@ -51,6 +60,7 @@ func (g *Group) Clone() *Group {
 		name:        g.name,
 		description: g.description,
 		key:         g.key,
+		order:       g.order,
 	}
 }
 
@@ -62,7 +72,7 @@ func (g *Group) SetDescription(des string) {
 	g.description = des
 }
 
-func (g *Group) SetKey(key key.Key) error {
+func (g *Group) SetKey(key id.Key) error {
 	if !validateGroupKey(key) {
 		return &rerror.Error{
 			Label: id.ErrInvalidKey,
@@ -73,6 +83,6 @@ func (g *Group) SetKey(key key.Key) error {
 	return nil
 }
 
-func validateGroupKey(key key.Key) bool {
+func validateGroupKey(key id.Key) bool {
 	return key.IsValid() && len(key.String()) > 2
 }

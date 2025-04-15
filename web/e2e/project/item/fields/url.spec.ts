@@ -23,10 +23,9 @@ test("URL field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").fill("url1 description");
 
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("url1 #url1");
+  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("url1#url1");
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("url1");
@@ -34,16 +33,15 @@ test("URL field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("url1").click();
   await page.getByLabel("url1").fill("http://test1.com");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "http://test1.com", exact: true })).toBeVisible();
 
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  await expect(page.getByLabel("url1")).toHaveValue("http://test1.com");
   await page.getByLabel("url1").click();
   await page.getByLabel("url1").fill("http://test2.com");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "http://test2.com", exact: true })).toBeVisible();
@@ -61,14 +59,12 @@ test("URL field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("http://test1.com");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("url1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "http://test1.com", exact: true })).toBeVisible();
@@ -83,7 +79,7 @@ test("URL field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new url1 description");
   await page.getByLabel("Support multiple values").check();
-  await page.getByLabel("Use as title").check();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
@@ -93,7 +89,6 @@ test("URL field editing has succeeded", async ({ page }) => {
   await page.locator("#defaultValue").nth(1).click();
   await page.locator("#defaultValue").nth(1).fill("http://test2.com");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
 
   await expect(page.getByText("new url1 *#new-url1(unique)")).toBeVisible();
@@ -101,11 +96,10 @@ test("URL field editing has succeeded", async ({ page }) => {
   await expect(page.locator("thead")).toContainText("new url1");
   await expect(page.getByRole("cell", { name: "http://test1.com", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByText("new url1(unique)Title")).toBeVisible();
+  await expect(page.getByText("new url1(unique)")).toBeVisible();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://test1.com");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://test2.com");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();

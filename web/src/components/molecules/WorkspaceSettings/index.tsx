@@ -4,14 +4,20 @@ import DangerZone from "@reearth-cms/components/molecules/WorkspaceSettings/Dang
 import WorkspaceGeneralForm from "@reearth-cms/components/molecules/WorkspaceSettings/GeneralForm";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   workspaceName?: string;
-  onWorkspaceUpdate: (name?: string | undefined) => Promise<void>;
+  updateWorkspaceLoading: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
+  onWorkspaceUpdate: (name: string) => Promise<void>;
   onWorkspaceDelete: () => Promise<void>;
 };
 
 const WorkspaceSettings: React.FC<Props> = ({
   workspaceName,
+  updateWorkspaceLoading,
+  hasUpdateRight,
+  hasDeleteRight,
   onWorkspaceUpdate,
   onWorkspaceDelete,
 }) => {
@@ -20,9 +26,14 @@ const WorkspaceSettings: React.FC<Props> = ({
   return (
     <InnerContent title={t("Workspace Settings")}>
       <ContentSection title={t("General")}>
-        <WorkspaceGeneralForm workspaceName={workspaceName} onWorkspaceUpdate={onWorkspaceUpdate} />
+        <WorkspaceGeneralForm
+          workspaceName={workspaceName}
+          updateWorkspaceLoading={updateWorkspaceLoading}
+          hasUpdateRight={hasUpdateRight}
+          onWorkspaceUpdate={onWorkspaceUpdate}
+        />
       </ContentSection>
-      <DangerZone onWorkspaceDelete={onWorkspaceDelete} />
+      <DangerZone hasDeleteRight={hasDeleteRight} onWorkspaceDelete={onWorkspaceDelete} />
     </InnerContent>
   );
 };

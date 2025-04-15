@@ -4,7 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/vikstrous/dataloadgen"
 )
 
 const (
@@ -31,24 +33,6 @@ type Loaders struct {
 	WorkspaceSettings *WorkspaceSettingsLoader
 }
 
-type DataLoaders struct {
-	Asset             AssetDataLoader
-	Workspace         WorkspaceDataLoader
-	User              UserDataLoader
-	Project           ProjectDataLoader
-	Item              ItemDataLoader
-	View              ViewDataLoader
-	ItemStatus        ItemStatusDataLoader
-	AssetItems        AssetItemDataLoader
-	Model             ModelDataLoader
-	Request           RequestDataLoader
-	Schema            SchemaDataLoader
-	Thread            ThreadDataLoader
-	Integration       IntegrationDataLoader
-	Group             GroupDataLoader
-	WorkspaceSettings WorkspaceSettingsDataLoader
-}
-
 func NewLoaders(usecases *interfaces.Container) *Loaders {
 	if usecases == nil {
 		return nil
@@ -73,6 +57,24 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 	}
 }
 
+type DataLoaders struct {
+	Asset             Loader[gqlmodel.Asset]
+	Workspace         Loader[gqlmodel.Workspace]
+	User              Loader[gqlmodel.User]
+	Project           Loader[gqlmodel.Project]
+	Item              Loader[gqlmodel.Item]
+	View              Loader[gqlmodel.View]
+	ItemStatus        Loader[gqlmodel.ItemStatus]
+	AssetItems        Loader[[]gqlmodel.AssetItem]
+	Model             Loader[gqlmodel.Model]
+	Request           Loader[gqlmodel.Request]
+	Schema            Loader[gqlmodel.Schema]
+	Thread            Loader[gqlmodel.Thread]
+	Integration       Loader[gqlmodel.Integration]
+	Group             Loader[gqlmodel.Group]
+	WorkspaceSettings Loader[gqlmodel.WorkspaceSettings]
+}
+
 func (l Loaders) DataLoadersWith(ctx context.Context, enabled bool) *DataLoaders {
 	if enabled {
 		return l.DataLoaders(ctx)
@@ -82,40 +84,95 @@ func (l Loaders) DataLoadersWith(ctx context.Context, enabled bool) *DataLoaders
 
 func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 	return &DataLoaders{
-		Asset:             l.Asset.DataLoader(ctx),
-		Workspace:         l.Workspace.DataLoader(ctx),
-		User:              l.User.DataLoader(ctx),
-		Project:           l.Project.DataLoader(ctx),
-		Model:             l.Model.DataLoader(ctx),
-		Request:           l.Request.DataLoader(ctx),
-		AssetItems:        l.AssetItem.DataLoader(ctx),
-		Schema:            l.Schema.DataLoader(ctx),
-		Integration:       l.Integration.DataLoader(ctx),
-		Item:              l.Item.DataLoader(ctx),
-		View:              l.View.DataLoader(ctx),
-		ItemStatus:        l.ItemStatus.DataLoader(ctx),
-		Thread:            l.Thread.DataLoader(ctx),
-		Group:             l.Group.DataLoader(ctx),
-		WorkspaceSettings: l.WorkspaceSettings.DataLoader(ctx),
+		Asset:             NewCashedLoader(ctx, l.Asset.FindByIDs),
+		Workspace:         NewCashedLoader(ctx, l.Workspace.Fetch),
+		User:              NewCashedLoader(ctx, l.User.Fetch),
+		Project:           NewCashedLoader(ctx, l.Project.Fetch),
+		Model:             NewCashedLoader(ctx, l.Model.Fetch),
+		Request:           NewCashedLoader(ctx, l.Request.Fetch),
+		AssetItems:        NewCashedLoader(ctx, l.AssetItem.Fetch),
+		Schema:            NewCashedLoader(ctx, l.Schema.Fetch),
+		Integration:       NewCashedLoader(ctx, l.Integration.Fetch),
+		Item:              NewCashedLoader(ctx, l.Item.Fetch),
+		View:              NewCashedLoader(ctx, l.View.Fetch),
+		ItemStatus:        NewCashedLoader(ctx, l.ItemStatus.Fetch),
+		Thread:            NewCashedLoader(ctx, l.Thread.FindByIDs),
+		Group:             NewCashedLoader(ctx, l.Group.Fetch),
+		WorkspaceSettings: NewCashedLoader(ctx, l.WorkspaceSettings.Fetch),
 	}
 }
 
 func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 	return &DataLoaders{
-		Asset:             l.Asset.OrdinaryDataLoader(ctx),
-		Workspace:         l.Workspace.OrdinaryDataLoader(ctx),
-		User:              l.User.OrdinaryDataLoader(ctx),
-		Project:           l.Project.OrdinaryDataLoader(ctx),
-		Model:             l.Model.OrdinaryDataLoader(ctx),
-		AssetItems:        l.AssetItem.OrdinaryDataLoader(ctx),
-		Request:           l.Request.OrdinaryDataLoader(ctx),
-		Schema:            l.Schema.OrdinaryDataLoader(ctx),
-		Item:              l.Item.OrdinaryDataLoader(ctx),
-		View:              l.View.OrdinaryDataLoader(ctx),
-		ItemStatus:        l.ItemStatus.OrdinaryDataLoader(ctx),
-		Integration:       l.Integration.OrdinaryDataLoader(ctx),
-		Thread:            l.Thread.OrdinaryDataLoader(ctx),
-		Group:             l.Group.OrdinaryDataLoader(ctx),
-		WorkspaceSettings: l.WorkspaceSettings.OrdinaryDataLoader(ctx),
+		Asset:             NewOrdinaryLoader(ctx, l.Asset.FindByIDs),
+		Workspace:         NewOrdinaryLoader(ctx, l.Workspace.Fetch),
+		User:              NewOrdinaryLoader(ctx, l.User.Fetch),
+		Project:           NewOrdinaryLoader(ctx, l.Project.Fetch),
+		Model:             NewOrdinaryLoader(ctx, l.Model.Fetch),
+		AssetItems:        NewOrdinaryLoader(ctx, l.AssetItem.Fetch),
+		Request:           NewOrdinaryLoader(ctx, l.Request.Fetch),
+		Schema:            NewOrdinaryLoader(ctx, l.Schema.Fetch),
+		Item:              NewOrdinaryLoader(ctx, l.Item.Fetch),
+		View:              NewOrdinaryLoader(ctx, l.View.Fetch),
+		ItemStatus:        NewOrdinaryLoader(ctx, l.ItemStatus.Fetch),
+		Integration:       NewOrdinaryLoader(ctx, l.Integration.Fetch),
+		Thread:            NewOrdinaryLoader(ctx, l.Thread.FindByIDs),
+		Group:             NewOrdinaryLoader(ctx, l.Group.Fetch),
+		WorkspaceSettings: NewOrdinaryLoader(ctx, l.WorkspaceSettings.Fetch),
 	}
+}
+
+type Loader[T any] interface {
+	Load(gqlmodel.ID) (*T, error)
+	LoadAll([]gqlmodel.ID) ([]*T, []error)
+}
+
+type FetchFn[T any] func(context.Context, []gqlmodel.ID) ([]*T, []error)
+
+type OrdinaryLoader[T any] struct {
+	ctx   context.Context
+	fetch FetchFn[T]
+}
+
+func NewOrdinaryLoader[T any](ctx context.Context, f FetchFn[T]) Loader[T] {
+	return &OrdinaryLoader[T]{
+		ctx:   ctx,
+		fetch: f,
+	}
+}
+
+func (l *OrdinaryLoader[T]) Load(key gqlmodel.ID) (*T, error) {
+	res, errs := l.fetch(l.ctx, []gqlmodel.ID{key})
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	if len(res) > 0 {
+		return res[0], nil
+	}
+	return nil, nil
+}
+
+func (l *OrdinaryLoader[T]) LoadAll(keys []gqlmodel.ID) ([]*T, []error) {
+	return l.fetch(l.ctx, keys)
+}
+
+type CashedLoader[T any] struct {
+	ctx    context.Context
+	loader *dataloadgen.Loader[gqlmodel.ID, *T]
+}
+
+func NewCashedLoader[T any](ctx context.Context, f FetchFn[T]) Loader[T] {
+	return &CashedLoader[T]{
+		ctx:    ctx,
+		loader: dataloadgen.NewLoader[gqlmodel.ID, *T](f, dataloadgen.WithWait(dataLoaderWait), dataloadgen.WithBatchCapacity(dataLoaderMaxBatch)),
+	}
+}
+
+func (l *CashedLoader[T]) Load(key gqlmodel.ID) (*T, error) {
+	return l.loader.Load(l.ctx, key)
+}
+
+func (l *CashedLoader[T]) LoadAll(keys []gqlmodel.ID) ([]*T, []error) {
+	res, err := l.loader.LoadAll(l.ctx, keys)
+	return res, []error{err}
 }

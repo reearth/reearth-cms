@@ -6,27 +6,29 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FieldType } from "../../types";
 
-export interface Props {
+type Props = {
   selectedType: FieldType;
-}
+  min?: number;
+  max?: number;
+};
 
-const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {
+const FieldValidationInputs: React.FC<Props> = ({ selectedType, min, max }) => {
   const t = useT();
-  return selectedType ? (
-    selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText" ? (
-      <Form.Item name="maxLength" label={t("Set maximum length")}>
-        <InputNumber type="number" min={0} />
+  return selectedType === "Text" ||
+    selectedType === "TextArea" ||
+    selectedType === "MarkdownText" ? (
+    <Form.Item name="maxLength" label={t("Set maximum length")}>
+      <InputNumber type="number" min={1} />
+    </Form.Item>
+  ) : selectedType === "Integer" || selectedType === "Number" ? (
+    <>
+      <Form.Item name="min" label={t("Set minimum value")}>
+        <InputNumber type="number" max={max} />
       </Form.Item>
-    ) : selectedType === "Integer" ? (
-      <>
-        <Form.Item name="min" label={t("Set minimum value")}>
-          <InputNumber type="number" />
-        </Form.Item>
-        <Form.Item name="max" label={t("Set maximum value")}>
-          <InputNumber type="number" />
-        </Form.Item>
-      </>
-    ) : null
+      <Form.Item name="max" label={t("Set maximum value")}>
+        <InputNumber type="number" min={min} />
+      </Form.Item>
+    </>
   ) : null;
 };
 

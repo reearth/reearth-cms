@@ -5,9 +5,10 @@ import {
   UploadProps,
 } from "antd/lib/upload/interface";
 
-interface UploadFile<T = any> extends ANTDFileUpload<T> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type UploadFile<T = any> = {
   skipDecompression?: boolean;
-}
+} & ANTDFileUpload<T>;
 
 export default Upload;
 export type { UploadChangeParam, UploadFile, UploadProps };

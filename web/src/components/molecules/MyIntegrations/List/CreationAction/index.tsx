@@ -28,7 +28,7 @@ const StyledIcon = styled(Icon)`
   font-size: 36px;
 `;
 
-const Card = styled.div`
+const Card = styled.button`
   justify-content: center;
   height: 180px;
   width: 240px;
@@ -41,6 +41,7 @@ const Card = styled.div`
   border-radius: 4px;
   color: #00000073;
   cursor: pointer;
+  background-color: #fff;
   &:hover {
     color: #1890ff;
     background-color: #e6f7ff;

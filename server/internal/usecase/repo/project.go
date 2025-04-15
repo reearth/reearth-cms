@@ -15,8 +15,9 @@ type Project interface {
 	FindByID(context.Context, id.ProjectID) (*project.Project, error)
 	FindByIDOrAlias(context.Context, project.IDOrAlias) (*project.Project, error)
 	FindByWorkspaces(context.Context, accountdomain.WorkspaceIDList, *usecasex.Pagination) (project.List, *usecasex.PageInfo, error)
-	FindByPublicName(context.Context, string) (*project.Project, error)
+	IsAliasAvailable(context.Context, string) (bool, error)
 	CountByWorkspace(context.Context, accountdomain.WorkspaceID) (int, error)
+	FindByPublicAPIToken(context.Context, string) (*project.Project, error)
 	Save(context.Context, *project.Project) error
 	Remove(context.Context, id.ProjectID) error
 }

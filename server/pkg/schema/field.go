@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -16,7 +16,7 @@ type Field struct {
 	id           FieldID
 	name         string
 	description  string
-	key          key.Key
+	key          id.Key
 	unique       bool
 	multiple     bool
 	required     bool
@@ -74,11 +74,11 @@ func (f *Field) SetDefaultValue(v *value.Multiple) error {
 	return nil
 }
 
-func (f *Field) Key() key.Key {
+func (f *Field) Key() id.Key {
 	return f.key
 }
 
-func (f *Field) SetKey(key key.Key) error {
+func (f *Field) SetKey(key id.Key) error {
 	if !key.IsValid() {
 		return &rerror.Error{
 			Label: ErrInvalidKey,
@@ -189,4 +189,21 @@ func (f *Field) ValidateValue(m *value.Multiple) error {
 		}
 	}
 	return f.typeProperty.ValidateMultiple(m)
+}
+
+func (f *Field) IsGeometryField() bool {
+	return f.Type() == value.TypeGeometryObject || f.Type() == value.TypeGeometryEditor
+}
+
+func (f *Field) SupportsPointField() bool {
+	var supported bool
+	f.TypeProperty().Match(TypePropertyMatch{
+		GeometryObject: func(f *FieldGeometryObject) {
+			supported = f.SupportedTypes().Has(GeometryObjectSupportedTypePoint)
+		},
+		GeometryEditor: func(f *FieldGeometryEditor) {
+			supported = f.SupportedTypes().Has(GeometryEditorSupportedTypePoint)
+		},
+	})
+	return supported
 }

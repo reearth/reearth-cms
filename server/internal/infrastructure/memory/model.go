@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -48,6 +49,36 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.P
 
 	result := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
 		return m.Project() == pid
+	})).SortByID()
+
+	var startCursor, endCursor *usecasex.Cursor
+	if len(result) > 0 {
+		startCursor = lo.ToPtr(usecasex.Cursor(result[0].ID().String()))
+		endCursor = lo.ToPtr(usecasex.Cursor(result[len(result)-1].ID().String()))
+	}
+
+	return result, usecasex.NewPageInfo(
+		int64(len(result)),
+		startCursor,
+		endCursor,
+		true,
+		true,
+	), nil
+}
+
+func (r *Model) FindByProjectAndKeyword(_ context.Context, pid id.ProjectID, k string, _ *model.Sort, _ *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+	if r.err != nil {
+		return nil, nil, r.err
+	}
+
+	// TODO: implement pagination and sorting
+
+	if !r.f.CanRead(pid) {
+		return nil, nil, nil
+	}
+
+	result := model.List(r.data.FindAll(func(_ id.ModelID, m *model.Model) bool {
+		return m.Project() == pid && strings.Contains(m.Name(), k)
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
@@ -126,6 +157,21 @@ func (r *Model) FindByID(_ context.Context, mid id.ModelID) (*model.Model, error
 
 	m := r.data.Find(func(k id.ModelID, m *model.Model) bool {
 		return k == mid && r.f.CanRead(m.Project())
+	})
+
+	if m != nil {
+		return m, nil
+	}
+	return nil, rerror.ErrNotFound
+}
+
+func (r *Model) FindBySchema(_ context.Context, sid id.SchemaID) (*model.Model, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
+		return (m.Schema() == sid || (m.Metadata() != nil && *m.Metadata() == sid)) && r.f.CanRead(m.Project())
 	})
 
 	if m != nil {

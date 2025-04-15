@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -24,15 +26,27 @@ type Item struct {
 	err  error
 }
 
-func (r *Item) FindByAssets(ctx context.Context, assetID id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
-	// TODO implement me
-	panic("implement me")
-}
-
 func NewItem() repo.Item {
 	return &Item{
 		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
 	}
+}
+
+func (r *Item) FindByAssets(_ context.Context, list id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	var res item.VersionedList
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(ref.OrLatest().OrVersion())
+		it := itv.Value()
+		if it.AssetIDs().Has(list...) {
+			res = append(res, itv)
+		}
+		return true
+	})
+	return res, nil
 }
 
 func (r *Item) Filtered(filter repo.ProjectFilter) repo.Item {
@@ -71,24 +85,6 @@ func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *versio
 	return res, nil, nil
 }
 
-func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	if r.err != nil {
-		return nil, nil, r.err
-	}
-
-	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(ref.OrLatest().OrVersion())
-		it := itv.Value()
-		if it.Project() == projectID {
-			res = append(res, itv)
-		}
-		return true
-	})
-
-	return res, nil, nil
-}
-
 func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
@@ -115,6 +111,18 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 	return r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), nil
 }
 
+func (r *Item) FindVersionByID(_ context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	item, ok := r.data.Load(itemID, ver)
+	if !ok {
+		return nil, rerror.ErrNotFound
+	}
+	return item, nil
+}
+
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
@@ -127,7 +135,7 @@ func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.Versio
 	}), nil
 }
 
-func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+func (r *Item) FindAllVersionsByIDs(_ context.Context, ids id.ItemIDList) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -139,7 +147,7 @@ func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (ite
 	}), nil
 }
 
-func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {
+func (r *Item) LastModifiedByModel(_ context.Context, modelID id.ModelID) (time.Time, error) {
 	if r.err != nil {
 		return time.Time{}, r.err
 	}
@@ -169,7 +177,21 @@ func (r *Item) Save(_ context.Context, t *item.Item) error {
 	return nil
 }
 
-func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
+func (r *Item) SaveAll(_ context.Context, il item.List) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, t := range il {
+		if !r.f.CanWrite(t.Project()) {
+			return repo.ErrOperationDenied
+		}
+	}
+	r.data.SaveAll(il.IDs(), il, nil)
+	return nil
+}
+
+func (r *Item) UpdateRef(_ context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -248,7 +270,7 @@ func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagin
 	}
 
 	var res item.VersionedList
-	qq := q.Q()
+	qq := q.Keyword()
 
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
@@ -285,7 +307,7 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 		if it.Model() == modelID {
 			for _, f := range fields {
 				for _, ff := range it.Fields() {
-					if f.Field == ff.FieldID() && f.Value.Equal(f.Value) {
+					if f.Field == ff.FieldID() && f.Value.Equal(ff.Value()) {
 						res = append(res, itv)
 					}
 				}
@@ -294,4 +316,80 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 		return true
 	})
 	return res, nil
+}
+
+func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *string, error) {
+	filter, err := json.Marshal(map[string]any{"schema": params.OldSchema.String()})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	c := task.Changes{
+		"id": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"schema": {
+			Type:  task.ChangeTypeSet,
+			Value: params.NewSchema.String(),
+		},
+		"modelid": {
+			Type:  task.ChangeTypeSet,
+			Value: params.NewModel.String(),
+		},
+		"timestamp": {
+			Type:  task.ChangeTypeSet,
+			Value: params.Timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00"), //TODO: should use a better way to format
+		},
+		"updatedbyuser": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"updatedbyintegration": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"originalitem": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"metadataitem": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"thread": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__r": { // tag
+			Type:  task.ChangeTypeSet,
+			Value: []string{"latest"},
+		},
+		"__w": { // parent
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__v": { // version
+			Type:  task.ChangeTypeNew,
+			Value: "version",
+		},
+	}
+	if params.User != nil {
+		c["user"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: *params.User,
+		}
+	}
+	if params.Integration != nil {
+		c["integration"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: *params.Integration,
+		}
+	}
+	changes, err := json.Marshal(c)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return lo.ToPtr(string(filter)), lo.ToPtr(string(changes)), nil
 }

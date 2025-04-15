@@ -34,7 +34,19 @@ func (c *Collection) FindOne(ctx context.Context, filter any, q version.Query, c
 }
 
 func (c *Collection) Find(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
-	return c.client.Find(ctx, apply(q, filter), consumer)
+	opt := options.Find().SetCollation(&options.Collation{
+		Locale:   "simple",
+		Strength: 1,
+	})
+	return c.client.Find(ctx, apply(q, filter), consumer, opt)
+}
+
+func (c *Collection) Aggregate(ctx context.Context, pipeline []any, q version.Query, consumer mongox.Consumer) error {
+	opt := options.Aggregate().SetCollation(&options.Collation{
+		Locale:   "simple",
+		Strength: 1,
+	})
+	return c.client.Aggregate(ctx, applyToPipeline(q, pipeline), consumer, opt)
 }
 
 func (c *Collection) Paginate(ctx context.Context, filter any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
@@ -46,7 +58,11 @@ func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (in
 }
 
 func (c *Collection) PaginateAggregation(ctx context.Context, pipeline []any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.client.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer)
+	opt := options.Aggregate().SetCollation(&options.Collation{
+		Locale:   "simple",
+		Strength: 1,
+	})
+	return c.client.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer, opt)
 }
 
 func (c *Collection) CountAggregation(ctx context.Context, pipeline []any, q version.Query) (int64, error) {
@@ -86,7 +102,7 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *vers
 	}
 
 	if err := version.MatchVersionOrRef(actualVr, nil, func(r version.Ref) error {
-		return c.UpdateRef(ctx, id, r, nil)
+		return c.DeleteRef(ctx, []string{id}, r)
 	}); err != nil {
 		return err
 	}
@@ -101,14 +117,98 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *vers
 	return nil
 }
 
-func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
+func (c *Collection) SaveMany(ctx context.Context, ids []string, docs []any) error {
+	// validate input
+	if len(ids) != len(docs) {
+		return rerror.ErrInvalidParams
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+
+	// check if any of the ids are archived
+	q := bson.M{"id": bson.M{"$in": ids}}
+	if archived, err := c.IsArchived(ctx, q); err != nil {
+		return err
+	} else if archived {
+		return version.ErrArchived
+	}
+
+	// load items metas
+	oldMetas, err := c.metas(ctx, ids)
+	if err != nil {
+		return err
+	}
+
+	newDocs := make([]any, len(ids))
+
+	for i := 0; i < len(ids); i++ {
+		id, doc := ids[i], docs[i]
+
+		newMeta := Meta{
+			ObjectID: primitive.NewObjectIDFromTimestamp(util.Now()),
+			Version:  version.New(),
+			Refs:     []version.Ref{version.Latest},
+		}
+
+		meta := oldMetas[id]
+		if meta != nil {
+			newMeta.Parents = []version.Version{meta.Version}
+		}
+
+		newDocs[i] = &Document[any]{
+			Data: doc,
+			Meta: newMeta,
+		}
+	}
+
+	// remove latest ref from old docs
+	if err := c.DeleteRef(ctx, ids, version.Latest); err != nil {
+		return err
+	}
+
+	if _, err := c.client.Client().InsertMany(ctx, newDocs); err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func (c *Collection) SaveAll(ctx context.Context, ids []string, docs []any, parents []*version.VersionOrRef) error {
+	// TODO: optimize to use bulk write
+	if len(ids) != len(docs) || (parents != nil && len(ids) != len(parents)) {
+		return rerror.ErrInvalidParams
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	for i := 0; i < len(ids); i++ {
+		var parent *version.VersionOrRef = nil
+		if parents != nil {
+			parent = parents[i]
+		}
+		err := c.SaveOne(ctx, ids[i], docs[i], parent)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Collection) DeleteRef(ctx context.Context, ids []string, ref version.Ref) error {
 	if _, err := c.client.Client().UpdateMany(ctx, bson.M{
-		"id":    id,
+		"id":    bson.M{"$in": ids},
 		refsKey: bson.M{"$in": []string{ref.String()}},
 	}, bson.M{
 		"$pull": bson.M{refsKey: ref},
 	}); err != nil {
 		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func (c *Collection) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
+	if err := c.DeleteRef(ctx, []string{id}, ref); err != nil {
+		return err
 	}
 
 	if dest != nil {
@@ -130,13 +230,18 @@ func (c *Collection) IsArchived(ctx context.Context, filter any) (bool, error) {
 		metaKey: true,
 	})
 
-	if err := c.client.FindOne(ctx, q, &cons); err != nil {
-		if errors.Is(rerror.ErrNotFound, err) || err == io.EOF {
+	if err := c.client.Find(ctx, q, &cons); err != nil {
+		if errors.Is(err, rerror.ErrNotFound) || err == io.EOF {
 			return false, nil
 		}
 		return false, err
 	}
-	return cons.Result[0].Archived, nil
+	for _, m := range cons.Result {
+		if m.Archived {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func (c *Collection) ArchiveOne(ctx context.Context, filter bson.M, archived bool) error {
@@ -205,6 +310,10 @@ func (c *Collection) Indexes() []mongox.Index {
 			Name: "mongogit_parents",
 			Key:  bson.D{{Key: parentsKey, Value: 1}},
 		},
+		{
+			Name: "mongogit_meta_refs",
+			Key:  bson.D{{Key: metaKey, Value: 1}, {Key: refsKey, Value: 1}},
+		},
 	}
 }
 
@@ -214,10 +323,24 @@ func (c *Collection) meta(ctx context.Context, id string, v *version.VersionOrRe
 		"id": id,
 	})
 	if err := c.client.FindOne(ctx, q, &consumer); err != nil {
-		if errors.Is(rerror.ErrNotFound, err) && (v == nil || v.IsRef(version.Latest)) {
+		if errors.Is(err, rerror.ErrNotFound) && (v == nil || v.IsRef(version.Latest)) {
 			return nil, nil
 		}
 		return nil, err
 	}
 	return &consumer.Result[0], nil
+}
+
+func (c *Collection) metas(ctx context.Context, ids []string) (map[string]*Meta, error) {
+	type idDoc struct {
+		ID string
+	}
+	consumer := mongox.SliceConsumer[Document[*idDoc]]{}
+	q := apply(version.Eq(version.Latest.OrVersion()), bson.M{
+		"id": bson.M{"$in": ids},
+	})
+	if err := c.client.Find(ctx, q, &consumer); err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	return lo.SliceToMap(consumer.Result, func(m Document[*idDoc]) (string, *Meta) { return m.Data.ID, &m.Meta }), nil
 }

@@ -3,25 +3,29 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 
-interface Props {
+type Props = {
   title: string;
-  collapsed?: boolean;
+  collapsed: boolean;
   selectedKey?: string;
   models?: Model[];
-  open?: boolean;
+  open: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
   onModalOpen: () => void;
-  onModelKeyCheck: (key: string, ignoredKey?: string | undefined) => Promise<boolean>;
+  onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onClose: () => void;
-  onCreate?: (data: ModelFormValues) => Promise<void>;
+  onCreate: (data: ModelFormValues) => Promise<void>;
   onModelSelect: (modelId: string) => void;
-  onUpdateModelsOrder: (modelIds: string[]) => void;
-}
+  onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
+};
 
 const Models: React.FC<Props> = ({
   collapsed,
   selectedKey,
   models,
   open,
+  hasCreateRight,
+  hasUpdateRight,
   onModalOpen,
   onModelKeyCheck,
   onClose,
@@ -35,6 +39,8 @@ const Models: React.FC<Props> = ({
         selectedKey={selectedKey}
         models={models}
         collapsed={collapsed}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
         onModelSelect={onModelSelect}
         onModalOpen={onModalOpen}
         onUpdateModelsOrder={onUpdateModelsOrder}

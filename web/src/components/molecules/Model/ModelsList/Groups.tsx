@@ -8,11 +8,14 @@ type Props = {
   selectedKey?: string;
   groups?: Group[];
   open: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
   onModalOpen: () => void;
   onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onClose: () => void;
   onCreate: (data: { name: string; description: string; key: string }) => Promise<void>;
   onGroupSelect?: (groupId: string) => void;
+  onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
 };
 
 const Groups: React.FC<Props> = ({
@@ -20,11 +23,14 @@ const Groups: React.FC<Props> = ({
   selectedKey,
   groups,
   open,
+  hasCreateRight,
+  hasUpdateRight,
   onModalOpen,
   onGroupKeyCheck,
   onClose,
   onCreate,
   onGroupSelect,
+  onUpdateGroupsOrder,
 }) => {
   return (
     <>
@@ -32,8 +38,11 @@ const Groups: React.FC<Props> = ({
         selectedKey={selectedKey}
         groups={groups}
         collapsed={collapsed}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
         onGroupSelect={onGroupSelect}
         onModalOpen={onModalOpen}
+        onUpdateGroupsOrder={onUpdateGroupsOrder}
       />
       <FormModal
         open={open}

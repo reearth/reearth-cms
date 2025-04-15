@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
@@ -18,33 +17,15 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/spf13/afero"
+	"go.mongodb.org/mongo-driver/event"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
-const databaseName = "reearth_cms"
-
-func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
-	gateways := &gateway.Container{}
-	acGateways := &accountgateway.Container{}
-
-	// Mongo
-	client, err := mongo.Connect(
-		ctx,
-		options.Client().
-			ApplyURI(conf.DB).
-			SetConnectTimeout(time.Second*10).
-			SetMonitor(otelmongo.NewMonitor()),
-	)
-	if err != nil {
-		log.Fatalf("repo initialization error: %+v\n", err)
-	}
-
+func initAccountDB(client *mongo.Client, txAvailable bool, ctx context.Context, conf *Config) *accountrepo.Container {
 	accountDatabase := conf.DB_Account
-	if accountDatabase == "" {
-		accountDatabase = databaseName
-	}
+	log.Infof("account database: %s", accountDatabase)
 
 	accountUsers := make([]accountrepo.User, 0, len(conf.DB_Users))
 	for _, u := range conf.DB_Users {
@@ -55,17 +36,48 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		accountUsers = append(accountUsers, accountmongo.NewUserWithHost(mongox.NewClient(accountDatabase, c), u.Name))
 	}
 
-	txAvailable := mongox.IsTransactionAvailable(conf.DB)
-
 	acRepos, err := accountmongo.New(ctx, client, accountDatabase, txAvailable, false, accountUsers)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
 
-	repos, err := mongorepo.New(ctx, client, databaseName, txAvailable, acRepos)
+	return acRepos
+}
+
+func initCMSDB(client *mongo.Client, txAvailable bool, acRepos *accountrepo.Container, ctx context.Context, conf *Config) *repo.Container {
+	cmsDatabase := conf.DB_CMS
+	log.Infof("cms database: %s", cmsDatabase)
+
+	repos, err := mongorepo.New(ctx, client, cmsDatabase, txAvailable, acRepos)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
+
+	return repos
+}
+
+func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
+	gateways := &gateway.Container{}
+	acGateways := &accountgateway.Container{}
+
+	// Mongo
+	co := options.Client().
+		ApplyURI(conf.DB).
+		SetConnectTimeout(time.Second * 10).
+		SetMonitor(otelmongo.NewMonitor())
+	if conf.Dev {
+		co.SetMonitor(NewLogMonitor())
+	}
+	client, err := mongo.Connect(ctx, co)
+	if err != nil {
+		log.Fatalf("repo initialization error: %+v\n", err)
+	}
+
+	txAvailable := mongox.IsTransactionAvailable(conf.DB)
+
+	acRepos := initAccountDB(client, txAvailable, ctx, conf)
+	cmsRepos := initCMSDB(client, txAvailable, acRepos, ctx, conf)
+
 	// File
 	var fileRepo gateway.File
 	if conf.GCS.BucketName != "" {
@@ -81,12 +93,12 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
 		}
 	} else {
-		log.Infoc(ctx, "file: local storage is used")
+		log.Infof("file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
 		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
 	}
 	if err != nil {
-		log.Fatalc(ctx, fmt.Sprintf("file: init error: %+v", err))
+		log.Fatalf("file: init error: %+v", err)
 	}
 	gateways.File = fileRepo
 
@@ -101,20 +113,30 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
-			log.Fatalc(ctx, fmt.Sprintf("task runner: gcp init error: %+v", err))
+			log.Fatalf("task runner: gcp init error: %+v", err)
 		}
 		gateways.TaskRunner = taskRunner
-		log.Infofc(ctx, "task runner: GCP is used")
+		log.Infof("task runner: GCP is used")
 	} else if conf.AWSTask.TopicARN != "" || conf.AWSTask.WebhookARN != "" {
 		taskRunner, err := aws.NewTaskRunner(ctx, &conf.AWSTask)
 		if err != nil {
-			log.Fatalc(ctx, fmt.Sprintf("task runner: aws init error: %+v", err))
+			log.Fatalf("task runner: aws init error: %+v", err)
 		}
 		gateways.TaskRunner = taskRunner
-		log.Infofc(ctx, "task runner: AWS is used")
+		log.Infof("task runner: AWS is used")
 	} else {
-		log.Infofc(ctx, "task runner: not used")
+		log.Infof("task runner: not used")
 	}
 
-	return repos, gateways, acRepos, acGateways
+	return cmsRepos, gateways, acRepos, acGateways
+}
+
+func NewLogMonitor() *event.CommandMonitor {
+	return &event.CommandMonitor{
+		Started: func(_ context.Context, evt *event.CommandStartedEvent) {
+			log.Debugf(evt.Command.String())
+		},
+		Succeeded: nil,
+		Failed:    nil,
+	}
 }

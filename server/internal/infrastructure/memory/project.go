@@ -110,17 +110,33 @@ func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*proj
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Project, error) {
+func (r *Project) IsAliasAvailable(_ context.Context, name string) (bool, error) {
+	if r.err != nil {
+		return false, r.err
+	}
+
+	if name == "" {
+		return false, nil
+	}
+
+	// no need to filter by workspace, because alias is unique across all workspaces
+	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
+		return v.Alias() == name
+	})
+
+	if p != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (r *Project) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	if name == "" {
-		return nil, nil
-	}
-
 	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
-		return v.Alias() == name && r.f.CanRead(v.Workspace())
+		return v.Publication().Token() == token && r.f.CanRead(v.Workspace())
 	})
 
 	if p != nil {

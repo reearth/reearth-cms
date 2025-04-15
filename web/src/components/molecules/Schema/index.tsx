@@ -11,34 +11,43 @@ import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
-import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  Field,
+  FieldType,
+  Group,
+  Tab,
+  SelectedSchemaType,
+} from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   data?: Model | Group;
-  collapsed?: boolean;
+  collapsed: boolean;
+  selectedSchemaType: SelectedSchemaType;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   onModalOpen: () => void;
   onDeletionModalOpen: () => void;
-  modelsMenu?: JSX.Element;
-  selectedSchemaType: SelectedSchemaType;
-  setIsMeta?: (isMeta: boolean) => void;
-  onCollapse?: (collapse: boolean) => void;
-  onFieldReorder: (data: Field[]) => Promise<void> | void;
+  modelsMenu: JSX.Element;
+  setIsMeta: (isMeta: boolean) => void;
+  onCollapse: (collapse: boolean) => void;
+  onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
 };
 
-export type Tab = "fields" | "meta-data";
-export type SelectedSchemaType = "model" | "group";
-
 const Schema: React.FC<Props> = ({
   data,
   collapsed,
+  selectedSchemaType,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   onModalOpen,
   onDeletionModalOpen,
   modelsMenu,
-  selectedSchemaType,
   setIsMeta,
   onCollapse,
   onFieldReorder,
@@ -56,6 +65,7 @@ const Schema: React.FC<Props> = ({
         label: t("Edit"),
         icon: <StyledIcon icon="edit" />,
         onClick: onModalOpen,
+        disabled: !hasUpdateRight,
       },
       {
         key: "delete",
@@ -63,9 +73,10 @@ const Schema: React.FC<Props> = ({
         icon: <StyledIcon icon="delete" />,
         onClick: onDeletionModalOpen,
         danger: true,
+        disabled: !hasDeleteRight,
       },
     ],
-    [onDeletionModalOpen, onModalOpen, t],
+    [hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
   );
 
   const DropdownMenu = useCallback(
@@ -85,6 +96,8 @@ const Schema: React.FC<Props> = ({
         <div>
           <ModelFieldList
             fields={data?.schema.fields}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -100,6 +113,8 @@ const Schema: React.FC<Props> = ({
           <ModelFieldList
             isMeta={true}
             fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -136,6 +151,7 @@ const Schema: React.FC<Props> = ({
               <PageHeader
                 title={data.name}
                 subTitle={`#${data.key}`}
+                style={{ backgroundColor: "#fff" }}
                 extra={[<DropdownMenu key="more" />]}
               />
               {selectedSchemaType === "model" && (
@@ -145,6 +161,8 @@ const Schema: React.FC<Props> = ({
                 <GroupFieldsWrapper>
                   <ModelFieldList
                     fields={data?.schema?.fields}
+                    hasUpdateRight={hasUpdateRight}
+                    hasDeleteRight={hasDeleteRight}
                     handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
                     onFieldReorder={onFieldReorder}
                     onFieldDelete={onFieldDelete}
@@ -160,6 +178,7 @@ const Schema: React.FC<Props> = ({
           <FieldList
             currentTab={tab}
             selectedSchemaType={selectedSchemaType}
+            hasCreateRight={hasCreateRight}
             addField={onFieldCreationModalOpen}
           />
         </FieldListWrapper>
@@ -183,11 +202,15 @@ const FieldListWrapper = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  padding: 24px 24px 0;
   max-height: calc(100% - 72px);
+  .ant-tabs-nav {
+    padding: 0 24px;
+    margin-bottom: 12px;
+    background: #fff;
+  }
   .ant-tabs-content-holder {
     overflow-y: auto;
-    padding-bottom: 24px;
+    padding: 0 24px 24px;
   }
 `;
 

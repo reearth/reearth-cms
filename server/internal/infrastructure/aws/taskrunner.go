@@ -29,7 +29,7 @@ type TaskConfig struct {
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
 	if conf.WebhookARN == "" || conf.TopicARN == "" {
-		return nil, errors.New("Missing configuration")
+		return nil, errors.New("missing configuration")
 	}
 
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -90,7 +90,7 @@ func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
-	var urlFn asset.URLResolver = func(a *asset.Asset) string {
+	var urlFn = func(a *asset.Asset) string {
 		return getURL(s3AssetBasePath, a.UUID(), a.FileName())
 	}
 

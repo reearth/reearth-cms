@@ -1,17 +1,19 @@
 import styled from "@emotion/styled";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Radio from "@reearth-cms/components/atoms/Radio";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
@@ -22,26 +24,25 @@ import {
   FieldType,
   Group,
   FormValues,
+  Tag,
+  SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
-export type Props = {
+type Props = {
   groups?: Group[];
-  open?: boolean;
-  isMeta: boolean;
-  fieldLoading: boolean;
   selectedType: FieldType;
-  selectedField?: Field | null;
-  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  selectedSchemaType: SelectedSchemaType;
+  isMeta: boolean;
+  open: boolean;
+  fieldLoading: boolean;
+  selectedField: Field | null;
+  handleFieldKeyUnique: (key: string) => boolean;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -52,17 +53,13 @@ export type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetSearchTerm: (term?: string) => void;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -90,6 +87,7 @@ const FieldModal: React.FC<Props> = ({
   groups,
   open,
   isMeta,
+  selectedSchemaType,
   fieldLoading,
   selectedType,
   selectedField,
@@ -124,61 +122,90 @@ const FieldModal: React.FC<Props> = ({
   const {
     form,
     buttonDisabled,
-    setButtonDisabled,
     activeTab,
     selectedValues,
     selectedTags,
+    selectedSupportedTypes,
+    maxLength,
+    min,
+    max,
     multipleValue,
     handleMultipleChange,
     handleTabChange,
+    handleValuesChange,
+    handleNameChange,
+    handleKeyChange,
     handleSubmit,
     handleModalReset,
-    handleModalCancel,
     isRequiredDisabled,
     isUniqueDisabled,
-  } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit);
+    keyValidate,
+    isTitleDisabled,
+    ObjectSupportType,
+    EditorSupportType,
+    emptyValidator,
+    duplicatedValidator,
+    errorIndexes,
+  } = useHooks(
+    selectedSchemaType,
+    selectedType,
+    isMeta,
+    selectedField,
+    open,
+    onClose,
+    onSubmit,
+    handleFieldKeyUnique,
+  );
+
+  const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
+    <>
+      {required && <Required>*</Required>}
+      {label}
+      {!required && <Optional>{`(${t("optional")})`}</Optional>}
+    </>
+  );
 
   return (
     <Modal
       title={
         <FieldThumbnail>
           <StyledIcon icon={fieldTypes[selectedType].icon} color={fieldTypes[selectedType].color} />
-          <h3>
-            {selectedField ? t("Update") : t("Create")} {t(fieldTypes[selectedType].title)}
-          </h3>
+          <StyledTitle>
+            {selectedField
+              ? t("Update Field", { field: selectedField.title })
+              : t("Create Field", { field: t(fieldTypes[selectedType].title) })}
+          </StyledTitle>
         </FieldThumbnail>
       }
+      width={572}
       open={open}
-      onCancel={handleModalCancel}
-      onOk={handleSubmit}
-      confirmLoading={fieldLoading}
-      okButtonProps={{ disabled: buttonDisabled }}
-      afterClose={handleModalReset}>
+      onCancel={handleModalReset}
+      footer={[
+        <Button key="cancel" onClick={handleModalReset} disabled={fieldLoading}>
+          {t("Cancel")}
+        </Button>,
+        <Button
+          key="ok"
+          type="primary"
+          loading={fieldLoading}
+          onClick={handleSubmit}
+          disabled={buttonDisabled}>
+          {t("OK")}
+        </Button>,
+      ]}>
       <Form
         form={form}
         layout="vertical"
         initialValues={initialValues}
-        onValuesChange={() => {
-          setTimeout(() => {
-            form
-              .validateFields()
-              .then(() => {
-                setButtonDisabled(false);
-              })
-              .catch(fieldsError => {
-                setButtonDisabled(
-                  fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-                );
-              });
-          });
-        }}>
+        requiredMark={requiredMark}
+        onValuesChange={handleValuesChange}>
         <Tabs activeKey={activeTab} onChange={handleTabChange}>
           <TabPane tab={t("Settings")} key="settings" forceRender>
             <Form.Item
               name="title"
               label={t("Display name")}
               rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-              <Input />
+              <Input onChange={handleNameChange} />
             </Form.Item>
             <Form.Item
               name="key"
@@ -191,59 +218,63 @@ const FieldModal: React.FC<Props> = ({
                   message: t("Key is not valid"),
                   required: true,
                   validator: async (_, value) => {
-                    if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
-                      return Promise.resolve();
-                    } else {
-                      return Promise.reject();
-                    }
+                    await keyValidate(value);
                   },
                 },
               ]}>
-              <Input />
+              <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
             </Form.Item>
-            <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+            <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />
             </Form.Item>
             {selectedType === "Select" && (
               <Form.Item
                 name="values"
                 label={t("Set Options")}
+                validateStatus={"success"}
                 rules={[
                   {
-                    validator: async (_, values) => {
-                      if (!values || values.length < 1) {
-                        return Promise.reject(new Error("At least 1 option"));
-                      }
-                      if (values.some((value: string) => value.length === 0)) {
-                        return Promise.reject(new Error("Empty values are not allowed"));
-                      }
-                    },
+                    required: true,
+                    message: t("At least 1 option"),
+                  },
+                  {
+                    validator: async (_, values?: string[]) => emptyValidator(values),
+                    message: t("Empty values are not allowed"),
+                  },
+                  {
+                    validator: async (_, values?: string[]) => duplicatedValidator(values),
+                    message: t("Option must be unique"),
                   },
                 ]}>
-                <MultiValueField FieldInput={Input} />
+                <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
               </Form.Item>
             )}
             {selectedType === "Tag" && (
               <Form.Item
                 name="tags"
                 label={t("Set Tags")}
+                validateStatus={"success"}
                 rules={[
                   {
-                    validator: async (_, values) => {
-                      if (!values || values.length < 1) {
-                        return Promise.reject(new Error("At least 1 option"));
-                      }
-                      if (values.some((value: string) => value.length === 0)) {
-                        return Promise.reject(new Error("Empty values are not allowed"));
-                      }
-                      const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
-                      if (uniqueNames.size !== values.length) {
-                        return Promise.reject(new Error("Labels must be unique"));
-                      }
+                    required: true,
+                    message: t("At least 1 tag"),
+                  },
+                  {
+                    validator: async (_, values?: Tag[]) => {
+                      const names = values?.map(value => value.name);
+                      return emptyValidator(names);
                     },
+                    message: t("Empty values are not allowed"),
+                  },
+                  {
+                    validator: async (_, values?: Tag[]) => {
+                      const names = values?.map(value => value.name);
+                      return duplicatedValidator(names);
+                    },
+                    message: t("Labels must be unique"),
                   },
                 ]}>
-                <MultiValueColoredTag />
+                <MultiValueColoredTag errorIndexes={errorIndexes} />
               </Form.Item>
             )}
             {selectedType === "Group" && (
@@ -261,6 +292,33 @@ const FieldModal: React.FC<Props> = ({
                 </Select>
               </Form.Item>
             )}
+            {selectedType === "GeometryObject" && (
+              <Form.Item
+                name="supportedTypes"
+                label={t("Support Type")}
+                extra={t("Please select what type of Geometry this field will support")}
+                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                <StyledCheckboxGroup>
+                  {ObjectSupportType.map(item => (
+                    <Checkbox value={item.value}>{item.label}</Checkbox>
+                  ))}
+                </StyledCheckboxGroup>
+              </Form.Item>
+            )}
+            {selectedType === "GeometryEditor" && (
+              <Form.Item
+                name="supportedTypes"
+                label={t("Support Type")}
+                extra={t("Please select what type of Geometry this field will support")}
+                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                <Radio.Group>
+                  {EditorSupportType.map(item => (
+                    <Radio value={item.value}>{item.label}</Radio>
+                  ))}
+                </Radio.Group>
+              </Form.Item>
+            )}
+            <OptionTitle>{t("options")}</OptionTitle>
             <Form.Item
               name="multiple"
               valuePropName="checked"
@@ -271,14 +329,14 @@ const FieldModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
-              hidden={isMeta || selectedType === "Group"}
+              hidden={isTitleDisabled}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
-            <FieldValidationInputs selectedType={selectedType} />
+            <FieldValidationInputs selectedType={selectedType} min={min} max={max} />
             <Form.Item
               name="required"
               valuePropName="checked"
@@ -297,6 +355,10 @@ const FieldModal: React.FC<Props> = ({
               multiple={multipleValue}
               selectedValues={selectedValues}
               selectedTags={selectedTags}
+              selectedSupportedTypes={selectedSupportedTypes}
+              maxLength={maxLength}
+              min={min}
+              max={max}
               selectedType={selectedType}
               assetList={assetList}
               fileList={fileList}
@@ -328,17 +390,23 @@ const FieldModal: React.FC<Props> = ({
   );
 };
 
+const Required = styled.span`
+  color: #ff4d4f;
+  margin-right: 4px;
+`;
+
+const Optional = styled.span`
+  color: #8c8c8c;
+  margin-left: 4px;
+`;
+
+const OptionTitle = styled.p`
+  margin-bottom: 8px;
+`;
+
 const FieldThumbnail = styled.div`
   display: flex;
   align-items: center;
-  h3 {
-    margin: 0;
-    margin-left: 12px;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
-    color: #000000d9;
-  }
 `;
 
 const StyledIcon = styled(Icon)`
@@ -353,9 +421,23 @@ const StyledIcon = styled(Icon)`
   }
 `;
 
+const StyledTitle = styled.p`
+  color: #000000d9;
+  font-size: 16px;
+  margin: 0 20px 0 12px;
+  overflow: auto;
+`;
+
 const StyledGroupKey = styled.span`
   font-size: 12px;
   margin-left: 4px;
+`;
+
+const StyledCheckboxGroup = styled(Checkbox.Group)`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  overflow-x: auto;
 `;
 
 export default FieldModal;

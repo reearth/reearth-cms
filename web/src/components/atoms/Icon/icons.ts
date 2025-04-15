@@ -5,6 +5,7 @@ import {
   SearchOutlined,
   SettingOutlined,
   UsergroupAddOutlined,
+  UsergroupDeleteOutlined,
   UserSwitchOutlined,
   CaretDownOutlined,
   CaretRightOutlined,
@@ -26,12 +27,14 @@ import {
   InboxOutlined,
   FullscreenOutlined,
   MoreOutlined,
+  MinusOutlined,
   MinusCircleOutlined,
   DeleteOutlined,
   ArrowLeftOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   FolderOutlined,
+  FolderOpenOutlined,
   LinkOutlined,
   UserAddOutlined,
   ClearOutlined,
@@ -44,37 +47,50 @@ import {
   FileTwoTone,
   PictureTwoTone,
   LoadingOutlined,
+  EyeOutlined,
   EyeInvisibleOutlined,
   CopyOutlined,
   ReloadOutlined,
   SortAscendingOutlined,
   FilterOutlined,
+  CommentOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import ArrowUpRight from "./Icons/arrowUpRight.svg";
+import ArrowUpRightSlash from "./Icons/arrowUpRightSlash.svg";
 import Asset from "./Icons/asset.svg";
 import Boolean from "./Icons/boolean.svg";
 import CheckSquare from "./Icons/checkSquare.svg";
+import Circle from "./Icons/circle.svg";
 import ColorPalette from "./Icons/colorPalette.svg";
 import Control from "./Icons/control.svg";
+import CurlyBrackets from "./Icons/curlyBrackets.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
+import EditorCopy from "./Icons/editorCopy.svg";
 import Group from "./Icons/group.svg";
+import InfinityIcon from "./Icons/infinity.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
+import LineString from "./Icons/lineString.svg";
 import Link from "./Icons/link.svg";
 import Linked from "./Icons/linked.svg";
 import UnlinkSolid from "./Icons/linkSlashSolid.svg";
 import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
+import MapPin from "./Icons/mapPin.svg";
 import MarkDown from "./Icons/markDown.svg";
 import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
+import Pencil from "./Icons/pencil.svg";
+import Polygon from "./Icons/polygon.svg";
+import Rectangle from "./Icons/rectangle.svg";
 import Tag from "./Icons/tag.svg";
 import TerminalWindow from "./Icons/terminalWindow.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
+import Trash from "./Icons/trash.svg";
 import Unzip from "./Icons/unzip.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
 
@@ -85,6 +101,7 @@ export default {
   search: SearchOutlined,
   settings: SettingOutlined,
   userGroupAdd: UsergroupAddOutlined,
+  userGroupDelete: UsergroupDeleteOutlined,
   userSwitch: UserSwitchOutlined,
   caretDown: CaretDownOutlined,
   caretRight: CaretRightOutlined,
@@ -112,12 +129,15 @@ export default {
   asset: Asset,
   listBullets: ListBullets,
   arrowUpRight: ArrowUpRight,
+  arrowUpRightSlash: ArrowUpRightSlash,
+  infinity: InfinityIcon,
   numberNine: NumberNine,
   link: Link,
   linkSolid: LinkSolid,
   unlinkSolid: UnlinkSolid,
   LinkOutlined: LinkOutlined,
   more: MoreOutlined,
+  minus: MinusOutlined,
   minusCircle: MinusCircleOutlined,
   delete: DeleteOutlined,
   arrowLeft: ArrowLeftOutlined,
@@ -126,6 +146,7 @@ export default {
   panelToggleLeft: MenuFoldOutlined,
   panelToggleRight: MenuUnfoldOutlined,
   folder: FolderOutlined,
+  folderOpen: FolderOpenOutlined,
   dot: Dot,
   userAdd: UserAddOutlined,
   clear: ClearOutlined,
@@ -141,6 +162,7 @@ export default {
   loading: LoadingOutlined,
   linked: Linked,
   unzip: Unzip,
+  eye: EyeOutlined,
   eyeInvisible: EyeInvisibleOutlined,
   copy: CopyOutlined,
   terminalWindow: TerminalWindow,
@@ -155,4 +177,14 @@ export default {
   sortAscending: SortAscendingOutlined,
   filter: FilterOutlined,
   workspaceSettings: WorkspaceSettings,
+  mapPin: MapPin,
+  lineString: LineString,
+  polygon: Polygon,
+  trash: Trash,
+  curlyBrackets: CurlyBrackets,
+  pencil: Pencil,
+  editorCopy: EditorCopy,
+  circle: Circle,
+  rectangle: Rectangle,
+  comment: CommentOutlined,
 };

@@ -21,6 +21,16 @@ export const GET_WORKSPACES = gql`
   ${workspaceFragment}
 `;
 
+export const GET_WORKSPACE = gql`
+  query GetWorkspace($id: ID!) {
+    node(id: $id, type: WORKSPACE) {
+      ... on Workspace {
+        ...WorkspaceFragment
+      }
+    }
+  }
+`;
+
 export const UPDATE_WORKSPACE = gql`
   mutation UpdateWorkspace($workspaceId: ID!, $name: String!) {
     updateWorkspace(input: { workspaceId: $workspaceId, name: $name }) {
@@ -62,9 +72,9 @@ export const UPDATE_MEMBER_OF_WORKSPACE = gql`
   }
 `;
 
-export const REMOVE_MEMBER_FROM_WORKSPACE = gql`
-  mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
-    removeUserFromWorkspace(input: { workspaceId: $workspaceId, userId: $userId }) {
+export const REMOVE_MULTIPLE_MEMBERS_FROM_WORKSPACE = gql`
+  mutation RemoveMultipleMembersFromWorkspace($workspaceId: ID!, $userIds: [ID!]!) {
+    removeMultipleMembersFromWorkspace(input: { workspaceId: $workspaceId, userIds: $userIds }) {
       workspace {
         id
         ...WorkspaceFragment

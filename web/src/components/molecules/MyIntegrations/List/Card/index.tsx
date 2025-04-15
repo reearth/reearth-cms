@@ -6,17 +6,17 @@ import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/ty
 
 type Props = {
   integration: Integration;
-  onIntegrationNavigate: (integration: Integration) => void;
+  onIntegrationNavigate: (integrationId: string) => void;
 };
 
 const MyIntegrationCard: React.FC<Props> = ({ integration, onIntegrationNavigate }) => {
   const onCardClick = useCallback(() => {
-    onIntegrationNavigate(integration);
+    onIntegrationNavigate(integration.id);
   }, [integration, onIntegrationNavigate]);
 
   return (
     <CardWrapper>
-      <Card onClick={onCardClick}>
+      <Card onClick={onCardClick} role="link">
         <Icon icon="api" size={40} color="#00000040" />
         <CardTitle>{integration.name}</CardTitle>
         <CardSubTitle>{integration.description}</CardSubTitle>
@@ -45,7 +45,7 @@ const Card = styled.div`
   }
 `;
 
-const CardTitle = styled.h5`
+const CardTitle = styled.h3`
   width: 100%;
   margin-top: 22px;
   margin-bottom: 4px;
@@ -58,7 +58,8 @@ const CardTitle = styled.h5`
   text-overflow: ellipsis;
 `;
 
-const CardSubTitle = styled.h6`
+const CardSubTitle = styled.h4`
+  width: 100%;
   margin: 0;
   font-weight: 400;
   font-size: 12px;
@@ -67,9 +68,6 @@ const CardSubTitle = styled.h6`
   height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
 `;
 
 export default MyIntegrationCard;

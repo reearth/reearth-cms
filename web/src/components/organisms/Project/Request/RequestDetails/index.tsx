@@ -7,52 +7,48 @@ import useHooks from "./hooks";
 const RequestDetails: React.FC = () => {
   const {
     me,
+    hasCommentCreateRight,
+    hasCommentUpdateRight,
+    hasCommentDeleteRight,
     isCloseActionEnabled,
+    isReopenActionEnabled,
     isApproveActionEnabled,
+    isAssignActionEnabled,
     currentRequest,
-    loading: loadingRequest,
+    loading,
+    updateRequestLoading,
+    deleteLoading,
+    approveLoading,
+    handleRequestUpdate,
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
     handleCommentUpdate,
     handleCommentDelete,
     handleNavigateToRequestsList,
+    handleNavigateToItemEdit,
   } = useHooks();
 
-  const {
-    assetList,
-    fileList,
-    loading,
-    uploading,
-    uploadModalVisibility,
-    uploadUrl,
-    uploadType,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    setFileList,
-    setUploadModalVisibility,
-    handleAssetsCreate,
-    handleAssetCreateFromUrl,
-    handleAssetsGet,
-    handleAssetsReload,
-    handleSearchTerm,
-    totalCount,
-    page,
-    pageSize,
-    handleAssetTableChange,
-    handleGetAsset,
-  } = useAssetHooks(false);
+  const { handleGetAsset } = useAssetHooks(false);
 
-  const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
+  const { workspaceUserMembers, handleGroupGet } = useContentHooks();
 
   return (
     <RequestDetailsMolecule
       me={me}
+      hasCommentCreateRight={hasCommentCreateRight}
+      hasCommentUpdateRight={hasCommentUpdateRight}
+      hasCommentDeleteRight={hasCommentDeleteRight}
       isCloseActionEnabled={isCloseActionEnabled}
+      isReopenActionEnabled={isReopenActionEnabled}
       isApproveActionEnabled={isApproveActionEnabled}
+      isAssignActionEnabled={isAssignActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
+      loading={loading}
+      deleteLoading={deleteLoading}
+      approveLoading={approveLoading}
+      updateLoading={updateRequestLoading}
       onRequestApprove={handleRequestApprove}
       onRequestUpdate={handleRequestUpdate}
       onRequestDelete={handleRequestDelete}
@@ -60,29 +56,9 @@ const RequestDetails: React.FC = () => {
       onCommentUpdate={handleCommentUpdate}
       onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
-      assetList={assetList}
-      fileList={fileList}
-      loadingAssets={loading}
-      loading={loadingRequest}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
-      totalCount={totalCount}
-      page={page}
-      pageSize={pageSize}
-      onAssetTableChange={handleAssetTableChange}
-      onUploadModalCancel={handleUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
-      onAssetsCreate={handleAssetsCreate}
-      onAssetCreateFromUrl={handleAssetCreateFromUrl}
-      onAssetsGet={handleAssetsGet}
-      onAssetsReload={handleAssetsReload}
-      onAssetSearchTerm={handleSearchTerm}
-      setFileList={setFileList}
-      setUploadModalVisibility={setUploadModalVisibility}
+      onNavigateToItemEdit={handleNavigateToItemEdit}
       onGetAsset={handleGetAsset}
+      onGroupGet={handleGroupGet}
     />
   );
 };

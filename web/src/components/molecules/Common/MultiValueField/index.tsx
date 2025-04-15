@@ -1,30 +1,33 @@
 import styled from "@emotion/styled";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "dayjs";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { InputProps } from "@reearth-cms/components/atoms/Input";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "./moveItemArray";
 
 type Props = {
-  className?: string;
-  value?: (string | number | Moment)[];
-  onChange?: (value: (string | number | Moment)[]) => void;
+  value?: (string | number | Dayjs)[];
+  onChange?: (value: (string | number | Dayjs)[]) => void;
   onBlur?: () => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
+  errorIndexes?: Set<number>;
 } & TextAreaProps &
   InputProps;
 
 const MultiValueField: React.FC<Props> = ({
-  className,
   value = [],
   onChange,
   onBlur,
   FieldInput,
+  errorIndexes,
+  required,
   ...props
 }) => {
   const t = useT();
@@ -33,7 +36,7 @@ const MultiValueField: React.FC<Props> = ({
       onChange?.(
         value?.map((valueItem, index) =>
           index === id
-            ? typeof e === "number" || moment.isMoment(e)
+            ? typeof e === "number" || dayjs.isDayjs(e)
               ? e
               : e?.target.value
             : valueItem,
@@ -45,7 +48,7 @@ const MultiValueField: React.FC<Props> = ({
 
   useEffect(() => {
     if (!value) onChange?.([]);
-    if (moment.isMoment(value)) onChange?.([value]);
+    if (dayjs.isDayjs(value)) onChange?.([value]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(
@@ -60,15 +63,16 @@ const MultiValueField: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>
             {!props.disabled && (
               <>
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowUp" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key - 1));
                     onBlur?.();
@@ -76,8 +80,9 @@ const MultiValueField: React.FC<Props> = ({
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowDown" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key + 1));
                     onBlur?.();
@@ -92,11 +97,13 @@ const MultiValueField: React.FC<Props> = ({
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
               onBlur={() => onBlur?.()}
               value={valueItem}
+              isError={(required && value.every(v => checkIfEmpty(v))) || errorIndexes?.has(key)}
             />
             {!props.disabled && (
               <FieldButton
-                type="link"
-                icon={<Icon icon="delete" />}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={16} />}
                 onClick={() => {
                   handleInputDelete(key);
                   onBlur?.();
@@ -111,7 +118,7 @@ const MultiValueField: React.FC<Props> = ({
           type="primary"
           onClick={() => {
             const currentValues = value || [];
-            const defaultValue = props.type === "date" ? moment() : "";
+            const defaultValue = "";
             if (Array.isArray(currentValues)) {
               onChange?.([...currentValues, defaultValue]);
             } else {
@@ -129,7 +136,7 @@ export default MultiValueField;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0;
+  margin-bottom: 24px;
 `;
 
 const FieldButton = styled(Button)`

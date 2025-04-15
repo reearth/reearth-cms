@@ -79,6 +79,21 @@ func (r *View) Save(ctx context.Context, view *view.View) error {
 	return r.client.SaveOne(ctx, sId, doc)
 }
 
+func (r *View) SaveAll(ctx context.Context, list view.List) error {
+	if len(list) == 0 {
+		return nil
+	}
+	if !r.f.CanWrite(list.Projects()...) {
+		return repo.ErrOperationDenied
+	}
+	docs, ids := mongodoc.NewViews(list)
+	docsAny := make([]any, 0, len(list))
+	for _, d := range docs {
+		docsAny = append(docsAny, d)
+	}
+	return r.client.SaveAll(ctx, ids, docsAny)
+}
+
 func (r *View) Remove(ctx context.Context, viewID id.ViewID) error {
 	return r.client.RemoveOne(ctx, bson.M{"id": viewID.String()})
 }

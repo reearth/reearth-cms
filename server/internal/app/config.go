@@ -44,20 +44,31 @@ type Config struct {
 	Web_Config   JSON              `pp:",omitempty"`
 	Web_Disabled bool              `pp:",omitempty"`
 	// auth
-	Auth          AuthConfigs   `pp:",omitempty"`
-	Auth0         Auth0Config   `pp:",omitempty"`
-	Cognito       CognitoConfig `pp:",omitempty"`
-	Auth_ISS      string        `pp:",omitempty"`
-	Auth_AUD      string        `pp:",omitempty"`
-	Auth_ALG      *string       `pp:",omitempty"`
-	Auth_TTL      *int          `pp:",omitempty"`
-	Auth_ClientID *string       `pp:",omitempty"`
-	Auth_JWKSURI  *string       `pp:",omitempty"`
+	Auth          AuthConfigs    `pp:",omitempty"`
+	Auth0         Auth0Config    `pp:",omitempty"`
+	Cognito       CognitoConfig  `pp:",omitempty"`
+	Firebase      FirebaseConfig `pp:",omitempty"`
+	Auth_ISS      string         `pp:",omitempty"`
+	Auth_AUD      string         `pp:",omitempty"`
+	Auth_ALG      *string        `pp:",omitempty"`
+	Auth_TTL      *int           `pp:",omitempty"`
+	Auth_ClientID *string        `pp:",omitempty"`
+	Auth_JWKSURI  *string        `pp:",omitempty"`
 	// auth for m2m
 	AuthM2M AuthM2MConfig `pp:",omitempty"`
 
-	DB_Account string          `pp:",omitempty"`
+	DB_Account string          `default:"reearth_account" pp:",omitempty"`
+	DB_CMS     string          `default:"reearth_cms" pp:",omitempty"`
 	DB_Users   []appx.NamedURI `pp:",omitempty"`
+
+	// internal api
+	InternalApi InternalApiConfig `pp:",omitempty"`
+}
+
+type InternalApiConfig struct {
+	Active bool   `default:"false" pp:",omitempty"`
+	Port   string `default:"50051" pp:",omitempty"`
+	Token  string `default:"" pp:",omitempty"`
 }
 
 type AuthConfig struct {
@@ -87,6 +98,11 @@ type CognitoConfig struct {
 	UserPoolID string `pp:",omitempty"`
 	Region     string `pp:",omitempty"`
 	ClientID   string `pp:",omitempty"`
+}
+
+type FirebaseConfig struct {
+	ProjectID string `pp:",omitempty"`
+	ClientID  string `pp:",omitempty"`
 }
 
 type SendGridConfig struct {
@@ -126,7 +142,9 @@ func (c *Config) Auths() (res AuthConfigs) {
 	if cc := c.Cognito.Configs(); cc != nil {
 		return cc
 	}
-
+	if cc := c.Firebase.AuthConfig(); cc != nil {
+		res = append(res, *cc)
+	}
 	if ac := c.Auth0.AuthConfig(); ac != nil {
 		res = append(res, *ac)
 	}
@@ -255,6 +273,19 @@ func (c CognitoConfig) Configs() AuthConfigs {
 	}
 }
 
+// Firebase
+func (c FirebaseConfig) AuthConfig() *AuthConfig {
+	if c.ProjectID == "" || c.ClientID == "" {
+		return nil
+	}
+	return &AuthConfig{
+		ISS:      fmt.Sprintf("https://securetoken.google.com/%s", c.ProjectID),
+		AUD:      []string{c.ProjectID},
+		ClientID: &c.ClientID,
+		JWKSURI:  lo.ToPtr("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
+	}
+}
+
 // Decode is a custom decoder for AuthConfigs
 func (ipd *AuthConfigs) Decode(value string) error {
 	if value == "" {
@@ -291,6 +322,14 @@ func ReadConfig(debug bool) (*Config, error) {
 		c.Dev = true
 	}
 
+	if c.Task.DBName == "" {
+		c.Task.DBName = c.DB_CMS
+	}
+
+	if c.Task.AccountDBName == "" {
+		c.Task.AccountDBName = c.DB_Account
+	}
+
 	return &c, err
 }
 
@@ -311,6 +350,7 @@ func (c *Config) secrets() []string {
 	s := []string{
 		c.DB,
 		c.Auth0.ClientSecret,
+		c.InternalApi.Token,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)

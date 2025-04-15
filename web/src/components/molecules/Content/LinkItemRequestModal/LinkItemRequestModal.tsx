@@ -2,23 +2,22 @@ import styled from "@emotion/styled";
 import { useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
-import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
-type StretchColumn = ProColumns<Request> & { minWidth: number };
-
 type Props = {
-  itemIds: string[];
+  items: RequestItem[];
   visible: boolean;
   onLinkItemRequestModalCancel: () => void;
   requestModalLoading: boolean;
@@ -26,15 +25,14 @@ type Props = {
   requestModalPage: number;
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
-  linkedRequest?: Request;
   requestList: Request[];
-  onChange?: (value: Request, itemIds: string[]) => void;
+  onChange: (value: Request, items: RequestItem[]) => Promise<void>;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
 };
 
 const LinkItemRequestModal: React.FC<Props> = ({
-  itemIds,
+  items,
   visible,
   onLinkItemRequestModalCancel,
   requestList,
@@ -48,17 +46,18 @@ const LinkItemRequestModal: React.FC<Props> = ({
   onRequestTableReload,
 }) => {
   const t = useT();
-  const { pagination, submit, resetFlag, selectedRequestId, setSelectedRequestId } = useHooks(
-    itemIds,
-    onLinkItemRequestModalCancel,
-    requestList,
-    requestModalTotalCount,
-    requestModalPage,
-    requestModalPageSize,
-    onChange,
-  );
+  const { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading } =
+    useHooks(
+      items,
+      onLinkItemRequestModalCancel,
+      requestList,
+      requestModalTotalCount,
+      requestModalPage,
+      requestModalPageSize,
+      onChange,
+    );
 
-  const columns: StretchColumn[] = useMemo(
+  const columns: StretchColumn<Request>[] = useMemo(
     () => [
       {
         title: "",
@@ -71,7 +70,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
           return (
             <Radio.Group
               onChange={() => {
-                setSelectedRequestId(request.id);
+                select(request.id);
               }}
               value={selectedRequestId}>
               <Radio value={request.id} />
@@ -94,35 +93,23 @@ const LinkItemRequestModal: React.FC<Props> = ({
         ellipsis: true,
         width: 130,
         minWidth: 130,
-        render: (_, request) => {
-          let color = "";
-          switch (request.state) {
-            case "APPROVED":
-              color = "#52C41A";
-              break;
-            case "CLOSED":
-              color = "#F5222D";
-              break;
-            case "WAITING":
-              color = "#FA8C16";
-              break;
-            case "DRAFT":
-            default:
-              break;
-          }
-          return <Badge color={color} text={request.state} />;
-        },
+        render: (_, request) => (
+          <Badge color={badgeColors[request.state]} text={t(request.state)} />
+        ),
       },
       {
         title: t("Created By"),
-        dataIndex: "createdBy.name",
+        dataIndex: ["createdBy", "name"],
         key: "createdBy",
         ellipsis: true,
         width: 100,
         minWidth: 100,
-        render: (_, request) => {
-          return request.createdBy?.name;
-        },
+        render: (_, request) => (
+          <Space>
+            <UserAvatar username={request.createdBy?.name} size="small" />
+            {request.createdBy?.name}
+          </Space>
+        ),
       },
       {
         title: t("Reviewers"),
@@ -154,7 +141,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
     ],
-    [selectedRequestId, setSelectedRequestId, t],
+    [selectedRequestId, select, t],
   );
 
   const options = useMemo(
@@ -166,7 +153,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
 
   const toolbar = {
     search: (
-      <Input.Search
+      <Search
         allowClear
         placeholder={t("input search text")}
         onSearch={onRequestSearchTerm}
@@ -183,14 +170,17 @@ const LinkItemRequestModal: React.FC<Props> = ({
       onOk={submit}
       onCancel={onLinkItemRequestModalCancel}
       width="70vw"
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px 12px 0",
+      styles={{
+        body: {
+          height: "70vh",
+        },
       }}
       afterClose={() => {
         resetFlag.current = !resetFlag.current;
-      }}>
+      }}
+      confirmLoading={isLoading}
+      cancelButtonProps={{ disabled: isLoading }}
+      okButtonProps={{ disabled: isDisabled }}>
       <ResizableProTable
         dataSource={requestList}
         columns={columns}

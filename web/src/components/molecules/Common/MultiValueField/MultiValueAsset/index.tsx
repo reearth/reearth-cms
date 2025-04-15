@@ -3,58 +3,24 @@ import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
-import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
 
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  itemAssets?: ItemAsset[];
-  className?: string;
   value?: string[];
   onChange?: (value: string[]) => void;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
   disabled?: boolean;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+} & AssetProps;
 
 const MultiValueAsset: React.FC<Props> = ({
-  itemAssets,
-  className,
   value = [],
+  disabled,
   onChange,
+  onGetAsset,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -76,8 +42,6 @@ const MultiValueAsset: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
-  disabled,
-  onGetAsset,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -104,21 +68,23 @@ const MultiValueAsset: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>
             {!disabled && (
               <>
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowUp" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowDown" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
@@ -154,8 +120,9 @@ const MultiValueAsset: React.FC<Props> = ({
             />
             {!disabled && (
               <FieldButton
-                type="link"
-                icon={<Icon icon="delete" />}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}

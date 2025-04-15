@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	// TODO: the `publication.token` should be unique, this should be fixed in the future
 	projectIndexes       = []string{"workspace"}
 	projectUniqueIndexes = []string{"id"}
 )
@@ -30,7 +31,21 @@ func NewProject(client *mongox.Client) repo.Project {
 }
 
 func (r *ProjectRepo) Init() error {
-	return createIndexes(context.Background(), r.client, projectIndexes, projectUniqueIndexes)
+	idx := mongox.IndexFromKeys(projectIndexes, false)
+	idx = append(idx, mongox.IndexFromKeys(projectUniqueIndexes, true)...)
+	idx = append(idx, mongox.Index{
+		Name:   "re_publication_token",
+		Key:    bson.D{{Key: "publication.token", Value: 1}},
+		Unique: true,
+		Filter: bson.M{"publication.token": bson.M{"$type": "string"}},
+	})
+	idx = append(idx, mongox.Index{
+		Name:   "re_alias",
+		Key:    bson.D{{Key: "alias", Value: 1}},
+		Unique: true,
+		Filter: bson.M{"alias": bson.M{"$type": "string"}},
+	})
+	return createIndexes2(context.Background(), r.client, idx...)
 }
 
 func (r *ProjectRepo) Filtered(f repo.WorkspaceFilter) repo.Project {
@@ -89,12 +104,24 @@ func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias)
 	return r.findOne(ctx, filter)
 }
 
-func (r *ProjectRepo) FindByPublicName(ctx context.Context, name string) (*project.Project, error) {
+func (r *ProjectRepo) IsAliasAvailable(ctx context.Context, name string) (bool, error) {
 	if name == "" {
+		return false, nil
+	}
+
+	// no need to filter by workspace, because alias is unique across all workspaces
+	c, err := r.client.Count(ctx, bson.M{
+		"alias": name,
+	})
+	return c == 0 && err == nil, err
+}
+
+func (r *ProjectRepo) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
+	if token == "" {
 		return nil, rerror.ErrNotFound
 	}
 	return r.findOne(ctx, bson.M{
-		"alias": name,
+		"publication.token": token,
 	})
 }
 

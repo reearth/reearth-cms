@@ -25,7 +25,7 @@ func ToValueType(t value.Type) SchemaFieldType {
 	case value.TypeSelect:
 		return SchemaFieldTypeSelect
 	case value.TypeNumber:
-		return SchemaFieldTypeInteger
+		return SchemaFieldTypeNumber
 	case value.TypeInteger:
 		return SchemaFieldTypeInteger
 	case value.TypeReference:
@@ -34,6 +34,10 @@ func ToValueType(t value.Type) SchemaFieldType {
 		return SchemaFieldTypeURL
 	case value.TypeGroup:
 		return SchemaFieldTypeGroup
+	case value.TypeGeometryObject:
+		return SchemaFieldTypeGeometryObject
+	case value.TypeGeometryEditor:
+		return SchemaFieldTypeGeometryEditor
 	default:
 		return ""
 	}
@@ -65,10 +69,16 @@ func FromValueType(t SchemaFieldType) value.Type {
 		return value.TypeCheckbox
 	case SchemaFieldTypeInteger:
 		return value.TypeInteger
+	case SchemaFieldTypeNumber:
+		return value.TypeNumber
 	case SchemaFieldTypeReference:
 		return value.TypeReference
 	case SchemaFieldTypeURL:
 		return value.TypeURL
+	case SchemaFieldTypeGeometryObject:
+		return value.TypeGeometryObject
+	case SchemaFieldTypeGeometryEditor:
+		return value.TypeGeometryEditor
 	default:
 		return ""
 	}

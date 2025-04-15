@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -21,23 +20,26 @@ func NewIntegrationLoader(usecase interfaces.Integration) *IntegrationLoader {
 }
 
 func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Integration, []error) {
-	sIds, err := util.TryMap(ids, gqlmodel.ToID[id.Integration])
+	iIDs, err := util.TryMap(ids, gqlmodel.ToID[id.Integration])
 	if err != nil {
 		return nil, []error{err}
 	}
 
 	op := getOperator(ctx)
+
+	res, err := c.usecase.FindByIDs(ctx, iIDs, op)
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, sIds, op)
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	return lo.Map(res, func(m *integration.Integration, _ int) *gqlmodel.Integration {
-		return gqlmodel.ToIntegration(m, op.AcOperator.User)
+	return lo.Map(iIDs, func(id integration.ID, _ int) *gqlmodel.Integration {
+		i, ok := lo.Find(res, func(i *integration.Integration) bool {
+			return i != nil && i.ID() == id
+		})
+		if !ok {
+			return nil
+		}
+		return gqlmodel.ToIntegration(i, op.AcOperator.User)
 	}), nil
 }
 
@@ -53,48 +55,4 @@ func (c *IntegrationLoader) FindByMe(ctx context.Context) ([]*gqlmodel.Integrati
 		integrations = append(integrations, gqlmodel.ToIntegration(i, op.AcOperator.User))
 	}
 	return integrations, nil
-}
-
-// data loaders
-
-type IntegrationDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Integration, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Integration, []error)
-}
-
-func (c *IntegrationLoader) DataLoader(ctx context.Context) IntegrationDataLoader {
-	return gqldataloader.NewIntegrationLoader(gqldataloader.IntegrationLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Integration, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *IntegrationLoader) OrdinaryDataLoader(ctx context.Context) IntegrationDataLoader {
-	return &ordinaryIntegrationLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Integration, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryIntegrationLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.Integration, []error)
-}
-
-func (l *ordinaryIntegrationLoader) Load(key gqlmodel.ID) (*gqlmodel.Integration, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryIntegrationLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Integration, []error) {
-	return l.fetch(keys)
 }

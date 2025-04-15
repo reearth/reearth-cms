@@ -9,14 +9,15 @@ import (
 type Type string
 
 const (
-	ItemCreate      = "item.create"
-	ItemUpdate      = "item.update"
-	ItemDelete      = "item.delete"
-	ItemPublish     = "item.publish"
-	ItemUnpublish   = "item.unpublish"
-	AssetCreate     = "asset.create"
-	AssetDecompress = "asset.decompress"
-	AssetDelete     = "asset.delete"
+	ItemCreate       = "item.create"
+	ItemUpdate       = "item.update"
+	ItemDelete       = "item.delete"
+	ItemPublish      = "item.publish"
+	ItemUnpublish    = "item.unpublish"
+	AssetCreate      = "asset.create"
+	AssetDecompress  = "asset.decompress"
+	AssetDelete      = "asset.delete"
+	AssetBatchDelete = "asset.batchdelete"
 )
 
 type Event[T any] struct {

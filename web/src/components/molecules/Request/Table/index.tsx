@@ -5,35 +5,36 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import {
   ListToolBarProps,
-  ProColumns,
+  StretchColumn,
   OptionConfig,
   TableRowSelection,
-  TablePaginationConfig,
+  ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-
-type StretchColumn = ProColumns<Request> & { minWidth: number };
 
 type Props = {
   requests: Request[];
   loading: boolean;
-  selectedRequest: Request | undefined;
+  selectedRequest?: Request;
   onRequestSelect: (assetId: string) => void;
   onEdit: (requestId: string) => void;
+  searchTerm: string;
   onSearchTerm: (term?: string) => void;
   selection: {
     selectedRowKeys: Key[];
   };
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Request[]) => void;
   onRequestsReload: () => void;
+  deleteLoading: boolean;
   onRequestDelete: (requestIds: string[]) => void;
   onRequestTableChange: (
     page: number,
@@ -48,6 +49,9 @@ type Props = {
   requestState: RequestState[];
   page: number;
   pageSize: number;
+  columns: Record<string, ColumnsState>;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
+  hasCloseRight: boolean;
 };
 
 const RequestListTable: React.FC<Props> = ({
@@ -56,10 +60,12 @@ const RequestListTable: React.FC<Props> = ({
   selectedRequest,
   onRequestSelect,
   onEdit,
+  searchTerm,
   onSearchTerm,
   selection,
-  setSelection,
+  onSelect,
   onRequestsReload,
+  deleteLoading,
   onRequestDelete,
   onRequestTableChange,
   totalCount,
@@ -68,22 +74,28 @@ const RequestListTable: React.FC<Props> = ({
   requestState,
   page,
   pageSize,
+  columns: columnsState,
+  onColumnsChange,
+  hasCloseRight,
 }) => {
   const t = useT();
 
-  const columns: StretchColumn[] = useMemo(
+  const columns: StretchColumn<Request>[] = useMemo(
     () => [
       {
         title: "",
+        hideInSetting: true,
         render: (_, request) => (
-          <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
+          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
         ),
+        key: "EDIT_ICON",
         width: 48,
         minWidth: 48,
         align: "center",
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
         key: "commentsCount",
         render: (_, request) => {
@@ -112,28 +124,9 @@ const RequestListTable: React.FC<Props> = ({
         title: t("State"),
         dataIndex: "requestState",
         key: "requestState",
-        render: (_, request) => {
-          let color = "";
-          let text = t("DRAFT");
-          switch (request.state) {
-            case "APPROVED":
-              color = "#52C41A";
-              text = t("APPROVED");
-              break;
-            case "CLOSED":
-              color = "#F5222D";
-              text = t("CLOSED");
-              break;
-            case "WAITING":
-              color = "#FA8C16";
-              text = t("WAITING");
-              break;
-            case "DRAFT":
-            default:
-              break;
-          }
-          return <Badge color={color} text={text} />;
-        },
+        render: (_, request) => (
+          <Badge color={badgeColors[request.state]} text={t(request.state)} />
+        ),
         filters: [
           { text: t("WAITING"), value: "WAITING" },
           { text: t("APPROVED"), value: "APPROVED" },
@@ -141,8 +134,8 @@ const RequestListTable: React.FC<Props> = ({
           { text: t("DRAFT"), value: "DRAFT" },
         ],
         defaultFilteredValue: requestState,
-        width: 100,
-        minWidth: 100,
+        width: 130,
+        minWidth: 130,
       },
       {
         title: t("Created By"),
@@ -223,7 +216,7 @@ const RequestListTable: React.FC<Props> = ({
     [onRequestsReload],
   );
 
-  const pagination: TablePaginationConfig = useMemo(
+  const pagination = useMemo(
     () => ({
       showSizeChanger: true,
       current: page,
@@ -236,52 +229,58 @@ const RequestListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: any) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys,
-        });
-      },
+      onChange: onSelect,
     }),
-    [selection, setSelection],
+    [onSelect, selection.selectedRowKeys],
   );
 
   const handleToolbarEvents: ListToolBarProps = useMemo(
     () => ({
       search: (
-        <Input.Search
+        <Search
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
+          defaultValue={searchTerm}
         />
       ),
     }),
-    [onSearchTerm, t],
+    [onSearchTerm, searchTerm, t],
   );
 
-  const AlertOptions = useCallback(
+  const alertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={16}>
-          <DeselectButton onClick={props.onCleanSelected}>
-            <Icon icon="clear" /> {t("Deselect")}
-          </DeselectButton>
-          <DeleteButton onClick={() => onRequestDelete?.(props.selectedRowKeys)}>
-            <Icon icon="delete" /> {t("Close")}
-          </DeleteButton>
+        <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="delete" />}
+            onClick={() => onRequestDelete(props.selectedRowKeys)}
+            danger
+            loading={deleteLoading}
+            disabled={!hasCloseRight}>
+            {t("Close")}
+          </Button>
         </Space>
       );
     },
-    [onRequestDelete, t],
+    [deleteLoading, onRequestDelete, t, hasCloseRight],
   );
 
   return (
     <ResizableProTable
       dataSource={requests}
       columns={columns}
-      tableAlertOptionRender={AlertOptions}
+      columnsState={{
+        defaultValue: {},
+        value: columnsState,
+        onChange: onColumnsChange,
+      }}
+      tableAlertOptionRender={alertOptions}
       search={false}
       rowKey="id"
       options={options}
@@ -298,7 +297,7 @@ const RequestListTable: React.FC<Props> = ({
           !!filters?.reviewers?.[0],
         );
       }}
-      heightOffset={72}
+      heightOffset={73}
     />
   );
 };
@@ -319,14 +318,4 @@ const StyledUserAvatar = styled(UserAvatar)`
   :nth-child(n + 2) {
     margin-left: -18px;
   }
-`;
-
-const DeselectButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
 `;

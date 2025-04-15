@@ -27,7 +27,8 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	q := fromQuery(*sp, request)
+	items, pi, err := uc.Item.Search(ctx, *sp, q, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemFilter404Response{}, err
@@ -52,6 +53,57 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 		Page:       lo.ToPtr(Page(*p.Offset)),
 		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+	}, nil
+}
+
+func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONRequestObject) (ItemsAsGeoJSONResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	schemaPackage, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsGeoJSON404Response{}, err
+		}
+		return ItemsAsGeoJSON400Response{}, err
+	}
+
+	featureCollections, err := uc.Item.ItemsAsGeoJSON(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsGeoJSON404Response{}, err
+		}
+		return ItemsAsGeoJSON400Response{}, err
+	}
+
+	return ItemsAsGeoJSON200JSONResponse{
+		Features: featureCollections.FeatureCollections.Features,
+		Type:     featureCollections.FeatureCollections.Type,
+	}, nil
+}
+
+func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject) (ItemsAsCSVResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	schemaPackage, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsCSV404Response{}, err
+		}
+		return ItemsAsCSV400Response{}, err
+	}
+
+	pr, err := uc.Item.ItemsAsCSV(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsCSV404Response{}, err
+		}
+		return ItemsAsCSV400Response{}, err
+	}
+
+	return ItemsAsCSV200TextcsvResponse{
+		Body: pr.PipeReader,
 	}, nil
 }
 
@@ -107,6 +159,89 @@ func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWi
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+	}, nil
+}
+
+func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWithProjectAsGeoJSONRequestObject) (ItemsWithProjectAsGeoJSONResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON404Response{}, err
+		}
+		return ItemsWithProjectAsGeoJSON400Response{}, err
+	}
+
+	m, err := uc.Model.FindByIDOrKey(ctx, prj.ID(), request.ModelIdOrKey, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON404Response{}, err
+		}
+		return ItemsWithProjectAsGeoJSON400Response{}, err
+	}
+
+	schemaPackage, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON404Response{}, err
+		}
+		return ItemsWithProjectAsGeoJSON400Response{}, err
+	}
+
+	featureCollections, err := uc.Item.ItemsAsGeoJSON(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsGeoJSON404Response{}, err
+		}
+		return ItemsWithProjectAsGeoJSON400Response{}, err
+	}
+
+	return ItemsWithProjectAsGeoJSON200JSONResponse{
+		Features: featureCollections.FeatureCollections.Features,
+		Type:     featureCollections.FeatureCollections.Type,
+	}, nil
+}
+
+func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithProjectAsCSVRequestObject) (ItemsWithProjectAsCSVResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV404Response{}, err
+		}
+		return ItemsWithProjectAsCSV400Response{}, err
+	}
+
+	m, err := uc.Model.FindByIDOrKey(ctx, prj.ID(), request.ModelIdOrKey, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV404Response{}, err
+		}
+		return ItemsWithProjectAsCSV400Response{}, err
+	}
+
+	schemaPackage, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV404Response{}, err
+		}
+		return ItemsWithProjectAsCSV400Response{}, err
+	}
+
+	pr, err := uc.Item.ItemsAsCSV(ctx, schemaPackage, request.Params.Page, request.Params.PerPage, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsWithProjectAsCSV404Response{}, err
+		}
+		return ItemsWithProjectAsCSV400Response{}, err
+	}
+
+	return ItemsWithProjectAsCSV200TextcsvResponse{
+		Body: pr.PipeReader,
 	}, nil
 }
 

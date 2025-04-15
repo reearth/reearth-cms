@@ -6,10 +6,10 @@ import IntegrationCreationAction from "@reearth-cms/components/molecules/MyInteg
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  integrations?: Integration[];
+type Props = {
+  integrations: Integration[];
   onIntegrationModalOpen: () => void;
-  onIntegrationNavigate: (integration: Integration) => void;
+  onIntegrationNavigate: (integrationId: string) => void;
 };
 
 const MyIntegrationList: React.FC<Props> = ({
@@ -21,9 +21,12 @@ const MyIntegrationList: React.FC<Props> = ({
 
   return (
     <Wrapper>
-      <PageHeader title={t("My Integrations")} />
+      <PageHeader
+        title={t("My Integrations")}
+        subTitle={t("Create and test your own integration.")}
+      />
       <ListWrapper>
-        {integrations?.map((integration: Integration) => (
+        {integrations.map((integration: Integration) => (
           <MyIntegrationCard
             key={integration.id}
             integration={integration}
@@ -37,8 +40,9 @@ const MyIntegrationList: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
+  min-height: calc(100% - 16px);
   background: #fff;
-  min-height: 100%;
+  margin: 16px 16px 0;
 `;
 
 const ListWrapper = styled.div`

@@ -7,7 +7,7 @@ import { useT } from "@reearth-cms/i18n";
 type Props = {
   url: string;
   isModalVisible: boolean;
-  viewerType?: ViewerType;
+  viewerType: ViewerType;
   handleCodeSourceClick: () => void;
   handleRenderClick: () => void;
   handleFullScreen: () => void;
@@ -36,12 +36,7 @@ const PreviewToolbar: React.FC<Props> = ({
         </>
       )}
       {isFullScreenButtonVisible && (
-        <Button
-          type="link"
-          icon={<Icon icon="fullscreen" />}
-          size="large"
-          onClick={handleFullScreen}
-        />
+        <Button type="link" icon={<Icon icon="fullscreen" />} onClick={handleFullScreen} />
       )}
       <PreviewModal url={url} visible={isModalVisible} handleCancel={handleModalCancel} />
     </>

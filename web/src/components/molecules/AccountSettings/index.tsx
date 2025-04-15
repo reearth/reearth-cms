@@ -1,33 +1,38 @@
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import Loading from "@reearth-cms/components/atoms/Loading";
 import DangerZone from "@reearth-cms/components/molecules/AccountSettings/DangerZone";
-import AccountGeneralForm from "@reearth-cms/components/molecules/AccountSettings/GeneralForm";
-import AccountServiceForm from "@reearth-cms/components/molecules/AccountSettings/ServiceForm";
+import GeneralForm from "@reearth-cms/components/molecules/AccountSettings/GeneralForm";
+import ServiceForm from "@reearth-cms/components/molecules/AccountSettings/ServiceForm";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  user?: User;
-  onUserUpdate: (name?: string | undefined, email?: string | undefined) => Promise<void>;
-  onLanguageUpdate: (lang?: string | undefined) => Promise<void>;
+type Props = {
+  me?: User;
+  loading: boolean;
+  onUserUpdate: (name: string, email: string) => Promise<void>;
+  onLanguageUpdate: (lang: string) => Promise<void>;
   onUserDelete: () => Promise<void>;
 };
 
 const AccountSettings: React.FC<Props> = ({
-  user,
+  me,
+  loading,
   onUserDelete,
   onLanguageUpdate,
   onUserUpdate,
 }) => {
   const t = useT();
 
-  return (
+  return !me || loading ? (
+    <Loading minHeight="400px" />
+  ) : (
     <InnerContent title={t("Account Settings")}>
       <ContentSection title={t("General")}>
-        <AccountGeneralForm user={user} onUserUpdate={onUserUpdate} />
+        <GeneralForm initialValues={me} onUserUpdate={onUserUpdate} />
       </ContentSection>
       <ContentSection title={t("Service")}>
-        <AccountServiceForm user={user} onLanguageUpdate={onLanguageUpdate} />
+        <ServiceForm initialValues={me} onLanguageUpdate={onLanguageUpdate} />
       </ContentSection>
       <DangerZone onUserDelete={onUserDelete} />
     </InnerContent>

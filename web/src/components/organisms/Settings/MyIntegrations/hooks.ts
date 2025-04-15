@@ -1,86 +1,63 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import type { FormValues } from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
+import { fromGraphQLIntegration } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  Integration,
+  useCreateIntegrationMutation,
+  useGetMeQuery,
   IntegrationType,
-} from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { useCreateIntegrationMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export default () => {
-  const [integrationModalShown, setIntegrationModalShown] = useState(false);
   const t = useT();
 
-  const { data } = useGetMeQuery();
+  const { data, loading } = useGetMeQuery();
 
-  const [createNewIntegration] = useCreateIntegrationMutation({
+  const [createNewIntegration, { loading: createLoading }] = useCreateIntegrationMutation({
     refetchQueries: ["GetMe"],
   });
 
-  const integrations = useMemo(() => {
-    return data?.me?.integrations
-      ?.map<Integration | undefined>(integration =>
-        integration
-          ? {
-              id: integration.id,
-              name: integration.name,
-              description: integration.description,
-              logoUrl: integration.logoUrl,
-              developerId: integration.developerId,
-              iType: integration.iType,
-              config: {
-                token: integration.config?.token,
-                webhooks: integration.config?.webhooks,
-              },
-            }
-          : undefined,
-      )
-      .filter((integration): integration is Integration => !!integration);
-  }, [data?.me?.integrations]);
+  const integrations = useMemo(
+    () => data?.me?.integrations?.map(integration => fromGraphQLIntegration(integration)) ?? [],
+    [data?.me?.integrations],
+  );
 
   const handleIntegrationCreate = useCallback(
-    async (data: { name: string; description: string; logoUrl: string; type: IntegrationType }) => {
+    async ({ name, description, logoUrl, type }: FormValues) => {
       const integration = await createNewIntegration({
         variables: {
-          name: data.name,
-          description: data.description,
-          logoUrl: data.logoUrl,
-          type: data.type,
+          name,
+          description,
+          logoUrl,
+          type: type === "Private" ? IntegrationType.Private : IntegrationType.Public,
         },
       });
       if (integration.errors || !integration.data?.createIntegration) {
         Notification.error({ message: t("Failed to create integration.") });
-        return;
+        throw new Error();
       }
       Notification.success({ message: t("Successfully created integration!") });
-      setIntegrationModalShown(false);
     },
     [createNewIntegration, t],
   );
 
-  const handleIntegrationModalClose = useCallback(() => {
-    setIntegrationModalShown(false);
-  }, []);
-
-  const handleIntegrationModalOpen = useCallback(() => setIntegrationModalShown(true), []);
-
   const navigate = useNavigate();
   const location = useLocation();
   const handleIntegrationNavigate = useCallback(
-    (integration: Integration) => {
-      navigate(`${location.pathname}/${integration.id}`);
+    (integrationId: string) => {
+      navigate(`${location.pathname}/${integrationId}`);
     },
     [location.pathname, navigate],
   );
 
   return {
+    loading,
     integrations,
-    integrationModalShown,
+    createLoading,
     handleIntegrationCreate,
-    handleIntegrationModalOpen,
-    handleIntegrationModalClose,
     handleIntegrationNavigate,
   };
 };

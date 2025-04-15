@@ -1,65 +1,69 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useState, ChangeEvent } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 
-const { TextArea } = Input;
-
-type EditorProps = {
-  onCommentCreate: (content: string) => Promise<void>;
-  disabled: boolean;
+type FormValues = {
+  content: string;
 };
 
-const Editor: React.FC<EditorProps> = ({ disabled, onCommentCreate }) => {
+type EditorProps = {
+  isInputDisabled: boolean;
+  onCommentCreate: (content: string) => Promise<void>;
+};
+
+const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);
-  const [form] = Form.useForm();
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const [form] = Form.useForm<FormValues>();
   const t = useT();
 
+  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setIsSubmitDisabled(!e.target.value);
+  }, []);
+
   const handleSubmit = useCallback(async () => {
+    setSubmitting(true);
+    setIsSubmitDisabled(true);
     try {
-      setSubmitting(true);
       const values = await form.validateFields();
-      await onCommentCreate?.(values.content);
+      await onCommentCreate(values.content);
       form.resetFields();
-      setSubmitting(false);
-    } catch (info) {
-      setSubmitting(false);
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsSubmitDisabled(false);
     } finally {
       setSubmitting(false);
     }
   }, [form, onCommentCreate]);
 
   return (
-    <StyledForm form={form} layout="vertical">
-      <Form.Item name="content">
-        <TextArea maxLength={1000} showCount autoSize={{ maxRows: 4 }} />
-      </Form.Item>
-      <StyledFormItem>
+    <Form form={form}>
+      <StyledFormItem name="content">
+        <TextArea autoSize={{ maxRows: 4 }} onChange={handleChange} disabled={isInputDisabled} />
+      </StyledFormItem>
+      <ButtonWrapper>
         <Button
-          disabled={disabled}
-          htmlType="submit"
+          disabled={isSubmitDisabled}
           loading={submitting}
           onClick={handleSubmit}
           type="primary"
           size="small">
           {t("Comment")}
         </Button>
-      </StyledFormItem>
-    </StyledForm>
+      </ButtonWrapper>
+    </Form>
   );
 };
 
 export default Editor;
 
-const StyledForm = styled(Form)`
-  padding: 12px;
-`;
-
 const StyledFormItem = styled(Form.Item)`
-  margin: 0 4px 4px 0;
-  float: right;
+  margin-bottom: 14px;
+`;
+const ButtonWrapper = styled.div`
+  padding-right: 4px;
+  text-align: right;
 `;

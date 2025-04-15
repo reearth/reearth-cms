@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -64,14 +65,6 @@ const ResizableProTable: React.FC<Props> = ({
     [handleResize, resizableColumns],
   );
 
-  const nthOfType = useMemo(() => {
-    return columnsState?.value
-      ? Object.values(columnsState?.value).some(option => option.fixed === "left")
-        ? 2
-        : 1
-      : 0;
-  }, [columnsState?.value]);
-
   const [isRowSelected, setIsRowSelected] = useState(false);
 
   useEffect(() => {
@@ -86,7 +79,6 @@ const ResizableProTable: React.FC<Props> = ({
 
   return (
     <StyledProTable
-      nthOfType={nthOfType}
       dataSource={dataSource}
       columns={mergeColumns}
       components={{
@@ -116,7 +108,6 @@ const ResizableProTable: React.FC<Props> = ({
 export default ResizableProTable;
 
 const StyledProTable = styled(ProTable)<{
-  nthOfType: number;
   isRowSelected: boolean;
   heightOffset: number;
 }>`
@@ -145,18 +136,22 @@ const StyledProTable = styled(ProTable)<{
     overflow: auto !important;
     height: calc(100% - 47px);
   }
-  .ant-pro-table-column-setting-overlay {
-    .ant-tree-block-node:only-of-type {
-      .ant-tree-treenode:nth-of-type(-n + 2) {
-        display: none;
-      }
+  .ant-pro-table-list-toolbar-container {
+    flex-direction: row;
+  }
+  .ant-pro-table-list-toolbar-left {
+    flex: 1;
+    max-width: calc(100% - 150px);
+    margin: 0;
+    .ant-pro-table-list-toolbar-search {
+      width: 100%;
+    }
+    .ant-input-group-wrapper {
+      min-width: 200px;
+      max-width: 230px;
     }
   }
-  .ant-pro-table-column-setting-overlay {
-    .ant-tree-block-node:nth-of-type(${({ nthOfType }) => nthOfType}) {
-      .ant-tree-treenode:nth-of-type(-n + 2) {
-        display: none;
-      }
-    }
+  .ant-pro-table-list-toolbar-right {
+    flex: inherit;
   }
 `;

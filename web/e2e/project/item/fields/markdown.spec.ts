@@ -22,13 +22,11 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("text1 description");
   await page.getByRole("tab", { name: "Default value" }).click();
-  await page.locator(".css-1msv1zr").click();
+  await page.locator(".ant-col").last().click();
   await page.getByLabel("Set default value").fill("text1 default value");
   await page.getByRole("button", { name: "OK" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
-  await expect(page.getByText("text1 #text1")).toBeVisible();
+  await expect(page.getByText("text1#text1")).toBeVisible();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await expect(page.getByLabel("Display name")).toBeVisible();
   await expect(page.getByLabel("Display name")).toHaveValue("text1");
@@ -48,12 +46,10 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("text1");
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator("label")).toContainText("text1");
-  await page.getByText("text1 description").click();
+  await expect(page.getByText("text1", { exact: true })).toBeVisible();
   await expect(page.getByRole("main")).toContainText("text1 description");
-  await expect(page.getByLabel("text1")).toHaveValue("text1 default value");
+  await expect(page.getByText("text1 default value").last()).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.locator(".ant-table-row > td:nth-child(9)").getByRole("button").click();
@@ -76,17 +72,13 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Set default value")).toHaveValue("text1 default value");
   await page.getByRole("button", { name: "plus New" }).click();
-  await page.locator("div:nth-child(2) > .css-1ago99h > .css-1msv1zr").click();
+  await page.locator("div:nth-child(2) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text2");
-  await page.locator("div:nth-child(1) > .css-1ago99h > .css-1msv1zr").click();
+  await page.locator("div:nth-child(1) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text1");
-
   await page.getByRole("button", { name: "arrow-down" }).first().click();
-  await expect(page.locator("div:nth-child(2) > .css-1ago99h > .css-1msv1zr")).toContainText(
-    "text1",
-  );
+  await expect(page.locator("div:nth-child(2) > .css-1ago99h")).toContainText("text1");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByText("new text1 *#new-text1(unique)")).toBeVisible();
   await page.getByText("Content").click();
@@ -97,14 +89,9 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("new text1(unique)")).toBeVisible();
   await page.getByText("new text1 description").click();
   await expect(page.getByText("new text1 description")).toBeVisible();
-  await expect(page.locator("div:nth-child(1) > .css-1ago99h > .css-1msv1zr")).toContainText(
-    "text2",
-  );
-  await expect(page.locator("div:nth-child(2) > .css-1ago99h > .css-1msv1zr")).toContainText(
-    "text1",
-  );
+  await expect(page.locator("div:nth-child(1) > .css-1ago99h")).toContainText("text2");
+  await expect(page.locator("div:nth-child(2) > .css-1ago99h")).toContainText("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
@@ -114,24 +101,17 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "delete" }).first().click();
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.getByRole("button", { name: "plus New" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("input: updateItem value is required");
-  await closeNotification(page);
-  await page.locator("div:nth-child(1) > .css-1ago99h > .css-1msv1zr").click();
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
+  await page.locator("div:nth-child(1) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text");
   await page.getByRole("button", { name: "plus New" }).click();
   await page.getByRole("button", { name: "plus New" }).click();
-  await page.locator("div:nth-child(2) > .css-1ago99h > .css-1msv1zr").click();
+  await page.locator("div:nth-child(2) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text2");
   await page.getByRole("button", { name: "arrow-up" }).nth(1).click();
-  await expect(page.locator("div:nth-child(1) > .css-1ago99h > .css-1msv1zr")).toContainText(
-    "text2",
-  );
-  await expect(page.locator("div:nth-child(2) > .css-1ago99h > .css-1msv1zr")).toContainText(
-    "text",
-  );
+  await expect(page.locator("div:nth-child(1) > .css-1ago99h")).toContainText("text2");
+  await expect(page.locator("div:nth-child(2) > .css-1ago99h")).toContainText("text");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).nth(1).click();

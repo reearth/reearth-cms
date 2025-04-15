@@ -1,62 +1,54 @@
-import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
-import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
-import MemberTable from "@reearth-cms/components/molecules/Member/MemberTable";
+import MemberWrapper from "@reearth-cms/components/molecules/Member";
 
 import useHooks from "./hooks";
 
 const Members: React.FC = () => {
   const {
-    me,
-    owner,
-    searchedUser,
+    userId,
+    isAbleToLeave,
     handleSearchTerm,
-    changeSearchedUser,
-    searchedUserList,
-    changeSearchedUserList,
     handleUserSearch,
-    handleUserAdd,
+    searchLoading,
+    addLoading,
     handleUsersAddToWorkspace,
-    handleMemberOfWorkspaceUpdate,
-    selectedMember,
-    roleModalShown,
+    updateLoading,
+    handleUpdateRole,
     handleMemberRemoveFromWorkspace,
-    handleRoleModalClose,
-    handleRoleModalOpen,
-    handleMemberAddModalClose,
-    handleMemberAddModalOpen,
-    MemberAddModalShown,
+    handleLeave,
     workspaceUserMembers,
+    page,
+    pageSize,
+    handleTableChange,
+    loading,
+    handleReload,
+    hasInviteRight,
+    hasRemoveRight,
+    hasChangeRoleRight,
   } = useHooks();
 
   return (
-    <>
-      <MemberTable
-        me={me}
-        owner={owner}
-        handleMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
-        handleSearchTerm={handleSearchTerm}
-        handleRoleModalOpen={handleRoleModalOpen}
-        handleMemberAddModalOpen={handleMemberAddModalOpen}
-        workspaceUserMembers={workspaceUserMembers}
-      />
-      <MemberRoleModal
-        member={selectedMember}
-        open={roleModalShown}
-        onClose={handleRoleModalClose}
-        onSubmit={handleMemberOfWorkspaceUpdate}
-      />
-      <MemberAddModal
-        open={MemberAddModalShown}
-        searchedUser={searchedUser}
-        searchedUserList={searchedUserList}
-        changeSearchedUserList={changeSearchedUserList}
-        onClose={handleMemberAddModalClose}
-        onUserSearch={handleUserSearch}
-        onUserAdd={handleUserAdd}
-        changeSearchedUser={changeSearchedUser}
-        onSubmit={handleUsersAddToWorkspace}
-      />
-    </>
+    <MemberWrapper
+      workspaceUserMembers={workspaceUserMembers}
+      userId={userId}
+      isAbleToLeave={isAbleToLeave}
+      onMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
+      onLeave={handleLeave}
+      onSearchTerm={handleSearchTerm}
+      page={page}
+      pageSize={pageSize}
+      onTableChange={handleTableChange}
+      loading={loading}
+      onReload={handleReload}
+      hasInviteRight={hasInviteRight}
+      hasRemoveRight={hasRemoveRight}
+      hasChangeRoleRight={hasChangeRoleRight}
+      updateLoading={updateLoading}
+      onUpdateRole={handleUpdateRole}
+      searchLoading={searchLoading}
+      addLoading={addLoading}
+      onUserSearch={handleUserSearch}
+      onUsersAddToWorkspace={handleUsersAddToWorkspace}
+    />
   );
 };
 

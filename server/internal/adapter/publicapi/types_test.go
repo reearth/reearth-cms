@@ -2,13 +2,13 @@ package publicapi
 
 import (
 	"encoding/json"
-	"github.com/reearth/reearth-cms/server/pkg/group"
 	"testing"
+
+	"github.com/reearth/reearth-cms/server/pkg/group"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -22,7 +22,7 @@ func TestNewItem(t *testing.T) {
 		NewID().
 		Project(id.NewProjectID()).
 		CreatedByUser(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Size(1).
 		NewUUID().
 		MustBuild()
@@ -32,7 +32,7 @@ func TestNewItem(t *testing.T) {
 		Project(id.NewProjectID()).
 		Workspace(accountdomain.NewWorkspaceID()).
 		Fields([]*schema.Field{
-			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("test1")).MustBuild(),
+			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("test1")).MustBuild(),
 		}).
 		MustBuild()
 
@@ -40,7 +40,7 @@ func TestNewItem(t *testing.T) {
 		NewID().
 		Name("test group").
 		Project(id.NewProjectID()).
-		Key(key.New("group1")).
+		Key(id.NewKey("group1")).
 		Schema(s2.ID()).
 		MustBuild()
 
@@ -49,9 +49,9 @@ func TestNewItem(t *testing.T) {
 		Project(id.NewProjectID()).
 		Workspace(accountdomain.NewWorkspaceID()).
 		Fields([]*schema.Field{
-			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("aaaaa")).MustBuild(),
-			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New("bbbbb")).MustBuild(),
-			schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).NewID().Key(key.New("ggggg")).MustBuild(),
+			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("aaaaa")).MustBuild(),
+			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(id.NewKey("bbbbb")).MustBuild(),
+			schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).NewID().Key(id.NewKey("ggggg")).MustBuild(),
 		}).
 		MustBuild()
 	ig := id.NewItemGroupID()
@@ -60,7 +60,7 @@ func TestNewItem(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Project(id.NewProjectID()).
 		Model(id.NewModelID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*item.Field{
 			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").AsMultiple(), nil),
 			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).AsMultiple(), nil),
@@ -102,7 +102,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		NewID().
 		Project(id.NewProjectID()).
 		CreatedByUser(accountdomain.NewUserID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Size(1).
 		NewUUID().
 		MustBuild()
@@ -112,8 +112,8 @@ func TestNewItem_Multiple(t *testing.T) {
 		Project(id.NewProjectID()).
 		Workspace(accountdomain.NewWorkspaceID()).
 		Fields([]*schema.Field{
-			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("aaaaa")).Multiple(true).MustBuild(),
-			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New("bbbbb")).Multiple(true).MustBuild(),
+			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.NewKey("aaaaa")).Multiple(true).MustBuild(),
+			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(id.NewKey("bbbbb")).Multiple(true).MustBuild(),
 		}).
 		MustBuild()
 	it := item.New().
@@ -121,7 +121,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		Schema(id.NewSchemaID()).
 		Project(id.NewProjectID()).
 		Model(id.NewModelID()).
-		Thread(id.NewThreadID()).
+		Thread(id.NewThreadID().Ref()).
 		Fields([]*item.Field{
 			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").AsMultiple(), nil),
 			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).AsMultiple(), nil),

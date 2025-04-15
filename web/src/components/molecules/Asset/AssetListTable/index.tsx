@@ -5,82 +5,98 @@ import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import {
   ListToolBarProps,
-  ProColumns,
+  StretchColumn,
   OptionConfig,
   TableRowSelection,
-  TablePaginationConfig,
+  ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
+import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
-import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import {
+  Asset,
+  AssetItem,
   AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+  SortType,
+} from "@reearth-cms/components/molecules/Asset/types";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import { compressedFileFormats } from "../../Common/Asset";
 
-type StretchColumn = ProColumns<Asset> & { minWidth: number };
-
 type Props = {
   assetList: Asset[];
+  selection: {
+    selectedRowKeys: Key[];
+  };
   loading: boolean;
-  selectedAsset: Asset | undefined;
+  deleteLoading: boolean;
+  selectedAsset?: Asset;
   totalCount: number;
   page: number;
   pageSize: number;
+  sort?: SortType;
+  searchTerm: string;
+  columns: Record<string, ColumnsState>;
+  hasDeleteRight: boolean;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onEdit: (assetId: string) => void;
   onSearchTerm: (term?: string) => void;
-  selection: {
-    selectedRowKeys: Key[];
-  };
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
 };
 
 const AssetListTable: React.FC<Props> = ({
   assetList,
   selection,
   loading,
+  deleteLoading,
   selectedAsset,
   totalCount,
   page,
   pageSize,
+  sort,
+  searchTerm,
+  columns: columnsState,
+  hasDeleteRight,
+  onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
   onEdit,
   onSearchTerm,
-  setSelection,
+  onSelect,
   onAssetsReload,
   onAssetDelete,
   onAssetTableChange,
 }) => {
   const t = useT();
 
-  const columns: StretchColumn[] = useMemo(
+  const sortOrderGet = useCallback(
+    (key: AssetSortType) =>
+      sort?.type === key ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+    [sort?.direction, sort?.type],
+  );
+
+  const columns: StretchColumn<Asset>[] = useMemo(
     () => [
       {
         title: "",
+        hideInSetting: true,
         render: (_, asset) => (
           <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
         ),
+        key: "EDIT_ICON",
         align: "center",
         width: 48,
         minWidth: 48,
@@ -89,6 +105,7 @@ const AssetListTable: React.FC<Props> = ({
         title: () => <Icon icon="message" />,
         dataIndex: "commentsCount",
         key: "commentsCount",
+        hideInSetting: true,
         render: (_, asset) => {
           return (
             <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
@@ -108,6 +125,7 @@ const AssetListTable: React.FC<Props> = ({
         dataIndex: "fileName",
         key: "NAME",
         sorter: true,
+        sortOrder: sortOrderGet("NAME"),
         width: 340,
         minWidth: 340,
         ellipsis: true,
@@ -117,6 +135,7 @@ const AssetListTable: React.FC<Props> = ({
         dataIndex: "size",
         key: "SIZE",
         sorter: true,
+        sortOrder: sortOrderGet("SIZE"),
         render: (_text, record) => bytesFormat(record.size),
         width: 100,
         minWidth: 100,
@@ -125,8 +144,8 @@ const AssetListTable: React.FC<Props> = ({
         title: t("Preview Type"),
         dataIndex: "previewType",
         key: "previewType",
-        width: 120,
-        minWidth: 120,
+        width: 145,
+        minWidth: 145,
       },
       {
         title: t("Status"),
@@ -148,6 +167,7 @@ const AssetListTable: React.FC<Props> = ({
         dataIndex: "createdAt",
         key: "DATE",
         sorter: true,
+        sortOrder: sortOrderGet("DATE"),
         render: (_text, record) => dateTimeFormat(record.createdAt),
         width: 150,
         minWidth: 150,
@@ -158,8 +178,8 @@ const AssetListTable: React.FC<Props> = ({
         key: "createdBy",
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.createdBy} size={"small"} />
-            {item.createdBy}
+            <UserAvatar username={item.createdBy.name} size={"small"} />
+            {item.createdBy.name}
           </Space>
         ),
         width: 105,
@@ -210,7 +230,7 @@ const AssetListTable: React.FC<Props> = ({
         minWidth: 230,
       },
     ],
-    [onAssetItemSelect, onAssetSelect, onEdit, selectedAsset?.id, t],
+    [onAssetItemSelect, onAssetSelect, onEdit, selectedAsset?.id, sortOrderGet, t],
   );
 
   const options: OptionConfig = useMemo(
@@ -222,7 +242,7 @@ const AssetListTable: React.FC<Props> = ({
     [onAssetsReload],
   );
 
-  const pagination: TablePaginationConfig = useMemo(
+  const pagination = useMemo(
     () => ({
       showSizeChanger: true,
       current: page,
@@ -235,53 +255,86 @@ const AssetListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: any) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys,
-        });
-      },
+      onChange: onSelect,
     }),
-    [selection, setSelection],
+    [onSelect, selection.selectedRowKeys],
   );
 
   const toolbar: ListToolBarProps = useMemo(
     () => ({
       search: (
-        <Input.Search
+        <Search
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
+          defaultValue={searchTerm}
         />
       ),
     }),
-    [onSearchTerm, t],
+    [onSearchTerm, searchTerm, t],
   );
 
-  const AlertOptions = useCallback(
+  const alertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={16}>
-          <DeselectButton onClick={props.onCleanSelected}>
-            <Icon icon="clear" /> {t("Deselect")}
-          </DeselectButton>
-          <DownloadButton displayDefaultIcon type="link" selected={props.selectedRows} />
-          <DeleteButton onClick={() => onAssetDelete?.(props.selectedRowKeys)}>
-            <Icon icon="delete" /> {t("Delete")}
-          </DeleteButton>
+        <Space size={4}>
+          <DownloadButton
+            displayDefaultIcon
+            size="small"
+            type="link"
+            selected={props.selectedRows}
+          />
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="delete" />}
+            onClick={() => onAssetDelete(props.selectedRowKeys)}
+            danger
+            loading={deleteLoading}
+            disabled={!hasDeleteRight}>
+            {t("Delete")}
+          </Button>
         </Space>
       );
     },
-    [onAssetDelete, t],
+    [deleteLoading, hasDeleteRight, onAssetDelete, t],
+  );
+
+  const handleChange = useCallback(
+    (
+      pagination: TablePaginationConfig,
+      sorter: SorterResult<unknown> | SorterResult<unknown>[],
+    ) => {
+      const page = pagination.current ?? 1;
+      const pageSize = pagination.pageSize ?? 10;
+      let sort: SortType | undefined;
+      if (
+        !Array.isArray(sorter) &&
+        (sorter.columnKey === "DATE" ||
+          sorter.columnKey === "NAME" ||
+          sorter.columnKey === "SIZE") &&
+        sorter.order
+      ) {
+        sort = { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" };
+      }
+      onAssetTableChange(page, pageSize, sort);
+    },
+    [onAssetTableChange],
   );
 
   return (
     <ResizableProTable
       dataSource={assetList}
       columns={columns}
-      tableAlertOptionRender={AlertOptions}
+      columnsState={{
+        defaultValue: {},
+        value: columnsState,
+        onChange: onColumnsChange,
+      }}
+      tableAlertOptionRender={alertOptions}
       search={false}
       rowKey="id"
       options={options}
@@ -289,16 +342,10 @@ const AssetListTable: React.FC<Props> = ({
       toolbar={toolbar}
       rowSelection={rowSelection}
       loading={loading}
-      onChange={(pagination, _, sorter: any) => {
-        onAssetTableChange(
-          pagination.current ?? 1,
-          pagination.pageSize ?? 10,
-          sorter?.order
-            ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
-            : undefined,
-        );
+      onChange={(pagination, _, sorter) => {
+        handleChange(pagination, sorter);
       }}
-      heightOffset={72}
+      heightOffset={73}
     />
   );
 };
@@ -307,16 +354,6 @@ export default AssetListTable;
 
 const CommentsButton = styled(Button)`
   padding: 0;
-`;
-
-const DeselectButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
 `;
 
 const MoreItemsButton = styled(Button)`

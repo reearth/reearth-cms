@@ -1,4 +1,3 @@
-import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 import React, {
   Key,
@@ -10,40 +9,40 @@ import React, {
   Dispatch,
   SetStateAction,
 } from "react";
-import { Link } from "react-router-dom";
 
-import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import {
   TableRowSelection,
-  TablePaginationConfig,
   ListToolBarProps,
+  ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
+import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
+import Status from "@reearth-cms/components/molecules/Content/Status";
 import {
-  ColorType,
-  StateType,
   DefaultFilterValueType,
   DropdownFilterType,
   ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
   FieldType,
   Column,
-  AndConditionInput,
+  ConditionInput,
+  CurrentView,
+  metaColumn,
 } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -52,17 +51,17 @@ import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 type Props = {
-  className?: string;
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
-  selectedItem: Item | undefined;
-  selection: {
-    selectedRowKeys: string[];
-  };
+  deleteLoading: boolean;
+  publishLoading: boolean;
+  unpublishLoading: boolean;
+  selectedItem?: Item;
+  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
   totalCount: number;
-  currentView: CurrentViewType;
-  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  currentView: CurrentView;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -72,30 +71,38 @@ type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onFilterChange: (filter?: AndConditionInput) => void;
+  onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
-  setSelection: (input: { selectedRowKeys: string[] }) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequest: (request: Request, items: RequestItem[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
+  hasDeleteRight: boolean;
+  hasPublishRight: boolean;
+  hasRequestUpdateRight: boolean;
+  showPublishAction: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
   contentTableFields,
   contentTableColumns,
   loading,
+  deleteLoading,
+  publishLoading,
+  unpublishLoading,
   selectedItem,
-  selection,
+  selectedItems,
   totalCount,
   currentView,
   page,
@@ -103,6 +110,7 @@ const ContentTable: React.FC<Props> = ({
   requests,
   addItemToRequestModalShown,
   setCurrentView,
+  searchTerm,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -111,36 +119,44 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onPublish,
   onUnpublish,
   onSearchTerm,
   onFilterChange,
   onContentTableChange,
   onItemSelect,
-  setSelection,
+  onSelect,
+  onItemEdit,
   onItemDelete,
   onItemsReload,
   modelKey,
   onRequestSearchTerm,
   onRequestTableReload,
+  hasDeleteRight,
+  hasPublishRight,
+  hasRequestUpdateRight,
+  showPublishAction,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
-  const actionsColumns: ExtendedColumns[] = useMemo(() => {
-    const sortOrderGet = (key: FieldType) => {
-      return currentView.sort?.field.type === key
+  const sortOrderGet = useCallback(
+    (key: FieldType) =>
+      currentView.sort?.field.type === key
         ? currentView.sort.direction === "ASC"
           ? "ascend"
           : "descend"
-        : null;
-    };
+        : null,
+    [currentView?.sort?.direction, currentView.sort?.field.type],
+  );
 
-    return [
+  const actionsColumns: ExtendedColumns[] = useMemo(
+    () => [
       {
+        title: "",
+        hideInSetting: true,
         render: (_, contentField) => (
-          <Link to={`details/${contentField.id}`}>
-            <Icon icon="edit" />
-          </Link>
+          <Icon icon="edit" color={"#1890ff"} onClick={() => onItemEdit(contentField.id)} />
         ),
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
@@ -152,6 +168,7 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
         key: "commentsCount",
@@ -167,7 +184,6 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 48,
         minWidth: 48,
-        ellipsis: true,
         align: "center",
       },
       {
@@ -175,23 +191,9 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "Status",
         fieldType: "STATUS",
         key: "STATUS",
-        render: (_, item) => {
-          const itemStatus: StateType[] = item.status.split("_") as StateType[];
-          return (
-            <>
-              {itemStatus.map((state, index) => {
-                if (index === itemStatus.length - 1) {
-                  return <StyledBadge key={index} color={stateColors[state]} text={t(state)} />;
-                } else {
-                  return <StyledBadge key={index} color={stateColors[state]} />;
-                }
-              })}
-            </>
-          );
-        },
+        render: (_, item) => <Status status={item.status} />,
         width: 148,
         minWidth: 148,
-        ellipsis: true,
       },
       {
         title: t("Created At"),
@@ -215,8 +217,8 @@ const ContentTable: React.FC<Props> = ({
         sortOrder: sortOrderGet("CREATION_USER"),
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.createdBy} size={"small"} />
-            {item.createdBy}
+            <UserAvatar username={item.createdBy.name} size={"small"} />
+            {item.createdBy.name}
           </Space>
         ),
         sorter: true,
@@ -262,8 +264,9 @@ const ContentTable: React.FC<Props> = ({
         type: "Person",
         ellipsis: true,
       },
-    ];
-  }, [t, currentView.sort, selectedItem?.id, onItemSelect]);
+    ],
+    [t, sortOrderGet, onItemEdit, selectedItem?.id, onItemSelect],
+  );
 
   const tableColumns = useMemo(() => {
     return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : [...actionsColumns];
@@ -271,37 +274,88 @@ const ContentTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys as string[],
-        });
-      },
+      selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
+      onChange: onSelect,
     }),
-    [selection, setSelection],
+    [onSelect, selectedItems.selectedRows],
   );
 
-  const AlertOptions = useCallback(
+  const publishConfirm = useCallback(
+    (itemIds: string[]) => {
+      Modal.confirm({
+        title: t("Publish items"),
+        content: t("All selected items will be published. You can unpublish them anytime."),
+        icon: <Icon icon="exclamationCircle" />,
+        cancelText: t("No"),
+        okText: t("Yes"),
+        async onOk() {
+          await onPublish(itemIds);
+        },
+      });
+    },
+    [onPublish, t],
+  );
+
+  const alertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={16}>
-          <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
-            <Icon icon="plus" /> {t("Add to Request")}
-          </PrimaryButton>
-          <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
-            <Icon icon="eyeInvisible" /> {t("Unpublish")}
-          </PrimaryButton>
-          <PrimaryButton onClick={props.onCleanSelected}>
-            <Icon icon="clear" /> {t("Deselect")}
-          </PrimaryButton>
-          <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
-            <Icon icon="delete" /> {t("Delete")}
-          </DeleteButton>
+        <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="upload" />}
+            onClick={() => {
+              publishConfirm(props.selectedRowKeys);
+            }}
+            loading={publishLoading}
+            disabled={!hasPublishRight || !showPublishAction}>
+            {t("Publish")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="plus" />}
+            onClick={() => onAddItemToRequestModalOpen()}
+            disabled={!hasRequestUpdateRight}>
+            {t("Add to Request")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="eyeInvisible" />}
+            onClick={() => onUnpublish(props.selectedRowKeys)}
+            loading={unpublishLoading}
+            disabled={!hasPublishRight}>
+            {t("Unpublish")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="delete" />}
+            onClick={() => onItemDelete(props.selectedRowKeys)}
+            danger
+            loading={deleteLoading}
+            disabled={!hasDeleteRight}>
+            {t("Delete")}
+          </Button>
         </Space>
       );
     },
-    [onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t],
+    [
+      deleteLoading,
+      hasDeleteRight,
+      hasPublishRight,
+      hasRequestUpdateRight,
+      onAddItemToRequestModalOpen,
+      onItemDelete,
+      onUnpublish,
+      publishConfirm,
+      publishLoading,
+      showPublishAction,
+      t,
+      unpublishLoading,
+    ],
   );
 
   const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
@@ -315,22 +369,23 @@ const ContentTable: React.FC<Props> = ({
         return prev;
       });
       defaultFilterValues.current.splice(index, 1);
-      const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
+      const currentFilters =
+        currentView.filter && currentView.filter.and ? [...currentView.filter.and.conditions] : [];
       currentFilters.splice(index, 1);
-      onFilterChange(currentFilters.length > 0 ? { conditions: currentFilters } : undefined);
+      onFilterChange(currentFilters.length > 0 ? currentFilters : undefined);
     },
     [currentView.filter, onFilterChange],
   );
 
   useEffect(() => {
-    if (currentView.filter && contentTableColumns) {
+    if (currentView.filter && currentView.filter.and && contentTableColumns) {
       const newFilters: DropdownFilterType[] = [];
-      const newDefaultValues = [];
-      for (const c of currentView.filter.conditions) {
+      const newDefaultValues: DefaultFilterValueType[] = [];
+      for (const c of currentView.filter.and.conditions) {
         const condition = Object.values(c)[0];
         if (!condition || !("operator" in condition)) break;
         const { operator, fieldId } = condition;
-        const value = "value" in condition ? condition?.value : "";
+        const value = "value" in condition ? (condition.value as string) : "";
         const operatorType = Object.keys(c)[0];
         const columns =
           fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
@@ -383,12 +438,15 @@ const ContentTable: React.FC<Props> = ({
   }, []);
 
   const handleOptionsOpenChange = useCallback((open: boolean) => {
-    setControlMenuOpen(false);
-    setOptionsOpen(open);
+    if (!open) {
+      setOptionsOpen(false);
+    }
   }, []);
 
   const handleConditionMenuOpenChange = useCallback((open: boolean) => {
-    setConditionMenuOpen(open);
+    if (!open) {
+      setConditionMenuOpen(false);
+    }
   }, []);
 
   const close = useCallback(() => {
@@ -426,7 +484,7 @@ const ContentTable: React.FC<Props> = ({
           setSelectedFilter(filter);
           handleOptionsOpenChange(false);
           if (isFromMenu) {
-            handleConditionMenuOpenChange(true);
+            setConditionMenuOpen(true);
             isFilterOpen.current = false;
           } else {
             isFilterOpen.current = true;
@@ -455,25 +513,22 @@ const ContentTable: React.FC<Props> = ({
             onClick: () => {
               optionClick(isFilter.current, column);
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           })) as any),
       ];
     },
-    [
-      contentTableColumns,
-      currentWorkspace?.members,
-      handleConditionMenuOpenChange,
-      handleOptionsOpenChange,
-    ],
+    [contentTableColumns, currentWorkspace?.members, handleOptionsOpenChange],
   );
 
   const toolBarItemClick = useCallback(
-    (isFilterMode: boolean) => {
+    ({ key }: { key: string }) => {
       setInputValue("");
       setItems(getOptions(true));
-      isFilter.current = isFilterMode;
-      handleOptionsOpenChange(true);
+      isFilter.current = key === "filter";
+      setControlMenuOpen(false);
+      setOptionsOpen(true);
     },
-    [getOptions, handleOptionsOpenChange],
+    [getOptions],
   );
 
   const handleChange = useCallback(
@@ -498,7 +553,7 @@ const ContentTable: React.FC<Props> = ({
   const sharedProps = useMemo(
     () => ({
       menu: { items },
-      dropdownRender: (menu: React.ReactNode): React.ReactNode => (
+      dropdownRender: (menu: React.ReactNode) => (
         <Wrapper>
           <InputWrapper>
             <Input
@@ -507,7 +562,7 @@ const ContentTable: React.FC<Props> = ({
               onChange={handleChange}
             />
           </InputWrapper>
-          {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
+          {React.cloneElement(menu as React.ReactElement)}
         </Wrapper>
       ),
       arrow: false,
@@ -519,12 +574,13 @@ const ContentTable: React.FC<Props> = ({
     () => ({
       search: (
         <StyledSearchContainer>
-          <StyledSearchInput
+          <Search
             allowClear
             placeholder={t("input search text")}
             onSearch={(value: string) => {
               onSearchTerm(value);
             }}
+            defaultValue={searchTerm}
             key={`${modelKey}${currentView.id}`}
           />
           <StyledFilterWrapper>
@@ -553,7 +609,7 @@ const ContentTable: React.FC<Props> = ({
                 setItems(defaultItems);
               }}>
               <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
-                Filter
+                {t("Filter")}
               </StyledFilterButton>
             </Dropdown>
           </StyledFilterWrapper>
@@ -568,13 +624,14 @@ const ContentTable: React.FC<Props> = ({
       modelKey,
       onFilterChange,
       onSearchTerm,
+      searchTerm,
       setCurrentView,
       sharedProps,
       t,
     ],
   );
 
-  const pagination: TablePaginationConfig = useMemo(
+  const pagination = useMemo(
     () => ({
       showSizeChanger: true,
       current: page,
@@ -597,31 +654,17 @@ const ContentTable: React.FC<Props> = ({
   const toolBarItems: MenuProps["items"] = useMemo(
     () => [
       {
-        label: (
-          <span
-            onClick={() => {
-              toolBarItemClick(true);
-            }}>
-            {t("Add Filter")}
-          </span>
-        ),
+        label: t("Add Filter"),
         key: "filter",
         icon: <Icon icon="filter" />,
       },
       {
-        label: (
-          <span
-            onClick={() => {
-              toolBarItemClick(false);
-            }}>
-            {t("Add Sort")}
-          </span>
-        ),
+        label: t("Add Sort"),
         key: "sort",
         icon: <Icon icon="sortAscending" />,
       },
     ],
-    [t, toolBarItemClick],
+    [t],
   );
 
   const toolBarRender = useCallback(() => {
@@ -629,7 +672,7 @@ const ContentTable: React.FC<Props> = ({
       <Dropdown
         {...sharedProps}
         placement="bottom"
-        trigger={["contextMenu"]}
+        trigger={["click"]}
         open={optionsOpen}
         onOpenChange={handleOptionsOpenChange}
         key="control">
@@ -645,16 +688,17 @@ const ContentTable: React.FC<Props> = ({
                 currentView={currentView}
                 setCurrentView={setCurrentView}
                 onFilterChange={onFilterChange}
+                key={Math.random()}
               />
             )
           }
-          trigger={["contextMenu"]}
+          trigger={["click"]}
           placement="bottom"
           arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
-            menu={{ items: toolBarItems }}
+            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
             placement="bottom"
             trigger={["click"]}
             arrow={false}
@@ -684,24 +728,17 @@ const ContentTable: React.FC<Props> = ({
     setCurrentView,
     sharedProps,
     t,
+    toolBarItemClick,
     toolBarItems,
   ]);
 
   const settingOptions = useMemo(() => {
     const cols: Record<string, ColumnsState> = {};
     currentView.columns?.forEach((col, index) => {
-      if (
-        col.field.type === "ID" ||
-        col.field.type === "STATUS" ||
-        col.field.type === "CREATION_DATE" ||
-        col.field.type === "CREATION_USER" ||
-        col.field.type === "MODIFICATION_DATE" ||
-        col.field.type === "MODIFICATION_USER"
-      ) {
-        cols[col.field.type] = { show: col.visible, order: index, fixed: col.fixed };
-      } else {
-        cols[col.field.id ?? ""] = { show: col.visible, order: index, fixed: col.fixed };
-      }
+      const colKey = (metaColumn as readonly string[]).includes(col.field.type)
+        ? col.field.type
+        : (col.field.id ?? "");
+      cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
     });
     return cols;
   }, [currentView.columns]);
@@ -711,34 +748,31 @@ const ContentTable: React.FC<Props> = ({
       const cols: Column[] = tableColumns
         .filter(
           col =>
-            typeof col.key === "string" && col.key !== "EDIT_ICON" && col.key !== "commentsCount",
+            typeof col.key === "string" &&
+            col.fieldType !== "EDIT_ICON" &&
+            col.fieldType !== "commentsCount",
         )
-        .map((col, index) => ({
-          field: {
-            type: col.fieldType as FieldType,
-            id:
-              col.fieldType === "FIELD" || col.fieldType === "META_FIELD"
-                ? (col.key as string)
-                : undefined,
-          },
-          visible:
-            (col.key as string) in options && options[col.key as string].show !== undefined
-              ? options[col.key as string].show
-              : true,
-          order:
-            (col.key as string) in options && options[col.key as string].order !== undefined
-              ? (options[col.key as string]?.order as number)
-              : index + 2,
-          fixed:
-            (col.key as string) in options && options[col.key as string].fixed !== undefined
-              ? options[col.key as string]?.fixed
-              : options[col.fieldType as string]?.fixed,
-        }))
+        .map((col, index) => {
+          const colKey = col.key as string;
+          const colFieldType = col.fieldType as FieldType;
+          return {
+            field: {
+              type: colFieldType,
+              id: colFieldType === "FIELD" || colFieldType === "META_FIELD" ? colKey : undefined,
+            },
+            visible: options[colKey]?.show ?? true,
+            order: options[colKey]?.order ?? index,
+            fixed:
+              colFieldType === "FIELD" || colFieldType === "META_FIELD"
+                ? options[colKey]?.fixed
+                : options[colFieldType]?.fixed,
+          };
+        })
         .sort((a, b) => a.order - b.order)
         .map(col => {
           return {
             field: col.field,
-            visible: col.visible as boolean,
+            visible: col.visible,
             fixed: col.fixed,
           };
         });
@@ -762,7 +796,7 @@ const ContentTable: React.FC<Props> = ({
           toolbar={handleToolbarEvents}
           toolBarRender={toolBarRender}
           dataSource={contentTableFields}
-          tableAlertOptionRender={AlertOptions}
+          tableAlertOptionRender={alertOptions}
           rowSelection={rowSelection}
           columns={tableColumns}
           columnsState={{
@@ -796,23 +830,20 @@ const ContentTable: React.FC<Props> = ({
           heightOffset={102}
         />
       ) : null}
-      {selection && (
-        <LinkItemRequestModal
-          itemIds={selection.selectedRowKeys}
-          onChange={onAddItemToRequest}
-          onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
-          visible={addItemToRequestModalShown}
-          linkedRequest={undefined}
-          requestList={requests}
-          onRequestTableChange={onRequestTableChange}
-          requestModalLoading={requestModalLoading}
-          requestModalTotalCount={requestModalTotalCount}
-          requestModalPage={requestModalPage}
-          requestModalPageSize={requestModalPageSize}
-          onRequestSearchTerm={onRequestSearchTerm}
-          onRequestTableReload={onRequestTableReload}
-        />
-      )}
+      <LinkItemRequestModal
+        items={selectedItems.selectedRows}
+        onChange={onAddItemToRequest}
+        onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
+        visible={addItemToRequestModalShown}
+        requestList={requests}
+        onRequestTableChange={onRequestTableChange}
+        requestModalLoading={requestModalLoading}
+        requestModalTotalCount={requestModalTotalCount}
+        requestModalPage={requestModalPage}
+        requestModalPageSize={requestModalPageSize}
+        onRequestSearchTerm={onRequestSearchTerm}
+        onRequestTableReload={onRequestTableReload}
+      />
     </>
   );
 };
@@ -823,34 +854,14 @@ const StyledButton = styled(Button)`
   padding: 0;
 `;
 
-const PrimaryButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
-`;
-
-const StyledBadge = styled(Badge)`
-  + * {
-    margin-left: 4px;
-  }
-`;
-
 const StyledSearchContainer = styled.div`
   display: flex;
-`;
-
-const StyledSearchInput = styled(Input.Search)`
-  min-width: 200px;
+  gap: 10px;
 `;
 
 const StyledFilterSpace = styled(Space)`
-  max-width: 750px;
+  gap: 16px;
   overflow-x: auto;
-  margin-top: 0;
 `;
 
 const StyledFilterButton = styled(Button)`
@@ -866,6 +877,8 @@ const StyledFilterWrapper = styled.div`
     justify-self: start;
     text-align: start;
   }
+  overflow: auto;
+  gap: 16px;
   .ant-pro-form-light-filter-item {
     margin: 0;
   }
@@ -888,18 +901,15 @@ const Wrapper = styled.div`
     0 3px 6px -4px rgba(0, 0, 0, 0.12),
     0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  .ant-dropdown-menu {
+    box-shadow: none;
+    overflow-y: auto;
+    max-height: 256px;
+    max-width: 332px;
+    .ant-dropdown-menu-title-content {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 `;
-
-const menuStyle: React.CSSProperties = {
-  boxShadow: "none",
-  overflowY: "auto",
-  maxHeight: "256px",
-};
-
-const stateColors: {
-  [K in StateType]: ColorType;
-} = {
-  DRAFT: "#BFBFBF",
-  PUBLIC: "#52C41A",
-  REVIEW: "#FA8C16",
-};

@@ -1,89 +1,87 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 
 import {
   Integration,
-  WebhookTrigger,
+  Webhook as WebhookType,
+  NewWebhook,
+  TriggerKey,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookList";
 
-export type Props = {
+type Props = {
   integration: Integration;
-  webhookInitialValues?: any;
-  onWebhookCreate: (data: {
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-    secret: string;
-  }) => Promise<void>;
+  createWebhookLoading: boolean;
+  updateWebhookLoading: boolean;
+  onWebhookCreate: (data: NewWebhook) => Promise<void>;
   onWebhookDelete: (webhookId: string) => Promise<void>;
-  onWebhookUpdate: (data: {
-    webhookId: string;
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-    secret?: string;
-  }) => Promise<void>;
-  onWebhookSelect: (id: string) => void;
+  onWebhookUpdate: (data: WebhookType) => Promise<void>;
 };
 
 const Webhook: React.FC<Props> = ({
   integration,
-  webhookInitialValues,
+  createWebhookLoading,
+  updateWebhookLoading,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
-  onWebhookSelect,
 }) => {
+  const [webhookId, setwebhookId] = useState<string>("");
   const [showWebhookForm, changeShowWebhookForm] = useState(false);
+
+  const webhookInitialValues = useMemo(() => {
+    if (!integration.config.webhooks || !webhookId) return;
+    const selectedWebhook = integration.config.webhooks.find(webhook => webhook.id === webhookId);
+    if (!selectedWebhook) return;
+    const trigger: TriggerKey[] = [];
+    let key: TriggerKey;
+    for (key in selectedWebhook.trigger) {
+      if (selectedWebhook.trigger[key]) {
+        trigger.push(key);
+      }
+    }
+    return { ...selectedWebhook, trigger };
+  }, [integration.config.webhooks, webhookId]);
 
   const handleShowForm = useCallback(() => {
     changeShowWebhookForm(true);
   }, []);
 
   const handleBack = useCallback(() => {
-    onWebhookSelect("");
+    setwebhookId("");
     changeShowWebhookForm(false);
-  }, [onWebhookSelect]);
+  }, []);
 
   const handleWebhookCreate = useCallback(
-    async (data: {
-      name: string;
-      url: string;
-      active: boolean;
-      trigger: WebhookTrigger;
-      secret: string;
-    }) => {
+    async (data: NewWebhook) => {
       await onWebhookCreate(data);
-      handleBack();
     },
-    [onWebhookCreate, handleBack],
+    [onWebhookCreate],
   );
 
   const handleWebhookSelect = useCallback(
     (id: string) => {
-      onWebhookSelect(id);
+      setwebhookId(id);
       handleShowForm();
     },
-    [onWebhookSelect, handleShowForm],
+    [handleShowForm],
   );
 
   return showWebhookForm ? (
     <WebhookForm
+      webhookInitialValues={webhookInitialValues}
+      loading={createWebhookLoading || updateWebhookLoading}
       onBack={handleBack}
       onWebhookCreate={handleWebhookCreate}
       onWebhookUpdate={onWebhookUpdate}
-      webhookInitialValues={webhookInitialValues}
     />
   ) : (
     <WebhookList
-      webhooks={integration.config.webhooks}
+      webhooks={integration.config.webhooks ?? []}
       onWebhookDelete={onWebhookDelete}
       onWebhookUpdate={onWebhookUpdate}
-      onShowForm={handleShowForm}
       onWebhookSelect={handleWebhookSelect}
+      onShowForm={handleShowForm}
     />
   );
 };

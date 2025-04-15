@@ -1,11 +1,13 @@
-import { Comment } from "@reearth-cms/components/molecules/Content/types";
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { User } from "@reearth-cms/components/molecules/Member/types";
+import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
 
 export type Request = {
   id: string;
-  threadId: string;
+  threadId?: string;
   title: string;
   description: string;
   comments: Comment[];
@@ -16,12 +18,23 @@ export type Request = {
   updatedAt: Date;
   approvedAt?: Date;
   closedAt?: Date;
-  items: {
-    id: string;
-    modelName?: string;
-    schema?: any;
-    initialValues: any;
-  }[];
+  items: ItemInRequest[];
+};
+
+export type ItemInRequest = {
+  id: string;
+  title: string;
+  modelId?: string;
+  modelName?: string;
+  version?: string;
+  schema?: Schema;
+  initialValues: Record<string, unknown>;
+  referencedItems: FormItem[];
+};
+
+export type RequestItem = {
+  itemId: string;
+  version?: string;
 };
 
 export type RequestUpdatePayload = {
@@ -30,7 +43,5 @@ export type RequestUpdatePayload = {
   description?: string;
   state?: RequestState;
   reviewersId?: string[];
-  items?: {
-    itemId: string;
-  }[];
+  items?: RequestItem[];
 };

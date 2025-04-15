@@ -1,4 +1,4 @@
-import { Integration } from "@reearth-cms/components/molecules/Integration/types";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import {
   WorkspaceSettings,
   Member,
@@ -20,7 +20,6 @@ export const fromGraphQLWorkspaceSettings = (
   GQLWorkspaceSettings: GQLWorkspaceSettings,
 ): WorkspaceSettings => {
   return {
-    id: GQLWorkspaceSettings.id,
     tiles: {
       resources:
         GQLWorkspaceSettings.tiles?.resources.map(resource => ({
@@ -64,7 +63,25 @@ export const fromGraphQLIntegration = (integration: GQLIntegration): Integration
   iType: integration.iType,
   config: {
     token: integration.config?.token,
-    webhooks: integration.config?.webhooks,
+    webhooks: integration.config?.webhooks.map(webhook => ({
+      id: webhook.id,
+      name: webhook.name,
+      url: webhook.url,
+      active: webhook.active,
+      secret: webhook.secret,
+      trigger: {
+        onItemCreate: webhook.trigger.onItemCreate,
+        onItemUpdate: webhook.trigger.onItemUpdate,
+        onItemDelete: webhook.trigger.onItemDelete,
+        onItemPublish: webhook.trigger.onItemPublish,
+        onItemUnPublish: webhook.trigger.onItemUnPublish,
+        onAssetUpload: webhook.trigger.onAssetUpload,
+        onAssetDecompress: webhook.trigger.onAssetDecompress,
+        onAssetDelete: webhook.trigger.onAssetDelete,
+      },
+      createdAt: webhook.createdAt,
+      updatedAt: webhook.updatedAt,
+    })),
   },
 });
 

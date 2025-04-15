@@ -38,7 +38,8 @@ input DeleteMeInput {
 
 extend type Query {
   me: Me
-  searchUser(nameOrEmail: String!): User
+  userSearch(keyword: String!): [User!]!
+  userByNameOrEmail(nameOrEmail: String!): User
 }
 
 type UpdateMePayload {

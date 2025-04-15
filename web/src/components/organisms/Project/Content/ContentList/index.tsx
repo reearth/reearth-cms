@@ -16,15 +16,24 @@ const ContentList: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     selectedItem,
-    selection,
+    selectedItems,
     loading,
+    deleteLoading,
+    publishLoading,
+    unpublishLoading,
     totalCount,
+    views,
     currentView,
     searchTerm,
     page,
     pageSize,
     requests,
     addItemToRequestModalShown,
+    hasCreateRight,
+    hasDeleteRight,
+    hasPublishRight,
+    hasRequestUpdateRight,
+    showPublishAction,
     setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
@@ -32,17 +41,19 @@ const ContentList: React.FC = () => {
     requestModalPage,
     requestModalPageSize,
     handleBulkAddItemToRequest: handleAddItemToRequest,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
     handleFilterChange,
-    setSelection,
+    handleSelect,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
     handleModelSelect,
     handleViewChange,
+    handleViewSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
@@ -56,13 +67,10 @@ const ContentList: React.FC = () => {
     <ContentListMolecule
       commentsPanel={
         <CommentsPanel
+          resourceId={selectedItem?.id}
+          resourceType={"ITEM"}
           collapsed={collapsedCommentsPanel}
           onCollapse={collapseCommentsPanel}
-          emptyText={
-            selectedItem
-              ? t("No comments.")
-              : t("Please click the comment bubble in the table to check comments.")
-          }
           comments={selectedItem?.comments}
           threadId={selectedItem?.threadId}
           refetchQueries={["SearchItem"]}
@@ -74,12 +82,14 @@ const ContentList: React.FC = () => {
           collapsed={collapsedModelMenu}
           onModelSelect={handleModelSelect}
           selectedSchemaType="model"
+          titleIcon={"table"}
         />
       }
       viewsMenu={
         <ViewsMenu
+          views={views}
           currentView={currentView}
-          setCurrentView={setCurrentView}
+          onViewSelect={handleViewSelect}
           onViewChange={handleViewChange}
         />
       }
@@ -89,7 +99,10 @@ const ContentList: React.FC = () => {
       selectedItem={selectedItem}
       onItemSelect={handleItemSelect}
       collapsed={collapsedModelMenu}
-      itemsDataLoading={loading}
+      loading={loading}
+      deleteLoading={deleteLoading}
+      publishLoading={publishLoading}
+      unpublishLoading={unpublishLoading}
       currentView={currentView}
       setCurrentView={setCurrentView}
       totalCount={totalCount}
@@ -99,17 +112,18 @@ const ContentList: React.FC = () => {
       model={currentModel}
       contentTableFields={contentTableFields}
       contentTableColumns={contentTableColumns}
-      selection={selection}
+      selectedItems={selectedItems}
       requests={requests}
       onRequestTableChange={handleRequestTableChange}
       requestModalLoading={requestModalLoading}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      setSelection={setSelection}
+      onSelect={handleSelect}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
+      onPublish={handlePublish}
       onUnpublish={handleUnpublish}
       onItemDelete={handleItemDelete}
       onItemAdd={handleNavigateToItemForm}
@@ -119,6 +133,11 @@ const ContentList: React.FC = () => {
       addItemToRequestModalShown={addItemToRequestModalShown}
       onRequestSearchTerm={handleRequestSearchTerm}
       onRequestTableReload={handleRequestTableReload}
+      hasCreateRight={hasCreateRight}
+      hasDeleteRight={hasDeleteRight}
+      hasPublishRight={hasPublishRight}
+      hasRequestUpdateRight={hasRequestUpdateRight}
+      showPublishAction={showPublishAction}
     />
   );
 };

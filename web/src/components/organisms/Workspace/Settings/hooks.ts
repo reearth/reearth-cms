@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -9,23 +9,33 @@ import {
   Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 export default () => {
+  const t = useT();
   const navigate = useNavigate();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
-  const t = useT();
+  const [userRights] = useUserRights();
+  const hasUpdateRight = useMemo(
+    () => !!userRights?.workspace.update,
+    [userRights?.workspace.update],
+  );
+  const hasDeleteRight = useMemo(
+    () => !!userRights?.workspace.delete,
+    [userRights?.workspace.delete],
+  );
 
   const workspaceId = currentWorkspace?.id;
   const workspaceName = currentWorkspace?.name;
 
-  const [updateWorkspaceMutation] = useUpdateWorkspaceMutation();
+  const [updateWorkspaceMutation, { loading: updateWorkspaceLoading }] =
+    useUpdateWorkspaceMutation();
   const [deleteWorkspaceMutation] = useDeleteWorkspaceMutation({
     refetchQueries: ["GetMe"],
   });
 
   const handleWorkspaceUpdate = useCallback(
-    async (name?: string) => {
+    async (name: string) => {
       if (!workspaceId || !name) return;
       const res = await updateWorkspaceMutation({
         variables: {
@@ -59,6 +69,9 @@ export default () => {
 
   return {
     workspaceName,
+    updateWorkspaceLoading,
+    hasUpdateRight,
+    hasDeleteRight,
     handleWorkspaceUpdate,
     handleWorkspaceDelete,
   };

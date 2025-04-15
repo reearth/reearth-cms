@@ -6,6 +6,7 @@ import (
 	"path"
 	"reflect"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -177,9 +178,9 @@ func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asse
 		base, _ := url.Parse(u)
 		base.Path = path.Dir(base.Path)
 
-		files = lo.Map(f.Files(), func(f *asset.File, _ int) string {
+		files = lo.Map(f.FilePaths(), func(p string, _ int) string {
 			b := *base
-			b.Path = path.Join(b.Path, f.Path())
+			b.Path = path.Join(b.Path, p)
 			return b.String()
 		})
 	}
@@ -210,4 +211,130 @@ func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
 		ID:   a.ID().String(),
 		URL:  u,
 	}
+}
+
+type SchemaJSON struct {
+	Id          *string                         `json:"$id,omitempty"`
+	Schema      *string                         `json:"$schema,omitempty"`
+	Description *string                         `json:"description,omitempty"`
+	Properties  map[string]SchemaJSONProperties `json:"properties"`
+	Title       *string                         `json:"title,omitempty"`
+	Type        string                          `json:"type"`
+}
+
+type SchemaJSONProperties struct {
+	Description *string     `json:"description,omitempty"`
+	Format      *string     `json:"format,omitempty"`
+	Items       *SchemaJSON `json:"items,omitempty"`
+	MaxLength   *int        `json:"maxLength,omitempty"`
+	Maximum     *float64    `json:"maximum,omitempty"`
+	Minimum     *float64    `json:"minimum,omitempty"`
+	Title       *string     `json:"title,omitempty"`
+	Type        string      `json:"type"`
+}
+
+// GeoJSON
+type GeoJSON = FeatureCollection
+
+type FeatureCollectionType string
+
+const FeatureCollectionTypeFeatureCollection FeatureCollectionType = "FeatureCollection"
+
+type FeatureCollection struct {
+	Features *[]Feature             `json:"features,omitempty"`
+	Type     *FeatureCollectionType `json:"type,omitempty"`
+}
+
+type FeatureType string
+
+const FeatureTypeFeature FeatureType = "Feature"
+
+type Feature struct {
+	Geometry   *Geometry              `json:"geometry,omitempty"`
+	Id         *string                `json:"id,omitempty"`
+	Properties *orderedmap.OrderedMap `json:"properties,omitempty"`
+	Type       *FeatureType           `json:"type,omitempty"`
+}
+
+type GeometryCollectionType string
+
+const GeometryCollectionTypeGeometryCollection GeometryCollectionType = "GeometryCollection"
+
+type GeometryCollection struct {
+	Geometries *[]Geometry             `json:"geometries,omitempty"`
+	Type       *GeometryCollectionType `json:"type,omitempty"`
+}
+
+type GeometryType string
+
+const (
+	GeometryTypeGeometryCollection GeometryType = "GeometryCollection"
+	GeometryTypeLineString         GeometryType = "LineString"
+	GeometryTypeMultiLineString    GeometryType = "MultiLineString"
+	GeometryTypeMultiPoint         GeometryType = "MultiPoint"
+	GeometryTypeMultiPolygon       GeometryType = "MultiPolygon"
+	GeometryTypePoint              GeometryType = "Point"
+	GeometryTypePolygon            GeometryType = "Polygon"
+)
+
+type Geometry struct {
+	Coordinates *Geometry_Coordinates `json:"coordinates,omitempty"`
+	Geometries  *[]Geometry           `json:"geometries,omitempty"`
+	Type        *GeometryType         `json:"type,omitempty"`
+}
+type Geometry_Coordinates struct {
+	union json.RawMessage
+}
+
+type LineString = []Point
+type MultiLineString = []LineString
+type MultiPoint = []Point
+type MultiPolygon = []Polygon
+type Point = []float64
+type Polygon = [][]Point
+
+func (t Geometry_Coordinates) AsPoint() (Point, error) {
+	var body Point
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+func (t Geometry_Coordinates) AsMultiPoint() (MultiPoint, error) {
+	var body MultiPoint
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+func (t Geometry_Coordinates) AsLineString() (LineString, error) {
+	var body LineString
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+func (t Geometry_Coordinates) AsMultiLineString() (MultiLineString, error) {
+	var body MultiLineString
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+func (t Geometry_Coordinates) AsPolygon() (Polygon, error) {
+	var body Polygon
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+func (t Geometry_Coordinates) AsMultiPolygon() (MultiPolygon, error) {
+	var body MultiPolygon
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+func (t Geometry_Coordinates) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *Geometry_Coordinates) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
 }

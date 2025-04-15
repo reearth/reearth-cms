@@ -13,13 +13,14 @@ import {
   useCreateModelMutation,
   useUpdateModelsOrderMutation,
   useCreateGroupMutation,
+  useUpdateGroupsOrderMutation,
   useCheckModelKeyAvailabilityLazyQuery,
   useCheckGroupKeyAvailabilityLazyQuery,
   Model as GQLModel,
   Group as GQLGroup,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useWorkspace, useProject } from "@reearth-cms/state";
+import { useModel, useWorkspace, useProject, useUserRights } from "@reearth-cms/state";
 
 type Params = {
   modelId?: string;
@@ -30,6 +31,10 @@ export default ({ modelId }: Params) => {
   const [, setCurrentModel] = useModel();
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
+  const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.model.update, [userRights?.model.update]);
+
   const navigate = useNavigate();
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
@@ -186,11 +191,33 @@ export default ({ modelId }: Params) => {
     [currentWorkspace?.id, projectId, createNewGroup, navigate, t],
   );
 
+  const [updateGroupsOrder] = useUpdateGroupsOrderMutation({
+    refetchQueries: ["GetGroups"],
+  });
+
+  const handleUpdateGroupsOrder = useCallback(
+    async (groupIds: string[]) => {
+      const group = await updateGroupsOrder({
+        variables: {
+          groupIds,
+        },
+      });
+      if (group.errors) {
+        Notification.error({ message: t("Failed to update groups order.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated groups order!") });
+    },
+    [updateGroupsOrder, t],
+  );
+
   return {
     models,
     groups,
     modelModalShown,
     groupModalShown,
+    hasCreateRight,
+    hasUpdateRight,
     handleModelModalOpen,
     handleModelModalClose,
     handleModelCreate,
@@ -200,5 +227,6 @@ export default ({ modelId }: Params) => {
     handleGroupCreate,
     handleGroupKeyCheck,
     handleUpdateModelsOrder,
+    handleUpdateGroupsOrder,
   };
 };

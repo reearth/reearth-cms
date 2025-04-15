@@ -1,207 +1,325 @@
 import styled from "@emotion/styled";
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 
+import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input, { SearchProps } from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Search from "@reearth-cms/components/atoms/Search";
+import Select from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { User } from "@reearth-cms/components/molecules/Member/types";
-import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
+import { User, Role } from "@reearth-cms/components/molecules/Member/types";
+import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export interface FormValues {
-  name: string;
-  names: User[];
-}
-
-export interface Props {
-  open?: boolean;
-  onUserSearch: (nameOrEmail: string) => "" | Promise<any>;
-  onUserAdd: () => void;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (users: MemberInput[]) => void;
-  searchedUser: User | undefined;
-  changeSearchedUser: (user: User | undefined) => void;
-  searchedUserList: User[];
-  changeSearchedUserList: React.Dispatch<React.SetStateAction<User[]>>;
-}
-
-const initialValues: FormValues = {
-  name: "",
-  names: [],
+type Props = {
+  open: boolean;
+  workspaceUserMembers?: UserMember[];
+  searchLoading: boolean;
+  addLoading: boolean;
+  onUserSearch: (nameOrEmail: string) => Promise<User[]>;
+  onClose: () => void;
+  onSubmit: (users: MemberInput[]) => Promise<void>;
 };
+
+type FormValues = { search: string } & Record<string, Role>;
+
+const { Option } = Select;
 
 const MemberAddModal: React.FC<Props> = ({
   open,
+  workspaceUserMembers,
+  searchLoading,
+  addLoading,
+  onUserSearch,
   onClose,
   onSubmit,
-  onUserSearch,
-  onUserAdd,
-  searchedUser,
-  changeSearchedUser,
-  searchedUserList,
-  changeSearchedUserList,
 }) => {
   const t = useT();
-  const { Search } = Input;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
+  const [options, setOptions] = useState<
+    {
+      value: string;
+      user: User;
+      label: JSX.Element;
+    }[]
+  >([]);
+  const [isResultOpen, setIsResultOpen] = useState(false);
+  const [searchedUsers, setSearchedUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
-  const handleMemberNameChange = useCallback<NonNullable<SearchProps["onSearch"]>>(
-    (value, event) => {
-      event?.preventDefault();
-      form.setFieldValue("name", value);
-      onUserSearch?.(value);
+  const resultClear = useCallback(() => {
+    setIsResultOpen(false);
+    setOptions([]);
+  }, []);
+
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>();
+
+  const handleMemberNameChange = useCallback(
+    (value: string) => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+        timeout.current = null;
+      }
+      const search = async () => {
+        setIsResultOpen(true);
+        if (value.length > 2) {
+          try {
+            const users = await onUserSearch(value);
+            const newUsers: User[] = [];
+            users.forEach(user => {
+              const isMember = !!workspaceUserMembers?.some(member => member.userId === user.id);
+              const isSelected = selectedUsers.some(selectedUser => selectedUser.id === user.id);
+              if (!isMember && !isSelected) {
+                newUsers.push(user);
+              }
+            });
+            setSearchedUsers(newUsers);
+          } catch (e) {
+            console.error(e);
+            setSearchedUsers([]);
+          }
+        } else {
+          setSearchedUsers([]);
+        }
+      };
+      if (value) {
+        timeout.current = setTimeout(search, 300);
+      } else {
+        resultClear();
+      }
     },
-    [onUserSearch, form],
+    [onUserSearch, setSearchedUsers, workspaceUserMembers, selectedUsers, resultClear],
+  );
+
+  useEffect(() => {
+    if (searchedUsers.length) {
+      const options = searchedUsers.map(user => ({
+        value: user.id,
+        user,
+        label: (
+          <UserWrapper>
+            <UserAvatar username={user.name} size={24} />
+            <UserInfo>
+              <UserName>{user.name}</UserName>
+              <Email>{user.email}</Email>
+            </UserInfo>
+          </UserWrapper>
+        ),
+      }));
+      setOptions(options);
+    } else {
+      setOptions([]);
+    }
+  }, [searchedUsers]);
+
+  const handleUserAdd = useCallback(
+    (user: User) => {
+      setSelectedUsers(prev => [...prev, user]);
+    },
+    [setSelectedUsers],
+  );
+
+  const handleSelect = useCallback(
+    (user: User) => {
+      handleUserAdd(user);
+      resultClear();
+      form.resetFields(["search"]);
+    },
+    [handleUserAdd, resultClear, form],
   );
 
   const handleMemberRemove = useCallback(
     (userId: string) => {
-      changeSearchedUserList((oldList: User[]) =>
-        oldList.filter((user: User) => user.id !== userId),
-      );
+      setSelectedUsers(prev => prev.filter(user => user.id !== userId));
     },
-    [changeSearchedUserList],
+    [setSelectedUsers],
   );
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(() => {
-        if (searchedUserList?.length > 0) {
-          onSubmit?.(
-            searchedUserList.map(user => {
-              return {
-                userId: user.id,
-                role: "READER",
-              };
-            }),
-          );
-        }
-        changeSearchedUser(undefined);
-        changeSearchedUserList([]);
-        onClose?.(true);
-        form.resetFields();
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
-  }, [form, searchedUserList, changeSearchedUser, changeSearchedUserList, onClose, onSubmit]);
+  const handleSubmit = useCallback(async () => {
+    if (selectedUsers.length === 0) return;
+    const values = form.getFieldsValue();
+    try {
+      await onSubmit(
+        selectedUsers.map(user => ({
+          userId: user.id,
+          role: values[user.id] ?? "READER",
+        })),
+      );
+      setSearchedUsers([]);
+      setSelectedUsers([]);
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [setSelectedUsers, form, onClose, onSubmit, selectedUsers, setSearchedUsers]);
 
   const handleClose = useCallback(() => {
-    form.resetFields();
-    changeSearchedUser(undefined);
-    onClose?.(true);
-  }, [onClose, changeSearchedUser, form]);
+    setSearchedUsers([]);
+    onClose();
+  }, [onClose, setSearchedUsers]);
 
   return (
-    <Modal
+    <StyledModal
       title={t("Add member")}
       open={open}
       onCancel={handleClose}
       footer={[
-        <Button key="back" onClick={handleClose}>
+        <Button key="back" onClick={handleClose} disabled={addLoading}>
           {t("Cancel")}
         </Button>,
         <Button
           key="submit"
           type="primary"
           onClick={handleSubmit}
-          disabled={searchedUserList.length === 0}>
+          loading={addLoading}
+          disabled={selectedUsers.length === 0}>
           {t("Add to workspace")}
         </Button>,
       ]}>
       {open && (
-        <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
-          <Form.Item name="name" label={t("Email address or user name")}>
-            <Search size="large" onSearch={handleMemberNameChange} type="text" />
+        <Form form={form} layout="vertical">
+          <Form.Item label={t("Search user")} name="search">
+            <AutoComplete
+              open={isResultOpen}
+              options={options}
+              popupMatchSelectWidth={433}
+              notFoundContent={t("No result")}
+              onSearch={handleMemberNameChange}
+              onFocus={() => {
+                if (options?.length) {
+                  setIsResultOpen(true);
+                }
+              }}
+              onBlur={() => {
+                setIsResultOpen(false);
+              }}
+              onSelect={(_, option) => {
+                handleSelect(option.user);
+              }}>
+              <Search
+                size="large"
+                allowClear
+                loading={searchLoading}
+                placeholder={t("Email address or user name")}
+              />
+            </AutoComplete>
           </Form.Item>
-          {searchedUser && (
-            <SearchedUserResult>
-              <SearchedUserAvatar>
-                <UserAvatar username={searchedUser.name} />
-              </SearchedUserAvatar>
-              <SearchedUserName>{searchedUser.name}</SearchedUserName>
-              <SearchedUserEmail>{searchedUser.email}</SearchedUserEmail>
-
-              <IconButton onClick={onUserAdd}>
-                <Icon icon="userAdd" />
-              </IconButton>
-            </SearchedUserResult>
-          )}
-          <StyledFormItem
-            name="names"
-            label={`${t("Selected Members")} (${searchedUserList.length})`}>
-            {searchedUserList &&
-              searchedUserList?.length > 0 &&
-              searchedUserList
-                .filter(user => Boolean(user))
-                .map(user => (
-                  <SearchedUserResult key={user?.id}>
-                    <SearchedUserAvatar>
-                      <UserAvatar username={user?.name} />
-                    </SearchedUserAvatar>
-                    <SearchedUserName>{user?.name}</SearchedUserName>
-                    <SearchedUserEmail>{user?.email}</SearchedUserEmail>
-
-                    <IconButton onClick={() => handleMemberRemove(user.id)}>
-                      <Icon icon="close" />
-                    </IconButton>
-                  </SearchedUserResult>
-                ))}
+          <StyledFormItem label={`${t("Selected Members")} (${selectedUsers.length})`}>
+            {selectedUsers.map(user => (
+              <SelectedUser key={user.id}>
+                <UserWrapperShrinked>
+                  <UserAvatar username={user.name} size={24} />
+                  <UserInfo>
+                    <UserName>{user.name}</UserName>
+                    <Email>{user.email}</Email>
+                  </UserInfo>
+                </UserWrapperShrinked>
+                <Actions>
+                  <FormItemRole name={[user.id]}>
+                    <Select defaultValue={"READER"} popupMatchSelectWidth={105}>
+                      <Option value="OWNER">{t("Owner")}</Option>
+                      <Option value="MAINTAINER">{t("Maintainer")}</Option>
+                      <Option value="WRITER">{t("Writer")}</Option>
+                      <Option value="READER">{t("Reader")}</Option>
+                    </Select>
+                  </FormItemRole>
+                  <Button
+                    type="text"
+                    shape="circle"
+                    onClick={() => handleMemberRemove(user.id)}
+                    icon={<Icon icon="close" />}
+                  />
+                </Actions>
+              </SelectedUser>
+            ))}
           </StyledFormItem>
         </Form>
       )}
-    </Modal>
+    </StyledModal>
   );
 };
 
-const IconButton = styled.button`
-  all: unset;
-  cursor: pointer;
+const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    padding: 0;
+  }
+  .ant-modal-header {
+    padding: 16px 24px;
+    margin: 0;
+  }
+  .ant-modal-body {
+    padding: 24px;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .ant-modal-footer {
+    padding: 10px 16px;
+    margin: 0;
+  }
 `;
 
 const StyledFormItem = styled(Form.Item)`
-  margin-top: 16px;
+  margin: 0;
+  .ant-form-item-control-input {
+    min-height: 0;
+  }
+  .ant-form-item-control-input-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
 `;
 
-const SearchedUserAvatar = styled.div`
-  width: 32px;
-  margin-right: 8px;
-`;
-
-const SearchedUserName = styled.div`
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const SearchedUserEmail = styled.div`
-  font-family: "Roboto";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const SearchedUserResult = styled.div`
+const UserWrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+`;
+
+const UserWrapperShrinked = styled(UserWrapper)`
+  max-width: 65%;
+`;
+
+const UserInfo = styled.div`
+  max-width: calc(100% - 36px);
+  display: flex;
+  gap: 8px;
+`;
+
+const UserName = styled.div`
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const Email = styled.div`
+  font-family: "Roboto";
+  color: rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const SelectedUser = styled.div`
+  display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
   border: 1px solid #d9d9d9;
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
   border-radius: 8px;
-  margin-bottom: 6px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const FormItemRole = styled(Form.Item)`
+  margin: 0;
 `;
 
 export default MemberAddModal;

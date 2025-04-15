@@ -107,6 +107,11 @@ export const GET_MODEL_NODE = gql`
                 min
                 max
               }
+              ... on SchemaFieldNumber {
+                defaultValue
+                numberMin: min
+                numberMax: max
+              }
               ... on SchemaFieldBool {
                 defaultValue
               }
@@ -136,6 +141,14 @@ export const GET_MODEL_NODE = gql`
               }
               ... on SchemaFieldGroup {
                 groupId
+              }
+              ... on SchemaFieldGeometryObject {
+                defaultValue
+                objectSupportedTypes: supportedTypes
+              }
+              ... on SchemaFieldGeometryEditor {
+                defaultValue
+                editorSupportedTypes: supportedTypes
               }
             }
           }
@@ -186,6 +199,17 @@ export const UPDATE_MODEL = gql`
       model {
         id
         name
+      }
+    }
+  }
+`;
+
+export const PUBLISH_MODELS = gql`
+  mutation PublishModels($models: [PublishModelInput!]!) {
+    publishModels(input: { models: $models }) {
+      models {
+        modelId
+        status
       }
     }
   }

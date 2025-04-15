@@ -1,67 +1,46 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
+import useHooks from "@reearth-cms/components/organisms/Workspace/hooks";
 import {
-  useGetProjectsQuery,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
   Role as GQLRole,
+  useCheckProjectAliasLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace } from "@reearth-cms/state";
+import { useWorkspace, useUserRights, useProject } from "@reearth-cms/state";
 
-type Params = {
-  projectId?: string;
-};
-
-export default ({ projectId }: Params) => {
-  const navigate = useNavigate();
-  const [currentWorkspace] = useWorkspace();
+export default () => {
+  const { projectsRefetch } = useHooks();
   const t = useT();
+  const navigate = useNavigate();
 
-  const workspaceId = currentWorkspace?.id;
-
-  const { data, loading } = useGetProjectsQuery({
-    variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
-    skip: !workspaceId,
-  });
-
-  const rawProject = useMemo(
-    () => data?.projects.nodes.find((p: any) => p?.id === projectId),
-    [data, projectId],
-  );
-  const project = useMemo(
-    () =>
-      rawProject?.id
-        ? {
-            id: rawProject.id,
-            name: rawProject.name,
-            description: rawProject.description,
-            alias: rawProject.alias,
-            requestRoles: rawProject.requestRoles as Role[],
-          }
-        : undefined,
-    [rawProject],
-  );
+  const [currentWorkspace] = useWorkspace();
+  const workspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
+  const [currentProject] = useProject();
+  const projectId = useMemo(() => currentProject?.id, [currentProject?.id]);
+  const [userRights] = useUserRights();
+  const hasUpdateRight = useMemo(() => !!userRights?.project.update, [userRights?.project.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.project.delete, [userRights?.project.delete]);
 
   const [updateProjectMutation] = useUpdateProjectMutation({
     refetchQueries: ["GetProject"],
   });
-  const [deleteProjectMutation] = useDeleteProjectMutation({
-    refetchQueries: ["GetProjects"],
-  });
+  const [deleteProjectMutation] = useDeleteProjectMutation();
 
   const handleProjectUpdate = useCallback(
-    async (name?: string, description?: string) => {
+    async (name: string, alias: string, description: string) => {
       if (!projectId || !name) return;
       const result = await updateProjectMutation({
         variables: {
           projectId,
           name,
+          alias,
           description,
-          requestRoles: project?.requestRoles as GQLRole[],
+          requestRoles: currentProject?.requestRoles as GQLRole[],
         },
       });
       if (result.errors || !result.data?.updateProject) {
@@ -70,11 +49,11 @@ export default ({ projectId }: Params) => {
       }
       Notification.success({ message: t("Successfully updated project!") });
     },
-    [projectId, updateProjectMutation, project?.requestRoles, t],
+    [projectId, updateProjectMutation, currentProject?.requestRoles, t],
   );
 
   const handleProjectRequestRolesUpdate = useCallback(
-    async (requestRoles?: Role[] | null | undefined) => {
+    async (requestRoles: Role[]) => {
       if (!projectId || !requestRoles) return;
       const project = await updateProjectMutation({
         variables: {
@@ -96,34 +75,34 @@ export default ({ projectId }: Params) => {
     const results = await deleteProjectMutation({ variables: { projectId } });
     if (results.errors) {
       Notification.error({ message: t("Failed to delete project.") });
-    } else {
-      Notification.success({ message: t("Successfully deleted project!") });
-      navigate(`/workspace/${workspaceId}`);
+      return;
     }
-  }, [projectId, deleteProjectMutation, navigate, workspaceId, t]);
+    Notification.success({ message: t("Successfully deleted project!") });
+    projectsRefetch();
+    navigate(`/workspace/${workspaceId}`);
+  }, [projectId, deleteProjectMutation, t, projectsRefetch, navigate, workspaceId]);
 
-  const [assetModalOpened, setOpenAssets] = useState(false);
+  const [CheckProjectAlias] = useCheckProjectAliasLazyQuery({
+    fetchPolicy: "no-cache",
+  });
 
-  const toggleAssetModal = useCallback(
-    (open?: boolean) => {
-      if (!open) {
-        setOpenAssets(!assetModalOpened);
-      } else {
-        setOpenAssets(open);
-      }
+  const handleProjectAliasCheck = useCallback(
+    async (alias: string) => {
+      if (!alias) return false;
+
+      const response = await CheckProjectAlias({ variables: { alias } });
+      return response.data ? response.data.checkProjectAlias.available : false;
     },
-    [assetModalOpened, setOpenAssets],
+    [CheckProjectAlias],
   );
 
   return {
-    project,
-    loading,
-    projectId,
-    currentWorkspace,
+    project: currentProject,
+    hasUpdateRight,
+    hasDeleteRight,
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
     handleProjectDelete,
-    assetModalOpened,
-    toggleAssetModal,
+    handleProjectAliasCheck,
   };
 };

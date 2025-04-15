@@ -8,6 +8,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
+import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -15,14 +16,16 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 const { Option } = Select;
 
 type Props = {
-  currentRequest?: Request;
+  currentRequest: Request;
   workspaceUserMembers: UserMember[];
+  isAssignActionEnabled: boolean;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
 };
 
 const RequestSidebarWrapper: React.FC<Props> = ({
   currentRequest,
   workspaceUserMembers,
+  isAssignActionEnabled,
   onRequestUpdate,
 }) => {
   const t = useT();
@@ -51,13 +54,15 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 
   const handleSubmit: FocusEventHandler<HTMLElement> | undefined = useCallback(async () => {
     const requestId = currentRequest?.id;
-    if (!requestId || selectedReviewers.length === 0) {
+    const isEqual =
+      JSON.stringify([...defaultValue].sort()) === JSON.stringify([...selectedReviewers].sort());
+    if (!requestId || selectedReviewers.length === 0 || isEqual) {
       hideViewReviewers();
       return;
     }
 
     try {
-      await onRequestUpdate?.({
+      await onRequestUpdate({
         requestId: requestId,
         title: currentRequest?.title,
         description: currentRequest?.description,
@@ -74,34 +79,22 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     currentRequest?.id,
     currentRequest?.state,
     currentRequest?.title,
+    defaultValue,
     hideViewReviewers,
     onRequestUpdate,
     selectedReviewers,
   ]);
 
-  const badgeColor = useMemo(() => {
-    switch (currentRequest?.state) {
-      case "APPROVED":
-        return "#52C41A";
-      case "CLOSED":
-        return "#F5222D";
-      case "WAITING":
-        return "#FA8C16";
-      default:
-        return "";
-    }
-  }, [currentRequest?.state]);
-
   return (
     <SideBarWrapper>
       <SidebarCard title={t("State")}>
-        <Badge color={badgeColor} text={currentRequest?.state} />
+        <Badge color={badgeColors[currentRequest.state]} text={t(currentRequest.state)} />
       </SidebarCard>
       <SidebarCard title={t("Created By")}>
-        <Space>
+        <StyledSpace>
           <UserAvatar username={currentRequest?.createdBy?.name} />
           {currentRequest?.createdBy?.name}
-        </Space>
+        </StyledSpace>
       </SidebarCard>
       <SidebarCard title={t("Reviewer")}>
         <ReviewerContainer>
@@ -132,7 +125,10 @@ const RequestSidebarWrapper: React.FC<Props> = ({
           </StyledSelect>
         ) : (
           <ViewReviewers>
-            <StyledButton type="link" onClick={displayViewReviewers}>
+            <StyledButton
+              type="link"
+              onClick={displayViewReviewers}
+              disabled={!isAssignActionEnabled}>
               {t("Assign to")}
             </StyledButton>
           </ViewReviewers>
@@ -145,8 +141,17 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
-  padding: 7px;
+  padding: 8px;
   width: 272px;
+`;
+
+const StyledSpace = styled(Space)`
+  width: 100%;
+  .ant-space-item:nth-child(2) {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 `;
 
 const ReviewerContainer = styled.div`

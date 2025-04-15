@@ -104,3 +104,16 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	}
 	return nil
 }
+
+func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, id := range ids {
+		if a, ok := r.data.Load(id); ok && r.f.CanWrite(a.Project()) {
+			r.data.Delete(id)
+		}
+	}
+	return nil
+}

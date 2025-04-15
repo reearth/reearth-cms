@@ -21,7 +21,7 @@ type AssetDocument struct {
 	Size                    uint64
 	PreviewType             string
 	UUID                    string
-	Thread                  string
+	Thread                  *string
 	ArchiveExtractionStatus string
 	FlatFiles               bool
 }
@@ -33,11 +33,12 @@ type AssetAndFileDocument struct {
 }
 
 type AssetFileDocument struct {
-	Name        string
-	Size        uint64
-	ContentType string
-	Path        string
-	Children    []*AssetFileDocument
+	Name            string
+	Size            uint64
+	ContentType     string
+	ContentEncoding string
+	Path            string
+	Children        []*AssetFileDocument
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -68,7 +69,7 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		iid = a.Integration().StringRef()
 	}
 
-	ad, id := &AssetDocument{
+	return &AssetDocument{
 		ID:                      aid,
 		Project:                 a.Project().String(),
 		CreatedAt:               a.CreatedAt(),
@@ -78,12 +79,10 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		Size:                    a.Size(),
 		PreviewType:             previewType,
 		UUID:                    a.UUID(),
-		Thread:                  a.Thread().String(),
+		Thread:                  a.Thread().StringRef(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
 		FlatFiles:               a.FlatFiles(),
 	}, aid
-
-	return ad, id
 }
 
 func (d *AssetDocument) Model() (*asset.Asset, error) {
@@ -92,10 +91,6 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		return nil, err
 	}
 	pid, err := id.ProjectIDFrom(d.Project)
-	if err != nil {
-		return nil, err
-	}
-	thid, err := id.ThreadIDFrom(d.Thread)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +103,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
 		UUID(d.UUID).
-		Thread(thid).
+		Thread(id.ThreadIDFromRef(d.Thread)).
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus))).
 		FlatFiles(d.FlatFiles)
 
@@ -144,11 +139,12 @@ func NewFile(f *asset.File) *AssetFileDocument {
 	}
 
 	return &AssetFileDocument{
-		Name:        f.Name(),
-		Size:        f.Size(),
-		ContentType: f.ContentType(),
-		Path:        f.Path(),
-		Children:    c,
+		Name:            f.Name(),
+		Size:            f.Size(),
+		ContentType:     f.ContentType(),
+		ContentEncoding: f.ContentEncoding(),
+		Path:            f.Path(),
+		Children:        c,
 	}
 }
 
@@ -158,7 +154,7 @@ func (f *AssetFileDocument) Model() *asset.File {
 	}
 
 	var c []*asset.File
-	if f.Children != nil && len(f.Children) > 0 {
+	if len(f.Children) > 0 {
 		for _, v := range f.Children {
 			f := v.Model()
 			c = append(c, f)
@@ -169,6 +165,7 @@ func (f *AssetFileDocument) Model() *asset.File {
 		Name(f.Name).
 		Size(f.Size).
 		ContentType(f.ContentType).
+		ContentEncoding(f.ContentEncoding).
 		Path(f.Path).
 		Children(c).
 		Build()

@@ -27,10 +27,8 @@ export const renderField = (
       <StyledSelect
         mode={field.multiple ? "multiple" : undefined}
         defaultValue={filteredTags.map(({ name }) => name)}
-        tagRender={props => {
-          return <>{props.label}</>;
-        }}
-        showArrow={false}
+        tagRender={props => <>{props.label}</>}
+        suffixIcon={null}
         allowClear={field.multiple ? false : true}
         onChange={(_, option) => {
           const value: string | string[] | undefined = Array.isArray(option)
@@ -38,7 +36,8 @@ export const renderField = (
             : option?.key;
           update?.(value);
         }}
-        placeholder="-">
+        placeholder="-"
+        disabled={!update}>
         {tags?.map(({ id, name, color }) => (
           <Select.Option key={id} value={name}>
             <Tag color={color.toLowerCase()}>{name}</Tag>
@@ -47,11 +46,7 @@ export const renderField = (
       </StyledSelect>
     );
   } else if (value === "-") {
-    if (
-      (field.type === "Text" || field.type === "Date" || field.type === "URL") &&
-      !field.multiple &&
-      update
-    ) {
+    if ((field.type === "Text" || field.type === "Date" || field.type === "URL") && update) {
       return <ItemFormat item="" field={field} update={update} />;
     }
     return <span>-</span>;
@@ -63,7 +58,13 @@ export const renderField = (
         ))}
       </>
     );
-  } else if (items.length > 1 || field.type === "TextArea" || field.type === "MarkdownText") {
+  } else if (
+    items.length > 1 ||
+    field.type === "TextArea" ||
+    field.type === "MarkdownText" ||
+    field.type === "GeometryObject" ||
+    field.type === "GeometryEditor"
+  ) {
     const content = (
       <>
         {items.map((item, index) => {
@@ -76,7 +77,12 @@ export const renderField = (
       </>
     );
     return (
-      <Popover content={content} title={field.title} trigger="click" placement="bottom">
+      <Popover
+        overlayClassName="contentPopover"
+        content={content}
+        title={field.title}
+        trigger="click"
+        placement="bottom">
         <StyledButton>
           <Icon icon={fieldTypes[field.type].icon} size={16} />
           {items.length > 1 && <span>x{items.length}</span>}
@@ -114,7 +120,7 @@ const StyledSelect = styled(Select)`
   }
   .ant-select-selection-overflow {
     flex-wrap: nowrap;
-    overflow-x: hidden;
+    overflow: hidden;
   }
   .ant-select-selection-placeholder {
     color: inherit;
