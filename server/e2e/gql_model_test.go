@@ -349,6 +349,64 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 		res
 }
 
+func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key string, public bool, fields []map[string]any) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateModelWithSchemaFields($input: UpdateModelWithSchemaFieldsInput!) {
+			updateModelWithSchemaFields(input: $input) {
+				model {
+					name
+					schema {
+						fields {
+							id
+							title
+							type
+							key
+							description
+							order
+							multiple
+							unique
+							required
+							isTitle
+							createdAt
+							updatedAt
+						}
+					}
+					schemaId
+					description
+					project {
+						id
+					}
+					public
+					createdAt
+					updatedAt
+					order
+				}
+			}
+		}`,
+		Variables: map[string]any{
+			"input": map[string]any{
+				"modelId":     modelID,
+				"name":        name,
+				"description": desc,
+				"key":         key,
+				"public":      public,
+				"fields":      fields,
+			},
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()). // assumes uId1 is in scope
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
 func TestCreateModel(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
@@ -454,4 +512,52 @@ func TestUpdateModelsPublishmentStatus(t *testing.T) {
 		{"modelId": mId3, "status": false},
 		{"modelId": mId4, "status": true},
 	})
+}
+
+func TestUpdateModelWithSchemaFields(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+	mId1, _ := createModel(e, pId, "test1", "test", "test-1")
+
+	res := updateModelWithSchemaFields(e, mId1, "test1", "test", "test-1", false, []map[string]any{
+		{
+			"modelId":     mId1,
+			"type":        "Text", // capitalized to match enum
+			"title":       "test",
+			"key":         "test-1",
+			"description": "test",
+			"order":       0,
+			"multiple":    false,
+			"unique":      false,
+			"required":    false,
+			"isTitle":     false,
+			"metadata":    false,
+			"typeProperty": map[string]any{
+				"text": map[string]any{ // <-- type-specific wrapper
+					"defaultValue": "test",
+					"maxLength":    100,
+				},
+			},
+		},
+	})
+
+	res.Object().
+		Value("data").Object().
+		Value("updateModelWithSchemaFields").Object().
+		Value("model").Object().
+		HasValue("description", "test").
+		HasValue("key", "test-1").
+		HasValue("public", false).
+		Value("schema").Object().
+		Value("fields").Array().Value(0).Object().
+		HasValue("title", "test").
+		HasValue("key", "test").
+		HasValue("type", "Text"). // enum values are case-sensitive
+		HasValue("description", "test").
+		HasValue("order", 0).
+		HasValue("multiple", false).
+		HasValue("unique", false).
+		HasValue("required", false).
+		HasValue("isTitle", false)
 }
