@@ -93,7 +93,12 @@ func (f *fileRepo) Upload(_ context.Context, name string) (io.WriteCloser, error
 	pr, pw := io.Pipe()
 
 	go func() {
-		defer pw.Close()
+		defer func(pw *io.PipeWriter) {
+			err := pw.Close()
+			if err != nil {
+				log.Errorf("aws: failed to close pipe writer: %v\n", err)
+			}
+		}(pw)
 
 		uploadCtx := context.Background()
 		key := path.Join(s3AssetBasePath, name)

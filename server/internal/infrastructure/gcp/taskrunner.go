@@ -320,7 +320,7 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 		return fmt.Errorf("failed to parse GCS host as a URL: %w", err)
 	}
 
-	var urlFn asset.URLResolver = func(a *asset.Asset) string {
+	var urlFn = func(a *asset.Asset) string {
 		return getURL(u, a.UUID(), a.FileName())
 	}
 

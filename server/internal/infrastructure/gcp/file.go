@@ -63,7 +63,7 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, h map[str
 		return nil, nil, rerror.ErrNotFound
 	}
 
-	return f.read(ctx, p, h)
+	return f.Read(ctx, p, h)
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
@@ -120,7 +120,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 		return "", 0, gateway.ErrInvalidFile
 	}
 
-	size, err := f.upload(ctx, file, p)
+	size, err := f.Upload(ctx, file, p)
 	if err != nil {
 		return "", 0, err
 	}
@@ -153,6 +153,10 @@ func (f *fileRepo) DeleteAssets(ctx context.Context, UUIDs []string) error {
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return getURL(f.base, a.UUID(), a.FileName())
+}
+
+func (f *fileRepo) GetBaseURL() string {
+	return f.base.String()
 }
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
@@ -210,7 +214,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	}, nil
 }
 
-func (f *fileRepo) read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
+func (f *fileRepo) Read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
 	if filename == "" {
 		return nil, nil, rerror.ErrNotFound
 	}
@@ -282,7 +286,7 @@ func (f *fileRepo) read(ctx context.Context, filename string, headers map[string
 	return reader, headers, nil
 }
 
-func (f *fileRepo) upload(ctx context.Context, file *file.File, objectName string) (int64, error) {
+func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName string) (int64, error) {
 	if file.Name == "" {
 		return 0, gateway.ErrInvalidFile
 	}
@@ -308,18 +312,18 @@ func (f *fileRepo) upload(ctx context.Context, file *file.File, objectName strin
 	}
 
 	writer := object.NewWriter(ctx)
-	writer.ObjectAttrs.CacheControl = f.cacheControl
+	writer.CacheControl = f.cacheControl
 
 	if file.ContentType == "" {
-		writer.ObjectAttrs.ContentType = getContentType(file.Name)
+		writer.ContentType = getContentType(file.Name)
 	} else {
-		writer.ObjectAttrs.ContentType = file.ContentType
+		writer.ContentType = file.ContentType
 	}
 
 	if file.ContentEncoding == "gzip" {
-		writer.ObjectAttrs.ContentEncoding = "gzip"
-		if writer.ObjectAttrs.ContentType == "" || writer.ObjectAttrs.ContentType == "application/gzip" {
-			writer.ObjectAttrs.ContentType = "application/octet-stream"
+		writer.ContentEncoding = "gzip"
+		if writer.ContentType == "" || writer.ContentType == "application/gzip" {
+			writer.ContentType = "application/octet-stream"
 		}
 	}
 
