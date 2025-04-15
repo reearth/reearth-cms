@@ -101,48 +101,14 @@ func (r *mutationResolver) UpdateModelWithSchemaFields(ctx context.Context, inpu
 		return nil, err
 	}
 
-	modelUpdateResponse, err := usecases(ctx).Model.Update(ctx, interfaces.UpdateModelParam{
-		ModelID:     modelID,
-		Name:        input.Name,
-		Description: input.Description,
-		Key:         input.Key,
-		Public:      lo.ToPtr(input.Public),
-	}, getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-
-	gid := gqlmodel.ToIDRef[id.Group](input.Fields[0].GroupID)
-	param := interfaces.FindOrCreateSchemaParam{
-		ModelID:  &modelID,
-		GroupID:  gid,
-		Metadata: input.Fields[0].Metadata,
-		Create:   true,
-	}
-
-	s, er := usecases(ctx).Model.FindOrCreateSchema(ctx, param, getOperator(ctx))
-	if er != nil {
-		return nil, er
-	}
-
-	// delete current fields if any
-	if len(s.Fields()) > 0 {
-		for _, field := range s.Fields() {
-			if err := usecases(ctx).Schema.DeleteField(ctx, s.ID(), field.ID(), getOperator(ctx)); err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	for _, field := range input.Fields {
+	createFieldParams := make([]interfaces.CreateFieldParam, len(input.Fields))
+	for i, field := range input.Fields {
 		tp, dv, err := gqlmodel.FromSchemaTypeProperty(field.TypeProperty, field.Type, field.Multiple)
 		if err != nil {
 			return nil, err
 		}
-
-		_, err = usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
+		createFieldParams[i] = interfaces.CreateFieldParam{
 			ModelID:      &modelID,
-			SchemaID:     s.ID(),
 			Type:         gqlmodel.FromValueType(field.Type),
 			Name:         field.Title,
 			Description:  field.Description,
@@ -153,17 +119,23 @@ func (r *mutationResolver) UpdateModelWithSchemaFields(ctx context.Context, inpu
 			IsTitle:      field.IsTitle,
 			DefaultValue: dv,
 			TypeProperty: tp,
-		}, getOperator(ctx))
-		if err != nil {
-			return nil, err
 		}
+	}
+
+	modelUpdateResponse, err := usecases(ctx).Model.UpdateWithNewSchemaFields(ctx, modelID, createFieldParams, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := usecases(ctx).Schema.FindByModel(ctx, modelID, getOperator(ctx))
+	if err != nil {
+		return nil, err
 	}
 
 	modelPayloadResponse := gqlmodel.ModelPayload{
 		Model: gqlmodel.ToModel(modelUpdateResponse),
 	}
-
-	modelPayloadResponse.Model.Schema = gqlmodel.ToSchema(s)
+	modelPayloadResponse.Model.Schema = gqlmodel.ToSchema(s.Schema())
 
 	return &modelPayloadResponse, nil
 }
