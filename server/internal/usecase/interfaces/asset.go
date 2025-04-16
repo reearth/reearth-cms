@@ -40,11 +40,8 @@ type CreateAssetUploadParam struct {
 }
 
 var (
-	ErrCreateAssetFailed                     error = rerror.NewE(i18n.T("failed to create asset"))
-	ErrFileNotIncluded                       error = rerror.NewE(i18n.T("file not included"))
-	ErrInvalidContentType                    error = rerror.NewE(i18n.T("invalid content type"))
-	ErrInvalidJSONSchema                     error = rerror.NewE(i18n.T("invalid json schema"))
-	ErrInvalidContentTypeForSchemaConversion error = rerror.NewE(i18n.T("invalid content type for schema conversion"))
+	ErrCreateAssetFailed error = rerror.NewE(i18n.T("failed to create asset"))
+	ErrFileNotIncluded   error = rerror.NewE(i18n.T("file not included"))
 )
 
 type AssetFilter struct {
@@ -62,17 +59,6 @@ type AssetUpload struct {
 	ContentEncoding string
 	Next            string
 }
-
-type AssetSchemaFieldsData struct {
-	Fields     []AssetSchemaField
-	TotalCount int
-}
-
-type AssetSchemaField struct {
-	FieldName string
-	FieldType string
-}
-
 type Asset interface {
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	FindByUUID(context.Context, string, *usecase.Operator) (*asset.Asset, error)
@@ -91,5 +77,4 @@ type Asset interface {
 	Unpublish(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (*AssetUpload, error)
 	RetryDecompression(context.Context, string) error
-	ConvertToSchemaFields(context.Context, id.AssetID, *usecase.Operator) (*AssetSchemaFieldsData, error)
 }

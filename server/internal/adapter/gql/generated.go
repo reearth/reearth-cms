@@ -123,16 +123,6 @@ type ComplexityRoot struct {
 		ModelID func(childComplexity int) int
 	}
 
-	AssetSchemaField struct {
-		FieldName func(childComplexity int) int
-		FieldType func(childComplexity int) int
-	}
-
-	AssetSchemaFieldResult struct {
-		Fields     func(childComplexity int) int
-		TotalCount func(childComplexity int) int
-	}
-
 	BasicFieldCondition struct {
 		FieldID  func(childComplexity int) int
 		Operator func(childComplexity int) int
@@ -288,6 +278,17 @@ type ComplexityRoot struct {
 
 	GroupsPayload struct {
 		Groups func(childComplexity int) int
+	}
+
+	GuessSchemaField struct {
+		Key  func(childComplexity int) int
+		Name func(childComplexity int) int
+		Type func(childComplexity int) int
+	}
+
+	GuessSchemaFieldResult struct {
+		Fields     func(childComplexity int) int
+		TotalCount func(childComplexity int) int
 	}
 
 	Integration struct {
@@ -583,6 +584,7 @@ type ComplexityRoot struct {
 		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
 		Groups                    func(childComplexity int, projectID *gqlmodel.ID, modelID *gqlmodel.ID) int
+		GuessSchemaFields         func(childComplexity int, input gqlmodel.GuessSchemaFieldsInput) int
 		IsItemReferenced          func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
 		Me                        func(childComplexity int) int
 		Models                    func(childComplexity int, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) int
@@ -1363,34 +1365,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AssetItem.ModelID(childComplexity), true
 
-	case "AssetSchemaField.field_name":
-		if e.complexity.AssetSchemaField.FieldName == nil {
-			break
-		}
-
-		return e.complexity.AssetSchemaField.FieldName(childComplexity), true
-
-	case "AssetSchemaField.field_type":
-		if e.complexity.AssetSchemaField.FieldType == nil {
-			break
-		}
-
-		return e.complexity.AssetSchemaField.FieldType(childComplexity), true
-
-	case "AssetSchemaFieldResult.fields":
-		if e.complexity.AssetSchemaFieldResult.Fields == nil {
-			break
-		}
-
-		return e.complexity.AssetSchemaFieldResult.Fields(childComplexity), true
-
-	case "AssetSchemaFieldResult.total_count":
-		if e.complexity.AssetSchemaFieldResult.TotalCount == nil {
-			break
-		}
-
-		return e.complexity.AssetSchemaFieldResult.TotalCount(childComplexity), true
-
 	case "BasicFieldCondition.fieldId":
 		if e.complexity.BasicFieldCondition.FieldID == nil {
 			break
@@ -1838,6 +1812,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.GroupsPayload.Groups(childComplexity), true
+
+	case "GuessSchemaField.key":
+		if e.complexity.GuessSchemaField.Key == nil {
+			break
+		}
+
+		return e.complexity.GuessSchemaField.Key(childComplexity), true
+
+	case "GuessSchemaField.name":
+		if e.complexity.GuessSchemaField.Name == nil {
+			break
+		}
+
+		return e.complexity.GuessSchemaField.Name(childComplexity), true
+
+	case "GuessSchemaField.type":
+		if e.complexity.GuessSchemaField.Type == nil {
+			break
+		}
+
+		return e.complexity.GuessSchemaField.Type(childComplexity), true
+
+	case "GuessSchemaFieldResult.fields":
+		if e.complexity.GuessSchemaFieldResult.Fields == nil {
+			break
+		}
+
+		return e.complexity.GuessSchemaFieldResult.Fields(childComplexity), true
+
+	case "GuessSchemaFieldResult.total_count":
+		if e.complexity.GuessSchemaFieldResult.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.GuessSchemaFieldResult.TotalCount(childComplexity), true
 
 	case "Integration.config":
 		if e.complexity.Integration.Config == nil {
@@ -3522,18 +3531,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.AssetFile(childComplexity, args["assetId"].(gqlmodel.ID)), true
 
-	case "Query.assetSchemaFields":
-		if e.complexity.Query.AssetSchemaFields == nil {
-			break
-		}
-
-		args, err := ec.field_Query_assetSchemaFields_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.AssetSchemaFields(childComplexity, args["assetId"].(gqlmodel.ID)), true
-
 	case "Query.assets":
 		if e.complexity.Query.Assets == nil {
 			break
@@ -3593,6 +3590,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Groups(childComplexity, args["projectId"].(*gqlmodel.ID), args["modelID"].(*gqlmodel.ID)), true
+
+	case "Query.guessSchemaFields":
+		if e.complexity.Query.GuessSchemaFields == nil {
+			break
+		}
+
+		args, err := ec.field_Query_guessSchemaFields_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GuessSchemaFields(childComplexity, args["input"].(gqlmodel.GuessSchemaFieldsInput)), true
 
 	case "Query.isItemReferenced":
 		if e.complexity.Query.IsItemReferenced == nil {
@@ -5000,6 +5009,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteWebhookInput,
 		ec.unmarshalInputDeleteWorkspaceInput,
 		ec.unmarshalInputFieldSelectorInput,
+		ec.unmarshalInputGuessSchemaFieldsInput,
 		ec.unmarshalInputItemFieldInput,
 		ec.unmarshalInputItemQueryInput,
 		ec.unmarshalInputItemSortInput,
@@ -5450,16 +5460,6 @@ input AssetSort {
   direction: SortDirection
 }
 
-type AssetSchemaField {
-  field_name: String!
-  field_type: String!
-}
-
-type AssetSchemaFieldResult {
-  total_count: Int!
-  fields: [AssetSchemaField!]!
-}
-
 extend type Query {
   assetFile(assetId: ID!): AssetFile!
   assets(input: SearchAssetsInput!): AssetConnection!
@@ -5816,6 +5816,21 @@ input DeleteFieldInput {
   metadata: Boolean
 }
 
+type GuessSchemaField {
+  key: String!
+  type: String!
+  name: String!
+}
+
+type GuessSchemaFieldResult {
+  total_count: Int!
+  fields: [GuessSchemaField!]!
+}
+
+input GuessSchemaFieldsInput{
+  assetId: ID!
+}
+
 # Payloads
 type FieldPayload {
   field: SchemaField!
@@ -5829,7 +5844,9 @@ type DeleteFieldPayload {
   fieldId: ID!
 }
 
-# extend type Query {}
+extend type Query {
+  guessSchemaFields(input: GuessSchemaFieldsInput!): GuessSchemaFieldResult!
+}
 
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload
@@ -9260,6 +9277,34 @@ func (ec *executionContext) field_Query_groups_argsModelID(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Query_guessSchemaFields_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_guessSchemaFields_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_guessSchemaFields_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.GuessSchemaFieldsInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.GuessSchemaFieldsInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGuessSchemaFieldsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldsInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.GuessSchemaFieldsInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query_isItemReferenced_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -11615,188 +11660,6 @@ func (ec *executionContext) fieldContext_AssetItem_modelId(_ context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AssetSchemaField_field_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetSchemaField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AssetSchemaField_field_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FieldName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AssetSchemaField_field_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AssetSchemaField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AssetSchemaField_field_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetSchemaField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AssetSchemaField_field_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FieldType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AssetSchemaField_field_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AssetSchemaField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AssetSchemaFieldResult_total_count(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetSchemaFieldResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AssetSchemaFieldResult_total_count(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TotalCount, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AssetSchemaFieldResult_total_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AssetSchemaFieldResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AssetSchemaFieldResult_fields(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetSchemaFieldResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AssetSchemaFieldResult_fields(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Fields, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*gqlmodel.AssetSchemaField)
-	fc.Result = res
-	return ec.marshalNAssetSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSchemaFieldᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AssetSchemaFieldResult_fields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AssetSchemaFieldResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "field_name":
-				return ec.fieldContext_AssetSchemaField_field_name(ctx, field)
-			case "field_type":
-				return ec.fieldContext_AssetSchemaField_field_type(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AssetSchemaField", field.Name)
 		},
 	}
 	return fc, nil
@@ -14926,6 +14789,234 @@ func (ec *executionContext) fieldContext_GroupsPayload_groups(_ context.Context,
 				return ec.fieldContext_Group_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GuessSchemaField_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GuessSchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GuessSchemaField_key(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GuessSchemaField_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GuessSchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GuessSchemaField_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GuessSchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GuessSchemaField_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GuessSchemaField_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GuessSchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GuessSchemaField_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GuessSchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GuessSchemaField_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GuessSchemaField_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GuessSchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GuessSchemaFieldResult_total_count(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GuessSchemaFieldResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GuessSchemaFieldResult_total_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GuessSchemaFieldResult_total_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GuessSchemaFieldResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GuessSchemaFieldResult_fields(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GuessSchemaFieldResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GuessSchemaFieldResult_fields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fields, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.GuessSchemaField)
+	fc.Result = res
+	return ec.marshalNGuessSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GuessSchemaFieldResult_fields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GuessSchemaFieldResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "key":
+				return ec.fieldContext_GuessSchemaField_key(ctx, field)
+			case "type":
+				return ec.fieldContext_GuessSchemaField_type(ctx, field)
+			case "name":
+				return ec.fieldContext_GuessSchemaField_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GuessSchemaField", field.Name)
 		},
 	}
 	return fc, nil
@@ -25366,8 +25457,8 @@ func (ec *executionContext) fieldContext_Query_assets(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_assetSchemaFields(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_assetSchemaFields(ctx, field)
+func (ec *executionContext) _Query_guessSchemaFields(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_guessSchemaFields(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -25380,7 +25471,7 @@ func (ec *executionContext) _Query_assetSchemaFields(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AssetSchemaFields(rctx, fc.Args["assetId"].(gqlmodel.ID))
+		return ec.resolvers.Query().GuessSchemaFields(rctx, fc.Args["input"].(gqlmodel.GuessSchemaFieldsInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25392,12 +25483,12 @@ func (ec *executionContext) _Query_assetSchemaFields(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.AssetSchemaFieldResult)
+	res := resTmp.(*gqlmodel.GuessSchemaFieldResult)
 	fc.Result = res
-	return ec.marshalNAssetSchemaFieldResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSchemaFieldResult(ctx, field.Selections, res)
+	return ec.marshalNGuessSchemaFieldResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldResult(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_assetSchemaFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_guessSchemaFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -25406,11 +25497,11 @@ func (ec *executionContext) fieldContext_Query_assetSchemaFields(ctx context.Con
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "total_count":
-				return ec.fieldContext_AssetSchemaFieldResult_total_count(ctx, field)
+				return ec.fieldContext_GuessSchemaFieldResult_total_count(ctx, field)
 			case "fields":
-				return ec.fieldContext_AssetSchemaFieldResult_fields(ctx, field)
+				return ec.fieldContext_GuessSchemaFieldResult_fields(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AssetSchemaFieldResult", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type GuessSchemaFieldResult", field.Name)
 		},
 	}
 	defer func() {
@@ -25420,7 +25511,7 @@ func (ec *executionContext) fieldContext_Query_assetSchemaFields(ctx context.Con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_assetSchemaFields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_guessSchemaFields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -38742,6 +38833,33 @@ func (ec *executionContext) unmarshalInputFieldSelectorInput(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGuessSchemaFieldsInput(ctx context.Context, obj any) (gqlmodel.GuessSchemaFieldsInput, error) {
+	var it gqlmodel.GuessSchemaFieldsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"assetId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "assetId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AssetID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, obj any) (gqlmodel.ItemFieldInput, error) {
 	var it gqlmodel.ItemFieldInput
 	asMap := map[string]any{}
@@ -43159,94 +43277,6 @@ func (ec *executionContext) _AssetItem(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
-var assetSchemaFieldImplementors = []string{"AssetSchemaField"}
-
-func (ec *executionContext) _AssetSchemaField(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AssetSchemaField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, assetSchemaFieldImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AssetSchemaField")
-		case "field_name":
-			out.Values[i] = ec._AssetSchemaField_field_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "field_type":
-			out.Values[i] = ec._AssetSchemaField_field_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var assetSchemaFieldResultImplementors = []string{"AssetSchemaFieldResult"}
-
-func (ec *executionContext) _AssetSchemaFieldResult(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AssetSchemaFieldResult) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, assetSchemaFieldResultImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AssetSchemaFieldResult")
-		case "total_count":
-			out.Values[i] = ec._AssetSchemaFieldResult_total_count(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "fields":
-			out.Values[i] = ec._AssetSchemaFieldResult_fields(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var basicFieldConditionImplementors = []string{"BasicFieldCondition", "Condition"}
 
 func (ec *executionContext) _BasicFieldCondition(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.BasicFieldCondition) graphql.Marshaler {
@@ -44667,6 +44697,99 @@ func (ec *executionContext) _GroupsPayload(ctx context.Context, sel ast.Selectio
 			out.Values[i] = graphql.MarshalString("GroupsPayload")
 		case "groups":
 			out.Values[i] = ec._GroupsPayload_groups(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var guessSchemaFieldImplementors = []string{"GuessSchemaField"}
+
+func (ec *executionContext) _GuessSchemaField(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.GuessSchemaField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, guessSchemaFieldImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GuessSchemaField")
+		case "key":
+			out.Values[i] = ec._GuessSchemaField_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._GuessSchemaField_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._GuessSchemaField_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var guessSchemaFieldResultImplementors = []string{"GuessSchemaFieldResult"}
+
+func (ec *executionContext) _GuessSchemaFieldResult(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.GuessSchemaFieldResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, guessSchemaFieldResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GuessSchemaFieldResult")
+		case "total_count":
+			out.Values[i] = ec._GuessSchemaFieldResult_total_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "fields":
+			out.Values[i] = ec._GuessSchemaFieldResult_fields(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -47278,7 +47401,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "assetSchemaFields":
+		case "guessSchemaFields":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -47287,7 +47410,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_assetSchemaFields(ctx, field)
+				res = ec._Query_guessSchemaFields(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -51806,6 +51929,79 @@ func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑ
 		return graphql.Null
 	}
 	return ec._Group(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGuessSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.GuessSchemaField) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGuessSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaField(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNGuessSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.GuessSchemaField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GuessSchemaField(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGuessSchemaFieldResult2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldResult(ctx context.Context, sel ast.SelectionSet, v gqlmodel.GuessSchemaFieldResult) graphql.Marshaler {
+	return ec._GuessSchemaFieldResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGuessSchemaFieldResult2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldResult(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.GuessSchemaFieldResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GuessSchemaFieldResult(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGuessSchemaFieldsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGuessSchemaFieldsInput(ctx context.Context, v any) (gqlmodel.GuessSchemaFieldsInput, error) {
+	res, err := ec.unmarshalInputGuessSchemaFieldsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v any) (gqlmodel.ID, error) {

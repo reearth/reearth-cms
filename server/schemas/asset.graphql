@@ -178,16 +178,6 @@ input AssetSort {
   direction: SortDirection
 }
 
-type AssetSchemaField {
-  field_name: String!
-  field_type: String!
-}
-
-type AssetSchemaFieldResult {
-  total_count: Int!
-  fields: [AssetSchemaField!]!
-}
-
 extend type Query {
   assetFile(assetId: ID!): AssetFile!
   assets(input: SearchAssetsInput!): AssetConnection!
