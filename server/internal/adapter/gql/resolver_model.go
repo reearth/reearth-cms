@@ -122,20 +122,24 @@ func (r *mutationResolver) UpdateModelWithSchemaFields(ctx context.Context, inpu
 		}
 	}
 
-	modelUpdateResponse, err := usecases(ctx).Model.UpdateWithNewSchemaFields(ctx, modelID, createFieldParams, getOperator(ctx))
+	modelData, err := usecases(ctx).Model.FindByID(ctx, modelID, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := usecases(ctx).Schema.FindByModel(ctx, modelID, getOperator(ctx))
+	updatedSchema, err := usecases(ctx).Schema.CreateFieldsForModel(ctx, interfaces.ModelData{
+		ModelID:   lo.ToPtr(modelData.ID()),
+		SchemaID:  modelData.Schema(),
+		ProjectID: modelData.Project(),
+	}, createFieldParams, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
 	modelPayloadResponse := gqlmodel.ModelPayload{
-		Model: gqlmodel.ToModel(modelUpdateResponse),
+		Model: gqlmodel.ToModel(modelData),
 	}
-	modelPayloadResponse.Model.Schema = gqlmodel.ToSchema(s.Schema())
+	modelPayloadResponse.Model.Schema = gqlmodel.ToSchema(updatedSchema)
 
 	return &modelPayloadResponse, nil
 }
