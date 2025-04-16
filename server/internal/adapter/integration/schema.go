@@ -112,7 +112,7 @@ func (s *Server) FieldCreate(ctx context.Context, request FieldCreateRequestObje
 		Key:      f.Key().Ref().StringRef(),
 		Multiple: lo.ToPtr(f.Multiple()),
 		Required: lo.ToPtr(f.Required()),
-		Type:     lo.ToPtr(integrationapi.ToValueType(f.Type())),
+		Type:     lo.ToPtr(integrationapi.NewValueType(f.Type())),
 	}, err
 }
 
@@ -173,7 +173,7 @@ func (s *Server) FieldCreateWithProject(ctx context.Context, request FieldCreate
 		Key:      f.Key().Ref().StringRef(),
 		Multiple: lo.ToPtr(f.Multiple()),
 		Required: lo.ToPtr(f.Required()),
-		Type:     lo.ToPtr(integrationapi.ToValueType(f.Type())),
+		Type:     lo.ToPtr(integrationapi.NewValueType(f.Type())),
 	}, err
 }
 
@@ -224,7 +224,7 @@ func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObje
 		Key:      f.Key().Ref().StringRef(),
 		Multiple: lo.ToPtr(f.Multiple()),
 		Required: lo.ToPtr(f.Required()),
-		Type:     lo.ToPtr(integrationapi.ToValueType(f.Type())),
+		Type:     lo.ToPtr(integrationapi.NewValueType(f.Type())),
 	}, err
 }
 
@@ -291,7 +291,7 @@ func (s *Server) FieldUpdateWithProject(ctx context.Context, request FieldUpdate
 		Key:      f.Key().Ref().StringRef(),
 		Multiple: lo.ToPtr(f.Multiple()),
 		Required: lo.ToPtr(f.Required()),
-		Type:     lo.ToPtr(integrationapi.ToValueType(f.Type())),
+		Type:     lo.ToPtr(integrationapi.NewValueType(f.Type())),
 	}, err
 }
 

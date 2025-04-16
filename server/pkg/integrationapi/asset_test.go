@@ -51,7 +51,7 @@ func TestToAssetFile(t *testing.T) {
 	}
 	assert.Equal(t, e, a)
 
-	assert.Nil(t, ToAssetFile(nil, true))
+	assert.Nil(t, NewAssetFile(nil, true))
 }
 
 func Test_NewAsset(t *testing.T) {
@@ -157,7 +157,7 @@ func TestToAssetArchiveExtractionStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := ToAssetArchiveExtractionStatus(tt.input)
+			result := NewAssetArchiveExtractionStatus(tt.input)
 			assert.Equal(t, result, tt.expected)
 		})
 	}
@@ -224,7 +224,7 @@ func TestToPreviewType(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := ToPreviewType(tt.input)
+			result := NewPreviewType(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

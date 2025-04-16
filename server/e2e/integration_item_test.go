@@ -8,9 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
-
 	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"

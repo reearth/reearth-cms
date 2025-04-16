@@ -5,17 +5,17 @@ import (
 	"errors"
 	"time"
 
-	"github.com/reearth/reearthx/log"
-	"go.opencensus.io/trace"
-
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"go.opencensus.io/trace"
 )
 
 type ItemLoader struct {
@@ -74,6 +74,9 @@ func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID, 
 	}
 
 	sp, err := c.schemaUsecase.FindByModel(ctx, itm.Value().Model(), op)
+	if err != nil {
+		return nil, err
+	}
 
 	return gqlmodel.ToVersionedItem(itm, sp), nil
 }
