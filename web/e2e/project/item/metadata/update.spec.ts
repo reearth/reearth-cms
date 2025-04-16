@@ -8,17 +8,19 @@ test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModelFromOverview(page);
-  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
+
+  await page.getByRole("listitem").filter({ hasText: /Text/ }).first().click();
   await handleFieldForm(page, "text");
-  await page.getByText("Content").click();
+  await page.getByRole("menuitem", { name: "Content" }).click();
   await page.getByRole("button", { name: "plus New Item" }).click();
+  await page.getByLabel("text").fill("test");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await page.getByText("Schema").click();
+  await page.getByRole("menuitem", { name: "Schema" }).click();
   await page.getByRole("tab", { name: "Meta Data" }).click();
-  await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
+  await page.getByRole("listitem").filter({ hasText: "Boolean" }).click();
   await handleFieldForm(page, "boolean");
-  await page.getByText("Content").click();
+  await page.getByRole("menuitem", { name: "Content" }).click();
 });
 
 test.afterEach(async ({ page }) => {
@@ -38,10 +40,9 @@ test("Updating metadata added later from table has succeeded", async ({ page }) 
 
 test("Updating metadata added later from edit page has succeeded", async ({ page }) => {
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(300);
+  await expect(page.getByLabel("text")).toHaveValue("test");
   await page.getByLabel("boolean").click();
   await closeNotification(page);
-  await page.getByLabel("Back").click();
+  await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
 });

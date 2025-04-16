@@ -21,8 +21,8 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
   await page.getByLabel("Description").fill("checkbox1 description");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-
   await expect(page.getByText("checkbox1#checkbox1")).toBeVisible();
+
   await page.getByRole("button", { name: "ellipsis" }).click();
   await expect(page.getByLabel("Display name")).toHaveValue("checkbox1");
   await expect(page.getByLabel("Field Key")).toHaveValue("checkbox1");
@@ -40,34 +40,28 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
   await page.getByRole("button", { name: "Cancel" }).click();
   await page.getByRole("menuitem", { name: "Content" }).click();
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByRole("checkbox", { name: "checkbox1" })).toBeVisible();
+  await expect(page.getByLabel("checkbox1")).toBeVisible();
   await expect(page.getByText("checkbox1 description")).toBeVisible();
 
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
-  await expect(page.getByRole("checkbox", { name: "checkbox1" })).not.toBeChecked();
+  await expect(page.getByLabel("checkbox1")).not.toBeChecked();
+
+  await page.getByRole("button", { name: "Back" }).click();
+  await page.getByRole("cell").getByRole("checkbox").last().check();
+  await closeNotification(page);
+  await expect(page.getByRole("cell").getByRole("checkbox").last()).toBeChecked();
+
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  await expect(page.getByLabel("checkbox1")).toBeChecked();
+
+  await page.getByLabel("checkbox1").uncheck();
+  await closeNotification(page);
+  await expect(page.getByLabel("checkbox1")).not.toBeChecked();
 
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByRole("cell").getByRole("checkbox").last()).not.toBeChecked();
-
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(800);
-  await page.getByRole("checkbox").check();
-  await closeNotification(page);
-  await expect(page.getByRole("checkbox")).toBeChecked();
-
-  await page.getByRole("button", { name: "Back" }).click();
-  await page.getByRole("cell").getByRole("checkbox", { checked: true }).last().uncheck();
-  await closeNotification(page);
-  await expect(
-    page.getByRole("cell").getByRole("checkbox", { checked: false }).last(),
-  ).not.toBeChecked();
-
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByRole("checkbox")).not.toBeChecked();
 });
 
 test("Checkbox metadata editing has succeeded", async ({ page }) => {
@@ -83,14 +77,12 @@ test("Checkbox metadata editing has succeeded", async ({ page }) => {
 
   await page.getByRole("menuitem", { name: "Content" }).click();
   await expect(page.getByRole("columnheader", { name: "checkbox1 edit" })).toBeVisible();
+
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page);
   await expect(page.getByLabel("checkbox1")).toBeChecked();
 
-  await page.getByLabel("Back").click();
-  await expect(page.getByRole("cell").getByRole("checkbox").last()).toBeChecked();
-
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
   await page.getByRole("menuitem", { name: "Schema" }).click();
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.getByRole("button", { name: "ellipsis" }).click();
@@ -100,6 +92,7 @@ test("Checkbox metadata editing has succeeded", async ({ page }) => {
   await page.getByLabel("Support multiple values").check();
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByRole("checkbox")).toBeChecked();
+
   await page.getByRole("button", { name: "plus New" }).click();
   await expect(page.getByRole("checkbox").nth(1)).not.toBeChecked();
   await page.getByRole("checkbox").nth(1).check();
@@ -133,8 +126,6 @@ test("Checkbox metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByRole("checkbox").nth(0)).not.toBeChecked();
   await expect(page.getByRole("checkbox").nth(1)).toBeChecked();
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(800);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
   await expect(page.getByRole("checkbox").nth(0)).not.toBeChecked();

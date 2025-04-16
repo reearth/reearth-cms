@@ -21,8 +21,8 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await page.getByLabel("Description").fill("boolean1 description");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-
   await expect(page.getByText("boolean1#boolean1")).toBeVisible();
+
   await page.getByRole("button", { name: "ellipsis" }).click();
   await expect(page.getByLabel("Display name")).toHaveValue("boolean1");
   await expect(page.getByLabel("Field Key")).toHaveValue("boolean1");
@@ -40,41 +40,28 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await page.getByRole("button", { name: "Cancel" }).click();
   await page.getByRole("menuitem", { name: "Content" }).click();
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByRole("switch", { name: "boolean1" })).toBeVisible();
+  await expect(page.getByLabel("boolean1")).toBeVisible();
   await expect(page.getByText("boolean1 description")).toBeVisible();
 
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
-  await expect(page.getByRole("switch", { name: "boolean1" })).toHaveAttribute(
-    "aria-checked",
-    "false",
-  );
+  await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "false");
+
+  await page.getByRole("button", { name: "Back" }).click();
+  await page.getByRole("switch", { name: "close" }).click();
+  await closeNotification(page);
+  await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
+
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
+  await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "true");
+
+  await page.getByLabel("boolean1").click();
+  await closeNotification(page);
+  await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "false");
 
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
-
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(800);
-  await page.getByRole("switch", { name: "boolean1" }).click();
-  await closeNotification(page);
-  await expect(page.getByRole("switch", { name: "boolean1" })).toHaveAttribute(
-    "aria-checked",
-    "true",
-  );
-
-  await page.getByRole("button", { name: "Back" }).click();
-  await page.getByRole("switch", { name: "check" }).click();
-  await closeNotification(page);
-  await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
-
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByRole("switch", { name: "boolean1" })).toHaveAttribute(
-    "aria-checked",
-    "false",
-  );
 });
 
 test("Boolean metadata editing has succeeded", async ({ page }) => {
@@ -90,17 +77,12 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
 
   await page.getByRole("menuitem", { name: "Content" }).click();
   await expect(page.getByRole("columnheader", { name: "boolean1 edit" })).toBeVisible();
+
   await page.getByRole("button", { name: "plus New Item" }).click();
+  await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "true");
+
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByRole("switch", { name: "boolean1" })).toHaveAttribute(
-    "aria-checked",
-    "true",
-  );
-
-  await page.getByRole("button", { name: "Back" }).click();
-  await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
-
   await page.getByRole("menuitem", { name: "Schema" }).click();
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.getByRole("button", { name: "ellipsis" }).click();
@@ -110,6 +92,7 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await page.getByLabel("Support multiple values").check();
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
+
   await page.getByRole("button", { name: "plus New" }).click();
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
   await page.getByRole("switch").nth(1).click();
@@ -149,8 +132,6 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(800);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
