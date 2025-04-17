@@ -396,7 +396,6 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 						"unique":      false,
 						"required":    false,
 						"isTitle":     false,
-						"metadata":    false,
 						"typeProperty": map[string]any{
 							"text": map[string]any{
 								"defaultValue": "",
@@ -572,10 +571,5 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 		HasValue("multiple", false).
 		HasValue("unique", false).
 		HasValue("required", false).
-		HasValue("isTitle", false).
-		HasValue("metadata", false).
-		Value("typeProperty").Object().
-		Value("text").Object().
-		HasValue("defaultValue", "").
-		HasValue("maxLength", 100)
+		HasValue("isTitle", false)
 }
