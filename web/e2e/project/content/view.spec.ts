@@ -2,7 +2,7 @@ import { Page } from "@playwright/test";
 
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
-import { createModel } from "@reearth-cms/e2e/project/utils/model";
+import { modelName, createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
@@ -11,7 +11,7 @@ test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
   await createProject(page);
-  await createModel(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -38,7 +38,6 @@ test("View CRUD has succeeded", async ({ page }) => {
   await itemAdd(page, "sample1");
   await itemAdd(page, "sample2");
   await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").click();
   await page.getByLabel("View Name").fill("view1");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
@@ -102,12 +101,10 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("sample2");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample1");
   await expect(page.getByRole("columnheader", { name: "Status" })).toBeVisible();
-  await page.getByRole("main").getByLabel("setting").locator("svg").click();
-  await expect(page.locator(".ant-tree-checkbox").first()).toHaveClass(/ant-tree-checkbox-checked/);
-  await page.getByRole("main").getByLabel("setting").locator("svg").click();
 
   await page.getByText("text", { exact: true }).first().click();
   await page.getByText("text", { exact: true }).first().click();
+  await expect(page.locator(".ant-table-row").nth(0)).toContainText("text2");
   await page.getByRole("button", { name: "plus Filter" }).click();
   await page.getByRole("menuitem", { name: "text" }).click();
   await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
@@ -159,15 +156,14 @@ test("View CRUD has succeeded", async ({ page }) => {
 
 test("View reordering has succeeded", async ({ page }) => {
   await page.getByText("Content").click();
+  await page.getByRole("menuitem", { name: modelName }).click();
 
   await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").click();
   await page.getByLabel("View Name").fill("view1");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
   await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").click();
   await page.getByLabel("View Name").fill("view2");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
@@ -185,7 +181,6 @@ test("View reordering has succeeded", async ({ page }) => {
   await expect(page.getByRole("tablist").getByRole("tab").nth(1)).toContainText("view1");
 
   await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").click();
   await page.getByLabel("View Name").fill("view3");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);

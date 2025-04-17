@@ -24,7 +24,7 @@ const upload = async (page: Page, url: string) => {
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await page.getByText("Asset").click();
+  await page.getByRole("menuitem", { name: "Asset" }).click();
 });
 
 test.afterEach(async ({ page }) => {
@@ -122,7 +122,5 @@ test("Previewing png file on modal has succeeded", async ({ page }) => {
   await expect(page.getByText("Asset TypePNG/JPEG/TIFF/GIF")).toBeVisible();
   await page.getByRole("button", { name: "fullscreen" }).click();
   await expect(page.getByRole("img", { name: "asset-preview" })).toBeVisible();
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(150);
-  await page.getByLabel("Close", { exact: true }).click();
+  await page.getByRole("button", { name: "close" }).click();
 });

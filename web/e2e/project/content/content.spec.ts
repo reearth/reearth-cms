@@ -1,14 +1,14 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { crudComment } from "@reearth-cms/e2e/project/utils/comment";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
-import { createModel } from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await createModel(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -36,6 +36,7 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("text").click();
 
+  await expect(page.getByLabel("text")).toHaveValue("text");
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("new text");
   await page.getByRole("button", { name: "Save" }).click();

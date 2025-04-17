@@ -10,7 +10,7 @@ test("authenticate", async ({ page }) => {
   expect(userName).toBeTruthy();
   expect(password).toBeTruthy();
   await page.goto(baseURL);
-  await page.getByRole("button").first().waitFor();
+  await expect(page.getByRole("button").first()).toBeVisible();
   const isNew = await page.getByLabel("Email address").isVisible();
   // eslint-disable-next-line playwright/no-conditional-in-test
   if (isNew) {

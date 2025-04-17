@@ -32,7 +32,8 @@ test("Update settings on Accesibility page has succeeded", async ({ page }) => {
 });
 
 test("Setting public scope to Limited has succeeded", async ({ page }) => {
-  await page.getByText("Accessibility").click();
+  await page.getByRole("menuitem", { name: "Accessibility" }).click();
+  await expect(page.getByLabel("Project Alias")).toHaveValue(/.+/);
   await page.getByText("Private").click();
   await page.getByText("Limited", { exact: true }).click();
   await expect(page.locator('input[type="password"]')).toBeHidden();
