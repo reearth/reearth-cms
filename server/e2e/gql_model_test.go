@@ -559,7 +559,7 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 		Value("data").Object().
 		Value("updateModelWithSchemaFields").Object().
 		Value("model").Object().
-		HasValue("description", "test").
+		HasValue("description", "test1").
 		HasValue("key", "test-1").
 		HasValue("name", "test").
 		HasValue("public", false).
