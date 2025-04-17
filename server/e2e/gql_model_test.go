@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -552,7 +553,8 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 			},
 		},
 	})
-
+	fmt.Println("RAW RESPONSE:")
+	fmt.Println(res.Raw())
 	res.Object().
 		Value("data").Object().
 		Value("updateModelWithSchemaFields").Object().
