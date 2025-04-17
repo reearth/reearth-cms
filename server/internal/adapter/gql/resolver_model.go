@@ -6,6 +6,8 @@ package gql
 
 import (
 	"context"
+	"log"
+	"runtime/debug"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -96,6 +98,11 @@ func (r *mutationResolver) UpdateModelsOrder(ctx context.Context, input gqlmodel
 
 // UpdateModelWithSchemaFields is the resolver for the updateModelWithSchemaFields field.
 func (r *mutationResolver) UpdateModelWithSchemaFields(ctx context.Context, input gqlmodel.UpdateModelWithSchemaFieldsInput) (*gqlmodel.ModelPayload, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("PANIC: %v\n%s", r, debug.Stack())
+		}
+	}()
 	modelID, err := gqlmodel.ToID[id.Model](*input.ModelID)
 	if err != nil {
 		return nil, err
