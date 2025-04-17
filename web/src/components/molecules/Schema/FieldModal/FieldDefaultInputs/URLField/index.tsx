@@ -1,9 +1,9 @@
-import {useState} from "react";
+import { useState } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import {urlErrorIndexesGet} from "@reearth-cms/components/molecules/Content/Form/fields/utils";
+import { urlErrorIndexesGet } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 
 const URLField: React.FC<Props> = ({ multiple }) => {
   const t = useT();
-    const [errorIndexes, setErrorIndexes] = useState(new Set<number>());
+  const [errorIndexes, setErrorIndexes] = useState(new Set<number>());
 
   return (
     <Form.Item
@@ -22,22 +22,22 @@ const URLField: React.FC<Props> = ({ multiple }) => {
       extra={t("Default value must be a valid URL and start with 'http://' or 'https://'.")}
       rules={[
         {
-            message: t("URL is not valid"),
+          message: t("URL is not valid"),
           validator: async (_, value) => {
-              const indexes = urlErrorIndexesGet(value);
-              setErrorIndexes(new Set(indexes));
-              if (indexes.length) {
-                  return Promise.reject();
+            const indexes = urlErrorIndexesGet(value);
+            setErrorIndexes(new Set(indexes));
+            if (indexes.length) {
+              return Promise.reject();
             }
             return Promise.resolve();
           },
         },
       ]}>
-        {multiple ? (
-            <MultiValueField FieldInput={Input} errorIndexes={errorIndexes}/>
-        ) : (
-            <Input isError={errorIndexes.has(0)}/>
-        )}
+      {multiple ? (
+        <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
+      ) : (
+        <Input isError={errorIndexes.has(0)} />
+      )}
     </Form.Item>
   );
 };

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {CesiumMovementEvent, RootEventTarget, Viewer} from "resium";
+import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";

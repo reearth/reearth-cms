@@ -6,7 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { InputProps } from "@reearth-cms/components/atoms/Input";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
-import {checkIfEmpty} from "@reearth-cms/components/molecules/Content/Form/fields/utils";
+import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "./moveItemArray";
@@ -27,7 +27,7 @@ const MultiValueField: React.FC<Props> = ({
   onBlur,
   FieldInput,
   errorIndexes,
-                                              required,
+  required,
   ...props
 }) => {
   const t = useT();
@@ -70,9 +70,9 @@ const MultiValueField: React.FC<Props> = ({
             {!props.disabled && (
               <>
                 <FieldButton
-                    color="default"
-                    variant="link"
-                    icon={<Icon icon="arrowUp" size={16}/>}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key - 1));
                     onBlur?.();
@@ -80,9 +80,9 @@ const MultiValueField: React.FC<Props> = ({
                   disabled={key === 0}
                 />
                 <FieldButton
-                    color="default"
-                    variant="link"
-                    icon={<Icon icon="arrowDown" size={16}/>}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key + 1));
                     onBlur?.();
@@ -101,9 +101,9 @@ const MultiValueField: React.FC<Props> = ({
             />
             {!props.disabled && (
               <FieldButton
-                  color="default"
-                  variant="link"
-                  icon={<Icon icon="delete" size={16}/>}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={16} />}
                 onClick={() => {
                   handleInputDelete(key);
                   onBlur?.();
@@ -118,7 +118,7 @@ const MultiValueField: React.FC<Props> = ({
           type="primary"
           onClick={() => {
             const currentValues = value || [];
-              const defaultValue = "";
+            const defaultValue = "";
             if (Array.isArray(currentValues)) {
               onChange?.([...currentValues, defaultValue]);
             } else {

@@ -3,15 +3,15 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 
 type Props = {
-    name: string;
-    isSelected: boolean;
+  name: string;
+  isSelected: boolean;
   onClick: () => void;
 };
 
-const IntegrationCard: React.FC<Props> = ({name, isSelected, onClick}) => (
-    <CardWrapper onClick={onClick} isSelected={isSelected} data-testid="integration">
+const IntegrationCard: React.FC<Props> = ({ name, isSelected, onClick }) => (
+  <CardWrapper onClick={onClick} isSelected={isSelected} data-testid="integration">
     <Icon icon="api" size={64} color="#00000040" />
-        <CardTitle>{name}</CardTitle>
+    <CardTitle>{name}</CardTitle>
   </CardWrapper>
 );
 

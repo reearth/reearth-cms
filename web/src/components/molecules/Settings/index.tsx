@@ -18,10 +18,10 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-    loading: boolean;
+  loading: boolean;
   workspaceSettings: WorkspaceSettings;
   hasUpdateRight: boolean;
-    updateLoading: boolean;
+  updateLoading: boolean;
   onWorkspaceSettingsUpdate: (
     tiles: TileInput[],
     terrains: TerrainInput[],
@@ -30,10 +30,10 @@ type Props = {
 };
 
 const Settings: React.FC<Props> = ({
-                                       loading,
+  loading,
   workspaceSettings,
   hasUpdateRight,
-                                       updateLoading,
+  updateLoading,
   onWorkspaceSettingsUpdate,
 }) => {
   const t = useT();
@@ -125,9 +125,9 @@ const Settings: React.FC<Props> = ({
     onWorkspaceSettingsUpdate(tiles, terrains, settings?.terrains?.enabled);
   }, [onWorkspaceSettingsUpdate, settings?.terrains?.enabled, terrains, tiles]);
 
-    return loading ? (
-        <Loading minHeight="400px"/>
-    ) : (
+  return loading ? (
+    <Loading minHeight="400px" />
+  ) : (
     <InnerContent title={t("Settings")}>
       <ContentSection
         title={t("Geospatial asset preview setting")}

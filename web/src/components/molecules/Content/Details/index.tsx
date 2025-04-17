@@ -7,11 +7,11 @@ import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import {
-    Item,
-    FormItem,
-    ItemField,
-    VersionedItem,
-    FormValues,
+  Item,
+  FormItem,
+  ItemField,
+  VersionedItem,
+  FormValues,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
@@ -37,7 +37,7 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
-    versions: VersionedItem[];
+  versions: VersionedItem[];
   title: string;
   item?: Item;
   itemId?: string;
@@ -70,7 +70,7 @@ type Props = {
   onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
-    onGetVersionedItem: (version: string) => Promise<FormValues>;
+  onGetVersionedItem: (version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
   onLinkItemTableReload: () => void;
@@ -134,7 +134,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   modelsMenu,
   initialFormValues,
   initialMetaFormValues,
-                                                     versions,
+  versions,
   title,
   item,
   itemId,
@@ -171,7 +171,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableChange,
-                                                     onGetVersionedItem,
+  onGetVersionedItem,
   onPublish,
   onUnpublish,
   onCollapse,

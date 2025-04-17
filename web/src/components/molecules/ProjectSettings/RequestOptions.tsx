@@ -9,96 +9,96 @@ import { useT } from "@reearth-cms/i18n";
 
 type RequestOptionsData = {
   role: string;
-    needRequest: Role;
+  needRequest: Role;
 };
 
 type Props = {
-    initialRequestRoles: Role[];
+  initialRequestRoles: Role[];
   hasUpdateRight: boolean;
-    onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
+  onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
 };
 
 const RequestOptions: React.FC<Props> = ({
-                                             initialRequestRoles,
+  initialRequestRoles,
   hasUpdateRight,
   onProjectRequestRolesUpdate,
 }) => {
   const t = useT();
   const [requestRoles, setRequestRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-    const [isDisabled, setIsDisabled] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(true);
 
   useEffect(() => {
-      setRequestRoles(initialRequestRoles);
+    setRequestRoles(initialRequestRoles);
   }, [initialRequestRoles]);
 
-    const handleChange = useCallback(
-        (isChecked: boolean, role: Role) => {
-            const newRequestRoles = isChecked
-                ? [...requestRoles, role]
-                : requestRoles.filter(p => p !== role);
-            setRequestRoles(newRequestRoles);
-            setIsDisabled(
-                newRequestRoles.length === initialRequestRoles.length &&
-                newRequestRoles.every(r => initialRequestRoles.includes(r)),
-            );
-        },
-        [initialRequestRoles, requestRoles],
+  const handleChange = useCallback(
+    (isChecked: boolean, role: Role) => {
+      const newRequestRoles = isChecked
+        ? [...requestRoles, role]
+        : requestRoles.filter(p => p !== role);
+      setRequestRoles(newRequestRoles);
+      setIsDisabled(
+        newRequestRoles.length === initialRequestRoles.length &&
+          newRequestRoles.every(r => initialRequestRoles.includes(r)),
+      );
+    },
+    [initialRequestRoles, requestRoles],
   );
 
-    const columns: TableColumnsType<RequestOptionsData> = useMemo(
-        () => [
-            {
-                title: t("Role"),
-                dataIndex: "role",
-            },
-            {
-                title: t("Need request"),
-                dataIndex: "needRequest",
-                align: "right",
-                render: role => (
-          <Switch
-              checked={requestRoles.includes(role)}
-            onChange={(value: boolean) => {
-                handleChange(value, role);
-            }}
-              disabled={!hasUpdateRight || role === "READER"}
-          />
-        ),
-            },
-        ],
-        [handleChange, hasUpdateRight, requestRoles, t],
-    );
-
-    const dataSource: RequestOptionsData[] = useMemo(
-        () => [
-            {
-                role: t("Owner"),
-                needRequest: "OWNER",
-            },
-            {
-                role: t("Maintainer"),
-                needRequest: "MAINTAINER",
+  const columns: TableColumnsType<RequestOptionsData> = useMemo(
+    () => [
+      {
+        title: t("Role"),
+        dataIndex: "role",
       },
       {
-          role: t("Writer"),
-          needRequest: "WRITER",
+        title: t("Need request"),
+        dataIndex: "needRequest",
+        align: "right",
+        render: role => (
+          <Switch
+            checked={requestRoles.includes(role)}
+            onChange={(value: boolean) => {
+              handleChange(value, role);
+            }}
+            disabled={!hasUpdateRight || role === "READER"}
+          />
+        ),
       },
-            {
-                role: t("Reader"),
-                needRequest: "READER",
+    ],
+    [handleChange, hasUpdateRight, requestRoles, t],
+  );
+
+  const dataSource: RequestOptionsData[] = useMemo(
+    () => [
+      {
+        role: t("Owner"),
+        needRequest: "OWNER",
       },
-        ],
-        [t],
-    );
+      {
+        role: t("Maintainer"),
+        needRequest: "MAINTAINER",
+      },
+      {
+        role: t("Writer"),
+        needRequest: "WRITER",
+      },
+      {
+        role: t("Reader"),
+        needRequest: "READER",
+      },
+    ],
+    [t],
+  );
 
   const handleSave = useCallback(async () => {
     setIsLoading(true);
-      setIsDisabled(true);
+    setIsDisabled(true);
     try {
       await onProjectRequestRolesUpdate(requestRoles);
     } catch (_) {
-        setIsDisabled(false);
+      setIsDisabled(false);
     } finally {
       setIsLoading(false);
     }

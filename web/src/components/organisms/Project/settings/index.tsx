@@ -13,8 +13,8 @@ const ProjectSettings: React.FC = () => {
     handleProjectAliasCheck,
   } = useHooks();
 
-    return (
-        <ProjectSettingsWrapper
+  return (
+    <ProjectSettingsWrapper
       project={project}
       hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}

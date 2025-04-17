@@ -1,5 +1,5 @@
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
-import {Tag} from "@reearth-cms/components/molecules/Schema/types";
+import { Tag } from "@reearth-cms/components/molecules/Schema/types";
 
 export const stateColors: Record<StateType, ColorType> = {
   DRAFT: "#BFBFBF",
@@ -8,4 +8,4 @@ export const stateColors: Record<StateType, ColorType> = {
 };
 
 export const selectedTagIdsGet = (value: string[], tags: Tag[]) =>
-    value.length ? tags.filter(tag => value.includes(tag.id)).map(({id}) => id) : [];
+  value.length ? tags.filter(tag => value.includes(tag.id)).map(({ id }) => id) : [];

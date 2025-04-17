@@ -1,12 +1,12 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import {createModelFromOverview} from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-    await createModelFromOverview(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -50,7 +50,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByText("e2e model name").click();
   await page.locator("li").filter({ hasText: "Reference" }).locator("div").first().click();
   await page.getByLabel("Select the model to reference").click();
-    await expect(page.getByText("e2e model name #e2e-model-name")).toBeVisible();
+  await expect(page.getByText("e2e model name #e2e-model-name")).toBeVisible();
   await expect(page.getByText("ref model #ref-model")).toBeVisible();
 
   await page.getByText("ref model #ref-model").click();
@@ -69,7 +69,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await expect(
     page.locator("label").filter({ hasText: "Support multiple values" }).locator("span").nth(1),
   ).toBeDisabled();
-    await expect(page.getByLabel("Use as title")).toBeHidden();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
@@ -188,7 +188,7 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await expect(
     page.locator("label").filter({ hasText: "Support multiple values" }).locator("span").nth(1),
   ).toBeDisabled();
-    await expect(page.getByLabel("Use as title")).toBeHidden();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await expect(

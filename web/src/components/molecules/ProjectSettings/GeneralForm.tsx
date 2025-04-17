@@ -14,7 +14,7 @@ import { Project } from "../Workspace/types";
 type Props = {
   project: Project;
   hasUpdateRight: boolean;
-    onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
+  onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
@@ -60,15 +60,15 @@ const GeneralForm: React.FC<Props> = ({
           .validateFields()
           .then(() => false)
           .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
-          if (
-              project.name === values.name &&
-              project.alias === values.alias &&
-              project.description === values.description
-          ) {
-              setIsDisabled(true);
-          } else {
-              setIsDisabled(hasError);
-          }
+        if (
+          project.name === values.name &&
+          project.alias === values.alias &&
+          project.description === values.description
+        ) {
+          setIsDisabled(true);
+        } else {
+          setIsDisabled(hasError);
+        }
       };
       timeout.current = setTimeout(validate, 300);
     },

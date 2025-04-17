@@ -8,7 +8,7 @@ import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-const {Option} = Select;
+const { Option } = Select;
 
 type FormValues = {
   role: Role;
@@ -19,10 +19,10 @@ type Props = {
   member: UserMember;
   loading: boolean;
   onClose: () => void;
-    onUpdateRole: (userId: string, role: Role) => Promise<void>;
+  onUpdateRole: (userId: string, role: Role) => Promise<void>;
 };
 
-const MemberRoleModal: React.FC<Props> = ({open, member, loading, onClose, onUpdateRole}) => {
+const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUpdateRole }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
   const [isDisabled, setIsDisabled] = useState(true);
@@ -36,7 +36,7 @@ const MemberRoleModal: React.FC<Props> = ({open, member, loading, onClose, onUpd
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
     try {
-        await onUpdateRole(member.userId, values.role);
+      await onUpdateRole(member.userId, values.role);
       onClose();
       form.resetFields();
     } catch (error) {

@@ -4,8 +4,8 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { handleFieldForm } from "./utils/field";
-import {createGroup, updateGroup, deleteGroup} from "./utils/group";
-import {createModelFromSidebar, updateModel, deleteModel} from "./utils/model";
+import { createGroup, updateGroup, deleteGroup } from "./utils/group";
+import { createModelFromSidebar, updateModel, deleteModel } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 
 async function deleteField(page: Page, name: string, key = name) {
@@ -18,7 +18,7 @@ async function deleteField(page: Page, name: string, key = name) {
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-    await page.getByRole("menuitem", {name: "Schema"}).click();
+  await page.getByRole("menuitem", { name: "Schema" }).click();
 });
 
 test.afterEach(async ({ page }) => {
@@ -26,68 +26,68 @@ test.afterEach(async ({ page }) => {
 });
 
 test("Model CRUD has succeeded", async ({ page }) => {
-    const modelName = "model name";
-    const modelKey = "model-key";
-    await createModelFromSidebar(page, modelName, modelKey);
-    await expect(page.getByTitle(modelName, {exact: true})).toBeVisible();
-    await expect(page.getByText(`#${modelKey}`)).toBeVisible();
-    await expect(page.getByRole("menuitem", {name: modelName}).locator("span")).toBeVisible();
+  const modelName = "model name";
+  const modelKey = "model-key";
+  await createModelFromSidebar(page, modelName, modelKey);
+  await expect(page.getByTitle(modelName, { exact: true })).toBeVisible();
+  await expect(page.getByText(`#${modelKey}`)).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: modelName }).locator("span")).toBeVisible();
 
-    const newModelName = "new model name";
-    const newModelKey = "new-model-key";
-    await updateModel(page, newModelName, newModelKey);
-    await expect(page.getByTitle(newModelName)).toBeVisible();
-    await expect(page.getByText(`#${newModelKey}`)).toBeVisible();
-    await expect(page.getByRole("menuitem", {name: newModelName}).locator("span")).toBeVisible();
+  const newModelName = "new model name";
+  const newModelKey = "new-model-key";
+  await updateModel(page, newModelName, newModelKey);
+  await expect(page.getByTitle(newModelName)).toBeVisible();
+  await expect(page.getByText(`#${newModelKey}`)).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: newModelName }).locator("span")).toBeVisible();
 
-    await deleteModel(page);
-    await expect(page.getByTitle(newModelName)).toBeHidden();
+  await deleteModel(page);
+  await expect(page.getByTitle(newModelName)).toBeHidden();
 });
 
 test("Model reordering has succeeded", async ({ page }) => {
-    const modelName1 = "model1";
-    const modelName2 = "model2";
-    const modelName3 = "model3";
+  const modelName1 = "model1";
+  const modelName2 = "model2";
+  const modelName3 = "model3";
 
-    await createModelFromSidebar(page, modelName1);
-    await createModelFromSidebar(page, modelName2);
-    await expect(page.getByRole("main").getByRole("menuitem").nth(0)).toContainText(modelName1);
-    await expect(page.getByRole("main").getByRole("menuitem").nth(1)).toContainText(modelName2);
+  await createModelFromSidebar(page, modelName1);
+  await createModelFromSidebar(page, modelName2);
+  await expect(page.getByRole("main").getByRole("menuitem").nth(0)).toContainText(modelName1);
+  await expect(page.getByRole("main").getByRole("menuitem").nth(1)).toContainText(modelName2);
 
   await page
-      .getByRole("menuitem", {name: modelName2})
-      .dragTo(page.getByRole("menuitem", {name: modelName1}));
+    .getByRole("menuitem", { name: modelName2 })
+    .dragTo(page.getByRole("menuitem", { name: modelName1 }));
   await closeNotification(page);
-    await expect(page.getByRole("main").getByRole("menuitem").nth(0)).toContainText(modelName2);
-    await expect(page.getByRole("main").getByRole("menuitem").nth(1)).toContainText(modelName1);
+  await expect(page.getByRole("main").getByRole("menuitem").nth(0)).toContainText(modelName2);
+  await expect(page.getByRole("main").getByRole("menuitem").nth(1)).toContainText(modelName1);
 
-    await createModelFromSidebar(page, modelName3);
-    await expect(page.getByRole("main").getByRole("menuitem").nth(0)).toContainText(modelName2);
-    await expect(page.getByRole("main").getByRole("menuitem").nth(1)).toContainText(modelName1);
-    await expect(page.getByRole("main").getByRole("menuitem").nth(2)).toContainText(modelName3);
+  await createModelFromSidebar(page, modelName3);
+  await expect(page.getByRole("main").getByRole("menuitem").nth(0)).toContainText(modelName2);
+  await expect(page.getByRole("main").getByRole("menuitem").nth(1)).toContainText(modelName1);
+  await expect(page.getByRole("main").getByRole("menuitem").nth(2)).toContainText(modelName3);
 });
 
 test("Group CRUD has succeeded", async ({ page }) => {
-    const groupName = "e2e group name";
-    const groupKey = "e2e-group-key";
-    const updateGroupName = "new e2e group name";
-    const updateGroupKey = "new-e2e-group-key";
+  const groupName = "e2e group name";
+  const groupKey = "e2e-group-key";
+  const updateGroupName = "new e2e group name";
+  const updateGroupKey = "new-e2e-group-key";
 
-    await createGroup(page, groupName, groupKey);
-    await expect(page.getByTitle(groupName, {exact: true})).toBeVisible();
-    await expect(page.getByText(`#${groupKey}`)).toBeVisible();
+  await createGroup(page, groupName, groupKey);
+  await expect(page.getByTitle(groupName, { exact: true })).toBeVisible();
+  await expect(page.getByText(`#${groupKey}`)).toBeVisible();
 
-    await updateGroup(page, updateGroupName, updateGroupKey);
-    await expect(page.getByTitle(updateGroupName)).toBeVisible();
-    await expect(page.getByText(`#${updateGroupKey}`)).toBeVisible();
-    await expect(page.getByRole("menuitem", {name: updateGroupName})).toBeVisible();
+  await updateGroup(page, updateGroupName, updateGroupKey);
+  await expect(page.getByTitle(updateGroupName)).toBeVisible();
+  await expect(page.getByText(`#${updateGroupKey}`)).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: updateGroupName })).toBeVisible();
 
-    await deleteGroup(page);
-    await expect(page.getByTitle(updateGroupName)).toBeHidden();
+  await deleteGroup(page);
+  await expect(page.getByTitle(updateGroupName)).toBeHidden();
 });
 
 test("Group creating from adding field has succeeded", async ({ page }) => {
-    await createModelFromSidebar(page);
+  await createModelFromSidebar(page);
   await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
   await page.getByRole("button", { name: "Create Group" }).click();
   await expect(page.getByLabel("New Group")).toContainText("New Group");
@@ -153,7 +153,7 @@ test("Group reordering has succeeded", async ({ page }) => {
 
 // eslint-disable-next-line playwright/expect-expect
 test("Text field CRUD has succeeded", async ({ page }) => {
-    await createModelFromSidebar(page);
+  await createModelFromSidebar(page);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
@@ -162,7 +162,7 @@ test("Text field CRUD has succeeded", async ({ page }) => {
 });
 
 test("Schema reordering has succeeded", async ({ page }) => {
-    await createModelFromSidebar(page);
+  await createModelFromSidebar(page);
   await page.locator("li").filter({ hasText: /Text/ }).locator("div").first().click();
   await handleFieldForm(page, "text1");
   await page.locator("li").filter({ hasText: /Text/ }).locator("div").first().click();

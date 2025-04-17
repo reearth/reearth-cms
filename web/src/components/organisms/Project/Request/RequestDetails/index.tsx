@@ -16,10 +16,10 @@ const RequestDetails: React.FC = () => {
     isAssignActionEnabled,
     currentRequest,
     loading,
-      updateRequestLoading,
+    updateRequestLoading,
     deleteLoading,
     approveLoading,
-      handleRequestUpdate,
+    handleRequestUpdate,
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
@@ -31,7 +31,7 @@ const RequestDetails: React.FC = () => {
 
   const { handleGetAsset } = useAssetHooks(false);
 
-    const {workspaceUserMembers, handleGroupGet} = useContentHooks();
+  const { workspaceUserMembers, handleGroupGet } = useContentHooks();
 
   return (
     <RequestDetailsMolecule

@@ -7,9 +7,9 @@ import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/ty
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-    integrations: Integration[];
+  integrations: Integration[];
   onIntegrationModalOpen: () => void;
-    onIntegrationNavigate: (integrationId: string) => void;
+  onIntegrationNavigate: (integrationId: string) => void;
 };
 
 const MyIntegrationList: React.FC<Props> = ({
@@ -26,7 +26,7 @@ const MyIntegrationList: React.FC<Props> = ({
         subTitle={t("Create and test your own integration.")}
       />
       <ListWrapper>
-          {integrations.map((integration: Integration) => (
+        {integrations.map((integration: Integration) => (
           <MyIntegrationCard
             key={integration.id}
             integration={integration}

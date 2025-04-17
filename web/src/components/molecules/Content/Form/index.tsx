@@ -5,7 +5,7 @@ import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Form, {FormInstance, ValidateErrorEntity} from "@reearth-cms/components/atoms/Form";
+import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -25,25 +25,25 @@ import {
   FormItem,
   ItemField,
   ItemValue,
-    VersionedItem,
-    FormValues,
+  VersionedItem,
+  FormValues,
 } from "@reearth-cms/components/molecules/Content/types";
-import {selectedTagIdsGet} from "@reearth-cms/components/molecules/Content/utils";
+import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   Request,
   RequestItem,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import {Group, Field} from "@reearth-cms/components/molecules/Schema/types";
+import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import {transformDayjsToString, dateTimeFormat} from "@reearth-cms/utils/format";
+import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
 import FieldWrapper from "./FieldWrapper";
 import Versions from "./Versions";
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 
 type Props = {
   title: string;
@@ -60,7 +60,7 @@ type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
-    versions: VersionedItem[];
+  versions: VersionedItem[];
   loading: boolean;
   model?: Model;
   assetList: Asset[];
@@ -113,7 +113,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-    onGetVersionedItem: (version: string) => Promise<FormValues>;
+  onGetVersionedItem: (version: string) => Promise<FormValues>;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemIds: string[]) => Promise<void>;
   onRequestCreate: (data: {
@@ -153,7 +153,7 @@ const ContentForm: React.FC<Props> = ({
   model,
   initialFormValues,
   initialMetaFormValues,
-                                          versions,
+  versions,
   loading,
   assetList,
   fileList,
@@ -185,7 +185,7 @@ const ContentForm: React.FC<Props> = ({
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableChange,
-                                          onGetVersionedItem,
+  onGetVersionedItem,
   onPublish,
   onUnpublish,
   onAssetTableChange,
@@ -217,11 +217,11 @@ const ContentForm: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
-    const [versionForm] = Form.useForm();
+  const [versionForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(!!itemId);
   const changedKeys = useRef(new Set<string>());
-    const referencedItems = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
+  const referencedItems = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -242,60 +242,60 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
-    const handleFormValidate = useCallback(async (form: FormInstance) => {
-        try {
-            await form.validateFields();
-        } catch (e) {
-            if ((e as ValidateErrorEntity).errorFields.length > 0) {
-                setIsDisabled(true);
-                throw e;
-            }
-        }
-    }, []);
-
-    const handleValuesChange = useCallback(
-        async (changedValues: Record<string, unknown>) => {
-            try {
-                await handleFormValidate(form);
-            } catch (e) {
-                console.error(e);
-                return;
+  const handleFormValidate = useCallback(async (form: FormInstance) => {
+    try {
+      await form.validateFields();
+    } catch (e) {
+      if ((e as ValidateErrorEntity).errorFields.length > 0) {
+        setIsDisabled(true);
+        throw e;
       }
+    }
+  }, []);
 
-      if (!itemId) {
-          try {
-              await handleFormValidate(metaForm);
-              setIsDisabled(false);
-          } catch (e) {
-              console.error(e);
-          }
+  const handleValuesChange = useCallback(
+    async (changedValues: Record<string, unknown>) => {
+      try {
+        await handleFormValidate(form);
+      } catch (e) {
+        console.error(e);
         return;
       }
 
-            for (const [key, value] of Object.entries(changedValues)) {
-                if (checkIfSingleGroupField(key, value)) {
-                    const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
-                    const groupFieldValue = initialFormValues[key][groupFieldKey];
-                    if (
-                        JSON.stringify(emptyConvert(changedFieldValue)) ===
-                        JSON.stringify(emptyConvert(groupFieldValue))
-                    ) {
-                        changedKeys.current.delete(key);
-                    } else if (changedFieldValue !== undefined) {
-                        changedKeys.current.add(key);
-                    }
-                } else if (
-                    JSON.stringify(emptyConvert(value)) ===
-                    JSON.stringify(emptyConvert(initialFormValues[key]))
-                ) {
-                    changedKeys.current.delete(key);
-                } else {
-                    changedKeys.current.add(key);
-                }
+      if (!itemId) {
+        try {
+          await handleFormValidate(metaForm);
+          setIsDisabled(false);
+        } catch (e) {
+          console.error(e);
+        }
+        return;
+      }
+
+      for (const [key, value] of Object.entries(changedValues)) {
+        if (checkIfSingleGroupField(key, value)) {
+          const [groupFieldKey, changedFieldValue] = Object.entries(value as object)[0];
+          const groupFieldValue = initialFormValues[key][groupFieldKey];
+          if (
+            JSON.stringify(emptyConvert(changedFieldValue)) ===
+            JSON.stringify(emptyConvert(groupFieldValue))
+          ) {
+            changedKeys.current.delete(key);
+          } else if (changedFieldValue !== undefined) {
+            changedKeys.current.add(key);
+          }
+        } else if (
+          JSON.stringify(emptyConvert(value)) ===
+          JSON.stringify(emptyConvert(initialFormValues[key]))
+        ) {
+          changedKeys.current.delete(key);
+        } else {
+          changedKeys.current.add(key);
+        }
       }
       setIsDisabled(changedKeys.current.size === 0);
     },
-        [checkIfSingleGroupField, form, handleFormValidate, initialFormValues, itemId, metaForm],
+    [checkIfSingleGroupField, form, handleFormValidate, initialFormValues, itemId, metaForm],
   );
 
   useEffect(() => {
@@ -348,40 +348,40 @@ const ContentForm: React.FC<Props> = ({
     return () => window.removeEventListener("beforeunload", handleBeforeUnloadEvent, true);
   }, []);
 
-    const allFormsValidate = useCallback(async () => {
-        try {
-            await handleFormValidate(form);
-            await handleFormValidate(metaForm);
-            setIsDisabled(false);
-        } catch (e) {
-            console.error(e);
-        }
-    }, [form, handleFormValidate, metaForm]);
+  const allFormsValidate = useCallback(async () => {
+    try {
+      await handleFormValidate(form);
+      await handleFormValidate(metaForm);
+      setIsDisabled(false);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [form, handleFormValidate, metaForm]);
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
     metaForm.setFieldsValue(initialMetaFormValues);
-      if (!itemId) {
-          allFormsValidate();
-      }
+    if (!itemId) {
+      allFormsValidate();
+    }
   }, [allFormsValidate, form, initialFormValues, initialMetaFormValues, itemId, metaForm]);
 
   const unpublishedItems = useMemo(
-      () => referencedItems?.filter(item => item.status !== "PUBLIC") ?? [],
-      [referencedItems],
+    () => referencedItems?.filter(item => item.status !== "PUBLIC") ?? [],
+    [referencedItems],
   );
 
-    const inputValueGet = useCallback((value: ItemValue, field: Field) => {
-        if (field.multiple) {
+  const inputValueGet = useCallback((value: ItemValue, field: Field) => {
+    if (field.multiple) {
       if (Array.isArray(value)) {
-          if (field.type === "Tag") {
-              const tags = field.typeProperty?.tags;
-              return tags ? selectedTagIdsGet(value as string[], tags) : [];
-          } else {
-              return value.map(v =>
-                  v === "" ? undefined : dayjs.isDayjs(v) ? transformDayjsToString(v) : v,
-              );
-          }
+        if (field.type === "Tag") {
+          const tags = field.typeProperty?.tags;
+          return tags ? selectedTagIdsGet(value as string[], tags) : [];
+        } else {
+          return value.map(v =>
+            v === "" ? undefined : dayjs.isDayjs(v) ? transformDayjsToString(v) : v,
+          );
+        }
       } else {
         return [];
       }
@@ -390,78 +390,78 @@ const ContentForm: React.FC<Props> = ({
     }
   }, []);
 
-    const modelFields = useMemo(
-        () => new Map((model?.schema.fields || []).map(field => [field.id, field])),
-        [model?.schema.fields],
-    );
+  const modelFields = useMemo(
+    () => new Map((model?.schema.fields || []).map(field => [field.id, field])),
+    [model?.schema.fields],
+  );
 
-    const metaFieldsMap = useMemo(
-        () => new Map((model?.metadataSchema.fields || []).map(field => [field.id, field])),
-        [model?.metadataSchema.fields],
-    );
+  const metaFieldsMap = useMemo(
+    () => new Map((model?.metadataSchema.fields || []).map(field => [field.id, field])),
+    [model?.metadataSchema.fields],
+  );
 
-    const metaFieldsGet = useCallback(async () => {
-        const result: ItemField[] = [];
-        const metaValues = await metaForm.validateFields();
-        for (const [key, value] of Object.entries(metaValues)) {
-            const metaField = metaFieldsMap.get(key);
-            if (metaField) {
-                result.push({
-                    value: inputValueGet(value as ItemValue, metaField),
-                    schemaFieldId: key,
-                    type: metaField.type,
-                });
-            }
-        }
-        return result;
-    }, [inputValueGet, metaFieldsMap, metaForm]);
-
-    const [versionedItem, setVersionedItem] = useState<VersionedItem>();
-
-    const versionClick = useCallback(
-        async (versionedItem: VersionedItem) => {
-            const res = await onGetVersionedItem(versionedItem.version);
-            versionForm.setFieldsValue(res);
-            setVersionedItem(versionedItem);
-        },
-        [onGetVersionedItem, versionForm],
-    );
-
-    const versionedItemClose = useCallback(() => {
-        setVersionedItem(undefined);
-    }, []);
-
-    const handleRestore = useCallback(() => {
-        const restore = () => {
-            const values = versionForm.getFieldsValue();
-            form.setFieldsValue(values);
-            handleValuesChange(values);
-            Notification.destroy();
-            versionedItemClose();
-        };
-
-        Notification.info({
-            message: t("Are you sure you want to restore this version’s content?"),
-            description: t(
-                "After saving, a new version will be created while keeping the current version unchanged.",
-            ),
-            btn: (
-                <Space>
-                    <Button
-                        onClick={() => {
-                            Notification.destroy();
-                        }}>
-                        {t("Cancel")}
-                    </Button>
-                    <Button type="primary" onClick={restore}>
-                        {t("Restore")}
-                    </Button>
-                </Space>
-            ),
-            placement: "top",
-            closeIcon: false,
+  const metaFieldsGet = useCallback(async () => {
+    const result: ItemField[] = [];
+    const metaValues = await metaForm.validateFields();
+    for (const [key, value] of Object.entries(metaValues)) {
+      const metaField = metaFieldsMap.get(key);
+      if (metaField) {
+        result.push({
+          value: inputValueGet(value as ItemValue, metaField),
+          schemaFieldId: key,
+          type: metaField.type,
         });
-    }, [form, handleValuesChange, t, versionForm, versionedItemClose]);
+      }
+    }
+    return result;
+  }, [inputValueGet, metaFieldsMap, metaForm]);
+
+  const [versionedItem, setVersionedItem] = useState<VersionedItem>();
+
+  const versionClick = useCallback(
+    async (versionedItem: VersionedItem) => {
+      const res = await onGetVersionedItem(versionedItem.version);
+      versionForm.setFieldsValue(res);
+      setVersionedItem(versionedItem);
+    },
+    [onGetVersionedItem, versionForm],
+  );
+
+  const versionedItemClose = useCallback(() => {
+    setVersionedItem(undefined);
+  }, []);
+
+  const handleRestore = useCallback(() => {
+    const restore = () => {
+      const values = versionForm.getFieldsValue();
+      form.setFieldsValue(values);
+      handleValuesChange(values);
+      Notification.destroy();
+      versionedItemClose();
+    };
+
+    Notification.info({
+      message: t("Are you sure you want to restore this version’s content?"),
+      description: t(
+        "After saving, a new version will be created while keeping the current version unchanged.",
+      ),
+      btn: (
+        <Space>
+          <Button
+            onClick={() => {
+              Notification.destroy();
+            }}>
+            {t("Cancel")}
+          </Button>
+          <Button type="primary" onClick={restore}>
+            {t("Restore")}
+          </Button>
+        </Space>
+      ),
+      placement: "top",
+      closeIcon: false,
+    });
+  }, [form, handleValuesChange, t, versionForm, versionedItemClose]);
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -483,7 +483,7 @@ const ContentForm: React.FC<Props> = ({
         const modelField = modelFields.get(key);
         if (modelField) {
           fields.push({
-              value: inputValueGet(value as ItemValue, modelField),
+            value: inputValueGet(value as ItemValue, modelField),
             schemaFieldId: key,
             type: modelField.type,
           });
@@ -492,7 +492,7 @@ const ContentForm: React.FC<Props> = ({
             const groupField = groupFields.get(key);
             if (groupField) {
               fields.push({
-                  value: inputValueGet(groupFieldValue, groupField),
+                value: inputValueGet(groupFieldValue, groupField),
                 schemaFieldId: key,
                 itemGroupId: groupFieldKey,
                 type: groupField.type,
@@ -508,7 +508,7 @@ const ContentForm: React.FC<Props> = ({
           fields,
         });
       } else if (model?.schema.id) {
-          const metaFields = await metaFieldsGet();
+        const metaFields = await metaFieldsGet();
         await onItemCreate?.({
           schemaId: model?.schema.id,
           metaSchemaId: model?.metadataSchema?.id,
@@ -517,75 +517,75 @@ const ContentForm: React.FC<Props> = ({
         });
       }
 
-        changedKeys.current.clear();
-        setIsDisabled(true);
-        versionedItemClose();
+      changedKeys.current.clear();
+      setIsDisabled(true);
+      versionedItemClose();
     } catch (e) {
-        console.error(e);
+      console.error(e);
     }
   }, [
-      model,
-      form,
-      itemId,
-      versionedItemClose,
-      onGroupGet,
-      modelFields,
-      inputValueGet,
-      onItemUpdate,
-      metaFieldsGet,
-      onItemCreate,
+    model,
+    form,
+    itemId,
+    versionedItemClose,
+    onGroupGet,
+    modelFields,
+    inputValueGet,
+    onItemUpdate,
+    metaFieldsGet,
+    onItemCreate,
   ]);
 
   const handleMetaUpdate = useCallback(async () => {
     try {
-        const metaFields = await metaFieldsGet();
+      const metaFields = await metaFieldsGet();
       await onMetaItemUpdate({
         metaItemId: item?.metadata?.id,
         metaFields,
       });
-        setIsDisabled(true);
+      setIsDisabled(true);
     } catch (info) {
-        console.error(info);
+      console.error(info);
     }
   }, [metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
 
-    const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const handleMetaValuesChange = useCallback(
-        async (changedValues: Record<string, unknown>) => {
-            if (itemId) {
-                if (timeout.current) {
-                    clearTimeout(timeout.current);
-                    timeout.current = null;
-                }
-                const [key, value] = Object.entries(changedValues)[0];
-                const initialValue = initialMetaFormValues[key];
-                if (Array.isArray(value)) {
-                    // use checkIfEmpty
-                    const noEmptyValuesLength = value.filter(
-                        v => !(v === undefined || v === null || v === ""),
-                    ).length;
-                    if (
-                        noEmptyValuesLength === value.length ||
-                        (noEmptyValuesLength && !initialValue) ||
-                        (Array.isArray(initialValue) && noEmptyValuesLength !== initialValue.length)
-                    ) {
-                        timeout.current = setTimeout(handleMetaUpdate, 800);
-                    }
-                } else if (value !== initialValue) {
-                    timeout.current = setTimeout(handleMetaUpdate, 800);
-                }
-            } else {
-                allFormsValidate();
-            }
-        },
-        [allFormsValidate, handleMetaUpdate, initialMetaFormValues, itemId],
-    );
+  const handleMetaValuesChange = useCallback(
+    async (changedValues: Record<string, unknown>) => {
+      if (itemId) {
+        if (timeout.current) {
+          clearTimeout(timeout.current);
+          timeout.current = null;
+        }
+        const [key, value] = Object.entries(changedValues)[0];
+        const initialValue = initialMetaFormValues[key];
+        if (Array.isArray(value)) {
+          // use checkIfEmpty
+          const noEmptyValuesLength = value.filter(
+            v => !(v === undefined || v === null || v === ""),
+          ).length;
+          if (
+            noEmptyValuesLength === value.length ||
+            (noEmptyValuesLength && !initialValue) ||
+            (Array.isArray(initialValue) && noEmptyValuesLength !== initialValue.length)
+          ) {
+            timeout.current = setTimeout(handleMetaUpdate, 800);
+          }
+        } else if (value !== initialValue) {
+          timeout.current = setTimeout(handleMetaUpdate, 800);
+        }
+      } else {
+        allFormsValidate();
+      }
+    },
+    [allFormsValidate, handleMetaUpdate, initialMetaFormValues, itemId],
+  );
 
-    const isInReview = useMemo(
-        () => item?.status === "REVIEW" || item?.status === "PUBLIC_REVIEW",
-        [item?.status],
-    );
+  const isInReview = useMemo(
+    () => item?.status === "REVIEW" || item?.status === "PUBLIC_REVIEW",
+    [item?.status],
+  );
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
@@ -593,7 +593,7 @@ const ContentForm: React.FC<Props> = ({
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
-          disabled: isInReview || item?.status === "PUBLIC" || !hasRequestUpdateRight,
+        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestUpdateRight,
       },
       {
         key: "unpublish",
@@ -609,14 +609,14 @@ const ContentForm: React.FC<Props> = ({
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
-          disabled: isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight,
+        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight,
       });
     }
     return menuItems;
   }, [
     t,
     onAddItemToRequestModalOpen,
-      isInReview,
+    isInReview,
     item?.status,
     hasRequestUpdateRight,
     hasPublishRight,
@@ -645,216 +645,216 @@ const ContentForm: React.FC<Props> = ({
     [hasItemUpdateRight, itemId],
   );
 
-    const [activeKey, setActiveKey] = useState<string>();
+  const [activeKey, setActiveKey] = useState<string>();
 
-    const formWrapperRef = useRef<HTMLDivElement>(null);
-    const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const formWrapperRef = useRef<HTMLDivElement>(null);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
-    useEffect(() => {
-        if (formWrapperRef.current)
-            setScrollbarWidth(formWrapperRef.current?.offsetWidth - formWrapperRef.current?.clientWidth);
-    }, []);
+  useEffect(() => {
+    if (formWrapperRef.current)
+      setScrollbarWidth(formWrapperRef.current?.offsetWidth - formWrapperRef.current?.clientWidth);
+  }, []);
 
-    const itemHeightsRef = useRef<Record<string, number>>({});
-    const [itemHeights, setItemHeights] = useState<Record<string, number>>({});
+  const itemHeightsRef = useRef<Record<string, number>>({});
+  const [itemHeights, setItemHeights] = useState<Record<string, number>>({});
 
-    const handleItemHeightChange = useCallback((id: string, height: number) => {
-        itemHeightsRef.current = {...itemHeightsRef.current, [id]: height};
-        const _height = id.startsWith("version")
-            ? Math.max(
-                itemHeightsRef.current[id] ?? 0,
-                itemHeightsRef.current[id.substring(id.indexOf("_") + 1)] ?? 0,
-            )
-            : Math.max(itemHeightsRef.current[id] ?? 0, itemHeightsRef.current[`version_${id}`] ?? 0);
-        const _id = id.startsWith("version") ? id.substring(id.indexOf("_") + 1) : id;
+  const handleItemHeightChange = useCallback((id: string, height: number) => {
+    itemHeightsRef.current = { ...itemHeightsRef.current, [id]: height };
+    const _height = id.startsWith("version")
+      ? Math.max(
+          itemHeightsRef.current[id] ?? 0,
+          itemHeightsRef.current[id.substring(id.indexOf("_") + 1)] ?? 0,
+        )
+      : Math.max(itemHeightsRef.current[id] ?? 0, itemHeightsRef.current[`version_${id}`] ?? 0);
+    const _id = id.startsWith("version") ? id.substring(id.indexOf("_") + 1) : id;
 
-        setItemHeights(prev => ({...prev, [_id]: _height}));
-    }, []);
+    setItemHeights(prev => ({ ...prev, [_id]: _height }));
+  }, []);
 
   return (
     <>
-        <Wrapper>
-            <HeaderWrapper>
-                <StyledPageHeader
-                    title={title}
-                    onBack={onBack}
-                    extra={
-                        <>
-                            <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
-                                {t("Save")}
-                            </Button>
-                            {itemId && (
-                                <>
-                                    {showPublishAction && (
-                                        <Tooltip
-                                            placement="bottom"
-                                            title={
-                                                isInReview
-                                                    ? t(
-                                                        "The item is currently under request review and cannot be published.",
-                                                    )
-                                                    : null
-                                            }>
-                                            <Button
-                                                type="primary"
-                                                onClick={handlePublishSubmit}
-                                                loading={publishLoading}
-                                                disabled={isInReview || item?.status === "PUBLIC" || !hasPublishRight}>
-                                                {t("Publish")}
-                                            </Button>
-                                        </Tooltip>
-                                    )}
-                                    {!showPublishAction && (
-                                        <Tooltip
-                                            placement="bottom"
-                                            title={
-                                                isInReview
-                                                    ? t(
-                                                        "The item is currently under request review and cannot have a new request.",
-                                                    )
-                                                    : null
-                                            }>
-                                            <Button
-                                                type="primary"
-                                                onClick={onModalOpen}
-                                                disabled={
-                                                    isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight
-                                                }>
-                                                {t("New Request")}
-                                            </Button>
-                                        </Tooltip>
-                                    )}
-                                    <Dropdown menu={{items}} trigger={["click"]}>
-                                        <Button>
-                                            <Icon icon="ellipsis"/>
-                                        </Button>
-                                    </Dropdown>
-                                </>
-                            )}
-                        </>
-                    }
-                />
-                {versionedItem && (
-                    <VersionHeader
-                        title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
-                        onBack={versionedItemClose}
-                        extra={
-                            <Button onClick={handleRestore} type="link">
-                                {t("Restore")}
-                            </Button>
-                        }
-                    />
+      <Wrapper>
+        <HeaderWrapper>
+          <StyledPageHeader
+            title={title}
+            onBack={onBack}
+            extra={
+              <>
+                <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
+                  {t("Save")}
+                </Button>
+                {itemId && (
+                  <>
+                    {showPublishAction && (
+                      <Tooltip
+                        placement="bottom"
+                        title={
+                          isInReview
+                            ? t(
+                                "The item is currently under request review and cannot be published.",
+                              )
+                            : null
+                        }>
+                        <Button
+                          type="primary"
+                          onClick={handlePublishSubmit}
+                          loading={publishLoading}
+                          disabled={isInReview || item?.status === "PUBLIC" || !hasPublishRight}>
+                          {t("Publish")}
+                        </Button>
+                      </Tooltip>
+                    )}
+                    {!showPublishAction && (
+                      <Tooltip
+                        placement="bottom"
+                        title={
+                          isInReview
+                            ? t(
+                                "The item is currently under request review and cannot have a new request.",
+                              )
+                            : null
+                        }>
+                        <Button
+                          type="primary"
+                          onClick={onModalOpen}
+                          disabled={
+                            isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight
+                          }>
+                          {t("New Request")}
+                        </Button>
+                      </Tooltip>
+                    )}
+                    <Dropdown menu={{ items }} trigger={["click"]}>
+                      <Button>
+                        <Icon icon="ellipsis" />
+                      </Button>
+                    </Dropdown>
+                  </>
                 )}
-            </HeaderWrapper>
-            <FormWrapper ref={formWrapperRef}>
-                <StyledForm
-                    form={form}
-                    layout="vertical"
-                    initialValues={initialFormValues}
-                    onValuesChange={handleValuesChange}
-                    scrollbarWidth={scrollbarWidth}>
-                    {model?.schema.fields.map(field => (
-                        <FieldWrapper
-                            key={field.id}
-                            field={field}
-                            disabled={fieldDisabled}
-                            itemHeights={itemHeights}
-                            onItemHeightChange={handleItemHeightChange}
-                            assetProps={{
-                                assetList,
-                                itemAssets: item?.assets,
-                                fileList,
-                                loadingAssets,
-                                uploading,
-                                uploadModalVisibility,
-                                uploadUrl,
-                                uploadType,
-                                totalCount,
-                                page,
-                                pageSize,
-                                onAssetTableChange,
-                                onUploadModalCancel,
-                                setUploadUrl,
-                                setUploadType,
-                                onAssetsCreate,
-                                onAssetCreateFromUrl,
-                                onAssetsGet,
-                                onAssetsReload,
-                                onAssetSearchTerm,
-                                setFileList,
-                                setUploadModalVisibility,
-                                onGetAsset,
-                            }}
-                            referenceProps={{
-                                referencedItems,
-                                loading: loadingReference,
-                                linkedItemsModalList,
-                                linkItemModalTitle,
-                                linkItemModalTotalCount,
-                                linkItemModalPage,
-                                linkItemModalPageSize,
-                                onReferenceModelUpdate,
-                                onSearchTerm,
-                                onLinkItemTableReload,
-                                onLinkItemTableChange,
-                                onCheckItemReference,
-                            }}
-                            groupProps={{form, onGroupGet}}
-                        />
-                    ))}
-                </StyledForm>
-                {versionedItem && (
-                    <VersionForm
-                        form={versionForm}
-                        layout="vertical"
-                        name="version"
-                        scrollbarWidth={scrollbarWidth}>
-                        {model?.schema.fields.map(field => (
-                            <FieldWrapper
-                                key={field.id}
+              </>
+            }
+          />
+          {versionedItem && (
+            <VersionHeader
+              title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
+              onBack={versionedItemClose}
+              extra={
+                <Button onClick={handleRestore} type="link">
+                  {t("Restore")}
+                </Button>
+              }
+            />
+          )}
+        </HeaderWrapper>
+        <FormWrapper ref={formWrapperRef}>
+          <StyledForm
+            form={form}
+            layout="vertical"
+            initialValues={initialFormValues}
+            onValuesChange={handleValuesChange}
+            scrollbarWidth={scrollbarWidth}>
+            {model?.schema.fields.map(field => (
+              <FieldWrapper
+                key={field.id}
+                field={field}
+                disabled={fieldDisabled}
+                itemHeights={itemHeights}
+                onItemHeightChange={handleItemHeightChange}
+                assetProps={{
+                  assetList,
+                  itemAssets: item?.assets,
+                  fileList,
+                  loadingAssets,
+                  uploading,
+                  uploadModalVisibility,
+                  uploadUrl,
+                  uploadType,
+                  totalCount,
+                  page,
+                  pageSize,
+                  onAssetTableChange,
+                  onUploadModalCancel,
+                  setUploadUrl,
+                  setUploadType,
+                  onAssetsCreate,
+                  onAssetCreateFromUrl,
+                  onAssetsGet,
+                  onAssetsReload,
+                  onAssetSearchTerm,
+                  setFileList,
+                  setUploadModalVisibility,
+                  onGetAsset,
+                }}
+                referenceProps={{
+                  referencedItems,
+                  loading: loadingReference,
+                  linkedItemsModalList,
+                  linkItemModalTitle,
+                  linkItemModalTotalCount,
+                  linkItemModalPage,
+                  linkItemModalPageSize,
+                  onReferenceModelUpdate,
+                  onSearchTerm,
+                  onLinkItemTableReload,
+                  onLinkItemTableChange,
+                  onCheckItemReference,
+                }}
+                groupProps={{ form, onGroupGet }}
+              />
+            ))}
+          </StyledForm>
+          {versionedItem && (
+            <VersionForm
+              form={versionForm}
+              layout="vertical"
+              name="version"
+              scrollbarWidth={scrollbarWidth}>
+              {model?.schema.fields.map(field => (
+                <FieldWrapper
+                  key={field.id}
                   field={field}
-                                disabled
-                                itemHeights={itemHeights}
-                                onItemHeightChange={handleItemHeightChange}
-                                assetProps={{onGetAsset}}
-                                referenceProps={{referencedItems}}
-                                groupProps={{form, onGroupGet}}
-                            />
-                        ))}
-                    </VersionForm>
-                )}
-            </FormWrapper>
-        </Wrapper>
-        {!versionedItem && (model?.metadataSchema.fields || item?.id) && (
-            <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
-                <TabPane tab={t("Meta Data")} key="meta">
-                    <Form
-                        form={metaForm}
-                        layout="vertical"
-                        initialValues={initialMetaFormValues}
-                        onValuesChange={handleMetaValuesChange}>
-                        <TabContent>
-                            <Metadata
-                                item={item}
-                                fields={model?.metadataSchema.fields ?? []}
+                  disabled
+                  itemHeights={itemHeights}
+                  onItemHeightChange={handleItemHeightChange}
+                  assetProps={{ onGetAsset }}
+                  referenceProps={{ referencedItems }}
+                  groupProps={{ form, onGroupGet }}
+                />
+              ))}
+            </VersionForm>
+          )}
+        </FormWrapper>
+      </Wrapper>
+      {!versionedItem && (model?.metadataSchema.fields || item?.id) && (
+        <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
+          <TabPane tab={t("Meta Data")} key="meta">
+            <Form
+              form={metaForm}
+              layout="vertical"
+              initialValues={initialMetaFormValues}
+              onValuesChange={handleMetaValuesChange}>
+              <TabContent>
+                <Metadata
+                  item={item}
+                  fields={model?.metadataSchema.fields ?? []}
                   disabled={fieldDisabled}
                 />
-                        </TabContent>
-                    </Form>
-                </TabPane>
-                {versions.length && (
-                    <TabPane tab={t("Version History")} key="history">
-                        <TabContent>
-                            <Versions
-                                versions={versions}
-                                versionClick={versionClick}
-                                onNavigateToRequest={onNavigateToRequest}
-                            />
-                        </TabContent>
-                    </TabPane>
-                )}
-            </StyledTabs>
-        )}
+              </TabContent>
+            </Form>
+          </TabPane>
+          {versions.length && (
+            <TabPane tab={t("Version History")} key="history">
+              <TabContent>
+                <Versions
+                  versions={versions}
+                  versionClick={versionClick}
+                  onNavigateToRequest={onNavigateToRequest}
+                />
+              </TabContent>
+            </TabPane>
+          )}
+        </StyledTabs>
+      )}
       {itemId && (
         <>
           <RequestCreationModal
@@ -951,7 +951,7 @@ const StyledForm = styled(Form)<{ scrollbarWidth: number }>`
     display: flex;
   }
   :last-child {
-    margin-right: ${({scrollbarWidth}) => `-${scrollbarWidth}px`};
+    margin-right: ${({ scrollbarWidth }) => `-${scrollbarWidth}px`};
   }
 `;
 

@@ -151,7 +151,7 @@ const Schema: React.FC<Props> = ({
               <PageHeader
                 title={data.name}
                 subTitle={`#${data.key}`}
-                style={{backgroundColor: "#fff"}}
+                style={{ backgroundColor: "#fff" }}
                 extra={[<DropdownMenu key="more" />]}
               />
               {selectedSchemaType === "model" && (

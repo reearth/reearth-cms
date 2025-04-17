@@ -40,13 +40,13 @@ const Provider: React.FC<Props> = ({ children }) => {
     }
   });
 
-    const cache = new InMemoryCache({
-        typePolicies: {
-            Item: {
-                keyFields: obj => `${obj.id}-${obj.version}`,
-            },
-        },
-    });
+  const cache = new InMemoryCache({
+    typePolicies: {
+      Item: {
+        keyFields: obj => `${obj.id}-${obj.version}`,
+      },
+    },
+  });
 
   const client = new ApolloClient({
     uri: endpoint,

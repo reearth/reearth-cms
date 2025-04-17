@@ -191,7 +191,7 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "Status",
         fieldType: "STATUS",
         key: "STATUS",
-          render: (_, item) => <Status status={item.status}/>,
+        render: (_, item) => <Status status={item.status} />,
         width: 148,
         minWidth: 148,
       },

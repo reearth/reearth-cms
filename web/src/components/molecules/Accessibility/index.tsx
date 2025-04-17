@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import {useMemo, useState, useEffect, useRef, useCallback} from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -18,29 +18,29 @@ import { useT } from "@reearth-cms/i18n";
 
 type ModelDataType = {
   key: string;
-    name: string;
-    id: string | string[];
-    endpoint: string;
+  name: string;
+  id: string | string[];
+  endpoint: string;
 };
 
 type Props = {
-    initialValues: FormType;
-    models: Pick<Model, "id" | "name" | "key">[];
+  initialValues: FormType;
+  models: Pick<Model, "id" | "name" | "key">[];
   hasPublishRight: boolean;
   updateLoading: boolean;
   regenerateLoading: boolean;
   apiUrl: string;
   alias: string;
   token: string;
-    onPublicUpdate: (
-        settings: FormType,
-        models: { modelId: string; status: boolean }[],
-    ) => Promise<void>;
+  onPublicUpdate: (
+    settings: FormType,
+    models: { modelId: string; status: boolean }[],
+  ) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
 };
 
 const Accessibility: React.FC<Props> = ({
-                                            initialValues,
+  initialValues,
   models,
   hasPublishRight,
   updateLoading,
@@ -53,87 +53,87 @@ const Accessibility: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [visible, setVisible] = useState(false);
-    const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
-    const [form] = Form.useForm<FormType>();
-    useEffect(() => {
-        form.setFieldsValue(initialValues);
-    }, [form, initialValues]);
+  const [form] = Form.useForm<FormType>();
+  useEffect(() => {
+    form.setFieldsValue(initialValues);
+  }, [form, initialValues]);
 
-    const changedModels = useRef(new Map<string, boolean>());
+  const changedModels = useRef(new Map<string, boolean>());
 
-    const handleValuesChange = useCallback(
-        (changedValues: Partial<FormType>, values: FormType) => {
-            if (changedValues?.models) {
-                const modelId = Object.keys(changedValues.models)[0];
-                if (changedModels.current.has(modelId)) {
-                    changedModels.current.delete(modelId);
-                } else {
-                    changedModels.current.set(modelId, changedValues.models[modelId]);
-                }
-            }
-            if (
-                initialValues.scope === values.scope &&
-                initialValues.assetPublic === values.assetPublic &&
-                changedModels.current.size === 0
-            ) {
-                setIsSaveDisabled(true);
-            } else {
-                setIsSaveDisabled(false);
-            }
-        },
-        [initialValues],
-    );
+  const handleValuesChange = useCallback(
+    (changedValues: Partial<FormType>, values: FormType) => {
+      if (changedValues?.models) {
+        const modelId = Object.keys(changedValues.models)[0];
+        if (changedModels.current.has(modelId)) {
+          changedModels.current.delete(modelId);
+        } else {
+          changedModels.current.set(modelId, changedValues.models[modelId]);
+        }
+      }
+      if (
+        initialValues.scope === values.scope &&
+        initialValues.assetPublic === values.assetPublic &&
+        changedModels.current.size === 0
+      ) {
+        setIsSaveDisabled(true);
+      } else {
+        setIsSaveDisabled(false);
+      }
+    },
+    [initialValues],
+  );
 
   const columns: TableColumnsType<ModelDataType> = useMemo(
     () => [
       {
-          key: "name",
+        key: "name",
         title: t("Model"),
         dataIndex: "name",
         width: 220,
       },
       {
-          key: "id",
+        key: "id",
         title: t("Switch"),
-          dataIndex: "id",
+        dataIndex: "id",
         align: "center",
         width: 90,
-          render: id => (
-              <StyledFormItem name={id}>
-                  <Switch disabled={!hasPublishRight}/>
-              </StyledFormItem>
-          ),
+        render: id => (
+          <StyledFormItem name={id}>
+            <Switch disabled={!hasPublishRight} />
+          </StyledFormItem>
+        ),
       },
       {
         title: t("End point"),
         dataIndex: "endpoint",
         key: "endpoint",
-          render: url => (
-              <StyledAnchor target="_blank" href={url} rel="noreferrer">
-                  {url}
-              </StyledAnchor>
-          ),
+        render: url => (
+          <StyledAnchor target="_blank" href={url} rel="noreferrer">
+            {url}
+          </StyledAnchor>
+        ),
       },
     ],
-      [hasPublishRight, t],
+    [hasPublishRight, t],
   );
 
   const dataSource = useMemo(() => {
     const columns: ModelDataType[] = [];
     models.forEach(m => {
       columns.push({
-          key: m.key,
+        key: m.key,
         name: m.name,
-          id: ["models", m.id],
-          endpoint: apiUrl + m.key,
+        id: ["models", m.id],
+        endpoint: apiUrl + m.key,
       });
     });
     columns.push({
-        key: "assets",
+      key: "assets",
       name: t("Assets"),
-        id: "assetPublic",
-        endpoint: apiUrl + "assets",
+      id: "assetPublic",
+      endpoint: apiUrl + "assets",
     });
     return columns;
   }, [models, t, apiUrl]);
@@ -146,21 +146,21 @@ const Accessibility: React.FC<Props> = ({
     ],
     [t],
   );
-    const handleSave = useCallback(async () => {
-        try {
-            await onPublicUpdate(
-                form.getFieldsValue(),
-                Array.from(changedModels.current, ([modelId, status]) => ({
-                    modelId,
-                    status,
-                })),
-            );
-            changedModels.current.clear();
-            setIsSaveDisabled(true);
-        } catch (e) {
-            console.error(e);
-        }
-    }, [form, onPublicUpdate]);
+  const handleSave = useCallback(async () => {
+    try {
+      await onPublicUpdate(
+        form.getFieldsValue(),
+        Array.from(changedModels.current, ([modelId, status]) => ({
+          modelId,
+          status,
+        })),
+      );
+      changedModels.current.clear();
+      setIsSaveDisabled(true);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [form, onPublicUpdate]);
 
   return (
     <InnerContent
@@ -168,7 +168,7 @@ const Accessibility: React.FC<Props> = ({
       flexChildren
       subtitle={t("Control the visibility scope of the Content API")}>
       <ContentSection title="">
-          <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
+        <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
           <Form.Item
             name="scope"
             label={t("Public Scope")}
@@ -192,7 +192,7 @@ const Accessibility: React.FC<Props> = ({
               label={t("Token")}
               extra={t("This is your secret token, please use as your env value.")}>
               <StyledTokenInput
-                  data-testid="token"
+                data-testid="token"
                 value={token}
                 disabled
                 visibilityToggle={{ visible }}

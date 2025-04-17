@@ -3,23 +3,23 @@ import { useCallback, useMemo, MouseEvent, useState, useEffect } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import {AssetProps} from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import {
   AssetField,
   ReferenceField,
 } from "@reearth-cms/components/molecules/Content/Form/fields/ComplexFieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
-import {ReferenceProps} from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import { Field, Group, GroupField } from "@reearth-cms/components/molecules/Schema/types";
 
-const {Panel} = Collapse;
+const { Panel } = Collapse;
 
 type Props = {
   value?: string;
-    disabled: boolean;
-    itemHeights?: Record<string, number>;
-    onItemHeightChange?: (id: string, height: number) => void;
-    parentField: Field;
+  disabled: boolean;
+  itemHeights?: Record<string, number>;
+  onItemHeightChange?: (id: string, height: number) => void;
+  parentField: Field;
   order?: number;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
@@ -27,25 +27,25 @@ type Props = {
   disableMoveUp?: boolean;
   disableMoveDown?: boolean;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-    assetProps: AssetProps;
-    referenceProps: ReferenceProps;
+  assetProps: AssetProps;
+  referenceProps: ReferenceProps;
 };
 
 const GroupItem: React.FC<Props> = ({
   value,
   disabled,
-                                        itemHeights,
-                                        onItemHeightChange,
-                                        parentField,
-                                        order,
+  itemHeights,
+  onItemHeightChange,
+  parentField,
+  order,
   onMoveUp,
   onMoveDown,
   onDelete,
   disableMoveUp,
   disableMoveDown,
   onGroupGet,
-                                        assetProps,
-                                        referenceProps,
+  assetProps,
+  referenceProps,
 }) => {
   const [fields, setFields] = useState<GroupField[]>();
 
@@ -139,13 +139,13 @@ const GroupItem: React.FC<Props> = ({
                 <StyledFormItemWrapper
                   key={field.id}
                   isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
-                    <FieldComponent
-                        field={field}
-                        itemGroupId={itemGroupId}
-                        disabled={disabled}
-                        itemHeights={itemHeights}
-                        onItemHeightChange={onItemHeightChange}
-                    />
+                  <FieldComponent
+                    field={field}
+                    itemGroupId={itemGroupId}
+                    disabled={disabled}
+                    itemHeights={itemHeights}
+                    onItemHeightChange={onItemHeightChange}
+                  />
                 </StyledFormItemWrapper>
               );
             }

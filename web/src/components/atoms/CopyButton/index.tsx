@@ -32,7 +32,7 @@ const StyledCopyButton = styled(CopyButton)<{ color?: string; hoverColor?: strin
     }
   }
   svg {
-    ${({size}) => `width: ${size}px; height: ${size}px;`};
+    ${({ size }) => `width: ${size}px; height: ${size}px;`};
   }
 `;
 

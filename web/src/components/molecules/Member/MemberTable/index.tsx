@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import {Key, useCallback, useMemo, useState} from "react";
+import { Key, useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
@@ -18,14 +18,14 @@ import { useT } from "@reearth-cms/i18n";
 const { confirm } = Modal;
 
 type Props = {
-    workspaceUserMembers?: UserMember[];
-    userId?: string;
+  workspaceUserMembers?: UserMember[];
+  userId?: string;
   isAbleToLeave: boolean;
-    onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
+  onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
   onLeave: (userId: string) => Promise<void>;
-    onSearchTerm: (term?: string) => void;
-    onRoleModalOpen: (member: UserMember) => void;
-    onMemberAddModalOpen: () => void;
+  onSearchTerm: (term?: string) => void;
+  onRoleModalOpen: (member: UserMember) => void;
+  onMemberAddModalOpen: () => void;
   page: number;
   pageSize: number;
   onTableChange: (page: number, pageSize: number) => void;
@@ -37,14 +37,14 @@ type Props = {
 };
 
 const MemberTable: React.FC<Props> = ({
-                                          workspaceUserMembers,
-                                          userId,
+  workspaceUserMembers,
+  userId,
   isAbleToLeave,
-                                          onMemberRemoveFromWorkspace,
+  onMemberRemoveFromWorkspace,
   onLeave,
-                                          onSearchTerm,
-                                          onRoleModalOpen,
-                                          onMemberAddModalOpen,
+  onSearchTerm,
+  onRoleModalOpen,
+  onMemberAddModalOpen,
   page,
   pageSize,
   onTableChange,
@@ -55,7 +55,7 @@ const MemberTable: React.FC<Props> = ({
   hasChangeRoleRight,
 }) => {
   const t = useT();
-    const [selection, setSelection] = useState<Key[]>([]);
+  const [selection, setSelection] = useState<Key[]>([]);
 
   const handleMemberDelete = useCallback(
     (users: User[]) => {
@@ -88,12 +88,12 @@ const MemberTable: React.FC<Props> = ({
         okText: t("Yes"),
         cancelText: t("No"),
         async onOk() {
-            await onMemberRemoveFromWorkspace(users.map(user => user.id));
-            setSelection([]);
+          await onMemberRemoveFromWorkspace(users.map(user => user.id));
+          setSelection([]);
         },
       });
     },
-      [onMemberRemoveFromWorkspace, t],
+    [onMemberRemoveFromWorkspace, t],
   );
 
   const leaveConfirm = useCallback(
@@ -168,7 +168,7 @@ const MemberTable: React.FC<Props> = ({
               {t("Change Role?")}
             </ActionButton>
             <Divider type="vertical" />
-              {member.userId === userId ? (
+            {member.userId === userId ? (
               <ActionButton
                 type="link"
                 onClick={() => {
@@ -194,10 +194,10 @@ const MemberTable: React.FC<Props> = ({
       workspaceUserMembers,
       t,
       hasChangeRoleRight,
-        userId,
+      userId,
       isAbleToLeave,
       hasRemoveRight,
-        onRoleModalOpen,
+      onRoleModalOpen,
       leaveConfirm,
       handleMemberDelete,
     ],
@@ -210,12 +210,12 @@ const MemberTable: React.FC<Props> = ({
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {
-              onSearchTerm(value);
+            onSearchTerm(value);
           }}
         />
       ),
     }),
-      [onSearchTerm, t],
+    [onSearchTerm, t],
   );
 
   const pagination = useMemo(
@@ -229,19 +229,19 @@ const MemberTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-        selectedRowKeys: selection,
+      selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {
-          setSelection(selectedRowKeys);
+        setSelection(selectedRowKeys);
       },
       getCheckboxProps: record => ({
-          disabled: record.id === userId,
+        disabled: record.id === userId,
       }),
     }),
-      [selection, userId],
+    [selection, userId],
   );
 
   const alertOptions = useCallback(
-      (props: { selectedRows: User[] }) => (
+    (props: { selectedRows: User[] }) => (
       <Button
         type="link"
         size="small"
@@ -266,7 +266,7 @@ const MemberTable: React.FC<Props> = ({
     <PaddedContent>
       <PageHeader
         title={t("Members")}
-        style={{backgroundColor: "#fff"}}
+        style={{ backgroundColor: "#fff" }}
         extra={
           <Button
             type="primary"

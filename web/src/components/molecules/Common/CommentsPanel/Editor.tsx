@@ -7,7 +7,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
 
 type FormValues = {
-    content: string;
+  content: string;
 };
 
 type EditorProps = {
@@ -18,7 +18,7 @@ type EditorProps = {
 const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-    const [form] = Form.useForm<FormValues>();
+  const [form] = Form.useForm<FormValues>();
   const t = useT();
 
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -30,7 +30,7 @@ const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => 
     setIsSubmitDisabled(true);
     try {
       const values = await form.validateFields();
-        await onCommentCreate(values.content);
+      await onCommentCreate(values.content);
       form.resetFields();
     } catch (_) {
       setIsSubmitDisabled(false);
@@ -40,11 +40,11 @@ const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => 
   }, [form, onCommentCreate]);
 
   return (
-      <Form form={form}>
-          <StyledFormItem name="content">
-              <TextArea autoSize={{maxRows: 4}} onChange={handleChange} disabled={isInputDisabled}/>
-          </StyledFormItem>
-          <ButtonWrapper>
+    <Form form={form}>
+      <StyledFormItem name="content">
+        <TextArea autoSize={{ maxRows: 4 }} onChange={handleChange} disabled={isInputDisabled} />
+      </StyledFormItem>
+      <ButtonWrapper>
         <Button
           disabled={isSubmitDisabled}
           loading={submitting}
@@ -53,8 +53,8 @@ const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => 
           size="small">
           {t("Comment")}
         </Button>
-          </ButtonWrapper>
-      </Form>
+      </ButtonWrapper>
+    </Form>
   );
 };
 

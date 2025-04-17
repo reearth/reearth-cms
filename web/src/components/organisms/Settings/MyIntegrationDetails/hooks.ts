@@ -1,11 +1,11 @@
-import {useCallback, useMemo} from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
-    IntegrationInfo,
-    Webhook,
-    NewWebhook,
+  IntegrationInfo,
+  Webhook,
+  NewWebhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import integrationHooks from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
 import {
@@ -21,7 +21,7 @@ import { useT } from "@reearth-cms/i18n";
 export default () => {
   const { workspaceId, integrationId } = useParams();
   const navigate = useNavigate();
-    const {loading, integrations} = integrationHooks();
+  const { loading, integrations } = integrationHooks();
   const t = useT();
 
   const selectedIntegration = useMemo(
@@ -33,14 +33,14 @@ export default () => {
     useUpdateIntegrationMutation();
 
   const handleIntegrationUpdate = useCallback(
-      async ({name, description, logoUrl}: IntegrationInfo) => {
+    async ({ name, description, logoUrl }: IntegrationInfo) => {
       if (!integrationId) return;
       const result = await updateIntegrationMutation({
         variables: {
           integrationId,
-            name,
-            description,
-            logoUrl,
+          name,
+          description,
+          logoUrl,
         },
       });
       if (result.errors) {
@@ -63,7 +63,7 @@ export default () => {
       Notification.error({ message: t("Failed to delete integration.") });
     } else {
       Notification.success({ message: t("Successfully deleted integration!") });
-        navigate(`/workspace/${workspaceId}/myIntegrations`);
+      navigate(`/workspace/${workspaceId}/myIntegrations`);
     }
   }, [integrationId, deleteIntegrationMutation, t, navigate, workspaceId]);
 
@@ -95,16 +95,16 @@ export default () => {
   });
 
   const handleWebhookCreate = useCallback(
-      async ({name, url, active, trigger, secret}: NewWebhook) => {
+    async ({ name, url, active, trigger, secret }: NewWebhook) => {
       if (!integrationId) return;
       const webhook = await createNewWebhook({
         variables: {
           integrationId,
-            name,
-            url,
-            active,
-            trigger,
-            secret,
+          name,
+          url,
+          active,
+          trigger,
+          secret,
         },
       });
       if (webhook.errors || !webhook.data?.createWebhook) {
@@ -126,7 +126,7 @@ export default () => {
       const webhook = await deleteWebhook({
         variables: {
           integrationId,
-            webhookId,
+          webhookId,
         },
       });
       if (webhook.errors || !webhook.data?.deleteWebhook) {
@@ -143,17 +143,17 @@ export default () => {
   });
 
   const handleWebhookUpdate = useCallback(
-      async ({id, name, url, active, trigger, secret}: Webhook) => {
+    async ({ id, name, url, active, trigger, secret }: Webhook) => {
       if (!integrationId) return;
       const webhook = await updateWebhook({
         variables: {
           integrationId,
-            webhookId: id,
-            name,
-            active,
-            trigger,
-            url,
-            secret,
+          webhookId: id,
+          name,
+          active,
+          trigger,
+          url,
+          secret,
         },
       });
       if (webhook.errors || !webhook.data?.updateWebhook) {
@@ -170,7 +170,7 @@ export default () => {
   }, [navigate, workspaceId]);
 
   return {
-      loading,
+    loading,
     selectedIntegration,
     updateIntegrationLoading,
     regenerateLoading,

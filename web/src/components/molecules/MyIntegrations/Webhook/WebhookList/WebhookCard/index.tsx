@@ -6,23 +6,23 @@ import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import {Webhook} from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
   webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
-    onWebhookUpdate: (data: Webhook) => Promise<void>;
-    onWebhookSelect: (webhookId: string) => void;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
+  onWebhookSelect: (webhookId: string) => void;
 };
 
 const WebhookCard: React.FC<Props> = ({
   webhook,
   onWebhookDelete,
   onWebhookUpdate,
-                                          onWebhookSelect,
+  onWebhookSelect,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-    const [isUpdateLoading, setIsUpdateLoading] = useState(false);
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
 
   const handleWebhookDelete = useCallback(async () => {
     setIsLoading(true);
@@ -34,13 +34,13 @@ const WebhookCard: React.FC<Props> = ({
   }, [onWebhookDelete, webhook.id]);
 
   const handleWebhookUpdate = useCallback(
-      async (active: boolean) => {
-          setIsUpdateLoading(true);
-          try {
-              await onWebhookUpdate({...webhook, active});
-          } finally {
-              setIsUpdateLoading(false);
-          }
+    async (active: boolean) => {
+      setIsUpdateLoading(true);
+      try {
+        await onWebhookUpdate({ ...webhook, active });
+      } finally {
+        setIsUpdateLoading(false);
+      }
     },
     [onWebhookUpdate, webhook],
   );
@@ -48,18 +48,18 @@ const WebhookCard: React.FC<Props> = ({
   return (
     <StyledCard
       title={
-          <TitleWrapper>
+        <TitleWrapper>
           <WebhookTitle>{webhook.name}</WebhookTitle>
-              <SwitchWrapper>
-                  <Switch
-                      checkedChildren="ON"
-                      unCheckedChildren="OFF"
-                      checked={webhook.active}
-                      onClick={handleWebhookUpdate}
-                      loading={isUpdateLoading}
-                  />
-              </SwitchWrapper>
-          </TitleWrapper>
+          <SwitchWrapper>
+            <Switch
+              checkedChildren="ON"
+              unCheckedChildren="OFF"
+              checked={webhook.active}
+              onClick={handleWebhookUpdate}
+              loading={isUpdateLoading}
+            />
+          </SwitchWrapper>
+        </TitleWrapper>
       }
       extra={
         <Space size={4}>
@@ -80,7 +80,7 @@ const WebhookCard: React.FC<Props> = ({
           />
         </Space>
       }>
-        <Content>{webhook.url}</Content>
+      <Content>{webhook.url}</Content>
     </StyledCard>
   );
 };

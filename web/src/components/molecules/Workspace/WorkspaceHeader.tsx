@@ -2,26 +2,26 @@ import styled from "@emotion/styled";
 
 import Content from "@reearth-cms/components/atoms/Content";
 import Search from "@reearth-cms/components/atoms/Search";
-import {FormValues as ProjectFormValues} from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
-import {FormValues as WorkspaceFormValues} from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
+import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
 import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   hasCreateRight: boolean;
-    onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;
+  onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;
   onProjectSearch: (value: string) => void;
-    onProjectCreate: (values: ProjectFormValues) => Promise<void>;
-    onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const WorkspaceHeader: React.FC<Props> = ({
   hasCreateRight,
-                                              onWorkspaceCreate,
+  onWorkspaceCreate,
   onProjectSearch,
-                                              onProjectCreate,
-                                              onProjectAliasCheck,
+  onProjectCreate,
+  onProjectAliasCheck,
 }) => {
   const t = useT();
 
@@ -34,12 +34,12 @@ const WorkspaceHeader: React.FC<Props> = ({
         type="text"
       />
       <ButtonWrapper>
-          <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate}/>
-          <CreateProjectButton
-              hasCreateRight={hasCreateRight}
-              onProjectCreate={onProjectCreate}
-              onProjectAliasCheck={onProjectAliasCheck}
-          />
+        <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />
+        <CreateProjectButton
+          hasCreateRight={hasCreateRight}
+          onProjectCreate={onProjectCreate}
+          onProjectAliasCheck={onProjectAliasCheck}
+        />
       </ButtonWrapper>
     </ActionHeader>
   );

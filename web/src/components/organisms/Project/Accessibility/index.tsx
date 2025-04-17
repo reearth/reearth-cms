@@ -4,7 +4,7 @@ import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
   const {
-      initialValues,
+    initialValues,
     models,
     hasPublishRight,
     updateLoading,
@@ -18,7 +18,7 @@ const Accessibility: React.FC = () => {
 
   return (
     <AccessibilityMolecule
-        initialValues={initialValues}
+      initialValues={initialValues}
       models={models}
       hasPublishRight={hasPublishRight}
       updateLoading={updateLoading}

@@ -4,19 +4,19 @@ import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
 import MultiValueGeometry from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGeometry";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
-import {FieldProps} from "@reearth-cms/components/molecules/Schema/types";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
-import {requiredValidator} from "../utils";
+import { requiredValidator } from "../utils";
 
 const GeometryField: React.FC<FieldProps> = ({
-                                                 field,
-                                                 itemGroupId,
-                                                 disabled,
-                                                 itemHeights,
-                                                 onItemHeightChange,
-                                             }) => {
+  field,
+  itemGroupId,
+  disabled,
+  itemHeights,
+  onItemHeightChange,
+}) => {
   const t = useT();
   const errorSet = useRef(new Set<number>());
 
@@ -41,7 +41,7 @@ const GeometryField: React.FC<FieldProps> = ({
       rules={[
         {
           required: field.required,
-            validator: requiredValidator,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
         {
@@ -53,15 +53,15 @@ const GeometryField: React.FC<FieldProps> = ({
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-          <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
-              <MultiValueGeometry
-                  supportedTypes={supportedTypes}
-                  isEditor={isEditor}
-                  disabled={disabled}
-                  errorAdd={errorAdd}
-                  errorDelete={errorDelete}
-              />
-          </ResponsiveHeight>
+        <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+          <MultiValueGeometry
+            supportedTypes={supportedTypes}
+            isEditor={isEditor}
+            disabled={disabled}
+            errorAdd={errorAdd}
+            errorDelete={errorDelete}
+          />
+        </ResponsiveHeight>
       ) : (
         <GeometryItem
           supportedTypes={supportedTypes}

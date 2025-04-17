@@ -1,12 +1,12 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import {createModelFromOverview} from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-    await createModelFromOverview(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -94,7 +94,7 @@ test("GeometryObject field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new geometryObject1 description");
   await page.getByLabel("Support multiple values").check();
-    await expect(page.getByLabel("Use as title")).toBeHidden();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();

@@ -7,21 +7,21 @@ import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea"
 
 type Props = {
   onChange?: (value: string) => void;
-    isError?: boolean;
+  isError?: boolean;
 } & TextAreaProps;
 
 const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
-    const isError = useMemo(() => {
-        if (props.isError || (props.required && !value)) {
-            return true;
-        } else if (props.maxLength && typeof value === "string" && value) {
-            return runes(value).length > props.maxLength;
-        } else {
-            return false;
-        }
-    }, [props, value]);
+  const isError = useMemo(() => {
+    if (props.isError || (props.required && !value)) {
+      return true;
+    } else if (props.maxLength && typeof value === "string" && value) {
+      return runes(value).length > props.maxLength;
+    } else {
+      return false;
+    }
+  }, [props, value]);
 
   const handleBlur = useCallback((event: FocusEvent<HTMLTextAreaElement>) => {
     event.stopPropagation();
@@ -51,7 +51,7 @@ const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
         showCount
       />
       <StyledMD disabled={props.disabled} isError={isError} hidden={!showMD} onClick={handleClick}>
-          <ReactMarkdown>{typeof value === "string" ? value : undefined}</ReactMarkdown>
+        <ReactMarkdown>{typeof value === "string" ? value : undefined}</ReactMarkdown>
       </StyledMD>
     </MarkdownWrapper>
   );
@@ -82,6 +82,6 @@ const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   }
   background-color: ${({ disabled }) => (disabled ? "#f5f5f5" : "#FFF")};
   * {
-    ${({isError}) => isError && "color: #ff4d4f"};
+    ${({ isError }) => isError && "color: #ff4d4f"};
   }
 `;

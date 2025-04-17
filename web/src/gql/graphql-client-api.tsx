@@ -69,7 +69,7 @@ export enum ArchiveExtractionStatus {
 export type Asset = Node & {
   __typename?: 'Asset';
   archiveExtractionStatus?: Maybe<ArchiveExtractionStatus>;
-    contentEncoding?: Maybe<Scalars['String']['output']>;
+  contentEncoding?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   createdBy: Operator;
   createdById: Scalars['ID']['output'];
@@ -82,7 +82,7 @@ export type Asset = Node & {
   projectId: Scalars['ID']['output'];
   size: Scalars['FileSize']['output'];
   thread?: Maybe<Thread>;
-    threadId?: Maybe<Scalars['ID']['output']>;
+  threadId?: Maybe<Scalars['ID']['output']>;
   url: Scalars['String']['output'];
   uuid: Scalars['String']['output'];
 };
@@ -103,7 +103,7 @@ export type AssetEdge = {
 
 export type AssetFile = {
   __typename?: 'AssetFile';
-    contentEncoding?: Maybe<Scalars['String']['output']>;
+  contentEncoding?: Maybe<Scalars['String']['output']>;
   contentType?: Maybe<Scalars['String']['output']>;
   filePaths?: Maybe<Array<Scalars['String']['output']>>;
   name: Scalars['String']['output'];
@@ -233,7 +233,7 @@ export type CorrespondingFieldInput = {
 };
 
 export type CreateAssetInput = {
-    contentEncoding?: InputMaybe<Scalars['String']['input']>;
+  contentEncoding?: InputMaybe<Scalars['String']['input']>;
   file?: InputMaybe<Scalars['Upload']['input']>;
   projectId: Scalars['ID']['input'];
   skipDecompression?: InputMaybe<Scalars['Boolean']['input']>;
@@ -247,7 +247,7 @@ export type CreateAssetPayload = {
 };
 
 export type CreateAssetUploadInput = {
-    contentEncoding?: InputMaybe<Scalars['String']['input']>;
+  contentEncoding?: InputMaybe<Scalars['String']['input']>;
   contentLength?: InputMaybe<Scalars['Int']['input']>;
   cursor?: InputMaybe<Scalars['String']['input']>;
   filename?: InputMaybe<Scalars['String']['input']>;
@@ -256,7 +256,7 @@ export type CreateAssetUploadInput = {
 
 export type CreateAssetUploadPayload = {
   __typename?: 'CreateAssetUploadPayload';
-    contentEncoding?: Maybe<Scalars['String']['output']>;
+  contentEncoding?: Maybe<Scalars['String']['output']>;
   contentLength: Scalars['Int']['output'];
   contentType?: Maybe<Scalars['String']['output']>;
   next?: Maybe<Scalars['String']['output']>;
@@ -326,9 +326,9 @@ export type CreateRequestInput = {
 };
 
 export type CreateThreadWithCommentInput = {
-    content: Scalars['String']['input'];
-    resourceId: Scalars['ID']['input'];
-    resourceType: ResourceType;
+  content: Scalars['String']['input'];
+  resourceId: Scalars['ID']['input'];
+  resourceType: ResourceType;
   workspaceId: Scalars['ID']['input'];
 };
 
@@ -378,12 +378,12 @@ export type DeleteAssetPayload = {
 };
 
 export type DeleteAssetsInput = {
-    assetIds: Array<Scalars['ID']['input']>;
+  assetIds: Array<Scalars['ID']['input']>;
 };
 
 export type DeleteAssetsPayload = {
-    __typename?: 'DeleteAssetsPayload';
-    assetIds?: Maybe<Array<Scalars['ID']['output']>>;
+  __typename?: 'DeleteAssetsPayload';
+  assetIds?: Maybe<Array<Scalars['ID']['output']>>;
 };
 
 export type DeleteCommentInput = {
@@ -428,12 +428,12 @@ export type DeleteIntegrationPayload = {
 };
 
 export type DeleteIntegrationsInput = {
-    integrationIDs: Array<Scalars['ID']['input']>;
+  integrationIDs: Array<Scalars['ID']['input']>;
 };
 
 export type DeleteIntegrationsPayload = {
-    __typename?: 'DeleteIntegrationsPayload';
-    integrationIDs?: Maybe<Array<Scalars['ID']['output']>>;
+  __typename?: 'DeleteIntegrationsPayload';
+  integrationIDs?: Maybe<Array<Scalars['ID']['output']>>;
 };
 
 export type DeleteItemInput = {
@@ -635,8 +635,8 @@ export type Item = Node & {
   schema: Schema;
   schemaId: Scalars['ID']['output'];
   status: ItemStatus;
-    thread?: Maybe<Thread>;
-    threadId?: Maybe<Scalars['ID']['output']>;
+  thread?: Maybe<Thread>;
+  threadId?: Maybe<Scalars['ID']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   updatedBy?: Maybe<Operator>;
@@ -809,18 +809,18 @@ export type Mutation = {
   createModel?: Maybe<ModelPayload>;
   createProject?: Maybe<ProjectPayload>;
   createRequest?: Maybe<RequestPayload>;
-    createThreadWithComment?: Maybe<CommentPayload>;
+  createThreadWithComment?: Maybe<CommentPayload>;
   createView?: Maybe<ViewPayload>;
   createWebhook?: Maybe<WebhookPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   decompressAsset?: Maybe<DecompressAssetPayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
-    deleteAssets?: Maybe<DeleteAssetsPayload>;
+  deleteAssets?: Maybe<DeleteAssetsPayload>;
   deleteComment?: Maybe<DeleteCommentPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
   deleteGroup?: Maybe<DeleteGroupPayload>;
   deleteIntegration?: Maybe<DeleteIntegrationPayload>;
-    deleteIntegrations?: Maybe<DeleteIntegrationsPayload>;
+  deleteIntegrations?: Maybe<DeleteIntegrationsPayload>;
   deleteItem?: Maybe<DeleteItemPayload>;
   deleteMe?: Maybe<DeleteMePayload>;
   deleteModel?: Maybe<DeleteModelPayload>;
@@ -831,7 +831,7 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
-    publishModels?: Maybe<PublishModelsPayload>;
+  publishModels?: Maybe<PublishModelsPayload>;
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
   regeneratePublicApiToken?: Maybe<ProjectPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveIntegrationFromWorkspacePayload>;
@@ -927,7 +927,7 @@ export type MutationCreateRequestArgs = {
 
 
 export type MutationCreateThreadWithCommentArgs = {
-    input: CreateThreadWithCommentInput;
+  input: CreateThreadWithCommentInput;
 };
 
 
@@ -957,7 +957,7 @@ export type MutationDeleteAssetArgs = {
 
 
 export type MutationDeleteAssetsArgs = {
-    input: DeleteAssetsInput;
+  input: DeleteAssetsInput;
 };
 
 
@@ -982,7 +982,7 @@ export type MutationDeleteIntegrationArgs = {
 
 
 export type MutationDeleteIntegrationsArgs = {
-    input: DeleteIntegrationsInput;
+  input: DeleteIntegrationsInput;
 };
 
 
@@ -1037,7 +1037,7 @@ export type MutationPublishModelArgs = {
 
 
 export type MutationPublishModelsArgs = {
-    input: PublishModelsInput;
+  input: PublishModelsInput;
 };
 
 
@@ -1350,12 +1350,12 @@ export type PublishModelPayload = {
 };
 
 export type PublishModelsInput = {
-    models: Array<PublishModelInput>;
+  models: Array<PublishModelInput>;
 };
 
 export type PublishModelsPayload = {
-    __typename?: 'PublishModelsPayload';
-    models: Array<PublishModelPayload>;
+  __typename?: 'PublishModelsPayload';
+  models: Array<PublishModelPayload>;
 };
 
 export type Query = {
@@ -1536,7 +1536,7 @@ export type Request = Node & {
   reviewersId: Array<Scalars['ID']['output']>;
   state: RequestState;
   thread?: Maybe<Thread>;
-    threadId?: Maybe<Scalars['ID']['output']>;
+  threadId?: Maybe<Scalars['ID']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   workspace?: Maybe<Workspace>;
@@ -1597,9 +1597,9 @@ export type ResourceList = {
 };
 
 export enum ResourceType {
-    Asset = 'ASSET',
-    Item = 'ITEM',
-    Request = 'REQUEST'
+  Asset = 'ASSET',
+  Item = 'ITEM',
+  Request = 'REQUEST'
 }
 
 export type ResourcesListInput = {
@@ -2329,122 +2329,7 @@ export type AssetFileFragmentFragment = { __typename?: 'AssetFile', name: string
 
 export type IntegrationFragmentFragment = { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null };
 
-export type RequestFragmentFragment = {
-    __typename?: 'Request',
-    id: string,
-    title: string,
-    description?: string | null,
-    workspaceId: string,
-    projectId: string,
-    threadId?: string | null,
-    reviewersId: Array<string>,
-    state: RequestState,
-    createdAt: Date,
-    updatedAt: Date,
-    approvedAt?: Date | null,
-    closedAt?: Date | null,
-    items: Array<{
-        __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: {
-            __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: {
-                __typename?: 'Item',
-                id: string,
-                title?: string | null,
-                schemaId: string,
-                modelId: string,
-                model: { __typename?: 'Model', name: string },
-                fields: Array<{
-                    __typename?: 'ItemField',
-                    schemaFieldId: string,
-                    type: SchemaFieldType,
-                    value?: any | null,
-                    itemGroupId?: string | null
-                }>,
-                referencedItems?: Array<{
-                    __typename?: 'Item',
-                    id: string,
-                    title?: string | null,
-                    schemaId: string,
-                    status: ItemStatus,
-                    version: string,
-                    createdAt: Date,
-                    updatedAt: Date,
-                    createdBy?: { __typename?: 'Integration', name: string } | {
-                        __typename?: 'User',
-                        name: string
-                    } | null
-                }> | null,
-                schema: {
-                    __typename?: 'Schema', id: string, fields: Array<{
-                        __typename?: 'SchemaField',
-                        id: string,
-                        type: SchemaFieldType,
-                        title: string,
-                        key: string,
-                        description?: string | null,
-                        required: boolean,
-                        unique: boolean,
-                        isTitle: boolean,
-                        multiple: boolean,
-                        typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | {
-                            __typename?: 'SchemaFieldBool',
-                            defaultValue?: any | null
-                        } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | {
-                            __typename?: 'SchemaFieldGeometryEditor'
-                        } | { __typename?: 'SchemaFieldGeometryObject' } | {
-                            __typename?: 'SchemaFieldGroup',
-                            groupId: string
-                        } | {
-                            __typename?: 'SchemaFieldInteger',
-                            min?: number | null,
-                            max?: number | null,
-                            integerDefaultValue?: any | null
-                        } | {
-                            __typename?: 'SchemaFieldMarkdown',
-                            defaultValue?: any | null,
-                            maxLength?: number | null
-                        } | { __typename?: 'SchemaFieldNumber' } | {
-                            __typename?: 'SchemaFieldReference',
-                            modelId: string
-                        } | { __typename?: 'SchemaFieldRichText' } | {
-                            __typename?: 'SchemaFieldSelect',
-                            values: Array<string>,
-                            selectDefaultValue?: any | null
-                        } | { __typename?: 'SchemaFieldTag' } | {
-                            __typename?: 'SchemaFieldText',
-                            defaultValue?: any | null,
-                            maxLength?: number | null
-                        } | {
-                            __typename?: 'SchemaFieldTextArea',
-                            defaultValue?: any | null,
-                            maxLength?: number | null
-                        } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null
-                    }>
-                }
-            }
-        } | null
-    }>,
-    createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null,
-    thread?: {
-        __typename?: 'Thread',
-        id: string,
-        workspaceId: string,
-        comments: Array<{
-            __typename?: 'Comment',
-            id: string,
-            authorId: string,
-            content: string,
-            createdAt: Date,
-            author?: { __typename?: 'Integration', id: string, name: string } | {
-                __typename?: 'User',
-                id: string,
-                name: string,
-                email: string
-            } | null
-        }>
-    } | null,
-    project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null,
-    reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>
-};
+export type RequestFragmentFragment = { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId?: string | null, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, title?: string | null, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null, itemGroupId?: string | null }>, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference', modelId: string } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> };
 
 export type ThreadFragmentFragment = { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> };
 
@@ -2529,22 +2414,11 @@ export type CreateAssetUploadMutationVariables = Exact<{
   filename: Scalars['String']['input'];
   cursor: Scalars['String']['input'];
   contentLength: Scalars['Int']['input'];
-    contentEncoding?: InputMaybe<Scalars['String']['input']>;
+  contentEncoding?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type CreateAssetUploadMutation = {
-    __typename?: 'Mutation',
-    createAssetUpload?: {
-        __typename?: 'CreateAssetUploadPayload',
-        url: string,
-        token: string,
-        contentType?: string | null,
-        contentLength: number,
-        contentEncoding?: string | null,
-        next?: string | null
-    } | null
-};
+export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType?: string | null, contentLength: number, contentEncoding?: string | null, next?: string | null } | null };
 
 export type AddCommentMutationVariables = Exact<{
   threadId: Scalars['ID']['input'];
@@ -2728,147 +2602,14 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = {
-    __typename?: 'Query', searchItem: {
-        __typename?: 'ItemConnection', totalCount: number, nodes: Array<{
-            __typename?: 'Item',
-            id: string,
-            title?: string | null,
-            schemaId: string,
-            createdAt: Date,
-            updatedAt: Date,
-            status: ItemStatus,
-            version: string,
-            referencedItems?: Array<{
-                __typename?: 'Item',
-                id: string,
-                title?: string | null,
-                schemaId: string,
-                status: ItemStatus,
-                version: string,
-                createdAt: Date,
-                updatedAt: Date,
-                createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null
-            }> | null,
-            createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null,
-            fields: Array<{
-                __typename?: 'ItemField',
-                schemaFieldId: string,
-                itemGroupId?: string | null,
-                type: SchemaFieldType,
-                value?: any | null
-            }>,
-            thread?: {
-                __typename?: 'Thread',
-                id: string,
-                workspaceId: string,
-                comments: Array<{
-                    __typename?: 'Comment',
-                    id: string,
-                    authorId: string,
-                    content: string,
-                    createdAt: Date,
-                    author?: { __typename?: 'Integration', id: string, name: string } | {
-                        __typename?: 'User',
-                        id: string,
-                        name: string,
-                        email: string
-                    } | null
-                }>
-            } | null,
-            metadata?: {
-                __typename?: 'Item',
-                id: string,
-                version: string,
-                fields: Array<{
-                    __typename?: 'ItemField',
-                    schemaFieldId: string,
-                    itemGroupId?: string | null,
-                    type: SchemaFieldType,
-                    value?: any | null
-                }>
-            } | null
-        } | null>
-    }
-};
+export type GetItemsQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, metadata?: { __typename?: 'Item', id: string, version: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
 
 export type GetItemQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetItemQuery = {
-    __typename?: 'Query',
-    node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | {
-        __typename?: 'Item',
-        id: string,
-        title?: string | null,
-        schemaId: string,
-        createdAt: Date,
-        updatedAt: Date,
-        status: ItemStatus,
-        version: string,
-        referencedItems?: Array<{
-            __typename?: 'Item',
-            id: string,
-            title?: string | null,
-            schemaId: string,
-            status: ItemStatus,
-            version: string,
-            createdAt: Date,
-            updatedAt: Date,
-            createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null
-        }> | null,
-        assets: Array<{ __typename?: 'Asset', id: string, url: string, fileName: string } | null>,
-        createdBy?: { __typename?: 'Integration', id: string, name: string } | {
-            __typename?: 'User',
-            id: string,
-            name: string
-        } | null,
-        updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null,
-        fields: Array<{
-            __typename?: 'ItemField',
-            schemaFieldId: string,
-            itemGroupId?: string | null,
-            type: SchemaFieldType,
-            value?: any | null
-        }>,
-        metadata?: {
-            __typename?: 'Item',
-            id: string,
-            version: string,
-            fields: Array<{
-                __typename?: 'ItemField',
-                schemaFieldId: string,
-                type: SchemaFieldType,
-                value?: any | null
-            }>
-        } | null,
-        thread?: {
-            __typename?: 'Thread',
-            id: string,
-            workspaceId: string,
-            comments: Array<{
-                __typename?: 'Comment',
-                id: string,
-                authorId: string,
-                content: string,
-                createdAt: Date,
-                author?: { __typename?: 'Integration', id: string, name: string } | {
-                    __typename?: 'User',
-                    id: string,
-                    name: string,
-                    email: string
-                } | null
-            }>
-        } | null,
-        requests?: Array<{ __typename?: 'Request', id: string, state: RequestState, title: string }> | null
-    } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | {
-        __typename?: 'Schema'
-    } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | {
-        __typename?: 'WorkspaceSettings'
-    } | null
-};
+export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, assets: Array<{ __typename?: 'Asset', id: string, url: string, fileName: string } | null>, createdBy?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, metadata?: { __typename?: 'Item', id: string, version: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, requests?: Array<{ __typename?: 'Request', id: string, state: RequestState, title: string }> | null } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
 
 export type IsItemReferencedQueryVariables = Exact<{
   itemId: Scalars['ID']['input'];
@@ -2879,131 +2620,18 @@ export type IsItemReferencedQueryVariables = Exact<{
 export type IsItemReferencedQuery = { __typename?: 'Query', isItemReferenced: boolean };
 
 export type VersionsByItemQueryVariables = Exact<{
-    itemId: Scalars['ID']['input'];
+  itemId: Scalars['ID']['input'];
 }>;
 
 
-export type VersionsByItemQuery = {
-    __typename?: 'Query',
-    versionsByItem: Array<{
-        __typename?: 'VersionedItem',
-        version: string,
-        refs: Array<string>,
-        value: {
-            __typename?: 'Item',
-            id: string,
-            version: string,
-            modelId: string,
-            status: ItemStatus,
-            createdAt: Date,
-            updatedAt: Date,
-            createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null,
-            updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null,
-            fields: Array<{
-                __typename?: 'ItemField',
-                schemaFieldId: string,
-                itemGroupId?: string | null,
-                type: SchemaFieldType,
-                value?: any | null
-            }>,
-            requests?: Array<{
-                __typename?: 'Request',
-                id: string,
-                title: string,
-                state: RequestState,
-                items: Array<{
-                    __typename?: 'RequestItem',
-                    itemId: string,
-                    version?: string | null,
-                    item?: { __typename?: 'VersionedItem', value: { __typename?: 'Item', modelId: string } } | null
-                }>
-            }> | null
-        }
-    }>
-};
+export type VersionsByItemQuery = { __typename?: 'Query', versionsByItem: Array<{ __typename?: 'VersionedItem', version: string, refs: Array<string>, value: { __typename?: 'Item', id: string, version: string, modelId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, requests?: Array<{ __typename?: 'Request', id: string, title: string, state: RequestState, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, item?: { __typename?: 'VersionedItem', value: { __typename?: 'Item', modelId: string } } | null }> }> | null } }> };
 
 export type SearchItemQueryVariables = Exact<{
   searchItemInput: SearchItemInput;
 }>;
 
 
-export type SearchItemQuery = {
-    __typename?: 'Query', searchItem: {
-        __typename?: 'ItemConnection',
-        totalCount: number,
-        nodes: Array<{
-            __typename?: 'Item',
-            id: string,
-            title?: string | null,
-            schemaId: string,
-            createdAt: Date,
-            updatedAt: Date,
-            status: ItemStatus,
-            version: string,
-            referencedItems?: Array<{
-                __typename?: 'Item',
-                id: string,
-                title?: string | null,
-                schemaId: string,
-                status: ItemStatus,
-                version: string,
-                createdAt: Date,
-                updatedAt: Date,
-                createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null
-            }> | null,
-            assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>,
-            fields: Array<{
-                __typename?: 'ItemField',
-                schemaFieldId: string,
-                itemGroupId?: string | null,
-                type: SchemaFieldType,
-                value?: any | null
-            }>,
-            createdBy?: { __typename?: 'Integration', id: string, name: string } | {
-                __typename?: 'User',
-                id: string,
-                name: string
-            } | null,
-            updatedBy?: { __typename: 'Integration', name: string } | { __typename: 'User', name: string } | null,
-            metadata?: {
-                __typename?: 'Item',
-                id: string,
-                version: string,
-                fields: Array<{
-                    __typename?: 'ItemField',
-                    schemaFieldId: string,
-                    type: SchemaFieldType,
-                    value?: any | null
-                }>
-            } | null,
-            thread?: {
-                __typename?: 'Thread',
-                id: string,
-                workspaceId: string,
-                comments: Array<{
-                    __typename?: 'Comment',
-                    id: string,
-                    authorId: string,
-                    content: string,
-                    createdAt: Date,
-                    author?: { __typename?: 'Integration', id: string, name: string } | {
-                        __typename?: 'User',
-                        id: string,
-                        name: string,
-                        email: string
-                    } | null
-                }>
-            } | null
-        } | null>,
-        pageInfo: {
-            __typename?: 'PageInfo',
-            hasNextPage: boolean,
-            hasPreviousPage: boolean,
-            startCursor?: string | null,
-            endCursor?: string | null
-        }
-    }
-};
+export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, createdBy?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string } | null, updatedBy?: { __typename: 'Integration', name: string } | { __typename: 'User', name: string } | null, metadata?: { __typename?: 'Item', id: string, version: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID']['input'];
@@ -3090,17 +2718,11 @@ export type UpdateModelMutationVariables = Exact<{
 export type UpdateModelMutation = { __typename?: 'Mutation', updateModel?: { __typename?: 'ModelPayload', model: { __typename?: 'Model', id: string, name: string } } | null };
 
 export type PublishModelsMutationVariables = Exact<{
-    models: Array<PublishModelInput> | PublishModelInput;
+  models: Array<PublishModelInput> | PublishModelInput;
 }>;
 
 
-export type PublishModelsMutation = {
-    __typename?: 'Mutation',
-    publishModels?: {
-        __typename?: 'PublishModelsPayload',
-        models: Array<{ __typename?: 'PublishModelPayload', modelId: string, status: boolean }>
-    } | null
-};
+export type PublishModelsMutation = { __typename?: 'Mutation', publishModels?: { __typename?: 'PublishModelsPayload', models: Array<{ __typename?: 'PublishModelPayload', modelId: string, status: boolean }> } | null };
 
 export type CheckModelKeyAvailabilityQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -3186,48 +2808,7 @@ export type GetRequestsQueryVariables = Exact<{
 }>;
 
 
-export type GetRequestsQuery = {
-    __typename?: 'Query',
-    requests: {
-        __typename?: 'RequestConnection',
-        totalCount: number,
-        nodes: Array<{
-            __typename?: 'Request',
-            id: string,
-            title: string,
-            description?: string | null,
-            workspaceId: string,
-            projectId: string,
-            threadId?: string | null,
-            reviewersId: Array<string>,
-            state: RequestState,
-            createdAt: Date,
-            updatedAt: Date,
-            approvedAt?: Date | null,
-            closedAt?: Date | null,
-            createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null,
-            reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>,
-            thread?: {
-                __typename?: 'Thread',
-                id: string,
-                workspaceId: string,
-                comments: Array<{
-                    __typename?: 'Comment',
-                    id: string,
-                    authorId: string,
-                    content: string,
-                    createdAt: Date,
-                    author?: { __typename?: 'Integration', id: string, name: string } | {
-                        __typename?: 'User',
-                        id: string,
-                        name: string,
-                        email: string
-                    } | null
-                }>
-            } | null
-        } | null>
-    }
-};
+export type GetRequestsQuery = { __typename?: 'Query', requests: { __typename?: 'RequestConnection', totalCount: number, nodes: Array<{ __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId?: string | null, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null> } };
 
 export type GetModalRequestsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -3247,138 +2828,7 @@ export type GetRequestQueryVariables = Exact<{
 }>;
 
 
-export type GetRequestQuery = {
-    __typename?: 'Query',
-    node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | {
-        __typename?: 'Integration',
-        id: string
-    } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | {
-        __typename?: 'Project',
-        id: string
-    } | {
-        __typename?: 'Request',
-        id: string,
-        title: string,
-        description?: string | null,
-        workspaceId: string,
-        projectId: string,
-        threadId?: string | null,
-        reviewersId: Array<string>,
-        state: RequestState,
-        createdAt: Date,
-        updatedAt: Date,
-        approvedAt?: Date | null,
-        closedAt?: Date | null,
-        items: Array<{
-            __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: {
-                __typename?: 'VersionedItem',
-                version: string,
-                parents?: Array<string> | null,
-                refs: Array<string>,
-                value: {
-                    __typename?: 'Item',
-                    id: string,
-                    title?: string | null,
-                    schemaId: string,
-                    modelId: string,
-                    model: { __typename?: 'Model', name: string },
-                    fields: Array<{
-                        __typename?: 'ItemField',
-                        schemaFieldId: string,
-                        type: SchemaFieldType,
-                        value?: any | null,
-                        itemGroupId?: string | null
-                    }>,
-                    referencedItems?: Array<{
-                        __typename?: 'Item',
-                        id: string,
-                        title?: string | null,
-                        schemaId: string,
-                        status: ItemStatus,
-                        version: string,
-                        createdAt: Date,
-                        updatedAt: Date,
-                        createdBy?: { __typename?: 'Integration', name: string } | {
-                            __typename?: 'User',
-                            name: string
-                        } | null
-                    }> | null,
-                    schema: {
-                        __typename?: 'Schema', id: string, fields: Array<{
-                            __typename?: 'SchemaField',
-                            id: string,
-                            type: SchemaFieldType,
-                            title: string,
-                            key: string,
-                            description?: string | null,
-                            required: boolean,
-                            unique: boolean,
-                            isTitle: boolean,
-                            multiple: boolean,
-                            typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | {
-                                __typename?: 'SchemaFieldBool',
-                                defaultValue?: any | null
-                            } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | {
-                                __typename?: 'SchemaFieldGeometryEditor'
-                            } | { __typename?: 'SchemaFieldGeometryObject' } | {
-                                __typename?: 'SchemaFieldGroup',
-                                groupId: string
-                            } | {
-                                __typename?: 'SchemaFieldInteger',
-                                min?: number | null,
-                                max?: number | null,
-                                integerDefaultValue?: any | null
-                            } | {
-                                __typename?: 'SchemaFieldMarkdown',
-                                defaultValue?: any | null,
-                                maxLength?: number | null
-                            } | { __typename?: 'SchemaFieldNumber' } | {
-                                __typename?: 'SchemaFieldReference',
-                                modelId: string
-                            } | { __typename?: 'SchemaFieldRichText' } | {
-                                __typename?: 'SchemaFieldSelect',
-                                values: Array<string>,
-                                selectDefaultValue?: any | null
-                            } | { __typename?: 'SchemaFieldTag' } | {
-                                __typename?: 'SchemaFieldText',
-                                defaultValue?: any | null,
-                                maxLength?: number | null
-                            } | {
-                                __typename?: 'SchemaFieldTextArea',
-                                defaultValue?: any | null,
-                                maxLength?: number | null
-                            } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null
-                        }>
-                    }
-                }
-            } | null
-        }>,
-        createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null,
-        thread?: {
-            __typename?: 'Thread',
-            id: string,
-            workspaceId: string,
-            comments: Array<{
-                __typename?: 'Comment',
-                id: string,
-                authorId: string,
-                content: string,
-                createdAt: Date,
-                author?: { __typename?: 'Integration', id: string, name: string } | {
-                    __typename?: 'User',
-                    id: string,
-                    name: string,
-                    email: string
-                } | null
-            }>
-        } | null,
-        project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null,
-        reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>
-    } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | {
-        __typename?: 'View',
-        id: string
-    } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null
-};
+export type GetRequestQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', id: string } | { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId?: string | null, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, title?: string | null, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null, itemGroupId?: string | null }>, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference', modelId: string } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
 
 export type CreateRequestMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -3390,130 +2840,7 @@ export type CreateRequestMutationVariables = Exact<{
 }>;
 
 
-export type CreateRequestMutation = {
-    __typename?: 'Mutation', createRequest?: {
-        __typename?: 'RequestPayload', request: {
-            __typename?: 'Request',
-            id: string,
-            title: string,
-            description?: string | null,
-            workspaceId: string,
-            projectId: string,
-            threadId?: string | null,
-            reviewersId: Array<string>,
-            state: RequestState,
-            createdAt: Date,
-            updatedAt: Date,
-            approvedAt?: Date | null,
-            closedAt?: Date | null,
-            items: Array<{
-                __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: {
-                    __typename?: 'VersionedItem',
-                    version: string,
-                    parents?: Array<string> | null,
-                    refs: Array<string>,
-                    value: {
-                        __typename?: 'Item',
-                        id: string,
-                        title?: string | null,
-                        schemaId: string,
-                        modelId: string,
-                        model: { __typename?: 'Model', name: string },
-                        fields: Array<{
-                            __typename?: 'ItemField',
-                            schemaFieldId: string,
-                            type: SchemaFieldType,
-                            value?: any | null,
-                            itemGroupId?: string | null
-                        }>,
-                        referencedItems?: Array<{
-                            __typename?: 'Item',
-                            id: string,
-                            title?: string | null,
-                            schemaId: string,
-                            status: ItemStatus,
-                            version: string,
-                            createdAt: Date,
-                            updatedAt: Date,
-                            createdBy?: { __typename?: 'Integration', name: string } | {
-                                __typename?: 'User',
-                                name: string
-                            } | null
-                        }> | null,
-                        schema: {
-                            __typename?: 'Schema', id: string, fields: Array<{
-                                __typename?: 'SchemaField',
-                                id: string,
-                                type: SchemaFieldType,
-                                title: string,
-                                key: string,
-                                description?: string | null,
-                                required: boolean,
-                                unique: boolean,
-                                isTitle: boolean,
-                                multiple: boolean,
-                                typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | {
-                                    __typename?: 'SchemaFieldBool',
-                                    defaultValue?: any | null
-                                } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | {
-                                    __typename?: 'SchemaFieldGeometryEditor'
-                                } | { __typename?: 'SchemaFieldGeometryObject' } | {
-                                    __typename?: 'SchemaFieldGroup',
-                                    groupId: string
-                                } | {
-                                    __typename?: 'SchemaFieldInteger',
-                                    min?: number | null,
-                                    max?: number | null,
-                                    integerDefaultValue?: any | null
-                                } | {
-                                    __typename?: 'SchemaFieldMarkdown',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | { __typename?: 'SchemaFieldNumber' } | {
-                                    __typename?: 'SchemaFieldReference',
-                                    modelId: string
-                                } | { __typename?: 'SchemaFieldRichText' } | {
-                                    __typename?: 'SchemaFieldSelect',
-                                    values: Array<string>,
-                                    selectDefaultValue?: any | null
-                                } | { __typename?: 'SchemaFieldTag' } | {
-                                    __typename?: 'SchemaFieldText',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | {
-                                    __typename?: 'SchemaFieldTextArea',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null
-                            }>
-                        }
-                    }
-                } | null
-            }>,
-            createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null,
-            thread?: {
-                __typename?: 'Thread',
-                id: string,
-                workspaceId: string,
-                comments: Array<{
-                    __typename?: 'Comment',
-                    id: string,
-                    authorId: string,
-                    content: string,
-                    createdAt: Date,
-                    author?: { __typename?: 'Integration', id: string, name: string } | {
-                        __typename?: 'User',
-                        id: string,
-                        name: string,
-                        email: string
-                    } | null
-                }>
-            } | null,
-            project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null,
-            reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>
-        }
-    } | null
-};
+export type CreateRequestMutation = { __typename?: 'Mutation', createRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId?: string | null, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, title?: string | null, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null, itemGroupId?: string | null }>, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference', modelId: string } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
 
 export type UpdateRequestMutationVariables = Exact<{
   requestId: Scalars['ID']['input'];
@@ -3525,260 +2852,14 @@ export type UpdateRequestMutationVariables = Exact<{
 }>;
 
 
-export type UpdateRequestMutation = {
-    __typename?: 'Mutation', updateRequest?: {
-        __typename?: 'RequestPayload', request: {
-            __typename?: 'Request',
-            id: string,
-            title: string,
-            description?: string | null,
-            workspaceId: string,
-            projectId: string,
-            threadId?: string | null,
-            reviewersId: Array<string>,
-            state: RequestState,
-            createdAt: Date,
-            updatedAt: Date,
-            approvedAt?: Date | null,
-            closedAt?: Date | null,
-            items: Array<{
-                __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: {
-                    __typename?: 'VersionedItem',
-                    version: string,
-                    parents?: Array<string> | null,
-                    refs: Array<string>,
-                    value: {
-                        __typename?: 'Item',
-                        id: string,
-                        title?: string | null,
-                        schemaId: string,
-                        modelId: string,
-                        model: { __typename?: 'Model', name: string },
-                        fields: Array<{
-                            __typename?: 'ItemField',
-                            schemaFieldId: string,
-                            type: SchemaFieldType,
-                            value?: any | null,
-                            itemGroupId?: string | null
-                        }>,
-                        referencedItems?: Array<{
-                            __typename?: 'Item',
-                            id: string,
-                            title?: string | null,
-                            schemaId: string,
-                            status: ItemStatus,
-                            version: string,
-                            createdAt: Date,
-                            updatedAt: Date,
-                            createdBy?: { __typename?: 'Integration', name: string } | {
-                                __typename?: 'User',
-                                name: string
-                            } | null
-                        }> | null,
-                        schema: {
-                            __typename?: 'Schema', id: string, fields: Array<{
-                                __typename?: 'SchemaField',
-                                id: string,
-                                type: SchemaFieldType,
-                                title: string,
-                                key: string,
-                                description?: string | null,
-                                required: boolean,
-                                unique: boolean,
-                                isTitle: boolean,
-                                multiple: boolean,
-                                typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | {
-                                    __typename?: 'SchemaFieldBool',
-                                    defaultValue?: any | null
-                                } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | {
-                                    __typename?: 'SchemaFieldGeometryEditor'
-                                } | { __typename?: 'SchemaFieldGeometryObject' } | {
-                                    __typename?: 'SchemaFieldGroup',
-                                    groupId: string
-                                } | {
-                                    __typename?: 'SchemaFieldInteger',
-                                    min?: number | null,
-                                    max?: number | null,
-                                    integerDefaultValue?: any | null
-                                } | {
-                                    __typename?: 'SchemaFieldMarkdown',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | { __typename?: 'SchemaFieldNumber' } | {
-                                    __typename?: 'SchemaFieldReference',
-                                    modelId: string
-                                } | { __typename?: 'SchemaFieldRichText' } | {
-                                    __typename?: 'SchemaFieldSelect',
-                                    values: Array<string>,
-                                    selectDefaultValue?: any | null
-                                } | { __typename?: 'SchemaFieldTag' } | {
-                                    __typename?: 'SchemaFieldText',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | {
-                                    __typename?: 'SchemaFieldTextArea',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null
-                            }>
-                        }
-                    }
-                } | null
-            }>,
-            createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null,
-            thread?: {
-                __typename?: 'Thread',
-                id: string,
-                workspaceId: string,
-                comments: Array<{
-                    __typename?: 'Comment',
-                    id: string,
-                    authorId: string,
-                    content: string,
-                    createdAt: Date,
-                    author?: { __typename?: 'Integration', id: string, name: string } | {
-                        __typename?: 'User',
-                        id: string,
-                        name: string,
-                        email: string
-                    } | null
-                }>
-            } | null,
-            project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null,
-            reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>
-        }
-    } | null
-};
+export type UpdateRequestMutation = { __typename?: 'Mutation', updateRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId?: string | null, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, title?: string | null, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null, itemGroupId?: string | null }>, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference', modelId: string } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
 
 export type ApproveRequestMutationVariables = Exact<{
   requestId: Scalars['ID']['input'];
 }>;
 
 
-export type ApproveRequestMutation = {
-    __typename?: 'Mutation', approveRequest?: {
-        __typename?: 'RequestPayload', request: {
-            __typename?: 'Request',
-            id: string,
-            title: string,
-            description?: string | null,
-            workspaceId: string,
-            projectId: string,
-            threadId?: string | null,
-            reviewersId: Array<string>,
-            state: RequestState,
-            createdAt: Date,
-            updatedAt: Date,
-            approvedAt?: Date | null,
-            closedAt?: Date | null,
-            items: Array<{
-                __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: {
-                    __typename?: 'VersionedItem',
-                    version: string,
-                    parents?: Array<string> | null,
-                    refs: Array<string>,
-                    value: {
-                        __typename?: 'Item',
-                        id: string,
-                        title?: string | null,
-                        schemaId: string,
-                        modelId: string,
-                        model: { __typename?: 'Model', name: string },
-                        fields: Array<{
-                            __typename?: 'ItemField',
-                            schemaFieldId: string,
-                            type: SchemaFieldType,
-                            value?: any | null,
-                            itemGroupId?: string | null
-                        }>,
-                        referencedItems?: Array<{
-                            __typename?: 'Item',
-                            id: string,
-                            title?: string | null,
-                            schemaId: string,
-                            status: ItemStatus,
-                            version: string,
-                            createdAt: Date,
-                            updatedAt: Date,
-                            createdBy?: { __typename?: 'Integration', name: string } | {
-                                __typename?: 'User',
-                                name: string
-                            } | null
-                        }> | null,
-                        schema: {
-                            __typename?: 'Schema', id: string, fields: Array<{
-                                __typename?: 'SchemaField',
-                                id: string,
-                                type: SchemaFieldType,
-                                title: string,
-                                key: string,
-                                description?: string | null,
-                                required: boolean,
-                                unique: boolean,
-                                isTitle: boolean,
-                                multiple: boolean,
-                                typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | {
-                                    __typename?: 'SchemaFieldBool',
-                                    defaultValue?: any | null
-                                } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | {
-                                    __typename?: 'SchemaFieldGeometryEditor'
-                                } | { __typename?: 'SchemaFieldGeometryObject' } | {
-                                    __typename?: 'SchemaFieldGroup',
-                                    groupId: string
-                                } | {
-                                    __typename?: 'SchemaFieldInteger',
-                                    min?: number | null,
-                                    max?: number | null,
-                                    integerDefaultValue?: any | null
-                                } | {
-                                    __typename?: 'SchemaFieldMarkdown',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | { __typename?: 'SchemaFieldNumber' } | {
-                                    __typename?: 'SchemaFieldReference',
-                                    modelId: string
-                                } | { __typename?: 'SchemaFieldRichText' } | {
-                                    __typename?: 'SchemaFieldSelect',
-                                    values: Array<string>,
-                                    selectDefaultValue?: any | null
-                                } | { __typename?: 'SchemaFieldTag' } | {
-                                    __typename?: 'SchemaFieldText',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | {
-                                    __typename?: 'SchemaFieldTextArea',
-                                    defaultValue?: any | null,
-                                    maxLength?: number | null
-                                } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null
-                            }>
-                        }
-                    }
-                } | null
-            }>,
-            createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null,
-            thread?: {
-                __typename?: 'Thread',
-                id: string,
-                workspaceId: string,
-                comments: Array<{
-                    __typename?: 'Comment',
-                    id: string,
-                    authorId: string,
-                    content: string,
-                    createdAt: Date,
-                    author?: { __typename?: 'Integration', id: string, name: string } | {
-                        __typename?: 'User',
-                        id: string,
-                        name: string,
-                        email: string
-                    } | null
-                }>
-            } | null,
-            project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null,
-            reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>
-        }
-    } | null
-};
+export type ApproveRequestMutation = { __typename?: 'Mutation', approveRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId?: string | null, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, title?: string | null, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null, itemGroupId?: string | null }>, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference', modelId: string } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
 
 export type DeleteRequestMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -3789,38 +2870,14 @@ export type DeleteRequestMutationVariables = Exact<{
 export type DeleteRequestMutation = { __typename?: 'Mutation', deleteRequest?: { __typename?: 'DeleteRequestPayload', requests: Array<string> } | null };
 
 export type CreateThreadWithCommentMutationVariables = Exact<{
-    workspaceId: Scalars['ID']['input'];
-    resourceId: Scalars['ID']['input'];
-    resourceType: ResourceType;
-    content: Scalars['String']['input'];
+  workspaceId: Scalars['ID']['input'];
+  resourceId: Scalars['ID']['input'];
+  resourceType: ResourceType;
+  content: Scalars['String']['input'];
 }>;
 
 
-export type CreateThreadWithCommentMutation = {
-    __typename?: 'Mutation',
-    createThreadWithComment?: {
-        __typename?: 'CommentPayload',
-        thread: {
-            __typename?: 'Thread',
-            id: string,
-            workspaceId: string,
-            comments: Array<{
-                __typename?: 'Comment',
-                id: string,
-                authorType: OperatorType,
-                authorId: string,
-                content: string,
-                createdAt: Date,
-                author?: { __typename?: 'Integration', id: string, name: string } | {
-                    __typename?: 'User',
-                    id: string,
-                    name: string,
-                    email: string
-                } | null
-            }>
-        }
-    } | null
-};
+export type CreateThreadWithCommentMutation = { __typename?: 'Mutation', createThreadWithComment?: { __typename?: 'CommentPayload', thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorType: OperatorType, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
 
 export type GetUserByNameOrEmailQueryVariables = Exact<{
   nameOrEmail: Scalars['String']['input'];
@@ -5902,21 +4959,18 @@ export const VersionsByItemDocument = gql`
  *   },
  * });
  */
-export function useVersionsByItemQuery(baseOptions: Apollo.QueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables> & ({
-    variables: VersionsByItemQueryVariables;
-    skip?: boolean;
-} | { skip: boolean; })) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
-}
+export function useVersionsByItemQuery(baseOptions: Apollo.QueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables> & ({ variables: VersionsByItemQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+      }
 export function useVersionsByItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables>) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useLazyQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+        }
 export function useVersionsByItemSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables>) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useSuspenseQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
+        }
 export type VersionsByItemQueryHookResult = ReturnType<typeof useVersionsByItemQuery>;
 export type VersionsByItemLazyQueryHookResult = ReturnType<typeof useVersionsByItemLazyQuery>;
 export type VersionsByItemSuspenseQueryHookResult = ReturnType<typeof useVersionsByItemSuspenseQuery>;
@@ -6673,9 +5727,9 @@ export type PublishModelsMutationFn = Apollo.MutationFunction<PublishModelsMutat
  * });
  */
 export function usePublishModelsMutation(baseOptions?: Apollo.MutationHookOptions<PublishModelsMutation, PublishModelsMutationVariables>) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useMutation<PublishModelsMutation, PublishModelsMutationVariables>(PublishModelsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishModelsMutation, PublishModelsMutationVariables>(PublishModelsDocument, options);
+      }
 export type PublishModelsMutationHookResult = ReturnType<typeof usePublishModelsMutation>;
 export type PublishModelsMutationResult = Apollo.MutationResult<PublishModelsMutation>;
 export type PublishModelsMutationOptions = Apollo.BaseMutationOptions<PublishModelsMutation, PublishModelsMutationVariables>;
@@ -7468,9 +6522,9 @@ export type CreateThreadWithCommentMutationFn = Apollo.MutationFunction<CreateTh
  * });
  */
 export function useCreateThreadWithCommentMutation(baseOptions?: Apollo.MutationHookOptions<CreateThreadWithCommentMutation, CreateThreadWithCommentMutationVariables>) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useMutation<CreateThreadWithCommentMutation, CreateThreadWithCommentMutationVariables>(CreateThreadWithCommentDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateThreadWithCommentMutation, CreateThreadWithCommentMutationVariables>(CreateThreadWithCommentDocument, options);
+      }
 export type CreateThreadWithCommentMutationHookResult = ReturnType<typeof useCreateThreadWithCommentMutation>;
 export type CreateThreadWithCommentMutationResult = Apollo.MutationResult<CreateThreadWithCommentMutation>;
 export type CreateThreadWithCommentMutationOptions = Apollo.BaseMutationOptions<CreateThreadWithCommentMutation, CreateThreadWithCommentMutationVariables>;

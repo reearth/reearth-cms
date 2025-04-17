@@ -58,9 +58,9 @@ export default () => {
     [data?.requests.nodes],
   );
 
-    const [updateRequest] = useUpdateRequestMutation({
-        refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
-    });
+  const [updateRequest] = useUpdateRequestMutation({
+    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+  });
 
   const handleAddItemToRequest = useCallback(
     async (request: Request, items: RequestItem[]) => {
@@ -94,9 +94,9 @@ export default () => {
     [updateRequest, t],
   );
 
-    const [publishItem, {loading: publishLoading}] = usePublishItemMutation({
-        refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
-    });
+  const [publishItem, { loading: publishLoading }] = usePublishItemMutation({
+    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+  });
 
   const handlePublish = useCallback(
     async (itemIds: string[]) => {
@@ -115,9 +115,9 @@ export default () => {
     [publishItem, t],
   );
 
-    const [unpublishItem, {loading: unpublishLoading}] = useUnpublishItemMutation({
-        refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
-    });
+  const [unpublishItem, { loading: unpublishLoading }] = useUnpublishItemMutation({
+    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+  });
 
   const handleUnpublish = useCallback(
     async (itemIds: string[]) => {

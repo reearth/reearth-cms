@@ -13,7 +13,7 @@ const WorkspaceSettings: React.FC = () => {
   } = useHooks();
 
   return (
-      <WorkspaceSettingsWrapper
+    <WorkspaceSettingsWrapper
       workspaceName={workspaceName}
       updateWorkspaceLoading={updateWorkspaceLoading}
       hasUpdateRight={hasUpdateRight}

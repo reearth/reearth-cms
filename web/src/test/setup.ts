@@ -2,7 +2,7 @@
 import { type EmotionMatchers, matchers as emotionMatchers } from "@emotion/jest";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
-import {beforeAll, afterEach, expect} from "vitest";
+import { beforeAll, afterEach, expect } from "vitest";
 
 declare global {
   namespace Vi {
@@ -18,17 +18,15 @@ expect.extend(domMatchers);
 expect.extend(emotionMatchers as any);
 
 Object.defineProperty(window, "matchMedia", {
-    value: () => ({
-        addListener: () => {
-        },
-        removeListener: () => {
-        },
-    }),
+  value: () => ({
+    addListener: () => {},
+    removeListener: () => {},
+  }),
 });
 
 beforeAll(() => {
-    const {getComputedStyle} = window;
-    window.getComputedStyle = elt => getComputedStyle(elt);
+  const { getComputedStyle } = window;
+  window.getComputedStyle = elt => getComputedStyle(elt);
 });
 
 afterEach(cleanup);

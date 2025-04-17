@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import {createModelFromOverview} from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
@@ -13,7 +13,7 @@ const uploadFileName_2 = "lowpolycar.gltf";
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-    await createModelFromOverview(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -51,7 +51,7 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-    await expect(page.getByText(uploadFileName_1)).toBeVisible();
+  await expect(page.getByText(uploadFileName_1)).toBeVisible();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByRole("button", { name: `folder ${uploadFileName_1}` }).click();
   await page.getByRole("button", { name: "upload Upload Asset" }).click();
@@ -67,7 +67,7 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
-    await expect(page.getByText(uploadFileName_2)).toBeVisible();
+  await expect(page.getByText(uploadFileName_2)).toBeVisible();
 });
 
 test("Asset field editing has succeeded", async ({ page }) => {
@@ -162,7 +162,7 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
-    await expect(page.getByRole("tooltip")).toContainText(`new asset1`);
-    await expect(page.getByRole("tooltip").locator("p").first()).toContainText(uploadFileName_2);
-    await expect(page.getByRole("tooltip").locator("p").last()).toContainText(uploadFileName_1);
+  await expect(page.getByRole("tooltip")).toContainText(`new asset1`);
+  await expect(page.getByRole("tooltip").locator("p").first()).toContainText(uploadFileName_2);
+  await expect(page.getByRole("tooltip").locator("p").last()).toContainText(uploadFileName_1);
 });

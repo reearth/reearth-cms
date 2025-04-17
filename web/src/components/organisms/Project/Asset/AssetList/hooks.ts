@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
-import {UploadFile as RawUploadFile} from "@reearth-cms/components/atoms/Upload";
+import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
@@ -20,12 +20,12 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 
-import {uploadFiles} from "./upload";
+import { uploadFiles } from "./upload";
 
 type UploadType = "local" | "url";
 
 type UploadFile = File & {
-    skipDecompression?: boolean;
+  skipDecompression?: boolean;
 };
 
 export default (isItemsRequired: boolean) => {
@@ -51,7 +51,7 @@ export default (isItemsRequired: boolean) => {
     selectedRowKeys: [],
   });
   const [selectedAssetId, setSelectedAssetId] = useState<string>();
-    const [fileList, setFileList] = useState<RawUploadFile[]>([]);
+  const [fileList, setFileList] = useState<RawUploadFile[]>([]);
   const [uploadUrl, setUploadUrl] = useState({
     url: "",
     autoUnzip: true,
@@ -143,7 +143,7 @@ export default (isItemsRequired: boolean) => {
   }, [setUploadModalVisibility, setFileList, setUploadUrl, setUploadType]);
 
   const handleAssetsCreate = useCallback(
-      async (files: RawUploadFile[]) => {
+    async (files: RawUploadFile[]) => {
       if (!projectId) return [];
       setUploading(true);
 
@@ -151,66 +151,66 @@ export default (isItemsRequired: boolean) => {
 
       try {
         results = (
-            await uploadFiles<UploadFile, Asset | undefined>(
-                files as unknown as UploadFile[], // TODO: refactor
-                async ({contentLength, contentEncoding, cursor, filename}) => {
-                    const result = await createAssetUploadMutation({
-                        variables: {
-                            projectId,
-                            filename,
-                            contentLength,
-                            contentEncoding,
-                            cursor: cursor ?? "",
-                        },
-                    });
-
-                    if (result.errors || !result.data?.createAssetUpload) {
-                        Notification.error({message: t("Failed to add one or more assets.")});
-                        handleUploadModalCancel();
-                        return undefined;
-                    }
-
-                    return {
-                        url: result.data.createAssetUpload.url,
-                        token: result.data.createAssetUpload.token,
-                        contentLength: result.data.createAssetUpload.contentLength,
-                        contentType: result.data.createAssetUpload.contentType ?? "",
-                        contentEncoding: result.data.createAssetUpload.contentEncoding ?? "",
-                        next: result.data.createAssetUpload.next ?? "",
-                    };
-                },
-                (token, file) => {
-                    return createAssetMutation({
+          await uploadFiles<UploadFile, Asset | undefined>(
+            files as unknown as UploadFile[], // TODO: refactor
+            async ({ contentLength, contentEncoding, cursor, filename }) => {
+              const result = await createAssetUploadMutation({
                 variables: {
                   projectId,
-                    token,
-                    file: token === "" ? file : null,
-                    skipDecompression: !!file?.skipDecompression,
+                  filename,
+                  contentLength,
+                  contentEncoding,
+                  cursor: cursor ?? "",
                 },
-                    }).then(result => {
-                        if (result.errors || !result.data?.createAsset) {
-                            Notification.error({message: t("Failed to add one or more assets.")});
-                            return undefined;
-                        }
-                        return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
-                    });
+              });
+
+              if (result.errors || !result.data?.createAssetUpload) {
+                Notification.error({ message: t("Failed to add one or more assets.") });
+                handleUploadModalCancel();
+                return undefined;
+              }
+
+              return {
+                url: result.data.createAssetUpload.url,
+                token: result.data.createAssetUpload.token,
+                contentLength: result.data.createAssetUpload.contentLength,
+                contentType: result.data.createAssetUpload.contentType ?? "",
+                contentEncoding: result.data.createAssetUpload.contentEncoding ?? "",
+                next: result.data.createAssetUpload.next ?? "",
+              };
+            },
+            (token, file) => {
+              return createAssetMutation({
+                variables: {
+                  projectId,
+                  token,
+                  file: token === "" ? file : null,
+                  skipDecompression: !!file?.skipDecompression,
                 },
+              }).then(result => {
+                if (result.errors || !result.data?.createAsset) {
+                  Notification.error({ message: t("Failed to add one or more assets.") });
+                  return undefined;
+                }
+                return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
+              });
+            },
           )
         ).filter(Boolean);
 
-          if (results?.length > 0) {
+        if (results?.length > 0) {
           handleUploadModalCancel();
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
         }
       } catch (e) {
-          console.error("upload error", e);
+        console.error("upload error", e);
         Notification.error({ message: t("Failed to add one or more assets.") });
       } finally {
         setUploading(false);
       }
 
-          return results;
+      return results;
     },
     [
       projectId,

@@ -12,7 +12,7 @@ type Props = {
   open: boolean;
   loading: boolean;
   onClose: () => void;
-    onIntegrationCreate: (values: FormValues) => Promise<void>;
+  onIntegrationCreate: (values: FormValues) => Promise<void>;
 };
 
 export type FormValues = {
@@ -26,15 +26,15 @@ const initialValues: FormValues = {
   name: "",
   description: "",
   logoUrl: "",
-    type: "Private",
+  type: "Private",
 };
 
 const IntegrationCreationModal: React.FC<Props> = ({
-                                                       open,
-                                                       loading,
-                                                       onClose,
-                                                       onIntegrationCreate,
-                                                   }) => {
+  open,
+  loading,
+  onClose,
+  onIntegrationCreate,
+}) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
   const [isDisabled, setIsDisabled] = useState(true);
@@ -44,8 +44,8 @@ const IntegrationCreationModal: React.FC<Props> = ({
     try {
       const values = await form.validateFields();
       values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
-        values.type = "Private";
-        await onIntegrationCreate(values);
+      values.type = "Private";
+      await onIntegrationCreate(values);
       onClose();
       form.resetFields();
     } catch (_) {

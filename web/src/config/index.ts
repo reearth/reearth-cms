@@ -23,7 +23,7 @@ export const defaultConfig: Config = {
   authProvider: env.REEARTH_CMS_AUTH_PROVIDER || "auth0",
   logoUrl: env.REEARTH_CMS_LOGO_URL,
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
-    cesiumIonAccessToken: env.REEARTH_CESIUM_ION_ACCESS_TOKEN || "",
+  cesiumIonAccessToken: env.REEARTH_CESIUM_ION_ACCESS_TOKEN || "",
   editorUrl: env.REEARTH_CMS_EDITOR_URL,
   firebase: {
     firebaseApiKey: env.REEARTH_CMS_FIREBASE_API_KEY,

@@ -32,7 +32,7 @@ export default () => {
 
   const {
     data,
-      loading,
+    loading,
     refetch: projectsRefetch,
   } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
@@ -43,14 +43,14 @@ export default () => {
     () =>
       data?.projects.nodes
         .map(project => (project ? fromGraphQLProject(project as GQLProject) : undefined))
-          .filter(project => !!project) ?? [],
+        .filter(project => !!project) ?? [],
     [data?.projects.nodes],
   );
 
   const projects = useMemo(
     () =>
       searchedProjectName
-          ? allProjects.filter(project =>
+        ? allProjects.filter(project =>
             project.name.toLocaleLowerCase().includes(searchedProjectName.toLocaleLowerCase()),
           )
         : allProjects,
@@ -70,7 +70,7 @@ export default () => {
 
   const handleProjectCreate = useCallback(
     async (data: ProjectFormValues) => {
-        if (!workspaceId) throw new Error();
+      if (!workspaceId) throw new Error();
       const project = await createNewProject({
         variables: {
           workspaceId,
@@ -81,7 +81,7 @@ export default () => {
       });
       if (project.errors || !project.data?.createProject) {
         Notification.error({ message: t("Failed to create project.") });
-          throw new Error();
+        throw new Error();
       }
       Notification.success({ message: t("Successfully created project!") });
       projectsRefetch();
@@ -90,11 +90,11 @@ export default () => {
   );
 
   const handleProjectNavigation = useCallback(
-      (projectId: string) => {
-          if (!workspaceId || !projectId) return;
-          navigate(`/workspace/${workspaceId}/project/${projectId}`);
+    (projectId: string) => {
+      if (!workspaceId || !projectId) return;
+      navigate(`/workspace/${workspaceId}/project/${projectId}`);
     },
-      [workspaceId, navigate],
+    [workspaceId, navigate],
   );
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation({
@@ -134,7 +134,7 @@ export default () => {
   return {
     coverImageUrl,
     projects,
-      loading,
+    loading,
     hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,

@@ -8,11 +8,11 @@ const Integration: React.FC = () => {
   const { workspaceId } = useParams();
 
   const {
-      loading,
-      workspaceIntegrations,
-      handleSearchTerm,
-      handleReload,
-      setSelectedIntegration,
+    loading,
+    workspaceIntegrations,
+    handleSearchTerm,
+    handleReload,
+    setSelectedIntegration,
     deleteLoading,
     handleIntegrationRemove,
     page,
@@ -21,36 +21,36 @@ const Integration: React.FC = () => {
     hasConnectRight,
     hasUpdateRight,
     hasDeleteRight,
-      myIntegrations,
-      addLoading,
-      handleIntegrationConnect,
-      selectedIntegration,
-      updateLoading,
-      handleUpdateIntegration,
+    myIntegrations,
+    addLoading,
+    handleIntegrationConnect,
+    selectedIntegration,
+    updateLoading,
+    handleUpdateIntegration,
   } = useHooks(workspaceId);
 
   return (
-      <IntegrationWrapper
-          loading={loading}
-          workspaceIntegrations={workspaceIntegrations}
-          onSearchTerm={handleSearchTerm}
-          onReload={handleReload}
-          setSelectedIntegration={setSelectedIntegration}
-          onIntegrationRemove={handleIntegrationRemove}
-          deleteLoading={deleteLoading}
-          page={page}
-          pageSize={pageSize}
-          onTableChange={handleTableChange}
-          hasConnectRight={hasConnectRight}
-          hasUpdateRight={hasUpdateRight}
-          hasDeleteRight={hasDeleteRight}
-          myIntegrations={myIntegrations}
-          addLoading={addLoading}
-          onIntegrationConnect={handleIntegrationConnect}
-          selectedIntegration={selectedIntegration}
-          updateLoading={updateLoading}
-          onUpdateIntegration={handleUpdateIntegration}
-      />
+    <IntegrationWrapper
+      loading={loading}
+      workspaceIntegrations={workspaceIntegrations}
+      onSearchTerm={handleSearchTerm}
+      onReload={handleReload}
+      setSelectedIntegration={setSelectedIntegration}
+      onIntegrationRemove={handleIntegrationRemove}
+      deleteLoading={deleteLoading}
+      page={page}
+      pageSize={pageSize}
+      onTableChange={handleTableChange}
+      hasConnectRight={hasConnectRight}
+      hasUpdateRight={hasUpdateRight}
+      hasDeleteRight={hasDeleteRight}
+      myIntegrations={myIntegrations}
+      addLoading={addLoading}
+      onIntegrationConnect={handleIntegrationConnect}
+      selectedIntegration={selectedIntegration}
+      updateLoading={updateLoading}
+      onUpdateIntegration={handleUpdateIntegration}
+    />
   );
 };
 

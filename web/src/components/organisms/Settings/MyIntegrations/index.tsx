@@ -3,16 +3,16 @@ import MyIntegrationsWrapper from "@reearth-cms/components/molecules/MyIntegrati
 import useHooks from "./hooks";
 
 const MyIntegrations: React.FC = () => {
-    const {integrations, createLoading, handleIntegrationCreate, handleIntegrationNavigate} =
-        useHooks();
+  const { integrations, createLoading, handleIntegrationCreate, handleIntegrationNavigate } =
+    useHooks();
 
   return (
-      <MyIntegrationsWrapper
-          integrations={integrations}
-          onIntegrationNavigate={handleIntegrationNavigate}
-          createLoading={createLoading}
-          onIntegrationCreate={handleIntegrationCreate}
-      />
+    <MyIntegrationsWrapper
+      integrations={integrations}
+      onIntegrationNavigate={handleIntegrationNavigate}
+      createLoading={createLoading}
+      onIntegrationCreate={handleIntegrationCreate}
+    />
   );
 };
 

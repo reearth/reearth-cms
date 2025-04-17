@@ -5,12 +5,12 @@ import { useCallback, useEffect } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import {ReferenceProps} from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
-import {Field, Group, FieldProps} from "@reearth-cms/components/molecules/Schema/types";
+import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import { Field, Group, FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
-import {AssetProps} from "../../Form/AssetItem";
+import { AssetProps } from "../../Form/AssetItem";
 import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 
@@ -20,21 +20,21 @@ type Props = FieldProps & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-    assetProps: AssetProps;
-    referenceProps: ReferenceProps;
+  assetProps: AssetProps;
+  referenceProps: ReferenceProps;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
   value = [],
   onChange,
-                                              field,
+  field,
   disabled,
-                                              itemHeights,
-                                              onItemHeightChange,
-                                              form,
+  itemHeights,
+  onItemHeightChange,
+  form,
   onGroupGet,
-                                              assetProps,
-                                              referenceProps,
+  assetProps,
+  referenceProps,
 }) => {
   const t = useT();
 
@@ -65,8 +65,8 @@ const MultiValueGroup: React.FC<Props> = ({
 
     // set default value
     const newValues = { ...form?.getFieldsValue() };
-      if (!field.typeProperty?.groupId) return;
-      const group = await onGroupGet(field.typeProperty.groupId);
+    if (!field.typeProperty?.groupId) return;
+    const group = await onGroupGet(field.typeProperty.groupId);
     group?.schema.fields.forEach((field: Field) => {
       const defaultValue = field.typeProperty?.defaultValue;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

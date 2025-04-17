@@ -3,12 +3,12 @@ import styled from "@emotion/styled";
 import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import {FieldProps} from "@reearth-cms/components/molecules/Schema/types";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
-const TagField: React.FC<FieldProps> = ({field, disabled}) => {
+const TagField: React.FC<FieldProps> = ({ field, disabled }) => {
   const t = useT();
 
   return (
@@ -35,12 +35,12 @@ const TagField: React.FC<FieldProps> = ({field, disabled}) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-          <Select allowClear disabled={disabled}>
+        <Select allowClear disabled={disabled}>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
-                <TagWrapper>
-                    <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-                </TagWrapper>
+              <TagWrapper>
+                <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              </TagWrapper>
             </Select.Option>
           ))}
         </Select>

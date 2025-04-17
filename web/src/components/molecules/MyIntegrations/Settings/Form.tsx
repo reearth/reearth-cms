@@ -13,16 +13,16 @@ import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import {
-    Integration,
-    IntegrationInfo,
+  Integration,
+  IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-    integration: IntegrationInfo & Pick<Integration, "config">;
+  integration: IntegrationInfo & Pick<Integration, "config">;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
-    onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
 };
 

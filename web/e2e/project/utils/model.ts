@@ -7,29 +7,29 @@ export const modelName = "e2e model name";
 
 async function createModel(page: Page, name = modelName, key?: string) {
   await page.getByLabel("Model name").fill(name);
-    if (key) {
-        await page.getByLabel("Model key").fill(key);
-    }
+  if (key) {
+    await page.getByLabel("Model key").fill(key);
+  }
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 }
 
 export async function createModelFromOverview(page: Page, name = modelName, key?: string) {
-    await expect(page.getByRole("heading")).toBeVisible();
-    await page.getByRole("button", {name: "plus New Model"}).first().click();
-    await createModel(page, name, key);
+  await expect(page.getByRole("heading")).toBeVisible();
+  await page.getByRole("button", { name: "plus New Model" }).first().click();
+  await createModel(page, name, key);
 }
 
 export async function createModelFromSidebar(page: Page, name = modelName, key?: string) {
-    await page.getByRole("button", {name: "plus Add"}).first().click();
-    await createModel(page, name, key);
+  await page.getByRole("button", { name: "plus Add" }).first().click();
+  await createModel(page, name, key);
 }
 
 export async function updateModel(page: Page, name = "new e2e model name", key: string) {
   await page.getByRole("button", { name: "more" }).hover();
   await page.getByText("Edit", { exact: true }).click();
-    await page.getByLabel("Update Model").locator("#name").fill(name);
-    await page.getByLabel("Update Model").locator("#key").fill(key);
+  await page.getByLabel("Update Model").locator("#name").fill(name);
+  await page.getByLabel("Update Model").locator("#key").fill(key);
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 }

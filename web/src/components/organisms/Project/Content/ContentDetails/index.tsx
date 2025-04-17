@@ -21,7 +21,7 @@ const ContentDetails: React.FC = () => {
     currentItem,
     initialFormValues,
     initialMetaFormValues,
-      versions,
+    versions,
     itemCreationLoading,
     itemUpdatingLoading,
     requestCreationLoading,
@@ -46,7 +46,7 @@ const ContentDetails: React.FC = () => {
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
-      handleGetVersionedItem,
+    handleGetVersionedItem,
     handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
@@ -128,8 +128,8 @@ const ContentDetails: React.FC = () => {
       commentsPanel={
         currentItem ? (
           <CommentsPanel
-              resourceId={currentItem.id}
-              resourceType={"ITEM"}
+            resourceId={currentItem.id}
+            resourceType={"ITEM"}
             comments={currentItem.comments}
             threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}

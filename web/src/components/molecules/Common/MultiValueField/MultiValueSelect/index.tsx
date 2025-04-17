@@ -48,22 +48,22 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
             {!disabled && (
               <>
                 <FieldButton
-                    color="default"
-                    variant="link"
-                    icon={<Icon icon="arrowUp" size={16}/>}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                    color="default"
-                    variant="link"
-                    icon={<Icon icon="arrowDown" size={16}/>}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
               </>
             )}
-              <StyledSelect
+            <StyledSelect
               disabled={disabled}
               value={valueItem}
               onChange={(e: string) => handleInput(e, key)}>
@@ -72,12 +72,12 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
                   {value}
                 </Option>
               ))}
-              </StyledSelect>
+            </StyledSelect>
             {!disabled && (
               <FieldButton
-                  color="default"
-                  variant="link"
-                  icon={<Icon icon="delete" size={16}/>}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}

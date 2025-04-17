@@ -3,7 +3,7 @@ import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import {AssetProps} from "@reearth-cms/components/molecules/Common/Form/AssetItem";
+import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
 
 import AssetItem from "../../Form/AssetItem";
@@ -17,10 +17,10 @@ type Props = {
 
 const MultiValueAsset: React.FC<Props> = ({
   value = [],
-                                              disabled,
+  disabled,
   onChange,
-                                              onGetAsset,
-                                              itemAssets,
+  onGetAsset,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -75,16 +75,16 @@ const MultiValueAsset: React.FC<Props> = ({
             {!disabled && (
               <>
                 <FieldButton
-                    color="default"
-                    variant="link"
-                    icon={<Icon icon="arrowUp" size={16}/>}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                    color="default"
-                    variant="link"
-                    icon={<Icon icon="arrowDown" size={16}/>}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
@@ -120,9 +120,9 @@ const MultiValueAsset: React.FC<Props> = ({
             />
             {!disabled && (
               <FieldButton
-                  color="default"
-                  variant="link"
-                  icon={<Icon icon="delete" size={16}/>}
+                color="default"
+                variant="link"
+                icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}

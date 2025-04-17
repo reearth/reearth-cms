@@ -6,39 +6,39 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
-import {FieldProps} from "@reearth-cms/components/molecules/Schema/types";
+import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
-import {requiredValidator} from "../utils";
+import { requiredValidator } from "../utils";
 
 const DefaultField: React.FC<FieldProps> = ({
   field,
   itemGroupId,
   disabled,
-                                                itemHeights,
-                                                onItemHeightChange,
+  itemHeights,
+  onItemHeightChange,
 }) => {
   const t = useT();
   const maxLength = useMemo(() => field.typeProperty?.maxLength, [field.typeProperty?.maxLength]);
 
-    const required = useMemo(() => field.required, [field.required]);
+  const required = useMemo(() => field.required, [field.required]);
 
   return (
-      <StyledFormItem
+    <StyledFormItem
       extra={field.description}
       validateStatus="success"
       rules={[
         {
-            required,
-            validator: requiredValidator,
+          required,
+          validator: requiredValidator,
           message: t("Please input field!"),
         },
         {
           validator: (_, value) => {
             if (value && maxLength) {
               if (Array.isArray(value)) {
-                  if (value.some(v => typeof v === "string" && maxLength < runes(v).length)) {
+                if (value.some(v => typeof v === "string" && maxLength < runes(v).length)) {
                   return Promise.reject();
                 }
               } else if (typeof value === "string" && maxLength < runes(value).length) {
@@ -53,19 +53,19 @@ const DefaultField: React.FC<FieldProps> = ({
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-          <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
-              <MultiValueField
-                  showCount={true}
-                  maxLength={maxLength}
-                  FieldInput={Input}
-                  disabled={disabled}
-                  required={required}
-              />
-          </ResponsiveHeight>
+        <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+          <MultiValueField
+            showCount={true}
+            maxLength={maxLength}
+            FieldInput={Input}
+            disabled={disabled}
+            required={required}
+          />
+        </ResponsiveHeight>
       ) : (
-          <Input showCount={true} maxLength={maxLength} disabled={disabled} required={required}/>
+        <Input showCount={true} maxLength={maxLength} disabled={disabled} required={required} />
       )}
-      </StyledFormItem>
+    </StyledFormItem>
   );
 };
 

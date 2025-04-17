@@ -1,13 +1,13 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createGroup } from "@reearth-cms/e2e/project/utils/group";
-import {createModelFromOverview} from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-    await createModelFromOverview(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -42,8 +42,8 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("group1 description");
   await page.locator(".ant-select-selector").click();
-    await page.getByText("e2e group name #e2e-group-name").click();
-    await expect(page.getByLabel("Settings")).toContainText("e2e group name #e2e-group-name");
+  await page.getByText("e2e group name #e2e-group-name").click();
+  await expect(page.getByLabel("Settings")).toContainText("e2e group name #e2e-group-name");
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(
     page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
@@ -75,7 +75,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.locator("span").filter({ hasText: "Schema" }).click();
-    await page.getByRole("tab", {name: "Meta Data"}).click();
+  await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.getByRole("menuitem", { name: "e2e group name" }).locator("span").click();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await page.getByLabel("Display name").click();
@@ -105,19 +105,19 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByRole("main")).toContainText("new text1(unique)");
   await expect(page.getByRole("main")).toContainText("new text1 description");
-    await expect(page.getByRole("textbox")).toHaveValue("new text1");
+  await expect(page.getByRole("textbox")).toHaveValue("new text1");
   await expect(page.getByText("/ 5")).toBeVisible();
   await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
-    await page.getByRole("textbox").click();
-    await page.getByRole("textbox").fill("text1");
+  await page.getByRole("textbox").click();
+  await page.getByRole("textbox").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-    await expect(page.getByRole("textbox")).toHaveValue("text1");
+  await expect(page.getByRole("textbox")).toHaveValue("text1");
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
-    await expect(page.getByRole("textbox")).toHaveValue("text1");
+  await expect(page.getByRole("textbox")).toHaveValue("text1");
   await page.getByRole("button", { name: "plus New" }).click();
   await page
     .locator("div")
@@ -173,8 +173,8 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("group1 description");
   await page.locator(".ant-select-selector").click();
-    await page.getByText("e2e group name #e2e-group-name").click();
-    await expect(page.getByLabel("Settings")).toContainText("e2e group name #e2e-group-name");
+  await page.getByText("e2e group name #e2e-group-name").click();
+  await expect(page.getByLabel("Settings")).toContainText("e2e group name #e2e-group-name");
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(
     page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
@@ -207,7 +207,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("new group1 description");
   await page.getByLabel("Support multiple values").check();
-    await expect(page.getByLabel("Use as title")).toBeHidden();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await page.getByText("Content").click();

@@ -67,21 +67,21 @@ export default defineConfig({
       ],
       reporter: ["text", "json", "lcov"],
     },
-      alias: [
-          {find: "@ant-design/pro-card", replacement: "@ant-design/pro-card/es/index.js"},
-          {find: "@ant-design/pro-components", replacement: "@ant-design/pro-components/es/index.js"},
-          {
-              find: "@ant-design/pro-descriptions",
-              replacement: "@ant-design/pro-descriptions/es/index.js",
-          },
-          {find: "@ant-design/pro-field", replacement: "@ant-design/pro-field/es/index.js"},
-          {find: "@ant-design/pro-form", replacement: "@ant-design/pro-form/es/index.js"},
-          {find: "@ant-design/pro-layout", replacement: "@ant-design/pro-layout/es/index.js"},
-          {find: "@ant-design/pro-list", replacement: "@ant-design/pro-list/es/index.js"},
-          {find: "@ant-design/pro-provider", replacement: "@ant-design/pro-provider/es/index.js"},
-          {find: "@ant-design/pro-table", replacement: "@ant-design/pro-table/es/index.js"},
-          {find: "@ant-design/pro-utils", replacement: "@ant-design/pro-utils/es/index.js"},
-      ],
+    alias: [
+      { find: "@ant-design/pro-card", replacement: "@ant-design/pro-card/es/index.js" },
+      { find: "@ant-design/pro-components", replacement: "@ant-design/pro-components/es/index.js" },
+      {
+        find: "@ant-design/pro-descriptions",
+        replacement: "@ant-design/pro-descriptions/es/index.js",
+      },
+      { find: "@ant-design/pro-field", replacement: "@ant-design/pro-field/es/index.js" },
+      { find: "@ant-design/pro-form", replacement: "@ant-design/pro-form/es/index.js" },
+      { find: "@ant-design/pro-layout", replacement: "@ant-design/pro-layout/es/index.js" },
+      { find: "@ant-design/pro-list", replacement: "@ant-design/pro-list/es/index.js" },
+      { find: "@ant-design/pro-provider", replacement: "@ant-design/pro-provider/es/index.js" },
+      { find: "@ant-design/pro-table", replacement: "@ant-design/pro-table/es/index.js" },
+      { find: "@ant-design/pro-utils", replacement: "@ant-design/pro-utils/es/index.js" },
+    ],
   },
 });
 

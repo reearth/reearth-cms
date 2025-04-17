@@ -31,9 +31,9 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
         <Select key={selectedTags?.length} allowClear>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
-                <TagWrapper>
-                    <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-                </TagWrapper>
+              <TagWrapper>
+                <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+              </TagWrapper>
             </Select.Option>
           ))}
         </Select>

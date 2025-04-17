@@ -1,12 +1,12 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import {createModelFromOverview} from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-    await createModelFromOverview(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -49,7 +49,7 @@ test("Textarea field editing has succeeded", async ({ page }) => {
   await expect(page.locator("label")).toContainText("text1");
   await page.getByText("text1 description").click();
   await expect(page.getByRole("main")).toContainText("text1 description");
-    await expect(page.getByRole("textbox")).toHaveValue("text1 default value");
+  await expect(page.getByRole("textbox")).toHaveValue("text1 default value");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
@@ -102,7 +102,7 @@ test("Textarea field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "delete" }).first().click();
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.getByRole("button", { name: "plus New" }).click();
-    await expect(page.getByRole("button", {name: "Save"})).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
   await page.getByRole("textbox").nth(0).click();
   await page.getByRole("textbox").nth(0).fill("text");
   await page.getByRole("button", { name: "plus New" }).click();

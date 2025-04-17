@@ -33,7 +33,7 @@ export type Asset = {
   projectId: string;
   size: number;
   url: string;
-    threadId?: string;
+  threadId?: string;
   comments: Comment[];
   archiveExtractionStatus?: ArchiveExtractionStatus;
   items: AssetItem[];

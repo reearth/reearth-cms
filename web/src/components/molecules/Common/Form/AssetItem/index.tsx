@@ -15,7 +15,7 @@ import { useT } from "@reearth-cms/i18n";
 import useHooks from "./hooks";
 
 export type AssetProps = {
-    onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
   itemAssets?: ItemAsset[];
   assetList?: Asset[];
   fileList?: UploadFile[];
@@ -41,14 +41,14 @@ export type AssetProps = {
 };
 
 type Props = {
-    value?: string;
+  value?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
 } & AssetProps;
 
 const AssetItem: React.FC<Props> = ({
-                                        value,
-                                        onGetAsset,
+  value,
+  onGetAsset,
   itemAssets,
   assetList,
   fileList,
@@ -174,17 +174,17 @@ const AssetItem: React.FC<Props> = ({
             <Link
               to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
               target="_blank">
-                <AssetLink
-                    color="default"
-                    variant="link"
-                    icon={<Icon icon="arrowSquareOut" size={20}/>}
-                />
+              <AssetLink
+                color="default"
+                variant="link"
+                icon={<Icon icon="arrowSquareOut" size={20} />}
+              />
             </Link>
           )}
           {value && !disabled && (
             <AssetLink
-                color="default"
-                variant="link"
+              color="default"
+              variant="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
               onClick={onUnlink}
             />

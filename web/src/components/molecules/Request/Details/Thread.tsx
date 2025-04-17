@@ -40,28 +40,28 @@ const RequestThread: React.FC<Props> = ({
 }) => {
   return (
     <ContentWrapper>
-        <RequestDescription
-            currentRequest={currentRequest}
-            onGetAsset={onGetAsset}
-            onGroupGet={onGroupGet}
-            onNavigateToItemEdit={onNavigateToItemEdit}
-        />
-        {currentRequest.comments && currentRequest.comments.length > 0 && (
-            <CommentWrapper>
-                {currentRequest.comments.map(comment => (
-                    <Comment
-                        key={comment.id}
-                        userId={me?.id ?? ""}
-                        hasUpdateRight={hasCommentUpdateRight}
-                        hasDeleteRight={hasCommentDeleteRight}
-                        comment={comment}
+      <RequestDescription
+        currentRequest={currentRequest}
+        onGetAsset={onGetAsset}
+        onGroupGet={onGroupGet}
+        onNavigateToItemEdit={onNavigateToItemEdit}
+      />
+      {currentRequest.comments && currentRequest.comments.length > 0 && (
+        <CommentWrapper>
+          {currentRequest.comments.map(comment => (
+            <Comment
+              key={comment.id}
+              userId={me?.id ?? ""}
+              hasUpdateRight={hasCommentUpdateRight}
+              hasDeleteRight={hasCommentDeleteRight}
+              comment={comment}
               onCommentUpdate={onCommentUpdate}
               onCommentDelete={onCommentDelete}
             />
-                ))}
-            </CommentWrapper>
-        )}
-        <RequestStatus requestState={currentRequest.state}/>
+          ))}
+        </CommentWrapper>
+      )}
+      <RequestStatus requestState={currentRequest.state} />
       <ThreadDivider />
       <StyledAntDComment
         avatar={<UserAvatar username={me?.name} />}

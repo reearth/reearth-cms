@@ -1,11 +1,11 @@
-import {useCallback, useMemo, useState} from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
-    IntegrationMember,
-    WorkspaceIntegration,
+  IntegrationMember,
+  WorkspaceIntegration,
 } from "@reearth-cms/components/molecules/Integration/types";
-import {Role} from "@reearth-cms/components/molecules/Member/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import {
   fromGraphQLIntegration,
   fromGraphQLWorkspace,
@@ -22,7 +22,7 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserRights } from "@reearth-cms/state";
 
 export default (workspaceId?: string) => {
-    const [selectedIntegration, setSelectedIntegration] = useState<WorkspaceIntegration>();
+  const [selectedIntegration, setSelectedIntegration] = useState<WorkspaceIntegration>();
 
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState(1);
@@ -53,54 +53,54 @@ export default (workspaceId?: string) => {
 
   const workspaceIntegrationMembers = useMemo(
     () =>
-        workspace?.members?.filter((member): member is IntegrationMember => "integration" in member),
-      [workspace?.members],
+      workspace?.members?.filter((member): member is IntegrationMember => "integration" in member),
+    [workspace?.members],
   );
 
-    const workspaceIntegrations = useMemo(
-        (): WorkspaceIntegration[] | undefined =>
-            workspaceIntegrationMembers
-                ?.filter(member => !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""))
-                .map(member => ({
-                    id: member.integration?.id,
-                    name: member.integration?.name,
-                    description: member.integration?.description ?? undefined,
-                    imageUrl: undefined,
-                    createdBy: member.integration?.developer,
-                    role: member.integrationRole,
-                })),
-        [workspaceIntegrationMembers, searchTerm],
+  const workspaceIntegrations = useMemo(
+    (): WorkspaceIntegration[] | undefined =>
+      workspaceIntegrationMembers
+        ?.filter(member => !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""))
+        .map(member => ({
+          id: member.integration?.id,
+          name: member.integration?.name,
+          description: member.integration?.description ?? undefined,
+          imageUrl: undefined,
+          createdBy: member.integration?.developer,
+          role: member.integrationRole,
+        })),
+    [workspaceIntegrationMembers, searchTerm],
   );
 
-    const myIntegrations = useMemo(
+  const myIntegrations = useMemo(
     () =>
       data?.me?.integrations
         ?.map(integration => fromGraphQLIntegration(integration))
         .filter(
           integration =>
-              !workspaceIntegrations?.some(
+            !workspaceIntegrations?.some(
               workspaceIntegration => workspaceIntegration.id === integration.id,
             ),
         ),
-        [data?.me?.integrations, workspaceIntegrations],
+    [data?.me?.integrations, workspaceIntegrations],
   );
 
   const [addIntegrationToWorkspaceMutation, { loading: addLoading }] =
     useAddIntegrationToWorkspaceMutation();
 
   const handleIntegrationConnect = useCallback(
-      async (integrationId: string) => {
-          if (!integrationId || !workspaceId) return;
+    async (integrationId: string) => {
+      if (!integrationId || !workspaceId) return;
       const integrationResponse = await addIntegrationToWorkspaceMutation({
         variables: {
-            integrationId,
+          integrationId,
           workspaceId,
           role: GQLRole.Reader,
         },
       });
       if (integrationResponse.errors || !integrationResponse.data?.addIntegrationToWorkspace) {
         Notification.error({ message: t("Failed to connect integration.") });
-          throw new Error();
+        throw new Error();
       }
       Notification.success({ message: t("Successfully connected integration to the workspace!") });
       refetch();
@@ -113,23 +113,23 @@ export default (workspaceId?: string) => {
 
   const handleUpdateIntegration = useCallback(
     async (role: Role) => {
-        if (!workspaceId || !selectedIntegration) return;
+      if (!workspaceId || !selectedIntegration) return;
       const integration = await updateIntegrationToWorkspaceMutation({
         variables: {
-            integrationId: selectedIntegration?.id || "",
+          integrationId: selectedIntegration?.id || "",
           workspaceId,
           role: role as GQLRole,
         },
       });
       if (integration.errors || !integration.data?.updateIntegrationOfWorkspace) {
         Notification.error({ message: t("Failed to update workspace integration.") });
-          throw new Error();
+        throw new Error();
       }
 
       Notification.success({ message: t("Successfully updated workspace integration!") });
       refetch();
     },
-      [updateIntegrationToWorkspaceMutation, selectedIntegration, workspaceId, refetch, t],
+    [updateIntegrationToWorkspaceMutation, selectedIntegration, workspaceId, refetch, t],
   );
 
   const [removeIntegrationFromWorkspaceMutation, { loading: deleteLoading }] =
@@ -138,24 +138,24 @@ export default (workspaceId?: string) => {
   const handleIntegrationRemove = useCallback(
     async (integrationIds: string[]) => {
       if (!workspaceId) return;
-        try {
-            await Promise.all(
-                integrationIds.map(async integrationId => {
-                    const result = await removeIntegrationFromWorkspaceMutation({
-                        variables: {workspaceId, integrationId},
-                        refetchQueries: ["GetMe"],
-                    });
-                    if (result.errors) {
-                        throw new Error();
-                    }
-                }),
-            );
+      try {
+        await Promise.all(
+          integrationIds.map(async integrationId => {
+            const result = await removeIntegrationFromWorkspaceMutation({
+              variables: { workspaceId, integrationId },
+              refetchQueries: ["GetMe"],
+            });
+            if (result.errors) {
+              throw new Error();
+            }
+          }),
+        );
         Notification.success({
           message: t("One or more integrations were successfully deleted!"),
         });
-        } catch (e) {
-            Notification.error({message: t("Failed to delete one or more integrations.")});
-            throw e;
+      } catch (e) {
+        Notification.error({ message: t("Failed to delete one or more integrations.") });
+        throw e;
       }
     },
     [t, removeIntegrationFromWorkspaceMutation, workspaceId],
@@ -176,11 +176,11 @@ export default (workspaceId?: string) => {
   }, []);
 
   return {
-      loading,
-      workspaceIntegrations,
-      handleSearchTerm,
-      handleReload,
-      setSelectedIntegration,
+    loading,
+    workspaceIntegrations,
+    handleSearchTerm,
+    handleReload,
+    setSelectedIntegration,
     deleteLoading,
     handleIntegrationRemove,
     page,
@@ -190,12 +190,12 @@ export default (workspaceId?: string) => {
     hasUpdateRight,
     hasDeleteRight,
 
-      myIntegrations,
-      addLoading,
-      handleIntegrationConnect,
+    myIntegrations,
+    addLoading,
+    handleIntegrationConnect,
 
-      selectedIntegration,
-      updateLoading,
-      handleUpdateIntegration,
+    selectedIntegration,
+    updateLoading,
+    handleUpdateIntegration,
   };
 };

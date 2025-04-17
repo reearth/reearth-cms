@@ -1,6 +1,6 @@
-import {NetworkStatus} from "@apollo/client";
-import {Ion, Viewer as CesiumViewer} from "cesium";
-import {useCallback, useEffect, useMemo, useState, useRef} from "react";
+import { NetworkStatus } from "@apollo/client";
+import { Ion, Viewer as CesiumViewer } from "cesium";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -48,14 +48,14 @@ export default (assetId?: string) => {
   const [collapsed, setCollapsed] = useState(true);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
-    const {data: rawAsset, networkStatus} = useGetAssetItemQuery({
+  const { data: rawAsset, networkStatus } = useGetAssetItemQuery({
     variables: {
       assetId: assetId ?? "",
     },
     fetchPolicy: "cache-and-network",
   });
 
-    const {data: rawFile, loading: fileLoading} = useGetAssetFileQuery({
+  const { data: rawFile, loading: fileLoading } = useGetAssetFileQuery({
     variables: {
       assetId: assetId ?? "",
     },
@@ -183,19 +183,19 @@ export default (assetId?: string) => {
     [assetFileExt],
   );
 
-    const viewerRef = useRef<CesiumViewer>();
+  const viewerRef = useRef<CesiumViewer>();
 
-    const handleGetViewer = (viewer?: CesiumViewer) => {
-        viewerRef.current = viewer;
-    };
+  const handleGetViewer = (viewer?: CesiumViewer) => {
+    viewerRef.current = viewer;
+  };
 
   const handleFullScreen = useCallback(() => {
-      if (viewerType === "unknown") {
-          return;
+    if (viewerType === "unknown") {
+      return;
     } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
-      } else {
-          viewerRef.current?.canvas.requestFullscreen();
+    } else {
+      viewerRef.current?.canvas.requestFullscreen();
     }
   }, [viewerType]);
 
@@ -241,7 +241,7 @@ export default (assetId?: string) => {
   return {
     asset,
     assetFileExt,
-      isLoading: networkStatus === NetworkStatus.loading || fileLoading,
+    isLoading: networkStatus === NetworkStatus.loading || fileLoading,
     selectedPreviewType,
     isModalVisible,
     collapsed,
@@ -259,6 +259,6 @@ export default (assetId?: string) => {
     handleFullScreen,
     handleSave,
     handleBack,
-      handleGetViewer,
+    handleGetViewer,
   };
 };

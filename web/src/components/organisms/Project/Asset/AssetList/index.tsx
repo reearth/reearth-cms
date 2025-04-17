@@ -47,8 +47,8 @@ const AssetList: React.FC = () => {
     <AssetListBody
       commentsPanel={
         <CommentsPanel
-            resourceId={selectedAsset?.id}
-            resourceType={"ASSET"}
+          resourceId={selectedAsset?.id}
+          resourceType={"ASSET"}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
           comments={selectedAsset?.comments}

@@ -2,11 +2,11 @@ import styled from "@emotion/styled";
 import React from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
-import {ProjectListItem} from "@reearth-cms/components/molecules/Workspace/types";
+import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
-    project: ProjectListItem;
-    onProjectNavigation: (projectId: string) => void;
+  project: ProjectListItem;
+  onProjectNavigation: (projectId: string) => void;
 };
 
 const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
@@ -15,7 +15,7 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
   return (
     <CardWrapper key={project.id}>
       <ProjectStyledCard
-          onClick={() => onProjectNavigation(project.id)}
+        onClick={() => onProjectNavigation(project.id)}
         cover={<Cover>{project.name.charAt(0)}</Cover>}>
         <Meta title={project.name} description={project.description} />
       </ProjectStyledCard>

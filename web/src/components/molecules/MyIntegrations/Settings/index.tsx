@@ -4,15 +4,15 @@ import Content from "@reearth-cms/components/atoms/Content";
 import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Settings/DangerZone";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
 import {
-    Integration,
-    IntegrationInfo,
+  Integration,
+  IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
   integration: Integration;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
-    onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
   onRegenerateToken: () => Promise<void>;
 };

@@ -12,9 +12,9 @@ import { useT } from "@reearth-cms/i18n";
 import { FormItem } from "../../types";
 
 export type ReferenceProps = {
-    referencedItems: FormItem[];
+  referencedItems: FormItem[];
   loading?: boolean;
-    linkedItemsModalList?: FormItem[];
+  linkedItemsModalList?: FormItem[];
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
@@ -31,23 +31,23 @@ export type ReferenceProps = {
 };
 
 type Props = {
-    value?: string;
+  value?: string;
   onChange?: (value?: string) => void;
-    disabled?: boolean;
-    itemGroupId?: string;
-    fieldId: string;
-    modelId?: string;
-    titleFieldId?: string | null;
-    correspondingField?: CorrespondingField;
+  disabled?: boolean;
+  itemGroupId?: string;
+  fieldId: string;
+  modelId?: string;
+  titleFieldId?: string | null;
+  correspondingField?: CorrespondingField;
 } & ReferenceProps;
 
 const ReferenceFormItem: React.FC<Props> = ({
   value,
   fieldId,
-                                                referencedItems,
-                                                loading,
-                                                linkedItemsModalList,
-                                                disabled,
+  referencedItems,
+  loading,
+  linkedItemsModalList,
+  disabled,
   itemGroupId,
   correspondingField,
   modelId,
@@ -81,7 +81,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   }, [disabled, setVisible]);
 
   useEffect(() => {
-      const item = [...(referencedItems ?? []), ...(linkedItemsModalList ?? [])]?.find(
+    const item = [...(referencedItems ?? []), ...(linkedItemsModalList ?? [])]?.find(
       item => item.id === value,
     );
     setCurrentItem(item);
@@ -102,8 +102,8 @@ const ReferenceFormItem: React.FC<Props> = ({
           />
           {!disabled && (
             <UnreferButton
-                color="default"
-                variant="link"
+              color="default"
+              variant="link"
               icon={<Icon icon={"arrowUpRightSlash"} size={16} />}
               onClick={() => {
                 onChange?.();

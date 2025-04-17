@@ -4,7 +4,7 @@ import useHooks from "./hooks";
 
 const MyIntegrationDetails: React.FC = () => {
   const {
-      loading,
+    loading,
     selectedIntegration,
     updateIntegrationLoading,
     regenerateLoading,
@@ -19,9 +19,9 @@ const MyIntegrationDetails: React.FC = () => {
     handleIntegrationHeaderBack,
   } = useHooks();
 
-    return (
+  return (
     <MyIntegrationContent
-        loading={loading}
+      loading={loading}
       integration={selectedIntegration}
       updateIntegrationLoading={updateIntegrationLoading}
       regenerateLoading={regenerateLoading}
@@ -35,7 +35,7 @@ const MyIntegrationDetails: React.FC = () => {
       onWebhookUpdate={handleWebhookUpdate}
       onIntegrationHeaderBack={handleIntegrationHeaderBack}
     />
-    );
+  );
 };
 
 export default MyIntegrationDetails;

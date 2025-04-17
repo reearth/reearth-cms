@@ -36,7 +36,7 @@ export default () => {
         resources: [],
       },
     }),
-      [],
+    [],
   );
 
   const workspaceSettings: WorkspaceSettings = useMemo(() => {
@@ -83,7 +83,7 @@ export default () => {
 
   return {
     loading,
-      workspaceSettings,
+    workspaceSettings,
     hasUpdateRight,
     updateLoading,
     handleWorkspaceSettingsUpdate,

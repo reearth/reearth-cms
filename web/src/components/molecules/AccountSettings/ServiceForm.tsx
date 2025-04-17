@@ -7,7 +7,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { localesWithLabel, useT } from "@reearth-cms/i18n";
 
 type Props = {
-    initialValues: FormType;
+  initialValues: FormType;
   onLanguageUpdate: (lang: string) => Promise<void>;
 };
 
@@ -15,10 +15,10 @@ type FormType = {
   lang: string;
 };
 
-const ServiceForm: React.FC<Props> = ({initialValues, onLanguageUpdate}) => {
+const ServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }) => {
   const t = useT();
 
-    const [form] = Form.useForm<FormType>();
+  const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,9 +35,9 @@ const ServiceForm: React.FC<Props> = ({initialValues, onLanguageUpdate}) => {
 
   const handleSelect = useCallback(
     (value: string) => {
-        setIsDisabled(value === initialValues.lang);
+      setIsDisabled(value === initialValues.lang);
     },
-      [initialValues.lang],
+    [initialValues.lang],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -54,16 +54,16 @@ const ServiceForm: React.FC<Props> = ({initialValues, onLanguageUpdate}) => {
   }, [form, onLanguageUpdate]);
 
   return (
-      <StyledForm form={form} initialValues={initialValues} layout="vertical" autoComplete="off">
+    <StyledForm form={form} initialValues={initialValues} layout="vertical" autoComplete="off">
       <Form.Item
         name="lang"
         label={t("Service Language")}
         extra={t("This will change the UI language")}>
         <Select placeholder={t("Language")} onSelect={handleSelect}>
           {langItems?.map(langItem => (
-              <Select.Option key={langItem.key} value={langItem.key}>
+            <Select.Option key={langItem.key} value={langItem.key}>
               {langItem.label}
-              </Select.Option>
+            </Select.Option>
           ))}
         </Select>
       </Form.Item>

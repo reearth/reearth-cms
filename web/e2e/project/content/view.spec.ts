@@ -2,7 +2,7 @@ import { Page } from "@playwright/test";
 
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
-import {modelName, createModelFromOverview} from "@reearth-cms/e2e/project/utils/model";
+import { modelName, createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
@@ -11,7 +11,7 @@ test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
   await createProject(page);
-    await createModelFromOverview(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -104,7 +104,7 @@ test("View CRUD has succeeded", async ({ page }) => {
 
   await page.getByText("text", { exact: true }).first().click();
   await page.getByText("text", { exact: true }).first().click();
-    await expect(page.locator(".ant-table-row").nth(0)).toContainText("text2");
+  await expect(page.locator(".ant-table-row").nth(0)).toContainText("text2");
   await page.getByRole("button", { name: "plus Filter" }).click();
   await page.getByRole("menuitem", { name: "text" }).click();
   await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
@@ -156,7 +156,7 @@ test("View CRUD has succeeded", async ({ page }) => {
 
 test("View reordering has succeeded", async ({ page }) => {
   await page.getByText("Content").click();
-    await page.getByRole("menuitem", {name: modelName}).click();
+  await page.getByRole("menuitem", { name: modelName }).click();
 
   await page.getByRole("button", { name: "Save as new view" }).click();
   await page.getByLabel("View Name").fill("view1");

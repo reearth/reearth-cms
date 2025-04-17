@@ -33,11 +33,11 @@ export type MetadataField = Field & {
 };
 
 export type FieldProps = {
-    field: Field;
-    itemGroupId?: string;
-    disabled: boolean;
-    itemHeights?: Record<string, number>;
-    onItemHeightChange?: (id: string, height: number) => void;
+  field: Field;
+  itemGroupId?: string;
+  disabled: boolean;
+  itemHeights?: Record<string, number>;
+  onItemHeightChange?: (id: string, height: number) => void;
 };
 
 export type FieldType =
@@ -89,11 +89,11 @@ export type CorrespondingField = {
 };
 
 export type TypeProperty = {
-    defaultValue?: string | string[] | boolean | boolean[] | null;
+  defaultValue?: string | string[] | boolean | boolean[] | null;
   maxLength?: number;
-    assetDefaultValue?: string | string[] | null;
-    selectDefaultValue?: string | string[] | null;
-    integerDefaultValue?: number | number[] | null;
+  assetDefaultValue?: string | string[] | null;
+  selectDefaultValue?: string | string[] | null;
+  integerDefaultValue?: number | number[] | null;
   min?: number;
   max?: number;
   numberMin?: number;
@@ -117,7 +117,7 @@ export type FieldTypePropertyInput = {
   bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
   tag?: {
-      defaultValue?: string | string[];
+    defaultValue?: string | string[];
     tags: Tag[];
   };
   checkbox?: { defaultValue?: boolean };

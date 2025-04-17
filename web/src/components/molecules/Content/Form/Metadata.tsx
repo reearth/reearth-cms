@@ -1,78 +1,78 @@
 import styled from "@emotion/styled";
 
 import Status from "@reearth-cms/components/molecules/Content/Status";
-import {Item} from "@reearth-cms/components/molecules/Content/types";
-import {MetadataField} from "@reearth-cms/components/molecules/Schema/types";
-import {useT} from "@reearth-cms/i18n";
-import {dateTimeFormat} from "@reearth-cms/utils/format";
+import { Item } from "@reearth-cms/components/molecules/Content/types";
+import { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
+import { useT } from "@reearth-cms/i18n";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-import {FIELD_TYPE_COMPONENT_MAP} from "./fields/FieldTypesMap";
+import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 type Props = {
-    item?: Item;
-    fields: MetadataField[];
-    disabled: boolean;
+  item?: Item;
+  fields: MetadataField[];
+  disabled: boolean;
 };
 
-const Metadata: React.FC<Props> = ({item, fields, disabled}) => {
-    const t = useT();
+const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
+  const t = useT();
 
-    return (
+  return (
+    <>
+      {item && (
         <>
-            {item && (
-                <>
-                    <div>
-                        <CardTitle>{t("Item Information")}</CardTitle>
-                        <ItemInfo>
-                            <DataRow>
-                                <DataTitle>ID</DataTitle>
-                                <ID>{item.id}</ID>
-                            </DataRow>
-                            <DataRow>
-                                <DataTitle>{t("Created At")}</DataTitle>
-                                <DataText>{dateTimeFormat(item.createdAt)}</DataText>
-                            </DataRow>
-                            <DataRow>
-                                <DataTitle>{t("Created By")}</DataTitle>
-                                <DataText>{item.createdBy?.name}</DataText>
-                            </DataRow>
-                            <DataRow>
-                                <DataTitle>{t("Updated At")}</DataTitle>
-                                <DataText>{dateTimeFormat(item.updatedAt)}</DataText>
-                            </DataRow>
-                            <DataRow>
-                                <DataTitle>{t("Updated By")}</DataTitle>
-                                <DataText>{item.updatedBy?.name}</DataText>
-                            </DataRow>
-                        </ItemInfo>
-                    </div>
-                    <div>
-                        <CardTitle>{t("Publish State")}</CardTitle>
-                        <CardValue>
-                            <DataTitle>
-                                <Status status={item.status}/>
-                            </DataTitle>
-                        </CardValue>
-                    </div>
-                </>
-            )}
-            {fields.length > 0 && (
-                <div>
-                    <CardTitle>{t("Customized meta data")}</CardTitle>
-                    <MetadataWrapper>
-                        {fields.map(field => {
-                            const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
-                            return (
-                                <MetaFormItemWrapper key={field.id}>
-                                    <FieldComponent field={field} disabled={disabled}/>
-                                </MetaFormItemWrapper>
-                            );
-                        })}
-                    </MetadataWrapper>
-                </div>
-            )}
+          <div>
+            <CardTitle>{t("Item Information")}</CardTitle>
+            <ItemInfo>
+              <DataRow>
+                <DataTitle>ID</DataTitle>
+                <ID>{item.id}</ID>
+              </DataRow>
+              <DataRow>
+                <DataTitle>{t("Created At")}</DataTitle>
+                <DataText>{dateTimeFormat(item.createdAt)}</DataText>
+              </DataRow>
+              <DataRow>
+                <DataTitle>{t("Created By")}</DataTitle>
+                <DataText>{item.createdBy?.name}</DataText>
+              </DataRow>
+              <DataRow>
+                <DataTitle>{t("Updated At")}</DataTitle>
+                <DataText>{dateTimeFormat(item.updatedAt)}</DataText>
+              </DataRow>
+              <DataRow>
+                <DataTitle>{t("Updated By")}</DataTitle>
+                <DataText>{item.updatedBy?.name}</DataText>
+              </DataRow>
+            </ItemInfo>
+          </div>
+          <div>
+            <CardTitle>{t("Publish State")}</CardTitle>
+            <CardValue>
+              <DataTitle>
+                <Status status={item.status} />
+              </DataTitle>
+            </CardValue>
+          </div>
         </>
-    );
+      )}
+      {fields.length > 0 && (
+        <div>
+          <CardTitle>{t("Customized meta data")}</CardTitle>
+          <MetadataWrapper>
+            {fields.map(field => {
+              const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
+              return (
+                <MetaFormItemWrapper key={field.id}>
+                  <FieldComponent field={field} disabled={disabled} />
+                </MetaFormItemWrapper>
+              );
+            })}
+          </MetadataWrapper>
+        </div>
+      )}
+    </>
+  );
 };
 
 const CardTitle = styled.h4`

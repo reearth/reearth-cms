@@ -23,7 +23,7 @@ const TextAreaField: React.FC<Props> = ({ multiple, maxLength }) => {
           validator: (_, value) => {
             if (value && maxLength) {
               if (Array.isArray(value)) {
-                  if (value.some(v => typeof v === "string" && maxLength < runes(v).length)) {
+                if (value.some(v => typeof v === "string" && maxLength < runes(v).length)) {
                   return Promise.reject();
                 }
               } else if (typeof value === "string" && maxLength < runes(value).length) {

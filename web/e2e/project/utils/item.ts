@@ -25,7 +25,7 @@ export async function createRequest(page: Page, title = requestTitle) {
     .locator("p")
     .innerText();
   await page.getByTitle(reviewerName).locator("div").click();
-    await page.getByLabel("Description").click();
+  await page.getByLabel("Description").click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 }

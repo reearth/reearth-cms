@@ -1,4 +1,4 @@
-import {User} from "@reearth-cms/components/molecules/Member/types";
+import { User } from "@reearth-cms/components/molecules/Member/types";
 
 export type Integration = {
   id: string;
@@ -6,7 +6,7 @@ export type Integration = {
   description?: string | null;
   logoUrl: string;
   developerId: string;
-    developer: User;
+  developer: User;
   iType: IntegrationType;
   config: {
     token?: string;
@@ -30,17 +30,17 @@ export type Webhook = {
 export type NewWebhook = Omit<Webhook, "id">;
 
 export type TriggerKey =
-    | "onItemCreate"
-    | "onItemUpdate"
-    | "onItemDelete"
-    | "onItemPublish"
-    | "onItemUnPublish"
-    | "onAssetUpload"
-    | "onAssetDecompress"
-    | "onAssetDelete";
+  | "onItemCreate"
+  | "onItemUpdate"
+  | "onItemDelete"
+  | "onItemPublish"
+  | "onItemUnPublish"
+  | "onAssetUpload"
+  | "onAssetDecompress"
+  | "onAssetDelete";
 
 export type WebhookTrigger = { [key in TriggerKey]?: boolean | null };
 
 export type WebhookValues = Webhook & {
-    trigger: TriggerKey[];
+  trigger: TriggerKey[];
 };

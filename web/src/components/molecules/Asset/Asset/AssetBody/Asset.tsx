@@ -28,7 +28,7 @@ import {
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import {dateTimeFormat, bytesFormat} from "@reearth-cms/utils/format";
+import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
@@ -46,7 +46,7 @@ type Props = {
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-    onGetViewer: (viewer?: CesiumViewer) => void;
+  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -64,7 +64,7 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
-                                            onGetViewer,
+  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -94,11 +94,11 @@ const AssetMolecule: React.FC<Props> = ({
         );
       case "geo_mvt":
         return (
-            <MvtViewer
-                url={assetUrl}
-                onGetViewer={onGetViewer}
-                workspaceSettings={workspaceSettings}
-            />
+          <MvtViewer
+            url={assetUrl}
+            onGetViewer={onGetViewer}
+            workspaceSettings={workspaceSettings}
+          />
         );
       case "image":
         return <ImageViewer url={assetUrl} />;
@@ -114,11 +114,11 @@ const AssetMolecule: React.FC<Props> = ({
         );
       case "csv":
         return (
-            <CsvViewer
-                url={assetUrl}
-                onGetViewer={onGetViewer}
-                workspaceSettings={workspaceSettings}
-            />
+          <CsvViewer
+            url={assetUrl}
+            onGetViewer={onGetViewer}
+            workspaceSettings={workspaceSettings}
+          />
         );
       case "unknown":
       default:
@@ -133,13 +133,13 @@ const AssetMolecule: React.FC<Props> = ({
           title={
             <>
               <AssetName>{asset.fileName}</AssetName>
-                <Buttons>
-                    <CopyButton
-                        copyable={{text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")]}}
-                        size={16}
-                    />
-                    <DownloadButton selected={[asset]} onlyIcon/>
-                </Buttons>
+              <Buttons>
+                <CopyButton
+                  copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
+                  size={16}
+                />
+                <DownloadButton selected={[asset]} onlyIcon />
+              </Buttons>
             </>
           }
           toolbar={
@@ -181,7 +181,7 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-          <DownloadButton selected={[asset]} displayDefaultIcon/>
+        <DownloadButton selected={[asset]} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
@@ -191,25 +191,25 @@ const AssetMolecule: React.FC<Props> = ({
             hasUpdateRight={hasUpdateRight}
           />
         </SideBarCard>
-          <SideBarCard title={t("Asset Information")}>
-              <AssetInfo>
-                  <InfoRow>
-                      <InfoKey>ID</InfoKey>
-                      <ID>{asset.id}</ID>
-                  </InfoRow>
-                  <InfoRow>
-                      <InfoKey>{t("Created at")}</InfoKey>
-                      <InfoValue>{dateTimeFormat(asset.createdAt)}</InfoValue>
-                  </InfoRow>
-                  <InfoRow>
-                      <InfoKey>{t("Created by")}</InfoKey>
-                      <InfoValue>{asset.createdBy?.name}</InfoValue>
-                  </InfoRow>
-                  <InfoRow>
-                      <InfoKey>{t("Size")}</InfoKey>
-                      <InfoValue>{bytesFormat(asset.size)}</InfoValue>
-                  </InfoRow>
-              </AssetInfo>
+        <SideBarCard title={t("Asset Information")}>
+          <AssetInfo>
+            <InfoRow>
+              <InfoKey>ID</InfoKey>
+              <ID>{asset.id}</ID>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Created at")}</InfoKey>
+              <InfoValue>{dateTimeFormat(asset.createdAt)}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Created by")}</InfoKey>
+              <InfoValue>{asset.createdBy?.name}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoKey>{t("Size")}</InfoKey>
+              <InfoValue>{bytesFormat(asset.size)}</InfoValue>
+            </InfoRow>
+          </AssetInfo>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (

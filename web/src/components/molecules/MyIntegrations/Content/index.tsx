@@ -7,33 +7,33 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrations/Settings";
 import {
   Integration,
-    IntegrationInfo,
-    Webhook as WebhookType,
-    NewWebhook,
+  IntegrationInfo,
+  Webhook as WebhookType,
+  NewWebhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 import { useT } from "@reearth-cms/i18n";
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 
 type Props = {
-    loading: boolean;
-    integration?: Integration;
+  loading: boolean;
+  integration?: Integration;
   updateIntegrationLoading: boolean;
   regenerateLoading: boolean;
   createWebhookLoading: boolean;
   updateWebhookLoading: boolean;
-    onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
   onRegenerateToken: () => Promise<void>;
-    onWebhookCreate: (data: NewWebhook) => Promise<void>;
+  onWebhookCreate: (data: NewWebhook) => Promise<void>;
   onWebhookDelete: (webhookId: string) => Promise<void>;
-    onWebhookUpdate: (data: WebhookType) => Promise<void>;
+  onWebhookUpdate: (data: WebhookType) => Promise<void>;
   onIntegrationHeaderBack: () => void;
 };
 
 const MyIntegrationContent: React.FC<Props> = ({
-                                                   loading,
+  loading,
   integration,
   updateIntegrationLoading,
   regenerateLoading,
@@ -49,9 +49,9 @@ const MyIntegrationContent: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-    return loading ? (
-        <Loading spinnerSize="large" minHeight="100%"/>
-    ) : integration ? (
+  return loading ? (
+    <Loading spinnerSize="large" minHeight="100%" />
+  ) : integration ? (
     <MyIntegrationWrapper>
       <PageHeader
         title={`${t("My Integration")} / ${integration.name}`}
@@ -80,8 +80,8 @@ const MyIntegrationContent: React.FC<Props> = ({
         </TabPane>
       </MyIntegrationTabs>
     </MyIntegrationWrapper>
-    ) : (
-        <NotFound/>
+  ) : (
+    <NotFound />
   );
 };
 

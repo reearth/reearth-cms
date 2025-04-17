@@ -16,13 +16,13 @@ import {
   FormTypes,
   ObjectSupportedType,
   EditorSupportedType,
-    SelectedSchemaType,
+  SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 export default (
-    selectedSchemaType: SelectedSchemaType,
+  selectedSchemaType: SelectedSchemaType,
   selectedType: FieldType,
   isMeta: boolean,
   selectedField: Field | null,
@@ -197,20 +197,20 @@ export default (
         return {
           date: { defaultValue: transformDayjsToString(values.defaultValue) ?? "" },
         };
-        case "Tag": {
-            const defaultValue =
-                Array.isArray(values.defaultValue) && values.defaultValue.length
-                    ? values.tags
-                        ?.filter(tag => values.defaultValue.includes(tag.name))
-                        .map(({name}) => name)
-                    : values.defaultValue;
+      case "Tag": {
+        const defaultValue =
+          Array.isArray(values.defaultValue) && values.defaultValue.length
+            ? values.tags
+                ?.filter(tag => values.defaultValue.includes(tag.name))
+                .map(({ name }) => name)
+            : values.defaultValue;
         return {
-            tag: {
-                defaultValue,
-                tags: values.tags ?? [],
-            },
+          tag: {
+            defaultValue,
+            tags: values.tags ?? [],
+          },
         };
-        }
+      }
       case "Checkbox":
         return {
           checkbox: { defaultValue: values.defaultValue },
@@ -267,10 +267,10 @@ export default (
   }, [form, values]);
 
   const handleValuesChange = useCallback(async (changedValues: Record<string, unknown>) => {
-      const [key, value] = Object.entries(changedValues)[0] as [keyof FormTypes, unknown];
+    const [key, value] = Object.entries(changedValues)[0] as [keyof FormTypes, unknown];
     let changedValue = value;
-      let defaultValue = defaultValueRef.current?.[key];
-      if (key === "supportedTypes" && Array.isArray(value) && Array.isArray(defaultValue)) {
+    let defaultValue = defaultValueRef.current?.[key];
+    if (key === "supportedTypes" && Array.isArray(value) && Array.isArray(defaultValue)) {
       changedValue = [...value].sort();
       defaultValue = [...defaultValue].sort();
     }
@@ -347,9 +347,9 @@ export default (
 
   const isTitleDisabled = useMemo(
     () =>
-        (selectedSchemaType === "model" && isMeta) ||
+      (selectedSchemaType === "model" && isMeta) ||
       !(selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText"),
-      [isMeta, selectedSchemaType, selectedType],
+    [isMeta, selectedSchemaType, selectedType],
   );
 
   const ObjectSupportType = useMemo(

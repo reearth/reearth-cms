@@ -11,20 +11,20 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import {Comment as CommentType} from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-    userId: string;
+  userId: string;
   hasUpdateRight: boolean | null;
   hasDeleteRight: boolean | null;
-    comment: CommentType;
+  comment: CommentType;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
 };
 
 const Comment: React.FC<Props> = ({
-                                      userId,
+  userId,
   hasUpdateRight,
   hasDeleteRight,
   comment,
@@ -44,9 +44,9 @@ const Comment: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     try {
-        if (comment.content !== value) {
-            await onCommentUpdate(comment.id, value);
-        }
+      if (comment.content !== value) {
+        await onCommentUpdate(comment.id, value);
+      }
     } catch (info) {
       console.log("Validate Failed:", info);
     } finally {
@@ -54,29 +54,29 @@ const Comment: React.FC<Props> = ({
     }
   }, [comment.content, comment.id, value, onCommentUpdate]);
 
-    const fromNow = useMemo(() => dayjs(comment.createdAt).fromNow(), [comment.createdAt]);
+  const fromNow = useMemo(() => dayjs(comment.createdAt).fromNow(), [comment.createdAt]);
 
   const actions = useMemo(() => {
     const result = [];
-      const isMine = userId === comment.author.id;
+    const isMine = userId === comment.author.id;
     if (hasDeleteRight || (hasDeleteRight === null && isMine)) {
-        result.push(
-            <Button
-                color="default"
-                variant="link"
-                size="small"
-                icon={<Icon icon="delete" size={12}/>}
-                onClick={() => onCommentDelete(comment.id)}
-            />,
-        );
+      result.push(
+        <Button
+          color="default"
+          variant="link"
+          size="small"
+          icon={<Icon icon="delete" size={12} />}
+          onClick={() => onCommentDelete(comment.id)}
+        />,
+      );
     }
     if (hasUpdateRight || (hasUpdateRight === null && isMine)) {
       result.push(
-          <Button
-              color="default"
-              variant="link"
-              size="small"
-              icon={<Icon icon={showEditor ? "check" : "edit"} size={12}/>}
+        <Button
+          color="default"
+          variant="link"
+          size="small"
+          icon={<Icon icon={showEditor ? "check" : "edit"} size={12} />}
           onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
         />,
       );
@@ -88,39 +88,39 @@ const Comment: React.FC<Props> = ({
     handleSubmit,
     hasDeleteRight,
     hasUpdateRight,
-      userId,
+    userId,
     onCommentDelete,
     showEditor,
   ]);
 
   return (
-      <AntDComment
+    <AntDComment
       actions={actions}
       author={comment.author.name}
       avatar={
         comment.author.type === "Integration" ? (
           <Badge count={<StyledIcon icon="api" size={8} color="#BFBFBF" />} offset={[0, 24]}>
-              <UserAvatar username={comment.author.name}/>
+            <UserAvatar username={comment.author.name} />
           </Badge>
         ) : (
-            <UserAvatar username={comment.author.name}/>
+          <UserAvatar username={comment.author.name} />
         )
       }
       content={
-          showEditor ? (
-              <TextArea onChange={handleChange} value={value} autoSize={{maxRows: 4}}/>
-          ) : (
-              <ReactMarkdown
-                  components={{
-                      a(props) {
-                          const {node, ...rest} = props;
-                          return <a target="_blank" {...rest} />;
-                      },
-                  }}
-                  remarkPlugins={[remarkGfm]}>
-                  {comment.content}
-              </ReactMarkdown>
-          )
+        showEditor ? (
+          <TextArea onChange={handleChange} value={value} autoSize={{ maxRows: 4 }} />
+        ) : (
+          <ReactMarkdown
+            components={{
+              a(props) {
+                const { node, ...rest } = props;
+                return <a target="_blank" {...rest} />;
+              },
+            }}
+            remarkPlugins={[remarkGfm]}>
+            {comment.content}
+          </ReactMarkdown>
+        )
       }
       datetime={<Tooltip title={dateTimeFormat(comment.createdAt)}>{fromNow}</Tooltip>}
     />

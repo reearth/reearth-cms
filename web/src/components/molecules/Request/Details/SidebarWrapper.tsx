@@ -54,9 +54,9 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 
   const handleSubmit: FocusEventHandler<HTMLElement> | undefined = useCallback(async () => {
     const requestId = currentRequest?.id;
-      const isEqual =
-          JSON.stringify([...defaultValue].sort()) === JSON.stringify([...selectedReviewers].sort());
-      if (!requestId || selectedReviewers.length === 0 || isEqual) {
+    const isEqual =
+      JSON.stringify([...defaultValue].sort()) === JSON.stringify([...selectedReviewers].sort());
+    if (!requestId || selectedReviewers.length === 0 || isEqual) {
       hideViewReviewers();
       return;
     }
@@ -79,7 +79,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     currentRequest?.id,
     currentRequest?.state,
     currentRequest?.title,
-      defaultValue,
+    defaultValue,
     hideViewReviewers,
     onRequestUpdate,
     selectedReviewers,

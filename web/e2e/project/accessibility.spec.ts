@@ -1,7 +1,7 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import {config} from "../utils/config";
+import { config } from "../utils/config";
 
 import { createProject, deleteProject } from "./utils/project";
 
@@ -16,7 +16,7 @@ test.afterEach(async ({ page }) => {
 
 test("Update settings on Accesibility page has succeeded", async ({ page }) => {
   await page.getByText("Accessibility").click();
-    await expect(page.getByRole("textbox")).not.toBeEmpty();
+  await expect(page.getByRole("textbox")).not.toBeEmpty();
   const alias = await page.getByRole("textbox").inputValue();
   await expect(page.getByRole("button", { name: "Save changes" })).toBeDisabled();
   await page.getByText("Private").click();
@@ -27,13 +27,13 @@ test("Update settings on Accesibility page has succeeded", async ({ page }) => {
   await expect(page.locator("form")).toContainText("Public");
   await expect(page.getByRole("textbox")).toHaveValue(alias);
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
-    await expect(page.locator("tbody")).toContainText(`${config.api}/p/${alias}/assets`);
+  await expect(page.locator("tbody")).toContainText(`${config.api}/p/${alias}/assets`);
   await expect(page.getByRole("button", { name: "Save changes" })).toBeDisabled();
 });
 
 test("Setting public scope to Limited has succeeded", async ({ page }) => {
-    await page.getByRole("menuitem", {name: "Accessibility"}).click();
-    await expect(page.getByLabel("Project Alias")).toHaveValue(/.+/);
+  await page.getByRole("menuitem", { name: "Accessibility" }).click();
+  await expect(page.getByLabel("Project Alias")).toHaveValue(/.+/);
   await page.getByText("Private").click();
   await page.getByText("Limited", { exact: true }).click();
   await expect(page.locator('input[type="password"]')).toBeHidden();

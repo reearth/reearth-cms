@@ -7,7 +7,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-    initialValues: FormType;
+  initialValues: FormType;
   onUserUpdate: (name: string, email: string) => Promise<void>;
 };
 
@@ -16,16 +16,16 @@ type FormType = {
   email: string;
 };
 
-const GeneralForm: React.FC<Props> = ({initialValues, onUserUpdate}) => {
+const GeneralForm: React.FC<Props> = ({ initialValues, onUserUpdate }) => {
   const t = useT();
 
-    const [form] = Form.useForm<FormType>();
+  const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleValuesChange = useCallback(
     async (_: unknown, values: FormType) => {
-        if (initialValues.name === values.name && initialValues.email === values.email) {
+      if (initialValues.name === values.name && initialValues.email === values.email) {
         setIsDisabled(true);
         return;
       }
@@ -35,7 +35,7 @@ const GeneralForm: React.FC<Props> = ({initialValues, onUserUpdate}) => {
         .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
       setIsDisabled(hasError);
     },
-      [form, initialValues.email, initialValues.name],
+    [form, initialValues.email, initialValues.name],
   );
 
   const handleSubmit = useCallback(async () => {

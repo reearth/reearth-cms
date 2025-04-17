@@ -2,14 +2,14 @@ import CommentsPanelWrapper from "@reearth-cms/components/molecules/Common/Comme
 import {
   Comment,
   RefetchQueries,
-    ResourceType,
+  ResourceType,
 } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 
 import useHooks from "./hooks";
 
 type Props = {
-    resourceId?: string;
-    resourceType: ResourceType;
+  resourceId?: string;
+  resourceType: ResourceType;
   threadId?: string;
   comments?: Comment[];
   collapsed: boolean;
@@ -18,8 +18,8 @@ type Props = {
 };
 
 const CommentsPanel: React.FC<Props> = ({
-                                            resourceId,
-                                            resourceType,
+  resourceId,
+  resourceType,
   threadId,
   comments,
   collapsed,
@@ -27,7 +27,7 @@ const CommentsPanel: React.FC<Props> = ({
   refetchQueries,
 }) => {
   const {
-      userId,
+    userId,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -35,19 +35,19 @@ const CommentsPanel: React.FC<Props> = ({
     handleCommentUpdate,
     handleCommentDelete,
   } = useHooks({
-      resourceId,
-      resourceType,
+    resourceId,
+    resourceType,
     threadId,
     refetchQueries,
   });
 
   return (
-      <CommentsPanelWrapper
-          userId={userId}
+    <CommentsPanelWrapper
+      userId={userId}
       hasCreateRight={hasCreateRight}
       hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}
-          resourceId={resourceId}
+      resourceId={resourceId}
       comments={comments}
       collapsed={collapsed}
       onCollapse={onCollapse}

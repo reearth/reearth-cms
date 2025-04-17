@@ -31,7 +31,7 @@ const Asset: React.FC = () => {
     handleFullScreen,
     handleBack,
     handleSave,
-      handleGetViewer,
+    handleGetViewer,
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
@@ -42,10 +42,10 @@ const Asset: React.FC = () => {
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
-            resourceId={asset.id}
-            resourceType={"ASSET"}
-            comments={asset.comments}
-            threadId={asset.threadId}
+          resourceId={asset.id}
+          resourceType={"ASSET"}
+          comments={asset.comments}
+          threadId={asset.threadId}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
           refetchQueries={["GetAssetItem"]}
@@ -72,7 +72,7 @@ const Asset: React.FC = () => {
       workspaceSettings={workspaceSettings}
     />
   ) : (
-      <NotFound/>
+    <NotFound />
   );
 };
 

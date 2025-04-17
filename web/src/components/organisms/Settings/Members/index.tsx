@@ -4,7 +4,7 @@ import useHooks from "./hooks";
 
 const Members: React.FC = () => {
   const {
-      userId,
+    userId,
     isAbleToLeave,
     handleSearchTerm,
     handleUserSearch,
@@ -12,7 +12,7 @@ const Members: React.FC = () => {
     addLoading,
     handleUsersAddToWorkspace,
     updateLoading,
-      handleUpdateRole,
+    handleUpdateRole,
     handleMemberRemoveFromWorkspace,
     handleLeave,
     workspaceUserMembers,
@@ -27,28 +27,28 @@ const Members: React.FC = () => {
   } = useHooks();
 
   return (
-      <MemberWrapper
-          workspaceUserMembers={workspaceUserMembers}
-          userId={userId}
-          isAbleToLeave={isAbleToLeave}
-          onMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
-          onLeave={handleLeave}
-          onSearchTerm={handleSearchTerm}
-          page={page}
-          pageSize={pageSize}
-          onTableChange={handleTableChange}
-          loading={loading}
-          onReload={handleReload}
-          hasInviteRight={hasInviteRight}
-          hasRemoveRight={hasRemoveRight}
-          hasChangeRoleRight={hasChangeRoleRight}
-          updateLoading={updateLoading}
-          onUpdateRole={handleUpdateRole}
-          searchLoading={searchLoading}
-          addLoading={addLoading}
-          onUserSearch={handleUserSearch}
-          onUsersAddToWorkspace={handleUsersAddToWorkspace}
-      />
+    <MemberWrapper
+      workspaceUserMembers={workspaceUserMembers}
+      userId={userId}
+      isAbleToLeave={isAbleToLeave}
+      onMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
+      onLeave={handleLeave}
+      onSearchTerm={handleSearchTerm}
+      page={page}
+      pageSize={pageSize}
+      onTableChange={handleTableChange}
+      loading={loading}
+      onReload={handleReload}
+      hasInviteRight={hasInviteRight}
+      hasRemoveRight={hasRemoveRight}
+      hasChangeRoleRight={hasChangeRoleRight}
+      updateLoading={updateLoading}
+      onUpdateRole={handleUpdateRole}
+      searchLoading={searchLoading}
+      addLoading={addLoading}
+      onUserSearch={handleUserSearch}
+      onUsersAddToWorkspace={handleUsersAddToWorkspace}
+    />
   );
 };
 

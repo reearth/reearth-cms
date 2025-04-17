@@ -5,56 +5,56 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import {VersionedItem} from "@reearth-cms/components/molecules/Content/types";
-import {stateColors} from "@reearth-cms/components/molecules/Content/utils";
-import {useT} from "@reearth-cms/i18n";
-import {dateTimeFormat} from "@reearth-cms/utils/format";
+import { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
+import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
+import { useT } from "@reearth-cms/i18n";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-    versions: VersionedItem[];
-    versionClick: (versionedItem: VersionedItem) => Promise<void>;
-    onNavigateToRequest: (id: string) => void;
+  versions: VersionedItem[];
+  versionClick: (versionedItem: VersionedItem) => Promise<void>;
+  onNavigateToRequest: (id: string) => void;
 };
 
-const Versions: React.FC<Props> = ({versions, versionClick, onNavigateToRequest}) => {
-    const t = useT();
-    return (
-        <>
-            {versions.map((version, index) => (
-                <HistoryCard key={version.version}>
-                    <HistoryTitle onClick={() => versionClick(version)}>
-                        <Tooltip title={t(version.status)}>
-                            <Badge color={stateColors[version.status]} data-testid="requestStatus"/>
-                        </Tooltip>
-                        {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
-                        {index === 0 && (
-                            <span>
+const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest }) => {
+  const t = useT();
+  return (
+    <>
+      {versions.map((version, index) => (
+        <HistoryCard key={version.version}>
+          <HistoryTitle onClick={() => versionClick(version)}>
+            <Tooltip title={t(version.status)}>
+              <Badge color={stateColors[version.status]} data-testid="requestStatus" />
+            </Tooltip>
+            {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
+            {index === 0 && (
+              <span>
                 <Tag bordered={false} color="processing">
                   {t("current")}
                 </Tag>
               </span>
-                        )}
-                    </HistoryTitle>
-                    <HistoryInfo>
-                        <User>{`${index === versions.length - 1 ? t("Created by") : t("Updated by")} ${version.creator.name}`}</User>
-                        {version.status === "REVIEW" && (
-                            <Requests>
-                                {version.requests?.map(request => (
-                                    <RequestWrapper
-                                        role="link"
-                                        key={request.id}
-                                        onClick={() => onNavigateToRequest(request.id)}>
-                                        <Icon icon="pullRequest"/>
-                                        <RequestTitle>{request.title}</RequestTitle>
-                                    </RequestWrapper>
-                                ))}
-                            </Requests>
-                        )}
-                    </HistoryInfo>
-                </HistoryCard>
-            ))}
-        </>
-    );
+            )}
+          </HistoryTitle>
+          <HistoryInfo>
+            <User>{`${index === versions.length - 1 ? t("Created by") : t("Updated by")} ${version.creator.name}`}</User>
+            {version.status === "REVIEW" && (
+              <Requests>
+                {version.requests?.map(request => (
+                  <RequestWrapper
+                    role="link"
+                    key={request.id}
+                    onClick={() => onNavigateToRequest(request.id)}>
+                    <Icon icon="pullRequest" />
+                    <RequestTitle>{request.title}</RequestTitle>
+                  </RequestWrapper>
+                ))}
+              </Requests>
+            )}
+          </HistoryInfo>
+        </HistoryCard>
+      ))}
+    </>
+  );
 };
 
 const HistoryCard = styled.div`

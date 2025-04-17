@@ -6,7 +6,7 @@ const Workspace: React.FC = () => {
   const {
     coverImageUrl,
     projects,
-      loading,
+    loading,
     hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,

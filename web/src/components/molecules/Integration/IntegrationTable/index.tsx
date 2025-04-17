@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import {Key, useMemo, useCallback, useState} from "react";
+import { Key, useMemo, useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
@@ -14,14 +14,14 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import {WorkspaceIntegration} from "@reearth-cms/components/molecules/Integration/types";
+import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
-    workspaceIntegrations?: WorkspaceIntegration[];
+  workspaceIntegrations?: WorkspaceIntegration[];
   onIntegrationConnectModalOpen: () => void;
   onSearchTerm: (term?: string) => void;
-    onIntegrationSettingsModalOpen: (integrationMember: WorkspaceIntegration) => void;
+  onIntegrationSettingsModalOpen: (integrationMember: WorkspaceIntegration) => void;
   deleteLoading: boolean;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
   page: number;
@@ -35,7 +35,7 @@ type Props = {
 };
 
 const IntegrationTable: React.FC<Props> = ({
-                                               workspaceIntegrations,
+  workspaceIntegrations,
   onIntegrationConnectModalOpen,
   onSearchTerm,
   onIntegrationSettingsModalOpen,
@@ -52,13 +52,13 @@ const IntegrationTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-    const [selection, setSelection] = useState<Key[]>([]);
+  const [selection, setSelection] = useState<Key[]>([]);
 
-    const columns: StretchColumn<WorkspaceIntegration>[] = useMemo(
+  const columns: StretchColumn<WorkspaceIntegration>[] = useMemo(
     () => [
       {
         title: t("Name"),
-          dataIndex: "name",
+        dataIndex: "name",
         key: "name",
         filters: [],
         width: 250,
@@ -66,7 +66,7 @@ const IntegrationTable: React.FC<Props> = ({
       },
       {
         title: t("Role"),
-          dataIndex: "role",
+        dataIndex: "role",
         key: "role",
         render: text => (typeof text === "string" ? t(text) : text),
         width: 100,
@@ -74,14 +74,14 @@ const IntegrationTable: React.FC<Props> = ({
       },
       {
         title: t("Creator"),
-          dataIndex: ["createdBy", "name"],
+        dataIndex: ["createdBy", "name"],
         key: "creator",
         width: 250,
         minWidth: 100,
         render: (_, item) => (
           <Space>
-              <UserAvatar username={item.createdBy?.name} size="small"/>
-              {item.createdBy?.name}
+            <UserAvatar username={item.createdBy?.name} size="small" />
+            {item.createdBy?.name}
           </Space>
         ),
       },
@@ -91,7 +91,7 @@ const IntegrationTable: React.FC<Props> = ({
           <Button
             type="link"
             onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
-            icon={<Icon size={18} icon="settings"/>}
+            icon={<Icon size={18} icon="settings" />}
             disabled={!hasUpdateRight}
           />
         ),
@@ -121,35 +121,35 @@ const IntegrationTable: React.FC<Props> = ({
     () => ({
       showSizeChanger: true,
       current: page,
-        pageSize,
+      pageSize,
     }),
     [page, pageSize],
   );
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-        selectedRowKeys: selection,
+      selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {
-          setSelection(selectedRowKeys);
+        setSelection(selectedRowKeys);
       },
     }),
     [selection, setSelection],
   );
 
-    const handleRemove = useCallback(
-        async (keys: Key[]) => {
-            try {
-                await onIntegrationRemove(keys.map(key => key.toString()));
-                setSelection([]);
-            } catch (e) {
-                console.error(e);
-            }
-        },
-        [onIntegrationRemove, setSelection],
-    );
+  const handleRemove = useCallback(
+    async (keys: Key[]) => {
+      try {
+        await onIntegrationRemove(keys.map(key => key.toString()));
+        setSelection([]);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [onIntegrationRemove, setSelection],
+  );
 
   const alertOptions = useCallback(
-      (props: { selectedRowKeys: Key[] }) => (
+    (props: { selectedRowKeys: Key[] }) => (
       <Space size={4}>
         <Button
           type="link"
@@ -163,7 +163,7 @@ const IntegrationTable: React.FC<Props> = ({
         </Button>
       </Space>
     ),
-      [deleteLoading, handleRemove, hasDeleteRight, t],
+    [deleteLoading, handleRemove, hasDeleteRight, t],
   );
 
   const options = useMemo(
@@ -174,42 +174,42 @@ const IntegrationTable: React.FC<Props> = ({
     [onReload],
   );
 
-    const ConnectButton = useCallback(
-        () => (
-            <Button
-                type="primary"
-                onClick={onIntegrationConnectModalOpen}
-                icon={<Icon icon="api"/>}
-                disabled={!hasConnectRight}>
-                {t("Connect Integration")}
-            </Button>
-        ),
-        [hasConnectRight, onIntegrationConnectModalOpen, t],
-    );
+  const ConnectButton = useCallback(
+    () => (
+      <Button
+        type="primary"
+        onClick={onIntegrationConnectModalOpen}
+        icon={<Icon icon="api" />}
+        disabled={!hasConnectRight}>
+        {t("Connect Integration")}
+      </Button>
+    ),
+    [hasConnectRight, onIntegrationConnectModalOpen, t],
+  );
 
-    return (
-        <Wrapper>
-            <PageHeader
-                title={t("Integrations")}
-                style={{backgroundColor: "#fff"}}
-                extra={<ConnectButton/>}
+  return (
+    <Wrapper>
+      <PageHeader
+        title={t("Integrations")}
+        style={{ backgroundColor: "#fff" }}
+        extra={<ConnectButton />}
       />
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
             <Title>{t("No Integration yet")}</Title>
-              <Action>
-                  {t("Create a new")}
-                  <ConnectButton/>
-              </Action>
-              <span>
+            <Action>
+              {t("Create a new")}
+              <ConnectButton />
+            </Action>
+            <span>
               <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
             </span>
           </EmptyTableWrapper>
         )}>
         <TableWrapper>
           <ResizableProTable
-              dataSource={workspaceIntegrations}
+            dataSource={workspaceIntegrations}
             columns={columns}
             tableAlertOptionRender={alertOptions}
             search={false}

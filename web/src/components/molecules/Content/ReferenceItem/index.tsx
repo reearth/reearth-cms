@@ -39,9 +39,9 @@ const ReferenceItem: React.FC<Props> = ({
   );
 
   return (
-      <StyledReferenceItem disabled={disabled}>
+    <StyledReferenceItem disabled={disabled}>
       <Tooltip title={title}>
-          <StlyedReferenceTitle>{title}</StlyedReferenceTitle>
+        <StlyedReferenceTitle>{title}</StlyedReferenceTitle>
         {linkTo ? (
           <Link to={linkTo} target="_blank">
             <ReferenceItemName>{value}</ReferenceItemName>
@@ -65,7 +65,7 @@ const StyledReferenceItem = styled.div<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
   padding: 8px 16px;
-  background-color: ${({disabled}) => (disabled ? "rgba(0, 0, 0, 0.04)" : "#fafafa")};
+  background-color: ${({ disabled }) => (disabled ? "rgba(0, 0, 0, 0.04)" : "#fafafa")};
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   justify-content: space-between;

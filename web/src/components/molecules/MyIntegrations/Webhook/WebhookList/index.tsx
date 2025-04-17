@@ -2,17 +2,17 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import {Webhook} from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
 type Props = {
-    webhooks: Webhook[];
+  webhooks: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
-    onWebhookUpdate: (data: Webhook) => Promise<void>;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
   onWebhookSelect: (id: string) => void;
-    onShowForm: () => void;
+  onShowForm: () => void;
 };
 
 const WebhookList: React.FC<Props> = ({
@@ -20,7 +20,7 @@ const WebhookList: React.FC<Props> = ({
   onWebhookDelete,
   onWebhookUpdate,
   onWebhookSelect,
-                                          onShowForm,
+  onShowForm,
 }) => {
   const t = useT();
 
@@ -31,7 +31,7 @@ const WebhookList: React.FC<Props> = ({
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
-        {webhooks.length > 0 ? (
+      {webhooks.length > 0 ? (
         <ListWrapper>
           {webhooks.map(webhook => (
             <WebhookCard

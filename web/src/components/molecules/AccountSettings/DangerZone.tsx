@@ -15,7 +15,7 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
   const t = useT();
 
   const handleAccountDeleteConfirmation = useCallback(() => {
-      Modal.confirm({
+    Modal.confirm({
       title: t("Are you sure you want to delete your account?"),
       icon: <Icon icon="exclamationCircle" />,
       cancelText: t("Cancel"),

@@ -2,30 +2,30 @@ import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
-    RefetchQueries,
-    ResourceType,
+  RefetchQueries,
+  ResourceType,
 } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import {
-    ResourceType as GQLResourceType,
+  ResourceType as GQLResourceType,
   useAddCommentMutation,
   useDeleteCommentMutation,
   useUpdateCommentMutation,
-    useCreateThreadWithCommentMutation,
+  useCreateThreadWithCommentMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import {useWorkspaceId, useUserRights, useUserId} from "@reearth-cms/state";
+import { useWorkspaceId, useUserRights, useUserId } from "@reearth-cms/state";
 
 type Params = {
-    resourceId?: string;
-    resourceType: ResourceType;
+  resourceId?: string;
+  resourceType: ResourceType;
   threadId?: string;
   refetchQueries: RefetchQueries;
 };
 
-export default ({resourceId, resourceType, threadId, refetchQueries}: Params) => {
+export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) => {
   const t = useT();
-    const [currentWorkspaceId] = useWorkspaceId();
-    const [userId] = useUserId();
+  const [currentWorkspaceId] = useWorkspaceId();
+  const [userId] = useUserId();
 
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.comment.create, [userRights?.comment.create]);
@@ -38,9 +38,9 @@ export default ({resourceId, resourceType, threadId, refetchQueries}: Params) =>
     [userRights?.comment.delete],
   );
 
-    const [createThreadWithComment] = useCreateThreadWithCommentMutation({
-        refetchQueries,
-    });
+  const [createThreadWithComment] = useCreateThreadWithCommentMutation({
+    refetchQueries,
+  });
 
   const [createComment] = useAddCommentMutation({
     refetchQueries,
@@ -48,46 +48,46 @@ export default ({resourceId, resourceType, threadId, refetchQueries}: Params) =>
 
   const handleCommentCreate = useCallback(
     async (content: string) => {
-        try {
-            if (!threadId) {
-                const {data, errors} = await createThreadWithComment({
-                    variables: {
-                        workspaceId: currentWorkspaceId ?? "",
-                        resourceId: resourceId ?? "",
-                        resourceType: resourceType as GQLResourceType,
-                        content,
-                    },
-                });
+      try {
+        if (!threadId) {
+          const { data, errors } = await createThreadWithComment({
+            variables: {
+              workspaceId: currentWorkspaceId ?? "",
+              resourceId: resourceId ?? "",
+              resourceType: resourceType as GQLResourceType,
+              content,
+            },
+          });
 
-                if (errors || !data?.createThreadWithComment?.thread?.id) {
-                    Notification.error({message: t("Failed to create thread.")});
-                    return;
-                }
-            } else {
-                const {data: commentData, errors: commentErrors} = await createComment({
-                    variables: {threadId, content},
-                });
+          if (errors || !data?.createThreadWithComment?.thread?.id) {
+            Notification.error({ message: t("Failed to create thread.") });
+            return;
+          }
+        } else {
+          const { data: commentData, errors: commentErrors } = await createComment({
+            variables: { threadId, content },
+          });
 
-                if (commentErrors || !commentData?.addComment) {
-                    Notification.error({message: t("Failed to create comment.")});
-                    return;
-                }
-            }
-            Notification.success({message: t("Successfully created comment!")});
-        } catch (error) {
-            Notification.error({message: t("An unexpected error occurred.")});
-            console.error("Error creating comment:", error);
+          if (commentErrors || !commentData?.addComment) {
+            Notification.error({ message: t("Failed to create comment.") });
+            return;
+          }
         }
+        Notification.success({ message: t("Successfully created comment!") });
+      } catch (error) {
+        Notification.error({ message: t("An unexpected error occurred.") });
+        console.error("Error creating comment:", error);
+      }
     },
-      [
-          threadId,
-          createComment,
-          t,
-          createThreadWithComment,
-          currentWorkspaceId,
-          resourceId,
-          resourceType,
-      ],
+    [
+      threadId,
+      createComment,
+      t,
+      createThreadWithComment,
+      currentWorkspaceId,
+      resourceId,
+      resourceType,
+    ],
   );
 
   const [updateComment] = useUpdateCommentMutation({
@@ -136,7 +136,7 @@ export default ({resourceId, resourceType, threadId, refetchQueries}: Params) =>
   );
 
   return {
-      userId: userId ?? "",
+    userId: userId ?? "",
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,

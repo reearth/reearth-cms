@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import {checkIfEmpty} from "@reearth-cms/components/molecules/Content/Form/fields/utils";
+import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
 import { renderTitle } from "@reearth-cms/components/molecules/Content/RenderTitle";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -13,7 +13,7 @@ import {
   ItemField,
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
-import {selectedTagIdsGet} from "@reearth-cms/components/molecules/Content/utils";
+import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ConditionInput,
@@ -203,10 +203,10 @@ export default () => {
     [getItem],
   );
 
-    const metaFieldsMap = useMemo(
-        () => new Map((currentModel?.metadataSchema.fields || []).map(field => [field.id, field])),
-        [currentModel?.metadataSchema.fields],
-    );
+  const metaFieldsMap = useMemo(
+    () => new Map((currentModel?.metadataSchema.fields || []).map(field => [field.id, field])),
+    [currentModel?.metadataSchema.fields],
+  );
 
   const handleMetaItemUpdate = useCallback(
     async (
@@ -216,62 +216,62 @@ export default () => {
       index?: number,
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
-        if (!target || !currentModel?.metadataSchema?.id || !metaFieldsMap) {
+      if (!target || !currentModel?.metadataSchema?.id || !metaFieldsMap) {
         Notification.error({ message: t("Failed to update item.") });
         return;
       } else {
         const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
         if (metadata?.fields && metadata.id) {
-            const requiredErrorFields: string[] = [];
-            const maxLengthErrorFields: string[] = [];
+          const requiredErrorFields: string[] = [];
+          const maxLengthErrorFields: string[] = [];
           const fields = metadata.fields.map(field => {
-              const metaField = metaFieldsMap.get(field.schemaFieldId);
+            const metaField = metaFieldsMap.get(field.schemaFieldId);
             if (field.schemaFieldId === key) {
-                if (Array.isArray(field.value)) {
-                    if (field.type === "Tag") {
-                        const tags = metaField?.typeProperty?.tags;
-                        field.value = tags ? selectedTagIdsGet(value as string[], tags) : [];
-                    } else {
-                        field.value[index ?? 0] = value === "" ? undefined : value;
-                    }
+              if (Array.isArray(field.value)) {
+                if (field.type === "Tag") {
+                  const tags = metaField?.typeProperty?.tags;
+                  field.value = tags ? selectedTagIdsGet(value as string[], tags) : [];
+                } else {
+                  field.value[index ?? 0] = value === "" ? undefined : value;
+                }
               } else {
                 field.value = value ?? "";
               }
             } else {
               field.value = field.value ?? "";
             }
-              const fieldValue = field.value;
-              if (metaField?.required) {
-                  if (Array.isArray(fieldValue)) {
-                      if (fieldValue.every(v => checkIfEmpty(v))) {
-                          requiredErrorFields.push(metaField.key);
-                      }
-                  } else if (checkIfEmpty(fieldValue)) {
-                      requiredErrorFields.push(metaField.key);
-                  }
+            const fieldValue = field.value;
+            if (metaField?.required) {
+              if (Array.isArray(fieldValue)) {
+                if (fieldValue.every(v => checkIfEmpty(v))) {
+                  requiredErrorFields.push(metaField.key);
+                }
+              } else if (checkIfEmpty(fieldValue)) {
+                requiredErrorFields.push(metaField.key);
               }
-              const maxLength = metaField?.typeProperty?.maxLength;
-              if (maxLength) {
-                  if (Array.isArray(fieldValue)) {
-                      if (fieldValue.some(v => typeof v === "string" && v.length > maxLength)) {
-                          maxLengthErrorFields.push(metaField.key);
-                      }
-                  } else if (typeof fieldValue === "string" && fieldValue.length > maxLength) {
-                      maxLengthErrorFields.push(metaField.key);
-                  }
+            }
+            const maxLength = metaField?.typeProperty?.maxLength;
+            if (maxLength) {
+              if (Array.isArray(fieldValue)) {
+                if (fieldValue.some(v => typeof v === "string" && v.length > maxLength)) {
+                  maxLengthErrorFields.push(metaField.key);
+                }
+              } else if (typeof fieldValue === "string" && fieldValue.length > maxLength) {
+                maxLengthErrorFields.push(metaField.key);
               }
+            }
 
             return field as ItemFieldInput;
           });
-            if (requiredErrorFields.length || maxLengthErrorFields.length) {
-                requiredErrorFields.forEach(field => {
-                    Notification.error({message: t("Required field error", {field})});
-                });
-                maxLengthErrorFields.forEach(field => {
-                    Notification.error({message: t("Maximum length error", {field})});
-                });
-                return;
-            }
+          if (requiredErrorFields.length || maxLengthErrorFields.length) {
+            requiredErrorFields.forEach(field => {
+              Notification.error({ message: t("Required field error", { field }) });
+            });
+            maxLengthErrorFields.forEach(field => {
+              Notification.error({ message: t("Maximum length error", { field }) });
+            });
+            return;
+          }
           const item = await updateItemMutation({
             variables: {
               itemId: metadata.id,
@@ -284,10 +284,10 @@ export default () => {
             return;
           }
         } else {
-            const fields = [...metaFieldsMap].map(field => ({
-                value: field[1].id === key ? value : "",
+          const fields = [...metaFieldsMap].map(field => ({
+            value: field[1].id === key ? value : "",
             schemaFieldId: key,
-                type: field[1].type as SchemaFieldType,
+            type: field[1].type as SchemaFieldType,
           }));
           const metaItem = await createNewItem({
             variables: {
@@ -325,7 +325,7 @@ export default () => {
       currentModel?.id,
       currentModel?.metadataSchema.id,
       data?.searchItem.nodes,
-        metaFieldsMap,
+      metaFieldsMap,
       metadataVersionSet,
       t,
       updateItemMutation,
@@ -396,7 +396,7 @@ export default () => {
               createdBy: { id: item.createdBy?.id ?? "", name: item.createdBy?.name ?? "" },
               updatedBy: item.updatedBy?.name ?? "",
               fields: fieldsGet(item as unknown as Item),
-                comments: item.thread?.comments.map(comment =>
+              comments: item.thread?.comments.map(comment =>
                 fromGraphQLComment(comment as GQLComment),
               ),
               version: item.version,
@@ -495,7 +495,7 @@ export default () => {
       );
       setSearchTerm("");
       setPage(1);
-        setSelectedItems({selectedRows: []});
+      setSelectedItems({ selectedRows: [] });
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
@@ -609,7 +609,7 @@ export default () => {
       await handleAddItemToRequest(request, items);
       setSelectedItems({ selectedRows: [] });
     },
-      [handleAddItemToRequest],
+    [handleAddItemToRequest],
   );
 
   return {

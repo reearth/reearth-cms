@@ -6,17 +6,17 @@ import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/ty
 
 type Props = {
   integration: Integration;
-    onIntegrationNavigate: (integrationId: string) => void;
+  onIntegrationNavigate: (integrationId: string) => void;
 };
 
 const MyIntegrationCard: React.FC<Props> = ({ integration, onIntegrationNavigate }) => {
   const onCardClick = useCallback(() => {
-      onIntegrationNavigate(integration.id);
+    onIntegrationNavigate(integration.id);
   }, [integration, onIntegrationNavigate]);
 
   return (
     <CardWrapper>
-        <Card onClick={onCardClick} role="link">
+      <Card onClick={onCardClick} role="link">
         <Icon icon="api" size={40} color="#00000040" />
         <CardTitle>{integration.name}</CardTitle>
         <CardSubTitle>{integration.description}</CardSubTitle>

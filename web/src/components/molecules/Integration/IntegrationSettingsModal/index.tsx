@@ -6,8 +6,8 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import {WorkspaceIntegration} from "@reearth-cms/components/molecules/Integration/types";
-import {Role} from "@reearth-cms/components/molecules/Member/types";
+import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
 type FormValues = {
@@ -15,7 +15,7 @@ type FormValues = {
 };
 
 type Props = {
-    selectedIntegration?: WorkspaceIntegration;
+  selectedIntegration?: WorkspaceIntegration;
   open: boolean;
   loading: boolean;
   onClose: () => void;
@@ -23,7 +23,7 @@ type Props = {
 };
 
 const IntegrationSettingsModal: React.FC<Props> = ({
-                                                       selectedIntegration,
+  selectedIntegration,
   open,
   loading,
   onClose,
@@ -36,7 +36,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 
   useEffect(() => {
     form.setFieldsValue({
-        role: selectedIntegration?.role,
+      role: selectedIntegration?.role,
     });
   }, [form, selectedIntegration]);
 
@@ -53,14 +53,14 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 
   const handleSelect = useCallback(
     (value: string) => {
-        setIsDisabled(value === selectedIntegration?.role);
+      setIsDisabled(value === selectedIntegration?.role);
     },
-      [selectedIntegration?.role],
+    [selectedIntegration?.role],
   );
 
   const handleAfterClose = useCallback(() => {
     form.setFieldsValue({
-        role: selectedIntegration?.role,
+      role: selectedIntegration?.role,
     });
     setIsDisabled(true);
   }, [form, selectedIntegration?.role]);
@@ -84,21 +84,21 @@ const IntegrationSettingsModal: React.FC<Props> = ({
           {t("Save")}
         </Button>,
       ]}>
-        <Wrapper>
-            <Conetnt>
-                <LogoWrapper>
-                    <Icon icon="api" size={32} color="#b8b8b8"/>
-                </LogoWrapper>
-                <Info>
-                    <Name>{selectedIntegration?.name}</Name>
-                    <Description>{selectedIntegration?.description}</Description>
-                </Info>
-            </Conetnt>
-        </Wrapper>
-        <StyledForm
+      <Wrapper>
+        <Conetnt>
+          <LogoWrapper>
+            <Icon icon="api" size={32} color="#b8b8b8" />
+          </LogoWrapper>
+          <Info>
+            <Name>{selectedIntegration?.name}</Name>
+            <Description>{selectedIntegration?.description}</Description>
+          </Info>
+        </Conetnt>
+      </Wrapper>
+      <StyledForm
         form={form}
         layout="vertical"
-        initialValues={{role: selectedIntegration?.role}}
+        initialValues={{ role: selectedIntegration?.role }}
         requiredMark={false}>
         <Form.Item
           name="role"
@@ -109,14 +109,14 @@ const IntegrationSettingsModal: React.FC<Props> = ({
               message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
-            <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
+          <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
             <Option value="READER">{t("Reader")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>
             <Option value="OWNER">{t("Owner")}</Option>
-            </StyledSelect>
+          </StyledSelect>
         </Form.Item>
-        </StyledForm>
+      </StyledForm>
     </Modal>
   );
 };

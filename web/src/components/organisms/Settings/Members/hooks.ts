@@ -1,8 +1,8 @@
-import {useCallback, useMemo, useState} from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import {Role} from "@reearth-cms/components/molecules/Member/types";
+import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -36,7 +36,7 @@ export default () => {
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-    const [searchTerm, setSearchTerm] = useState<string>();
+  const [searchTerm, setSearchTerm] = useState<string>();
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
     setPage(1);
@@ -94,13 +94,13 @@ export default () => {
 
   const handleUserSearch = useCallback(
     async (keyword: string) => {
-        const res = await getUsersQuery({variables: {keyword}});
-        if (res.error) {
-            throw new Error(res.error.message);
-        }
-        return res.data?.userSearch ?? [];
+      const res = await getUsersQuery({ variables: { keyword } });
+      if (res.error) {
+        throw new Error(res.error.message);
+      }
+      return res.data?.userSearch ?? [];
     },
-      [getUsersQuery],
+    [getUsersQuery],
   );
 
   const [addUsersToWorkspaceMutation, { loading: addLoading }] = useAddUsersToWorkspaceMutation();
@@ -125,7 +125,7 @@ export default () => {
   const [updateMemberOfWorkspaceMutation, { loading: updateLoading }] =
     useUpdateMemberOfWorkspaceMutation();
 
-    const handleUpdateRole = useCallback(
+  const handleUpdateRole = useCallback(
     async (userId: string, role: Role) => {
       if (!workspaceId) return;
       const result = await updateMemberOfWorkspaceMutation({
@@ -151,32 +151,32 @@ export default () => {
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
 
-    const [removeMultipleMembersFromWorkspaceMutation] =
+  const [removeMultipleMembersFromWorkspaceMutation] =
     useRemoveMultipleMembersFromWorkspaceMutation();
 
   const handleMemberRemoveFromWorkspace = useCallback(
     async (userIds: string[]) => {
       if (!workspaceId) return;
-        const result = await removeMultipleMembersFromWorkspaceMutation({
+      const result = await removeMultipleMembersFromWorkspaceMutation({
         variables: { workspaceId, userIds },
       });
       if (result.errors) {
         Notification.error({
           message: t("Failed to remove member(s) from the workspace."),
         });
-          throw new Error();
+        throw new Error();
       }
-        Notification.success({
-            message: t("Successfully removed member(s) from the workspace!"),
-        });
+      Notification.success({
+        message: t("Successfully removed member(s) from the workspace!"),
+      });
     },
-      [workspaceId, removeMultipleMembersFromWorkspaceMutation, t],
+    [workspaceId, removeMultipleMembersFromWorkspaceMutation, t],
   );
 
   const handleLeave = useCallback(
     async (userId: string) => {
       if (!workspaceId) return;
-        const result = await removeMultipleMembersFromWorkspaceMutation({
+      const result = await removeMultipleMembersFromWorkspaceMutation({
         variables: { workspaceId, userIds: [userId] },
       });
       if (result.errors) {
@@ -193,7 +193,7 @@ export default () => {
     },
     [
       workspaceId,
-        removeMultipleMembersFromWorkspaceMutation,
+      removeMultipleMembersFromWorkspaceMutation,
       t,
       refetchMe,
       navigate,
@@ -211,8 +211,8 @@ export default () => {
   }, []);
 
   return {
-      workspaceUserMembers,
-      userId: me.id,
+    workspaceUserMembers,
+    userId: me.id,
     isAbleToLeave,
     handleSearchTerm,
     handleUserSearch,
@@ -220,7 +220,7 @@ export default () => {
     addLoading,
     handleUsersAddToWorkspace,
     updateLoading,
-      handleUpdateRole,
+    handleUpdateRole,
     handleMemberRemoveFromWorkspace,
     handleLeave,
     page,

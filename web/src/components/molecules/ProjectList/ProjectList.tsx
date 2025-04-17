@@ -1,19 +1,19 @@
 import styled from "@emotion/styled";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
-import {FormValues as ProjectFormValues} from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
+import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
-import {ProjectListItem} from "@reearth-cms/components/molecules/Workspace/types";
+import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
   hasCreateRight: boolean;
-    projects: ProjectListItem[];
+  projects: ProjectListItem[];
   loading: boolean;
-    onProjectNavigation: (projectId: string) => void;
-    onProjectCreate: (values: ProjectFormValues) => Promise<void>;
-    onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onProjectNavigation: (projectId: string) => void;
+  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const ProjectList: React.FC<Props> = ({
@@ -21,28 +21,28 @@ const ProjectList: React.FC<Props> = ({
   projects,
   loading,
   onProjectNavigation,
-                                          onProjectCreate,
-                                          onProjectAliasCheck,
+  onProjectCreate,
+  onProjectAliasCheck,
 }) => {
   const t = useT();
 
   return (
     <StyledDashboardBlock>
-        {loading ? (
+      {loading ? (
         <Loading minHeight="400px" />
       ) : projects.length === 0 ? (
         <EmptyListWrapper>
           <Title>{t("No Projects Yet")}</Title>
           <Wrapper>
             <Suggestion>{t("Create a new project")}</Suggestion>
-              <CreateProjectButton
-                  hasCreateRight={hasCreateRight}
-                  onProjectCreate={onProjectCreate}
-                  onProjectAliasCheck={onProjectAliasCheck}
-              />
+            <CreateProjectButton
+              hasCreateRight={hasCreateRight}
+              onProjectCreate={onProjectCreate}
+              onProjectAliasCheck={onProjectAliasCheck}
+            />
           </Wrapper>
           <Suggestion>
-              <Trans i18nKey="readDocument" components={{l: <a role="link" href=""/>}}/>
+            <Trans i18nKey="readDocument" components={{ l: <a role="link" href="" /> }} />
           </Suggestion>
         </EmptyListWrapper>
       ) : (

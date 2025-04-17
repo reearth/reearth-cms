@@ -1,21 +1,21 @@
 import styled from "@emotion/styled";
-import {useRef, useEffect} from "react";
+import { useRef, useEffect } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comment";
-import {Comment as CommentType} from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
 
 import Editor from "./Editor";
 
 type Props = {
-    userId: string;
+  userId: string;
   hasCreateRight: boolean;
   hasUpdateRight: boolean | null;
   hasDeleteRight: boolean | null;
-    resourceId?: string;
-    comments?: CommentType[];
+  resourceId?: string;
+  comments?: CommentType[];
   collapsed: boolean;
   onCollapse: (value: boolean) => void;
   onCommentCreate: (content: string) => Promise<void>;
@@ -24,11 +24,11 @@ type Props = {
 };
 
 const CommentsPanel: React.FC<Props> = ({
-                                            userId,
+  userId,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
-                                            resourceId,
+  resourceId,
   comments,
   collapsed,
   onCollapse,
@@ -38,13 +38,13 @@ const CommentsPanel: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-    const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
-    }, [collapsed, resourceId]);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [collapsed, resourceId]);
 
   return (
     <Sidebar
@@ -59,28 +59,28 @@ const CommentsPanel: React.FC<Props> = ({
           <StyledIcon icon="comment" onClick={() => onCollapse(false)} />
         ) : (
           <>
-              <Title onClick={() => onCollapse(true)}>{t("Comments")}</Title>
-              <CommentsContainer ref={scrollRef}>
-                  {comments && comments.length > 0 ? (
-                      comments.map(comment => (
-                          <Comment
-                              key={comment.id}
-                              userId={userId}
-                              hasUpdateRight={hasUpdateRight}
-                              hasDeleteRight={hasDeleteRight}
-                              comment={comment}
-                              onCommentUpdate={onCommentUpdate}
-                              onCommentDelete={onCommentDelete}
-                          />
-                      ))
-                  ) : (
-                      <EmptyText>
-                          {comments
-                              ? t("No comments.")
-                              : t("Please click the comment bubble in the table to check comments.")}
-                      </EmptyText>
-                  )}
-              </CommentsContainer>
+            <Title onClick={() => onCollapse(true)}>{t("Comments")}</Title>
+            <CommentsContainer ref={scrollRef}>
+              {comments && comments.length > 0 ? (
+                comments.map(comment => (
+                  <Comment
+                    key={comment.id}
+                    userId={userId}
+                    hasUpdateRight={hasUpdateRight}
+                    hasDeleteRight={hasDeleteRight}
+                    comment={comment}
+                    onCommentUpdate={onCommentUpdate}
+                    onCommentDelete={onCommentDelete}
+                  />
+                ))
+              ) : (
+                <EmptyText>
+                  {comments
+                    ? t("No comments.")
+                    : t("Please click the comment bubble in the table to check comments.")}
+                </EmptyText>
+              )}
+            </CommentsContainer>
             <Editor
               isInputDisabled={!comments || !hasCreateRight}
               onCommentCreate={onCommentCreate}

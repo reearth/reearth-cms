@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState, useRef, MutableRefObject } f
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form, {FormInstance, ValidateErrorEntity} from "@reearth-cms/components/atoms/Form";
+import Form, { FormInstance, ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -73,20 +73,20 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const changedKeys = useRef(new Set<string>());
 
   const formValidate = useCallback(
-      async (form: FormInstance) => {
+    async (form: FormInstance) => {
       if (
         form.getFieldValue("model") ||
         (form.getFieldValue("title") && form.getFieldValue("key"))
       ) {
-          try {
-              await form.validateFields();
-          } catch (e) {
-              if ((e as ValidateErrorEntity).errorFields.length > 0) {
-                  setIsDisabled(true);
-                  return;
-              }
+        try {
+          await form.validateFields();
+        } catch (e) {
+          if ((e as ValidateErrorEntity).errorFields.length > 0) {
+            setIsDisabled(true);
+            return;
           }
-          setIsDisabled(currentStep === numSteps && changedKeys.current.size === 0);
+        }
+        setIsDisabled(currentStep === numSteps && changedKeys.current.size === 0);
       } else {
         setIsDisabled(true);
       }
@@ -112,23 +112,23 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   const SettingValues = Form.useWatch([], modelForm);
   useEffect(() => {
-      if (currentStep === 0) {
-          formValidate(modelForm);
-      }
+    if (currentStep === 0) {
+      formValidate(modelForm);
+    }
   }, [modelForm, SettingValues, formValidate, currentStep]);
 
   const FieldValues = Form.useWatch([], field1Form);
   useEffect(() => {
-      if (currentStep === 1) {
-          formValidate(field1Form);
-      }
+    if (currentStep === 1) {
+      formValidate(field1Form);
+    }
   }, [field1Form, FieldValues, formValidate, currentStep]);
 
   const CorrespondingValues = Form.useWatch([], field2Form);
   useEffect(() => {
-      if (currentStep === 2) {
-          formValidate(field2Form);
-      }
+    if (currentStep === 2) {
+      formValidate(field2Form);
+    }
   }, [field2Form, CorrespondingValues, formValidate, currentStep]);
 
   useEffect(() => {

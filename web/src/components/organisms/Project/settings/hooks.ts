@@ -1,4 +1,4 @@
-import {useCallback, useMemo} from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -21,7 +21,7 @@ export default () => {
   const [currentWorkspace] = useWorkspace();
   const workspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
   const [currentProject] = useProject();
-    const projectId = useMemo(() => currentProject?.id, [currentProject?.id]);
+  const projectId = useMemo(() => currentProject?.id, [currentProject?.id]);
   const [userRights] = useUserRights();
   const hasUpdateRight = useMemo(() => !!userRights?.project.update, [userRights?.project.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.project.delete, [userRights?.project.delete]);
@@ -29,10 +29,10 @@ export default () => {
   const [updateProjectMutation] = useUpdateProjectMutation({
     refetchQueries: ["GetProject"],
   });
-    const [deleteProjectMutation] = useDeleteProjectMutation();
+  const [deleteProjectMutation] = useDeleteProjectMutation();
 
   const handleProjectUpdate = useCallback(
-      async (name: string, alias: string, description: string) => {
+    async (name: string, alias: string, description: string) => {
       if (!projectId || !name) return;
       const result = await updateProjectMutation({
         variables: {
@@ -53,7 +53,7 @@ export default () => {
   );
 
   const handleProjectRequestRolesUpdate = useCallback(
-      async (requestRoles: Role[]) => {
+    async (requestRoles: Role[]) => {
       if (!projectId || !requestRoles) return;
       const project = await updateProjectMutation({
         variables: {
@@ -75,11 +75,11 @@ export default () => {
     const results = await deleteProjectMutation({ variables: { projectId } });
     if (results.errors) {
       Notification.error({ message: t("Failed to delete project.") });
-        return;
+      return;
     }
-      Notification.success({message: t("Successfully deleted project!")});
-      projectsRefetch();
-      navigate(`/workspace/${workspaceId}`);
+    Notification.success({ message: t("Successfully deleted project!") });
+    projectsRefetch();
+    navigate(`/workspace/${workspaceId}`);
   }, [projectId, deleteProjectMutation, t, projectsRefetch, navigate, workspaceId]);
 
   const [CheckProjectAlias] = useCheckProjectAliasLazyQuery({

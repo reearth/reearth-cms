@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import {Viewer as CesiumViewer} from "cesium";
+import { Viewer as CesiumViewer } from "cesium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
@@ -12,7 +12,7 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   commentsPanel: JSX.Element;
-    asset: Asset;
+  asset: Asset;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
@@ -29,7 +29,7 @@ type Props = {
   onChangeToFullScreen: () => void;
   onBack: () => void;
   onSave: () => void;
-    onGetViewer: (viewer?: CesiumViewer) => void;
+  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -52,12 +52,12 @@ const AssetWrapper: React.FC<Props> = ({
   onChangeToFullScreen,
   onBack,
   onSave,
-                                           onGetViewer,
+  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
 
-    return (
+  return (
     <ComplexInnerContents
       center={
         <Wrapper>

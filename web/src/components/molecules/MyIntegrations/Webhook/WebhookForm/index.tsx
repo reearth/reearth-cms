@@ -11,10 +11,10 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
 import {
   WebhookTrigger,
-    TriggerKey,
+  TriggerKey,
   WebhookValues,
-    NewWebhook,
-    Webhook,
+  NewWebhook,
+  Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
@@ -23,15 +23,15 @@ type Props = {
   webhookInitialValues?: WebhookValues;
   loading: boolean;
   onBack: () => void;
-    onWebhookCreate: (data: NewWebhook) => Promise<void>;
-    onWebhookUpdate: (data: Webhook) => Promise<void>;
+  onWebhookCreate: (data: NewWebhook) => Promise<void>;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
 };
 
 type FormType = {
   name: string;
   url: string;
   secret: string;
-    trigger?: TriggerKey[];
+  trigger?: TriggerKey[];
 };
 
 const WebhookForm: React.FC<Props> = ({
@@ -45,7 +45,7 @@ const WebhookForm: React.FC<Props> = ({
   const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
 
-    const itemOptions = [
+  const itemOptions = [
     { label: t("Create"), value: "onItemCreate" },
     { label: t("Update"), value: "onItemUpdate" },
     { label: t("Delete"), value: "onItemDelete" },
@@ -53,7 +53,7 @@ const WebhookForm: React.FC<Props> = ({
     { label: t("Unpublish"), value: "onItemUnPublish" },
   ];
 
-    const assetOptions = [
+  const assetOptions = [
     { label: t("Upload"), value: "onAssetUpload" },
     { label: t("Decompress"), value: "onAssetDecompress" },
     { label: t("Delete"), value: "onAssetDelete" },
@@ -97,26 +97,26 @@ const WebhookForm: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-        const trigger: WebhookTrigger = {};
-        values.trigger?.forEach(t => (trigger[t] = true));
+      const trigger: WebhookTrigger = {};
+      values.trigger?.forEach(t => (trigger[t] = true));
 
       const payload = {
         ...values,
         trigger,
       };
-        if (webhookInitialValues) {
+      if (webhookInitialValues) {
         await onWebhookUpdate({
           ...payload,
           active: webhookInitialValues.active,
-            id: webhookInitialValues.id,
+          id: webhookInitialValues.id,
         });
       } else {
-            await onWebhookCreate({
-                ...payload,
-                active: false,
-            });
+        await onWebhookCreate({
+          ...payload,
+          active: false,
+        });
       }
-        setIsDisabled(true);
+      setIsDisabled(true);
     } catch (info) {
       console.log("Validate Failed:", info);
     }
@@ -124,13 +124,13 @@ const WebhookForm: React.FC<Props> = ({
 
   return (
     <>
-        <Button
-            icon={<Icon icon="arrowLeft"/>}
-            onClick={onBack}
-            size="small"
-            color="default"
-            variant="link"
-        />
+      <Button
+        icon={<Icon icon="arrowLeft" />}
+        onClick={onBack}
+        size="small"
+        color="default"
+        variant="link"
+      />
       <StyledForm
         form={form}
         name="webhook"
@@ -193,16 +193,16 @@ const WebhookForm: React.FC<Props> = ({
               <StyledCheckboxGroup>
                 <CheckboxLabel>{t("Item")}</CheckboxLabel>
                 <Row>
-                    {itemOptions.map(item => (
-                        <Col key={item.value}>
+                  {itemOptions.map(item => (
+                    <Col key={item.value}>
                       <Checkbox value={item.value}>{item.label}</Checkbox>
                     </Col>
                   ))}
                 </Row>
                 <CheckboxLabel>{t("Asset")}</CheckboxLabel>
                 <Row>
-                    {assetOptions.map(item => (
-                        <Col key={item.value}>
+                  {assetOptions.map(item => (
+                    <Col key={item.value}>
                       <Checkbox value={item.value}>{item.label}</Checkbox>
                     </Col>
                   ))}
