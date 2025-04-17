@@ -40,15 +40,23 @@ func serveFiles(e *echo.Echo, cfg *ServerConfig) {
 		}
 	}
 
-	streamFile := func(ctx echo.Context, fileName string, reader io.Reader) error {
-		ct := "application/octet-stream"
-		if ext := path.Ext(fileName); ext != "" {
-			ct2 := mime.TypeByExtension(ext)
-			if ct2 != "" {
-				ct = ct2
+	streamFile := func(ctx echo.Context, fileName string, reader io.Reader, headers map[string]string) error {
+		if headers == nil {
+			headers = map[string]string{}
+		}
+		for _, h := range headers {
+			ctx.Response().Header().Set(h, headers[h])
+		}
+
+		if headers["Content-Type"] == "" {
+			headers["Content-Type"] = "application/octet-stream"
+			if ext := path.Ext(fileName); ext != "" {
+				if ct := mime.TypeByExtension(ext); ct != "" {
+					headers["Content-Type"] = ct
+				}
 			}
 		}
-		return ctx.Stream(http.StatusOK, ct, reader)
+		return ctx.Stream(http.StatusOK, headers["Content-Type"], reader)
 	}
 
 	e.GET("/assets/:uuid1/:uuid2/:filename", func(ctx echo.Context) error {
@@ -66,10 +74,31 @@ func serveFiles(e *echo.Echo, cfg *ServerConfig) {
 				}
 			}
 		}
-		r, err := cfg.Gateways.File.ReadAsset(ctx.Request().Context(), uuid, filename)
+		r, h, err := cfg.Gateways.File.ReadAsset(ctx.Request().Context(), uuid, filename, assetHeaders(ctx.Request().Header))
 		if err != nil {
 			return err
 		}
-		return streamFile(ctx, filename, r)
+		return streamFile(ctx, filename, r, h)
 	}, m)
+
+	e.GET("/assets/:filename", func(ctx echo.Context) error {
+		filename := ctx.Param("filename")
+		h := assetHeaders(ctx.Request().Header)
+		r, headers, err := cfg.Gateways.File.Read(ctx.Request().Context(), filename, h)
+		if err != nil {
+			return err
+		}
+		return streamFile(ctx, filename, r, headers)
+	})
+}
+
+func assetHeaders(h http.Header) map[string]string {
+	res := map[string]string{}
+	for k, v := range h {
+		if len(v) == 0 {
+			continue
+		}
+		res[k] = v[0]
+	}
+	return res
 }

@@ -63,7 +63,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	OnlyOne func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	OnlyOne func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -77,6 +77,7 @@ type ComplexityRoot struct {
 
 	Asset struct {
 		ArchiveExtractionStatus func(childComplexity int) int
+		ContentEncoding         func(childComplexity int) int
 		CreatedAt               func(childComplexity int) int
 		CreatedBy               func(childComplexity int) int
 		CreatedByID             func(childComplexity int) int
@@ -107,11 +108,12 @@ type ComplexityRoot struct {
 	}
 
 	AssetFile struct {
-		ContentType func(childComplexity int) int
-		FilePaths   func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Path        func(childComplexity int) int
-		Size        func(childComplexity int) int
+		ContentEncoding func(childComplexity int) int
+		ContentType     func(childComplexity int) int
+		FilePaths       func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Path            func(childComplexity int) int
+		Size            func(childComplexity int) int
 	}
 
 	AssetItem struct {
@@ -165,11 +167,12 @@ type ComplexityRoot struct {
 	}
 
 	CreateAssetUploadPayload struct {
-		ContentLength func(childComplexity int) int
-		ContentType   func(childComplexity int) int
-		Next          func(childComplexity int) int
-		Token         func(childComplexity int) int
-		URL           func(childComplexity int) int
+		ContentEncoding func(childComplexity int) int
+		ContentLength   func(childComplexity int) int
+		ContentType     func(childComplexity int) int
+		Next            func(childComplexity int) int
+		Token           func(childComplexity int) int
+		URL             func(childComplexity int) int
 	}
 
 	CreateWorkspacePayload struct {
@@ -182,6 +185,10 @@ type ComplexityRoot struct {
 
 	DeleteAssetPayload struct {
 		AssetID func(childComplexity int) int
+	}
+
+	DeleteAssetsPayload struct {
+		AssetIds func(childComplexity int) int
 	}
 
 	DeleteCommentPayload struct {
@@ -199,6 +206,10 @@ type ComplexityRoot struct {
 
 	DeleteIntegrationPayload struct {
 		IntegrationID func(childComplexity int) int
+	}
+
+	DeleteIntegrationsPayload struct {
+		IntegrationIDs func(childComplexity int) int
 	}
 
 	DeleteItemPayload struct {
@@ -425,16 +436,18 @@ type ComplexityRoot struct {
 		CreateModel                        func(childComplexity int, input gqlmodel.CreateModelInput) int
 		CreateProject                      func(childComplexity int, input gqlmodel.CreateProjectInput) int
 		CreateRequest                      func(childComplexity int, input gqlmodel.CreateRequestInput) int
-		CreateThread                       func(childComplexity int, input gqlmodel.CreateThreadInput) int
+		CreateThreadWithComment            func(childComplexity int, input gqlmodel.CreateThreadWithCommentInput) int
 		CreateView                         func(childComplexity int, input gqlmodel.CreateViewInput) int
 		CreateWebhook                      func(childComplexity int, input gqlmodel.CreateWebhookInput) int
 		CreateWorkspace                    func(childComplexity int, input gqlmodel.CreateWorkspaceInput) int
 		DecompressAsset                    func(childComplexity int, input gqlmodel.DecompressAssetInput) int
 		DeleteAsset                        func(childComplexity int, input gqlmodel.DeleteAssetInput) int
+		DeleteAssets                       func(childComplexity int, input gqlmodel.DeleteAssetsInput) int
 		DeleteComment                      func(childComplexity int, input gqlmodel.DeleteCommentInput) int
 		DeleteField                        func(childComplexity int, input gqlmodel.DeleteFieldInput) int
 		DeleteGroup                        func(childComplexity int, input gqlmodel.DeleteGroupInput) int
 		DeleteIntegration                  func(childComplexity int, input gqlmodel.DeleteIntegrationInput) int
+		DeleteIntegrations                 func(childComplexity int, input gqlmodel.DeleteIntegrationsInput) int
 		DeleteItem                         func(childComplexity int, input gqlmodel.DeleteItemInput) int
 		DeleteMe                           func(childComplexity int, input gqlmodel.DeleteMeInput) int
 		DeleteModel                        func(childComplexity int, input gqlmodel.DeleteModelInput) int
@@ -445,6 +458,7 @@ type ComplexityRoot struct {
 		DeleteWorkspace                    func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
 		PublishItem                        func(childComplexity int, input gqlmodel.PublishItemInput) int
 		PublishModel                       func(childComplexity int, input gqlmodel.PublishModelInput) int
+		PublishModels                      func(childComplexity int, input gqlmodel.PublishModelsInput) int
 		RegenerateIntegrationToken         func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
 		RegeneratePublicAPIToken           func(childComplexity int, input gqlmodel.RegeneratePublicAPITokenInput) int
 		RemoveIntegrationFromWorkspace     func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
@@ -542,6 +556,10 @@ type ComplexityRoot struct {
 	PublishModelPayload struct {
 		ModelID func(childComplexity int) int
 		Status  func(childComplexity int) int
+	}
+
+	PublishModelsPayload struct {
+		Models func(childComplexity int) int
 	}
 
 	Query struct {
@@ -763,10 +781,6 @@ type ComplexityRoot struct {
 		WorkspaceID func(childComplexity int) int
 	}
 
-	ThreadPayload struct {
-		Thread func(childComplexity int) int
-	}
-
 	TileResource struct {
 		ID    func(childComplexity int) int
 		Props func(childComplexity int) int
@@ -948,6 +962,7 @@ type MutationResolver interface {
 	CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error)
 	UpdateAsset(ctx context.Context, input gqlmodel.UpdateAssetInput) (*gqlmodel.UpdateAssetPayload, error)
 	DeleteAsset(ctx context.Context, input gqlmodel.DeleteAssetInput) (*gqlmodel.DeleteAssetPayload, error)
+	DeleteAssets(ctx context.Context, input gqlmodel.DeleteAssetsInput) (*gqlmodel.DeleteAssetsPayload, error)
 	DecompressAsset(ctx context.Context, input gqlmodel.DecompressAssetInput) (*gqlmodel.DecompressAssetPayload, error)
 	CreateAssetUpload(ctx context.Context, input gqlmodel.CreateAssetUploadInput) (*gqlmodel.CreateAssetUploadPayload, error)
 	CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error)
@@ -961,6 +976,7 @@ type MutationResolver interface {
 	CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	UpdateIntegration(ctx context.Context, input gqlmodel.UpdateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	DeleteIntegration(ctx context.Context, input gqlmodel.DeleteIntegrationInput) (*gqlmodel.DeleteIntegrationPayload, error)
+	DeleteIntegrations(ctx context.Context, input gqlmodel.DeleteIntegrationsInput) (*gqlmodel.DeleteIntegrationsPayload, error)
 	RegenerateIntegrationToken(ctx context.Context, input gqlmodel.RegenerateIntegrationTokenInput) (*gqlmodel.IntegrationPayload, error)
 	CreateWebhook(ctx context.Context, input gqlmodel.CreateWebhookInput) (*gqlmodel.WebhookPayload, error)
 	UpdateWebhook(ctx context.Context, input gqlmodel.UpdateWebhookInput) (*gqlmodel.WebhookPayload, error)
@@ -979,6 +995,7 @@ type MutationResolver interface {
 	UpdateModelsOrder(ctx context.Context, input gqlmodel.UpdateModelsOrderInput) (*gqlmodel.ModelsPayload, error)
 	DeleteModel(ctx context.Context, input gqlmodel.DeleteModelInput) (*gqlmodel.DeleteModelPayload, error)
 	PublishModel(ctx context.Context, input gqlmodel.PublishModelInput) (*gqlmodel.PublishModelPayload, error)
+	PublishModels(ctx context.Context, input gqlmodel.PublishModelsInput) (*gqlmodel.PublishModelsPayload, error)
 	CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error)
 	UpdateProject(ctx context.Context, input gqlmodel.UpdateProjectInput) (*gqlmodel.ProjectPayload, error)
 	DeleteProject(ctx context.Context, input gqlmodel.DeleteProjectInput) (*gqlmodel.DeleteProjectPayload, error)
@@ -987,7 +1004,7 @@ type MutationResolver interface {
 	UpdateRequest(ctx context.Context, input gqlmodel.UpdateRequestInput) (*gqlmodel.RequestPayload, error)
 	ApproveRequest(ctx context.Context, input gqlmodel.ApproveRequestInput) (*gqlmodel.RequestPayload, error)
 	DeleteRequest(ctx context.Context, input gqlmodel.DeleteRequestInput) (*gqlmodel.DeleteRequestPayload, error)
-	CreateThread(ctx context.Context, input gqlmodel.CreateThreadInput) (*gqlmodel.ThreadPayload, error)
+	CreateThreadWithComment(ctx context.Context, input gqlmodel.CreateThreadWithCommentInput) (*gqlmodel.CommentPayload, error)
 	AddComment(ctx context.Context, input gqlmodel.AddCommentInput) (*gqlmodel.CommentPayload, error)
 	UpdateComment(ctx context.Context, input gqlmodel.UpdateCommentInput) (*gqlmodel.CommentPayload, error)
 	DeleteComment(ctx context.Context, input gqlmodel.DeleteCommentInput) (*gqlmodel.DeleteCommentPayload, error)
@@ -1076,7 +1093,7 @@ func (e *executableSchema) Schema() *ast.Schema {
 	return parsedSchema
 }
 
-func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]interface{}) (int, bool) {
+func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
@@ -1101,6 +1118,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.ArchiveExtractionStatus(childComplexity), true
+
+	case "Asset.contentEncoding":
+		if e.complexity.Asset.ContentEncoding == nil {
+			break
+		}
+
+		return e.complexity.Asset.ContentEncoding(childComplexity), true
 
 	case "Asset.createdAt":
 		if e.complexity.Asset.CreatedAt == nil {
@@ -1248,6 +1272,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AssetEdge.Node(childComplexity), true
+
+	case "AssetFile.contentEncoding":
+		if e.complexity.AssetFile.ContentEncoding == nil {
+			break
+		}
+
+		return e.complexity.AssetFile.ContentEncoding(childComplexity), true
 
 	case "AssetFile.contentType":
 		if e.complexity.AssetFile.ContentType == nil {
@@ -1466,6 +1497,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateAssetPayload.Asset(childComplexity), true
 
+	case "CreateAssetUploadPayload.contentEncoding":
+		if e.complexity.CreateAssetUploadPayload.ContentEncoding == nil {
+			break
+		}
+
+		return e.complexity.CreateAssetUploadPayload.ContentEncoding(childComplexity), true
+
 	case "CreateAssetUploadPayload.contentLength":
 		if e.complexity.CreateAssetUploadPayload.ContentLength == nil {
 			break
@@ -1522,6 +1560,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteAssetPayload.AssetID(childComplexity), true
 
+	case "DeleteAssetsPayload.assetIds":
+		if e.complexity.DeleteAssetsPayload.AssetIds == nil {
+			break
+		}
+
+		return e.complexity.DeleteAssetsPayload.AssetIds(childComplexity), true
+
 	case "DeleteCommentPayload.commentId":
 		if e.complexity.DeleteCommentPayload.CommentID == nil {
 			break
@@ -1556,6 +1601,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteIntegrationPayload.IntegrationID(childComplexity), true
+
+	case "DeleteIntegrationsPayload.integrationIDs":
+		if e.complexity.DeleteIntegrationsPayload.IntegrationIDs == nil {
+			break
+		}
+
+		return e.complexity.DeleteIntegrationsPayload.IntegrationIDs(childComplexity), true
 
 	case "DeleteItemPayload.itemId":
 		if e.complexity.DeleteItemPayload.ItemID == nil {
@@ -2532,17 +2584,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateRequest(childComplexity, args["input"].(gqlmodel.CreateRequestInput)), true
 
-	case "Mutation.createThread":
-		if e.complexity.Mutation.CreateThread == nil {
+	case "Mutation.createThreadWithComment":
+		if e.complexity.Mutation.CreateThreadWithComment == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createThread_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createThreadWithComment_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateThread(childComplexity, args["input"].(gqlmodel.CreateThreadInput)), true
+		return e.complexity.Mutation.CreateThreadWithComment(childComplexity, args["input"].(gqlmodel.CreateThreadWithCommentInput)), true
 
 	case "Mutation.createView":
 		if e.complexity.Mutation.CreateView == nil {
@@ -2604,6 +2656,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteAsset(childComplexity, args["input"].(gqlmodel.DeleteAssetInput)), true
 
+	case "Mutation.deleteAssets":
+		if e.complexity.Mutation.DeleteAssets == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteAssets_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteAssets(childComplexity, args["input"].(gqlmodel.DeleteAssetsInput)), true
+
 	case "Mutation.deleteComment":
 		if e.complexity.Mutation.DeleteComment == nil {
 			break
@@ -2651,6 +2715,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteIntegration(childComplexity, args["input"].(gqlmodel.DeleteIntegrationInput)), true
+
+	case "Mutation.deleteIntegrations":
+		if e.complexity.Mutation.DeleteIntegrations == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteIntegrations_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteIntegrations(childComplexity, args["input"].(gqlmodel.DeleteIntegrationsInput)), true
 
 	case "Mutation.deleteItem":
 		if e.complexity.Mutation.DeleteItem == nil {
@@ -2771,6 +2847,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.PublishModel(childComplexity, args["input"].(gqlmodel.PublishModelInput)), true
+
+	case "Mutation.publishModels":
+		if e.complexity.Mutation.PublishModels == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_publishModels_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.PublishModels(childComplexity, args["input"].(gqlmodel.PublishModelsInput)), true
 
 	case "Mutation.regenerateIntegrationToken":
 		if e.complexity.Mutation.RegenerateIntegrationToken == nil {
@@ -3328,6 +3416,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PublishModelPayload.Status(childComplexity), true
+
+	case "PublishModelsPayload.models":
+		if e.complexity.PublishModelsPayload.Models == nil {
+			break
+		}
+
+		return e.complexity.PublishModelsPayload.Models(childComplexity), true
 
 	case "Query.assetFile":
 		if e.complexity.Query.AssetFile == nil {
@@ -4280,13 +4375,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Thread.WorkspaceID(childComplexity), true
 
-	case "ThreadPayload.thread":
-		if e.complexity.ThreadPayload.Thread == nil {
-			break
-		}
-
-		return e.complexity.ThreadPayload.Thread(childComplexity), true
-
 	case "TileResource.id":
 		if e.complexity.TileResource.ID == nil {
 			break
@@ -4761,8 +4849,8 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 }
 
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
-	rc := graphql.GetOperationContext(ctx)
-	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
+	opCtx := graphql.GetOperationContext(ctx)
+	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddCommentInput,
 		ec.unmarshalInputAddIntegrationToWorkspaceInput,
@@ -4785,16 +4873,18 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateModelInput,
 		ec.unmarshalInputCreateProjectInput,
 		ec.unmarshalInputCreateRequestInput,
-		ec.unmarshalInputCreateThreadInput,
+		ec.unmarshalInputCreateThreadWithCommentInput,
 		ec.unmarshalInputCreateViewInput,
 		ec.unmarshalInputCreateWebhookInput,
 		ec.unmarshalInputCreateWorkspaceInput,
 		ec.unmarshalInputDecompressAssetInput,
 		ec.unmarshalInputDeleteAssetInput,
+		ec.unmarshalInputDeleteAssetsInput,
 		ec.unmarshalInputDeleteCommentInput,
 		ec.unmarshalInputDeleteFieldInput,
 		ec.unmarshalInputDeleteGroupInput,
 		ec.unmarshalInputDeleteIntegrationInput,
+		ec.unmarshalInputDeleteIntegrationsInput,
 		ec.unmarshalInputDeleteItemInput,
 		ec.unmarshalInputDeleteMeInput,
 		ec.unmarshalInputDeleteModelInput,
@@ -4816,6 +4906,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputPublishItemInput,
 		ec.unmarshalInputPublishModelInput,
+		ec.unmarshalInputPublishModelsInput,
 		ec.unmarshalInputRegenerateIntegrationTokenInput,
 		ec.unmarshalInputRegeneratePublicApiTokenInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
@@ -4876,7 +4967,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	)
 	first := true
 
-	switch rc.Operation.Operation {
+	switch opCtx.Operation.Operation {
 	case ast.Query:
 		return func(ctx context.Context) *graphql.Response {
 			var response graphql.Response
@@ -4884,7 +4975,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			if first {
 				first = false
 				ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-				data = ec._Query(ctx, rc.Operation.SelectionSet)
+				data = ec._Query(ctx, opCtx.Operation.SelectionSet)
 			} else {
 				if atomic.LoadInt32(&ec.pendingDeferred) > 0 {
 					result := <-ec.deferredResults
@@ -4914,7 +5005,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			}
 			first = false
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
+			data := ec._Mutation(ctx, opCtx.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 
@@ -5082,13 +5173,15 @@ schema {
   items: [AssetItem!]
   size: FileSize!
   previewType: PreviewType
+  contentEncoding: String
   uuid: String!
   thread: Thread
-  threadId: ID!
+  threadId: ID
   url: String!
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
+
 type AssetItem {
   itemId: ID!
   modelId: ID!
@@ -5098,6 +5191,7 @@ type AssetFile {
   name: String!
   size: FileSize!
   contentType: String
+  contentEncoding: String
   path: String!
   filePaths: [String!]
 }
@@ -5127,6 +5221,8 @@ input CreateAssetInput {
   url: String
   token: String
   skipDecompression: Boolean
+  # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
+  contentEncoding: String
 }
 
 # If ` + "`" + `cursor` + "`" + ` is specified, both ` + "`" + `filename` + "`" + ` and ` + "`" + `contentLength` + "`" + ` will be ignored.
@@ -5137,6 +5233,8 @@ input CreateAssetUploadInput {
   filename: String
   # The size of the file to upload.
   contentLength: Int
+  # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
+  contentEncoding: String
 
   # Required if uploading in multiple parts.
   cursor: String
@@ -5149,6 +5247,10 @@ input UpdateAssetInput {
 
 input DeleteAssetInput {
   assetId: ID!
+}
+
+input DeleteAssetsInput {
+  assetIds: [ID!]!
 }
 
 input DecompressAssetInput {
@@ -5165,6 +5267,10 @@ type UpdateAssetPayload {
 
 type DeleteAssetPayload {
   assetId: ID!
+}
+
+type DeleteAssetsPayload {
+  assetIds: [ID!]
 }
 
 type DecompressAssetPayload {
@@ -5184,6 +5290,7 @@ type CreateAssetUploadPayload {
   contentType: String
   # The size of the upload.
   contentLength: Int!
+  contentEncoding: String
   # A cursor to obtain the URL for the next PUT request.
   next: String
 }
@@ -5220,6 +5327,7 @@ extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
+  deleteAssets(input: DeleteAssetsInput!): DeleteAssetsPayload
   decompressAsset(input: DecompressAssetInput!): DecompressAssetPayload
   createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }
@@ -5692,6 +5800,10 @@ input DeleteIntegrationInput {
   integrationId: ID!
 }
 
+input DeleteIntegrationsInput {
+  integrationIDs: [ID!]!
+}
+
 input RegenerateIntegrationTokenInput {
   integrationId: ID!
 }
@@ -5705,12 +5817,17 @@ type DeleteIntegrationPayload {
   integrationId: ID!
 }
 
+type DeleteIntegrationsPayload {
+  integrationIDs: [ID!]
+}
+
 # extend type Query {}
 
 extend type Mutation {
   createIntegration(input: CreateIntegrationInput!): IntegrationPayload
   updateIntegration(input: UpdateIntegrationInput!): IntegrationPayload
   deleteIntegration(input: DeleteIntegrationInput!): DeleteIntegrationPayload
+  deleteIntegrations(input: DeleteIntegrationsInput!): DeleteIntegrationsPayload
   regenerateIntegrationToken(input: RegenerateIntegrationTokenInput!): IntegrationPayload
 }
 `, BuiltIn: false},
@@ -5793,7 +5910,7 @@ extend type Mutation {
 	{Name: "../../../schemas/item.graphql", Input: `type Item implements Node {
   id: ID!
   schemaId: ID!
-  threadId: ID!
+  threadId: ID
   modelId: ID!
   projectId: ID!
   integrationId: ID
@@ -5808,7 +5925,7 @@ extend type Mutation {
   model: Model!
   status: ItemStatus!
   project: Project!
-  thread: Thread!
+  thread: Thread
   fields: [ItemField!]!
   assets: [Asset]!
   referencedItems:[Item!]
@@ -6298,6 +6415,10 @@ input PublishModelInput {
   status: Boolean!
 }
 
+input PublishModelsInput {
+  models: [PublishModelInput!]!
+}
+
 # Payloads
 type ModelPayload {
   model: Model!
@@ -6310,6 +6431,10 @@ type DeleteModelPayload {
 type PublishModelPayload {
   modelId: ID!
   status: Boolean!
+}
+
+type PublishModelsPayload {
+  models: [PublishModelPayload!]!
 }
 
 type ModelsPayload {
@@ -6339,6 +6464,7 @@ extend type Mutation {
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
   publishModel(input: PublishModelInput!): PublishModelPayload
+  publishModels(input: PublishModelsInput!): PublishModelsPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/project.graphql", Input: `type ProjectAliasAvailability {
@@ -6443,7 +6569,7 @@ extend type Mutation {
   createdById: ID!
   workspaceId: ID!
   projectId: ID!
-  threadId: ID!
+  threadId: ID
   reviewersId: [ID!]!
   state: RequestState!
   createdAt: DateTime!
@@ -6572,8 +6698,17 @@ type Comment {
   createdAt: DateTime!
 }
 
-input CreateThreadInput {
+enum ResourceType {
+  ITEM
+  ASSET
+  REQUEST
+}
+
+input CreateThreadWithCommentInput {
   workspaceId: ID!
+  resourceId: ID!
+  resourceType: ResourceType!
+  content: String!
 }
 
 input AddCommentInput {
@@ -6592,10 +6727,6 @@ input DeleteCommentInput {
   commentId: ID!
 }
 
-type ThreadPayload {
-  thread: Thread!
-}
-
 type CommentPayload {
   thread: Thread!
   comment: Comment!
@@ -6607,7 +6738,7 @@ type DeleteCommentPayload {
 }
 
 extend type Mutation {
-  createThread(input: CreateThreadInput!): ThreadPayload
+  createThreadWithComment(input: CreateThreadWithCommentInput!): CommentPayload
   addComment(input: AddCommentInput!): CommentPayload
   updateComment(input: UpdateCommentInput!): CommentPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
@@ -6919,9 +7050,9 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_addComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_addComment_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_addComment_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -6931,13 +7062,9 @@ func (ec *executionContext) field_Mutation_addComment_args(ctx context.Context, 
 }
 func (ec *executionContext) field_Mutation_addComment_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.AddCommentInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.AddCommentInput
 		return zeroVal, nil
 	}
@@ -6951,9 +7078,9 @@ func (ec *executionContext) field_Mutation_addComment_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_addIntegrationToWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_addIntegrationToWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_addIntegrationToWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -6963,13 +7090,9 @@ func (ec *executionContext) field_Mutation_addIntegrationToWorkspace_args(ctx co
 }
 func (ec *executionContext) field_Mutation_addIntegrationToWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.AddIntegrationToWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.AddIntegrationToWorkspaceInput
 		return zeroVal, nil
 	}
@@ -6983,9 +7106,9 @@ func (ec *executionContext) field_Mutation_addIntegrationToWorkspace_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_addUsersToWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_addUsersToWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_addUsersToWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -6995,13 +7118,9 @@ func (ec *executionContext) field_Mutation_addUsersToWorkspace_args(ctx context.
 }
 func (ec *executionContext) field_Mutation_addUsersToWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.AddUsersToWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.AddUsersToWorkspaceInput
 		return zeroVal, nil
 	}
@@ -7015,9 +7134,9 @@ func (ec *executionContext) field_Mutation_addUsersToWorkspace_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_approveRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_approveRequest_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_approveRequest_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7027,13 +7146,9 @@ func (ec *executionContext) field_Mutation_approveRequest_args(ctx context.Conte
 }
 func (ec *executionContext) field_Mutation_approveRequest_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ApproveRequestInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.ApproveRequestInput
 		return zeroVal, nil
 	}
@@ -7047,9 +7162,9 @@ func (ec *executionContext) field_Mutation_approveRequest_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createAssetUpload_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createAssetUpload_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createAssetUpload_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7059,13 +7174,9 @@ func (ec *executionContext) field_Mutation_createAssetUpload_args(ctx context.Co
 }
 func (ec *executionContext) field_Mutation_createAssetUpload_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateAssetUploadInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateAssetUploadInput
 		return zeroVal, nil
 	}
@@ -7079,9 +7190,9 @@ func (ec *executionContext) field_Mutation_createAssetUpload_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createAsset_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7091,13 +7202,9 @@ func (ec *executionContext) field_Mutation_createAsset_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_createAsset_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateAssetInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateAssetInput
 		return zeroVal, nil
 	}
@@ -7111,9 +7218,9 @@ func (ec *executionContext) field_Mutation_createAsset_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createField_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createField_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7123,13 +7230,9 @@ func (ec *executionContext) field_Mutation_createField_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_createField_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateFieldInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateFieldInput
 		return zeroVal, nil
 	}
@@ -7143,9 +7246,9 @@ func (ec *executionContext) field_Mutation_createField_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createGroup_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createGroup_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7155,13 +7258,9 @@ func (ec *executionContext) field_Mutation_createGroup_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_createGroup_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateGroupInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateGroupInput
 		return zeroVal, nil
 	}
@@ -7175,9 +7274,9 @@ func (ec *executionContext) field_Mutation_createGroup_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createIntegration_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createIntegration_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createIntegration_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7187,13 +7286,9 @@ func (ec *executionContext) field_Mutation_createIntegration_args(ctx context.Co
 }
 func (ec *executionContext) field_Mutation_createIntegration_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateIntegrationInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateIntegrationInput
 		return zeroVal, nil
 	}
@@ -7207,9 +7302,9 @@ func (ec *executionContext) field_Mutation_createIntegration_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createItem_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7219,13 +7314,9 @@ func (ec *executionContext) field_Mutation_createItem_args(ctx context.Context, 
 }
 func (ec *executionContext) field_Mutation_createItem_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateItemInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateItemInput
 		return zeroVal, nil
 	}
@@ -7239,9 +7330,9 @@ func (ec *executionContext) field_Mutation_createItem_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createModel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createModel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createModel_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7251,13 +7342,9 @@ func (ec *executionContext) field_Mutation_createModel_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_createModel_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateModelInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateModelInput
 		return zeroVal, nil
 	}
@@ -7271,9 +7358,9 @@ func (ec *executionContext) field_Mutation_createModel_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createProject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createProject_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createProject_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7283,13 +7370,9 @@ func (ec *executionContext) field_Mutation_createProject_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_createProject_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateProjectInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateProjectInput
 		return zeroVal, nil
 	}
@@ -7303,9 +7386,9 @@ func (ec *executionContext) field_Mutation_createProject_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createRequest_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createRequest_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7315,13 +7398,9 @@ func (ec *executionContext) field_Mutation_createRequest_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_createRequest_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateRequestInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateRequestInput
 		return zeroVal, nil
 	}
@@ -7335,41 +7414,37 @@ func (ec *executionContext) field_Mutation_createRequest_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createThread_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createThreadWithComment_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_createThread_argsInput(ctx, rawArgs)
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createThreadWithComment_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_createThread_argsInput(
+func (ec *executionContext) field_Mutation_createThreadWithComment_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
-) (gqlmodel.CreateThreadInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
-		var zeroVal gqlmodel.CreateThreadInput
+	rawArgs map[string]any,
+) (gqlmodel.CreateThreadWithCommentInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.CreateThreadWithCommentInput
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateThreadInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadInput(ctx, tmp)
+		return ec.unmarshalNCreateThreadWithCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadWithCommentInput(ctx, tmp)
 	}
 
-	var zeroVal gqlmodel.CreateThreadInput
+	var zeroVal gqlmodel.CreateThreadWithCommentInput
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createView_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createView_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createView_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7379,13 +7454,9 @@ func (ec *executionContext) field_Mutation_createView_args(ctx context.Context, 
 }
 func (ec *executionContext) field_Mutation_createView_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateViewInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateViewInput
 		return zeroVal, nil
 	}
@@ -7399,9 +7470,9 @@ func (ec *executionContext) field_Mutation_createView_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createWebhook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createWebhook_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createWebhook_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7411,13 +7482,9 @@ func (ec *executionContext) field_Mutation_createWebhook_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_createWebhook_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateWebhookInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateWebhookInput
 		return zeroVal, nil
 	}
@@ -7431,9 +7498,9 @@ func (ec *executionContext) field_Mutation_createWebhook_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_createWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7443,13 +7510,9 @@ func (ec *executionContext) field_Mutation_createWorkspace_args(ctx context.Cont
 }
 func (ec *executionContext) field_Mutation_createWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.CreateWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.CreateWorkspaceInput
 		return zeroVal, nil
 	}
@@ -7463,9 +7526,9 @@ func (ec *executionContext) field_Mutation_createWorkspace_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_decompressAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_decompressAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_decompressAsset_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7475,13 +7538,9 @@ func (ec *executionContext) field_Mutation_decompressAsset_args(ctx context.Cont
 }
 func (ec *executionContext) field_Mutation_decompressAsset_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DecompressAssetInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DecompressAssetInput
 		return zeroVal, nil
 	}
@@ -7495,9 +7554,9 @@ func (ec *executionContext) field_Mutation_decompressAsset_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteAsset_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7507,13 +7566,9 @@ func (ec *executionContext) field_Mutation_deleteAsset_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_deleteAsset_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteAssetInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteAssetInput
 		return zeroVal, nil
 	}
@@ -7527,9 +7582,37 @@ func (ec *executionContext) field_Mutation_deleteAsset_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteAssets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_deleteAssets_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteAssets_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.DeleteAssetsInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.DeleteAssetsInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDeleteAssetsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetsInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.DeleteAssetsInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteComment_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteComment_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7539,13 +7622,9 @@ func (ec *executionContext) field_Mutation_deleteComment_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_deleteComment_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteCommentInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteCommentInput
 		return zeroVal, nil
 	}
@@ -7559,9 +7638,9 @@ func (ec *executionContext) field_Mutation_deleteComment_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteField_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteField_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7571,13 +7650,9 @@ func (ec *executionContext) field_Mutation_deleteField_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_deleteField_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteFieldInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteFieldInput
 		return zeroVal, nil
 	}
@@ -7591,9 +7666,9 @@ func (ec *executionContext) field_Mutation_deleteField_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteGroup_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteGroup_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7603,13 +7678,9 @@ func (ec *executionContext) field_Mutation_deleteGroup_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_deleteGroup_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteGroupInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteGroupInput
 		return zeroVal, nil
 	}
@@ -7623,9 +7694,9 @@ func (ec *executionContext) field_Mutation_deleteGroup_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteIntegration_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteIntegration_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteIntegration_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7635,13 +7706,9 @@ func (ec *executionContext) field_Mutation_deleteIntegration_args(ctx context.Co
 }
 func (ec *executionContext) field_Mutation_deleteIntegration_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteIntegrationInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteIntegrationInput
 		return zeroVal, nil
 	}
@@ -7655,9 +7722,37 @@ func (ec *executionContext) field_Mutation_deleteIntegration_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteIntegrations_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_deleteIntegrations_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteIntegrations_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.DeleteIntegrationsInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.DeleteIntegrationsInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDeleteIntegrationsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationsInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.DeleteIntegrationsInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteItem_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7667,13 +7762,9 @@ func (ec *executionContext) field_Mutation_deleteItem_args(ctx context.Context, 
 }
 func (ec *executionContext) field_Mutation_deleteItem_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteItemInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteItemInput
 		return zeroVal, nil
 	}
@@ -7687,9 +7778,9 @@ func (ec *executionContext) field_Mutation_deleteItem_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteMe_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteMe_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteMe_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7699,13 +7790,9 @@ func (ec *executionContext) field_Mutation_deleteMe_args(ctx context.Context, ra
 }
 func (ec *executionContext) field_Mutation_deleteMe_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteMeInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteMeInput
 		return zeroVal, nil
 	}
@@ -7719,9 +7806,9 @@ func (ec *executionContext) field_Mutation_deleteMe_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteModel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteModel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteModel_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7731,13 +7818,9 @@ func (ec *executionContext) field_Mutation_deleteModel_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_deleteModel_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteModelInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteModelInput
 		return zeroVal, nil
 	}
@@ -7751,9 +7834,9 @@ func (ec *executionContext) field_Mutation_deleteModel_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteProject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteProject_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteProject_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7763,13 +7846,9 @@ func (ec *executionContext) field_Mutation_deleteProject_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_deleteProject_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteProjectInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteProjectInput
 		return zeroVal, nil
 	}
@@ -7783,9 +7862,9 @@ func (ec *executionContext) field_Mutation_deleteProject_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteRequest_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteRequest_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7795,13 +7874,9 @@ func (ec *executionContext) field_Mutation_deleteRequest_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_deleteRequest_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteRequestInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteRequestInput
 		return zeroVal, nil
 	}
@@ -7815,9 +7890,9 @@ func (ec *executionContext) field_Mutation_deleteRequest_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteView_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteView_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteView_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7827,13 +7902,9 @@ func (ec *executionContext) field_Mutation_deleteView_args(ctx context.Context, 
 }
 func (ec *executionContext) field_Mutation_deleteView_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteViewInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteViewInput
 		return zeroVal, nil
 	}
@@ -7847,9 +7918,9 @@ func (ec *executionContext) field_Mutation_deleteView_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteWebhook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteWebhook_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteWebhook_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7859,13 +7930,9 @@ func (ec *executionContext) field_Mutation_deleteWebhook_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_deleteWebhook_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteWebhookInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteWebhookInput
 		return zeroVal, nil
 	}
@@ -7879,9 +7946,9 @@ func (ec *executionContext) field_Mutation_deleteWebhook_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_deleteWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7891,13 +7958,9 @@ func (ec *executionContext) field_Mutation_deleteWorkspace_args(ctx context.Cont
 }
 func (ec *executionContext) field_Mutation_deleteWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.DeleteWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.DeleteWorkspaceInput
 		return zeroVal, nil
 	}
@@ -7911,9 +7974,9 @@ func (ec *executionContext) field_Mutation_deleteWorkspace_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_publishItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_publishItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_publishItem_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7923,13 +7986,9 @@ func (ec *executionContext) field_Mutation_publishItem_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_publishItem_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.PublishItemInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.PublishItemInput
 		return zeroVal, nil
 	}
@@ -7943,9 +8002,9 @@ func (ec *executionContext) field_Mutation_publishItem_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_publishModel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_publishModel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_publishModel_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7955,13 +8014,9 @@ func (ec *executionContext) field_Mutation_publishModel_args(ctx context.Context
 }
 func (ec *executionContext) field_Mutation_publishModel_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.PublishModelInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.PublishModelInput
 		return zeroVal, nil
 	}
@@ -7975,9 +8030,37 @@ func (ec *executionContext) field_Mutation_publishModel_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_regenerateIntegrationToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_publishModels_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_publishModels_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_publishModels_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.PublishModelsInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.PublishModelsInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNPublishModelsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelsInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.PublishModelsInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_regenerateIntegrationToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_regenerateIntegrationToken_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -7987,13 +8070,9 @@ func (ec *executionContext) field_Mutation_regenerateIntegrationToken_args(ctx c
 }
 func (ec *executionContext) field_Mutation_regenerateIntegrationToken_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.RegenerateIntegrationTokenInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.RegenerateIntegrationTokenInput
 		return zeroVal, nil
 	}
@@ -8007,9 +8086,9 @@ func (ec *executionContext) field_Mutation_regenerateIntegrationToken_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_regeneratePublicApiToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_regeneratePublicApiToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_regeneratePublicApiToken_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8019,13 +8098,9 @@ func (ec *executionContext) field_Mutation_regeneratePublicApiToken_args(ctx con
 }
 func (ec *executionContext) field_Mutation_regeneratePublicApiToken_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.RegeneratePublicAPITokenInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.RegeneratePublicAPITokenInput
 		return zeroVal, nil
 	}
@@ -8039,9 +8114,9 @@ func (ec *executionContext) field_Mutation_regeneratePublicApiToken_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_removeIntegrationFromWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_removeIntegrationFromWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_removeIntegrationFromWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8051,13 +8126,9 @@ func (ec *executionContext) field_Mutation_removeIntegrationFromWorkspace_args(c
 }
 func (ec *executionContext) field_Mutation_removeIntegrationFromWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.RemoveIntegrationFromWorkspaceInput
 		return zeroVal, nil
 	}
@@ -8071,9 +8142,9 @@ func (ec *executionContext) field_Mutation_removeIntegrationFromWorkspace_argsIn
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_removeMultipleMembersFromWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_removeMultipleMembersFromWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_removeMultipleMembersFromWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8083,13 +8154,9 @@ func (ec *executionContext) field_Mutation_removeMultipleMembersFromWorkspace_ar
 }
 func (ec *executionContext) field_Mutation_removeMultipleMembersFromWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.RemoveMultipleMembersFromWorkspaceInput
 		return zeroVal, nil
 	}
@@ -8103,9 +8170,9 @@ func (ec *executionContext) field_Mutation_removeMultipleMembersFromWorkspace_ar
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_removeMyAuth_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_removeMyAuth_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_removeMyAuth_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8115,13 +8182,9 @@ func (ec *executionContext) field_Mutation_removeMyAuth_args(ctx context.Context
 }
 func (ec *executionContext) field_Mutation_removeMyAuth_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.RemoveMyAuthInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.RemoveMyAuthInput
 		return zeroVal, nil
 	}
@@ -8135,9 +8198,9 @@ func (ec *executionContext) field_Mutation_removeMyAuth_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_unpublishItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_unpublishItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_unpublishItem_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8147,13 +8210,9 @@ func (ec *executionContext) field_Mutation_unpublishItem_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_unpublishItem_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UnpublishItemInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UnpublishItemInput
 		return zeroVal, nil
 	}
@@ -8167,9 +8226,9 @@ func (ec *executionContext) field_Mutation_unpublishItem_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateAsset_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8179,13 +8238,9 @@ func (ec *executionContext) field_Mutation_updateAsset_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_updateAsset_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateAssetInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateAssetInput
 		return zeroVal, nil
 	}
@@ -8199,9 +8254,9 @@ func (ec *executionContext) field_Mutation_updateAsset_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateComment_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateComment_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8211,13 +8266,9 @@ func (ec *executionContext) field_Mutation_updateComment_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_updateComment_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateCommentInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateCommentInput
 		return zeroVal, nil
 	}
@@ -8231,9 +8282,9 @@ func (ec *executionContext) field_Mutation_updateComment_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateField_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateField_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateField_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8243,13 +8294,9 @@ func (ec *executionContext) field_Mutation_updateField_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_updateField_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateFieldInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateFieldInput
 		return zeroVal, nil
 	}
@@ -8263,9 +8310,9 @@ func (ec *executionContext) field_Mutation_updateField_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateFields_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateFields_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateFields_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8275,13 +8322,9 @@ func (ec *executionContext) field_Mutation_updateFields_args(ctx context.Context
 }
 func (ec *executionContext) field_Mutation_updateFields_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) ([]*gqlmodel.UpdateFieldInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal []*gqlmodel.UpdateFieldInput
 		return zeroVal, nil
 	}
@@ -8295,9 +8338,9 @@ func (ec *executionContext) field_Mutation_updateFields_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateGroup_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateGroup_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8307,13 +8350,9 @@ func (ec *executionContext) field_Mutation_updateGroup_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_updateGroup_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateGroupInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateGroupInput
 		return zeroVal, nil
 	}
@@ -8327,9 +8366,9 @@ func (ec *executionContext) field_Mutation_updateGroup_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateGroupsOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateGroupsOrder_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateGroupsOrder_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8339,13 +8378,9 @@ func (ec *executionContext) field_Mutation_updateGroupsOrder_args(ctx context.Co
 }
 func (ec *executionContext) field_Mutation_updateGroupsOrder_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateGroupsOrderInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateGroupsOrderInput
 		return zeroVal, nil
 	}
@@ -8359,9 +8394,9 @@ func (ec *executionContext) field_Mutation_updateGroupsOrder_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateIntegrationOfWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateIntegrationOfWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateIntegrationOfWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8371,13 +8406,9 @@ func (ec *executionContext) field_Mutation_updateIntegrationOfWorkspace_args(ctx
 }
 func (ec *executionContext) field_Mutation_updateIntegrationOfWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateIntegrationOfWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateIntegrationOfWorkspaceInput
 		return zeroVal, nil
 	}
@@ -8391,9 +8422,9 @@ func (ec *executionContext) field_Mutation_updateIntegrationOfWorkspace_argsInpu
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateIntegration_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateIntegration_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateIntegration_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8403,13 +8434,9 @@ func (ec *executionContext) field_Mutation_updateIntegration_args(ctx context.Co
 }
 func (ec *executionContext) field_Mutation_updateIntegration_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateIntegrationInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateIntegrationInput
 		return zeroVal, nil
 	}
@@ -8423,9 +8450,9 @@ func (ec *executionContext) field_Mutation_updateIntegration_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateItem_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8435,13 +8462,9 @@ func (ec *executionContext) field_Mutation_updateItem_args(ctx context.Context, 
 }
 func (ec *executionContext) field_Mutation_updateItem_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateItemInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateItemInput
 		return zeroVal, nil
 	}
@@ -8455,9 +8478,9 @@ func (ec *executionContext) field_Mutation_updateItem_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateMe_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateMe_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateMe_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8467,13 +8490,9 @@ func (ec *executionContext) field_Mutation_updateMe_args(ctx context.Context, ra
 }
 func (ec *executionContext) field_Mutation_updateMe_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateMeInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateMeInput
 		return zeroVal, nil
 	}
@@ -8487,9 +8506,9 @@ func (ec *executionContext) field_Mutation_updateMe_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateModel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateModel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateModel_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8499,13 +8518,9 @@ func (ec *executionContext) field_Mutation_updateModel_args(ctx context.Context,
 }
 func (ec *executionContext) field_Mutation_updateModel_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateModelInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateModelInput
 		return zeroVal, nil
 	}
@@ -8519,9 +8534,9 @@ func (ec *executionContext) field_Mutation_updateModel_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateModelsOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateModelsOrder_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateModelsOrder_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8531,13 +8546,9 @@ func (ec *executionContext) field_Mutation_updateModelsOrder_args(ctx context.Co
 }
 func (ec *executionContext) field_Mutation_updateModelsOrder_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateModelsOrderInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateModelsOrderInput
 		return zeroVal, nil
 	}
@@ -8551,9 +8562,9 @@ func (ec *executionContext) field_Mutation_updateModelsOrder_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateProject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateProject_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateProject_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8563,13 +8574,9 @@ func (ec *executionContext) field_Mutation_updateProject_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_updateProject_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateProjectInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateProjectInput
 		return zeroVal, nil
 	}
@@ -8583,9 +8590,9 @@ func (ec *executionContext) field_Mutation_updateProject_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateRequest_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateRequest_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8595,13 +8602,9 @@ func (ec *executionContext) field_Mutation_updateRequest_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_updateRequest_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateRequestInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateRequestInput
 		return zeroVal, nil
 	}
@@ -8615,9 +8618,9 @@ func (ec *executionContext) field_Mutation_updateRequest_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateUserOfWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateUserOfWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateUserOfWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8627,13 +8630,9 @@ func (ec *executionContext) field_Mutation_updateUserOfWorkspace_args(ctx contex
 }
 func (ec *executionContext) field_Mutation_updateUserOfWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateUserOfWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateUserOfWorkspaceInput
 		return zeroVal, nil
 	}
@@ -8647,9 +8646,9 @@ func (ec *executionContext) field_Mutation_updateUserOfWorkspace_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateView_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateView_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateView_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8659,13 +8658,9 @@ func (ec *executionContext) field_Mutation_updateView_args(ctx context.Context, 
 }
 func (ec *executionContext) field_Mutation_updateView_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateViewInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateViewInput
 		return zeroVal, nil
 	}
@@ -8679,9 +8674,9 @@ func (ec *executionContext) field_Mutation_updateView_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateViewsOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateViewsOrder_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateViewsOrder_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8691,13 +8686,9 @@ func (ec *executionContext) field_Mutation_updateViewsOrder_args(ctx context.Con
 }
 func (ec *executionContext) field_Mutation_updateViewsOrder_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateViewsOrderInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateViewsOrderInput
 		return zeroVal, nil
 	}
@@ -8711,9 +8702,9 @@ func (ec *executionContext) field_Mutation_updateViewsOrder_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateWebhook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateWebhook_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateWebhook_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8723,13 +8714,9 @@ func (ec *executionContext) field_Mutation_updateWebhook_args(ctx context.Contex
 }
 func (ec *executionContext) field_Mutation_updateWebhook_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateWebhookInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateWebhookInput
 		return zeroVal, nil
 	}
@@ -8743,9 +8730,9 @@ func (ec *executionContext) field_Mutation_updateWebhook_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateWorkspaceSettings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateWorkspaceSettings_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateWorkspaceSettings_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8755,13 +8742,9 @@ func (ec *executionContext) field_Mutation_updateWorkspaceSettings_args(ctx cont
 }
 func (ec *executionContext) field_Mutation_updateWorkspaceSettings_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateWorkspaceSettingsInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateWorkspaceSettingsInput
 		return zeroVal, nil
 	}
@@ -8775,9 +8758,9 @@ func (ec *executionContext) field_Mutation_updateWorkspaceSettings_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateWorkspace_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Mutation_updateWorkspace_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8787,13 +8770,9 @@ func (ec *executionContext) field_Mutation_updateWorkspace_args(ctx context.Cont
 }
 func (ec *executionContext) field_Mutation_updateWorkspace_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.UpdateWorkspaceInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.UpdateWorkspaceInput
 		return zeroVal, nil
 	}
@@ -8807,9 +8786,9 @@ func (ec *executionContext) field_Mutation_updateWorkspace_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query___type_argsName(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8819,13 +8798,9 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 }
 func (ec *executionContext) field_Query___type_argsName(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["name"]
-	if !ok {
+	if _, ok := rawArgs["name"]; !ok {
 		var zeroVal string
 		return zeroVal, nil
 	}
@@ -8839,9 +8814,9 @@ func (ec *executionContext) field_Query___type_argsName(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_assetFile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_assetFile_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_assetFile_argsAssetID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8851,13 +8826,9 @@ func (ec *executionContext) field_Query_assetFile_args(ctx context.Context, rawA
 }
 func (ec *executionContext) field_Query_assetFile_argsAssetID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["assetId"]
-	if !ok {
+	if _, ok := rawArgs["assetId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -8871,9 +8842,9 @@ func (ec *executionContext) field_Query_assetFile_argsAssetID(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_assets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_assets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_assets_argsProjectID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -8898,13 +8869,9 @@ func (ec *executionContext) field_Query_assets_args(ctx context.Context, rawArgs
 }
 func (ec *executionContext) field_Query_assets_argsProjectID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["projectId"]
-	if !ok {
+	if _, ok := rawArgs["projectId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -8920,13 +8887,9 @@ func (ec *executionContext) field_Query_assets_argsProjectID(
 
 func (ec *executionContext) field_Query_assets_argsKeyword(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["keyword"]
-	if !ok {
+	if _, ok := rawArgs["keyword"]; !ok {
 		var zeroVal *string
 		return zeroVal, nil
 	}
@@ -8942,13 +8905,9 @@ func (ec *executionContext) field_Query_assets_argsKeyword(
 
 func (ec *executionContext) field_Query_assets_argsSort(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.AssetSort, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["sort"]
-	if !ok {
+	if _, ok := rawArgs["sort"]; !ok {
 		var zeroVal *gqlmodel.AssetSort
 		return zeroVal, nil
 	}
@@ -8964,13 +8923,9 @@ func (ec *executionContext) field_Query_assets_argsSort(
 
 func (ec *executionContext) field_Query_assets_argsPagination(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.Pagination, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["pagination"]
-	if !ok {
+	if _, ok := rawArgs["pagination"]; !ok {
 		var zeroVal *gqlmodel.Pagination
 		return zeroVal, nil
 	}
@@ -8984,9 +8939,9 @@ func (ec *executionContext) field_Query_assets_argsPagination(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_checkGroupKeyAvailability_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_checkGroupKeyAvailability_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_checkGroupKeyAvailability_argsProjectID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9001,13 +8956,9 @@ func (ec *executionContext) field_Query_checkGroupKeyAvailability_args(ctx conte
 }
 func (ec *executionContext) field_Query_checkGroupKeyAvailability_argsProjectID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["projectId"]
-	if !ok {
+	if _, ok := rawArgs["projectId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9023,13 +8974,9 @@ func (ec *executionContext) field_Query_checkGroupKeyAvailability_argsProjectID(
 
 func (ec *executionContext) field_Query_checkGroupKeyAvailability_argsKey(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["key"]
-	if !ok {
+	if _, ok := rawArgs["key"]; !ok {
 		var zeroVal string
 		return zeroVal, nil
 	}
@@ -9043,9 +8990,9 @@ func (ec *executionContext) field_Query_checkGroupKeyAvailability_argsKey(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_checkModelKeyAvailability_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_checkModelKeyAvailability_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_checkModelKeyAvailability_argsProjectID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9060,13 +9007,9 @@ func (ec *executionContext) field_Query_checkModelKeyAvailability_args(ctx conte
 }
 func (ec *executionContext) field_Query_checkModelKeyAvailability_argsProjectID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["projectId"]
-	if !ok {
+	if _, ok := rawArgs["projectId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9082,13 +9025,9 @@ func (ec *executionContext) field_Query_checkModelKeyAvailability_argsProjectID(
 
 func (ec *executionContext) field_Query_checkModelKeyAvailability_argsKey(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["key"]
-	if !ok {
+	if _, ok := rawArgs["key"]; !ok {
 		var zeroVal string
 		return zeroVal, nil
 	}
@@ -9102,9 +9041,9 @@ func (ec *executionContext) field_Query_checkModelKeyAvailability_argsKey(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_checkProjectAlias_argsAlias(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9114,13 +9053,9 @@ func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Conte
 }
 func (ec *executionContext) field_Query_checkProjectAlias_argsAlias(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["alias"]
-	if !ok {
+	if _, ok := rawArgs["alias"]; !ok {
 		var zeroVal string
 		return zeroVal, nil
 	}
@@ -9134,9 +9069,9 @@ func (ec *executionContext) field_Query_checkProjectAlias_argsAlias(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_groups_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_groups_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_groups_argsProjectID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9151,13 +9086,9 @@ func (ec *executionContext) field_Query_groups_args(ctx context.Context, rawArgs
 }
 func (ec *executionContext) field_Query_groups_argsProjectID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["projectId"]
-	if !ok {
+	if _, ok := rawArgs["projectId"]; !ok {
 		var zeroVal *gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9173,13 +9104,9 @@ func (ec *executionContext) field_Query_groups_argsProjectID(
 
 func (ec *executionContext) field_Query_groups_argsModelID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["modelID"]
-	if !ok {
+	if _, ok := rawArgs["modelID"]; !ok {
 		var zeroVal *gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9193,9 +9120,9 @@ func (ec *executionContext) field_Query_groups_argsModelID(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_isItemReferenced_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_isItemReferenced_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_isItemReferenced_argsItemID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9210,13 +9137,9 @@ func (ec *executionContext) field_Query_isItemReferenced_args(ctx context.Contex
 }
 func (ec *executionContext) field_Query_isItemReferenced_argsItemID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["itemId"]
-	if !ok {
+	if _, ok := rawArgs["itemId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9232,13 +9155,9 @@ func (ec *executionContext) field_Query_isItemReferenced_argsItemID(
 
 func (ec *executionContext) field_Query_isItemReferenced_argsCorrespondingFieldID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["correspondingFieldId"]
-	if !ok {
+	if _, ok := rawArgs["correspondingFieldId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9252,9 +9171,9 @@ func (ec *executionContext) field_Query_isItemReferenced_argsCorrespondingFieldI
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_modelsByGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_modelsByGroup_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_modelsByGroup_argsGroupID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9264,13 +9183,9 @@ func (ec *executionContext) field_Query_modelsByGroup_args(ctx context.Context, 
 }
 func (ec *executionContext) field_Query_modelsByGroup_argsGroupID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["groupId"]
-	if !ok {
+	if _, ok := rawArgs["groupId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9284,9 +9199,9 @@ func (ec *executionContext) field_Query_modelsByGroup_argsGroupID(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_models_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_models_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_models_argsProjectID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9301,13 +9216,9 @@ func (ec *executionContext) field_Query_models_args(ctx context.Context, rawArgs
 }
 func (ec *executionContext) field_Query_models_argsProjectID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["projectId"]
-	if !ok {
+	if _, ok := rawArgs["projectId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9323,13 +9234,9 @@ func (ec *executionContext) field_Query_models_argsProjectID(
 
 func (ec *executionContext) field_Query_models_argsPagination(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.Pagination, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["pagination"]
-	if !ok {
+	if _, ok := rawArgs["pagination"]; !ok {
 		var zeroVal *gqlmodel.Pagination
 		return zeroVal, nil
 	}
@@ -9343,9 +9250,9 @@ func (ec *executionContext) field_Query_models_argsPagination(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_node_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_node_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_node_argsID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9360,13 +9267,9 @@ func (ec *executionContext) field_Query_node_args(ctx context.Context, rawArgs m
 }
 func (ec *executionContext) field_Query_node_argsID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["id"]
-	if !ok {
+	if _, ok := rawArgs["id"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9382,13 +9285,9 @@ func (ec *executionContext) field_Query_node_argsID(
 
 func (ec *executionContext) field_Query_node_argsType(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.NodeType, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["type"]
-	if !ok {
+	if _, ok := rawArgs["type"]; !ok {
 		var zeroVal gqlmodel.NodeType
 		return zeroVal, nil
 	}
@@ -9402,9 +9301,9 @@ func (ec *executionContext) field_Query_node_argsType(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_nodes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_nodes_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_nodes_argsID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9419,13 +9318,9 @@ func (ec *executionContext) field_Query_nodes_args(ctx context.Context, rawArgs 
 }
 func (ec *executionContext) field_Query_nodes_argsID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) ([]gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["id"]
-	if !ok {
+	if _, ok := rawArgs["id"]; !ok {
 		var zeroVal []gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9441,13 +9336,9 @@ func (ec *executionContext) field_Query_nodes_argsID(
 
 func (ec *executionContext) field_Query_nodes_argsType(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.NodeType, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["type"]
-	if !ok {
+	if _, ok := rawArgs["type"]; !ok {
 		var zeroVal gqlmodel.NodeType
 		return zeroVal, nil
 	}
@@ -9461,9 +9352,9 @@ func (ec *executionContext) field_Query_nodes_argsType(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_projects_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_projects_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_projects_argsWorkspaceID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9478,13 +9369,9 @@ func (ec *executionContext) field_Query_projects_args(ctx context.Context, rawAr
 }
 func (ec *executionContext) field_Query_projects_argsWorkspaceID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["workspaceId"]
-	if !ok {
+	if _, ok := rawArgs["workspaceId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9500,13 +9387,9 @@ func (ec *executionContext) field_Query_projects_argsWorkspaceID(
 
 func (ec *executionContext) field_Query_projects_argsPagination(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.Pagination, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["pagination"]
-	if !ok {
+	if _, ok := rawArgs["pagination"]; !ok {
 		var zeroVal *gqlmodel.Pagination
 		return zeroVal, nil
 	}
@@ -9520,9 +9403,9 @@ func (ec *executionContext) field_Query_projects_argsPagination(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_requests_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_requests_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_requests_argsProjectID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9562,13 +9445,9 @@ func (ec *executionContext) field_Query_requests_args(ctx context.Context, rawAr
 }
 func (ec *executionContext) field_Query_requests_argsProjectID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["projectId"]
-	if !ok {
+	if _, ok := rawArgs["projectId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9584,13 +9463,9 @@ func (ec *executionContext) field_Query_requests_argsProjectID(
 
 func (ec *executionContext) field_Query_requests_argsKey(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["key"]
-	if !ok {
+	if _, ok := rawArgs["key"]; !ok {
 		var zeroVal *string
 		return zeroVal, nil
 	}
@@ -9606,13 +9481,9 @@ func (ec *executionContext) field_Query_requests_argsKey(
 
 func (ec *executionContext) field_Query_requests_argsState(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) ([]gqlmodel.RequestState, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["state"]
-	if !ok {
+	if _, ok := rawArgs["state"]; !ok {
 		var zeroVal []gqlmodel.RequestState
 		return zeroVal, nil
 	}
@@ -9628,13 +9499,9 @@ func (ec *executionContext) field_Query_requests_argsState(
 
 func (ec *executionContext) field_Query_requests_argsCreatedBy(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["createdBy"]
-	if !ok {
+	if _, ok := rawArgs["createdBy"]; !ok {
 		var zeroVal *gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9650,13 +9517,9 @@ func (ec *executionContext) field_Query_requests_argsCreatedBy(
 
 func (ec *executionContext) field_Query_requests_argsReviewer(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["reviewer"]
-	if !ok {
+	if _, ok := rawArgs["reviewer"]; !ok {
 		var zeroVal *gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9672,13 +9535,9 @@ func (ec *executionContext) field_Query_requests_argsReviewer(
 
 func (ec *executionContext) field_Query_requests_argsPagination(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.Pagination, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["pagination"]
-	if !ok {
+	if _, ok := rawArgs["pagination"]; !ok {
 		var zeroVal *gqlmodel.Pagination
 		return zeroVal, nil
 	}
@@ -9694,13 +9553,9 @@ func (ec *executionContext) field_Query_requests_argsPagination(
 
 func (ec *executionContext) field_Query_requests_argsSort(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (*gqlmodel.Sort, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["sort"]
-	if !ok {
+	if _, ok := rawArgs["sort"]; !ok {
 		var zeroVal *gqlmodel.Sort
 		return zeroVal, nil
 	}
@@ -9714,9 +9569,9 @@ func (ec *executionContext) field_Query_requests_argsSort(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_searchItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_searchItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_searchItem_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9726,13 +9581,9 @@ func (ec *executionContext) field_Query_searchItem_args(ctx context.Context, raw
 }
 func (ec *executionContext) field_Query_searchItem_argsInput(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.SearchItemInput, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
+	if _, ok := rawArgs["input"]; !ok {
 		var zeroVal gqlmodel.SearchItemInput
 		return zeroVal, nil
 	}
@@ -9746,9 +9597,9 @@ func (ec *executionContext) field_Query_searchItem_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_userByNameOrEmail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_userByNameOrEmail_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_userByNameOrEmail_argsNameOrEmail(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9758,13 +9609,9 @@ func (ec *executionContext) field_Query_userByNameOrEmail_args(ctx context.Conte
 }
 func (ec *executionContext) field_Query_userByNameOrEmail_argsNameOrEmail(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["nameOrEmail"]
-	if !ok {
+	if _, ok := rawArgs["nameOrEmail"]; !ok {
 		var zeroVal string
 		return zeroVal, nil
 	}
@@ -9778,9 +9625,9 @@ func (ec *executionContext) field_Query_userByNameOrEmail_argsNameOrEmail(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_userSearch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_userSearch_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_userSearch_argsKeyword(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9790,13 +9637,9 @@ func (ec *executionContext) field_Query_userSearch_args(ctx context.Context, raw
 }
 func (ec *executionContext) field_Query_userSearch_argsKeyword(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (string, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["keyword"]
-	if !ok {
+	if _, ok := rawArgs["keyword"]; !ok {
 		var zeroVal string
 		return zeroVal, nil
 	}
@@ -9810,9 +9653,9 @@ func (ec *executionContext) field_Query_userSearch_argsKeyword(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_versionsByItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_versionsByItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_versionsByItem_argsItemID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9822,13 +9665,9 @@ func (ec *executionContext) field_Query_versionsByItem_args(ctx context.Context,
 }
 func (ec *executionContext) field_Query_versionsByItem_argsItemID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["itemId"]
-	if !ok {
+	if _, ok := rawArgs["itemId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9842,9 +9681,9 @@ func (ec *executionContext) field_Query_versionsByItem_argsItemID(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_view_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_view_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field_Query_view_argsModelID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9854,13 +9693,9 @@ func (ec *executionContext) field_Query_view_args(ctx context.Context, rawArgs m
 }
 func (ec *executionContext) field_Query_view_argsModelID(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (gqlmodel.ID, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["modelId"]
-	if !ok {
+	if _, ok := rawArgs["modelId"]; !ok {
 		var zeroVal gqlmodel.ID
 		return zeroVal, nil
 	}
@@ -9874,9 +9709,65 @@ func (ec *executionContext) field_Query_view_argsModelID(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field___Directive_args_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
+	arg0, err := ec.field___Directive_args_argsIncludeDeprecated(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["includeDeprecated"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field___Directive_args_argsIncludeDeprecated(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*bool, error) {
+	if _, ok := rawArgs["includeDeprecated"]; !ok {
+		var zeroVal *bool
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
+	if tmp, ok := rawArgs["includeDeprecated"]; ok {
+		return ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+	}
+
+	var zeroVal *bool
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field___Field_args_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field___Field_args_argsIncludeDeprecated(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["includeDeprecated"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field___Field_args_argsIncludeDeprecated(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*bool, error) {
+	if _, ok := rawArgs["includeDeprecated"]; !ok {
+		var zeroVal *bool
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
+	if tmp, ok := rawArgs["includeDeprecated"]; ok {
+		return ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+	}
+
+	var zeroVal *bool
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
 	arg0, err := ec.field___Type_enumValues_argsIncludeDeprecated(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9886,13 +9777,9 @@ func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, ra
 }
 func (ec *executionContext) field___Type_enumValues_argsIncludeDeprecated(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (bool, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["includeDeprecated"]
-	if !ok {
+	if _, ok := rawArgs["includeDeprecated"]; !ok {
 		var zeroVal bool
 		return zeroVal, nil
 	}
@@ -9906,9 +9793,9 @@ func (ec *executionContext) field___Type_enumValues_argsIncludeDeprecated(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
-	args := map[string]interface{}{}
+	args := map[string]any{}
 	arg0, err := ec.field___Type_fields_argsIncludeDeprecated(ctx, rawArgs)
 	if err != nil {
 		return nil, err
@@ -9918,13 +9805,9 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 }
 func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 	ctx context.Context,
-	rawArgs map[string]interface{},
+	rawArgs map[string]any,
 ) (bool, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["includeDeprecated"]
-	if !ok {
+	if _, ok := rawArgs["includeDeprecated"]; !ok {
 		var zeroVal bool
 		return zeroVal, nil
 	}
@@ -9958,7 +9841,7 @@ func (ec *executionContext) _AddUsersToWorkspacePayload_workspace(ctx context.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Workspace, nil
 	})
@@ -10012,7 +9895,7 @@ func (ec *executionContext) _AndCondition_conditions(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Conditions, nil
 	})
@@ -10056,7 +9939,7 @@ func (ec *executionContext) _Asset_id(ctx context.Context, field graphql.Collect
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -10100,7 +9983,7 @@ func (ec *executionContext) _Asset_project(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Asset().Project(rctx, obj)
 	})
@@ -10166,7 +10049,7 @@ func (ec *executionContext) _Asset_projectId(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ProjectID, nil
 	})
@@ -10210,7 +10093,7 @@ func (ec *executionContext) _Asset_createdAt(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -10254,7 +10137,7 @@ func (ec *executionContext) _Asset_createdBy(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Asset().CreatedBy(rctx, obj)
 	})
@@ -10298,7 +10181,7 @@ func (ec *executionContext) _Asset_createdByType(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedByType, nil
 	})
@@ -10342,7 +10225,7 @@ func (ec *executionContext) _Asset_createdById(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedByID, nil
 	})
@@ -10386,7 +10269,7 @@ func (ec *executionContext) _Asset_items(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Asset().Items(rctx, obj)
 	})
@@ -10433,7 +10316,7 @@ func (ec *executionContext) _Asset_size(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Size, nil
 	})
@@ -10477,7 +10360,7 @@ func (ec *executionContext) _Asset_previewType(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.PreviewType, nil
 	})
@@ -10506,6 +10389,47 @@ func (ec *executionContext) fieldContext_Asset_previewType(_ context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_contentEncoding(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_contentEncoding(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentEncoding, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_contentEncoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Asset_uuid(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Asset_uuid(ctx, field)
 	if err != nil {
@@ -10518,7 +10442,7 @@ func (ec *executionContext) _Asset_uuid(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UUID, nil
 	})
@@ -10562,7 +10486,7 @@ func (ec *executionContext) _Asset_thread(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Asset().Thread(rctx, obj)
 	})
@@ -10613,7 +10537,7 @@ func (ec *executionContext) _Asset_threadId(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ThreadID, nil
 	})
@@ -10622,14 +10546,11 @@ func (ec *executionContext) _Asset_threadId(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ID)
+	res := resTmp.(*gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Asset_threadId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10657,7 +10578,7 @@ func (ec *executionContext) _Asset_url(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.URL, nil
 	})
@@ -10701,7 +10622,7 @@ func (ec *executionContext) _Asset_fileName(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FileName, nil
 	})
@@ -10745,7 +10666,7 @@ func (ec *executionContext) _Asset_archiveExtractionStatus(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ArchiveExtractionStatus, nil
 	})
@@ -10786,7 +10707,7 @@ func (ec *executionContext) _AssetConnection_edges(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Edges, nil
 	})
@@ -10836,7 +10757,7 @@ func (ec *executionContext) _AssetConnection_nodes(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Nodes, nil
 	})
@@ -10883,6 +10804,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(_ context.Context
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -10914,7 +10837,7 @@ func (ec *executionContext) _AssetConnection_pageInfo(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.PageInfo, nil
 	})
@@ -10968,7 +10891,7 @@ func (ec *executionContext) _AssetConnection_totalCount(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TotalCount, nil
 	})
@@ -11012,7 +10935,7 @@ func (ec *executionContext) _AssetEdge_cursor(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Cursor, nil
 	})
@@ -11056,7 +10979,7 @@ func (ec *executionContext) _AssetEdge_node(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Node, nil
 	})
@@ -11100,6 +11023,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(_ context.Context, field
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -11131,7 +11056,7 @@ func (ec *executionContext) _AssetFile_name(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -11175,7 +11100,7 @@ func (ec *executionContext) _AssetFile_size(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Size, nil
 	})
@@ -11219,7 +11144,7 @@ func (ec *executionContext) _AssetFile_contentType(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ContentType, nil
 	})
@@ -11248,6 +11173,47 @@ func (ec *executionContext) fieldContext_AssetFile_contentType(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _AssetFile_contentEncoding(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetFile_contentEncoding(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentEncoding, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AssetFile_contentEncoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AssetFile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AssetFile_path(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AssetFile_path(ctx, field)
 	if err != nil {
@@ -11260,7 +11226,7 @@ func (ec *executionContext) _AssetFile_path(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Path, nil
 	})
@@ -11304,7 +11270,7 @@ func (ec *executionContext) _AssetFile_filePaths(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FilePaths, nil
 	})
@@ -11345,7 +11311,7 @@ func (ec *executionContext) _AssetItem_itemId(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ItemID, nil
 	})
@@ -11389,7 +11355,7 @@ func (ec *executionContext) _AssetItem_modelId(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ModelID, nil
 	})
@@ -11433,7 +11399,7 @@ func (ec *executionContext) _BasicFieldCondition_fieldId(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FieldID, nil
 	})
@@ -11483,7 +11449,7 @@ func (ec *executionContext) _BasicFieldCondition_operator(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Operator, nil
 	})
@@ -11527,7 +11493,7 @@ func (ec *executionContext) _BasicFieldCondition_value(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
 	})
@@ -11571,7 +11537,7 @@ func (ec *executionContext) _BoolFieldCondition_fieldId(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FieldID, nil
 	})
@@ -11621,7 +11587,7 @@ func (ec *executionContext) _BoolFieldCondition_operator(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Operator, nil
 	})
@@ -11665,7 +11631,7 @@ func (ec *executionContext) _BoolFieldCondition_value(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
 	})
@@ -11709,7 +11675,7 @@ func (ec *executionContext) _CesiumResourceProps_name(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -11753,7 +11719,7 @@ func (ec *executionContext) _CesiumResourceProps_url(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.URL, nil
 	})
@@ -11797,7 +11763,7 @@ func (ec *executionContext) _CesiumResourceProps_image(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Image, nil
 	})
@@ -11841,7 +11807,7 @@ func (ec *executionContext) _CesiumResourceProps_cesiumIonAssetId(ctx context.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CesiumIonAssetID, nil
 	})
@@ -11885,7 +11851,7 @@ func (ec *executionContext) _CesiumResourceProps_cesiumIonAccessToken(ctx contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CesiumIonAccessToken, nil
 	})
@@ -11929,7 +11895,7 @@ func (ec *executionContext) _Column_field(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Field, nil
 	})
@@ -11979,7 +11945,7 @@ func (ec *executionContext) _Column_visible(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Visible, nil
 	})
@@ -12023,7 +11989,7 @@ func (ec *executionContext) _Comment_id(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -12067,7 +12033,7 @@ func (ec *executionContext) _Comment_threadId(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ThreadID, nil
 	})
@@ -12111,7 +12077,7 @@ func (ec *executionContext) _Comment_workspaceId(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.WorkspaceID, nil
 	})
@@ -12155,7 +12121,7 @@ func (ec *executionContext) _Comment_author(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Comment().Author(rctx, obj)
 	})
@@ -12196,7 +12162,7 @@ func (ec *executionContext) _Comment_authorType(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.AuthorType, nil
 	})
@@ -12240,7 +12206,7 @@ func (ec *executionContext) _Comment_authorId(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.AuthorID, nil
 	})
@@ -12284,7 +12250,7 @@ func (ec *executionContext) _Comment_content(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Content, nil
 	})
@@ -12328,7 +12294,7 @@ func (ec *executionContext) _Comment_createdAt(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -12372,7 +12338,7 @@ func (ec *executionContext) _CommentPayload_thread(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Thread, nil
 	})
@@ -12426,7 +12392,7 @@ func (ec *executionContext) _CommentPayload_comment(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Comment, nil
 	})
@@ -12488,7 +12454,7 @@ func (ec *executionContext) _CreateAssetPayload_asset(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Asset, nil
 	})
@@ -12535,6 +12501,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -12566,7 +12534,7 @@ func (ec *executionContext) _CreateAssetUploadPayload_token(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Token, nil
 	})
@@ -12610,7 +12578,7 @@ func (ec *executionContext) _CreateAssetUploadPayload_url(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.URL, nil
 	})
@@ -12654,7 +12622,7 @@ func (ec *executionContext) _CreateAssetUploadPayload_contentType(ctx context.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ContentType, nil
 	})
@@ -12695,7 +12663,7 @@ func (ec *executionContext) _CreateAssetUploadPayload_contentLength(ctx context.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ContentLength, nil
 	})
@@ -12727,6 +12695,47 @@ func (ec *executionContext) fieldContext_CreateAssetUploadPayload_contentLength(
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateAssetUploadPayload_contentEncoding(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateAssetUploadPayload_contentEncoding(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentEncoding, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateAssetUploadPayload_contentEncoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateAssetUploadPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreateAssetUploadPayload_next(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateAssetUploadPayload_next(ctx, field)
 	if err != nil {
@@ -12739,7 +12748,7 @@ func (ec *executionContext) _CreateAssetUploadPayload_next(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Next, nil
 	})
@@ -12780,7 +12789,7 @@ func (ec *executionContext) _CreateWorkspacePayload_workspace(ctx context.Contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Workspace, nil
 	})
@@ -12834,7 +12843,7 @@ func (ec *executionContext) _DecompressAssetPayload_asset(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Asset, nil
 	})
@@ -12881,6 +12890,8 @@ func (ec *executionContext) fieldContext_DecompressAssetPayload_asset(_ context.
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -12912,7 +12923,7 @@ func (ec *executionContext) _DeleteAssetPayload_assetId(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.AssetID, nil
 	})
@@ -12944,6 +12955,47 @@ func (ec *executionContext) fieldContext_DeleteAssetPayload_assetId(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteAssetsPayload_assetIds(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteAssetsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteAssetsPayload_assetIds(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AssetIds, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteAssetsPayload_assetIds(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteAssetsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeleteCommentPayload_thread(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteCommentPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeleteCommentPayload_thread(ctx, field)
 	if err != nil {
@@ -12956,7 +13008,7 @@ func (ec *executionContext) _DeleteCommentPayload_thread(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Thread, nil
 	})
@@ -13010,7 +13062,7 @@ func (ec *executionContext) _DeleteCommentPayload_commentId(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CommentID, nil
 	})
@@ -13054,7 +13106,7 @@ func (ec *executionContext) _DeleteFieldPayload_fieldId(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FieldID, nil
 	})
@@ -13098,7 +13150,7 @@ func (ec *executionContext) _DeleteGroupPayload_groupId(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.GroupID, nil
 	})
@@ -13142,7 +13194,7 @@ func (ec *executionContext) _DeleteIntegrationPayload_integrationId(ctx context.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.IntegrationID, nil
 	})
@@ -13174,6 +13226,47 @@ func (ec *executionContext) fieldContext_DeleteIntegrationPayload_integrationId(
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteIntegrationsPayload_integrationIDs(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteIntegrationsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteIntegrationsPayload_integrationIDs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IntegrationIDs, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteIntegrationsPayload_integrationIDs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteIntegrationsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeleteItemPayload_itemId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteItemPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeleteItemPayload_itemId(ctx, field)
 	if err != nil {
@@ -13186,7 +13279,7 @@ func (ec *executionContext) _DeleteItemPayload_itemId(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ItemID, nil
 	})
@@ -13230,7 +13323,7 @@ func (ec *executionContext) _DeleteMePayload_userId(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UserID, nil
 	})
@@ -13274,7 +13367,7 @@ func (ec *executionContext) _DeleteModelPayload_modelId(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ModelID, nil
 	})
@@ -13318,7 +13411,7 @@ func (ec *executionContext) _DeleteProjectPayload_projectId(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ProjectID, nil
 	})
@@ -13362,7 +13455,7 @@ func (ec *executionContext) _DeleteRequestPayload_requests(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Requests, nil
 	})
@@ -13406,7 +13499,7 @@ func (ec *executionContext) _DeleteViewPayload_viewId(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ViewID, nil
 	})
@@ -13450,7 +13543,7 @@ func (ec *executionContext) _DeleteWebhookPayload_webhookId(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.WebhookID, nil
 	})
@@ -13494,7 +13587,7 @@ func (ec *executionContext) _DeleteWorkspacePayload_workspaceId(ctx context.Cont
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.WorkspaceID, nil
 	})
@@ -13538,7 +13631,7 @@ func (ec *executionContext) _FieldPayload_field(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Field, nil
 	})
@@ -13618,7 +13711,7 @@ func (ec *executionContext) _FieldSelector_type(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
@@ -13662,7 +13755,7 @@ func (ec *executionContext) _FieldSelector_id(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -13703,7 +13796,7 @@ func (ec *executionContext) _FieldsPayload_fields(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Fields, nil
 	})
@@ -13783,7 +13876,7 @@ func (ec *executionContext) _Group_id(ctx context.Context, field graphql.Collect
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -13827,7 +13920,7 @@ func (ec *executionContext) _Group_schemaId(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SchemaID, nil
 	})
@@ -13871,7 +13964,7 @@ func (ec *executionContext) _Group_projectId(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ProjectID, nil
 	})
@@ -13915,7 +14008,7 @@ func (ec *executionContext) _Group_name(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -13959,7 +14052,7 @@ func (ec *executionContext) _Group_description(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
@@ -14003,7 +14096,7 @@ func (ec *executionContext) _Group_key(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Key, nil
 	})
@@ -14047,7 +14140,7 @@ func (ec *executionContext) _Group_schema(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Group().Schema(rctx, obj)
 	})
@@ -14105,7 +14198,7 @@ func (ec *executionContext) _Group_project(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Group().Project(rctx, obj)
 	})
@@ -14171,7 +14264,7 @@ func (ec *executionContext) _Group_fields(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Fields, nil
 	})
@@ -14251,7 +14344,7 @@ func (ec *executionContext) _Group_order(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Order, nil
 	})
@@ -14295,7 +14388,7 @@ func (ec *executionContext) _GroupPayload_group(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Group, nil
 	})
@@ -14361,7 +14454,7 @@ func (ec *executionContext) _GroupsPayload_groups(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Groups, nil
 	})
@@ -14427,7 +14520,7 @@ func (ec *executionContext) _Integration_id(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -14471,7 +14564,7 @@ func (ec *executionContext) _Integration_name(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -14515,7 +14608,7 @@ func (ec *executionContext) _Integration_description(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
@@ -14556,7 +14649,7 @@ func (ec *executionContext) _Integration_logoUrl(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.LogoURL, nil
 	})
@@ -14600,7 +14693,7 @@ func (ec *executionContext) _Integration_iType(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.IType, nil
 	})
@@ -14644,7 +14737,7 @@ func (ec *executionContext) _Integration_developerId(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DeveloperID, nil
 	})
@@ -14688,7 +14781,7 @@ func (ec *executionContext) _Integration_developer(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Integration().Developer(rctx, obj)
 	})
@@ -14742,7 +14835,7 @@ func (ec *executionContext) _Integration_config(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Config, nil
 	})
@@ -14789,7 +14882,7 @@ func (ec *executionContext) _Integration_createdAt(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -14833,7 +14926,7 @@ func (ec *executionContext) _Integration_updatedAt(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
 	})
@@ -14877,7 +14970,7 @@ func (ec *executionContext) _IntegrationConfig_token(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Token, nil
 	})
@@ -14921,7 +15014,7 @@ func (ec *executionContext) _IntegrationConfig_webhooks(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Webhooks, nil
 	})
@@ -14983,7 +15076,7 @@ func (ec *executionContext) _IntegrationPayload_integration(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Integration, nil
 	})
@@ -15049,7 +15142,7 @@ func (ec *executionContext) _Item_id(ctx context.Context, field graphql.Collecte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -15093,7 +15186,7 @@ func (ec *executionContext) _Item_schemaId(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SchemaID, nil
 	})
@@ -15137,7 +15230,7 @@ func (ec *executionContext) _Item_threadId(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ThreadID, nil
 	})
@@ -15146,14 +15239,11 @@ func (ec *executionContext) _Item_threadId(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ID)
+	res := resTmp.(*gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_threadId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15181,7 +15271,7 @@ func (ec *executionContext) _Item_modelId(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ModelID, nil
 	})
@@ -15225,7 +15315,7 @@ func (ec *executionContext) _Item_projectId(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ProjectID, nil
 	})
@@ -15269,7 +15359,7 @@ func (ec *executionContext) _Item_integrationId(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.IntegrationID, nil
 	})
@@ -15310,7 +15400,7 @@ func (ec *executionContext) _Item_updatedByUserId(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedByUserID, nil
 	})
@@ -15351,7 +15441,7 @@ func (ec *executionContext) _Item_updatedByIntegrationId(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedByIntegrationID, nil
 	})
@@ -15392,7 +15482,7 @@ func (ec *executionContext) _Item_userId(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UserID, nil
 	})
@@ -15433,7 +15523,7 @@ func (ec *executionContext) _Item_metadataId(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.MetadataID, nil
 	})
@@ -15474,7 +15564,7 @@ func (ec *executionContext) _Item_isMetadata(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.IsMetadata, nil
 	})
@@ -15518,7 +15608,7 @@ func (ec *executionContext) _Item_originalId(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OriginalID, nil
 	})
@@ -15559,7 +15649,7 @@ func (ec *executionContext) _Item_createdBy(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().CreatedBy(rctx, obj)
 	})
@@ -15600,7 +15690,7 @@ func (ec *executionContext) _Item_schema(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Schema(rctx, obj)
 	})
@@ -15658,7 +15748,7 @@ func (ec *executionContext) _Item_model(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Model(rctx, obj)
 	})
@@ -15732,7 +15822,7 @@ func (ec *executionContext) _Item_status(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Status(rctx, obj)
 	})
@@ -15776,7 +15866,7 @@ func (ec *executionContext) _Item_project(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Project(rctx, obj)
 	})
@@ -15842,7 +15932,7 @@ func (ec *executionContext) _Item_thread(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Thread(rctx, obj)
 	})
@@ -15851,14 +15941,11 @@ func (ec *executionContext) _Item_thread(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.Thread)
 	fc.Result = res
-	return ec.marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx, field.Selections, res)
+	return ec.marshalOThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_thread(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15896,7 +15983,7 @@ func (ec *executionContext) _Item_fields(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Fields, nil
 	})
@@ -15950,7 +16037,7 @@ func (ec *executionContext) _Item_assets(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Assets(rctx, obj)
 	})
@@ -15997,6 +16084,8 @@ func (ec *executionContext) fieldContext_Item_assets(_ context.Context, field gr
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -16028,7 +16117,7 @@ func (ec *executionContext) _Item_referencedItems(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().ReferencedItems(rctx, obj)
 	})
@@ -16129,7 +16218,7 @@ func (ec *executionContext) _Item_requests(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Requests(rctx, obj)
 	})
@@ -16210,7 +16299,7 @@ func (ec *executionContext) _Item_createdAt(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -16254,7 +16343,7 @@ func (ec *executionContext) _Item_updatedAt(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
 	})
@@ -16298,7 +16387,7 @@ func (ec *executionContext) _Item_updatedBy(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().UpdatedBy(rctx, obj)
 	})
@@ -16339,7 +16428,7 @@ func (ec *executionContext) _Item_version(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Version, nil
 	})
@@ -16383,7 +16472,7 @@ func (ec *executionContext) _Item_metadata(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Metadata(rctx, obj)
 	})
@@ -16484,7 +16573,7 @@ func (ec *executionContext) _Item_original(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Item().Original(rctx, obj)
 	})
@@ -16585,7 +16674,7 @@ func (ec *executionContext) _Item_title(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Title, nil
 	})
@@ -16626,7 +16715,7 @@ func (ec *executionContext) _ItemConnection_edges(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Edges, nil
 	})
@@ -16676,7 +16765,7 @@ func (ec *executionContext) _ItemConnection_nodes(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Nodes, nil
 	})
@@ -16780,7 +16869,7 @@ func (ec *executionContext) _ItemConnection_pageInfo(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.PageInfo, nil
 	})
@@ -16834,7 +16923,7 @@ func (ec *executionContext) _ItemConnection_totalCount(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TotalCount, nil
 	})
@@ -16878,7 +16967,7 @@ func (ec *executionContext) _ItemEdge_cursor(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Cursor, nil
 	})
@@ -16922,7 +17011,7 @@ func (ec *executionContext) _ItemEdge_node(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Node, nil
 	})
@@ -17023,7 +17112,7 @@ func (ec *executionContext) _ItemField_schemaFieldId(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SchemaFieldID, nil
 	})
@@ -17067,7 +17156,7 @@ func (ec *executionContext) _ItemField_itemGroupId(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ItemGroupID, nil
 	})
@@ -17108,7 +17197,7 @@ func (ec *executionContext) _ItemField_type(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
@@ -17152,7 +17241,7 @@ func (ec *executionContext) _ItemField_value(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
 	})
@@ -17193,7 +17282,7 @@ func (ec *executionContext) _ItemPayload_item(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Item, nil
 	})
@@ -17297,7 +17386,7 @@ func (ec *executionContext) _ItemSort_field(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Field, nil
 	})
@@ -17347,7 +17436,7 @@ func (ec *executionContext) _ItemSort_direction(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Direction, nil
 	})
@@ -17388,7 +17477,7 @@ func (ec *executionContext) _KeyAvailability_key(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Key, nil
 	})
@@ -17432,7 +17521,7 @@ func (ec *executionContext) _KeyAvailability_available(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Available, nil
 	})
@@ -17476,7 +17565,7 @@ func (ec *executionContext) _Me_id(ctx context.Context, field graphql.CollectedF
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -17520,7 +17609,7 @@ func (ec *executionContext) _Me_name(ctx context.Context, field graphql.Collecte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -17564,7 +17653,7 @@ func (ec *executionContext) _Me_email(ctx context.Context, field graphql.Collect
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Email, nil
 	})
@@ -17608,7 +17697,7 @@ func (ec *executionContext) _Me_lang(ctx context.Context, field graphql.Collecte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Lang, nil
 	})
@@ -17652,7 +17741,7 @@ func (ec *executionContext) _Me_theme(ctx context.Context, field graphql.Collect
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Theme, nil
 	})
@@ -17696,7 +17785,7 @@ func (ec *executionContext) _Me_host(ctx context.Context, field graphql.Collecte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Host, nil
 	})
@@ -17737,7 +17826,7 @@ func (ec *executionContext) _Me_myWorkspaceId(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.MyWorkspaceID, nil
 	})
@@ -17781,7 +17870,7 @@ func (ec *executionContext) _Me_auths(ctx context.Context, field graphql.Collect
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Auths, nil
 	})
@@ -17825,7 +17914,7 @@ func (ec *executionContext) _Me_workspaces(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Me().Workspaces(rctx, obj)
 	})
@@ -17879,7 +17968,7 @@ func (ec *executionContext) _Me_myWorkspace(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Me().MyWorkspace(rctx, obj)
 	})
@@ -17930,7 +18019,7 @@ func (ec *executionContext) _Me_integrations(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Me().Integrations(rctx, obj)
 	})
@@ -17996,7 +18085,7 @@ func (ec *executionContext) _Model_id(ctx context.Context, field graphql.Collect
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -18040,7 +18129,7 @@ func (ec *executionContext) _Model_projectId(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ProjectID, nil
 	})
@@ -18084,7 +18173,7 @@ func (ec *executionContext) _Model_schemaId(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SchemaID, nil
 	})
@@ -18128,7 +18217,7 @@ func (ec *executionContext) _Model_metadataSchemaId(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.MetadataSchemaID, nil
 	})
@@ -18169,7 +18258,7 @@ func (ec *executionContext) _Model_name(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -18213,7 +18302,7 @@ func (ec *executionContext) _Model_description(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
@@ -18257,7 +18346,7 @@ func (ec *executionContext) _Model_key(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Key, nil
 	})
@@ -18301,7 +18390,7 @@ func (ec *executionContext) _Model_project(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Model().Project(rctx, obj)
 	})
@@ -18367,7 +18456,7 @@ func (ec *executionContext) _Model_schema(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Model().Schema(rctx, obj)
 	})
@@ -18425,7 +18514,7 @@ func (ec *executionContext) _Model_metadataSchema(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Model().MetadataSchema(rctx, obj)
 	})
@@ -18480,7 +18569,7 @@ func (ec *executionContext) _Model_public(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Public, nil
 	})
@@ -18524,7 +18613,7 @@ func (ec *executionContext) _Model_createdAt(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -18568,7 +18657,7 @@ func (ec *executionContext) _Model_updatedAt(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
 	})
@@ -18612,7 +18701,7 @@ func (ec *executionContext) _Model_order(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Order, nil
 	})
@@ -18653,7 +18742,7 @@ func (ec *executionContext) _ModelConnection_edges(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Edges, nil
 	})
@@ -18703,7 +18792,7 @@ func (ec *executionContext) _ModelConnection_nodes(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Nodes, nil
 	})
@@ -18777,7 +18866,7 @@ func (ec *executionContext) _ModelConnection_pageInfo(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.PageInfo, nil
 	})
@@ -18831,7 +18920,7 @@ func (ec *executionContext) _ModelConnection_totalCount(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TotalCount, nil
 	})
@@ -18875,7 +18964,7 @@ func (ec *executionContext) _ModelEdge_cursor(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Cursor, nil
 	})
@@ -18919,7 +19008,7 @@ func (ec *executionContext) _ModelEdge_node(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Node, nil
 	})
@@ -18990,7 +19079,7 @@ func (ec *executionContext) _ModelPayload_model(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Model, nil
 	})
@@ -19064,7 +19153,7 @@ func (ec *executionContext) _ModelsPayload_models(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Models, nil
 	})
@@ -19138,7 +19227,7 @@ func (ec *executionContext) _MultipleFieldCondition_fieldId(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FieldID, nil
 	})
@@ -19188,7 +19277,7 @@ func (ec *executionContext) _MultipleFieldCondition_operator(ctx context.Context
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Operator, nil
 	})
@@ -19232,7 +19321,7 @@ func (ec *executionContext) _MultipleFieldCondition_value(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
 	})
@@ -19276,7 +19365,7 @@ func (ec *executionContext) _Mutation_createAsset(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateAsset(rctx, fc.Args["input"].(gqlmodel.CreateAssetInput))
 	})
@@ -19332,7 +19421,7 @@ func (ec *executionContext) _Mutation_updateAsset(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateAsset(rctx, fc.Args["input"].(gqlmodel.UpdateAssetInput))
 	})
@@ -19388,7 +19477,7 @@ func (ec *executionContext) _Mutation_deleteAsset(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteAsset(rctx, fc.Args["input"].(gqlmodel.DeleteAssetInput))
 	})
@@ -19432,6 +19521,62 @@ func (ec *executionContext) fieldContext_Mutation_deleteAsset(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_deleteAssets(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteAssets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteAssets(rctx, fc.Args["input"].(gqlmodel.DeleteAssetsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.DeleteAssetsPayload)
+	fc.Result = res
+	return ec.marshalODeleteAssetsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteAssets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "assetIds":
+				return ec.fieldContext_DeleteAssetsPayload_assetIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteAssetsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteAssets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_decompressAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_decompressAsset(ctx, field)
 	if err != nil {
@@ -19444,7 +19589,7 @@ func (ec *executionContext) _Mutation_decompressAsset(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DecompressAsset(rctx, fc.Args["input"].(gqlmodel.DecompressAssetInput))
 	})
@@ -19500,7 +19645,7 @@ func (ec *executionContext) _Mutation_createAssetUpload(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateAssetUpload(rctx, fc.Args["input"].(gqlmodel.CreateAssetUploadInput))
 	})
@@ -19532,6 +19677,8 @@ func (ec *executionContext) fieldContext_Mutation_createAssetUpload(ctx context.
 				return ec.fieldContext_CreateAssetUploadPayload_contentType(ctx, field)
 			case "contentLength":
 				return ec.fieldContext_CreateAssetUploadPayload_contentLength(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_CreateAssetUploadPayload_contentEncoding(ctx, field)
 			case "next":
 				return ec.fieldContext_CreateAssetUploadPayload_next(ctx, field)
 			}
@@ -19564,7 +19711,7 @@ func (ec *executionContext) _Mutation_createField(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateField(rctx, fc.Args["input"].(gqlmodel.CreateFieldInput))
 	})
@@ -19620,7 +19767,7 @@ func (ec *executionContext) _Mutation_updateField(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateField(rctx, fc.Args["input"].(gqlmodel.UpdateFieldInput))
 	})
@@ -19676,7 +19823,7 @@ func (ec *executionContext) _Mutation_updateFields(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateFields(rctx, fc.Args["input"].([]*gqlmodel.UpdateFieldInput))
 	})
@@ -19732,7 +19879,7 @@ func (ec *executionContext) _Mutation_deleteField(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteField(rctx, fc.Args["input"].(gqlmodel.DeleteFieldInput))
 	})
@@ -19788,7 +19935,7 @@ func (ec *executionContext) _Mutation_createGroup(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateGroup(rctx, fc.Args["input"].(gqlmodel.CreateGroupInput))
 	})
@@ -19844,7 +19991,7 @@ func (ec *executionContext) _Mutation_updateGroup(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateGroup(rctx, fc.Args["input"].(gqlmodel.UpdateGroupInput))
 	})
@@ -19900,7 +20047,7 @@ func (ec *executionContext) _Mutation_updateGroupsOrder(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateGroupsOrder(rctx, fc.Args["input"].(gqlmodel.UpdateGroupsOrderInput))
 	})
@@ -19956,7 +20103,7 @@ func (ec *executionContext) _Mutation_deleteGroup(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteGroup(rctx, fc.Args["input"].(gqlmodel.DeleteGroupInput))
 	})
@@ -20012,7 +20159,7 @@ func (ec *executionContext) _Mutation_createIntegration(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateIntegration(rctx, fc.Args["input"].(gqlmodel.CreateIntegrationInput))
 	})
@@ -20068,7 +20215,7 @@ func (ec *executionContext) _Mutation_updateIntegration(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateIntegration(rctx, fc.Args["input"].(gqlmodel.UpdateIntegrationInput))
 	})
@@ -20124,7 +20271,7 @@ func (ec *executionContext) _Mutation_deleteIntegration(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteIntegration(rctx, fc.Args["input"].(gqlmodel.DeleteIntegrationInput))
 	})
@@ -20168,6 +20315,62 @@ func (ec *executionContext) fieldContext_Mutation_deleteIntegration(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_deleteIntegrations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteIntegrations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteIntegrations(rctx, fc.Args["input"].(gqlmodel.DeleteIntegrationsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.DeleteIntegrationsPayload)
+	fc.Result = res
+	return ec.marshalODeleteIntegrationsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteIntegrations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "integrationIDs":
+				return ec.fieldContext_DeleteIntegrationsPayload_integrationIDs(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteIntegrationsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteIntegrations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_regenerateIntegrationToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_regenerateIntegrationToken(ctx, field)
 	if err != nil {
@@ -20180,7 +20383,7 @@ func (ec *executionContext) _Mutation_regenerateIntegrationToken(ctx context.Con
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().RegenerateIntegrationToken(rctx, fc.Args["input"].(gqlmodel.RegenerateIntegrationTokenInput))
 	})
@@ -20236,7 +20439,7 @@ func (ec *executionContext) _Mutation_createWebhook(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateWebhook(rctx, fc.Args["input"].(gqlmodel.CreateWebhookInput))
 	})
@@ -20292,7 +20495,7 @@ func (ec *executionContext) _Mutation_updateWebhook(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateWebhook(rctx, fc.Args["input"].(gqlmodel.UpdateWebhookInput))
 	})
@@ -20348,7 +20551,7 @@ func (ec *executionContext) _Mutation_deleteWebhook(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteWebhook(rctx, fc.Args["input"].(gqlmodel.DeleteWebhookInput))
 	})
@@ -20404,7 +20607,7 @@ func (ec *executionContext) _Mutation_createItem(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateItem(rctx, fc.Args["input"].(gqlmodel.CreateItemInput))
 	})
@@ -20460,7 +20663,7 @@ func (ec *executionContext) _Mutation_updateItem(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateItem(rctx, fc.Args["input"].(gqlmodel.UpdateItemInput))
 	})
@@ -20516,7 +20719,7 @@ func (ec *executionContext) _Mutation_deleteItem(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteItem(rctx, fc.Args["input"].(gqlmodel.DeleteItemInput))
 	})
@@ -20572,7 +20775,7 @@ func (ec *executionContext) _Mutation_publishItem(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().PublishItem(rctx, fc.Args["input"].(gqlmodel.PublishItemInput))
 	})
@@ -20628,7 +20831,7 @@ func (ec *executionContext) _Mutation_unpublishItem(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UnpublishItem(rctx, fc.Args["input"].(gqlmodel.UnpublishItemInput))
 	})
@@ -20684,7 +20887,7 @@ func (ec *executionContext) _Mutation_createView(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateView(rctx, fc.Args["input"].(gqlmodel.CreateViewInput))
 	})
@@ -20740,7 +20943,7 @@ func (ec *executionContext) _Mutation_updateView(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateView(rctx, fc.Args["input"].(gqlmodel.UpdateViewInput))
 	})
@@ -20796,7 +20999,7 @@ func (ec *executionContext) _Mutation_updateViewsOrder(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateViewsOrder(rctx, fc.Args["input"].(gqlmodel.UpdateViewsOrderInput))
 	})
@@ -20852,7 +21055,7 @@ func (ec *executionContext) _Mutation_deleteView(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteView(rctx, fc.Args["input"].(gqlmodel.DeleteViewInput))
 	})
@@ -20908,7 +21111,7 @@ func (ec *executionContext) _Mutation_createModel(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateModel(rctx, fc.Args["input"].(gqlmodel.CreateModelInput))
 	})
@@ -20964,7 +21167,7 @@ func (ec *executionContext) _Mutation_updateModel(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateModel(rctx, fc.Args["input"].(gqlmodel.UpdateModelInput))
 	})
@@ -21020,7 +21223,7 @@ func (ec *executionContext) _Mutation_updateModelsOrder(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateModelsOrder(rctx, fc.Args["input"].(gqlmodel.UpdateModelsOrderInput))
 	})
@@ -21076,7 +21279,7 @@ func (ec *executionContext) _Mutation_deleteModel(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteModel(rctx, fc.Args["input"].(gqlmodel.DeleteModelInput))
 	})
@@ -21132,7 +21335,7 @@ func (ec *executionContext) _Mutation_publishModel(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().PublishModel(rctx, fc.Args["input"].(gqlmodel.PublishModelInput))
 	})
@@ -21178,6 +21381,62 @@ func (ec *executionContext) fieldContext_Mutation_publishModel(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_publishModels(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_publishModels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().PublishModels(rctx, fc.Args["input"].(gqlmodel.PublishModelsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.PublishModelsPayload)
+	fc.Result = res
+	return ec.marshalOPublishModelsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_publishModels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "models":
+				return ec.fieldContext_PublishModelsPayload_models(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PublishModelsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_publishModels_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createProject(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createProject(ctx, field)
 	if err != nil {
@@ -21190,7 +21449,7 @@ func (ec *executionContext) _Mutation_createProject(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateProject(rctx, fc.Args["input"].(gqlmodel.CreateProjectInput))
 	})
@@ -21246,7 +21505,7 @@ func (ec *executionContext) _Mutation_updateProject(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateProject(rctx, fc.Args["input"].(gqlmodel.UpdateProjectInput))
 	})
@@ -21302,7 +21561,7 @@ func (ec *executionContext) _Mutation_deleteProject(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteProject(rctx, fc.Args["input"].(gqlmodel.DeleteProjectInput))
 	})
@@ -21358,7 +21617,7 @@ func (ec *executionContext) _Mutation_regeneratePublicApiToken(ctx context.Conte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().RegeneratePublicAPIToken(rctx, fc.Args["input"].(gqlmodel.RegeneratePublicAPITokenInput))
 	})
@@ -21414,7 +21673,7 @@ func (ec *executionContext) _Mutation_createRequest(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateRequest(rctx, fc.Args["input"].(gqlmodel.CreateRequestInput))
 	})
@@ -21470,7 +21729,7 @@ func (ec *executionContext) _Mutation_updateRequest(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateRequest(rctx, fc.Args["input"].(gqlmodel.UpdateRequestInput))
 	})
@@ -21526,7 +21785,7 @@ func (ec *executionContext) _Mutation_approveRequest(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().ApproveRequest(rctx, fc.Args["input"].(gqlmodel.ApproveRequestInput))
 	})
@@ -21582,7 +21841,7 @@ func (ec *executionContext) _Mutation_deleteRequest(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteRequest(rctx, fc.Args["input"].(gqlmodel.DeleteRequestInput))
 	})
@@ -21626,8 +21885,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteRequest(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createThread(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createThread(ctx, field)
+func (ec *executionContext) _Mutation_createThreadWithComment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createThreadWithComment(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -21638,9 +21897,9 @@ func (ec *executionContext) _Mutation_createThread(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateThread(rctx, fc.Args["input"].(gqlmodel.CreateThreadInput))
+		return ec.resolvers.Mutation().CreateThreadWithComment(rctx, fc.Args["input"].(gqlmodel.CreateThreadWithCommentInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21649,12 +21908,12 @@ func (ec *executionContext) _Mutation_createThread(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ThreadPayload)
+	res := resTmp.(*gqlmodel.CommentPayload)
 	fc.Result = res
-	return ec.marshalOThreadPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThreadPayload(ctx, field.Selections, res)
+	return ec.marshalOCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCommentPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createThread(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createThreadWithComment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -21663,9 +21922,11 @@ func (ec *executionContext) fieldContext_Mutation_createThread(ctx context.Conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "thread":
-				return ec.fieldContext_ThreadPayload_thread(ctx, field)
+				return ec.fieldContext_CommentPayload_thread(ctx, field)
+			case "comment":
+				return ec.fieldContext_CommentPayload_comment(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ThreadPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type CommentPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -21675,7 +21936,7 @@ func (ec *executionContext) fieldContext_Mutation_createThread(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createThread_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createThreadWithComment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -21694,7 +21955,7 @@ func (ec *executionContext) _Mutation_addComment(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().AddComment(rctx, fc.Args["input"].(gqlmodel.AddCommentInput))
 	})
@@ -21752,7 +22013,7 @@ func (ec *executionContext) _Mutation_updateComment(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateComment(rctx, fc.Args["input"].(gqlmodel.UpdateCommentInput))
 	})
@@ -21810,7 +22071,7 @@ func (ec *executionContext) _Mutation_deleteComment(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteComment(rctx, fc.Args["input"].(gqlmodel.DeleteCommentInput))
 	})
@@ -21868,7 +22129,7 @@ func (ec *executionContext) _Mutation_updateMe(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateMe(rctx, fc.Args["input"].(gqlmodel.UpdateMeInput))
 	})
@@ -21924,7 +22185,7 @@ func (ec *executionContext) _Mutation_removeMyAuth(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().RemoveMyAuth(rctx, fc.Args["input"].(gqlmodel.RemoveMyAuthInput))
 	})
@@ -21980,7 +22241,7 @@ func (ec *executionContext) _Mutation_deleteMe(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteMe(rctx, fc.Args["input"].(gqlmodel.DeleteMeInput))
 	})
@@ -22036,7 +22297,7 @@ func (ec *executionContext) _Mutation_createWorkspace(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateWorkspace(rctx, fc.Args["input"].(gqlmodel.CreateWorkspaceInput))
 	})
@@ -22092,7 +22353,7 @@ func (ec *executionContext) _Mutation_deleteWorkspace(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().DeleteWorkspace(rctx, fc.Args["input"].(gqlmodel.DeleteWorkspaceInput))
 	})
@@ -22148,7 +22409,7 @@ func (ec *executionContext) _Mutation_updateWorkspace(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateWorkspace(rctx, fc.Args["input"].(gqlmodel.UpdateWorkspaceInput))
 	})
@@ -22204,7 +22465,7 @@ func (ec *executionContext) _Mutation_addUsersToWorkspace(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().AddUsersToWorkspace(rctx, fc.Args["input"].(gqlmodel.AddUsersToWorkspaceInput))
 	})
@@ -22260,7 +22521,7 @@ func (ec *executionContext) _Mutation_addIntegrationToWorkspace(ctx context.Cont
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().AddIntegrationToWorkspace(rctx, fc.Args["input"].(gqlmodel.AddIntegrationToWorkspaceInput))
 	})
@@ -22316,7 +22577,7 @@ func (ec *executionContext) _Mutation_removeMultipleMembersFromWorkspace(ctx con
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().RemoveMultipleMembersFromWorkspace(rctx, fc.Args["input"].(gqlmodel.RemoveMultipleMembersFromWorkspaceInput))
 	})
@@ -22372,7 +22633,7 @@ func (ec *executionContext) _Mutation_removeIntegrationFromWorkspace(ctx context
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().RemoveIntegrationFromWorkspace(rctx, fc.Args["input"].(gqlmodel.RemoveIntegrationFromWorkspaceInput))
 	})
@@ -22428,7 +22689,7 @@ func (ec *executionContext) _Mutation_updateUserOfWorkspace(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateUserOfWorkspace(rctx, fc.Args["input"].(gqlmodel.UpdateUserOfWorkspaceInput))
 	})
@@ -22484,7 +22745,7 @@ func (ec *executionContext) _Mutation_updateIntegrationOfWorkspace(ctx context.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateIntegrationOfWorkspace(rctx, fc.Args["input"].(gqlmodel.UpdateIntegrationOfWorkspaceInput))
 	})
@@ -22540,7 +22801,7 @@ func (ec *executionContext) _Mutation_updateWorkspaceSettings(ctx context.Contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateWorkspaceSettings(rctx, fc.Args["input"].(gqlmodel.UpdateWorkspaceSettingsInput))
 	})
@@ -22596,7 +22857,7 @@ func (ec *executionContext) _NullableFieldCondition_fieldId(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FieldID, nil
 	})
@@ -22646,7 +22907,7 @@ func (ec *executionContext) _NullableFieldCondition_operator(ctx context.Context
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Operator, nil
 	})
@@ -22690,7 +22951,7 @@ func (ec *executionContext) _NumberFieldCondition_fieldId(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FieldID, nil
 	})
@@ -22740,7 +23001,7 @@ func (ec *executionContext) _NumberFieldCondition_operator(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Operator, nil
 	})
@@ -22784,7 +23045,7 @@ func (ec *executionContext) _NumberFieldCondition_value(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
 	})
@@ -22828,7 +23089,7 @@ func (ec *executionContext) _OrCondition_conditions(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Conditions, nil
 	})
@@ -22872,7 +23133,7 @@ func (ec *executionContext) _PageInfo_startCursor(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.StartCursor, nil
 	})
@@ -22913,7 +23174,7 @@ func (ec *executionContext) _PageInfo_endCursor(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.EndCursor, nil
 	})
@@ -22954,7 +23215,7 @@ func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.HasNextPage, nil
 	})
@@ -22998,7 +23259,7 @@ func (ec *executionContext) _PageInfo_hasPreviousPage(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.HasPreviousPage, nil
 	})
@@ -23042,7 +23303,7 @@ func (ec *executionContext) _Project_id(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -23086,7 +23347,7 @@ func (ec *executionContext) _Project_name(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -23130,7 +23391,7 @@ func (ec *executionContext) _Project_description(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
@@ -23174,7 +23435,7 @@ func (ec *executionContext) _Project_alias(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Alias, nil
 	})
@@ -23218,7 +23479,7 @@ func (ec *executionContext) _Project_workspaceId(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.WorkspaceID, nil
 	})
@@ -23262,7 +23523,7 @@ func (ec *executionContext) _Project_workspace(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Project().Workspace(rctx, obj)
 	})
@@ -23313,7 +23574,7 @@ func (ec *executionContext) _Project_createdAt(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -23357,7 +23618,7 @@ func (ec *executionContext) _Project_updatedAt(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
 	})
@@ -23401,7 +23662,7 @@ func (ec *executionContext) _Project_publication(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Publication, nil
 	})
@@ -23450,7 +23711,7 @@ func (ec *executionContext) _Project_requestRoles(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.RequestRoles, nil
 	})
@@ -23491,7 +23752,7 @@ func (ec *executionContext) _ProjectAliasAvailability_alias(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Alias, nil
 	})
@@ -23535,7 +23796,7 @@ func (ec *executionContext) _ProjectAliasAvailability_available(ctx context.Cont
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Available, nil
 	})
@@ -23579,7 +23840,7 @@ func (ec *executionContext) _ProjectConnection_edges(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Edges, nil
 	})
@@ -23629,7 +23890,7 @@ func (ec *executionContext) _ProjectConnection_nodes(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Nodes, nil
 	})
@@ -23695,7 +23956,7 @@ func (ec *executionContext) _ProjectConnection_pageInfo(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.PageInfo, nil
 	})
@@ -23749,7 +24010,7 @@ func (ec *executionContext) _ProjectConnection_totalCount(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TotalCount, nil
 	})
@@ -23793,7 +24054,7 @@ func (ec *executionContext) _ProjectEdge_cursor(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Cursor, nil
 	})
@@ -23837,7 +24098,7 @@ func (ec *executionContext) _ProjectEdge_node(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Node, nil
 	})
@@ -23900,7 +24161,7 @@ func (ec *executionContext) _ProjectPayload_project(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Project, nil
 	})
@@ -23966,7 +24227,7 @@ func (ec *executionContext) _ProjectPublication_scope(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Scope, nil
 	})
@@ -24010,7 +24271,7 @@ func (ec *executionContext) _ProjectPublication_assetPublic(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.AssetPublic, nil
 	})
@@ -24054,7 +24315,7 @@ func (ec *executionContext) _ProjectPublication_token(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Token, nil
 	})
@@ -24095,7 +24356,7 @@ func (ec *executionContext) _PublishItemPayload_items(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Items, nil
 	})
@@ -24199,7 +24460,7 @@ func (ec *executionContext) _PublishModelPayload_modelId(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ModelID, nil
 	})
@@ -24243,7 +24504,7 @@ func (ec *executionContext) _PublishModelPayload_status(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Status, nil
 	})
@@ -24275,6 +24536,56 @@ func (ec *executionContext) fieldContext_PublishModelPayload_status(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _PublishModelsPayload_models(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PublishModelsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PublishModelsPayload_models(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Models, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.PublishModelPayload)
+	fc.Result = res
+	return ec.marshalNPublishModelPayload2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayloadᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PublishModelsPayload_models(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PublishModelsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "modelId":
+				return ec.fieldContext_PublishModelPayload_modelId(ctx, field)
+			case "status":
+				return ec.fieldContext_PublishModelPayload_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PublishModelPayload", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_node(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_node(ctx, field)
 	if err != nil {
@@ -24287,7 +24598,7 @@ func (ec *executionContext) _Query_node(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().Node(rctx, fc.Args["id"].(gqlmodel.ID), fc.Args["type"].(gqlmodel.NodeType))
 	})
@@ -24339,7 +24650,7 @@ func (ec *executionContext) _Query_nodes(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().Nodes(rctx, fc.Args["id"].([]gqlmodel.ID), fc.Args["type"].(gqlmodel.NodeType))
 	})
@@ -24394,7 +24705,7 @@ func (ec *executionContext) _Query_assetFile(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().AssetFile(rctx, fc.Args["assetId"].(gqlmodel.ID))
 	})
@@ -24427,6 +24738,8 @@ func (ec *executionContext) fieldContext_Query_assetFile(ctx context.Context, fi
 				return ec.fieldContext_AssetFile_size(ctx, field)
 			case "contentType":
 				return ec.fieldContext_AssetFile_contentType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_AssetFile_contentEncoding(ctx, field)
 			case "path":
 				return ec.fieldContext_AssetFile_path(ctx, field)
 			case "filePaths":
@@ -24461,7 +24774,7 @@ func (ec *executionContext) _Query_assets(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().Assets(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.AssetSort), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
@@ -24526,7 +24839,7 @@ func (ec *executionContext) _Query_groups(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().Groups(rctx, fc.Args["projectId"].(*gqlmodel.ID), fc.Args["modelID"].(*gqlmodel.ID))
 	})
@@ -24603,7 +24916,7 @@ func (ec *executionContext) _Query_modelsByGroup(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().ModelsByGroup(rctx, fc.Args["groupId"].(gqlmodel.ID))
 	})
@@ -24688,7 +25001,7 @@ func (ec *executionContext) _Query_checkGroupKeyAvailability(ctx context.Context
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().CheckGroupKeyAvailability(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(string))
 	})
@@ -24749,7 +25062,7 @@ func (ec *executionContext) _Query_versionsByItem(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().VersionsByItem(rctx, fc.Args["itemId"].(gqlmodel.ID))
 	})
@@ -24814,7 +25127,7 @@ func (ec *executionContext) _Query_searchItem(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().SearchItem(rctx, fc.Args["input"].(gqlmodel.SearchItemInput))
 	})
@@ -24879,7 +25192,7 @@ func (ec *executionContext) _Query_isItemReferenced(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().IsItemReferenced(rctx, fc.Args["itemId"].(gqlmodel.ID), fc.Args["correspondingFieldId"].(gqlmodel.ID))
 	})
@@ -24934,7 +25247,7 @@ func (ec *executionContext) _Query_view(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().View(rctx, fc.Args["modelId"].(gqlmodel.ID))
 	})
@@ -25007,7 +25320,7 @@ func (ec *executionContext) _Query_models(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().Models(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
@@ -25072,7 +25385,7 @@ func (ec *executionContext) _Query_checkModelKeyAvailability(ctx context.Context
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().CheckModelKeyAvailability(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(string))
 	})
@@ -25133,7 +25446,7 @@ func (ec *executionContext) _Query_projects(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().Projects(rctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
@@ -25198,7 +25511,7 @@ func (ec *executionContext) _Query_checkProjectAlias(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().CheckProjectAlias(rctx, fc.Args["alias"].(string))
 	})
@@ -25259,7 +25572,7 @@ func (ec *executionContext) _Query_requests(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().Requests(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["key"].(*string), fc.Args["state"].([]gqlmodel.RequestState), fc.Args["createdBy"].(*gqlmodel.ID), fc.Args["reviewer"].(*gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination), fc.Args["sort"].(*gqlmodel.Sort))
 	})
@@ -25324,7 +25637,7 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().Me(rctx)
 	})
@@ -25389,7 +25702,7 @@ func (ec *executionContext) _Query_userSearch(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().UserSearch(rctx, fc.Args["keyword"].(string))
 	})
@@ -25454,7 +25767,7 @@ func (ec *executionContext) _Query_userByNameOrEmail(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().UserByNameOrEmail(rctx, fc.Args["nameOrEmail"].(string))
 	})
@@ -25516,7 +25829,7 @@ func (ec *executionContext) _Query___type(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.introspectType(fc.Args["name"].(string))
 	})
@@ -25546,6 +25859,8 @@ func (ec *executionContext) fieldContext_Query___type(ctx context.Context, field
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -25558,8 +25873,8 @@ func (ec *executionContext) fieldContext_Query___type(ctx context.Context, field
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -25590,7 +25905,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.introspectSchema()
 	})
@@ -25645,7 +25960,7 @@ func (ec *executionContext) _RemoveIntegrationFromWorkspacePayload_workspace(ctx
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Workspace, nil
 	})
@@ -25699,7 +26014,7 @@ func (ec *executionContext) _RemoveMultipleMembersFromWorkspacePayload_workspace
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Workspace, nil
 	})
@@ -25753,7 +26068,7 @@ func (ec *executionContext) _Request_id(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -25797,7 +26112,7 @@ func (ec *executionContext) _Request_items(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Items, nil
 	})
@@ -25851,7 +26166,7 @@ func (ec *executionContext) _Request_title(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Title, nil
 	})
@@ -25895,7 +26210,7 @@ func (ec *executionContext) _Request_description(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
@@ -25936,7 +26251,7 @@ func (ec *executionContext) _Request_createdById(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedByID, nil
 	})
@@ -25980,7 +26295,7 @@ func (ec *executionContext) _Request_workspaceId(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.WorkspaceID, nil
 	})
@@ -26024,7 +26339,7 @@ func (ec *executionContext) _Request_projectId(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ProjectID, nil
 	})
@@ -26068,7 +26383,7 @@ func (ec *executionContext) _Request_threadId(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ThreadID, nil
 	})
@@ -26077,14 +26392,11 @@ func (ec *executionContext) _Request_threadId(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ID)
+	res := resTmp.(*gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Request_threadId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26112,7 +26424,7 @@ func (ec *executionContext) _Request_reviewersId(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ReviewersID, nil
 	})
@@ -26156,7 +26468,7 @@ func (ec *executionContext) _Request_state(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.State, nil
 	})
@@ -26200,7 +26512,7 @@ func (ec *executionContext) _Request_createdAt(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -26244,7 +26556,7 @@ func (ec *executionContext) _Request_updatedAt(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
 	})
@@ -26288,7 +26600,7 @@ func (ec *executionContext) _Request_approvedAt(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ApprovedAt, nil
 	})
@@ -26329,7 +26641,7 @@ func (ec *executionContext) _Request_closedAt(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ClosedAt, nil
 	})
@@ -26370,7 +26682,7 @@ func (ec *executionContext) _Request_thread(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Request().Thread(rctx, obj)
 	})
@@ -26421,7 +26733,7 @@ func (ec *executionContext) _Request_createdBy(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Request().CreatedBy(rctx, obj)
 	})
@@ -26472,7 +26784,7 @@ func (ec *executionContext) _Request_workspace(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Request().Workspace(rctx, obj)
 	})
@@ -26523,7 +26835,7 @@ func (ec *executionContext) _Request_project(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Request().Project(rctx, obj)
 	})
@@ -26586,7 +26898,7 @@ func (ec *executionContext) _Request_reviewers(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Request().Reviewers(rctx, obj)
 	})
@@ -26640,7 +26952,7 @@ func (ec *executionContext) _RequestConnection_edges(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Edges, nil
 	})
@@ -26690,7 +27002,7 @@ func (ec *executionContext) _RequestConnection_nodes(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Nodes, nil
 	})
@@ -26774,7 +27086,7 @@ func (ec *executionContext) _RequestConnection_pageInfo(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.PageInfo, nil
 	})
@@ -26828,7 +27140,7 @@ func (ec *executionContext) _RequestConnection_totalCount(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TotalCount, nil
 	})
@@ -26872,7 +27184,7 @@ func (ec *executionContext) _RequestEdge_cursor(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Cursor, nil
 	})
@@ -26916,7 +27228,7 @@ func (ec *executionContext) _RequestEdge_node(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Node, nil
 	})
@@ -26997,7 +27309,7 @@ func (ec *executionContext) _RequestItem_itemId(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ItemID, nil
 	})
@@ -27041,7 +27353,7 @@ func (ec *executionContext) _RequestItem_version(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Version, nil
 	})
@@ -27082,7 +27394,7 @@ func (ec *executionContext) _RequestItem_ref(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Ref, nil
 	})
@@ -27123,7 +27435,7 @@ func (ec *executionContext) _RequestItem_item(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.RequestItem().Item(rctx, obj)
 	})
@@ -27174,7 +27486,7 @@ func (ec *executionContext) _RequestPayload_request(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Request, nil
 	})
@@ -27258,7 +27570,7 @@ func (ec *executionContext) _ResourceList_resources(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Resources, nil
 	})
@@ -27302,7 +27614,7 @@ func (ec *executionContext) _ResourceList_selectedResource(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SelectedResource, nil
 	})
@@ -27343,7 +27655,7 @@ func (ec *executionContext) _ResourceList_enabled(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Enabled, nil
 	})
@@ -27384,7 +27696,7 @@ func (ec *executionContext) _Schema_id(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -27428,7 +27740,7 @@ func (ec *executionContext) _Schema_projectId(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ProjectID, nil
 	})
@@ -27472,7 +27784,7 @@ func (ec *executionContext) _Schema_fields(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Fields, nil
 	})
@@ -27552,7 +27864,7 @@ func (ec *executionContext) _Schema_titleFieldId(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TitleFieldID, nil
 	})
@@ -27593,7 +27905,7 @@ func (ec *executionContext) _Schema_titleField(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Schema().TitleField(rctx, obj)
 	})
@@ -27670,7 +27982,7 @@ func (ec *executionContext) _Schema_project(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Schema().Project(rctx, obj)
 	})
@@ -27736,7 +28048,7 @@ func (ec *executionContext) _SchemaField_id(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -27780,7 +28092,7 @@ func (ec *executionContext) _SchemaField_modelId(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ModelID, nil
 	})
@@ -27821,7 +28133,7 @@ func (ec *executionContext) _SchemaField_groupId(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.GroupID, nil
 	})
@@ -27862,7 +28174,7 @@ func (ec *executionContext) _SchemaField_model(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.SchemaField().Model(rctx, obj)
 	})
@@ -27933,7 +28245,7 @@ func (ec *executionContext) _SchemaField_group(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Group, nil
 	})
@@ -27996,7 +28308,7 @@ func (ec *executionContext) _SchemaField_type(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
@@ -28040,7 +28352,7 @@ func (ec *executionContext) _SchemaField_typeProperty(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TypeProperty, nil
 	})
@@ -28081,7 +28393,7 @@ func (ec *executionContext) _SchemaField_key(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Key, nil
 	})
@@ -28125,7 +28437,7 @@ func (ec *executionContext) _SchemaField_title(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Title, nil
 	})
@@ -28169,7 +28481,7 @@ func (ec *executionContext) _SchemaField_order(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Order, nil
 	})
@@ -28210,7 +28522,7 @@ func (ec *executionContext) _SchemaField_description(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
@@ -28251,7 +28563,7 @@ func (ec *executionContext) _SchemaField_multiple(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Multiple, nil
 	})
@@ -28295,7 +28607,7 @@ func (ec *executionContext) _SchemaField_unique(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Unique, nil
 	})
@@ -28339,7 +28651,7 @@ func (ec *executionContext) _SchemaField_required(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Required, nil
 	})
@@ -28383,7 +28695,7 @@ func (ec *executionContext) _SchemaField_isTitle(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.IsTitle, nil
 	})
@@ -28427,7 +28739,7 @@ func (ec *executionContext) _SchemaField_createdAt(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -28471,7 +28783,7 @@ func (ec *executionContext) _SchemaField_updatedAt(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
 	})
@@ -28515,7 +28827,7 @@ func (ec *executionContext) _SchemaFieldAsset_defaultValue(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -28556,7 +28868,7 @@ func (ec *executionContext) _SchemaFieldBool_defaultValue(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -28597,7 +28909,7 @@ func (ec *executionContext) _SchemaFieldCheckbox_defaultValue(ctx context.Contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -28638,7 +28950,7 @@ func (ec *executionContext) _SchemaFieldDate_defaultValue(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -28679,7 +28991,7 @@ func (ec *executionContext) _SchemaFieldGeometryEditor_defaultValue(ctx context.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -28720,7 +29032,7 @@ func (ec *executionContext) _SchemaFieldGeometryEditor_supportedTypes(ctx contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SupportedTypes, nil
 	})
@@ -28764,7 +29076,7 @@ func (ec *executionContext) _SchemaFieldGeometryObject_defaultValue(ctx context.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -28805,7 +29117,7 @@ func (ec *executionContext) _SchemaFieldGeometryObject_supportedTypes(ctx contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SupportedTypes, nil
 	})
@@ -28849,7 +29161,7 @@ func (ec *executionContext) _SchemaFieldGroup_groupId(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.GroupID, nil
 	})
@@ -28893,7 +29205,7 @@ func (ec *executionContext) _SchemaFieldInteger_defaultValue(ctx context.Context
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -28934,7 +29246,7 @@ func (ec *executionContext) _SchemaFieldInteger_min(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Min, nil
 	})
@@ -28975,7 +29287,7 @@ func (ec *executionContext) _SchemaFieldInteger_max(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Max, nil
 	})
@@ -29016,7 +29328,7 @@ func (ec *executionContext) _SchemaFieldMarkdown_defaultValue(ctx context.Contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -29057,7 +29369,7 @@ func (ec *executionContext) _SchemaFieldMarkdown_maxLength(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.MaxLength, nil
 	})
@@ -29098,7 +29410,7 @@ func (ec *executionContext) _SchemaFieldNumber_defaultValue(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -29139,7 +29451,7 @@ func (ec *executionContext) _SchemaFieldNumber_min(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Min, nil
 	})
@@ -29180,7 +29492,7 @@ func (ec *executionContext) _SchemaFieldNumber_max(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Max, nil
 	})
@@ -29221,7 +29533,7 @@ func (ec *executionContext) _SchemaFieldReference_modelId(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ModelID, nil
 	})
@@ -29265,7 +29577,7 @@ func (ec *executionContext) _SchemaFieldReference_schemaId(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SchemaID, nil
 	})
@@ -29309,7 +29621,7 @@ func (ec *executionContext) _SchemaFieldReference_schema(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.SchemaFieldReference().Schema(rctx, obj)
 	})
@@ -29367,7 +29679,7 @@ func (ec *executionContext) _SchemaFieldReference_correspondingFieldId(ctx conte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CorrespondingFieldID, nil
 	})
@@ -29408,7 +29720,7 @@ func (ec *executionContext) _SchemaFieldReference_correspondingField(ctx context
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.SchemaFieldReference().CorrespondingField(rctx, obj)
 	})
@@ -29485,7 +29797,7 @@ func (ec *executionContext) _SchemaFieldRichText_defaultValue(ctx context.Contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -29526,7 +29838,7 @@ func (ec *executionContext) _SchemaFieldRichText_maxLength(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.MaxLength, nil
 	})
@@ -29567,7 +29879,7 @@ func (ec *executionContext) _SchemaFieldSelect_values(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Values, nil
 	})
@@ -29611,7 +29923,7 @@ func (ec *executionContext) _SchemaFieldSelect_defaultValue(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -29652,7 +29964,7 @@ func (ec *executionContext) _SchemaFieldTag_tags(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Tags, nil
 	})
@@ -29704,7 +30016,7 @@ func (ec *executionContext) _SchemaFieldTag_defaultValue(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -29745,7 +30057,7 @@ func (ec *executionContext) _SchemaFieldTagValue_id(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -29789,7 +30101,7 @@ func (ec *executionContext) _SchemaFieldTagValue_name(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -29833,7 +30145,7 @@ func (ec *executionContext) _SchemaFieldTagValue_color(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Color, nil
 	})
@@ -29877,7 +30189,7 @@ func (ec *executionContext) _SchemaFieldText_defaultValue(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -29918,7 +30230,7 @@ func (ec *executionContext) _SchemaFieldText_maxLength(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.MaxLength, nil
 	})
@@ -29959,7 +30271,7 @@ func (ec *executionContext) _SchemaFieldTextArea_defaultValue(ctx context.Contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -30000,7 +30312,7 @@ func (ec *executionContext) _SchemaFieldTextArea_maxLength(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.MaxLength, nil
 	})
@@ -30041,7 +30353,7 @@ func (ec *executionContext) _SchemaFieldURL_defaultValue(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -30082,7 +30394,7 @@ func (ec *executionContext) _StringFieldCondition_fieldId(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FieldID, nil
 	})
@@ -30132,7 +30444,7 @@ func (ec *executionContext) _StringFieldCondition_operator(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Operator, nil
 	})
@@ -30176,7 +30488,7 @@ func (ec *executionContext) _StringFieldCondition_value(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
 	})
@@ -30220,7 +30532,7 @@ func (ec *executionContext) _TerrainResource_id(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -30264,7 +30576,7 @@ func (ec *executionContext) _TerrainResource_type(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
@@ -30308,7 +30620,7 @@ func (ec *executionContext) _TerrainResource_props(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Props, nil
 	})
@@ -30361,7 +30673,7 @@ func (ec *executionContext) _Thread_id(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -30405,7 +30717,7 @@ func (ec *executionContext) _Thread_workspace(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Thread().Workspace(rctx, obj)
 	})
@@ -30456,7 +30768,7 @@ func (ec *executionContext) _Thread_workspaceId(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.WorkspaceID, nil
 	})
@@ -30500,7 +30812,7 @@ func (ec *executionContext) _Thread_comments(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Comments, nil
 	})
@@ -30550,60 +30862,6 @@ func (ec *executionContext) fieldContext_Thread_comments(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _ThreadPayload_thread(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ThreadPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ThreadPayload_thread(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Thread, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Thread)
-	fc.Result = res
-	return ec.marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ThreadPayload_thread(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ThreadPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Thread_id(ctx, field)
-			case "workspace":
-				return ec.fieldContext_Thread_workspace(ctx, field)
-			case "workspaceId":
-				return ec.fieldContext_Thread_workspaceId(ctx, field)
-			case "comments":
-				return ec.fieldContext_Thread_comments(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Thread", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TileResource_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TileResource) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TileResource_id(ctx, field)
 	if err != nil {
@@ -30616,7 +30874,7 @@ func (ec *executionContext) _TileResource_id(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -30660,7 +30918,7 @@ func (ec *executionContext) _TileResource_type(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
@@ -30704,7 +30962,7 @@ func (ec *executionContext) _TileResource_props(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Props, nil
 	})
@@ -30753,7 +31011,7 @@ func (ec *executionContext) _TimeFieldCondition_fieldId(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.FieldID, nil
 	})
@@ -30803,7 +31061,7 @@ func (ec *executionContext) _TimeFieldCondition_operator(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Operator, nil
 	})
@@ -30847,7 +31105,7 @@ func (ec *executionContext) _TimeFieldCondition_value(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
 	})
@@ -30891,7 +31149,7 @@ func (ec *executionContext) _UnpublishItemPayload_items(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Items, nil
 	})
@@ -30995,7 +31253,7 @@ func (ec *executionContext) _UpdateAssetPayload_asset(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Asset, nil
 	})
@@ -31042,6 +31300,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_size(ctx, field)
 			case "previewType":
 				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
 			case "uuid":
 				return ec.fieldContext_Asset_uuid(ctx, field)
 			case "thread":
@@ -31073,7 +31333,7 @@ func (ec *executionContext) _UpdateMePayload_me(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Me, nil
 	})
@@ -31141,7 +31401,7 @@ func (ec *executionContext) _UpdateMemberOfWorkspacePayload_workspace(ctx contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Workspace, nil
 	})
@@ -31195,7 +31455,7 @@ func (ec *executionContext) _UpdateWorkspacePayload_workspace(ctx context.Contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Workspace, nil
 	})
@@ -31249,7 +31509,7 @@ func (ec *executionContext) _UpdateWorkspaceSettingsPayload_workspaceSettings(ct
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.WorkspaceSettings, nil
 	})
@@ -31301,7 +31561,7 @@ func (ec *executionContext) _UrlResourceProps_name(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -31345,7 +31605,7 @@ func (ec *executionContext) _UrlResourceProps_url(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.URL, nil
 	})
@@ -31389,7 +31649,7 @@ func (ec *executionContext) _UrlResourceProps_image(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Image, nil
 	})
@@ -31433,7 +31693,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -31477,7 +31737,7 @@ func (ec *executionContext) _User_name(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -31521,7 +31781,7 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Email, nil
 	})
@@ -31565,7 +31825,7 @@ func (ec *executionContext) _User_host(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Host, nil
 	})
@@ -31606,7 +31866,7 @@ func (ec *executionContext) _VersionedItem_version(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Version, nil
 	})
@@ -31650,7 +31910,7 @@ func (ec *executionContext) _VersionedItem_parents(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Parents, nil
 	})
@@ -31691,7 +31951,7 @@ func (ec *executionContext) _VersionedItem_refs(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Refs, nil
 	})
@@ -31735,7 +31995,7 @@ func (ec *executionContext) _VersionedItem_value(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Value, nil
 	})
@@ -31839,7 +32099,7 @@ func (ec *executionContext) _View_id(ctx context.Context, field graphql.Collecte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -31883,7 +32143,7 @@ func (ec *executionContext) _View_name(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -31927,7 +32187,7 @@ func (ec *executionContext) _View_modelId(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ModelID, nil
 	})
@@ -31971,7 +32231,7 @@ func (ec *executionContext) _View_projectId(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ProjectID, nil
 	})
@@ -32015,7 +32275,7 @@ func (ec *executionContext) _View_sort(ctx context.Context, field graphql.Collec
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Sort, nil
 	})
@@ -32062,7 +32322,7 @@ func (ec *executionContext) _View_filter(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Filter, nil
 	})
@@ -32103,7 +32363,7 @@ func (ec *executionContext) _View_columns(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Columns, nil
 	})
@@ -32150,7 +32410,7 @@ func (ec *executionContext) _View_order(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Order, nil
 	})
@@ -32194,7 +32454,7 @@ func (ec *executionContext) _ViewPayload_view(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.View, nil
 	})
@@ -32256,7 +32516,7 @@ func (ec *executionContext) _ViewsPayload_views(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Views, nil
 	})
@@ -32318,7 +32578,7 @@ func (ec *executionContext) _Webhook_id(ctx context.Context, field graphql.Colle
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -32362,7 +32622,7 @@ func (ec *executionContext) _Webhook_name(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -32406,7 +32666,7 @@ func (ec *executionContext) _Webhook_url(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.URL, nil
 	})
@@ -32450,7 +32710,7 @@ func (ec *executionContext) _Webhook_active(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Active, nil
 	})
@@ -32494,7 +32754,7 @@ func (ec *executionContext) _Webhook_trigger(ctx context.Context, field graphql.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Trigger, nil
 	})
@@ -32556,7 +32816,7 @@ func (ec *executionContext) _Webhook_secret(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Secret, nil
 	})
@@ -32600,7 +32860,7 @@ func (ec *executionContext) _Webhook_createdAt(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
 	})
@@ -32644,7 +32904,7 @@ func (ec *executionContext) _Webhook_updatedAt(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
 	})
@@ -32688,7 +32948,7 @@ func (ec *executionContext) _WebhookPayload_webhook(ctx context.Context, field g
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Webhook, nil
 	})
@@ -32750,7 +33010,7 @@ func (ec *executionContext) _WebhookTrigger_onItemCreate(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OnItemCreate, nil
 	})
@@ -32791,7 +33051,7 @@ func (ec *executionContext) _WebhookTrigger_onItemUpdate(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OnItemUpdate, nil
 	})
@@ -32832,7 +33092,7 @@ func (ec *executionContext) _WebhookTrigger_onItemDelete(ctx context.Context, fi
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OnItemDelete, nil
 	})
@@ -32873,7 +33133,7 @@ func (ec *executionContext) _WebhookTrigger_onItemPublish(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OnItemPublish, nil
 	})
@@ -32914,7 +33174,7 @@ func (ec *executionContext) _WebhookTrigger_onItemUnPublish(ctx context.Context,
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OnItemUnPublish, nil
 	})
@@ -32955,7 +33215,7 @@ func (ec *executionContext) _WebhookTrigger_onAssetUpload(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OnAssetUpload, nil
 	})
@@ -32996,7 +33256,7 @@ func (ec *executionContext) _WebhookTrigger_onAssetDecompress(ctx context.Contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OnAssetDecompress, nil
 	})
@@ -33037,7 +33297,7 @@ func (ec *executionContext) _WebhookTrigger_onAssetDelete(ctx context.Context, f
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OnAssetDelete, nil
 	})
@@ -33078,7 +33338,7 @@ func (ec *executionContext) _Workspace_id(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -33122,7 +33382,7 @@ func (ec *executionContext) _Workspace_name(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -33166,7 +33426,7 @@ func (ec *executionContext) _Workspace_members(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Members, nil
 	})
@@ -33210,7 +33470,7 @@ func (ec *executionContext) _Workspace_personal(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Personal, nil
 	})
@@ -33254,7 +33514,7 @@ func (ec *executionContext) _WorkspaceIntegrationMember_integrationId(ctx contex
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.IntegrationID, nil
 	})
@@ -33298,7 +33558,7 @@ func (ec *executionContext) _WorkspaceIntegrationMember_role(ctx context.Context
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Role, nil
 	})
@@ -33342,7 +33602,7 @@ func (ec *executionContext) _WorkspaceIntegrationMember_active(ctx context.Conte
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Active, nil
 	})
@@ -33386,7 +33646,7 @@ func (ec *executionContext) _WorkspaceIntegrationMember_invitedById(ctx context.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.InvitedByID, nil
 	})
@@ -33430,7 +33690,7 @@ func (ec *executionContext) _WorkspaceIntegrationMember_invitedBy(ctx context.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.WorkspaceIntegrationMember().InvitedBy(rctx, obj)
 	})
@@ -33481,7 +33741,7 @@ func (ec *executionContext) _WorkspaceIntegrationMember_integration(ctx context.
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.WorkspaceIntegrationMember().Integration(rctx, obj)
 	})
@@ -33544,7 +33804,7 @@ func (ec *executionContext) _WorkspaceSettings_id(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
@@ -33588,7 +33848,7 @@ func (ec *executionContext) _WorkspaceSettings_tiles(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Tiles, nil
 	})
@@ -33637,7 +33897,7 @@ func (ec *executionContext) _WorkspaceSettings_terrains(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Terrains, nil
 	})
@@ -33686,7 +33946,7 @@ func (ec *executionContext) _WorkspaceUserMember_userId(ctx context.Context, fie
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UserID, nil
 	})
@@ -33730,7 +33990,7 @@ func (ec *executionContext) _WorkspaceUserMember_role(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Role, nil
 	})
@@ -33774,7 +34034,7 @@ func (ec *executionContext) _WorkspaceUserMember_host(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Host, nil
 	})
@@ -33815,7 +34075,7 @@ func (ec *executionContext) _WorkspaceUserMember_user(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.WorkspaceUserMember().User(rctx, obj)
 	})
@@ -33866,7 +34126,7 @@ func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -33910,7 +34170,7 @@ func (ec *executionContext) ___Directive_description(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description(), nil
 	})
@@ -33939,6 +34199,50 @@ func (ec *executionContext) fieldContext___Directive_description(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) ___Directive_isRepeatable(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___Directive_isRepeatable(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsRepeatable, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext___Directive_isRepeatable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "__Directive",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_locations(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Directive_locations(ctx, field)
 	if err != nil {
@@ -33951,7 +34255,7 @@ func (ec *executionContext) ___Directive_locations(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Locations, nil
 	})
@@ -33995,7 +34299,7 @@ func (ec *executionContext) ___Directive_args(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Args, nil
 	})
@@ -34014,7 +34318,7 @@ func (ec *executionContext) ___Directive_args(ctx context.Context, field graphql
 	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValueᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Directive_args(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Directive_args(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Directive",
 		Field:      field,
@@ -34030,53 +34334,24 @@ func (ec *executionContext) fieldContext___Directive_args(_ context.Context, fie
 				return ec.fieldContext___InputValue_type(ctx, field)
 			case "defaultValue":
 				return ec.fieldContext___InputValue_defaultValue(ctx, field)
+			case "isDeprecated":
+				return ec.fieldContext___InputValue_isDeprecated(ctx, field)
+			case "deprecationReason":
+				return ec.fieldContext___InputValue_deprecationReason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __InputValue", field.Name)
 		},
 	}
-	return fc, nil
-}
-
-func (ec *executionContext) ___Directive_isRepeatable(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext___Directive_isRepeatable(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
 	defer func() {
 		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsRepeatable, nil
-	})
-	if err != nil {
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field___Directive_args_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext___Directive_isRepeatable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "__Directive",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
+		return fc, err
 	}
 	return fc, nil
 }
@@ -34093,7 +34368,7 @@ func (ec *executionContext) ___EnumValue_name(ctx context.Context, field graphql
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -34137,7 +34412,7 @@ func (ec *executionContext) ___EnumValue_description(ctx context.Context, field 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description(), nil
 	})
@@ -34178,7 +34453,7 @@ func (ec *executionContext) ___EnumValue_isDeprecated(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.IsDeprecated(), nil
 	})
@@ -34222,7 +34497,7 @@ func (ec *executionContext) ___EnumValue_deprecationReason(ctx context.Context, 
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DeprecationReason(), nil
 	})
@@ -34263,7 +34538,7 @@ func (ec *executionContext) ___Field_name(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -34307,7 +34582,7 @@ func (ec *executionContext) ___Field_description(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description(), nil
 	})
@@ -34348,7 +34623,7 @@ func (ec *executionContext) ___Field_args(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Args, nil
 	})
@@ -34367,7 +34642,7 @@ func (ec *executionContext) ___Field_args(ctx context.Context, field graphql.Col
 	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValueᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Field_args(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Field_args(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Field",
 		Field:      field,
@@ -34383,9 +34658,24 @@ func (ec *executionContext) fieldContext___Field_args(_ context.Context, field g
 				return ec.fieldContext___InputValue_type(ctx, field)
 			case "defaultValue":
 				return ec.fieldContext___InputValue_defaultValue(ctx, field)
+			case "isDeprecated":
+				return ec.fieldContext___InputValue_isDeprecated(ctx, field)
+			case "deprecationReason":
+				return ec.fieldContext___InputValue_deprecationReason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __InputValue", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field___Field_args_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -34402,7 +34692,7 @@ func (ec *executionContext) ___Field_type(ctx context.Context, field graphql.Col
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
@@ -34435,6 +34725,8 @@ func (ec *executionContext) fieldContext___Field_type(_ context.Context, field g
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -34447,8 +34739,8 @@ func (ec *executionContext) fieldContext___Field_type(_ context.Context, field g
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -34468,7 +34760,7 @@ func (ec *executionContext) ___Field_isDeprecated(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.IsDeprecated(), nil
 	})
@@ -34512,7 +34804,7 @@ func (ec *executionContext) ___Field_deprecationReason(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DeprecationReason(), nil
 	})
@@ -34553,7 +34845,7 @@ func (ec *executionContext) ___InputValue_name(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
@@ -34597,7 +34889,7 @@ func (ec *executionContext) ___InputValue_description(ctx context.Context, field
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description(), nil
 	})
@@ -34638,7 +34930,7 @@ func (ec *executionContext) ___InputValue_type(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
@@ -34671,6 +34963,8 @@ func (ec *executionContext) fieldContext___InputValue_type(_ context.Context, fi
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -34683,8 +34977,8 @@ func (ec *executionContext) fieldContext___InputValue_type(_ context.Context, fi
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -34704,7 +34998,7 @@ func (ec *executionContext) ___InputValue_defaultValue(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
@@ -34733,6 +35027,91 @@ func (ec *executionContext) fieldContext___InputValue_defaultValue(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) ___InputValue_isDeprecated(ctx context.Context, field graphql.CollectedField, obj *introspection.InputValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___InputValue_isDeprecated(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsDeprecated(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext___InputValue_isDeprecated(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "__InputValue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) ___InputValue_deprecationReason(ctx context.Context, field graphql.CollectedField, obj *introspection.InputValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___InputValue_deprecationReason(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeprecationReason(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext___InputValue_deprecationReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "__InputValue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Schema_description(ctx context.Context, field graphql.CollectedField, obj *introspection.Schema) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Schema_description(ctx, field)
 	if err != nil {
@@ -34745,7 +35124,7 @@ func (ec *executionContext) ___Schema_description(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description(), nil
 	})
@@ -34786,7 +35165,7 @@ func (ec *executionContext) ___Schema_types(ctx context.Context, field graphql.C
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Types(), nil
 	})
@@ -34819,6 +35198,8 @@ func (ec *executionContext) fieldContext___Schema_types(_ context.Context, field
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -34831,8 +35212,8 @@ func (ec *executionContext) fieldContext___Schema_types(_ context.Context, field
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -34852,7 +35233,7 @@ func (ec *executionContext) ___Schema_queryType(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.QueryType(), nil
 	})
@@ -34885,6 +35266,8 @@ func (ec *executionContext) fieldContext___Schema_queryType(_ context.Context, f
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -34897,8 +35280,8 @@ func (ec *executionContext) fieldContext___Schema_queryType(_ context.Context, f
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -34918,7 +35301,7 @@ func (ec *executionContext) ___Schema_mutationType(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.MutationType(), nil
 	})
@@ -34948,6 +35331,8 @@ func (ec *executionContext) fieldContext___Schema_mutationType(_ context.Context
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -34960,8 +35345,8 @@ func (ec *executionContext) fieldContext___Schema_mutationType(_ context.Context
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -34981,7 +35366,7 @@ func (ec *executionContext) ___Schema_subscriptionType(ctx context.Context, fiel
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.SubscriptionType(), nil
 	})
@@ -35011,6 +35396,8 @@ func (ec *executionContext) fieldContext___Schema_subscriptionType(_ context.Con
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -35023,8 +35410,8 @@ func (ec *executionContext) fieldContext___Schema_subscriptionType(_ context.Con
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -35044,7 +35431,7 @@ func (ec *executionContext) ___Schema_directives(ctx context.Context, field grap
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Directives(), nil
 	})
@@ -35075,12 +35462,12 @@ func (ec *executionContext) fieldContext___Schema_directives(_ context.Context, 
 				return ec.fieldContext___Directive_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Directive_description(ctx, field)
+			case "isRepeatable":
+				return ec.fieldContext___Directive_isRepeatable(ctx, field)
 			case "locations":
 				return ec.fieldContext___Directive_locations(ctx, field)
 			case "args":
 				return ec.fieldContext___Directive_args(ctx, field)
-			case "isRepeatable":
-				return ec.fieldContext___Directive_isRepeatable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Directive", field.Name)
 		},
@@ -35100,7 +35487,7 @@ func (ec *executionContext) ___Type_kind(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Kind(), nil
 	})
@@ -35144,7 +35531,7 @@ func (ec *executionContext) ___Type_name(ctx context.Context, field graphql.Coll
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name(), nil
 	})
@@ -35185,7 +35572,7 @@ func (ec *executionContext) ___Type_description(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description(), nil
 	})
@@ -35214,6 +35601,47 @@ func (ec *executionContext) fieldContext___Type_description(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___Type_specifiedByURL(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SpecifiedByURL(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "__Type",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Type_fields(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Type_fields(ctx, field)
 	if err != nil {
@@ -35226,7 +35654,7 @@ func (ec *executionContext) ___Type_fields(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Fields(fc.Args["includeDeprecated"].(bool)), nil
 	})
@@ -35292,7 +35720,7 @@ func (ec *executionContext) ___Type_interfaces(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Interfaces(), nil
 	})
@@ -35322,6 +35750,8 @@ func (ec *executionContext) fieldContext___Type_interfaces(_ context.Context, fi
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -35334,8 +35764,8 @@ func (ec *executionContext) fieldContext___Type_interfaces(_ context.Context, fi
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -35355,7 +35785,7 @@ func (ec *executionContext) ___Type_possibleTypes(ctx context.Context, field gra
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.PossibleTypes(), nil
 	})
@@ -35385,6 +35815,8 @@ func (ec *executionContext) fieldContext___Type_possibleTypes(_ context.Context,
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -35397,8 +35829,8 @@ func (ec *executionContext) fieldContext___Type_possibleTypes(_ context.Context,
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -35418,7 +35850,7 @@ func (ec *executionContext) ___Type_enumValues(ctx context.Context, field graphq
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.EnumValues(fc.Args["includeDeprecated"].(bool)), nil
 	})
@@ -35480,7 +35912,7 @@ func (ec *executionContext) ___Type_inputFields(ctx context.Context, field graph
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.InputFields(), nil
 	})
@@ -35512,6 +35944,10 @@ func (ec *executionContext) fieldContext___Type_inputFields(_ context.Context, f
 				return ec.fieldContext___InputValue_type(ctx, field)
 			case "defaultValue":
 				return ec.fieldContext___InputValue_defaultValue(ctx, field)
+			case "isDeprecated":
+				return ec.fieldContext___InputValue_isDeprecated(ctx, field)
+			case "deprecationReason":
+				return ec.fieldContext___InputValue_deprecationReason(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __InputValue", field.Name)
 		},
@@ -35531,7 +35967,7 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.OfType(), nil
 	})
@@ -35561,6 +35997,8 @@ func (ec *executionContext) fieldContext___Type_ofType(_ context.Context, field 
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -35573,8 +36011,8 @@ func (ec *executionContext) fieldContext___Type_ofType(_ context.Context, field 
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
+			case "isOneOf":
+				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
 		},
@@ -35582,8 +36020,8 @@ func (ec *executionContext) fieldContext___Type_ofType(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext___Type_specifiedByURL(ctx, field)
+func (ec *executionContext) ___Type_isOneOf(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___Type_isOneOf(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -35594,9 +36032,9 @@ func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field gr
 			ret = graphql.Null
 		}
 	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SpecifiedByURL(), nil
+		return obj.IsOneOf(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -35605,19 +36043,19 @@ func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "__Type",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -35627,10 +36065,10 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, obj interface{}) (gqlmodel.AddCommentInput, error) {
+func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, obj any) (gqlmodel.AddCommentInput, error) {
 	var it gqlmodel.AddCommentInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35661,10 +36099,10 @@ func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.AddIntegrationToWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx context.Context, obj any) (gqlmodel.AddIntegrationToWorkspaceInput, error) {
 	var it gqlmodel.AddIntegrationToWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35702,10 +36140,10 @@ func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputAddUsersToWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.AddUsersToWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputAddUsersToWorkspaceInput(ctx context.Context, obj any) (gqlmodel.AddUsersToWorkspaceInput, error) {
 	var it gqlmodel.AddUsersToWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35736,10 +36174,10 @@ func (ec *executionContext) unmarshalInputAddUsersToWorkspaceInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputAndConditionInput(ctx context.Context, obj interface{}) (gqlmodel.AndConditionInput, error) {
+func (ec *executionContext) unmarshalInputAndConditionInput(ctx context.Context, obj any) (gqlmodel.AndConditionInput, error) {
 	var it gqlmodel.AndConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35752,11 +36190,11 @@ func (ec *executionContext) unmarshalInputAndConditionInput(ctx context.Context,
 		switch k {
 		case "conditions":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("conditions"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal []*gqlmodel.ConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -35782,10 +36220,10 @@ func (ec *executionContext) unmarshalInputAndConditionInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputApproveRequestInput(ctx context.Context, obj interface{}) (gqlmodel.ApproveRequestInput, error) {
+func (ec *executionContext) unmarshalInputApproveRequestInput(ctx context.Context, obj any) (gqlmodel.ApproveRequestInput, error) {
 	var it gqlmodel.ApproveRequestInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35809,10 +36247,10 @@ func (ec *executionContext) unmarshalInputApproveRequestInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj interface{}) (gqlmodel.AssetSort, error) {
+func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj any) (gqlmodel.AssetSort, error) {
 	var it gqlmodel.AssetSort
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35843,10 +36281,10 @@ func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputBasicFieldConditionInput(ctx context.Context, obj interface{}) (gqlmodel.BasicFieldConditionInput, error) {
+func (ec *executionContext) unmarshalInputBasicFieldConditionInput(ctx context.Context, obj any) (gqlmodel.BasicFieldConditionInput, error) {
 	var it gqlmodel.BasicFieldConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35884,10 +36322,10 @@ func (ec *executionContext) unmarshalInputBasicFieldConditionInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputBoolFieldConditionInput(ctx context.Context, obj interface{}) (gqlmodel.BoolFieldConditionInput, error) {
+func (ec *executionContext) unmarshalInputBoolFieldConditionInput(ctx context.Context, obj any) (gqlmodel.BoolFieldConditionInput, error) {
 	var it gqlmodel.BoolFieldConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35925,10 +36363,10 @@ func (ec *executionContext) unmarshalInputBoolFieldConditionInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCesiumResourcePropsInput(ctx context.Context, obj interface{}) (gqlmodel.CesiumResourcePropsInput, error) {
+func (ec *executionContext) unmarshalInputCesiumResourcePropsInput(ctx context.Context, obj any) (gqlmodel.CesiumResourcePropsInput, error) {
 	var it gqlmodel.CesiumResourcePropsInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -35980,10 +36418,10 @@ func (ec *executionContext) unmarshalInputCesiumResourcePropsInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputColumnSelectionInput(ctx context.Context, obj interface{}) (gqlmodel.ColumnSelectionInput, error) {
+func (ec *executionContext) unmarshalInputColumnSelectionInput(ctx context.Context, obj any) (gqlmodel.ColumnSelectionInput, error) {
 	var it gqlmodel.ColumnSelectionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36014,10 +36452,10 @@ func (ec *executionContext) unmarshalInputColumnSelectionInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, obj interface{}) (gqlmodel.ConditionInput, error) {
+func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, obj any) (gqlmodel.ConditionInput, error) {
 	var it gqlmodel.ConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36030,11 +36468,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 		switch k {
 		case "and":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOAndConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAndConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.AndConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36056,11 +36494,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 			}
 		case "or":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOOrConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOrConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.OrConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36082,11 +36520,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 			}
 		case "basic":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("basic"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOBasicFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicFieldConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.BasicFieldConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36108,11 +36546,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 			}
 		case "nullable":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nullable"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalONullableFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableFieldConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.NullableFieldConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36134,11 +36572,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 			}
 		case "multiple":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiple"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOMultipleFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleFieldConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.MultipleFieldConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36160,11 +36598,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 			}
 		case "bool":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bool"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOBoolFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolFieldConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.BoolFieldConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36186,11 +36624,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 			}
 		case "string":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("string"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOStringFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringFieldConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.StringFieldConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36212,11 +36650,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 			}
 		case "number":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalONumberFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberFieldConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.NumberFieldConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36238,11 +36676,11 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 			}
 		case "time":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOTimeFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeFieldConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.TimeFieldConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36268,10 +36706,10 @@ func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCorrespondingFieldInput(ctx context.Context, obj interface{}) (gqlmodel.CorrespondingFieldInput, error) {
+func (ec *executionContext) unmarshalInputCorrespondingFieldInput(ctx context.Context, obj any) (gqlmodel.CorrespondingFieldInput, error) {
 	var it gqlmodel.CorrespondingFieldInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36323,14 +36761,14 @@ func (ec *executionContext) unmarshalInputCorrespondingFieldInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj interface{}) (gqlmodel.CreateAssetInput, error) {
+func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj any) (gqlmodel.CreateAssetInput, error) {
 	var it gqlmodel.CreateAssetInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "file", "url", "token", "skipDecompression"}
+	fieldsInOrder := [...]string{"projectId", "file", "url", "token", "skipDecompression", "contentEncoding"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36372,20 +36810,27 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 				return it, err
 			}
 			it.SkipDecompression = data
+		case "contentEncoding":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contentEncoding"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ContentEncoding = data
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Context, obj interface{}) (gqlmodel.CreateAssetUploadInput, error) {
+func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Context, obj any) (gqlmodel.CreateAssetUploadInput, error) {
 	var it gqlmodel.CreateAssetUploadInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "filename", "contentLength", "cursor"}
+	fieldsInOrder := [...]string{"projectId", "filename", "contentLength", "contentEncoding", "cursor"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36413,6 +36858,13 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 				return it, err
 			}
 			it.ContentLength = data
+		case "contentEncoding":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contentEncoding"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ContentEncoding = data
 		case "cursor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -36426,10 +36878,10 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, obj interface{}) (gqlmodel.CreateFieldInput, error) {
+func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, obj any) (gqlmodel.CreateFieldInput, error) {
 	var it gqlmodel.CreateFieldInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36519,11 +36971,11 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			it.IsTitle = data
 		case "typeProperty":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("typeProperty"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldTypePropertyInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36549,10 +37001,10 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateGroupInput(ctx context.Context, obj interface{}) (gqlmodel.CreateGroupInput, error) {
+func (ec *executionContext) unmarshalInputCreateGroupInput(ctx context.Context, obj any) (gqlmodel.CreateGroupInput, error) {
 	var it gqlmodel.CreateGroupInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36597,10 +37049,10 @@ func (ec *executionContext) unmarshalInputCreateGroupInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Context, obj interface{}) (gqlmodel.CreateIntegrationInput, error) {
+func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Context, obj any) (gqlmodel.CreateIntegrationInput, error) {
 	var it gqlmodel.CreateIntegrationInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36645,10 +37097,10 @@ func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, obj interface{}) (gqlmodel.CreateItemInput, error) {
+func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, obj any) (gqlmodel.CreateItemInput, error) {
 	var it gqlmodel.CreateItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36700,10 +37152,10 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateModelInput(ctx context.Context, obj interface{}) (gqlmodel.CreateModelInput, error) {
+func (ec *executionContext) unmarshalInputCreateModelInput(ctx context.Context, obj any) (gqlmodel.CreateModelInput, error) {
 	var it gqlmodel.CreateModelInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36748,10 +37200,10 @@ func (ec *executionContext) unmarshalInputCreateModelInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context, obj interface{}) (gqlmodel.CreateProjectInput, error) {
+func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context, obj any) (gqlmodel.CreateProjectInput, error) {
 	var it gqlmodel.CreateProjectInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36803,10 +37255,10 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateRequestInput(ctx context.Context, obj interface{}) (gqlmodel.CreateRequestInput, error) {
+func (ec *executionContext) unmarshalInputCreateRequestInput(ctx context.Context, obj any) (gqlmodel.CreateRequestInput, error) {
 	var it gqlmodel.CreateRequestInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36865,14 +37317,14 @@ func (ec *executionContext) unmarshalInputCreateRequestInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context, obj interface{}) (gqlmodel.CreateThreadInput, error) {
-	var it gqlmodel.CreateThreadInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+func (ec *executionContext) unmarshalInputCreateThreadWithCommentInput(ctx context.Context, obj any) (gqlmodel.CreateThreadWithCommentInput, error) {
+	var it gqlmodel.CreateThreadWithCommentInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId"}
+	fieldsInOrder := [...]string{"workspaceId", "resourceId", "resourceType", "content"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36886,16 +37338,37 @@ func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context,
 				return it, err
 			}
 			it.WorkspaceID = data
+		case "resourceId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResourceID = data
+		case "resourceType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
+			data, err := ec.unmarshalNResourceType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResourceType = data
+		case "content":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Content = data
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateViewInput(ctx context.Context, obj interface{}) (gqlmodel.CreateViewInput, error) {
+func (ec *executionContext) unmarshalInputCreateViewInput(ctx context.Context, obj any) (gqlmodel.CreateViewInput, error) {
 	var it gqlmodel.CreateViewInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -36936,11 +37409,11 @@ func (ec *executionContext) unmarshalInputCreateViewInput(ctx context.Context, o
 			it.Sort = data
 		case "filter":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.ConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -36973,10 +37446,10 @@ func (ec *executionContext) unmarshalInputCreateViewInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context, obj interface{}) (gqlmodel.CreateWebhookInput, error) {
+func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context, obj any) (gqlmodel.CreateWebhookInput, error) {
 	var it gqlmodel.CreateWebhookInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37035,10 +37508,10 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.CreateWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Context, obj any) (gqlmodel.CreateWorkspaceInput, error) {
 	var it gqlmodel.CreateWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37062,10 +37535,10 @@ func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDecompressAssetInput(ctx context.Context, obj interface{}) (gqlmodel.DecompressAssetInput, error) {
+func (ec *executionContext) unmarshalInputDecompressAssetInput(ctx context.Context, obj any) (gqlmodel.DecompressAssetInput, error) {
 	var it gqlmodel.DecompressAssetInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37089,10 +37562,10 @@ func (ec *executionContext) unmarshalInputDecompressAssetInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteAssetInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteAssetInput, error) {
+func (ec *executionContext) unmarshalInputDeleteAssetInput(ctx context.Context, obj any) (gqlmodel.DeleteAssetInput, error) {
 	var it gqlmodel.DeleteAssetInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37116,10 +37589,37 @@ func (ec *executionContext) unmarshalInputDeleteAssetInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteCommentInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteCommentInput, error) {
+func (ec *executionContext) unmarshalInputDeleteAssetsInput(ctx context.Context, obj any) (gqlmodel.DeleteAssetsInput, error) {
+	var it gqlmodel.DeleteAssetsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"assetIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "assetIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetIds"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AssetIds = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeleteCommentInput(ctx context.Context, obj any) (gqlmodel.DeleteCommentInput, error) {
 	var it gqlmodel.DeleteCommentInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37150,10 +37650,10 @@ func (ec *executionContext) unmarshalInputDeleteCommentInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteFieldInput, error) {
+func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, obj any) (gqlmodel.DeleteFieldInput, error) {
 	var it gqlmodel.DeleteFieldInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37198,10 +37698,10 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteGroupInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteGroupInput, error) {
+func (ec *executionContext) unmarshalInputDeleteGroupInput(ctx context.Context, obj any) (gqlmodel.DeleteGroupInput, error) {
 	var it gqlmodel.DeleteGroupInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37225,10 +37725,10 @@ func (ec *executionContext) unmarshalInputDeleteGroupInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteIntegrationInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteIntegrationInput, error) {
+func (ec *executionContext) unmarshalInputDeleteIntegrationInput(ctx context.Context, obj any) (gqlmodel.DeleteIntegrationInput, error) {
 	var it gqlmodel.DeleteIntegrationInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37252,10 +37752,37 @@ func (ec *executionContext) unmarshalInputDeleteIntegrationInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteItemInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteItemInput, error) {
+func (ec *executionContext) unmarshalInputDeleteIntegrationsInput(ctx context.Context, obj any) (gqlmodel.DeleteIntegrationsInput, error) {
+	var it gqlmodel.DeleteIntegrationsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"integrationIDs"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "integrationIDs":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationIDs"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IntegrationIDs = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeleteItemInput(ctx context.Context, obj any) (gqlmodel.DeleteItemInput, error) {
 	var it gqlmodel.DeleteItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37279,10 +37806,10 @@ func (ec *executionContext) unmarshalInputDeleteItemInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteMeInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteMeInput, error) {
+func (ec *executionContext) unmarshalInputDeleteMeInput(ctx context.Context, obj any) (gqlmodel.DeleteMeInput, error) {
 	var it gqlmodel.DeleteMeInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37306,10 +37833,10 @@ func (ec *executionContext) unmarshalInputDeleteMeInput(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteModelInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteModelInput, error) {
+func (ec *executionContext) unmarshalInputDeleteModelInput(ctx context.Context, obj any) (gqlmodel.DeleteModelInput, error) {
 	var it gqlmodel.DeleteModelInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37333,10 +37860,10 @@ func (ec *executionContext) unmarshalInputDeleteModelInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteProjectInput, error) {
+func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context, obj any) (gqlmodel.DeleteProjectInput, error) {
 	var it gqlmodel.DeleteProjectInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37360,10 +37887,10 @@ func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteRequestInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteRequestInput, error) {
+func (ec *executionContext) unmarshalInputDeleteRequestInput(ctx context.Context, obj any) (gqlmodel.DeleteRequestInput, error) {
 	var it gqlmodel.DeleteRequestInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37394,10 +37921,10 @@ func (ec *executionContext) unmarshalInputDeleteRequestInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteViewInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteViewInput, error) {
+func (ec *executionContext) unmarshalInputDeleteViewInput(ctx context.Context, obj any) (gqlmodel.DeleteViewInput, error) {
 	var it gqlmodel.DeleteViewInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37421,10 +37948,10 @@ func (ec *executionContext) unmarshalInputDeleteViewInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteWebhookInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteWebhookInput, error) {
+func (ec *executionContext) unmarshalInputDeleteWebhookInput(ctx context.Context, obj any) (gqlmodel.DeleteWebhookInput, error) {
 	var it gqlmodel.DeleteWebhookInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37455,10 +37982,10 @@ func (ec *executionContext) unmarshalInputDeleteWebhookInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Context, obj any) (gqlmodel.DeleteWorkspaceInput, error) {
 	var it gqlmodel.DeleteWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37482,10 +38009,10 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputFieldSelectorInput(ctx context.Context, obj interface{}) (gqlmodel.FieldSelectorInput, error) {
+func (ec *executionContext) unmarshalInputFieldSelectorInput(ctx context.Context, obj any) (gqlmodel.FieldSelectorInput, error) {
 	var it gqlmodel.FieldSelectorInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37516,10 +38043,10 @@ func (ec *executionContext) unmarshalInputFieldSelectorInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, obj interface{}) (gqlmodel.ItemFieldInput, error) {
+func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, obj any) (gqlmodel.ItemFieldInput, error) {
 	var it gqlmodel.ItemFieldInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37564,10 +38091,10 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, obj interface{}) (gqlmodel.ItemQueryInput, error) {
+func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, obj any) (gqlmodel.ItemQueryInput, error) {
 	var it gqlmodel.ItemQueryInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37612,10 +38139,10 @@ func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputItemSortInput(ctx context.Context, obj interface{}) (gqlmodel.ItemSortInput, error) {
+func (ec *executionContext) unmarshalInputItemSortInput(ctx context.Context, obj any) (gqlmodel.ItemSortInput, error) {
 	var it gqlmodel.ItemSortInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37646,10 +38173,10 @@ func (ec *executionContext) unmarshalInputItemSortInput(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputMemberInput(ctx context.Context, obj interface{}) (gqlmodel.MemberInput, error) {
+func (ec *executionContext) unmarshalInputMemberInput(ctx context.Context, obj any) (gqlmodel.MemberInput, error) {
 	var it gqlmodel.MemberInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37680,10 +38207,10 @@ func (ec *executionContext) unmarshalInputMemberInput(ctx context.Context, obj i
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputMultipleFieldConditionInput(ctx context.Context, obj interface{}) (gqlmodel.MultipleFieldConditionInput, error) {
+func (ec *executionContext) unmarshalInputMultipleFieldConditionInput(ctx context.Context, obj any) (gqlmodel.MultipleFieldConditionInput, error) {
 	var it gqlmodel.MultipleFieldConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37721,10 +38248,10 @@ func (ec *executionContext) unmarshalInputMultipleFieldConditionInput(ctx contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNullableFieldConditionInput(ctx context.Context, obj interface{}) (gqlmodel.NullableFieldConditionInput, error) {
+func (ec *executionContext) unmarshalInputNullableFieldConditionInput(ctx context.Context, obj any) (gqlmodel.NullableFieldConditionInput, error) {
 	var it gqlmodel.NullableFieldConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37755,10 +38282,10 @@ func (ec *executionContext) unmarshalInputNullableFieldConditionInput(ctx contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNumberFieldConditionInput(ctx context.Context, obj interface{}) (gqlmodel.NumberFieldConditionInput, error) {
+func (ec *executionContext) unmarshalInputNumberFieldConditionInput(ctx context.Context, obj any) (gqlmodel.NumberFieldConditionInput, error) {
 	var it gqlmodel.NumberFieldConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37796,10 +38323,10 @@ func (ec *executionContext) unmarshalInputNumberFieldConditionInput(ctx context.
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj interface{}) (gqlmodel.OperatorInput, error) {
+func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj any) (gqlmodel.OperatorInput, error) {
 	var it gqlmodel.OperatorInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37812,11 +38339,11 @@ func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj
 		switch k {
 		case "basic":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("basic"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOBasicOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicOperator(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.BasicOperator
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -37838,11 +38365,11 @@ func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj
 			}
 		case "nullable":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nullable"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalONullableOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableOperator(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.NullableOperator
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -37864,11 +38391,11 @@ func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj
 			}
 		case "bool":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bool"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOBoolOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolOperator(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.BoolOperator
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -37890,11 +38417,11 @@ func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj
 			}
 		case "string":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("string"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOStringOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringOperator(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.StringOperator
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -37916,11 +38443,11 @@ func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj
 			}
 		case "number":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalONumberOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberOperator(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.NumberOperator
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -37942,11 +38469,11 @@ func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj
 			}
 		case "time":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOTimeOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeOperator(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.TimeOperator
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -37972,10 +38499,10 @@ func (ec *executionContext) unmarshalInputOperatorInput(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputOrConditionInput(ctx context.Context, obj interface{}) (gqlmodel.OrConditionInput, error) {
+func (ec *executionContext) unmarshalInputOrConditionInput(ctx context.Context, obj any) (gqlmodel.OrConditionInput, error) {
 	var it gqlmodel.OrConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -37988,11 +38515,11 @@ func (ec *executionContext) unmarshalInputOrConditionInput(ctx context.Context, 
 		switch k {
 		case "conditions":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("conditions"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal []*gqlmodel.ConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -38018,10 +38545,10 @@ func (ec *executionContext) unmarshalInputOrConditionInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj interface{}) (gqlmodel.Pagination, error) {
+func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj any) (gqlmodel.Pagination, error) {
 	var it gqlmodel.Pagination
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38073,10 +38600,10 @@ func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj in
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPublishItemInput(ctx context.Context, obj interface{}) (gqlmodel.PublishItemInput, error) {
+func (ec *executionContext) unmarshalInputPublishItemInput(ctx context.Context, obj any) (gqlmodel.PublishItemInput, error) {
 	var it gqlmodel.PublishItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38100,10 +38627,10 @@ func (ec *executionContext) unmarshalInputPublishItemInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context, obj interface{}) (gqlmodel.PublishModelInput, error) {
+func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context, obj any) (gqlmodel.PublishModelInput, error) {
 	var it gqlmodel.PublishModelInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38134,10 +38661,37 @@ func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRegenerateIntegrationTokenInput(ctx context.Context, obj interface{}) (gqlmodel.RegenerateIntegrationTokenInput, error) {
+func (ec *executionContext) unmarshalInputPublishModelsInput(ctx context.Context, obj any) (gqlmodel.PublishModelsInput, error) {
+	var it gqlmodel.PublishModelsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"models"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "models":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("models"))
+			data, err := ec.unmarshalNPublishModelInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Models = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRegenerateIntegrationTokenInput(ctx context.Context, obj any) (gqlmodel.RegenerateIntegrationTokenInput, error) {
 	var it gqlmodel.RegenerateIntegrationTokenInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38161,10 +38715,10 @@ func (ec *executionContext) unmarshalInputRegenerateIntegrationTokenInput(ctx co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRegeneratePublicApiTokenInput(ctx context.Context, obj interface{}) (gqlmodel.RegeneratePublicAPITokenInput, error) {
+func (ec *executionContext) unmarshalInputRegeneratePublicApiTokenInput(ctx context.Context, obj any) (gqlmodel.RegeneratePublicAPITokenInput, error) {
 	var it gqlmodel.RegeneratePublicAPITokenInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38188,10 +38742,10 @@ func (ec *executionContext) unmarshalInputRegeneratePublicApiTokenInput(ctx cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ctx context.Context, obj any) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveIntegrationFromWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38222,10 +38776,10 @@ func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ct
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, obj any) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveMultipleMembersFromWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38256,10 +38810,10 @@ func (ec *executionContext) unmarshalInputRemoveMultipleMembersFromWorkspaceInpu
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRemoveMyAuthInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveMyAuthInput, error) {
+func (ec *executionContext) unmarshalInputRemoveMyAuthInput(ctx context.Context, obj any) (gqlmodel.RemoveMyAuthInput, error) {
 	var it gqlmodel.RemoveMyAuthInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38283,10 +38837,10 @@ func (ec *executionContext) unmarshalInputRemoveMyAuthInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, obj interface{}) (gqlmodel.RequestItemInput, error) {
+func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, obj any) (gqlmodel.RequestItemInput, error) {
 	var it gqlmodel.RequestItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38317,10 +38871,10 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj interface{}) (gqlmodel.ResourceInput, error) {
+func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj any) (gqlmodel.ResourceInput, error) {
 	var it gqlmodel.ResourceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38333,11 +38887,11 @@ func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj
 		switch k {
 		case "tile":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tile"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileResourceInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.TileResourceInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -38359,11 +38913,11 @@ func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj
 			}
 		case "terrain":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrain"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOTerrainResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainResourceInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.TerrainResourceInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -38389,10 +38943,10 @@ func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputResourcesListInput(ctx context.Context, obj interface{}) (gqlmodel.ResourcesListInput, error) {
+func (ec *executionContext) unmarshalInputResourcesListInput(ctx context.Context, obj any) (gqlmodel.ResourcesListInput, error) {
 	var it gqlmodel.ResourcesListInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38405,11 +38959,11 @@ func (ec *executionContext) unmarshalInputResourcesListInput(ctx context.Context
 		switch k {
 		case "resources":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resources"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal []*gqlmodel.ResourceInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -38449,10 +39003,10 @@ func (ec *executionContext) unmarshalInputResourcesListInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldAssetInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldAssetInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldAssetInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldAssetInput, error) {
 	var it gqlmodel.SchemaFieldAssetInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38476,10 +39030,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldAssetInput(ctx context.Cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldBoolInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldBoolInput, error) {
 	var it gqlmodel.SchemaFieldBoolInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38503,10 +39057,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldCheckboxInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldCheckboxInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldCheckboxInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldCheckboxInput, error) {
 	var it gqlmodel.SchemaFieldCheckboxInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38530,10 +39084,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldCheckboxInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldDateInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldDateInput, error) {
 	var it gqlmodel.SchemaFieldDateInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38557,10 +39111,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldGeometryEditorInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldGeometryEditorInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldGeometryEditorInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldGeometryEditorInput, error) {
 	var it gqlmodel.SchemaFieldGeometryEditorInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38591,10 +39145,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldGeometryEditorInput(ctx con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldGeometryObjectInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldGeometryObjectInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldGeometryObjectInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldGeometryObjectInput, error) {
 	var it gqlmodel.SchemaFieldGeometryObjectInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38625,10 +39179,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldGeometryObjectInput(ctx con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldGroupInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldGroupInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldGroupInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldGroupInput, error) {
 	var it gqlmodel.SchemaFieldGroupInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38652,10 +39206,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldGroupInput(ctx context.Cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldIntegerInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldIntegerInput, error) {
 	var it gqlmodel.SchemaFieldIntegerInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38693,10 +39247,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldLineStringInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldLineStringInput, error) {
 	var it gqlmodel.SchemaFieldLineStringInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38720,10 +39274,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldNumberInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldNumberInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldNumberInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldNumberInput, error) {
 	var it gqlmodel.SchemaFieldNumberInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38761,10 +39315,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldNumberInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldReferenceInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldReferenceInput, error) {
 	var it gqlmodel.SchemaFieldReferenceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38802,10 +39356,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldRichTextInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldRichTextInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldRichTextInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldRichTextInput, error) {
 	var it gqlmodel.SchemaFieldRichTextInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38836,10 +39390,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldRichTextInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldSelectInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldSelectInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldSelectInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldSelectInput, error) {
 	var it gqlmodel.SchemaFieldSelectInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38870,10 +39424,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldSelectInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldTagInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTagInput, error) {
 	var it gqlmodel.SchemaFieldTagInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38904,10 +39458,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldTagValueInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldTagValueInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldTagValueInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTagValueInput, error) {
 	var it gqlmodel.SchemaFieldTagValueInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38945,10 +39499,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagValueInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldTextAreaInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldTextAreaInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldTextAreaInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTextAreaInput, error) {
 	var it gqlmodel.SchemaFieldTextAreaInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -38979,10 +39533,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextAreaInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldTextInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldTextInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldTextInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTextInput, error) {
 	var it gqlmodel.SchemaFieldTextInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39013,10 +39567,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldTypePropertyInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldTypePropertyInput, error) {
 	var it gqlmodel.SchemaFieldTypePropertyInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39029,11 +39583,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		switch k {
 		case "text":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldTextInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39055,11 +39609,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "textArea":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("textArea"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldTextAreaInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextAreaInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldTextAreaInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39081,11 +39635,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "richText":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("richText"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldRichTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldRichTextInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldRichTextInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39107,11 +39661,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "markdownText":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("markdownText"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaMarkdownTextInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaMarkdownTextInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39133,11 +39687,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "asset":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("asset"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldAssetInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39159,11 +39713,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "date":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldDateInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldDateInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldDateInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39185,11 +39739,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "bool":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bool"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldBoolInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldBoolInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldBoolInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39211,11 +39765,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "select":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("select"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldSelectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldSelectInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldSelectInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39237,11 +39791,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "tag":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tag"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldTagInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldTagInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39263,11 +39817,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "checkbox":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("checkbox"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldCheckboxInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldCheckboxInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldCheckboxInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39289,11 +39843,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "integer":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integer"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldIntegerInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldIntegerInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39315,11 +39869,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "number":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldNumberInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39341,11 +39895,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "reference":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reference"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldReferenceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldReferenceInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldReferenceInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39367,11 +39921,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "url":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldURLInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldURLInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldURLInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39393,11 +39947,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "group":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("group"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGroupInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldGroupInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39419,11 +39973,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "geometryObject":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("geometryObject"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldGeometryObjectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryObjectInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldGeometryObjectInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39445,11 +39999,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			}
 		case "geometryEditor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("geometryEditor"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldGeometryEditorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryEditorInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldGeometryEditorInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39475,10 +40029,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldURLInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldURLInput, error) {
+func (ec *executionContext) unmarshalInputSchemaFieldURLInput(ctx context.Context, obj any) (gqlmodel.SchemaFieldURLInput, error) {
 	var it gqlmodel.SchemaFieldURLInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39502,10 +40056,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldURLInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaMarkdownTextInput, error) {
+func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Context, obj any) (gqlmodel.SchemaMarkdownTextInput, error) {
 	var it gqlmodel.SchemaMarkdownTextInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39536,10 +40090,10 @@ func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, obj interface{}) (gqlmodel.SearchItemInput, error) {
+func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, obj any) (gqlmodel.SearchItemInput, error) {
 	var it gqlmodel.SearchItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39566,11 +40120,11 @@ func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, o
 			it.Sort = data
 		case "filter":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.ConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -39603,10 +40157,10 @@ func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj interface{}) (gqlmodel.Sort, error) {
+func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj any) (gqlmodel.Sort, error) {
 	var it gqlmodel.Sort
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39637,10 +40191,10 @@ func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj interfac
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputStringFieldConditionInput(ctx context.Context, obj interface{}) (gqlmodel.StringFieldConditionInput, error) {
+func (ec *executionContext) unmarshalInputStringFieldConditionInput(ctx context.Context, obj any) (gqlmodel.StringFieldConditionInput, error) {
 	var it gqlmodel.StringFieldConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39678,10 +40232,10 @@ func (ec *executionContext) unmarshalInputStringFieldConditionInput(ctx context.
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTerrainResourceInput(ctx context.Context, obj interface{}) (gqlmodel.TerrainResourceInput, error) {
+func (ec *executionContext) unmarshalInputTerrainResourceInput(ctx context.Context, obj any) (gqlmodel.TerrainResourceInput, error) {
 	var it gqlmodel.TerrainResourceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39719,10 +40273,10 @@ func (ec *executionContext) unmarshalInputTerrainResourceInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTileResourceInput(ctx context.Context, obj interface{}) (gqlmodel.TileResourceInput, error) {
+func (ec *executionContext) unmarshalInputTileResourceInput(ctx context.Context, obj any) (gqlmodel.TileResourceInput, error) {
 	var it gqlmodel.TileResourceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39760,10 +40314,10 @@ func (ec *executionContext) unmarshalInputTileResourceInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTimeFieldConditionInput(ctx context.Context, obj interface{}) (gqlmodel.TimeFieldConditionInput, error) {
+func (ec *executionContext) unmarshalInputTimeFieldConditionInput(ctx context.Context, obj any) (gqlmodel.TimeFieldConditionInput, error) {
 	var it gqlmodel.TimeFieldConditionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39801,10 +40355,10 @@ func (ec *executionContext) unmarshalInputTimeFieldConditionInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context, obj interface{}) (gqlmodel.UnpublishItemInput, error) {
+func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context, obj any) (gqlmodel.UnpublishItemInput, error) {
 	var it gqlmodel.UnpublishItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39828,10 +40382,10 @@ func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateAssetInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateAssetInput, error) {
+func (ec *executionContext) unmarshalInputUpdateAssetInput(ctx context.Context, obj any) (gqlmodel.UpdateAssetInput, error) {
 	var it gqlmodel.UpdateAssetInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39862,10 +40416,10 @@ func (ec *executionContext) unmarshalInputUpdateAssetInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateCommentInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateCommentInput, error) {
+func (ec *executionContext) unmarshalInputUpdateCommentInput(ctx context.Context, obj any) (gqlmodel.UpdateCommentInput, error) {
 	var it gqlmodel.UpdateCommentInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -39903,10 +40457,10 @@ func (ec *executionContext) unmarshalInputUpdateCommentInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateFieldInput, error) {
+func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, obj any) (gqlmodel.UpdateFieldInput, error) {
 	var it gqlmodel.UpdateFieldInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40003,11 +40557,11 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 			it.IsTitle = data
 		case "typeProperty":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("typeProperty"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.SchemaFieldTypePropertyInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -40033,10 +40587,10 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateGroupInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateGroupInput, error) {
+func (ec *executionContext) unmarshalInputUpdateGroupInput(ctx context.Context, obj any) (gqlmodel.UpdateGroupInput, error) {
 	var it gqlmodel.UpdateGroupInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40081,10 +40635,10 @@ func (ec *executionContext) unmarshalInputUpdateGroupInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateGroupsOrderInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateGroupsOrderInput, error) {
+func (ec *executionContext) unmarshalInputUpdateGroupsOrderInput(ctx context.Context, obj any) (gqlmodel.UpdateGroupsOrderInput, error) {
 	var it gqlmodel.UpdateGroupsOrderInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40108,10 +40662,10 @@ func (ec *executionContext) unmarshalInputUpdateGroupsOrderInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateIntegrationInput, error) {
+func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Context, obj any) (gqlmodel.UpdateIntegrationInput, error) {
 	var it gqlmodel.UpdateIntegrationInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40156,10 +40710,10 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateIntegrationOfWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateIntegrationOfWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputUpdateIntegrationOfWorkspaceInput(ctx context.Context, obj any) (gqlmodel.UpdateIntegrationOfWorkspaceInput, error) {
 	var it gqlmodel.UpdateIntegrationOfWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40197,10 +40751,10 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationOfWorkspaceInput(ctx 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateItemInput, error) {
+func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, obj any) (gqlmodel.UpdateItemInput, error) {
 	var it gqlmodel.UpdateItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40252,10 +40806,10 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateMeInput, error) {
+func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj any) (gqlmodel.UpdateMeInput, error) {
 	var it gqlmodel.UpdateMeInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40314,10 +40868,10 @@ func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateModelInput, error) {
+func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, obj any) (gqlmodel.UpdateModelInput, error) {
 	var it gqlmodel.UpdateModelInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40369,10 +40923,10 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateModelsOrderInput, error) {
+func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Context, obj any) (gqlmodel.UpdateModelsOrderInput, error) {
 	var it gqlmodel.UpdateModelsOrderInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40396,10 +40950,10 @@ func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateProjectInput, error) {
+func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context, obj any) (gqlmodel.UpdateProjectInput, error) {
 	var it gqlmodel.UpdateProjectInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40458,10 +41012,10 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateProjectPublicationInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateProjectPublicationInput, error) {
+func (ec *executionContext) unmarshalInputUpdateProjectPublicationInput(ctx context.Context, obj any) (gqlmodel.UpdateProjectPublicationInput, error) {
 	var it gqlmodel.UpdateProjectPublicationInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40492,10 +41046,10 @@ func (ec *executionContext) unmarshalInputUpdateProjectPublicationInput(ctx cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateRequestInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateRequestInput, error) {
+func (ec *executionContext) unmarshalInputUpdateRequestInput(ctx context.Context, obj any) (gqlmodel.UpdateRequestInput, error) {
 	var it gqlmodel.UpdateRequestInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40554,10 +41108,10 @@ func (ec *executionContext) unmarshalInputUpdateRequestInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateUserOfWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateUserOfWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputUpdateUserOfWorkspaceInput(ctx context.Context, obj any) (gqlmodel.UpdateUserOfWorkspaceInput, error) {
 	var it gqlmodel.UpdateUserOfWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40595,10 +41149,10 @@ func (ec *executionContext) unmarshalInputUpdateUserOfWorkspaceInput(ctx context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateViewInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateViewInput, error) {
+func (ec *executionContext) unmarshalInputUpdateViewInput(ctx context.Context, obj any) (gqlmodel.UpdateViewInput, error) {
 	var it gqlmodel.UpdateViewInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40632,11 +41186,11 @@ func (ec *executionContext) unmarshalInputUpdateViewInput(ctx context.Context, o
 			it.Sort = data
 		case "filter":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
+			directive0 := func(ctx context.Context) (any, error) {
 				return ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
 			}
 
-			directive1 := func(ctx context.Context) (interface{}, error) {
+			directive1 := func(ctx context.Context) (any, error) {
 				if ec.directives.OnlyOne == nil {
 					var zeroVal *gqlmodel.ConditionInput
 					return zeroVal, errors.New("directive onlyOne is not implemented")
@@ -40669,10 +41223,10 @@ func (ec *executionContext) unmarshalInputUpdateViewInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateViewsOrderInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateViewsOrderInput, error) {
+func (ec *executionContext) unmarshalInputUpdateViewsOrderInput(ctx context.Context, obj any) (gqlmodel.UpdateViewsOrderInput, error) {
 	var it gqlmodel.UpdateViewsOrderInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40696,10 +41250,10 @@ func (ec *executionContext) unmarshalInputUpdateViewsOrderInput(ctx context.Cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateWebhookInput, error) {
+func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context, obj any) (gqlmodel.UpdateWebhookInput, error) {
 	var it gqlmodel.UpdateWebhookInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40765,10 +41319,10 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateWorkspaceInput, error) {
+func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Context, obj any) (gqlmodel.UpdateWorkspaceInput, error) {
 	var it gqlmodel.UpdateWorkspaceInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40799,10 +41353,10 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateWorkspaceSettingsInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateWorkspaceSettingsInput, error) {
+func (ec *executionContext) unmarshalInputUpdateWorkspaceSettingsInput(ctx context.Context, obj any) (gqlmodel.UpdateWorkspaceSettingsInput, error) {
 	var it gqlmodel.UpdateWorkspaceSettingsInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40840,10 +41394,10 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceSettingsInput(ctx conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUrlResourcePropsInput(ctx context.Context, obj interface{}) (gqlmodel.URLResourcePropsInput, error) {
+func (ec *executionContext) unmarshalInputUrlResourcePropsInput(ctx context.Context, obj any) (gqlmodel.URLResourcePropsInput, error) {
 	var it gqlmodel.URLResourcePropsInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40881,10 +41435,10 @@ func (ec *executionContext) unmarshalInputUrlResourcePropsInput(ctx context.Cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Context, obj interface{}) (gqlmodel.WebhookTriggerInput, error) {
+func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Context, obj any) (gqlmodel.WebhookTriggerInput, error) {
 	var it gqlmodel.WebhookTriggerInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
@@ -40965,13 +41519,20 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.AndCondition:
-		return ec._AndCondition(ctx, sel, &obj)
-	case *gqlmodel.AndCondition:
+	case gqlmodel.TimeFieldCondition:
+		return ec._TimeFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.TimeFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._AndCondition(ctx, sel, obj)
+		return ec._TimeFieldCondition(ctx, sel, obj)
+	case gqlmodel.StringFieldCondition:
+		return ec._StringFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.StringFieldCondition:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._StringFieldCondition(ctx, sel, obj)
 	case gqlmodel.OrCondition:
 		return ec._OrCondition(ctx, sel, &obj)
 	case *gqlmodel.OrCondition:
@@ -40979,13 +41540,13 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 			return graphql.Null
 		}
 		return ec._OrCondition(ctx, sel, obj)
-	case gqlmodel.BasicFieldCondition:
-		return ec._BasicFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.BasicFieldCondition:
+	case gqlmodel.NumberFieldCondition:
+		return ec._NumberFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.NumberFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._BasicFieldCondition(ctx, sel, obj)
+		return ec._NumberFieldCondition(ctx, sel, obj)
 	case gqlmodel.NullableFieldCondition:
 		return ec._NullableFieldCondition(ctx, sel, &obj)
 	case *gqlmodel.NullableFieldCondition:
@@ -41007,27 +41568,20 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 			return graphql.Null
 		}
 		return ec._BoolFieldCondition(ctx, sel, obj)
-	case gqlmodel.StringFieldCondition:
-		return ec._StringFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.StringFieldCondition:
+	case gqlmodel.BasicFieldCondition:
+		return ec._BasicFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.BasicFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._StringFieldCondition(ctx, sel, obj)
-	case gqlmodel.NumberFieldCondition:
-		return ec._NumberFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.NumberFieldCondition:
+		return ec._BasicFieldCondition(ctx, sel, obj)
+	case gqlmodel.AndCondition:
+		return ec._AndCondition(ctx, sel, &obj)
+	case *gqlmodel.AndCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._NumberFieldCondition(ctx, sel, obj)
-	case gqlmodel.TimeFieldCondition:
-		return ec._TimeFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.TimeFieldCondition:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TimeFieldCondition(ctx, sel, obj)
+		return ec._AndCondition(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41037,83 +41591,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.Asset:
-		return ec._Asset(ctx, sel, &obj)
-	case *gqlmodel.Asset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Asset(ctx, sel, obj)
-	case gqlmodel.Group:
-		return ec._Group(ctx, sel, &obj)
-	case *gqlmodel.Group:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Group(ctx, sel, obj)
-	case gqlmodel.Integration:
-		return ec._Integration(ctx, sel, &obj)
-	case *gqlmodel.Integration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Integration(ctx, sel, obj)
-	case gqlmodel.Item:
-		return ec._Item(ctx, sel, &obj)
-	case *gqlmodel.Item:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Item(ctx, sel, obj)
-	case gqlmodel.View:
-		return ec._View(ctx, sel, &obj)
-	case *gqlmodel.View:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._View(ctx, sel, obj)
-	case gqlmodel.Model:
-		return ec._Model(ctx, sel, &obj)
-	case *gqlmodel.Model:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Model(ctx, sel, obj)
-	case gqlmodel.Project:
-		return ec._Project(ctx, sel, &obj)
-	case *gqlmodel.Project:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Project(ctx, sel, obj)
-	case gqlmodel.Request:
-		return ec._Request(ctx, sel, &obj)
-	case *gqlmodel.Request:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Request(ctx, sel, obj)
-	case gqlmodel.Schema:
-		return ec._Schema(ctx, sel, &obj)
-	case *gqlmodel.Schema:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Schema(ctx, sel, obj)
-	case gqlmodel.User:
-		return ec._User(ctx, sel, &obj)
-	case *gqlmodel.User:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._User(ctx, sel, obj)
-	case gqlmodel.Workspace:
-		return ec._Workspace(ctx, sel, &obj)
-	case *gqlmodel.Workspace:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Workspace(ctx, sel, obj)
 	case gqlmodel.WorkspaceSettings:
 		return ec._WorkspaceSettings(ctx, sel, &obj)
 	case *gqlmodel.WorkspaceSettings:
@@ -41121,6 +41598,83 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._WorkspaceSettings(ctx, sel, obj)
+	case gqlmodel.Workspace:
+		return ec._Workspace(ctx, sel, &obj)
+	case *gqlmodel.Workspace:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Workspace(ctx, sel, obj)
+	case gqlmodel.View:
+		return ec._View(ctx, sel, &obj)
+	case *gqlmodel.View:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._View(ctx, sel, obj)
+	case gqlmodel.User:
+		return ec._User(ctx, sel, &obj)
+	case *gqlmodel.User:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
+	case gqlmodel.Schema:
+		return ec._Schema(ctx, sel, &obj)
+	case *gqlmodel.Schema:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Schema(ctx, sel, obj)
+	case gqlmodel.Request:
+		return ec._Request(ctx, sel, &obj)
+	case *gqlmodel.Request:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Request(ctx, sel, obj)
+	case gqlmodel.Project:
+		return ec._Project(ctx, sel, &obj)
+	case *gqlmodel.Project:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Project(ctx, sel, obj)
+	case gqlmodel.Model:
+		return ec._Model(ctx, sel, &obj)
+	case *gqlmodel.Model:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Model(ctx, sel, obj)
+	case gqlmodel.Item:
+		return ec._Item(ctx, sel, &obj)
+	case *gqlmodel.Item:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Item(ctx, sel, obj)
+	case gqlmodel.Integration:
+		return ec._Integration(ctx, sel, &obj)
+	case *gqlmodel.Integration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Integration(ctx, sel, obj)
+	case gqlmodel.Group:
+		return ec._Group(ctx, sel, &obj)
+	case *gqlmodel.Group:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Group(ctx, sel, obj)
+	case gqlmodel.Asset:
+		return ec._Asset(ctx, sel, &obj)
+	case *gqlmodel.Asset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Asset(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41176,90 +41730,6 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.SchemaFieldText:
-		return ec._SchemaFieldText(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldText:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldText(ctx, sel, obj)
-	case gqlmodel.SchemaFieldTextArea:
-		return ec._SchemaFieldTextArea(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldTextArea:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldTextArea(ctx, sel, obj)
-	case gqlmodel.SchemaFieldRichText:
-		return ec._SchemaFieldRichText(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldRichText:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldRichText(ctx, sel, obj)
-	case gqlmodel.SchemaFieldMarkdown:
-		return ec._SchemaFieldMarkdown(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldMarkdown:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldMarkdown(ctx, sel, obj)
-	case gqlmodel.SchemaFieldAsset:
-		return ec._SchemaFieldAsset(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldAsset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldAsset(ctx, sel, obj)
-	case gqlmodel.SchemaFieldDate:
-		return ec._SchemaFieldDate(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldDate:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldDate(ctx, sel, obj)
-	case gqlmodel.SchemaFieldBool:
-		return ec._SchemaFieldBool(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldBool:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldBool(ctx, sel, obj)
-	case gqlmodel.SchemaFieldSelect:
-		return ec._SchemaFieldSelect(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldSelect:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldSelect(ctx, sel, obj)
-	case gqlmodel.SchemaFieldTag:
-		return ec._SchemaFieldTag(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldTag:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldTag(ctx, sel, obj)
-	case gqlmodel.SchemaFieldInteger:
-		return ec._SchemaFieldInteger(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldInteger:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldInteger(ctx, sel, obj)
-	case gqlmodel.SchemaFieldNumber:
-		return ec._SchemaFieldNumber(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldNumber:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldNumber(ctx, sel, obj)
-	case gqlmodel.SchemaFieldReference:
-		return ec._SchemaFieldReference(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldReference:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldReference(ctx, sel, obj)
 	case gqlmodel.SchemaFieldURL:
 		return ec._SchemaFieldURL(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldURL:
@@ -41267,13 +41737,69 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldURL(ctx, sel, obj)
-	case gqlmodel.SchemaFieldCheckbox:
-		return ec._SchemaFieldCheckbox(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldCheckbox:
+	case gqlmodel.SchemaFieldTextArea:
+		return ec._SchemaFieldTextArea(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldTextArea:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SchemaFieldCheckbox(ctx, sel, obj)
+		return ec._SchemaFieldTextArea(ctx, sel, obj)
+	case gqlmodel.SchemaFieldText:
+		return ec._SchemaFieldText(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldText:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldText(ctx, sel, obj)
+	case gqlmodel.SchemaFieldTag:
+		return ec._SchemaFieldTag(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldTag:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldTag(ctx, sel, obj)
+	case gqlmodel.SchemaFieldSelect:
+		return ec._SchemaFieldSelect(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldSelect:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldSelect(ctx, sel, obj)
+	case gqlmodel.SchemaFieldRichText:
+		return ec._SchemaFieldRichText(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldRichText:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldRichText(ctx, sel, obj)
+	case gqlmodel.SchemaFieldReference:
+		return ec._SchemaFieldReference(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldReference:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldReference(ctx, sel, obj)
+	case gqlmodel.SchemaFieldNumber:
+		return ec._SchemaFieldNumber(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldNumber:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldNumber(ctx, sel, obj)
+	case gqlmodel.SchemaFieldMarkdown:
+		return ec._SchemaFieldMarkdown(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldMarkdown:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldMarkdown(ctx, sel, obj)
+	case gqlmodel.SchemaFieldInteger:
+		return ec._SchemaFieldInteger(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldInteger:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldInteger(ctx, sel, obj)
 	case gqlmodel.SchemaFieldGroup:
 		return ec._SchemaFieldGroup(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldGroup:
@@ -41295,6 +41821,34 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldGeometryEditor(ctx, sel, obj)
+	case gqlmodel.SchemaFieldDate:
+		return ec._SchemaFieldDate(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldDate:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldDate(ctx, sel, obj)
+	case gqlmodel.SchemaFieldCheckbox:
+		return ec._SchemaFieldCheckbox(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldCheckbox:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldCheckbox(ctx, sel, obj)
+	case gqlmodel.SchemaFieldBool:
+		return ec._SchemaFieldBool(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldBool:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldBool(ctx, sel, obj)
+	case gqlmodel.SchemaFieldAsset:
+		return ec._SchemaFieldAsset(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldAsset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldAsset(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41553,6 +42107,8 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "previewType":
 			out.Values[i] = ec._Asset_previewType(ctx, field, obj)
+		case "contentEncoding":
+			out.Values[i] = ec._Asset_contentEncoding(ctx, field, obj)
 		case "uuid":
 			out.Values[i] = ec._Asset_uuid(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -41593,9 +42149,6 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "threadId":
 			out.Values[i] = ec._Asset_threadId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "url":
 			out.Values[i] = ec._Asset_url(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -41749,6 +42302,8 @@ func (ec *executionContext) _AssetFile(ctx context.Context, sel ast.SelectionSet
 			}
 		case "contentType":
 			out.Values[i] = ec._AssetFile_contentType(ctx, field, obj)
+		case "contentEncoding":
+			out.Values[i] = ec._AssetFile_contentEncoding(ctx, field, obj)
 		case "path":
 			out.Values[i] = ec._AssetFile_path(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -42237,6 +42792,8 @@ func (ec *executionContext) _CreateAssetUploadPayload(ctx context.Context, sel a
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "contentEncoding":
+			out.Values[i] = ec._CreateAssetUploadPayload_contentEncoding(ctx, field, obj)
 		case "next":
 			out.Values[i] = ec._CreateAssetUploadPayload_next(ctx, field, obj)
 		default:
@@ -42356,6 +42913,42 @@ func (ec *executionContext) _DeleteAssetPayload(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deleteAssetsPayloadImplementors = []string{"DeleteAssetsPayload"}
+
+func (ec *executionContext) _DeleteAssetsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteAssetsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteAssetsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteAssetsPayload")
+		case "assetIds":
+			out.Values[i] = ec._DeleteAssetsPayload_assetIds(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -42517,6 +43110,42 @@ func (ec *executionContext) _DeleteIntegrationPayload(ctx context.Context, sel a
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deleteIntegrationsPayloadImplementors = []string{"DeleteIntegrationsPayload"}
+
+func (ec *executionContext) _DeleteIntegrationsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteIntegrationsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteIntegrationsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteIntegrationsPayload")
+		case "integrationIDs":
+			out.Values[i] = ec._DeleteIntegrationsPayload_integrationIDs(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -43410,9 +44039,6 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "threadId":
 			out.Values[i] = ec._Item_threadId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "modelId":
 			out.Values[i] = ec._Item_modelId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -43620,16 +44246,13 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 		case "thread":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Item_thread(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -44783,6 +45406,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteAsset(ctx, field)
 			})
+		case "deleteAssets":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteAssets(ctx, field)
+			})
 		case "decompressAsset":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_decompressAsset(ctx, field)
@@ -44834,6 +45461,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteIntegration":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteIntegration(ctx, field)
+			})
+		case "deleteIntegrations":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteIntegrations(ctx, field)
 			})
 		case "regenerateIntegrationToken":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -44907,6 +45538,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_publishModel(ctx, field)
 			})
+		case "publishModels":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_publishModels(ctx, field)
+			})
 		case "createProject":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createProject(ctx, field)
@@ -44939,9 +45574,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteRequest(ctx, field)
 			})
-		case "createThread":
+		case "createThreadWithComment":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createThread(ctx, field)
+				return ec._Mutation_createThreadWithComment(ctx, field)
 			})
 		case "addComment":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -45623,6 +46258,45 @@ func (ec *executionContext) _PublishModelPayload(ctx context.Context, sel ast.Se
 	return out
 }
 
+var publishModelsPayloadImplementors = []string{"PublishModelsPayload"}
+
+func (ec *executionContext) _PublishModelsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PublishModelsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, publishModelsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PublishModelsPayload")
+		case "models":
+			out.Values[i] = ec._PublishModelsPayload_models(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -46205,9 +46879,6 @@ func (ec *executionContext) _Request(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "threadId":
 			out.Values[i] = ec._Request_threadId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "reviewersId":
 			out.Values[i] = ec._Request_reviewersId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47881,45 +48552,6 @@ func (ec *executionContext) _Thread(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var threadPayloadImplementors = []string{"ThreadPayload"}
-
-func (ec *executionContext) _ThreadPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ThreadPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, threadPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ThreadPayload")
-		case "thread":
-			out.Values[i] = ec._ThreadPayload_thread(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var tileResourceImplementors = []string{"TileResource", "Resource"}
 
 func (ec *executionContext) _TileResource(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.TileResource) graphql.Marshaler {
@@ -49020,6 +49652,11 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 			}
 		case "description":
 			out.Values[i] = ec.___Directive_description(ctx, field, obj)
+		case "isRepeatable":
+			out.Values[i] = ec.___Directive_isRepeatable(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "locations":
 			out.Values[i] = ec.___Directive_locations(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -49027,11 +49664,6 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 			}
 		case "args":
 			out.Values[i] = ec.___Directive_args(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "isRepeatable":
-			out.Values[i] = ec.___Directive_isRepeatable(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -49189,6 +49821,13 @@ func (ec *executionContext) ___InputValue(ctx context.Context, sel ast.Selection
 			}
 		case "defaultValue":
 			out.Values[i] = ec.___InputValue_defaultValue(ctx, field, obj)
+		case "isDeprecated":
+			out.Values[i] = ec.___InputValue_isDeprecated(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deprecationReason":
+			out.Values[i] = ec.___InputValue_deprecationReason(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -49287,6 +49926,8 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec.___Type_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec.___Type_description(ctx, field, obj)
+		case "specifiedByURL":
+			out.Values[i] = ec.___Type_specifiedByURL(ctx, field, obj)
 		case "fields":
 			out.Values[i] = ec.___Type_fields(ctx, field, obj)
 		case "interfaces":
@@ -49299,8 +49940,8 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec.___Type_inputFields(ctx, field, obj)
 		case "ofType":
 			out.Values[i] = ec.___Type_ofType(ctx, field, obj)
-		case "specifiedByURL":
-			out.Values[i] = ec.___Type_specifiedByURL(ctx, field, obj)
+		case "isOneOf":
+			out.Values[i] = ec.___Type_isOneOf(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -49328,22 +49969,22 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNAddCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddCommentInput(ctx context.Context, v interface{}) (gqlmodel.AddCommentInput, error) {
+func (ec *executionContext) unmarshalNAddCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddCommentInput(ctx context.Context, v any) (gqlmodel.AddCommentInput, error) {
 	res, err := ec.unmarshalInputAddCommentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNAddIntegrationToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddIntegrationToWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.AddIntegrationToWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNAddIntegrationToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddIntegrationToWorkspaceInput(ctx context.Context, v any) (gqlmodel.AddIntegrationToWorkspaceInput, error) {
 	res, err := ec.unmarshalInputAddIntegrationToWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNAddUsersToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.AddUsersToWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNAddUsersToWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspaceInput(ctx context.Context, v any) (gqlmodel.AddUsersToWorkspaceInput, error) {
 	res, err := ec.unmarshalInputAddUsersToWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNAny2interface(ctx context.Context, v interface{}) (any, error) {
+func (ec *executionContext) unmarshalNAny2interface(ctx context.Context, v any) (any, error) {
 	res, err := graphql.UnmarshalAny(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -49364,11 +50005,9 @@ func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNAny2ᚕinterfaceᚄ(ctx context.Context, v interface{}) ([]any, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNAny2ᚕinterfaceᚄ(ctx context.Context, v any) ([]any, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]any, len(vSlice))
 	for i := range vSlice {
@@ -49396,7 +50035,7 @@ func (ec *executionContext) marshalNAny2ᚕinterfaceᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) unmarshalNApproveRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐApproveRequestInput(ctx context.Context, v interface{}) (gqlmodel.ApproveRequestInput, error) {
+func (ec *executionContext) unmarshalNApproveRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐApproveRequestInput(ctx context.Context, v any) (gqlmodel.ApproveRequestInput, error) {
 	res, err := ec.unmarshalInputApproveRequestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -49541,7 +50180,7 @@ func (ec *executionContext) marshalNAssetItem2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._AssetItem(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx context.Context, v interface{}) (gqlmodel.AssetSortType, error) {
+func (ec *executionContext) unmarshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx context.Context, v any) (gqlmodel.AssetSortType, error) {
 	var res gqlmodel.AssetSortType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -49551,7 +50190,7 @@ func (ec *executionContext) marshalNAssetSortType2githubᚗcomᚋreearthᚋreear
 	return v
 }
 
-func (ec *executionContext) unmarshalNBasicOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicOperator(ctx context.Context, v interface{}) (gqlmodel.BasicOperator, error) {
+func (ec *executionContext) unmarshalNBasicOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicOperator(ctx context.Context, v any) (gqlmodel.BasicOperator, error) {
 	var res gqlmodel.BasicOperator
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -49561,7 +50200,7 @@ func (ec *executionContext) marshalNBasicOperator2githubᚗcomᚋreearthᚋreear
 	return v
 }
 
-func (ec *executionContext) unmarshalNBoolOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolOperator(ctx context.Context, v interface{}) (gqlmodel.BoolOperator, error) {
+func (ec *executionContext) unmarshalNBoolOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolOperator(ctx context.Context, v any) (gqlmodel.BoolOperator, error) {
 	var res gqlmodel.BoolOperator
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -49571,7 +50210,7 @@ func (ec *executionContext) marshalNBoolOperator2githubᚗcomᚋreearthᚋreeart
 	return v
 }
 
-func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
+func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -49596,7 +50235,7 @@ func (ec *executionContext) marshalNColumn2ᚖgithubᚗcomᚋreearthᚋreearth�
 	return ec._Column(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNColumnSelectionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInput(ctx context.Context, v interface{}) (*gqlmodel.ColumnSelectionInput, error) {
+func (ec *executionContext) unmarshalNColumnSelectionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInput(ctx context.Context, v any) (*gqlmodel.ColumnSelectionInput, error) {
 	res, err := ec.unmarshalInputColumnSelectionInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -49709,11 +50348,9 @@ func (ec *executionContext) marshalNCondition2ᚕgithubᚗcomᚋreearthᚋreeart
 	return ret
 }
 
-func (ec *executionContext) unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.ConditionInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ConditionInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ConditionInput, len(vSlice))
 	for i := range vSlice {
@@ -49726,77 +50363,77 @@ func (ec *executionContext) unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreeart
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx context.Context, v interface{}) (*gqlmodel.ConditionInput, error) {
+func (ec *executionContext) unmarshalNConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx context.Context, v any) (*gqlmodel.ConditionInput, error) {
 	res, err := ec.unmarshalInputConditionInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetInput(ctx context.Context, v interface{}) (gqlmodel.CreateAssetInput, error) {
+func (ec *executionContext) unmarshalNCreateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetInput(ctx context.Context, v any) (gqlmodel.CreateAssetInput, error) {
 	res, err := ec.unmarshalInputCreateAssetInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateAssetUploadInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetUploadInput(ctx context.Context, v interface{}) (gqlmodel.CreateAssetUploadInput, error) {
+func (ec *executionContext) unmarshalNCreateAssetUploadInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetUploadInput(ctx context.Context, v any) (gqlmodel.CreateAssetUploadInput, error) {
 	res, err := ec.unmarshalInputCreateAssetUploadInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v interface{}) (gqlmodel.CreateFieldInput, error) {
+func (ec *executionContext) unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v any) (gqlmodel.CreateFieldInput, error) {
 	res, err := ec.unmarshalInputCreateFieldInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateGroupInput(ctx context.Context, v interface{}) (gqlmodel.CreateGroupInput, error) {
+func (ec *executionContext) unmarshalNCreateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateGroupInput(ctx context.Context, v any) (gqlmodel.CreateGroupInput, error) {
 	res, err := ec.unmarshalInputCreateGroupInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateIntegrationInput(ctx context.Context, v interface{}) (gqlmodel.CreateIntegrationInput, error) {
+func (ec *executionContext) unmarshalNCreateIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateIntegrationInput(ctx context.Context, v any) (gqlmodel.CreateIntegrationInput, error) {
 	res, err := ec.unmarshalInputCreateIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateItemInput(ctx context.Context, v interface{}) (gqlmodel.CreateItemInput, error) {
+func (ec *executionContext) unmarshalNCreateItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateItemInput(ctx context.Context, v any) (gqlmodel.CreateItemInput, error) {
 	res, err := ec.unmarshalInputCreateItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateModelInput(ctx context.Context, v interface{}) (gqlmodel.CreateModelInput, error) {
+func (ec *executionContext) unmarshalNCreateModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateModelInput(ctx context.Context, v any) (gqlmodel.CreateModelInput, error) {
 	res, err := ec.unmarshalInputCreateModelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateProjectInput(ctx context.Context, v interface{}) (gqlmodel.CreateProjectInput, error) {
+func (ec *executionContext) unmarshalNCreateProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateProjectInput(ctx context.Context, v any) (gqlmodel.CreateProjectInput, error) {
 	res, err := ec.unmarshalInputCreateProjectInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateRequestInput(ctx context.Context, v interface{}) (gqlmodel.CreateRequestInput, error) {
+func (ec *executionContext) unmarshalNCreateRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateRequestInput(ctx context.Context, v any) (gqlmodel.CreateRequestInput, error) {
 	res, err := ec.unmarshalInputCreateRequestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateThreadInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadInput(ctx context.Context, v interface{}) (gqlmodel.CreateThreadInput, error) {
-	res, err := ec.unmarshalInputCreateThreadInput(ctx, v)
+func (ec *executionContext) unmarshalNCreateThreadWithCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateThreadWithCommentInput(ctx context.Context, v any) (gqlmodel.CreateThreadWithCommentInput, error) {
+	res, err := ec.unmarshalInputCreateThreadWithCommentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateViewInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateViewInput(ctx context.Context, v interface{}) (gqlmodel.CreateViewInput, error) {
+func (ec *executionContext) unmarshalNCreateViewInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateViewInput(ctx context.Context, v any) (gqlmodel.CreateViewInput, error) {
 	res, err := ec.unmarshalInputCreateViewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateWebhookInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWebhookInput(ctx context.Context, v interface{}) (gqlmodel.CreateWebhookInput, error) {
+func (ec *executionContext) unmarshalNCreateWebhookInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWebhookInput(ctx context.Context, v any) (gqlmodel.CreateWebhookInput, error) {
 	res, err := ec.unmarshalInputCreateWebhookInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.CreateWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNCreateWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWorkspaceInput(ctx context.Context, v any) (gqlmodel.CreateWorkspaceInput, error) {
 	res, err := ec.unmarshalInputCreateWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCursor2githubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx context.Context, v interface{}) (usecasex.Cursor, error) {
+func (ec *executionContext) unmarshalNCursor2githubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx context.Context, v any) (usecasex.Cursor, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := usecasex.Cursor(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -49812,7 +50449,7 @@ func (ec *executionContext) marshalNCursor2githubᚗcomᚋreearthᚋreearthxᚋu
 	return res
 }
 
-func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -49827,72 +50464,82 @@ func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, se
 	return res
 }
 
-func (ec *executionContext) unmarshalNDecompressAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDecompressAssetInput(ctx context.Context, v interface{}) (gqlmodel.DecompressAssetInput, error) {
+func (ec *executionContext) unmarshalNDecompressAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDecompressAssetInput(ctx context.Context, v any) (gqlmodel.DecompressAssetInput, error) {
 	res, err := ec.unmarshalInputDecompressAssetInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetInput(ctx context.Context, v interface{}) (gqlmodel.DeleteAssetInput, error) {
+func (ec *executionContext) unmarshalNDeleteAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetInput(ctx context.Context, v any) (gqlmodel.DeleteAssetInput, error) {
 	res, err := ec.unmarshalInputDeleteAssetInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteCommentInput(ctx context.Context, v interface{}) (gqlmodel.DeleteCommentInput, error) {
+func (ec *executionContext) unmarshalNDeleteAssetsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetsInput(ctx context.Context, v any) (gqlmodel.DeleteAssetsInput, error) {
+	res, err := ec.unmarshalInputDeleteAssetsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDeleteCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteCommentInput(ctx context.Context, v any) (gqlmodel.DeleteCommentInput, error) {
 	res, err := ec.unmarshalInputDeleteCommentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteFieldInput(ctx context.Context, v interface{}) (gqlmodel.DeleteFieldInput, error) {
+func (ec *executionContext) unmarshalNDeleteFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteFieldInput(ctx context.Context, v any) (gqlmodel.DeleteFieldInput, error) {
 	res, err := ec.unmarshalInputDeleteFieldInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupInput(ctx context.Context, v interface{}) (gqlmodel.DeleteGroupInput, error) {
+func (ec *executionContext) unmarshalNDeleteGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupInput(ctx context.Context, v any) (gqlmodel.DeleteGroupInput, error) {
 	res, err := ec.unmarshalInputDeleteGroupInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationInput(ctx context.Context, v interface{}) (gqlmodel.DeleteIntegrationInput, error) {
+func (ec *executionContext) unmarshalNDeleteIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationInput(ctx context.Context, v any) (gqlmodel.DeleteIntegrationInput, error) {
 	res, err := ec.unmarshalInputDeleteIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemInput(ctx context.Context, v interface{}) (gqlmodel.DeleteItemInput, error) {
+func (ec *executionContext) unmarshalNDeleteIntegrationsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationsInput(ctx context.Context, v any) (gqlmodel.DeleteIntegrationsInput, error) {
+	res, err := ec.unmarshalInputDeleteIntegrationsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDeleteItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemInput(ctx context.Context, v any) (gqlmodel.DeleteItemInput, error) {
 	res, err := ec.unmarshalInputDeleteItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteMeInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteMeInput(ctx context.Context, v interface{}) (gqlmodel.DeleteMeInput, error) {
+func (ec *executionContext) unmarshalNDeleteMeInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteMeInput(ctx context.Context, v any) (gqlmodel.DeleteMeInput, error) {
 	res, err := ec.unmarshalInputDeleteMeInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteModelInput(ctx context.Context, v interface{}) (gqlmodel.DeleteModelInput, error) {
+func (ec *executionContext) unmarshalNDeleteModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteModelInput(ctx context.Context, v any) (gqlmodel.DeleteModelInput, error) {
 	res, err := ec.unmarshalInputDeleteModelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteProjectInput(ctx context.Context, v interface{}) (gqlmodel.DeleteProjectInput, error) {
+func (ec *executionContext) unmarshalNDeleteProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteProjectInput(ctx context.Context, v any) (gqlmodel.DeleteProjectInput, error) {
 	res, err := ec.unmarshalInputDeleteProjectInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteRequestInput(ctx context.Context, v interface{}) (gqlmodel.DeleteRequestInput, error) {
+func (ec *executionContext) unmarshalNDeleteRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteRequestInput(ctx context.Context, v any) (gqlmodel.DeleteRequestInput, error) {
 	res, err := ec.unmarshalInputDeleteRequestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteViewInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteViewInput(ctx context.Context, v interface{}) (gqlmodel.DeleteViewInput, error) {
+func (ec *executionContext) unmarshalNDeleteViewInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteViewInput(ctx context.Context, v any) (gqlmodel.DeleteViewInput, error) {
 	res, err := ec.unmarshalInputDeleteViewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteWebhookInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteWebhookInput(ctx context.Context, v interface{}) (gqlmodel.DeleteWebhookInput, error) {
+func (ec *executionContext) unmarshalNDeleteWebhookInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteWebhookInput(ctx context.Context, v any) (gqlmodel.DeleteWebhookInput, error) {
 	res, err := ec.unmarshalInputDeleteWebhookInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.DeleteWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteWorkspaceInput(ctx context.Context, v any) (gqlmodel.DeleteWorkspaceInput, error) {
 	res, err := ec.unmarshalInputDeleteWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -49907,12 +50554,12 @@ func (ec *executionContext) marshalNFieldSelector2ᚖgithubᚗcomᚋreearthᚋre
 	return ec._FieldSelector(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNFieldSelectorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorInput(ctx context.Context, v interface{}) (*gqlmodel.FieldSelectorInput, error) {
+func (ec *executionContext) unmarshalNFieldSelectorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorInput(ctx context.Context, v any) (*gqlmodel.FieldSelectorInput, error) {
 	res, err := ec.unmarshalInputFieldSelectorInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldType(ctx context.Context, v interface{}) (gqlmodel.FieldType, error) {
+func (ec *executionContext) unmarshalNFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldType(ctx context.Context, v any) (gqlmodel.FieldType, error) {
 	var res gqlmodel.FieldType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -49922,7 +50569,7 @@ func (ec *executionContext) marshalNFieldType2githubᚗcomᚋreearthᚋreearth�
 	return v
 }
 
-func (ec *executionContext) unmarshalNFileSize2int64(ctx context.Context, v interface{}) (int64, error) {
+func (ec *executionContext) unmarshalNFileSize2int64(ctx context.Context, v any) (int64, error) {
 	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -49937,7 +50584,7 @@ func (ec *executionContext) marshalNFileSize2int64(ctx context.Context, sel ast.
 	return res
 }
 
-func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v any) (float64, error) {
 	res, err := graphql.UnmarshalFloatContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -49952,7 +50599,7 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) unmarshalNGeometryEditorSupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedType(ctx context.Context, v interface{}) (gqlmodel.GeometryEditorSupportedType, error) {
+func (ec *executionContext) unmarshalNGeometryEditorSupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedType(ctx context.Context, v any) (gqlmodel.GeometryEditorSupportedType, error) {
 	var res gqlmodel.GeometryEditorSupportedType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -49962,11 +50609,9 @@ func (ec *executionContext) marshalNGeometryEditorSupportedType2githubᚗcomᚋr
 	return v
 }
 
-func (ec *executionContext) unmarshalNGeometryEditorSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedTypeᚄ(ctx context.Context, v interface{}) ([]gqlmodel.GeometryEditorSupportedType, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNGeometryEditorSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedTypeᚄ(ctx context.Context, v any) ([]gqlmodel.GeometryEditorSupportedType, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.GeometryEditorSupportedType, len(vSlice))
 	for i := range vSlice {
@@ -50023,7 +50668,7 @@ func (ec *executionContext) marshalNGeometryEditorSupportedType2ᚕgithubᚗcom�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNGeometryObjectSupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedType(ctx context.Context, v interface{}) (gqlmodel.GeometryObjectSupportedType, error) {
+func (ec *executionContext) unmarshalNGeometryObjectSupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedType(ctx context.Context, v any) (gqlmodel.GeometryObjectSupportedType, error) {
 	var res gqlmodel.GeometryObjectSupportedType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -50033,11 +50678,9 @@ func (ec *executionContext) marshalNGeometryObjectSupportedType2githubᚗcomᚋr
 	return v
 }
 
-func (ec *executionContext) unmarshalNGeometryObjectSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedTypeᚄ(ctx context.Context, v interface{}) ([]gqlmodel.GeometryObjectSupportedType, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNGeometryObjectSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedTypeᚄ(ctx context.Context, v any) ([]gqlmodel.GeometryObjectSupportedType, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.GeometryObjectSupportedType, len(vSlice))
 	for i := range vSlice {
@@ -50186,7 +50829,7 @@ func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑ
 	return ec._Group(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (gqlmodel.ID, error) {
+func (ec *executionContext) unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v any) (gqlmodel.ID, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := gqlmodel.ID(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -50202,11 +50845,9 @@ func (ec *executionContext) marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋ
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx context.Context, v interface{}) ([]gqlmodel.ID, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx context.Context, v any) ([]gqlmodel.ID, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.ID, len(vSlice))
 	for i := range vSlice {
@@ -50234,7 +50875,7 @@ func (ec *executionContext) marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ret
 }
 
-func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -50303,7 +50944,7 @@ func (ec *executionContext) marshalNIntegration2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._Integration(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNIntegrationType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationType(ctx context.Context, v interface{}) (gqlmodel.IntegrationType, error) {
+func (ec *executionContext) unmarshalNIntegrationType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationType(ctx context.Context, v any) (gqlmodel.IntegrationType, error) {
 	var res gqlmodel.IntegrationType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -50527,11 +51168,9 @@ func (ec *executionContext) marshalNItemField2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._ItemField(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.ItemFieldInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ItemFieldInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ItemFieldInput, len(vSlice))
 	for i := range vSlice {
@@ -50544,17 +51183,17 @@ func (ec *executionContext) unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreeart
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNItemFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInput(ctx context.Context, v interface{}) (*gqlmodel.ItemFieldInput, error) {
+func (ec *executionContext) unmarshalNItemFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInput(ctx context.Context, v any) (*gqlmodel.ItemFieldInput, error) {
 	res, err := ec.unmarshalInputItemFieldInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNItemQueryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemQueryInput(ctx context.Context, v interface{}) (*gqlmodel.ItemQueryInput, error) {
+func (ec *executionContext) unmarshalNItemQueryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemQueryInput(ctx context.Context, v any) (*gqlmodel.ItemQueryInput, error) {
 	res, err := ec.unmarshalInputItemQueryInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx context.Context, v interface{}) (gqlmodel.ItemStatus, error) {
+func (ec *executionContext) unmarshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx context.Context, v any) (gqlmodel.ItemStatus, error) {
 	var res gqlmodel.ItemStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -50578,7 +51217,7 @@ func (ec *executionContext) marshalNKeyAvailability2ᚖgithubᚗcomᚋreearthᚋ
 	return ec._KeyAvailability(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNLang2golangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx context.Context, v interface{}) (language.Tag, error) {
+func (ec *executionContext) unmarshalNLang2golangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx context.Context, v any) (language.Tag, error) {
 	res, err := gqlmodel.UnmarshalLang(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -50603,11 +51242,9 @@ func (ec *executionContext) marshalNMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ec._Me(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.MemberInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInputᚄ(ctx context.Context, v any) ([]*gqlmodel.MemberInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.MemberInput, len(vSlice))
 	for i := range vSlice {
@@ -50620,7 +51257,7 @@ func (ec *executionContext) unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearth�
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNMemberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInput(ctx context.Context, v interface{}) (*gqlmodel.MemberInput, error) {
+func (ec *executionContext) unmarshalNMemberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInput(ctx context.Context, v any) (*gqlmodel.MemberInput, error) {
 	res, err := ec.unmarshalInputMemberInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -50789,7 +51426,7 @@ func (ec *executionContext) marshalNModelEdge2ᚖgithubᚗcomᚋreearthᚋreeart
 	return ec._ModelEdge(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNMultipleOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleOperator(ctx context.Context, v interface{}) (gqlmodel.MultipleOperator, error) {
+func (ec *executionContext) unmarshalNMultipleOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleOperator(ctx context.Context, v any) (gqlmodel.MultipleOperator, error) {
 	var res gqlmodel.MultipleOperator
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -50837,7 +51474,7 @@ func (ec *executionContext) marshalNNode2ᚕgithubᚗcomᚋreearthᚋreearthᚑc
 	return ret
 }
 
-func (ec *executionContext) unmarshalNNodeType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNodeType(ctx context.Context, v interface{}) (gqlmodel.NodeType, error) {
+func (ec *executionContext) unmarshalNNodeType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNodeType(ctx context.Context, v any) (gqlmodel.NodeType, error) {
 	var res gqlmodel.NodeType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -50847,7 +51484,7 @@ func (ec *executionContext) marshalNNodeType2githubᚗcomᚋreearthᚋreearthᚑ
 	return v
 }
 
-func (ec *executionContext) unmarshalNNullableOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableOperator(ctx context.Context, v interface{}) (gqlmodel.NullableOperator, error) {
+func (ec *executionContext) unmarshalNNullableOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableOperator(ctx context.Context, v any) (gqlmodel.NullableOperator, error) {
 	var res gqlmodel.NullableOperator
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -50857,7 +51494,7 @@ func (ec *executionContext) marshalNNullableOperator2githubᚗcomᚋreearthᚋre
 	return v
 }
 
-func (ec *executionContext) unmarshalNNumberOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberOperator(ctx context.Context, v interface{}) (gqlmodel.NumberOperator, error) {
+func (ec *executionContext) unmarshalNNumberOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberOperator(ctx context.Context, v any) (gqlmodel.NumberOperator, error) {
 	var res gqlmodel.NumberOperator
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -50877,7 +51514,7 @@ func (ec *executionContext) marshalNOperator2githubᚗcomᚋreearthᚋreearthᚑ
 	return ec._Operator(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx context.Context, v interface{}) (gqlmodel.OperatorType, error) {
+func (ec *executionContext) unmarshalNOperatorType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperatorType(ctx context.Context, v any) (gqlmodel.OperatorType, error) {
 	var res gqlmodel.OperatorType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51031,7 +51668,7 @@ func (ec *executionContext) marshalNProjectEdge2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._ProjectEdge(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNProjectPublicationScope2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, v interface{}) (gqlmodel.ProjectPublicationScope, error) {
+func (ec *executionContext) unmarshalNProjectPublicationScope2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, v any) (gqlmodel.ProjectPublicationScope, error) {
 	var res gqlmodel.ProjectPublicationScope
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51041,37 +51678,116 @@ func (ec *executionContext) marshalNProjectPublicationScope2githubᚗcomᚋreear
 	return v
 }
 
-func (ec *executionContext) unmarshalNPublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishItemInput(ctx context.Context, v interface{}) (gqlmodel.PublishItemInput, error) {
+func (ec *executionContext) unmarshalNPublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishItemInput(ctx context.Context, v any) (gqlmodel.PublishItemInput, error) {
 	res, err := ec.unmarshalInputPublishItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx context.Context, v interface{}) (gqlmodel.PublishModelInput, error) {
+func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx context.Context, v any) (gqlmodel.PublishModelInput, error) {
 	res, err := ec.unmarshalInputPublishModelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRegenerateIntegrationTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateIntegrationTokenInput(ctx context.Context, v interface{}) (gqlmodel.RegenerateIntegrationTokenInput, error) {
+func (ec *executionContext) unmarshalNPublishModelInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInputᚄ(ctx context.Context, v any) ([]*gqlmodel.PublishModelInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*gqlmodel.PublishModelInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNPublishModelInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNPublishModelInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx context.Context, v any) (*gqlmodel.PublishModelInput, error) {
+	res, err := ec.unmarshalInputPublishModelInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPublishModelPayload2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayloadᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.PublishModelPayload) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPublishModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayload(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPublishModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublishModelPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PublishModelPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPublishModelsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelsInput(ctx context.Context, v any) (gqlmodel.PublishModelsInput, error) {
+	res, err := ec.unmarshalInputPublishModelsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRegenerateIntegrationTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateIntegrationTokenInput(ctx context.Context, v any) (gqlmodel.RegenerateIntegrationTokenInput, error) {
 	res, err := ec.unmarshalInputRegenerateIntegrationTokenInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRegeneratePublicApiTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegeneratePublicAPITokenInput(ctx context.Context, v interface{}) (gqlmodel.RegeneratePublicAPITokenInput, error) {
+func (ec *executionContext) unmarshalNRegeneratePublicApiTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegeneratePublicAPITokenInput(ctx context.Context, v any) (gqlmodel.RegeneratePublicAPITokenInput, error) {
 	res, err := ec.unmarshalInputRegeneratePublicApiTokenInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRemoveIntegrationFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationFromWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNRemoveIntegrationFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationFromWorkspaceInput(ctx context.Context, v any) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
 	res, err := ec.unmarshalInputRemoveIntegrationFromWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRemoveMultipleMembersFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNRemoveMultipleMembersFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, v any) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
 	res, err := ec.unmarshalInputRemoveMultipleMembersFromWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRemoveMyAuthInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMyAuthInput(ctx context.Context, v interface{}) (gqlmodel.RemoveMyAuthInput, error) {
+func (ec *executionContext) unmarshalNRemoveMyAuthInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMyAuthInput(ctx context.Context, v any) (gqlmodel.RemoveMyAuthInput, error) {
 	res, err := ec.unmarshalInputRemoveMyAuthInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -51246,11 +51962,9 @@ func (ec *executionContext) marshalNRequestItem2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._RequestItem(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.RequestItemInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNRequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx context.Context, v any) ([]*gqlmodel.RequestItemInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.RequestItemInput, len(vSlice))
 	for i := range vSlice {
@@ -51263,12 +51977,12 @@ func (ec *executionContext) unmarshalNRequestItemInput2ᚕᚖgithubᚗcomᚋreea
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNRequestItemInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInput(ctx context.Context, v interface{}) (*gqlmodel.RequestItemInput, error) {
+func (ec *executionContext) unmarshalNRequestItemInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInput(ctx context.Context, v any) (*gqlmodel.RequestItemInput, error) {
 	res, err := ec.unmarshalInputRequestItemInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRequestState2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx context.Context, v interface{}) (gqlmodel.RequestState, error) {
+func (ec *executionContext) unmarshalNRequestState2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx context.Context, v any) (gqlmodel.RequestState, error) {
 	var res gqlmodel.RequestState
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51332,11 +52046,9 @@ func (ec *executionContext) marshalNResource2ᚕgithubᚗcomᚋreearthᚋreearth
 	return ret
 }
 
-func (ec *executionContext) unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.ResourceInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ResourceInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ResourceInput, len(vSlice))
 	for i := range vSlice {
@@ -51349,12 +52061,22 @@ func (ec *executionContext) unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearth
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInput(ctx context.Context, v interface{}) (*gqlmodel.ResourceInput, error) {
+func (ec *executionContext) unmarshalNResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInput(ctx context.Context, v any) (*gqlmodel.ResourceInput, error) {
 	res, err := ec.unmarshalInputResourceInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx context.Context, v interface{}) (gqlmodel.Role, error) {
+func (ec *executionContext) unmarshalNResourceType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx context.Context, v any) (gqlmodel.ResourceType, error) {
+	var res gqlmodel.ResourceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNResourceType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ResourceType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx context.Context, v any) (gqlmodel.Role, error) {
 	var res gqlmodel.Role
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51432,7 +52154,7 @@ func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._SchemaField(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, v interface{}) (gqlmodel.SchemaFieldTagColor, error) {
+func (ec *executionContext) unmarshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, v any) (gqlmodel.SchemaFieldTagColor, error) {
 	var res gqlmodel.SchemaFieldTagColor
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51496,11 +52218,9 @@ func (ec *executionContext) marshalNSchemaFieldTagValue2ᚖgithubᚗcomᚋreeart
 	return ec._SchemaFieldTagValue(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.SchemaFieldTagValueInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInputᚄ(ctx context.Context, v any) ([]*gqlmodel.SchemaFieldTagValueInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.SchemaFieldTagValueInput, len(vSlice))
 	for i := range vSlice {
@@ -51513,12 +52233,12 @@ func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚕᚖgithubᚗco
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTagValueInput, error) {
+func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldTagValueInput, error) {
 	res, err := ec.unmarshalInputSchemaFieldTagValueInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx context.Context, v interface{}) (gqlmodel.SchemaFieldType, error) {
+func (ec *executionContext) unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx context.Context, v any) (gqlmodel.SchemaFieldType, error) {
 	var res gqlmodel.SchemaFieldType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51528,17 +52248,17 @@ func (ec *executionContext) marshalNSchemaFieldType2githubᚗcomᚋreearthᚋree
 	return v
 }
 
-func (ec *executionContext) unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTypePropertyInput, error) {
+func (ec *executionContext) unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldTypePropertyInput, error) {
 	res, err := ec.unmarshalInputSchemaFieldTypePropertyInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNSearchItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSearchItemInput(ctx context.Context, v interface{}) (gqlmodel.SearchItemInput, error) {
+func (ec *executionContext) unmarshalNSearchItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSearchItemInput(ctx context.Context, v any) (gqlmodel.SearchItemInput, error) {
 	res, err := ec.unmarshalInputSearchItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
+func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -51553,11 +52273,9 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -51585,7 +52303,7 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) unmarshalNStringOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringOperator(ctx context.Context, v interface{}) (gqlmodel.StringOperator, error) {
+func (ec *executionContext) unmarshalNStringOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringOperator(ctx context.Context, v any) (gqlmodel.StringOperator, error) {
 	var res gqlmodel.StringOperator
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51595,7 +52313,7 @@ func (ec *executionContext) marshalNStringOperator2githubᚗcomᚋreearthᚋreea
 	return v
 }
 
-func (ec *executionContext) unmarshalNTerrainType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainType(ctx context.Context, v interface{}) (gqlmodel.TerrainType, error) {
+func (ec *executionContext) unmarshalNTerrainType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainType(ctx context.Context, v any) (gqlmodel.TerrainType, error) {
 	var res gqlmodel.TerrainType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51605,7 +52323,7 @@ func (ec *executionContext) marshalNTerrainType2githubᚗcomᚋreearthᚋreearth
 	return v
 }
 
-func (ec *executionContext) unmarshalNTheme2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx context.Context, v interface{}) (gqlmodel.Theme, error) {
+func (ec *executionContext) unmarshalNTheme2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx context.Context, v any) (gqlmodel.Theme, error) {
 	var res gqlmodel.Theme
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51613,10 +52331,6 @@ func (ec *executionContext) unmarshalNTheme2githubᚗcomᚋreearthᚋreearthᚑc
 
 func (ec *executionContext) marshalNTheme2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Theme) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNThread2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Thread) graphql.Marshaler {
-	return ec._Thread(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThread(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Thread) graphql.Marshaler {
@@ -51629,7 +52343,7 @@ func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearth�
 	return ec._Thread(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTileType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileType(ctx context.Context, v interface{}) (gqlmodel.TileType, error) {
+func (ec *executionContext) unmarshalNTileType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileType(ctx context.Context, v any) (gqlmodel.TileType, error) {
 	var res gqlmodel.TileType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51639,7 +52353,7 @@ func (ec *executionContext) marshalNTileType2githubᚗcomᚋreearthᚋreearthᚑ
 	return v
 }
 
-func (ec *executionContext) unmarshalNTimeOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeOperator(ctx context.Context, v interface{}) (gqlmodel.TimeOperator, error) {
+func (ec *executionContext) unmarshalNTimeOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeOperator(ctx context.Context, v any) (gqlmodel.TimeOperator, error) {
 	var res gqlmodel.TimeOperator
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51649,7 +52363,7 @@ func (ec *executionContext) marshalNTimeOperator2githubᚗcomᚋreearthᚋreeart
 	return v
 }
 
-func (ec *executionContext) unmarshalNURL2netᚋurlᚐURL(ctx context.Context, v interface{}) (url.URL, error) {
+func (ec *executionContext) unmarshalNURL2netᚋurlᚐURL(ctx context.Context, v any) (url.URL, error) {
 	res, err := gqlmodel.UnmarshalURL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -51664,31 +52378,29 @@ func (ec *executionContext) marshalNURL2netᚋurlᚐURL(ctx context.Context, sel
 	return res
 }
 
-func (ec *executionContext) unmarshalNUnpublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnpublishItemInput(ctx context.Context, v interface{}) (gqlmodel.UnpublishItemInput, error) {
+func (ec *executionContext) unmarshalNUnpublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnpublishItemInput(ctx context.Context, v any) (gqlmodel.UnpublishItemInput, error) {
 	res, err := ec.unmarshalInputUnpublishItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateAssetInput(ctx context.Context, v interface{}) (gqlmodel.UpdateAssetInput, error) {
+func (ec *executionContext) unmarshalNUpdateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateAssetInput(ctx context.Context, v any) (gqlmodel.UpdateAssetInput, error) {
 	res, err := ec.unmarshalInputUpdateAssetInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateCommentInput(ctx context.Context, v interface{}) (gqlmodel.UpdateCommentInput, error) {
+func (ec *executionContext) unmarshalNUpdateCommentInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateCommentInput(ctx context.Context, v any) (gqlmodel.UpdateCommentInput, error) {
 	res, err := ec.unmarshalInputUpdateCommentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInput(ctx context.Context, v interface{}) (gqlmodel.UpdateFieldInput, error) {
+func (ec *executionContext) unmarshalNUpdateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInput(ctx context.Context, v any) (gqlmodel.UpdateFieldInput, error) {
 	res, err := ec.unmarshalInputUpdateFieldInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.UpdateFieldInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalNUpdateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.UpdateFieldInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.UpdateFieldInput, len(vSlice))
 	for i := range vSlice {
@@ -51701,87 +52413,87 @@ func (ec *executionContext) unmarshalNUpdateFieldInput2ᚕᚖgithubᚗcomᚋreea
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNUpdateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInput(ctx context.Context, v interface{}) (*gqlmodel.UpdateFieldInput, error) {
+func (ec *executionContext) unmarshalNUpdateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInput(ctx context.Context, v any) (*gqlmodel.UpdateFieldInput, error) {
 	res, err := ec.unmarshalInputUpdateFieldInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateGroupInput(ctx context.Context, v interface{}) (gqlmodel.UpdateGroupInput, error) {
+func (ec *executionContext) unmarshalNUpdateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateGroupInput(ctx context.Context, v any) (gqlmodel.UpdateGroupInput, error) {
 	res, err := ec.unmarshalInputUpdateGroupInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateGroupsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateGroupsOrderInput(ctx context.Context, v interface{}) (gqlmodel.UpdateGroupsOrderInput, error) {
+func (ec *executionContext) unmarshalNUpdateGroupsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateGroupsOrderInput(ctx context.Context, v any) (gqlmodel.UpdateGroupsOrderInput, error) {
 	res, err := ec.unmarshalInputUpdateGroupsOrderInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateIntegrationInput(ctx context.Context, v interface{}) (gqlmodel.UpdateIntegrationInput, error) {
+func (ec *executionContext) unmarshalNUpdateIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateIntegrationInput(ctx context.Context, v any) (gqlmodel.UpdateIntegrationInput, error) {
 	res, err := ec.unmarshalInputUpdateIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateIntegrationOfWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateIntegrationOfWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.UpdateIntegrationOfWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNUpdateIntegrationOfWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateIntegrationOfWorkspaceInput(ctx context.Context, v any) (gqlmodel.UpdateIntegrationOfWorkspaceInput, error) {
 	res, err := ec.unmarshalInputUpdateIntegrationOfWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateItemInput(ctx context.Context, v interface{}) (gqlmodel.UpdateItemInput, error) {
+func (ec *executionContext) unmarshalNUpdateItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateItemInput(ctx context.Context, v any) (gqlmodel.UpdateItemInput, error) {
 	res, err := ec.unmarshalInputUpdateItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateMeInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateMeInput(ctx context.Context, v interface{}) (gqlmodel.UpdateMeInput, error) {
+func (ec *executionContext) unmarshalNUpdateMeInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateMeInput(ctx context.Context, v any) (gqlmodel.UpdateMeInput, error) {
 	res, err := ec.unmarshalInputUpdateMeInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelInput(ctx context.Context, v interface{}) (gqlmodel.UpdateModelInput, error) {
+func (ec *executionContext) unmarshalNUpdateModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelInput(ctx context.Context, v any) (gqlmodel.UpdateModelInput, error) {
 	res, err := ec.unmarshalInputUpdateModelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateModelsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelsOrderInput(ctx context.Context, v interface{}) (gqlmodel.UpdateModelsOrderInput, error) {
+func (ec *executionContext) unmarshalNUpdateModelsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelsOrderInput(ctx context.Context, v any) (gqlmodel.UpdateModelsOrderInput, error) {
 	res, err := ec.unmarshalInputUpdateModelsOrderInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectInput(ctx context.Context, v interface{}) (gqlmodel.UpdateProjectInput, error) {
+func (ec *executionContext) unmarshalNUpdateProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectInput(ctx context.Context, v any) (gqlmodel.UpdateProjectInput, error) {
 	res, err := ec.unmarshalInputUpdateProjectInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateRequestInput(ctx context.Context, v interface{}) (gqlmodel.UpdateRequestInput, error) {
+func (ec *executionContext) unmarshalNUpdateRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateRequestInput(ctx context.Context, v any) (gqlmodel.UpdateRequestInput, error) {
 	res, err := ec.unmarshalInputUpdateRequestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateUserOfWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateUserOfWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.UpdateUserOfWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNUpdateUserOfWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateUserOfWorkspaceInput(ctx context.Context, v any) (gqlmodel.UpdateUserOfWorkspaceInput, error) {
 	res, err := ec.unmarshalInputUpdateUserOfWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateViewInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateViewInput(ctx context.Context, v interface{}) (gqlmodel.UpdateViewInput, error) {
+func (ec *executionContext) unmarshalNUpdateViewInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateViewInput(ctx context.Context, v any) (gqlmodel.UpdateViewInput, error) {
 	res, err := ec.unmarshalInputUpdateViewInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateViewsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateViewsOrderInput(ctx context.Context, v interface{}) (gqlmodel.UpdateViewsOrderInput, error) {
+func (ec *executionContext) unmarshalNUpdateViewsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateViewsOrderInput(ctx context.Context, v any) (gqlmodel.UpdateViewsOrderInput, error) {
 	res, err := ec.unmarshalInputUpdateViewsOrderInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateWebhookInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWebhookInput(ctx context.Context, v interface{}) (gqlmodel.UpdateWebhookInput, error) {
+func (ec *executionContext) unmarshalNUpdateWebhookInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWebhookInput(ctx context.Context, v any) (gqlmodel.UpdateWebhookInput, error) {
 	res, err := ec.unmarshalInputUpdateWebhookInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.UpdateWorkspaceInput, error) {
+func (ec *executionContext) unmarshalNUpdateWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWorkspaceInput(ctx context.Context, v any) (gqlmodel.UpdateWorkspaceInput, error) {
 	res, err := ec.unmarshalInputUpdateWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateWorkspaceSettingsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWorkspaceSettingsInput(ctx context.Context, v interface{}) (gqlmodel.UpdateWorkspaceSettingsInput, error) {
+func (ec *executionContext) unmarshalNUpdateWorkspaceSettingsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateWorkspaceSettingsInput(ctx context.Context, v any) (gqlmodel.UpdateWorkspaceSettingsInput, error) {
 	res, err := ec.unmarshalInputUpdateWorkspaceSettingsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -52016,7 +52728,7 @@ func (ec *executionContext) marshalNWebhookTrigger2ᚖgithubᚗcomᚋreearthᚋr
 	return ec._WebhookTrigger(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx context.Context, v interface{}) (*gqlmodel.WebhookTriggerInput, error) {
+func (ec *executionContext) unmarshalNWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx context.Context, v any) (*gqlmodel.WebhookTriggerInput, error) {
 	res, err := ec.unmarshalInputWebhookTriggerInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -52187,7 +52899,7 @@ func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgq
 	return ret
 }
 
-func (ec *executionContext) unmarshalN__DirectiveLocation2string(ctx context.Context, v interface{}) (string, error) {
+func (ec *executionContext) unmarshalN__DirectiveLocation2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -52202,11 +52914,9 @@ func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Conte
 	return res
 }
 
-func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -52377,7 +53087,7 @@ func (ec *executionContext) marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 	return ec.___Type(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalN__TypeKind2string(ctx context.Context, v interface{}) (string, error) {
+func (ec *executionContext) unmarshalN__TypeKind2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -52399,7 +53109,7 @@ func (ec *executionContext) marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcom�
 	return ec._AddUsersToWorkspacePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOAndConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAndConditionInput(ctx context.Context, v interface{}) (*gqlmodel.AndConditionInput, error) {
+func (ec *executionContext) unmarshalOAndConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAndConditionInput(ctx context.Context, v any) (*gqlmodel.AndConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52407,7 +53117,7 @@ func (ec *executionContext) unmarshalOAndConditionInput2ᚖgithubᚗcomᚋreeart
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOAny2interface(ctx context.Context, v interface{}) (any, error) {
+func (ec *executionContext) unmarshalOAny2interface(ctx context.Context, v any) (any, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52423,7 +53133,7 @@ func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalOArchiveExtractionStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐArchiveExtractionStatus(ctx context.Context, v interface{}) (*gqlmodel.ArchiveExtractionStatus, error) {
+func (ec *executionContext) unmarshalOArchiveExtractionStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐArchiveExtractionStatus(ctx context.Context, v any) (*gqlmodel.ArchiveExtractionStatus, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52493,7 +53203,7 @@ func (ec *executionContext) marshalOAssetItem2ᚕᚖgithubᚗcomᚋreearthᚋree
 	return ret
 }
 
-func (ec *executionContext) unmarshalOAssetSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSort(ctx context.Context, v interface{}) (*gqlmodel.AssetSort, error) {
+func (ec *executionContext) unmarshalOAssetSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSort(ctx context.Context, v any) (*gqlmodel.AssetSort, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52501,7 +53211,7 @@ func (ec *executionContext) unmarshalOAssetSort2ᚖgithubᚗcomᚋreearthᚋreea
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOBasicFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.BasicFieldConditionInput, error) {
+func (ec *executionContext) unmarshalOBasicFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicFieldConditionInput(ctx context.Context, v any) (*gqlmodel.BasicFieldConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52509,7 +53219,7 @@ func (ec *executionContext) unmarshalOBasicFieldConditionInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOBasicOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicOperator(ctx context.Context, v interface{}) (*gqlmodel.BasicOperator, error) {
+func (ec *executionContext) unmarshalOBasicOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBasicOperator(ctx context.Context, v any) (*gqlmodel.BasicOperator, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52525,7 +53235,7 @@ func (ec *executionContext) marshalOBasicOperator2ᚖgithubᚗcomᚋreearthᚋre
 	return v
 }
 
-func (ec *executionContext) unmarshalOBoolFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.BoolFieldConditionInput, error) {
+func (ec *executionContext) unmarshalOBoolFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolFieldConditionInput(ctx context.Context, v any) (*gqlmodel.BoolFieldConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52533,7 +53243,7 @@ func (ec *executionContext) unmarshalOBoolFieldConditionInput2ᚖgithubᚗcomᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOBoolOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolOperator(ctx context.Context, v interface{}) (*gqlmodel.BoolOperator, error) {
+func (ec *executionContext) unmarshalOBoolOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐBoolOperator(ctx context.Context, v any) (*gqlmodel.BoolOperator, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52549,7 +53259,7 @@ func (ec *executionContext) marshalOBoolOperator2ᚖgithubᚗcomᚋreearthᚋree
 	return v
 }
 
-func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
+func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v any) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -52559,7 +53269,7 @@ func (ec *executionContext) marshalOBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalOBoolean2ᚖbool(ctx context.Context, v interface{}) (*bool, error) {
+func (ec *executionContext) unmarshalOBoolean2ᚖbool(ctx context.Context, v any) (*bool, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52582,7 +53292,7 @@ func (ec *executionContext) marshalOCesiumResourceProps2ᚖgithubᚗcomᚋreeart
 	return ec._CesiumResourceProps(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCesiumResourcePropsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCesiumResourcePropsInput(ctx context.Context, v interface{}) (*gqlmodel.CesiumResourcePropsInput, error) {
+func (ec *executionContext) unmarshalOCesiumResourcePropsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCesiumResourcePropsInput(ctx context.Context, v any) (*gqlmodel.CesiumResourcePropsInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52637,14 +53347,12 @@ func (ec *executionContext) marshalOColumn2ᚕᚖgithubᚗcomᚋreearthᚋreeart
 	return ret
 }
 
-func (ec *executionContext) unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.ColumnSelectionInput, error) {
+func (ec *executionContext) unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ColumnSelectionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ColumnSelectionInput, len(vSlice))
 	for i := range vSlice {
@@ -52671,7 +53379,7 @@ func (ec *executionContext) marshalOCondition2githubᚗcomᚋreearthᚋreearth�
 	return ec._Condition(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx context.Context, v interface{}) (*gqlmodel.ConditionInput, error) {
+func (ec *executionContext) unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx context.Context, v any) (*gqlmodel.ConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52679,7 +53387,7 @@ func (ec *executionContext) unmarshalOConditionInput2ᚖgithubᚗcomᚋreearth�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOCorrespondingFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingFieldInput(ctx context.Context, v interface{}) (*gqlmodel.CorrespondingFieldInput, error) {
+func (ec *executionContext) unmarshalOCorrespondingFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingFieldInput(ctx context.Context, v any) (*gqlmodel.CorrespondingFieldInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52708,7 +53416,7 @@ func (ec *executionContext) marshalOCreateWorkspacePayload2ᚖgithubᚗcomᚋree
 	return ec._CreateWorkspacePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx context.Context, v interface{}) (*usecasex.Cursor, error) {
+func (ec *executionContext) unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx context.Context, v any) (*usecasex.Cursor, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52725,7 +53433,7 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthx�
 	return res
 }
 
-func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52755,6 +53463,13 @@ func (ec *executionContext) marshalODeleteAssetPayload2ᚖgithubᚗcomᚋreearth
 	return ec._DeleteAssetPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalODeleteAssetsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteAssetsPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteAssetsPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalODeleteCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteCommentPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteCommentPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -52781,6 +53496,13 @@ func (ec *executionContext) marshalODeleteIntegrationPayload2ᚖgithubᚗcomᚋr
 		return graphql.Null
 	}
 	return ec._DeleteIntegrationPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODeleteIntegrationsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteIntegrationsPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteIntegrationsPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeleteItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteItemPayload) graphql.Marshaler {
@@ -52853,7 +53575,7 @@ func (ec *executionContext) marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋre
 	return ec._FieldsPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v any) (*float64, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52890,14 +53612,12 @@ func (ec *executionContext) marshalOGroupsPayload2ᚖgithubᚗcomᚋreearthᚋre
 	return ec._GroupsPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx context.Context, v interface{}) ([]gqlmodel.ID, error) {
+func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx context.Context, v any) ([]gqlmodel.ID, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.ID, len(vSlice))
 	for i := range vSlice {
@@ -52928,7 +53648,7 @@ func (ec *executionContext) marshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ret
 }
 
-func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (*gqlmodel.ID, error) {
+func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v any) (*gqlmodel.ID, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -52945,7 +53665,7 @@ func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 	return res
 }
 
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53050,7 +53770,7 @@ func (ec *executionContext) marshalOItemSort2ᚖgithubᚗcomᚋreearthᚋreearth
 	return ec._ItemSort(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOItemSortInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortInput(ctx context.Context, v interface{}) (*gqlmodel.ItemSortInput, error) {
+func (ec *executionContext) unmarshalOItemSortInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortInput(ctx context.Context, v any) (*gqlmodel.ItemSortInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53058,7 +53778,7 @@ func (ec *executionContext) unmarshalOItemSortInput2ᚖgithubᚗcomᚋreearthᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOLang2ᚖgolangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx context.Context, v interface{}) (*language.Tag, error) {
+func (ec *executionContext) unmarshalOLang2ᚖgolangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx context.Context, v any) (*language.Tag, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53102,7 +53822,7 @@ func (ec *executionContext) marshalOModelsPayload2ᚖgithubᚗcomᚋreearthᚋre
 	return ec._ModelsPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOMultipleFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.MultipleFieldConditionInput, error) {
+func (ec *executionContext) unmarshalOMultipleFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleFieldConditionInput(ctx context.Context, v any) (*gqlmodel.MultipleFieldConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53117,7 +53837,7 @@ func (ec *executionContext) marshalONode2githubᚗcomᚋreearthᚋreearthᚑcms�
 	return ec._Node(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalONullableFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.NullableFieldConditionInput, error) {
+func (ec *executionContext) unmarshalONullableFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableFieldConditionInput(ctx context.Context, v any) (*gqlmodel.NullableFieldConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53125,7 +53845,7 @@ func (ec *executionContext) unmarshalONullableFieldConditionInput2ᚖgithubᚗco
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalONullableOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableOperator(ctx context.Context, v interface{}) (*gqlmodel.NullableOperator, error) {
+func (ec *executionContext) unmarshalONullableOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNullableOperator(ctx context.Context, v any) (*gqlmodel.NullableOperator, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53141,7 +53861,7 @@ func (ec *executionContext) marshalONullableOperator2ᚖgithubᚗcomᚋreearth�
 	return v
 }
 
-func (ec *executionContext) unmarshalONumberFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.NumberFieldConditionInput, error) {
+func (ec *executionContext) unmarshalONumberFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberFieldConditionInput(ctx context.Context, v any) (*gqlmodel.NumberFieldConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53149,7 +53869,7 @@ func (ec *executionContext) unmarshalONumberFieldConditionInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalONumberOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberOperator(ctx context.Context, v interface{}) (*gqlmodel.NumberOperator, error) {
+func (ec *executionContext) unmarshalONumberOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNumberOperator(ctx context.Context, v any) (*gqlmodel.NumberOperator, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53172,7 +53892,7 @@ func (ec *executionContext) marshalOOperator2githubᚗcomᚋreearthᚋreearthᚑ
 	return ec._Operator(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOOrConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOrConditionInput(ctx context.Context, v interface{}) (*gqlmodel.OrConditionInput, error) {
+func (ec *executionContext) unmarshalOOrConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOrConditionInput(ctx context.Context, v any) (*gqlmodel.OrConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53180,7 +53900,7 @@ func (ec *executionContext) unmarshalOOrConditionInput2ᚖgithubᚗcomᚋreearth
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx context.Context, v interface{}) (*gqlmodel.Pagination, error) {
+func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx context.Context, v any) (*gqlmodel.Pagination, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53188,7 +53908,7 @@ func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋree
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOPreviewType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPreviewType(ctx context.Context, v interface{}) (*gqlmodel.PreviewType, error) {
+func (ec *executionContext) unmarshalOPreviewType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPreviewType(ctx context.Context, v any) (*gqlmodel.PreviewType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53225,7 +53945,7 @@ func (ec *executionContext) marshalOProjectPublication2ᚖgithubᚗcomᚋreearth
 	return ec._ProjectPublication(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, v interface{}) (*gqlmodel.ProjectPublicationScope, error) {
+func (ec *executionContext) unmarshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, v any) (*gqlmodel.ProjectPublicationScope, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53253,6 +53973,13 @@ func (ec *executionContext) marshalOPublishModelPayload2ᚖgithubᚗcomᚋreeart
 		return graphql.Null
 	}
 	return ec._PublishModelPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPublishModelsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublishModelsPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PublishModelsPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORemoveIntegrationFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveIntegrationFromWorkspacePayload) graphql.Marshaler {
@@ -53323,14 +54050,12 @@ func (ec *executionContext) marshalORequest2ᚖgithubᚗcomᚋreearthᚋreearth�
 	return ec._Request(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalORequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.RequestItemInput, error) {
+func (ec *executionContext) unmarshalORequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx context.Context, v any) ([]*gqlmodel.RequestItemInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.RequestItemInput, len(vSlice))
 	for i := range vSlice {
@@ -53350,14 +54075,12 @@ func (ec *executionContext) marshalORequestPayload2ᚖgithubᚗcomᚋreearthᚋr
 	return ec._RequestPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalORequestState2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestStateᚄ(ctx context.Context, v interface{}) ([]gqlmodel.RequestState, error) {
+func (ec *executionContext) unmarshalORequestState2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestStateᚄ(ctx context.Context, v any) ([]gqlmodel.RequestState, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.RequestState, len(vSlice))
 	for i := range vSlice {
@@ -53417,7 +54140,7 @@ func (ec *executionContext) marshalORequestState2ᚕgithubᚗcomᚋreearthᚋree
 	return ret
 }
 
-func (ec *executionContext) unmarshalORequestState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx context.Context, v interface{}) (*gqlmodel.RequestState, error) {
+func (ec *executionContext) unmarshalORequestState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx context.Context, v any) (*gqlmodel.RequestState, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53440,7 +54163,7 @@ func (ec *executionContext) marshalOResourceList2ᚖgithubᚗcomᚋreearthᚋree
 	return ec._ResourceList(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOResourcesListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourcesListInput(ctx context.Context, v interface{}) (*gqlmodel.ResourcesListInput, error) {
+func (ec *executionContext) unmarshalOResourcesListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourcesListInput(ctx context.Context, v any) (*gqlmodel.ResourcesListInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53448,14 +54171,12 @@ func (ec *executionContext) unmarshalOResourcesListInput2ᚖgithubᚗcomᚋreear
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx context.Context, v interface{}) ([]gqlmodel.Role, error) {
+func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx context.Context, v any) ([]gqlmodel.Role, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.Role, len(vSlice))
 	for i := range vSlice {
@@ -53529,7 +54250,7 @@ func (ec *executionContext) marshalOSchemaField2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._SchemaField(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldAssetInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldAssetInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53537,7 +54258,7 @@ func (ec *executionContext) unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋre
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldBoolInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldBoolInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldBoolInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldBoolInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldBoolInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldBoolInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53545,7 +54266,7 @@ func (ec *executionContext) unmarshalOSchemaFieldBoolInput2ᚖgithubᚗcomᚋree
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldCheckboxInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldCheckboxInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldCheckboxInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldCheckboxInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldCheckboxInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldCheckboxInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53553,7 +54274,7 @@ func (ec *executionContext) unmarshalOSchemaFieldCheckboxInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldDateInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldDateInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldDateInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldDateInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldDateInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldDateInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53561,7 +54282,7 @@ func (ec *executionContext) unmarshalOSchemaFieldDateInput2ᚖgithubᚗcomᚋree
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldGeometryEditorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryEditorInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldGeometryEditorInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldGeometryEditorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryEditorInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldGeometryEditorInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53569,7 +54290,7 @@ func (ec *executionContext) unmarshalOSchemaFieldGeometryEditorInput2ᚖgithub�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldGeometryObjectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryObjectInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldGeometryObjectInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldGeometryObjectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryObjectInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldGeometryObjectInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53577,7 +54298,7 @@ func (ec *executionContext) unmarshalOSchemaFieldGeometryObjectInput2ᚖgithub�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGroupInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldGroupInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGroupInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldGroupInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53585,7 +54306,7 @@ func (ec *executionContext) unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋre
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldIntegerInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldIntegerInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldIntegerInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldIntegerInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53593,7 +54314,7 @@ func (ec *executionContext) unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldNumberInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldNumberInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldNumberInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53601,7 +54322,7 @@ func (ec *executionContext) unmarshalOSchemaFieldNumberInput2ᚖgithubᚗcomᚋr
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldReferenceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldReferenceInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldReferenceInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldReferenceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldReferenceInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldReferenceInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53609,7 +54330,7 @@ func (ec *executionContext) unmarshalOSchemaFieldReferenceInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldRichTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldRichTextInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldRichTextInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldRichTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldRichTextInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldRichTextInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53617,7 +54338,7 @@ func (ec *executionContext) unmarshalOSchemaFieldRichTextInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldSelectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldSelectInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldSelectInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldSelectInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldSelectInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldSelectInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53625,7 +54346,7 @@ func (ec *executionContext) unmarshalOSchemaFieldSelectInput2ᚖgithubᚗcomᚋr
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldTagColor2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTagColor, error) {
+func (ec *executionContext) unmarshalOSchemaFieldTagColor2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, v any) (*gqlmodel.SchemaFieldTagColor, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53641,7 +54362,7 @@ func (ec *executionContext) marshalOSchemaFieldTagColor2ᚖgithubᚗcomᚋreeart
 	return v
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldTagInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTagInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldTagInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldTagInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53649,7 +54370,7 @@ func (ec *executionContext) unmarshalOSchemaFieldTagInput2ᚖgithubᚗcomᚋreea
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldTextAreaInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextAreaInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTextAreaInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldTextAreaInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextAreaInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldTextAreaInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53657,7 +54378,7 @@ func (ec *executionContext) unmarshalOSchemaFieldTextAreaInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTextInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTextInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldTextInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53672,7 +54393,7 @@ func (ec *executionContext) marshalOSchemaFieldTypeProperty2githubᚗcomᚋreear
 	return ec._SchemaFieldTypeProperty(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTypePropertyInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldTypePropertyInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53680,7 +54401,7 @@ func (ec *executionContext) unmarshalOSchemaFieldTypePropertyInput2ᚖgithubᚗc
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaFieldURLInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldURLInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldURLInput, error) {
+func (ec *executionContext) unmarshalOSchemaFieldURLInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldURLInput(ctx context.Context, v any) (*gqlmodel.SchemaFieldURLInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53688,7 +54409,7 @@ func (ec *executionContext) unmarshalOSchemaFieldURLInput2ᚖgithubᚗcomᚋreea
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaMarkdownTextInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaMarkdownTextInput, error) {
+func (ec *executionContext) unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaMarkdownTextInput(ctx context.Context, v any) (*gqlmodel.SchemaMarkdownTextInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53696,7 +54417,7 @@ func (ec *executionContext) unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSort(ctx context.Context, v interface{}) (*gqlmodel.Sort, error) {
+func (ec *executionContext) unmarshalOSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSort(ctx context.Context, v any) (*gqlmodel.Sort, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53704,7 +54425,7 @@ func (ec *executionContext) unmarshalOSort2ᚖgithubᚗcomᚋreearthᚋreearth�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx context.Context, v interface{}) (*gqlmodel.SortDirection, error) {
+func (ec *executionContext) unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx context.Context, v any) (*gqlmodel.SortDirection, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53720,14 +54441,12 @@ func (ec *executionContext) marshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋre
 	return v
 }
 
-func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -53758,7 +54477,7 @@ func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53774,7 +54493,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalOStringFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.StringFieldConditionInput, error) {
+func (ec *executionContext) unmarshalOStringFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringFieldConditionInput(ctx context.Context, v any) (*gqlmodel.StringFieldConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53782,7 +54501,7 @@ func (ec *executionContext) unmarshalOStringFieldConditionInput2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOStringOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringOperator(ctx context.Context, v interface{}) (*gqlmodel.StringOperator, error) {
+func (ec *executionContext) unmarshalOStringOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐStringOperator(ctx context.Context, v any) (*gqlmodel.StringOperator, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53798,7 +54517,7 @@ func (ec *executionContext) marshalOStringOperator2ᚖgithubᚗcomᚋreearthᚋr
 	return v
 }
 
-func (ec *executionContext) unmarshalOTerrainResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainResourceInput(ctx context.Context, v interface{}) (*gqlmodel.TerrainResourceInput, error) {
+func (ec *executionContext) unmarshalOTerrainResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainResourceInput(ctx context.Context, v any) (*gqlmodel.TerrainResourceInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53806,7 +54525,7 @@ func (ec *executionContext) unmarshalOTerrainResourceInput2ᚖgithubᚗcomᚋree
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOTheme2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx context.Context, v interface{}) (*gqlmodel.Theme, error) {
+func (ec *executionContext) unmarshalOTheme2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx context.Context, v any) (*gqlmodel.Theme, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53829,14 +54548,7 @@ func (ec *executionContext) marshalOThread2ᚖgithubᚗcomᚋreearthᚋreearth�
 	return ec._Thread(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOThreadPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐThreadPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ThreadPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._ThreadPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileResourceInput(ctx context.Context, v interface{}) (*gqlmodel.TileResourceInput, error) {
+func (ec *executionContext) unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileResourceInput(ctx context.Context, v any) (*gqlmodel.TileResourceInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53844,7 +54556,7 @@ func (ec *executionContext) unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreeart
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOTimeFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.TimeFieldConditionInput, error) {
+func (ec *executionContext) unmarshalOTimeFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeFieldConditionInput(ctx context.Context, v any) (*gqlmodel.TimeFieldConditionInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53852,7 +54564,7 @@ func (ec *executionContext) unmarshalOTimeFieldConditionInput2ᚖgithubᚗcomᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOTimeOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeOperator(ctx context.Context, v interface{}) (*gqlmodel.TimeOperator, error) {
+func (ec *executionContext) unmarshalOTimeOperator2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeOperator(ctx context.Context, v any) (*gqlmodel.TimeOperator, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53868,7 +54580,7 @@ func (ec *executionContext) marshalOTimeOperator2ᚖgithubᚗcomᚋreearthᚋree
 	return v
 }
 
-func (ec *executionContext) unmarshalOURL2ᚖnetᚋurlᚐURL(ctx context.Context, v interface{}) (*url.URL, error) {
+func (ec *executionContext) unmarshalOURL2ᚖnetᚋurlᚐURL(ctx context.Context, v any) (*url.URL, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53912,7 +54624,7 @@ func (ec *executionContext) marshalOUpdateMemberOfWorkspacePayload2ᚖgithubᚗc
 	return ec._UpdateMemberOfWorkspacePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUpdateProjectPublicationInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectPublicationInput(ctx context.Context, v interface{}) (*gqlmodel.UpdateProjectPublicationInput, error) {
+func (ec *executionContext) unmarshalOUpdateProjectPublicationInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectPublicationInput(ctx context.Context, v any) (*gqlmodel.UpdateProjectPublicationInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53934,7 +54646,7 @@ func (ec *executionContext) marshalOUpdateWorkspaceSettingsPayload2ᚖgithubᚗc
 	return ec._UpdateWorkspaceSettingsPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (*graphql.Upload, error) {
+func (ec *executionContext) unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v any) (*graphql.Upload, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -53957,7 +54669,7 @@ func (ec *executionContext) marshalOUrlResourceProps2ᚖgithubᚗcomᚋreearth�
 	return ec._UrlResourceProps(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUrlResourcePropsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐURLResourcePropsInput(ctx context.Context, v interface{}) (*gqlmodel.URLResourcePropsInput, error) {
+func (ec *executionContext) unmarshalOUrlResourcePropsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐURLResourcePropsInput(ctx context.Context, v any) (*gqlmodel.URLResourcePropsInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -54000,7 +54712,7 @@ func (ec *executionContext) marshalOWebhookPayload2ᚖgithubᚗcomᚋreearthᚋr
 	return ec._WebhookPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx context.Context, v interface{}) (*gqlmodel.WebhookTriggerInput, error) {
+func (ec *executionContext) unmarshalOWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx context.Context, v any) (*gqlmodel.WebhookTriggerInput, error) {
 	if v == nil {
 		return nil, nil
 	}

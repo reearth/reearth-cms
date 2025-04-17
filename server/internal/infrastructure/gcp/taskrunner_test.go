@@ -14,7 +14,8 @@ func TestTaskRunner(t *testing.T) {
 	gcsBucket := ""
 	gcpProject := ""
 	gcpRegion := ""
-	image := ""
+	decompressorImage := ""
+	copierImage := ""
 
 	if assetID == "" || path == "" || gcsBucket == "" || gcpProject == "" || gcpRegion == "" {
 		t.Skip("assetID, path, gcsBucket, gcpProject, gcpRegion must be set")
@@ -32,9 +33,10 @@ func TestTaskRunner(t *testing.T) {
 		GCPProject:          gcpProject,
 		GCPRegion:           gcpRegion,
 		GCSBucket:           gcsBucket,
-		DecompressorImage:   image,
+		DecompressorImage:   decompressorImage,
 		DecompressorTopic:   "decompress",
 		DecompressorGzipExt: "gml",
+		CopierImage:         copierImage,
 	})
 	require.NoError(t, err)
 

@@ -1,18 +1,18 @@
 import Form from "@reearth-cms/components/atoms/Form";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import {FieldProps} from "@reearth-cms/components/molecules/Schema/types";
 
 import FieldTitle from "../../FieldTitle";
 
-type BoolFieldProps = {
-  field: Field;
-  itemGroupId?: string;
-  onMetaUpdate?: () => void;
-  disabled: boolean;
-};
-
-const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
+const BoolField: React.FC<FieldProps> = ({
+                                             field,
+                                             itemGroupId,
+                                             disabled,
+                                             itemHeights,
+                                             onItemHeightChange,
+                                         }) => {
   return (
     <Form.Item
       extra={field.description}
@@ -20,9 +20,11 @@ const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, onMetaUpdate,
       valuePropName="checked"
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueBooleanField onChange={onMetaUpdate} FieldInput={Switch} disabled={disabled} />
+          <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+              <MultiValueBooleanField FieldInput={Switch} disabled={disabled}/>
+          </ResponsiveHeight>
       ) : (
-        <Switch onChange={onMetaUpdate} disabled={disabled} />
+          <Switch disabled={disabled}/>
       )}
     </Form.Item>
   );

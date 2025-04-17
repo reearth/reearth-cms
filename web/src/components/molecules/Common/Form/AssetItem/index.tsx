@@ -14,11 +14,11 @@ import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
-type Props = {
+export type AssetProps = {
+    onGetAsset: (assetId: string) => Promise<string | undefined>;
   itemAssets?: ItemAsset[];
   assetList?: Asset[];
   fileList?: UploadFile[];
-  value?: string;
   loadingAssets?: boolean;
   uploading?: boolean;
   uploadModalVisibility?: boolean;
@@ -38,16 +38,20 @@ type Props = {
   onAssetSearchTerm?: (term?: string | undefined) => void;
   setFileList?: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility?: (visible: boolean) => void;
-  onChange?: (value: string) => void;
-  disabled?: boolean;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
+type Props = {
+    value?: string;
+  onChange?: (value: string) => void;
+  disabled?: boolean;
+} & AssetProps;
+
 const AssetItem: React.FC<Props> = ({
+                                        value,
+                                        onGetAsset,
   itemAssets,
   assetList,
   fileList,
-  value,
   loadingAssets,
   uploading,
   uploadModalVisibility,
@@ -69,7 +73,6 @@ const AssetItem: React.FC<Props> = ({
   setUploadModalVisibility,
   onChange,
   disabled,
-  onGetAsset,
 }) => {
   const t = useT();
   const {
@@ -171,12 +174,17 @@ const AssetItem: React.FC<Props> = ({
             <Link
               to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
               target="_blank">
-              <AssetLink type="link" icon={<Icon icon="arrowSquareOut" size={20} />} />
+                <AssetLink
+                    color="default"
+                    variant="link"
+                    icon={<Icon icon="arrowSquareOut" size={20}/>}
+                />
             </Link>
           )}
           {value && !disabled && (
             <AssetLink
-              type="link"
+                color="default"
+                variant="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
               onClick={onUnlink}
             />

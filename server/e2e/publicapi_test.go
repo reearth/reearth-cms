@@ -334,7 +334,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		Body().
-		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,102,0.5,ccc,,aaa,\n", publicAPIItem6ID.String()))
+		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,0.5,102,ccc,,aaa,\n", publicAPIItem6ID.String()))
 
 	// no geometry field
 	e.GET("/api/p/{project}/{model}.csv", publicAPIProjectAlias, publicAPIModelKey3).
@@ -353,6 +353,49 @@ func TestPublicAPI(t *testing.T) {
 			"id":               publicAPIItem1ID.String(),
 			publicAPIField1Key: "aaa",
 			// publicAPIField2Key should be removed
+		})
+
+	// schema export json
+	e.GET("/api/p/{project}/{model}/schema.json", publicAPIProjectAlias, id.RandomKey()).
+		Expect().
+		Status(http.StatusNotFound)
+
+	e.GET("/api/p/{project}/{model}/schema.json", publicAPIProjectAlias, publicAPIModelKey).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id": publicAPIModelID,
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"title":  "asset",
+					"type":   "string",
+					"format": "binary",
+				},
+				"asset2": map[string]any{
+					"title":  "asset2",
+					"type":   "string",
+					"format": "binary",
+				},
+				"geometry-editor": map[string]any{
+					"title": "geometry-editor",
+					"type":  "object",
+				},
+				"geometry-object": map[string]any{
+					"title": "geometry-object",
+					"type":  "object",
+				},
+				"test-field-1": map[string]any{
+					"title": "test-field-1",
+					"type":  "string",
+				},
+				"test-field-2": map[string]any{
+					"title": "test-field-2",
+					"type":  "string",
+				},
+			},
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"type":    "object",
 		})
 
 	// make the project private
@@ -478,7 +521,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		project.NewPublicationWithToken(project.PublicationScopeLimited, true, "secret_abcdefghijklmnopqrstuvwxyz"),
 	).MustBuild()
 
-	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID()).
+	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID().Ref()).
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
 	c := []*asset.File{asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build(), asset.NewFile().Name("ccc.txt").Path("aaa/ccc.txt").Build()}
 	af := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(10).Children(c).Build()
@@ -505,16 +548,16 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	m3 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s2.ID()).Name(publicAPIModelKey3).Key(id.NewKey(publicAPIModelKey3)).Public(true).MustBuild()
 	m4 := model.New().ID(publicAPIModelID2).Project(p2.ID()).Schema(id.NewSchemaID()).Key(id.NewKey(publicAPIModelKey4)).Public(true).MustBuild()
 
-	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID().Ref()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
 		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
-	i2 := item.New().ID(publicAPIItem2ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+	i2 := item.New().ID(publicAPIItem2ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID().Ref()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple(), nil),
 	}).MustBuild()
 
-	i3 := item.New().ID(publicAPIItem3ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+	i3 := item.New().ID(publicAPIItem3ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID().Ref()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
 		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple(), nil),
 		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
@@ -522,16 +565,16 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	}).MustBuild()
 
 	// not public
-	i4 := item.New().ID(publicAPIItem4ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+	i4 := item.New().ID(publicAPIItem4ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID().Ref()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").AsMultiple(), nil),
 	}).MustBuild()
 	// not public model
-	i5 := item.New().ID(publicAPIItem1ID).Model(m2.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+	i5 := item.New().ID(publicAPIItem1ID).Model(m2.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID().Ref()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
 		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
-	i6 := item.New().ID(publicAPIItem6ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+	i6 := item.New().ID(publicAPIItem6ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID().Ref()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
 		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple(), nil),
 		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
@@ -540,7 +583,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		item.NewField(s.Fields()[5].ID(), value.TypeGeometryEditor.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil),
 	}).MustBuild()
 
-	i7 := item.New().ID(publicAPIItem7ID).Model(m3.ID()).Schema(s2.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+	i7 := item.New().ID(publicAPIItem7ID).Model(m3.ID()).Schema(s2.ID()).Project(p1.ID()).Thread(id.NewThreadID().Ref()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
 	}).MustBuild()
 

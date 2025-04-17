@@ -48,22 +48,23 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
             {!disabled && (
               <>
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowUp" />}
+                    color="default"
+                    variant="link"
+                    icon={<Icon icon="arrowUp" size={16}/>}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
-                  type="link"
-                  icon={<Icon icon="arrowDown" />}
+                    color="default"
+                    variant="link"
+                    icon={<Icon icon="arrowDown" size={16}/>}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
               </>
             )}
-            <Select
+              <StyledSelect
               disabled={disabled}
-              style={{ flex: 1 }}
               value={valueItem}
               onChange={(e: string) => handleInput(e, key)}>
               {selectedValues?.map((value: string) => (
@@ -71,11 +72,12 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
                   {value}
                 </Option>
               ))}
-            </Select>
+              </StyledSelect>
             {!disabled && (
               <FieldButton
-                type="link"
-                icon={<Icon icon="delete" />}
+                  color="default"
+                  variant="link"
+                  icon={<Icon icon="delete" size={16}/>}
                 onClick={() => handleInputDelete(key)}
               />
             )}
@@ -106,4 +108,9 @@ const FieldWrapper = styled.div`
 const FieldButton = styled(Button)`
   color: #000000d9;
   margin-top: 4px;
+`;
+
+const StyledSelect = styled(Select<string>)`
+  flex: 1;
+  overflow: hidden;
 `;

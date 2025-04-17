@@ -1,12 +1,12 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { createModel } from "@reearth-cms/e2e/project/utils/model";
+import {createModelFromOverview} from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await createModel(page);
+    await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -46,10 +46,9 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("text1");
   await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator("label")).toContainText("text1");
-  await page.getByText("text1 description").click();
+    await expect(page.getByText("text1", {exact: true})).toBeVisible();
   await expect(page.getByRole("main")).toContainText("text1 description");
-  await expect(page.getByLabel("text1")).toHaveValue("text1 default value");
+    await expect(page.getByText("text1 default value").last()).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("Back").click();
@@ -102,8 +101,7 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "delete" }).first().click();
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.getByRole("button", { name: "plus New" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page, false);
+    await expect(page.getByRole("button", {name: "Save"})).toBeDisabled();
   await page.locator("div:nth-child(1) > .css-1ago99h").click();
   await page.getByRole("textbox").fill("text");
   await page.getByRole("button", { name: "plus New" }).click();

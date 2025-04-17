@@ -1,12 +1,9 @@
 import RequestListMolecule from "@reearth-cms/components/molecules/Request/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
-import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
 const RequestList: React.FC = () => {
-  const t = useT();
-
   const {
     requests,
     loading,
@@ -38,13 +35,10 @@ const RequestList: React.FC = () => {
     <RequestListMolecule
       commentsPanel={
         <CommentsPanel
+            resourceId={selectedRequest?.id}
+            resourceType={"REQUEST"}
           collapsed={collapsedCommentsPanel}
           onCollapse={collapseCommentsPanel}
-          emptyText={
-            selectedRequest
-              ? t("No comments.")
-              : t("Please click the comment bubble in the table to check comments.")
-          }
           comments={selectedRequest?.comments}
           threadId={selectedRequest?.threadId}
           refetchQueries={["GetRequests"]}

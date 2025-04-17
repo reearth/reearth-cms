@@ -28,7 +28,6 @@ export default () => {
 
   const defaultSettings: WorkspaceSettings = useMemo(
     () => ({
-      id: workspaceId ?? "",
       tiles: {
         resources: [],
       },
@@ -37,7 +36,7 @@ export default () => {
         resources: [],
       },
     }),
-    [workspaceId],
+      [],
   );
 
   const workspaceSettings: WorkspaceSettings = useMemo(() => {
@@ -83,8 +82,8 @@ export default () => {
   );
 
   return {
-    workspaceSettings,
     loading,
+      workspaceSettings,
     hasUpdateRight,
     updateLoading,
     handleWorkspaceSettingsUpdate,

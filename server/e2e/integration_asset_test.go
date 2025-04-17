@@ -2,26 +2,11 @@ package e2e
 
 import (
 	"net/http"
-	"strings"
 	"testing"
 
-	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
-
-func UploadAsset(e *httpexpect.Expect, pId string, path string, content string) *httpexpect.Value {
-	res := e.POST("/api/projects/{projectId}/assets", pId).
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithMultipart().
-		WithFile("file", path, strings.NewReader(content)).
-		WithForm(map[string]any{"skipDecompression": true}).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
-
-	return res
-}
 
 // GET /assets/{assetId}
 func TestIntegrationGetAssetAPI(t *testing.T) {

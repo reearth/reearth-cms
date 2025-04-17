@@ -67,13 +67,10 @@ const ContentList: React.FC = () => {
     <ContentListMolecule
       commentsPanel={
         <CommentsPanel
+            resourceId={selectedItem?.id}
+            resourceType={"ITEM"}
           collapsed={collapsedCommentsPanel}
           onCollapse={collapseCommentsPanel}
-          emptyText={
-            selectedItem
-              ? t("No comments.")
-              : t("Please click the comment bubble in the table to check comments.")
-          }
           comments={selectedItem?.comments}
           threadId={selectedItem?.threadId}
           refetchQueries={["SearchItem"]}

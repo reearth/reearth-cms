@@ -1,14 +1,14 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { crudComment } from "@reearth-cms/e2e/project/utils/comment";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
-import { createModel } from "@reearth-cms/e2e/project/utils/model";
+import {createModelFromOverview} from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await createModel(page);
+    await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -36,6 +36,7 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("text").click();
 
+    await expect(page.getByLabel("text")).toHaveValue("text");
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("new text");
   await page.getByRole("button", { name: "Save" }).click();
@@ -57,20 +58,20 @@ test("Publishing and Unpublishing item from edit page has succeeded", async ({ p
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByText("DRAFT")).toBeVisible();
+    await expect(page.getByText("Draft")).toBeVisible();
   await page.getByRole("button", { name: "Publish" }).click();
   await closeNotification(page);
-  await expect(page.getByText("PUBLIC")).toBeVisible();
+    await expect(page.getByText("Published")).toBeVisible();
   await page.getByLabel("Back").click();
-  await expect(page.getByText("PUBLIC")).toBeVisible();
+    await expect(page.getByText("Published")).toBeVisible();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByText("PUBLIC")).toBeVisible();
+    await expect(page.getByText("Published")).toBeVisible();
   await page.getByRole("button", { name: "ellipsis" }).click();
   await page.getByText("Unpublish").click();
   await closeNotification(page);
-  await expect(page.getByText("DRAFT")).toBeVisible();
+    await expect(page.getByText("Draft")).toBeVisible();
   await page.getByLabel("Back").click();
-  await expect(page.getByText("DRAFT")).toBeVisible();
+    await expect(page.getByText("Draft")).toBeVisible();
 });
 
 test("Publishing and Unpublishing item from table has succeeded", async ({ page }) => {
@@ -82,19 +83,19 @@ test("Publishing and Unpublishing item from table has succeeded", async ({ page 
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByText("DRAFT")).toBeVisible();
+    await expect(page.getByText("Draft")).toBeVisible();
   await page.getByLabel("Back").click();
-  await expect(page.getByText("DRAFT")).toBeVisible();
+    await expect(page.getByText("Draft")).toBeVisible();
   await page.getByLabel("", { exact: true }).check();
   await page.getByText("Publish", { exact: true }).click();
   await page.getByRole("button", { name: "Yes" }).click();
   await closeNotification(page);
-  await expect(page.getByText("PUBLIC")).toBeVisible();
+    await expect(page.getByText("Published")).toBeVisible();
   await page.getByText("Unpublish").click();
   await closeNotification(page);
-  await expect(page.getByText("DRAFT")).toBeVisible();
+    await expect(page.getByText("Draft")).toBeVisible();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByText("DRAFT")).toBeVisible();
+    await expect(page.getByText("Draft")).toBeVisible();
 });
 
 test("Showing item title has succeeded", async ({ page }) => {
@@ -107,12 +108,7 @@ test("Showing item title has succeeded", async ({ page }) => {
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  const itemId = await page
-    .getByRole("main")
-    .locator("p")
-    .filter({ hasText: "ID" })
-    .locator("div > span")
-    .innerText();
+    const itemId = page.url().split("/").at(-1);
   await expect(page.getByTitle(`e2e model name / ${itemId}`, { exact: true })).toBeVisible();
 
   await page.getByText("Schema").click();
@@ -136,6 +132,7 @@ test("Showing item title has succeeded", async ({ page }) => {
   await expect(page.getByTitle(`e2e model name / default text`, { exact: true })).toBeVisible();
 });
 
+// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -149,10 +146,10 @@ test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
 
   await page.getByRole("button", { name: "0" }).click();
-  await expect(page.getByText("CommentsNo comments.0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });
 
+// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -163,6 +160,5 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("comment").click();
-  await expect(page.getByText("Comments0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });

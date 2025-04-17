@@ -13,10 +13,9 @@ type Props = {
 
 const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
   const t = useT();
-  const { confirm } = Modal;
 
   const handleAccountDeleteConfirmation = useCallback(() => {
-    confirm({
+      Modal.confirm({
       title: t("Are you sure you want to delete your account?"),
       icon: <Icon icon="exclamationCircle" />,
       cancelText: t("Cancel"),
@@ -24,7 +23,7 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
         await onUserDelete();
       },
     });
-  }, [confirm, onUserDelete, t]);
+  }, [onUserDelete, t]);
 
   return (
     <ContentSection title={t("Danger Zone")} danger>
@@ -43,7 +42,7 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
 
 export default DangerZone;
 
-const Title = styled.h1`
+const Title = styled.p`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;

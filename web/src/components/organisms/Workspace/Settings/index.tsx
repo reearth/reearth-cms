@@ -1,4 +1,4 @@
-import WorkspaceSettingsMolecule from "@reearth-cms/components/molecules/WorkspaceSettings";
+import WorkspaceSettingsWrapper from "@reearth-cms/components/molecules/WorkspaceSettings";
 
 import useHooks from "./hooks";
 
@@ -13,7 +13,7 @@ const WorkspaceSettings: React.FC = () => {
   } = useHooks();
 
   return (
-    <WorkspaceSettingsMolecule
+      <WorkspaceSettingsWrapper
       workspaceName={workspaceName}
       updateWorkspaceLoading={updateWorkspaceLoading}
       hasUpdateRight={hasUpdateRight}

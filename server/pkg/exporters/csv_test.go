@@ -61,7 +61,7 @@ func TestRowFromItem(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 
 	// Test with no fields
@@ -76,7 +76,7 @@ func TestRowFromItem(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi3, fi4}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 	row2, ok2 := RowFromItem(i2, []*schema.Field{sf3, sf4})
 	assert.False(t, ok2)
@@ -89,11 +89,11 @@ func TestRowFromItem(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi1, fi2, fi3, fi4}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 	row3, ok3 := RowFromItem(i3, []*schema.Field{sf3, sf4})
 	assert.True(t, ok3)
-	assert.Equal(t, []string{i1.ID().String(), "139.28179282584915", "36.58570985749664", "30", "true"}, row3)
+	assert.Equal(t, []string{i1.ID().String(), "36.58570985749664", "139.28179282584915", "30", "true"}, row3)
 }
 
 func TestExtractFirstPointField(t *testing.T) {
@@ -120,7 +120,7 @@ func TestExtractFirstPointField(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi1, fi3, fi4}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 	i2 := item.New().
 		ID(iid).
@@ -128,7 +128,7 @@ func TestExtractFirstPointField(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi3, fi4}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 	i3 := item.New().
 		ID(iid).
@@ -136,7 +136,7 @@ func TestExtractFirstPointField(t *testing.T) {
 		Project(pid).
 		Fields([]*item.Field{fi2, fi3, fi4}).
 		Model(mid).
-		Thread(tid).
+		Thread(tid.Ref()).
 		MustBuild()
 
 	// Test with valid geometry field

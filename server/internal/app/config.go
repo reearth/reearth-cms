@@ -59,8 +59,18 @@ type Config struct {
 	// auth for m2m
 	AuthM2M AuthM2MConfig `pp:",omitempty"`
 
-	DB_Account string          `pp:",omitempty"`
+	DB_Account string          `default:"reearth_account" pp:",omitempty"`
+	DB_CMS     string          `default:"reearth_cms" pp:",omitempty"`
 	DB_Users   []appx.NamedURI `pp:",omitempty"`
+
+	// internal api
+	InternalApi InternalApiConfig `pp:",omitempty"`
+}
+
+type InternalApiConfig struct {
+	Active bool   `default:"false" pp:",omitempty"`
+	Port   string `default:"50051" pp:",omitempty"`
+	Token  string `default:"" pp:",omitempty"`
 }
 
 type AuthConfig struct {
@@ -314,6 +324,14 @@ func ReadConfig(debug bool) (*Config, error) {
 		c.Dev = true
 	}
 
+	if c.Task.DBName == "" {
+		c.Task.DBName = c.DB_CMS
+	}
+
+	if c.Task.AccountDBName == "" {
+		c.Task.AccountDBName = c.DB_Account
+	}
+
 	return &c, err
 }
 
@@ -334,6 +352,7 @@ func (c *Config) secrets() []string {
 	s := []string{
 		c.DB,
 		c.Auth0.ClientSecret,
+		c.InternalApi.Token,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)

@@ -2,7 +2,7 @@ name: ci-server
 on:
   workflow_call:
 env:
-  GO_VERSION: "1.23"
+  GO_VERSION: "1.24"
 
 jobs:
   ci-server-lint:
@@ -17,12 +17,22 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: server/go.mod
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.61
+          version: v2.0.2
           working-directory: server
           args: --config=../.golangci.yml
           skip-cache: true
+      - name: Check go.mod tidiness
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+        working-directory: server
+      - name: Check gql generation
+        working-directory: server
+        run: |
+          go generate ./internal/adapter/gql
+          git diff --exit-code ./internal/adapter/gql
   ci-server-i18n:
     name: i18n
     runs-on: ubuntu-latest
@@ -62,7 +72,7 @@ jobs:
         env:
           REEARTH_CMS_DB: mongodb://localhost
       - name: Send coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: server
           file: coverage.txt

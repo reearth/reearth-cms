@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -29,14 +28,11 @@ export default () => {
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.project.create, [userRights?.project.create]);
 
-  const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
-  const [projectModalShown, setProjectModalShown] = useState(false);
-
   const workspaceId = currentWorkspace?.id;
 
   const {
     data,
-    loading: loadingProjects,
+      loading,
     refetch: projectsRefetch,
   } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
@@ -47,14 +43,14 @@ export default () => {
     () =>
       data?.projects.nodes
         .map(project => (project ? fromGraphQLProject(project as GQLProject) : undefined))
-        .filter(project => !!project),
+          .filter(project => !!project) ?? [],
     [data?.projects.nodes],
   );
 
   const projects = useMemo(
     () =>
       searchedProjectName
-        ? allProjects?.filter(project =>
+          ? allProjects.filter(project =>
             project.name.toLocaleLowerCase().includes(searchedProjectName.toLocaleLowerCase()),
           )
         : allProjects,
@@ -74,7 +70,7 @@ export default () => {
 
   const handleProjectCreate = useCallback(
     async (data: ProjectFormValues) => {
-      if (!workspaceId) return;
+        if (!workspaceId) throw new Error();
       const project = await createNewProject({
         variables: {
           workspaceId,
@@ -85,26 +81,20 @@ export default () => {
       });
       if (project.errors || !project.data?.createProject) {
         Notification.error({ message: t("Failed to create project.") });
-        return;
+          throw new Error();
       }
       Notification.success({ message: t("Successfully created project!") });
-      setProjectModalShown(false);
       projectsRefetch();
     },
     [createNewProject, workspaceId, projectsRefetch, t],
   );
 
-  const handleProjectModalClose = useCallback(() => {
-    setProjectModalShown(false);
-  }, []);
-
-  const handleProjectModalOpen = useCallback(() => setProjectModalShown(true), []);
-
   const handleProjectNavigation = useCallback(
-    (project?: Project) => {
-      navigate(`/workspace/${currentWorkspace?.id}/project/${project?.id}`);
+      (projectId: string) => {
+          if (!workspaceId || !projectId) return;
+          navigate(`/workspace/${workspaceId}/project/${projectId}`);
     },
-    [currentWorkspace, navigate],
+      [workspaceId, navigate],
   );
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation({
@@ -127,12 +117,6 @@ export default () => {
     [createWorkspaceMutation, setCurrentWorkspace, projectsRefetch, navigate, t],
   );
 
-  const handleWorkspaceModalClose = useCallback(() => {
-    setWorkspaceModalShown(false);
-  }, []);
-
-  const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
-
   const [CheckProjectAlias] = useCheckProjectAliasLazyQuery({
     fetchPolicy: "no-cache",
   });
@@ -150,17 +134,11 @@ export default () => {
   return {
     coverImageUrl,
     projects,
-    projectModalShown,
-    loadingProjects,
-    workspaceModalShown,
+      loading,
     hasCreateRight,
     handleProjectSearch,
     handleProjectCreate,
-    handleProjectModalOpen,
-    handleProjectModalClose,
     handleProjectNavigation,
-    handleWorkspaceModalClose,
-    handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleProjectAliasCheck,
     projectsRefetch,

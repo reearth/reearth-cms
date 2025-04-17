@@ -37,6 +37,23 @@ func NewEvent(e *event.Event[any]) (*EventDocument, string, error) {
 	}, eId, nil
 }
 
+func NewEvents(e event.List) ([]*EventDocument, []string, error) {
+	res := make([]*EventDocument, 0, len(e))
+	ids := make([]string, 0, len(e))
+	for _, d := range e {
+		if d == nil {
+			continue
+		}
+		r, rid, err := NewEvent(d)
+		if err != nil {
+			return nil, nil, err
+		}
+		res = append(res, r)
+		ids = append(ids, rid)
+	}
+	return res, ids, nil
+}
+
 func (d *EventDocument) Model() (*event.Event[any], error) {
 	eID, err := event.IDFrom(d.ID)
 	if err != nil {

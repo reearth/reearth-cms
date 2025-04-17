@@ -1,11 +1,13 @@
+import {NetworkStatus} from "@apollo/client";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Request } from "@reearth-cms/components/molecules/Request/types";
+import {Request, RequestUpdatePayload} from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
+    useUpdateRequestMutation,
   useDeleteRequestMutation,
   useApproveRequestMutation,
   useAddCommentMutation,
@@ -13,7 +15,10 @@ import {
   useUpdateCommentMutation,
   useDeleteCommentMutation,
   useGetRequestQuery,
+    useCreateThreadWithCommentMutation,
   Request as GQLRequest,
+    RequestState as GQLRequestState,
+    ResourceType as GQLResourceType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -41,7 +46,7 @@ export default () => {
   );
 
   const { data: userData } = useGetMeQuery();
-  const { data: rawRequest, loading } = useGetRequestQuery({
+    const {data: rawRequest, networkStatus} = useGetRequestQuery({
     variables: { requestId: requestId ?? "" },
     skip: !requestId,
     fetchPolicy: "cache-and-network",
@@ -96,65 +101,113 @@ export default () => {
     [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.update],
   );
 
+    const [updateRequestMutation, {loading: updateRequestLoading}] = useUpdateRequestMutation();
+
+    const handleRequestUpdate = useCallback(
+        async (data: RequestUpdatePayload) => {
+            if (!data.requestId) return;
+            const request = await updateRequestMutation({
+                variables: {
+                    requestId: data.requestId,
+                    title: data.title,
+                    description: data.description,
+                    state: data.state as GQLRequestState,
+                    reviewersId: data.reviewersId,
+                    items: data.items,
+                },
+            });
+            if (request.errors || !request.data?.updateRequest) {
+                Notification.error({message: t("Failed to update request.")});
+                return;
+            }
+            Notification.success({message: t("Successfully updated request!")});
+        },
+        [updateRequestMutation, t],
+    );
+
   const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(
-    (requestsId: string[]) =>
-      (async () => {
-        if (!projectId) return;
-        const result = await deleteRequestMutation({
-          variables: { projectId, requestsId },
-          refetchQueries: ["GetRequests", "GetRequest"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to delete one or more requests.") });
-        }
-        if (result) {
-          Notification.success({ message: t("One or more requests were successfully closed!") });
-          navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-        }
-      })(),
-    [t, projectId, currentWorkspace?.id, navigate, deleteRequestMutation],
+      async (requestsId: string[]) => {
+          if (!projectId) return;
+          const result = await deleteRequestMutation({
+              variables: {projectId, requestsId},
+              refetchQueries: ["GetRequest"],
+          });
+          if (result.errors) {
+              Notification.error({message: t("Failed to delete one or more requests.")});
+          }
+          if (result) {
+              Notification.success({message: t("One or more requests were successfully closed!")});
+          }
+      },
+      [t, projectId, deleteRequestMutation],
   );
 
   const [approveRequestMutation, { loading: approveLoading }] = useApproveRequestMutation();
   const handleRequestApprove = useCallback(
-    (requestId: string) =>
-      (async () => {
-        const result = await approveRequestMutation({
-          variables: { requestId },
-          refetchQueries: ["GetRequests", "GetRequest"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to approve request.") });
-        }
-        if (result) {
-          Notification.success({ message: t("Successfully approved request!") });
-          navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-        }
-      })(),
-    [currentWorkspace?.id, projectId, navigate, t, approveRequestMutation],
+      async (requestId: string) => {
+          const result = await approveRequestMutation({
+              variables: {requestId},
+          });
+          if (result.errors) {
+              Notification.error({message: t("Failed to approve request.")});
+          }
+          if (result) {
+              Notification.success({message: t("Successfully approved request!")});
+          }
+      },
+      [t, approveRequestMutation],
   );
 
   const [createComment] = useAddCommentMutation({
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
+    const [createThreadWithComment] = useCreateThreadWithCommentMutation({
+        refetchQueries: ["GetRequests", "GetRequest"],
+    });
+
   const handleCommentCreate = useCallback(
     async (content: string) => {
-      if (!currentRequest?.threadId) return;
-      const comment = await createComment({
-        variables: {
-          threadId: currentRequest.threadId,
-          content,
-        },
-      });
-      if (comment.errors || !comment.data?.addComment) {
-        Notification.error({ message: t("Failed to create comment.") });
-        return;
-      }
-      Notification.success({ message: t("Successfully created comment!") });
+        try {
+            if (!currentRequest?.threadId) {
+                const {data, errors} = await createThreadWithComment({
+                    variables: {
+                        workspaceId: currentWorkspace?.id ?? "",
+                        resourceId: currentRequest?.id ?? "",
+                        resourceType: GQLResourceType.Request,
+                        content,
+                    },
+                });
+
+                if (errors || !data?.createThreadWithComment?.thread?.id) {
+                    Notification.error({message: t("Failed to create thread.")});
+                    return;
+                }
+            } else {
+                const {data: commentData, errors: commentErrors} = await createComment({
+                    variables: {threadId: currentRequest?.threadId, content},
+                });
+
+                if (commentErrors || !commentData?.addComment) {
+                    Notification.error({message: t("Failed to create comment.")});
+                    return;
+                }
+            }
+            Notification.success({message: t("Successfully created comment!")});
+        } catch (error) {
+            Notification.error({message: t("An unexpected error occurred.")});
+            console.error("Error creating comment:", error);
+        }
     },
-    [createComment, currentRequest?.threadId, t],
+      [
+          createComment,
+          createThreadWithComment,
+          currentRequest?.id,
+          currentRequest?.threadId,
+          currentWorkspace?.id,
+          t,
+      ],
   );
 
   const handleNavigateToRequestsList = useCallback(() => {
@@ -226,10 +279,12 @@ export default () => {
     isReopenActionEnabled,
     isApproveActionEnabled,
     isAssignActionEnabled,
-    loading,
+      loading: networkStatus === NetworkStatus.loading,
+      updateRequestLoading,
     deleteLoading,
     approveLoading,
     currentRequest,
+      handleRequestUpdate,
     handleRequestDelete,
     handleRequestApprove,
     handleCommentCreate,

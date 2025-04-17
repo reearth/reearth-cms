@@ -16,7 +16,7 @@ const CopyButton: React.FC<Props> = ({ copyable, ...props }) => {
   return <Text copyable={{ tooltips: [t("Copy"), t("Copied")], ...copyable }} {...props} />;
 };
 
-const StyledCopyButton = styled(CopyButton)<{ color?: string; hoverColor?: string }>`
+const StyledCopyButton = styled(CopyButton)<{ color?: string; hoverColor?: string; size?: number }>`
   display: inline-flex;
   .ant-typography-copy {
     transition: all 0.3s;
@@ -30,6 +30,9 @@ const StyledCopyButton = styled(CopyButton)<{ color?: string; hoverColor?: strin
     :hover {
       color: ${({ hoverColor }) => hoverColor || "#000000e0"};
     }
+  }
+  svg {
+    ${({size}) => `width: ${size}px; height: ${size}px;`};
   }
 `;
 

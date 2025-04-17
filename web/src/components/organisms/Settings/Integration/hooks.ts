@@ -1,8 +1,11 @@
-import { Key, useCallback, useMemo, useState } from "react";
+import {useCallback, useMemo, useState} from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
-import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import {
+    IntegrationMember,
+    WorkspaceIntegration,
+} from "@reearth-cms/components/molecules/Integration/types";
+import {Role} from "@reearth-cms/components/molecules/Member/types";
 import {
   fromGraphQLIntegration,
   fromGraphQLWorkspace,
@@ -19,13 +22,9 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserRights } from "@reearth-cms/state";
 
 export default (workspaceId?: string) => {
-  const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
-  const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
-  const [integrationSettingsModalShown, setIntegrationSettingsModalShown] = useState(false);
+    const [selectedIntegration, setSelectedIntegration] = useState<WorkspaceIntegration>();
+
   const [searchTerm, setSearchTerm] = useState<string>();
-  const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
-    selectedRowKeys: [],
-  });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { data, refetch, loading } = useGetMeQuery({
@@ -54,63 +53,56 @@ export default (workspaceId?: string) => {
 
   const workspaceIntegrationMembers = useMemo(
     () =>
-      workspace?.members?.filter(
-        (member): member is IntegrationMember =>
-          "integration" in member &&
-          !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""),
-      ),
-    [workspace?.members, searchTerm],
+        workspace?.members?.filter((member): member is IntegrationMember => "integration" in member),
+      [workspace?.members],
   );
 
-  const integrations = useMemo(
+    const workspaceIntegrations = useMemo(
+        (): WorkspaceIntegration[] | undefined =>
+            workspaceIntegrationMembers
+                ?.filter(member => !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""))
+                .map(member => ({
+                    id: member.integration?.id,
+                    name: member.integration?.name,
+                    description: member.integration?.description ?? undefined,
+                    imageUrl: undefined,
+                    createdBy: member.integration?.developer,
+                    role: member.integrationRole,
+                })),
+        [workspaceIntegrationMembers, searchTerm],
+  );
+
+    const myIntegrations = useMemo(
     () =>
       data?.me?.integrations
         ?.map(integration => fromGraphQLIntegration(integration))
         .filter(
           integration =>
-            !workspaceIntegrationMembers?.some(
+              !workspaceIntegrations?.some(
               workspaceIntegration => workspaceIntegration.id === integration.id,
             ),
         ),
-    [data?.me?.integrations, workspaceIntegrationMembers],
+        [data?.me?.integrations, workspaceIntegrations],
   );
-
-  const handleIntegrationConnectModalClose = useCallback(() => {
-    setIntegrationConnectModalShown(false);
-  }, []);
-
-  const handleIntegrationConnectModalOpen = useCallback(() => {
-    setIntegrationConnectModalShown(true);
-  }, []);
-
-  const handleIntegrationSettingsModalClose = useCallback(() => {
-    setIntegrationSettingsModalShown(false);
-  }, []);
-
-  const handleIntegrationSettingsModalOpen = useCallback((integrationMember: IntegrationMember) => {
-    SetSelectedIntegrationMember(integrationMember);
-    setIntegrationSettingsModalShown(true);
-  }, []);
 
   const [addIntegrationToWorkspaceMutation, { loading: addLoading }] =
     useAddIntegrationToWorkspaceMutation();
 
   const handleIntegrationConnect = useCallback(
-    async (integration?: Integration) => {
-      if (!integration || !workspaceId) return;
+      async (integrationId: string) => {
+          if (!integrationId || !workspaceId) return;
       const integrationResponse = await addIntegrationToWorkspaceMutation({
         variables: {
-          integrationId: integration.id,
+            integrationId,
           workspaceId,
           role: GQLRole.Reader,
         },
       });
       if (integrationResponse.errors || !integrationResponse.data?.addIntegrationToWorkspace) {
         Notification.error({ message: t("Failed to connect integration.") });
-        return;
+          throw new Error();
       }
       Notification.success({ message: t("Successfully connected integration to the workspace!") });
-      setIntegrationConnectModalShown(false);
       refetch();
     },
     [addIntegrationToWorkspaceMutation, workspaceId, refetch, t],
@@ -121,24 +113,23 @@ export default (workspaceId?: string) => {
 
   const handleUpdateIntegration = useCallback(
     async (role: Role) => {
-      if (!workspaceId || !selectedIntegrationMember) return;
+        if (!workspaceId || !selectedIntegration) return;
       const integration = await updateIntegrationToWorkspaceMutation({
         variables: {
-          integrationId: selectedIntegrationMember?.integration?.id || "",
+            integrationId: selectedIntegration?.id || "",
           workspaceId,
           role: role as GQLRole,
         },
       });
       if (integration.errors || !integration.data?.updateIntegrationOfWorkspace) {
         Notification.error({ message: t("Failed to update workspace integration.") });
-        return;
+          throw new Error();
       }
 
       Notification.success({ message: t("Successfully updated workspace integration!") });
-      setIntegrationConnectModalShown(false);
       refetch();
     },
-    [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch, t],
+      [updateIntegrationToWorkspaceMutation, selectedIntegration, workspaceId, refetch, t],
   );
 
   const [removeIntegrationFromWorkspaceMutation, { loading: deleteLoading }] =
@@ -147,22 +138,24 @@ export default (workspaceId?: string) => {
   const handleIntegrationRemove = useCallback(
     async (integrationIds: string[]) => {
       if (!workspaceId) return;
-      const results = await Promise.all(
-        integrationIds.map(async integrationId => {
-          const result = await removeIntegrationFromWorkspaceMutation({
-            variables: { workspaceId, integrationId },
-            refetchQueries: ["GetMe"],
-          });
-          if (result.errors) {
-            Notification.error({ message: t("Failed to delete one or more integrations.") });
-          }
-        }),
-      );
-      if (results) {
+        try {
+            await Promise.all(
+                integrationIds.map(async integrationId => {
+                    const result = await removeIntegrationFromWorkspaceMutation({
+                        variables: {workspaceId, integrationId},
+                        refetchQueries: ["GetMe"],
+                    });
+                    if (result.errors) {
+                        throw new Error();
+                    }
+                }),
+            );
         Notification.success({
           message: t("One or more integrations were successfully deleted!"),
         });
-        setSelection({ selectedRowKeys: [] });
+        } catch (e) {
+            Notification.error({message: t("Failed to delete one or more integrations.")});
+            throw e;
       }
     },
     [t, removeIntegrationFromWorkspaceMutation, workspaceId],
@@ -183,31 +176,26 @@ export default (workspaceId?: string) => {
   }, []);
 
   return {
-    integrations,
-    workspaceIntegrationMembers,
-    handleIntegrationConnectModalClose,
-    handleIntegrationConnectModalOpen,
-    addLoading,
-    handleIntegrationConnect,
+      loading,
+      workspaceIntegrations,
+      handleSearchTerm,
+      handleReload,
+      setSelectedIntegration,
     deleteLoading,
     handleIntegrationRemove,
-    integrationConnectModalShown,
-    handleUpdateIntegration,
-    updateLoading,
-    handleIntegrationSettingsModalClose,
-    handleIntegrationSettingsModalOpen,
-    integrationSettingsModalShown,
-    selectedIntegrationMember,
-    selection,
-    handleSearchTerm,
-    setSelection,
     page,
     pageSize,
     handleTableChange,
-    loading,
-    handleReload,
     hasConnectRight,
     hasUpdateRight,
     hasDeleteRight,
+
+      myIntegrations,
+      addLoading,
+      handleIntegrationConnect,
+
+      selectedIntegration,
+      updateLoading,
+      handleUpdateIntegration,
   };
 };

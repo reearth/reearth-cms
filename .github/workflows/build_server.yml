@@ -59,19 +59,6 @@ jobs:
           echo "platforms=$PLATFORMS" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
-      - name: Fetch reearth-cms-web
-        uses: dawidd6/action-download-artifact@v6
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: ci_web.yml
-          workflow_conclusion: success
-          branch: main
-          name: reearth-cms-web
-          path: server
-          check_artifacts: true
-          search_artifacts: true
-      - name: Extract reearth-cms-web
-        run: tar -xvf server/reearth-cms-web.tar.gz; mv reearth-cms-web server/web; ls
       - name: Build and push docker image
         uses: docker/build-push-action@v6
         with:

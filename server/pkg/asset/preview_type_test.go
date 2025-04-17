@@ -212,7 +212,7 @@ func TestPreviewType_DetectPreviewType(t *testing.T) {
 	f1 := file.File{
 		Name:        "image.png",
 		ContentType: "image/png",
-	}	
+	}
 	want1 := PreviewTypeImage
 	got1 := DetectPreviewType(&f1)
 	assert.Equal(t, want1, *got1)
@@ -220,7 +220,7 @@ func TestPreviewType_DetectPreviewType(t *testing.T) {
 	f2 := file.File{
 		Name:        "file.geojson",
 		ContentType: "application/json",
-	}	
+	}
 	want2 := PreviewTypeGeo
 	got2 := DetectPreviewType(&f2)
 	assert.Equal(t, want2, *got2)
@@ -278,6 +278,10 @@ func TestPreviewType_PreviewTypeFromExtension(t *testing.T) {
 	want6 := PreviewTypeGeoMvt
 	got6 := PreviewTypeFromExtension(ext6)
 	assert.Equal(t, want6, got6)
+
+	want7 := PreviewTypeUnknown
+	got7 := PreviewTypeFromExtension("")
+	assert.Equal(t, want7, got7)
 }
 
 func TestPreviewType_String(t *testing.T) {
@@ -288,7 +292,7 @@ func TestPreviewType_String(t *testing.T) {
 
 func TestPreviewType_StringRef(t *testing.T) {
 	var pt1 *PreviewType
-	var pt2 *PreviewType = lo.ToPtr(PreviewTypeImage)
+	var pt2 = lo.ToPtr(PreviewTypeImage)
 	s := string(*pt2)
 
 	tests := []struct {
@@ -315,4 +319,9 @@ func TestPreviewType_StringRef(t *testing.T) {
 			assert.Equal(t, tc.Expected, tc.Input)
 		})
 	}
+}
+
+func TestPreviewType_Prev(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, func() *PreviewType { pt := PreviewType("image"); return &pt }(), PreviewTypeImage.Ref())
 }

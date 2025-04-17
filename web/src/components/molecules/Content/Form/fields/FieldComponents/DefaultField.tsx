@@ -1,47 +1,47 @@
+import styled from "@emotion/styled";
 import { useMemo } from "react";
 import { runes } from "runes2";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import {FieldProps} from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import {requiredValidator} from "../utils";
 
-type DefaultFieldProps = {
-  field: Field;
-  itemGroupId?: string;
-  onMetaUpdate?: () => Promise<void>;
-  disabled: boolean;
-};
-
-const DefaultField: React.FC<DefaultFieldProps> = ({
+const DefaultField: React.FC<FieldProps> = ({
   field,
   itemGroupId,
-  onMetaUpdate,
   disabled,
+                                                itemHeights,
+                                                onItemHeightChange,
 }) => {
   const t = useT();
   const maxLength = useMemo(() => field.typeProperty?.maxLength, [field.typeProperty?.maxLength]);
 
+    const required = useMemo(() => field.required, [field.required]);
+
   return (
-    <Form.Item
+      <StyledFormItem
       extra={field.description}
       validateStatus="success"
       rules={[
         {
-          required: field.required,
+            required,
+            validator: requiredValidator,
           message: t("Please input field!"),
         },
         {
           validator: (_, value) => {
             if (value && maxLength) {
               if (Array.isArray(value)) {
-                if (value.some(v => maxLength < runes(v).length)) {
+                  if (value.some(v => typeof v === "string" && maxLength < runes(v).length)) {
                   return Promise.reject();
                 }
-              } else if (maxLength < runes(value).length) {
+              } else if (typeof value === "string" && maxLength < runes(value).length) {
                 return Promise.reject();
               }
             }
@@ -53,18 +53,26 @@ const DefaultField: React.FC<DefaultFieldProps> = ({
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueField
-          onBlur={onMetaUpdate}
-          showCount={true}
-          maxLength={maxLength}
-          FieldInput={Input}
-          disabled={disabled}
-        />
+          <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+              <MultiValueField
+                  showCount={true}
+                  maxLength={maxLength}
+                  FieldInput={Input}
+                  disabled={disabled}
+                  required={required}
+              />
+          </ResponsiveHeight>
       ) : (
-        <Input onBlur={onMetaUpdate} showCount={true} maxLength={maxLength} disabled={disabled} />
+          <Input showCount={true} maxLength={maxLength} disabled={disabled} required={required}/>
       )}
-    </Form.Item>
+      </StyledFormItem>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+  .ant-input-disabled {
+    color: inherit;
+  }
+`;
 
 export default DefaultField;

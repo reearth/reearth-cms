@@ -1,4 +1,4 @@
-FROM node:22.11.0-slim AS builder
+FROM node:22.14.0-slim AS builder
 WORKDIR /app
 
 ARG NODE_OPTIONS="--max-old-space-size=4096"
@@ -41,11 +41,14 @@ ENV REEARTH_CMS_API=null
 ENV REEARTH_CMS_AUTH0_AUDIENCE=
 ENV REEARTH_CMS_AUTH0_CLIENT_ID=
 ENV REEARTH_CMS_AUTH0_DOMAIN=
-ENV REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN=null
+ENV REEARTH_CESIUM_ION_ACCESS_TOKEN=null
 ENV REEARTH_CMS_COVER_IMAGE_URL=null
 ENV REEARTH_CMS_EDITOR_URL=null
 ENV REEARTH_CMS_LOGO_URL=null
 ENV REEARTH_CMS_MULTI_TENANT=null
+
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --no-cache jq
 
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 COPY --chown=nginx:nginx docker/nginx.conf.template /etc/nginx/templates/nginx.conf.template

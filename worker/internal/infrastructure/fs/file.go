@@ -23,7 +23,7 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 	var err error
 	b, err = url.Parse(urlBase)
 	if err != nil {
-		return nil, invalidBaseURLErr
+		return nil, errInvalidBaseURL
 	}
 
 	return &fileRepo{

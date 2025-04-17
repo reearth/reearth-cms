@@ -3,6 +3,7 @@ package fs
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"net/url"
@@ -62,14 +63,14 @@ func NewFileWithACL(fs afero.Fs, publicBase, privateBase string) (gateway.File, 
 	return f, nil
 }
 
-func (f *fileRepo) ReadAsset(_ context.Context, fileUUID string, fn string) (io.ReadCloser, error) {
+func (f *fileRepo) ReadAsset(ctx context.Context, fileUUID string, fn string, h map[string]string) (io.ReadCloser, map[string]string, error) {
 	if fileUUID == "" || fn == "" {
-		return nil, rerror.ErrNotFound
+		return nil, nil, rerror.ErrNotFound
 	}
 
 	p := getFSObjectPath(fileUUID, fn)
 
-	return f.read(p)
+	return f.Read(ctx, p, h)
 }
 
 func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string) ([]gateway.FileEntry, error) {
@@ -109,19 +110,22 @@ func (f *fileRepo) GetAssetFiles(_ context.Context, fileUUID string) ([]gateway.
 	return fileEntries, nil
 }
 
-func (f *fileRepo) UploadAsset(_ context.Context, file *file.File) (string, int64, error) {
+func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, int64, error) {
 	if file == nil {
 		return "", 0, gateway.ErrInvalidFile
 	}
 	if file.Size >= fileSizeLimit {
 		return "", 0, gateway.ErrFileTooLarge
 	}
+	if file.ContentEncoding != "" && file.ContentEncoding != "identity" {
+		return "", 0, gateway.ErrUnsupportedContentEncoding
+	}
 
 	fileUUID := newUUID()
 
 	p := getFSObjectPath(fileUUID, file.Name)
 
-	size, err := f.upload(p, file.Content)
+	size, err := f.Upload(ctx, file, p)
 	if err != nil {
 		return "", 0, err
 	}
@@ -159,33 +163,52 @@ func grtURL(host *url.URL, uuid, fName string) string {
 	return host.JoinPath(assetDir, uuid[:2], uuid[2:], fName).String()
 }
 
-func (f *fileRepo) IssueUploadAssetLink(_ context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
+func (f *fileRepo) GetBaseURL() string {
+	return f.publicBase.String()
+}
+
+func (f *fileRepo) IssueUploadAssetLink(_ context.Context, _ gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
 	return nil, gateway.ErrUnsupportedOperation
 }
 
-func (f *fileRepo) UploadedAsset(_ context.Context, u *asset.Upload) (*file.File, error) {
+func (f *fileRepo) UploadedAsset(_ context.Context, _ *asset.Upload) (*file.File, error) {
 	return nil, gateway.ErrUnsupportedOperation
 }
 
 // helpers
 
-func (f *fileRepo) read(filename string) (io.ReadCloser, error) {
+func (f *fileRepo) Read(_ context.Context, filename string, _ map[string]string) (io.ReadCloser, map[string]string, error) {
 	if filename == "" {
-		return nil, rerror.ErrNotFound
+		return nil, nil, rerror.ErrNotFound
+	}
+
+	stat, err := f.fs.Stat(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil, rerror.ErrNotFound
+		}
+		return nil, nil, rerror.ErrInternalBy(err)
 	}
 
 	file, err := f.fs.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, rerror.ErrNotFound
+			return nil, nil, rerror.ErrNotFound
 		}
-		return nil, rerror.ErrInternalBy(err)
+		return nil, nil, rerror.ErrInternalBy(err)
 	}
-	return file, nil
+
+	headers := map[string]string{
+		"Content-Type":   "application/octet-stream",
+		"Last-Modified":  stat.ModTime().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"),
+		"Content-Length": fmt.Sprintf("%d", stat.Size()),
+	}
+
+	return file, headers, nil
 }
 
-func (f *fileRepo) upload(filename string, content io.Reader) (int64, error) {
-	if filename == "" || content == nil {
+func (f *fileRepo) Upload(_ context.Context, file *file.File, filename string) (int64, error) {
+	if filename == "" || file == nil || file.Content == nil {
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
@@ -204,7 +227,7 @@ func (f *fileRepo) upload(filename string, content io.Reader) (int64, error) {
 	}()
 
 	var size int64
-	if size, err = io.Copy(dest, content); err != nil {
+	if size, err = io.Copy(dest, file.Content); err != nil {
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
@@ -233,6 +256,14 @@ func getFSObjectPath(fileUUID, objectName string) string {
 	return filepath.Join(assetDir, fileUUID[:2], fileUUID[2:], objectName)
 }
 
+func getFSObjectFolderPath(fileUUID string) string {
+	if fileUUID == "" || !IsValidUUID(fileUUID) {
+		return ""
+	}
+
+	return filepath.Join(assetDir, fileUUID[:2], fileUUID[2:])
+}
+
 func newUUID() string {
 	return uuid.NewString()
 }
@@ -240,4 +271,26 @@ func newUUID() string {
 func IsValidUUID(fileUUID string) bool {
 	_, err := uuid.Parse(fileUUID)
 	return err == nil
+}
+
+// DeleteAssets deletes assets in batch
+func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
+	if len(folders) == 0 {
+		return rerror.ErrNotFound
+	}
+	var errs []error
+	for _, fileUUID := range folders {
+		if fileUUID == "" || !IsValidUUID(fileUUID) {
+			errs = append(errs, gateway.ErrInvalidUUID)
+		}
+
+		p := getFSObjectFolderPath(fileUUID)
+		if err := f.fs.RemoveAll(p); err != nil {
+			errs = append(errs, gateway.ErrFileNotFound)
+		}
+	}
+	if len(errs) > 0 {
+		return rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", errs))
+	}
+	return nil
 }

@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import fileDownload from "js-file-download";
 import React, { MouseEventHandler, useCallback } from "react";
 
@@ -15,12 +16,14 @@ type DownloadButtonProps = {
   title?: string;
   selected?: Asset[];
   displayDefaultIcon?: boolean;
+    onlyIcon?: boolean;
 } & ButtonProps;
 
 const DownloadButton: React.FC<DownloadButtonProps> = ({
   title,
   selected,
   displayDefaultIcon,
+                                                           onlyIcon,
   ...props
 }) => {
   const t = useT();
@@ -34,7 +37,11 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     });
   }, [selected]);
 
-  return (
+    return onlyIcon ? (
+        <IconWrapper role="button" onClick={handleDownload}>
+            <Icon icon="download"/>
+        </IconWrapper>
+    ) : (
     <Button
       icon={displayDefaultIcon && <Icon icon="download" />}
       onClick={handleDownload}
@@ -44,5 +51,15 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     </Button>
   );
 };
+
+const IconWrapper = styled.div`
+  display: inline-flex;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #00000073;
+  :hover {
+    color: #000000e0;
+  }
+`;
 
 export default DownloadButton;

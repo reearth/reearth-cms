@@ -25,6 +25,7 @@ import {
   Group,
   FormValues,
   Tag,
+    SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
@@ -34,6 +35,7 @@ import useHooks from "./hooks";
 type Props = {
   groups?: Group[];
   selectedType: FieldType;
+    selectedSchemaType: SelectedSchemaType;
   isMeta: boolean;
   open: boolean;
   fieldLoading: boolean;
@@ -85,6 +87,7 @@ const FieldModal: React.FC<Props> = ({
   groups,
   open,
   isMeta,
+                                         selectedSchemaType,
   fieldLoading,
   selectedType,
   selectedField,
@@ -143,7 +146,16 @@ const FieldModal: React.FC<Props> = ({
     emptyValidator,
     duplicatedValidator,
     errorIndexes,
-  } = useHooks(selectedType, isMeta, selectedField, open, onClose, onSubmit, handleFieldKeyUnique);
+  } = useHooks(
+      selectedSchemaType,
+      selectedType,
+      isMeta,
+      selectedField,
+      open,
+      onClose,
+      onSubmit,
+      handleFieldKeyUnique,
+  );
 
   const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
     <>

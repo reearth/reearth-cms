@@ -5,46 +5,38 @@ import { expect } from "@reearth-cms/e2e/utils";
 
 export const modelName = "e2e model name";
 
-export async function createModel(page: Page, name = modelName, key = "e2e-model-key") {
-  await page.getByText("Schema").first().click();
-  await page.getByRole("button", { name: "plus Add" }).first().click();
-  await page.getByLabel("Model name").click();
+async function createModel(page: Page, name = modelName, key?: string) {
   await page.getByLabel("Model name").fill(name);
-  await page.getByLabel("Model key").click();
-  await page.getByLabel("Model key").fill(key);
+    if (key) {
+        await page.getByLabel("Model key").fill(key);
+    }
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByTitle(name, { exact: true })).toBeVisible();
-  await expect(page.getByText(`#${key}`)).toBeVisible();
-  await expect(page.getByRole("menuitem", { name }).locator("span")).toBeVisible();
 }
 
-const updateModelName = "new e2e model name";
+export async function createModelFromOverview(page: Page, name = modelName, key?: string) {
+    await expect(page.getByRole("heading")).toBeVisible();
+    await page.getByRole("button", {name: "plus New Model"}).first().click();
+    await createModel(page, name, key);
+}
 
-async function updateModel(page: Page) {
+export async function createModelFromSidebar(page: Page, name = modelName, key?: string) {
+    await page.getByRole("button", {name: "plus Add"}).first().click();
+    await createModel(page, name, key);
+}
+
+export async function updateModel(page: Page, name = "new e2e model name", key: string) {
   await page.getByRole("button", { name: "more" }).hover();
   await page.getByText("Edit", { exact: true }).click();
-  await page.getByLabel("Update Model").locator("#name").click();
-  await page.getByLabel("Update Model").locator("#name").fill(updateModelName);
-  await page.getByLabel("Update Model").locator("#key").click();
-  await page.getByLabel("Update Model").locator("#key").fill("new-e2e-model-key");
+    await page.getByLabel("Update Model").locator("#name").fill(name);
+    await page.getByLabel("Update Model").locator("#key").fill(key);
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByTitle(updateModelName)).toBeVisible();
-  await expect(page.getByText("#new-e2e-model-key")).toBeVisible();
-  await expect(page.getByRole("menuitem", { name: updateModelName }).locator("span")).toBeVisible();
 }
 
-async function deleteModel(page: Page) {
+export async function deleteModel(page: Page) {
   await page.getByRole("button", { name: "more" }).hover();
   await page.getByText("Delete").click();
   await page.getByRole("button", { name: "Delete Model" }).click();
   await closeNotification(page);
-  await expect(page.getByTitle(updateModelName)).toBeHidden();
-}
-
-export async function crudModel(page: Page) {
-  await createModel(page);
-  await updateModel(page);
-  await deleteModel(page);
 }

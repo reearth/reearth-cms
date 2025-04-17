@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -144,6 +145,21 @@ const (
 	FieldSelectorTypeModificationDate FieldSelectorType = "modificationDate"
 	FieldSelectorTypeModificationUser FieldSelectorType = "modificationUser"
 	FieldSelectorTypeStatus           FieldSelectorType = "status"
+)
+
+// Defines values for ProjectPublicationScope.
+const (
+	LIMITED ProjectPublicationScope = "LIMITED"
+	PRIVATE ProjectPublicationScope = "PRIVATE"
+	PUBLIC  ProjectPublicationScope = "PUBLIC"
+)
+
+// Defines values for ProjectRequestRole.
+const (
+	MAINTAINER ProjectRequestRole = "MAINTAINER"
+	OWNER      ProjectRequestRole = "OWNER"
+	READER     ProjectRequestRole = "READER"
+	WRITER     ProjectRequestRole = "WRITER"
 )
 
 // Defines values for RefOrVersionRef.
@@ -297,10 +313,10 @@ const (
 
 // Feature defines model for Feature.
 type Feature struct {
-	Geometry   *Geometry               `json:"geometry,omitempty"`
-	Id         *id.ItemID              `json:"id,omitempty"`
-	Properties *map[string]interface{} `json:"properties,omitempty"`
-	Type       *FeatureType            `json:"type,omitempty"`
+	Geometry   *Geometry              `json:"geometry,omitempty"`
+	Id         *id.ItemID             `json:"id,omitempty"`
+	Properties *orderedmap.OrderedMap `json:"properties,omitempty"`
+	Type       *FeatureType           `json:"type,omitempty"`
 }
 
 // FeatureType defines model for Feature.Type.
@@ -516,14 +532,29 @@ type Model struct {
 
 // Project defines model for project.
 type Project struct {
-	Alias       *string                    `json:"alias,omitempty"`
-	CreatedAt   *time.Time                 `json:"createdAt,omitempty"`
-	Description *string                    `json:"description,omitempty"`
-	Id          *id.ProjectID              `json:"id,omitempty"`
-	Name        *string                    `json:"name,omitempty"`
-	UpdatedAt   *time.Time                 `json:"updatedAt,omitempty"`
-	WorkspaceId *accountdomain.WorkspaceID `json:"workspaceId,omitempty"`
+	Alias        string                    `json:"alias"`
+	CreatedAt    time.Time                 `json:"createdAt"`
+	Description  string                    `json:"description"`
+	Id           id.ProjectID              `json:"id"`
+	Name         string                    `json:"name"`
+	Publication  *ProjectPublication       `json:"publication,omitempty"`
+	RequestRoles *[]ProjectRequestRole     `json:"requestRoles,omitempty"`
+	UpdatedAt    time.Time                 `json:"updatedAt"`
+	WorkspaceId  accountdomain.WorkspaceID `json:"workspaceId"`
 }
+
+// ProjectPublication defines model for projectPublication.
+type ProjectPublication struct {
+	AssetPublic *bool                    `json:"assetPublic,omitempty"`
+	Scope       *ProjectPublicationScope `json:"scope,omitempty"`
+	Token       *string                  `json:"token,omitempty"`
+}
+
+// ProjectPublicationScope defines model for ProjectPublication.Scope.
+type ProjectPublicationScope string
+
+// ProjectRequestRole defines model for projectRequestRole.
+type ProjectRequestRole string
 
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
@@ -536,11 +567,11 @@ type RefOrVersionRef string
 
 // Schema defines model for schema.
 type Schema struct {
-	TitleField *id.FieldID    `json:"TitleField,omitempty"`
 	CreatedAt  *time.Time     `json:"createdAt,omitempty"`
 	Fields     *[]SchemaField `json:"fields,omitempty"`
 	Id         *id.SchemaID   `json:"id,omitempty"`
 	ProjectId  *id.ProjectID  `json:"projectId,omitempty"`
+	TitleField *id.FieldID    `json:"titleField,omitempty"`
 }
 
 // SchemaField defines model for schemaField.
@@ -550,6 +581,28 @@ type SchemaField struct {
 	Multiple *bool       `json:"multiple,omitempty"`
 	Required *bool       `json:"required,omitempty"`
 	Type     *ValueType  `json:"type,omitempty"`
+}
+
+// SchemaJSON defines model for schemaJSON.
+type SchemaJSON struct {
+	Id          *string                         `json:"$id,omitempty"`
+	Schema      *string                         `json:"$schema,omitempty"`
+	Description *string                         `json:"description,omitempty"`
+	Properties  map[string]SchemaJSONProperties `json:"properties"`
+	Title       *string                         `json:"title,omitempty"`
+	Type        string                          `json:"type"`
+}
+
+// SchemaJSONProperties defines model for schemaJSONProperties.
+type SchemaJSONProperties struct {
+	Description *string     `json:"description,omitempty"`
+	Format      *string     `json:"format,omitempty"`
+	Items       *SchemaJSON `json:"items,omitempty"`
+	MaxLength   *int        `json:"maxLength,omitempty"`
+	Maximum     *float64    `json:"maximum,omitempty"`
+	Minimum     *float64    `json:"minimum,omitempty"`
+	Title       *string     `json:"title,omitempty"`
+	Type        string      `json:"type"`
 }
 
 // TagResponse defines model for tagResponse.
@@ -638,6 +691,11 @@ type SortParam string
 // WorkspaceIdParam defines model for workspaceIdParam.
 type WorkspaceIdParam = accountdomain.WorkspaceID
 
+// AssetBatchDeleteJSONBody defines parameters for AssetBatchDelete.
+type AssetBatchDeleteJSONBody struct {
+	AssetIDs *[]id.AssetID `json:"assetIDs,omitempty"`
+}
+
 // AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
 type AssetCommentCreateJSONBody struct {
 	Content *string `json:"content,omitempty"`
@@ -684,8 +742,15 @@ type ModelUpdateJSONBody struct {
 	Name        *string `json:"name,omitempty"`
 }
 
+// CopyModelJSONBody defines parameters for CopyModel.
+type CopyModelJSONBody struct {
+	Key  *string `json:"key,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
 // ModelImportJSONBody defines parameters for ModelImport.
 type ModelImportJSONBody struct {
+	AsBackground     *bool                       `json:"asBackground,omitempty"`
 	AssetId          id.AssetID                  `json:"assetId"`
 	Format           ModelImportJSONBodyFormat   `json:"format"`
 	GeometryFieldKey *string                     `json:"geometryFieldKey,omitempty"`
@@ -904,6 +969,12 @@ type ItemsWithProjectAsGeoJSONParamsRef string
 
 // SchemaFilterParams defines parameters for SchemaFilter.
 type SchemaFilterParams struct {
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+
 	// Page Used to select the page
 	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
 
@@ -940,6 +1011,7 @@ type AssetFilterParamsDir string
 
 // AssetCreateJSONBody defines parameters for AssetCreate.
 type AssetCreateJSONBody struct {
+	ContentEncoding   *string `json:"contentEncoding,omitempty"`
 	SkipDecompression *bool   `json:"skipDecompression"`
 	Token             *string `json:"token,omitempty"`
 	Url               *string `json:"url,omitempty"`
@@ -947,15 +1019,19 @@ type AssetCreateJSONBody struct {
 
 // AssetCreateMultipartBody defines parameters for AssetCreate.
 type AssetCreateMultipartBody struct {
+	ContentEncoding   *string             `json:"contentEncoding,omitempty"`
+	ContentType       *string             `json:"contentType,omitempty"`
 	File              *openapi_types.File `json:"file,omitempty"`
 	SkipDecompression *bool               `json:"skipDecompression,omitempty"`
 }
 
 // AssetUploadCreateJSONBody defines parameters for AssetUploadCreate.
 type AssetUploadCreateJSONBody struct {
-	ContentLength *int    `json:"contentLength,omitempty"`
-	Cursor        *string `json:"cursor,omitempty"`
-	Name          *string `json:"name,omitempty"`
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	ContentLength   *int    `json:"contentLength,omitempty"`
+	ContentType     *string `json:"contentType,omitempty"`
+	Cursor          *string `json:"cursor,omitempty"`
+	Name            *string `json:"name,omitempty"`
 }
 
 // FieldCreateJSONBody defines parameters for FieldCreate.
@@ -983,6 +1059,35 @@ type ProjectFilterParams struct {
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
 
+// ProjectCreateJSONBody defines parameters for ProjectCreate.
+type ProjectCreateJSONBody struct {
+	Alias        *string               `json:"alias,omitempty"`
+	Description  *string               `json:"description,omitempty"`
+	Name         *string               `json:"name,omitempty"`
+	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
+}
+
+// ProjectCreateParams defines parameters for ProjectCreate.
+type ProjectCreateParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
+// ProjectUpdateJSONBody defines parameters for ProjectUpdate.
+type ProjectUpdateJSONBody struct {
+	Alias        *string               `json:"alias,omitempty"`
+	Description  *string               `json:"description,omitempty"`
+	Name         *string               `json:"name,omitempty"`
+	Publication  *ProjectPublication   `json:"publication,omitempty"`
+	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
+}
+
+// AssetBatchDeleteJSONRequestBody defines body for AssetBatchDelete for application/json ContentType.
+type AssetBatchDeleteJSONRequestBody AssetBatchDeleteJSONBody
+
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
 type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
 
@@ -1000,6 +1105,9 @@ type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
 // ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
 type ModelUpdateJSONRequestBody ModelUpdateJSONBody
+
+// CopyModelJSONRequestBody defines body for CopyModel for application/json ContentType.
+type CopyModelJSONRequestBody CopyModelJSONBody
 
 // ModelImportJSONRequestBody defines body for ModelImport for application/json ContentType.
 type ModelImportJSONRequestBody ModelImportJSONBody
@@ -1042,6 +1150,12 @@ type FieldCreateJSONRequestBody FieldCreateJSONBody
 
 // FieldUpdateJSONRequestBody defines body for FieldUpdate for application/json ContentType.
 type FieldUpdateJSONRequestBody FieldUpdateJSONBody
+
+// ProjectCreateJSONRequestBody defines body for ProjectCreate for application/json ContentType.
+type ProjectCreateJSONRequestBody ProjectCreateJSONBody
+
+// ProjectUpdateJSONRequestBody defines body for ProjectUpdate for application/json ContentType.
+type ProjectUpdateJSONRequestBody ProjectUpdateJSONBody
 
 // AsPoint returns the union data inside the Geometry_Coordinates as a Point
 func (t Geometry_Coordinates) AsPoint() (Point, error) {

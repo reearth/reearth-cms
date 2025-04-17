@@ -11,17 +11,10 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../../types";
 
-type Props = {
-  linkedItemsModalList?: FormItem[];
-  value?: string;
-  disabled?: boolean;
+export type ReferenceProps = {
+    referencedItems: FormItem[];
   loading?: boolean;
-  fieldId: string;
-  itemGroupId?: string;
-  formItemsData?: FormItem[];
-  correspondingField?: CorrespondingField;
-  modelId?: string;
-  titleFieldId?: string | null;
+    linkedItemsModalList?: FormItem[];
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
@@ -35,20 +28,30 @@ type Props = {
     correspondingFieldId: string,
     groupId?: string,
   ) => Promise<boolean>;
-  onChange?: (value?: string) => void;
 };
 
+type Props = {
+    value?: string;
+  onChange?: (value?: string) => void;
+    disabled?: boolean;
+    itemGroupId?: string;
+    fieldId: string;
+    modelId?: string;
+    titleFieldId?: string | null;
+    correspondingField?: CorrespondingField;
+} & ReferenceProps;
+
 const ReferenceFormItem: React.FC<Props> = ({
-  linkedItemsModalList,
   value,
-  disabled,
-  loading,
   fieldId,
+                                                referencedItems,
+                                                loading,
+                                                linkedItemsModalList,
+                                                disabled,
   itemGroupId,
   correspondingField,
   modelId,
   titleFieldId,
-  formItemsData,
   linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
@@ -78,11 +81,11 @@ const ReferenceFormItem: React.FC<Props> = ({
   }, [disabled, setVisible]);
 
   useEffect(() => {
-    const item = [...(formItemsData ?? []), ...(linkedItemsModalList ?? [])]?.find(
+      const item = [...(referencedItems ?? []), ...(linkedItemsModalList ?? [])]?.find(
       item => item.id === value,
     );
     setCurrentItem(item);
-  }, [linkedItemsModalList, formItemsData, value]);
+  }, [linkedItemsModalList, referencedItems, value]);
 
   return (
     <>
@@ -99,7 +102,8 @@ const ReferenceFormItem: React.FC<Props> = ({
           />
           {!disabled && (
             <UnreferButton
-              type="link"
+                color="default"
+                variant="link"
               icon={<Icon icon={"arrowUpRightSlash"} size={16} />}
               onClick={() => {
                 onChange?.();
@@ -148,13 +152,13 @@ const UnreferButton = styled(Button)`
 const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
-  margin-top: 8px;
 `;
 
 const ReferenceItemWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 8px;
 `;
 
 export default ReferenceFormItem;

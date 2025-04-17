@@ -79,10 +79,10 @@ func (r *Model) FindByProject(ctx context.Context, pid id.ProjectID, pagination 
 
 	return r.paginate(ctx, bson.M{
 		"project": pid.String(),
-	}, pagination)
+	}, nil, pagination)
 }
 
-func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k string, sort *model.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -97,7 +97,7 @@ func (r *Model) FindByProjectAndKeyword(ctx context.Context, pid id.ProjectID, k
 		}
 	}
 
-	return r.paginate(ctx, filter, pagination)
+	return r.paginate(ctx, filter, sortModels(sort), pagination)
 }
 
 func (r *Model) FindByKey(ctx context.Context, projectID id.ProjectID, key string) (*model.Model, error) {
@@ -185,9 +185,9 @@ func (r *Model) find(ctx context.Context, filter any) (model.List, error) {
 	return c.Result, nil
 }
 
-func (r *Model) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
+func (r *Model) paginate(ctx context.Context, filter bson.M, sort *usecasex.Sort, pagination *usecasex.Pagination) (model.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewModelConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
@@ -206,6 +206,26 @@ func prepare(ids id.ModelIDList, rows model.List) model.List {
 		}
 	}
 	return res
+}
+
+func sortModels(ms *model.Sort) *usecasex.Sort {
+	res := usecasex.Sort{Key: "order", Reverted: false}
+	if ms == nil {
+		return &res
+	}
+
+	switch ms.Column {
+	case model.ColumnCreatedAt:
+		res.Key = "id"
+	case model.ColumnUpdatedAt:
+		res.Key = "updatedat"
+	}
+
+	if ms.Direction == model.DirectionDesc {
+		res.Reverted = true
+	}
+
+	return &res
 }
 
 func (r *Model) readFilter(filter interface{}) interface{} {

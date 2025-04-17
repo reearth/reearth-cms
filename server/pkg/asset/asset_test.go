@@ -32,8 +32,9 @@ func TestAsset_Type(t *testing.T) {
 		size:                    size,
 		previewType:             &gotPreviewType,
 		uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-		thread:                  thid,
+		thread:                  thid.Ref(),
 		archiveExtractionStatus: &gotStatus,
+		flatFiles:               false,
 	}
 
 	assert.Equal(t, aid, got.ID())
@@ -45,7 +46,8 @@ func TestAsset_Type(t *testing.T) {
 	assert.Equal(t, size, got.Size())
 	assert.Equal(t, &wantPreviewType, got.PreviewType())
 	assert.Equal(t, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", got.UUID())
-	assert.Equal(t, thid, got.Thread())
+	assert.Equal(t, &thid, got.Thread())
+	assert.Equal(t, false, got.FlatFiles())
 	assert.Equal(t, &wantStatus, got.ArchiveExtractionStatus())
 }
 
@@ -142,7 +144,7 @@ func TestAsset_UpdateStatus(t *testing.T) {
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
 	uid := accountdomain.NewUserID()
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID().Ref()).NewUUID().MustBuild()
 
 	got := a.Clone()
 	assert.Equal(t, a, got)

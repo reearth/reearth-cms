@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
+import {Key, useMemo, useCallback, useState} from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
@@ -14,18 +14,14 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
-import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import {WorkspaceIntegration} from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
-  integrationMembers?: IntegrationMember[];
-  selection: {
-    selectedRowKeys: Key[];
-  };
+    workspaceIntegrations?: WorkspaceIntegration[];
   onIntegrationConnectModalOpen: () => void;
   onSearchTerm: (term?: string) => void;
-  onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
-  setSelection: (input: { selectedRowKeys: Key[] }) => void;
+    onIntegrationSettingsModalOpen: (integrationMember: WorkspaceIntegration) => void;
   deleteLoading: boolean;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
   page: number;
@@ -39,12 +35,10 @@ type Props = {
 };
 
 const IntegrationTable: React.FC<Props> = ({
-  integrationMembers,
-  selection,
+                                               workspaceIntegrations,
   onIntegrationConnectModalOpen,
   onSearchTerm,
   onIntegrationSettingsModalOpen,
-  setSelection,
   deleteLoading,
   onIntegrationRemove,
   page,
@@ -58,11 +52,13 @@ const IntegrationTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: StretchColumn<IntegrationMember>[] = useMemo(
+    const [selection, setSelection] = useState<Key[]>([]);
+
+    const columns: StretchColumn<WorkspaceIntegration>[] = useMemo(
     () => [
       {
         title: t("Name"),
-        dataIndex: ["integration", "name"],
+          dataIndex: "name",
         key: "name",
         filters: [],
         width: 250,
@@ -70,7 +66,7 @@ const IntegrationTable: React.FC<Props> = ({
       },
       {
         title: t("Role"),
-        dataIndex: "integrationRole",
+          dataIndex: "role",
         key: "role",
         render: text => (typeof text === "string" ? t(text) : text),
         width: 100,
@@ -78,14 +74,14 @@ const IntegrationTable: React.FC<Props> = ({
       },
       {
         title: t("Creator"),
-        dataIndex: ["integration", "developer", "name"],
+          dataIndex: ["createdBy", "name"],
         key: "creator",
         width: 250,
         minWidth: 100,
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.integration?.developer.name} size="small" />
-            {item.integration?.developer.name}
+              <UserAvatar username={item.createdBy?.name} size="small"/>
+              {item.createdBy?.name}
           </Space>
         ),
       },
@@ -94,13 +90,8 @@ const IntegrationTable: React.FC<Props> = ({
         render: (_, integrationMember) => (
           <Button
             type="link"
-            icon={
-              <Icon
-                size={18}
-                onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
-                icon="settings"
-              />
-            }
+            onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
+            icon={<Icon size={18} icon="settings"/>}
             disabled={!hasUpdateRight}
           />
         ),
@@ -130,33 +121,41 @@ const IntegrationTable: React.FC<Props> = ({
     () => ({
       showSizeChanger: true,
       current: page,
-      pageSize: pageSize,
+        pageSize,
     }),
     [page, pageSize],
   );
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
+        selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {
-        setSelection({
-          ...selection,
-          selectedRowKeys: selectedRowKeys,
-        });
+          setSelection(selectedRowKeys);
       },
     }),
     [selection, setSelection],
   );
 
+    const handleRemove = useCallback(
+        async (keys: Key[]) => {
+            try {
+                await onIntegrationRemove(keys.map(key => key.toString()));
+                setSelection([]);
+            } catch (e) {
+                console.error(e);
+            }
+        },
+        [onIntegrationRemove, setSelection],
+    );
+
   const alertOptions = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (props: any) => (
+      (props: { selectedRowKeys: Key[] }) => (
       <Space size={4}>
         <Button
           type="link"
           size="small"
           icon={<Icon icon="delete" />}
-          onClick={() => onIntegrationRemove(props.selectedRowKeys)}
+          onClick={() => handleRemove(props.selectedRowKeys)}
           danger
           loading={deleteLoading}
           disabled={!hasDeleteRight}>
@@ -164,7 +163,7 @@ const IntegrationTable: React.FC<Props> = ({
         </Button>
       </Space>
     ),
-    [deleteLoading, hasDeleteRight, onIntegrationRemove, t],
+      [deleteLoading, handleRemove, hasDeleteRight, t],
   );
 
   const options = useMemo(
@@ -175,42 +174,42 @@ const IntegrationTable: React.FC<Props> = ({
     [onReload],
   );
 
-  return (
-    <Wrapper>
-      <PageHeader
-        title={t("Integrations")}
-        extra={
-          <Button
-            type="primary"
-            onClick={onIntegrationConnectModalOpen}
-            icon={<Icon icon="api" />}
-            disabled={!hasConnectRight}>
-            {t("Connect Integration")}
-          </Button>
-        }
+    const ConnectButton = useCallback(
+        () => (
+            <Button
+                type="primary"
+                onClick={onIntegrationConnectModalOpen}
+                icon={<Icon icon="api"/>}
+                disabled={!hasConnectRight}>
+                {t("Connect Integration")}
+            </Button>
+        ),
+        [hasConnectRight, onIntegrationConnectModalOpen, t],
+    );
+
+    return (
+        <Wrapper>
+            <PageHeader
+                title={t("Integrations")}
+                style={{backgroundColor: "#fff"}}
+                extra={<ConnectButton/>}
       />
       <ConfigProvider
         renderEmpty={() => (
           <EmptyTableWrapper>
             <Title>{t("No Integration yet")}</Title>
-            <Suggestion>
-              {t("Create a new")}{" "}
-              <Button
-                onClick={onIntegrationConnectModalOpen}
-                type="primary"
-                icon={<Icon icon="api" />}
-                disabled={!hasConnectRight}>
-                {t("Connect Integration")}
-              </Button>
-            </Suggestion>
-            <Suggestion>
+              <Action>
+                  {t("Create a new")}
+                  <ConnectButton/>
+              </Action>
+              <span>
               <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
-            </Suggestion>
+            </span>
           </EmptyTableWrapper>
         )}>
         <TableWrapper>
           <ResizableProTable
-            dataSource={integrationMembers}
+              dataSource={workspaceIntegrations}
             columns={columns}
             tableAlertOptionRender={alertOptions}
             search={false}
@@ -237,28 +236,26 @@ const Wrapper = styled.div`
 `;
 
 const EmptyTableWrapper = styled.div`
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 64px;
+  gap: 8px;
+  margin: 24px 0;
+  color: #8c8c8c;
 `;
 
-const Suggestion = styled.p`
-  margin-top: 8px;
-  margin-bottom: 8px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+const Action = styled.span`
+  display: flex;
+  gap: 16px;
+  align-items: center;
 `;
 
-const Title = styled.h1`
+const Title = styled.h2`
   font-weight: 500;
   font-size: 16px;
-  line-height: 24px;
   color: #000;
+  margin-bottom: 16px;
 `;
 
 const TableWrapper = styled.div`

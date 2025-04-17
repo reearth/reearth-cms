@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
@@ -9,10 +10,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -29,7 +32,7 @@ var (
 		"project,__r,modelid,schema,__",
 		"modelid,id,__r",
 		"modelid,!_id,__r",
-		"__r,assets,project,__",
+		//"__r,assets,project,__", // mongo cannot index parallel arrays [assets] [__r]
 		"__r,project,__",
 		"__r,asset,project,__",
 		"schema,id,__r,project",
@@ -146,33 +149,7 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 		return nil, nil
 	}
 
-	filters := make([]bson.M, 0, len(al)+1)
-	filters = append(filters, bson.M{
-		"assets": bson.M{"$in": al.Strings()},
-	})
-
-	// compat
-	for _, assetID := range al {
-		filters = append(filters,
-			bson.M{
-				"fields": bson.M{
-					"$elemMatch": bson.M{
-						"v.t": "asset",
-						"v.v": assetID.String(),
-					},
-				},
-			},
-			bson.M{
-				"fields": bson.M{
-					"$elemMatch": bson.M{
-						"valuetype": "asset",
-						"value":     assetID.String(),
-					},
-				},
-			})
-	}
-
-	return r.find(ctx, bson.M{"$or": filters}, ref)
+	return r.aggregate(ctx, []any{bson.M{"$match": bson.M{"assets": bson.M{"$in": al.Strings()}}}}, ref)
 }
 
 func (r *Item) FindVersionByID(ctx context.Context, itemID id.ItemID, ver version.VersionOrRef) (item.Versioned, error) {
@@ -228,6 +205,20 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	return r.client.SaveOne(ctx, id, doc, nil)
 }
 
+func (r *Item) SaveAll(ctx context.Context, items item.List) error {
+	if len(items) == 0 {
+		return nil
+	}
+
+	for _, itm := range items {
+		if !r.f.CanWrite(itm.Project()) {
+			return repo.ErrOperationDenied
+		}
+	}
+	docs, ids := mongodoc.NewItems(items)
+	return r.client.SaveMany(ctx, ids, lo.ToAnySlice(docs))
+}
+
 func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
 	return r.client.UpdateRef(ctx, item.String(), ref, vr)
 }
@@ -272,12 +263,96 @@ func (r *Item) find(ctx context.Context, filter any, ref *version.Ref) (item.Ver
 	return c.Result, nil
 }
 
+func (r *Item) aggregate(ctx context.Context, pipeline []any, ref *version.Ref) (item.VersionedList, error) {
+	c := mongodoc.NewVersionedItemConsumer()
+	if err := r.client.Aggregate(ctx, applyProjectFilterToPipeline(pipeline, r.f.Readable), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
+		return nil, err
+	}
+	return c.Result, nil
+}
+
 func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.Versioned, error) {
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.FindOne(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
 		return nil, err
 	}
 	return c.Result[0], nil
+}
+
+func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *string, error) {
+	filter, err := json.Marshal(bson.M{"schema": params.OldSchema.String(), "__r": bson.M{"$in": []string{"latest"}}})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	c := task.Changes{
+		"id": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"schema": {
+			Type:  task.ChangeTypeSet,
+			Value: params.NewSchema.String(),
+		},
+		"modelid": {
+			Type:  task.ChangeTypeSet,
+			Value: params.NewModel.String(),
+		},
+		"timestamp": {
+			Type:  task.ChangeTypeSet,
+			Value: params.Timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00"), //TODO: should use a better way to format
+		},
+		"updatedbyuser": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"updatedbyintegration": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"originalitem": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"metadataitem": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"thread": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__r": { // tag
+			Type:  task.ChangeTypeSet,
+			Value: []string{"latest"},
+		},
+		"__w": { // parent
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__v": { // version
+			Type:  task.ChangeTypeNew,
+			Value: "version",
+		},
+	}
+	if params.User != nil {
+		c["user"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: *params.User,
+		}
+	}
+	if params.Integration != nil {
+		c["integration"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: *params.Integration,
+		}
+	}
+	changes, err := json.Marshal(c)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return lo.ToPtr(string(filter)), lo.ToPtr(string(changes)), nil
 }
 
 func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {

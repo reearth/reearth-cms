@@ -1,20 +1,23 @@
+import styled from "@emotion/styled";
 import { useMemo, useCallback } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import ResponsiveHeight from "@reearth-cms/components/molecules/Content/Form/fields/ResponsiveHeight";
+import {FieldProps} from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
+import {requiredValidator} from "../utils";
 
-type DefaultFieldProps = {
-  field: Field;
-  itemGroupId?: string;
-  disabled: boolean;
-};
-
-const NumberField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
+const NumberField: React.FC<FieldProps> = ({
+                                               field,
+                                               itemGroupId,
+                                               disabled,
+                                               itemHeights,
+                                               onItemHeightChange,
+                                           }) => {
   const t = useT();
   const min = useMemo(
     () => field?.typeProperty?.min ?? field?.typeProperty?.numberMin,
@@ -37,11 +40,12 @@ const NumberField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled
   );
 
   return (
-    <Form.Item
+      <StyledFormItem
       extra={field.description}
       rules={[
         {
           required: field.required,
+            validator: requiredValidator,
           message: t("Please input field!"),
         },
         {
@@ -58,18 +62,26 @@ const NumberField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueField
-          type="number"
-          min={min}
-          max={max}
-          FieldInput={InputNumber}
-          disabled={disabled}
-        />
+          <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
+              <MultiValueField
+                  type="number"
+                  min={min}
+                  max={max}
+                  FieldInput={InputNumber}
+                  disabled={disabled}
+              />
+          </ResponsiveHeight>
       ) : (
         <InputNumber type="number" min={min} max={max} disabled={disabled} />
       )}
-    </Form.Item>
+      </StyledFormItem>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+  .ant-input-number-disabled {
+    color: inherit;
+  }
+`;
 
 export default NumberField;

@@ -10,7 +10,6 @@ import React, {
   SetStateAction,
 } from "react";
 
-import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
@@ -28,14 +27,13 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
+import Status from "@reearth-cms/components/molecules/Content/Status";
 import {
-  StateType,
   DefaultFilterValueType,
   DropdownFilterType,
   ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
-import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ItemSort,
@@ -186,7 +184,6 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 48,
         minWidth: 48,
-        ellipsis: true,
         align: "center",
       },
       {
@@ -194,23 +191,9 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "Status",
         fieldType: "STATUS",
         key: "STATUS",
-        render: (_, item) => {
-          const itemStatus = item.status.split("_") as StateType[];
-          return (
-            <>
-              {itemStatus.map((state, index) => (
-                <StyledBadge
-                  key={index}
-                  color={stateColors[state]}
-                  text={index === itemStatus.length - 1 ? t(state) : undefined}
-                />
-              ))}
-            </>
-          );
-        },
+          render: (_, item) => <Status status={item.status}/>,
         width: 148,
         minWidth: 148,
-        ellipsis: true,
       },
       {
         title: t("Created At"),
@@ -869,12 +852,6 @@ export default ContentTable;
 
 const StyledButton = styled(Button)`
   padding: 0;
-`;
-
-const StyledBadge = styled(Badge)`
-  + * {
-    margin-left: 4px;
-  }
 `;
 
 const StyledSearchContainer = styled.div`
