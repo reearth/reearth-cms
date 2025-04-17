@@ -566,11 +566,16 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 		Value("schema").Object().
 		Value("fields").Array().Value(0).Object().
 		HasValue("title", "test").
-		HasValue("key", "1234").
+		HasValue("key", "test-1").
 		HasValue("type", "Text"). // enum values are case-sensitive
 		HasValue("description", "test").
 		HasValue("multiple", false).
 		HasValue("unique", false).
 		HasValue("required", false).
-		HasValue("isTitle", false)
+		HasValue("isTitle", false).
+		HasValue("metadata", false).
+		Value("typeProperty").Object().
+		Value("text").Object().
+		HasValue("defaultValue", "").
+		HasValue("maxLength", 100)
 }
