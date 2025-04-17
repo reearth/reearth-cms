@@ -256,7 +256,7 @@ func (s *Server) AssetPublish(ctx context.Context, request AssetPublishRequestOb
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetPublish404Response{}, err
 		}
-		return AssetPublish404Response{}, err
+		return AssetPublish400Response{}, err
 	}
 
 	f, err := uc.Asset.FindFileByID(ctx, request.AssetId, op)
@@ -278,7 +278,7 @@ func (s *Server) AssetUnpublish(ctx context.Context, request AssetUnpublishReque
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetUnpublish404Response{}, err
 		}
-		return AssetUnpublish404Response{}, err
+		return AssetUnpublish400Response{}, err
 	}
 
 	f, err := uc.Asset.FindFileByID(ctx, request.AssetId, op)
