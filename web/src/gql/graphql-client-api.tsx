@@ -5909,17 +5909,14 @@ export function useVersionsByItemQuery(baseOptions: Apollo.QueryHookOptions<Vers
     const options = {...defaultOptions, ...baseOptions}
     return Apollo.useQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
 }
-
 export function useVersionsByItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables>) {
     const options = {...defaultOptions, ...baseOptions}
     return Apollo.useLazyQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
 }
-
 export function useVersionsByItemSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<VersionsByItemQuery, VersionsByItemQueryVariables>) {
     const options = {...defaultOptions, ...baseOptions}
     return Apollo.useSuspenseQuery<VersionsByItemQuery, VersionsByItemQueryVariables>(VersionsByItemDocument, options);
 }
-
 export type VersionsByItemQueryHookResult = ReturnType<typeof useVersionsByItemQuery>;
 export type VersionsByItemLazyQueryHookResult = ReturnType<typeof useVersionsByItemLazyQuery>;
 export type VersionsByItemSuspenseQueryHookResult = ReturnType<typeof useVersionsByItemSuspenseQuery>;
@@ -6679,7 +6676,6 @@ export function usePublishModelsMutation(baseOptions?: Apollo.MutationHookOption
     const options = {...defaultOptions, ...baseOptions}
     return Apollo.useMutation<PublishModelsMutation, PublishModelsMutationVariables>(PublishModelsDocument, options);
 }
-
 export type PublishModelsMutationHookResult = ReturnType<typeof usePublishModelsMutation>;
 export type PublishModelsMutationResult = Apollo.MutationResult<PublishModelsMutation>;
 export type PublishModelsMutationOptions = Apollo.BaseMutationOptions<PublishModelsMutation, PublishModelsMutationVariables>;
@@ -7475,7 +7471,6 @@ export function useCreateThreadWithCommentMutation(baseOptions?: Apollo.Mutation
     const options = {...defaultOptions, ...baseOptions}
     return Apollo.useMutation<CreateThreadWithCommentMutation, CreateThreadWithCommentMutationVariables>(CreateThreadWithCommentDocument, options);
 }
-
 export type CreateThreadWithCommentMutationHookResult = ReturnType<typeof useCreateThreadWithCommentMutation>;
 export type CreateThreadWithCommentMutationResult = Apollo.MutationResult<CreateThreadWithCommentMutation>;
 export type CreateThreadWithCommentMutationOptions = Apollo.BaseMutationOptions<CreateThreadWithCommentMutation, CreateThreadWithCommentMutationVariables>;

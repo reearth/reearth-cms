@@ -16,14 +16,14 @@ type DownloadButtonProps = {
   title?: string;
   selected?: Asset[];
   displayDefaultIcon?: boolean;
-    onlyIcon?: boolean;
+  onlyIcon?: boolean;
 } & ButtonProps;
 
 const DownloadButton: React.FC<DownloadButtonProps> = ({
   title,
   selected,
   displayDefaultIcon,
-                                                           onlyIcon,
+                                                         onlyIcon,
   ...props
 }) => {
   const t = useT();
@@ -37,11 +37,11 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
     });
   }, [selected]);
 
-    return onlyIcon ? (
-        <IconWrapper role="button" onClick={handleDownload}>
-            <Icon icon="download"/>
-        </IconWrapper>
-    ) : (
+  return onlyIcon ? (
+      <IconWrapper role="button" onClick={handleDownload}>
+        <Icon icon="download"/>
+      </IconWrapper>
+  ) : (
     <Button
       icon={displayDefaultIcon && <Icon icon="download" />}
       onClick={handleDownload}
