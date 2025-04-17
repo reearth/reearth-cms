@@ -1,25 +1,24 @@
 package gqlmodel
 
-import "github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+import (
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/samber/lo"
+)
 
-func AssetsToGuessSchemaFieldData(data *interfaces.GuessSchemaFieldsData) *GuessSchemaFieldResult {
+func ToGuessSchemaFieldData(data *interfaces.GuessSchemaFieldsData) *GuessSchemaFieldResult {
 	// Return nil if input is nil
 	if data == nil {
 		return nil
 	}
 
-	result := &GuessSchemaFieldResult{
+	return &GuessSchemaFieldResult{
 		TotalCount: data.TotalCount,
-		Fields:     make([]*GuessSchemaField, 0, len(data.Fields)),
+		Fields: lo.Map(data.Fields, func(f interfaces.GuessSchemaField, _ int) *GuessSchemaField {
+			return &GuessSchemaField{
+				Name: f.Name,
+				Key:  f.Key,
+				Type: f.Type,
+			}
+		}),
 	}
-
-	for _, f := range data.Fields {
-		result.Fields = append(result.Fields, &GuessSchemaField{
-			Name: f.Name,
-			Key:  f.Key,
-			Type: f.Type,
-		})
-	}
-
-	return result
 }
