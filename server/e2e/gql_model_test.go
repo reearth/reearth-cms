@@ -367,7 +367,6 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 					type
 					key
 					description
-					order
 					multiple
 					unique
 					required
@@ -393,7 +392,6 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 						"title":       "test",
 						"key":         "test-1",
 						"description": "test",
-						"order":       0,
 						"multiple":    false,
 						"unique":      false,
 						"required":    false,
@@ -569,7 +567,6 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 		HasValue("key", "test-1").
 		HasValue("type", "Text"). // enum values are case-sensitive
 		HasValue("description", "test").
-		HasValue("order", 0).
 		HasValue("multiple", false).
 		HasValue("unique", false).
 		HasValue("required", false).
