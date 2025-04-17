@@ -537,11 +537,10 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 	res := updateModelWithSchemaFields(e, mId1, "test1", "test", "test-1", false, []map[string]any{
 		{
 			"modelId":     mId1,
-			"type":        "Text", // Make sure "Text" is a valid enum in the schema
+			"type":        "Text",
 			"title":       "test",
 			"key":         "test-1",
 			"description": "test",
-			"order":       0,
 			"multiple":    false,
 			"unique":      false,
 			"required":    false,
