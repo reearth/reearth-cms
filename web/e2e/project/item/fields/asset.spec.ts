@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { createModel } from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
@@ -13,7 +13,7 @@ const uploadFileName_2 = "lowpolycar.gltf";
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await createModel(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
