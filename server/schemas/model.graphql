@@ -45,7 +45,7 @@ input PublishModelInput {
 }
 
 input PublishModelsInput {
-    models: [PublishModelInput!]!
+  models: [PublishModelInput!]!
 }
 
 # Payloads
@@ -63,7 +63,7 @@ type PublishModelPayload {
 }
 
 type PublishModelsPayload {
-    models: [PublishModelPayload!]!
+  models: [PublishModelPayload!]!
 }
 
 type ModelsPayload {
@@ -93,5 +93,5 @@ extend type Mutation {
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
   publishModel(input: PublishModelInput!): PublishModelPayload
-    publishModels(input: PublishModelsInput!): PublishModelsPayload
+  publishModels(input: PublishModelsInput!): PublishModelsPayload
 }

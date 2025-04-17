@@ -9,10 +9,10 @@ type Asset implements Node {
   items: [AssetItem!]
   size: FileSize!
   previewType: PreviewType
-    contentEncoding: String
+  contentEncoding: String
   uuid: String!
   thread: Thread
-    threadId: ID
+  threadId: ID
   url: String!
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
@@ -27,7 +27,7 @@ type AssetFile {
   name: String!
   size: FileSize!
   contentType: String
-    contentEncoding: String
+  contentEncoding: String
   path: String!
   filePaths: [String!]
 }
@@ -57,8 +57,8 @@ input CreateAssetInput {
   url: String
   token: String
   skipDecompression: Boolean
-    # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
-    contentEncoding: String
+  # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
+  contentEncoding: String
 }
 
 # If `cursor` is specified, both `filename` and `contentLength` will be ignored.
@@ -69,8 +69,8 @@ input CreateAssetUploadInput {
   filename: String
   # The size of the file to upload.
   contentLength: Int
-    # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
-    contentEncoding: String
+  # specify "gzip" if you want to uplaod a gzip file so that the server can serve it with the correct content-encoding.
+  contentEncoding: String
 
   # Required if uploading in multiple parts.
   cursor: String
@@ -86,7 +86,7 @@ input DeleteAssetInput {
 }
 
 input DeleteAssetsInput {
-    assetIds: [ID!]!
+  assetIds: [ID!]!
 }
 
 input DecompressAssetInput {
@@ -106,7 +106,7 @@ type DeleteAssetPayload {
 }
 
 type DeleteAssetsPayload {
-    assetIds: [ID!]
+  assetIds: [ID!]
 }
 
 type DecompressAssetPayload {
@@ -126,7 +126,7 @@ type CreateAssetUploadPayload {
   contentType: String
   # The size of the upload.
   contentLength: Int!
-    contentEncoding: String
+  contentEncoding: String
   # A cursor to obtain the URL for the next PUT request.
   next: String
 }
@@ -163,7 +163,7 @@ extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
-    deleteAssets(input: DeleteAssetsInput!): DeleteAssetsPayload
+  deleteAssets(input: DeleteAssetsInput!): DeleteAssetsPayload
   decompressAsset(input: DecompressAssetInput!): DecompressAssetPayload
   createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }

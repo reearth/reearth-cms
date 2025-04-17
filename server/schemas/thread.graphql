@@ -17,16 +17,16 @@ type Comment {
 }
 
 enum ResourceType {
-    ITEM
-    ASSET
-    REQUEST
+  ITEM
+  ASSET
+  REQUEST
 }
 
 input CreateThreadWithCommentInput {
   workspaceId: ID!
-    resourceId: ID!
-    resourceType: ResourceType!
-    content: String!
+  resourceId: ID!
+  resourceType: ResourceType!
+  content: String!
 }
 
 input AddCommentInput {
@@ -56,7 +56,7 @@ type DeleteCommentPayload {
 }
 
 extend type Mutation {
-    createThreadWithComment(input: CreateThreadWithCommentInput!): CommentPayload
+  createThreadWithComment(input: CreateThreadWithCommentInput!): CommentPayload
   addComment(input: AddCommentInput!): CommentPayload
   updateComment(input: UpdateCommentInput!): CommentPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
