@@ -158,7 +158,7 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 		return nil, err
 	}
 
-	ss, gs, err := usecases(ctx).Schema.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{m.Schema()}, op)
+	sp, err := usecases(ctx).Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	}
 
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, ss[0], gs),
+		Item: gqlmodel.ToItem(res, sp),
 	}, nil
 }
 
@@ -204,13 +204,13 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 		return nil, err
 	}
 
-	ss, gs, err := usecases(ctx).Schema.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{res.Value().Schema()}, op)
+	sp, err := usecases(ctx).Schema.FindByModel(ctx, res.Value().Model(), op)
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, ss[0], gs),
+		Item: gqlmodel.ToItem(res, sp),
 	}, nil
 }
 
@@ -240,13 +240,13 @@ func (r *mutationResolver) PublishItem(ctx context.Context, input gqlmodel.Publi
 	if err != nil {
 		return nil, err
 	}
-	s, err := usecases(ctx).Schema.FindByID(ctx, itm[0].Value().Schema(), op)
+	sp, err := usecases(ctx).Schema.FindByModel(ctx, itm[0].Value().Model(), op)
 	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.PublishItemPayload{
-		Items: lo.Map(itm, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
+		Items: lo.Map(itm, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, sp) }),
 	}, nil
 }
 
@@ -261,12 +261,12 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 	if err != nil {
 		return nil, err
 	}
-	s, err := usecases(ctx).Schema.FindByID(ctx, res[0].Value().Schema(), op)
+	sp, err := usecases(ctx).Schema.FindByModel(ctx, res[0].Value().Model(), op)
 	if err != nil {
 		return nil, err
 	}
 	return &gqlmodel.UnpublishItemPayload{
-		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
+		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, sp) }),
 	}, nil
 }
 
