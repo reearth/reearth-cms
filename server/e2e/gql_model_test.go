@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -355,10 +354,31 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 		Query: `mutation UpdateModelWithSchemaFields($input: UpdateModelWithSchemaFieldsInput!) {
 			updateModelWithSchemaFields(input: $input) {
 				model {
-					...
+				id
+				name
+				key
+				description
+				public
+				schemaId
+				schema {
+					fields {
+					id
+					title
+					type
+					key
+					description
+					order
+					multiple
+					unique
+					required
+					isTitle
+					createdAt
+					updatedAt
+					}
+				}
 				}
 			}
-		}`,
+			}`,
 		Variables: map[string]any{
 			"input": map[string]any{
 				"modelId":     modelID,
@@ -395,10 +415,8 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
 		Expect().
-		Status(http.StatusUnprocessableEntity). // if you're testing 422
+		Status(http.StatusOK).
 		JSON()
-
-	fmt.Println("Raw GraphQL error:", res.Raw())
 
 	return res
 }
