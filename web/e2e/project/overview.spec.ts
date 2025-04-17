@@ -44,8 +44,7 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
 
 test("Creating Model by using the button on placeholder has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus New Model" }).last().click();
-  await expect(page.getByLabel("New Model").getByText("New Model")).toBeVisible();
-  await page.getByLabel("Model name").click();
+  await expect(page.getByRole("dialog").getByText("New Model")).toBeVisible();
   await page.getByLabel("Model name").fill("model name");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);

@@ -84,6 +84,8 @@ test.describe("Version details", () => {
     await page.getByLabel(fieldName).fill("2");
     await page.getByRole("button", { name: "Save" }).click();
     await closeNotification(page);
+    await expect(page.getByText(dateReg)).toHaveCount(2);
+    await expect(page.getByLabel(fieldName)).toHaveValue("2");
 
     await page.getByText(dateReg).last().click();
   });

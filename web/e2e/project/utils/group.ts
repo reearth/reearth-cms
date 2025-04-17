@@ -7,8 +7,6 @@ export const groupName = "e2e group name";
 export async function createGroup(page: Page, name = groupName, key?: string) {
   await page.getByRole("button", { name: "plus Add" }).last().click();
   await page.getByLabel("Group name").fill(name);
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(500);
   if (key) {
     await page.getByLabel("Group key").fill(key);
   }
