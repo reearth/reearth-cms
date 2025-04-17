@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/net/http2"
+	"google.golang.org/grpc"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -43,8 +44,10 @@ func Start(debug bool, version string) {
 }
 
 type WebServer struct {
-	address   string
-	appServer *echo.Echo
+	appAddress     string
+	appServer      *echo.Echo
+	internalPort   string
+	internalServer *grpc.Server
 }
 
 type ServerConfig struct {
@@ -73,10 +76,14 @@ func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
 	address := host + ":" + port
 
 	w := &WebServer{
-		address: address,
+		appAddress: address,
 	}
-
 	w.appServer = initEcho(cfg)
+
+	if cfg.Config.InternalApi.Active {
+		w.internalPort = ":" + cfg.Config.InternalApi.Port
+		w.internalServer = initGrpc(cfg)
+	}
 	return w
 }
 
@@ -87,12 +94,24 @@ func (w *WebServer) Run(ctx context.Context) {
 	if w.appServer.Debug {
 		debugLog += " with debug mode"
 	}
-	log.Infof("server: started%s at http://%s", debugLog, w.address)
 
 	go func() {
-		err := w.appServer.StartH2CServer(w.address, &http2.Server{})
+		err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
 		log.Fatalc(ctx, err.Error())
 	}()
+	log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
+
+	if w.internalServer != nil {
+		go func() {
+			l, err := net.Listen("tcp", w.internalPort)
+			if err != nil {
+				log.Fatalc(ctx, err.Error())
+			}
+			err = w.internalServer.Serve(l)
+			log.Fatalc(ctx, err.Error())
+		}()
+		log.Infof("server: started internal grpc server at %s", w.internalPort)
+	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
@@ -104,5 +123,8 @@ func (w *WebServer) Serve(l net.Listener) error {
 }
 
 func (w *WebServer) Shutdown(ctx context.Context) error {
+	if w.internalServer != nil {
+		w.internalServer.GracefulStop()
+	}
 	return w.appServer.Shutdown(ctx)
 }
