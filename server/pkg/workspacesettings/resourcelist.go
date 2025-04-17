@@ -11,7 +11,6 @@ type ResourceList struct {
 	enabled          *bool
 }
 
-
 func (wr *ResourceList) Resources() []*Resource {
 	return slices.Clone(wr.resources)
 }

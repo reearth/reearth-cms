@@ -1,9 +1,10 @@
 package schema
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestNewCheckbox(t *testing.T) {
