@@ -265,7 +265,7 @@ func (r *queryResolver) GuessSchemaFields(ctx context.Context, input gqlmodel.Gu
 	if err != nil {
 		return nil, err
 	}
-	return gqlmodel.AssetsToGuessSchemaFieldData(fields), nil
+	return gqlmodel.ToGuessSchemaFieldData(fields), nil
 }
 
 // Model is the resolver for the model field.
