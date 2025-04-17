@@ -291,7 +291,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 	m5 := model.New().
-		ID((mId5)).
+		ID(mId5).
 		Name("m5").
 		Description("m5 desc").
 		Public(true).
