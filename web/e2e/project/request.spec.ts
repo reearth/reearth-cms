@@ -4,7 +4,7 @@ import { expect, test } from "@reearth-cms/e2e/utils";
 import { crudComment } from "./utils/comment";
 import { createTitleField, itemTitle, titleFieldName } from "./utils/field";
 import { createItem, createRequest, requestTitle } from "./utils/item";
-import { createModel, modelName } from "./utils/model";
+import { createModelFromOverview, modelName } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 
@@ -12,7 +12,7 @@ test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
   await createProject(page);
-  await createModel(page);
+  await createModelFromOverview(page);
   await createTitleField(page);
   await createItem(page);
   await createRequest(page);

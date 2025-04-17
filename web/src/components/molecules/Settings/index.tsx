@@ -6,6 +6,7 @@ import Divider from "@reearth-cms/components/atoms/Divider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import Loading from "@reearth-cms/components/atoms/Loading";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Cards from "@reearth-cms/components/molecules/Settings/Cards";
 import FormModal from "@reearth-cms/components/molecules/Settings/FormModal";
@@ -17,9 +18,10 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  loading: boolean;
   workspaceSettings: WorkspaceSettings;
   hasUpdateRight: boolean;
-  loading: boolean;
+  updateLoading: boolean;
   onWorkspaceSettingsUpdate: (
     tiles: TileInput[],
     terrains: TerrainInput[],
@@ -28,9 +30,10 @@ type Props = {
 };
 
 const Settings: React.FC<Props> = ({
+  loading,
   workspaceSettings,
   hasUpdateRight,
-  loading,
+  updateLoading,
   onWorkspaceSettingsUpdate,
 }) => {
   const t = useT();
@@ -122,7 +125,9 @@ const Settings: React.FC<Props> = ({
     onWorkspaceSettingsUpdate(tiles, terrains, settings?.terrains?.enabled);
   }, [onWorkspaceSettingsUpdate, settings?.terrains?.enabled, terrains, tiles]);
 
-  return (
+  return loading ? (
+    <Loading minHeight="400px" />
+  ) : (
     <InnerContent title={t("Settings")}>
       <ContentSection
         title={t("Geospatial asset preview setting")}
@@ -183,7 +188,7 @@ const Settings: React.FC<Props> = ({
             type="primary"
             onClick={handleWorkspaceSettingsSave}
             disabled={isDisabled}
-            loading={loading}>
+            loading={updateLoading}>
             {t("Save")}
           </Button>
         </ButtonWrapper>
