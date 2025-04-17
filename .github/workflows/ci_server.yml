@@ -36,8 +36,8 @@ jobs:
       - name: Check go fmt
         working-directory: server
         run: |
-          go fmt
-          git diff --exit-code ./...
+          go fmt ./
+          git diff --exit-code ./
   ci-server-i18n:
     name: i18n
     runs-on: ubuntu-latest
