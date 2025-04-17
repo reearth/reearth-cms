@@ -354,32 +354,7 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 		Query: `mutation UpdateModelWithSchemaFields($input: UpdateModelWithSchemaFieldsInput!) {
 			updateModelWithSchemaFields(input: $input) {
 				model {
-					name
-					schema {
-						fields {
-							modelId
-							title
-							type
-							key
-							description
-							order
-							multiple
-							unique
-							required
-							isTitle
-							createdAt
-							updatedAt
-						}
-					}
-					schemaId
-					description
-					project {
-						id
-					}
-					public
-					createdAt
-					updatedAt
-					order
+					...
 				}
 			}
 		}`,
@@ -390,7 +365,27 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 				"description": desc,
 				"key":         key,
 				"public":      public,
-				"fields":      fields,
+				"fields": []map[string]any{
+					{
+						"modelId":     modelID,
+						"type":        "Text",
+						"title":       "test",
+						"key":         "test-1",
+						"description": "test",
+						"order":       0,
+						"multiple":    false,
+						"unique":      false,
+						"required":    false,
+						"isTitle":     false,
+						"metadata":    false,
+						"typeProperty": map[string]any{
+							"text": map[string]any{
+								"defaultValue": "",
+								"maxLength":    100,
+							},
+						},
+					},
+				},
 			},
 		},
 	}
