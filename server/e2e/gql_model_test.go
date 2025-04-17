@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -411,6 +410,8 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 	}
 
 	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
 		Expect().
@@ -553,8 +554,7 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 			},
 		},
 	})
-	fmt.Println("RAW RESPONSE:")
-	fmt.Println(res.Raw())
+
 	res.Object().
 		Value("data").Object().
 		Value("updateModelWithSchemaFields").Object().
