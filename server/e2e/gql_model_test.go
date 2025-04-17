@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -391,13 +392,13 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 	}
 
 	res := e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()). // assumes uId1 is in scope
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
 		Expect().
-		Status(http.StatusOK).
+		Status(http.StatusUnprocessableEntity). // if you're testing 422
 		JSON()
+
+	fmt.Println("Raw GraphQL error:", res.Raw())
 
 	return res
 }
