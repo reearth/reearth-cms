@@ -539,7 +539,7 @@ func TestUpdateModelWithSchemaFields(t *testing.T) {
 			"modelId":     mId1,
 			"type":        "Text",
 			"title":       "test",
-			"key":         "1234",
+			"key":         "test-1",
 			"description": "test",
 			"multiple":    false,
 			"unique":      false,
