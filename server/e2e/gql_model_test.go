@@ -357,7 +357,7 @@ func updateModelWithSchemaFields(e *httpexpect.Expect, modelID, name, desc, key 
 					name
 					schema {
 						fields {
-							id
+							modelId
 							title
 							type
 							key
