@@ -30,7 +30,7 @@ jobs:
       - name: Check go fmt
         working-directory: worker
         run: |
-          go fmt ./...
+          go fmt
           git diff --exit-code ./...
   ci-server-test:
     name: test
