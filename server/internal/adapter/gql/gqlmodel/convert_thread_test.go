@@ -83,4 +83,3 @@ func TestConvertThread_FromResourceType(t *testing.T) {
 	assert.Equal(t, want4, got4)
 	assert.False(t, ok4)
 }
-

@@ -27,9 +27,9 @@ import (
 )
 
 const (
-	s3AssetBasePath string        = "assets"
-	fileSizeLimit   int64         = 10 * 1024 * 1024 * 1024 // 10GB
-	expires         time.Duration = time.Minute * 15
+	s3AssetBasePath string = "assets"
+	fileSizeLimit   int64  = 10 * 1024 * 1024 * 1024 // 10GB
+	expires                = time.Minute * 15
 )
 
 type fileRepo struct {
