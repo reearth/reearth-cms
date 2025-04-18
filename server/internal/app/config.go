@@ -43,7 +43,7 @@ type Config struct {
 	Web_Config   JSON              `pp:",omitempty"`
 	Web_Disabled bool              `pp:",omitempty"`
 	// asset
-	Asset_Public bool   `default:"ture" pp:",omitempty"`
+	Asset_Public bool   `default:"true" pp:",omitempty"`
 	AssetBaseURL string `pp:",omitempty"`
 	// auth
 	Auth          AuthConfigs    `pp:",omitempty"`
