@@ -451,3 +451,91 @@ func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.Sche
 	groupSchemas = append(groupSchemas, gsl...)
 	return
 }
+
+func (i Schema) CreateFieldsForModel(ctx context.Context, modelData interfaces.ModelData, createFieldsParams []interfaces.CreateFieldParam, op *usecase.Operator) (*schema.Schema, error) {
+	return Run1(ctx, op, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ *schema.Schema, err error) {
+			if len(createFieldsParams) == 0 {
+				return nil, nil
+			}
+
+			if !op.IsMaintainingProject(modelData.ProjectID) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			s, err := i.repos.Schema.FindByID(ctx, modelData.SchemaID)
+			if err != nil {
+				return nil, err
+			}
+
+			// delete current fields if any
+			if len(s.Fields()) > 0 {
+				for _, field := range s.Fields() {
+					f := s.Field(field.ID())
+					if f == nil {
+						return nil, interfaces.ErrFieldNotFound
+					}
+					if f.Type() == value.TypeReference {
+						err := i.deleteCorrespondingField(ctx, s, f)
+						if err != nil {
+							return nil, err
+						}
+					}
+					s.RemoveField(field.ID())
+				}
+			}
+
+			// create new fields
+			for _, createFieldParam := range createFieldsParams {
+				if createFieldParam.Key == "" || s.HasFieldByKey(createFieldParam.Key) {
+					return nil, schema.ErrInvalidKey
+				}
+
+				newField, err := schema.NewField(createFieldParam.TypeProperty).
+					NewID().
+					Unique(createFieldParam.Unique).
+					Multiple(createFieldParam.Multiple).
+					Required(createFieldParam.Required).
+					Name(createFieldParam.Name).
+					Description(lo.FromPtr(createFieldParam.Description)).
+					Key(id.NewKey(createFieldParam.Key)).
+					DefaultValue(createFieldParam.DefaultValue).
+					Build()
+				if err != nil {
+					return nil, err
+				}
+
+				if createFieldParam.Type == value.TypeReference {
+					err = i.createCorrespondingField(ctx, s, newField, createFieldParam)
+					if err != nil {
+						return nil, err
+					}
+				}
+
+				if createFieldParam.Type == value.TypeGroup {
+					var g *schema.FieldGroup
+					createFieldParam.TypeProperty.Match(schema.TypePropertyMatch{
+						Group: func(f *schema.FieldGroup) {
+							g = f
+						},
+					})
+					_, err = i.repos.Group.FindByID(ctx, g.Group())
+					if err != nil {
+						return nil, err
+					}
+				}
+
+				s.AddField(newField)
+
+				if err := setTitleField(&createFieldParam.IsTitle, s, newField.ID().Ref()); err != nil {
+					return nil, err
+				}
+			}
+
+			if err := i.repos.Schema.Save(ctx, s); err != nil {
+				return nil, err
+			}
+
+			return s, nil
+		})
+}

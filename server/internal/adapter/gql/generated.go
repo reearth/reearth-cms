@@ -476,6 +476,7 @@ type ComplexityRoot struct {
 		UpdateItem                         func(childComplexity int, input gqlmodel.UpdateItemInput) int
 		UpdateMe                           func(childComplexity int, input gqlmodel.UpdateMeInput) int
 		UpdateModel                        func(childComplexity int, input gqlmodel.UpdateModelInput) int
+		UpdateModelWithSchemaFields        func(childComplexity int, input gqlmodel.UpdateModelWithSchemaFieldsInput) int
 		UpdateModelsOrder                  func(childComplexity int, input gqlmodel.UpdateModelsOrderInput) int
 		UpdateProject                      func(childComplexity int, input gqlmodel.UpdateProjectInput) int
 		UpdateRequest                      func(childComplexity int, input gqlmodel.UpdateRequestInput) int
@@ -993,6 +994,7 @@ type MutationResolver interface {
 	CreateModel(ctx context.Context, input gqlmodel.CreateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModel(ctx context.Context, input gqlmodel.UpdateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModelsOrder(ctx context.Context, input gqlmodel.UpdateModelsOrderInput) (*gqlmodel.ModelsPayload, error)
+	UpdateModelWithSchemaFields(ctx context.Context, input gqlmodel.UpdateModelWithSchemaFieldsInput) (*gqlmodel.ModelPayload, error)
 	DeleteModel(ctx context.Context, input gqlmodel.DeleteModelInput) (*gqlmodel.DeleteModelPayload, error)
 	PublishModel(ctx context.Context, input gqlmodel.PublishModelInput) (*gqlmodel.PublishModelPayload, error)
 	PublishModels(ctx context.Context, input gqlmodel.PublishModelsInput) (*gqlmodel.PublishModelsPayload, error)
@@ -3064,6 +3066,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateModel(childComplexity, args["input"].(gqlmodel.UpdateModelInput)), true
 
+	case "Mutation.updateModelWithSchemaFields":
+		if e.complexity.Mutation.UpdateModelWithSchemaFields == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateModelWithSchemaFields_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateModelWithSchemaFields(childComplexity, args["input"].(gqlmodel.UpdateModelWithSchemaFieldsInput)), true
+
 	case "Mutation.updateModelsOrder":
 		if e.complexity.Mutation.UpdateModelsOrder == nil {
 			break
@@ -4952,6 +4966,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateItemInput,
 		ec.unmarshalInputUpdateMeInput,
 		ec.unmarshalInputUpdateModelInput,
+		ec.unmarshalInputUpdateModelWithSchemaFieldsInput,
 		ec.unmarshalInputUpdateModelsOrderInput,
 		ec.unmarshalInputUpdateProjectInput,
 		ec.unmarshalInputUpdateProjectPublicationInput,
@@ -6419,6 +6434,15 @@ input PublishModelsInput {
   models: [PublishModelInput!]!
 }
 
+input UpdateModelWithSchemaFieldsInput {
+  modelId: ID
+  name: String
+  description: String
+  key: String
+  public: Boolean!
+  fields: [CreateFieldInput!]
+}
+
 # Payloads
 type ModelPayload {
   model: Model!
@@ -6462,6 +6486,7 @@ extend type Mutation {
   createModel(input: CreateModelInput!): ModelPayload
   updateModel(input: UpdateModelInput!): ModelPayload
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
+  updateModelWithSchemaFields(input: UpdateModelWithSchemaFieldsInput!): ModelPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
   publishModel(input: PublishModelInput!): PublishModelPayload
   publishModels(input: PublishModelsInput!): PublishModelsPayload
@@ -8503,6 +8528,34 @@ func (ec *executionContext) field_Mutation_updateMe_argsInput(
 	}
 
 	var zeroVal gqlmodel.UpdateMeInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateModelWithSchemaFields_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateModelWithSchemaFields_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateModelWithSchemaFields_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.UpdateModelWithSchemaFieldsInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.UpdateModelWithSchemaFieldsInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateModelWithSchemaFieldsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelWithSchemaFieldsInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.UpdateModelWithSchemaFieldsInput
 	return zeroVal, nil
 }
 
@@ -21261,6 +21314,62 @@ func (ec *executionContext) fieldContext_Mutation_updateModelsOrder(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateModelsOrder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateModelWithSchemaFields(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateModelWithSchemaFields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateModelWithSchemaFields(rctx, fc.Args["input"].(gqlmodel.UpdateModelWithSchemaFieldsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ModelPayload)
+	fc.Result = res
+	return ec.marshalOModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateModelWithSchemaFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "model":
+				return ec.fieldContext_ModelPayload_model(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ModelPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateModelWithSchemaFields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -40923,6 +41032,68 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateModelWithSchemaFieldsInput(ctx context.Context, obj any) (gqlmodel.UpdateModelWithSchemaFieldsInput, error) {
+	var it gqlmodel.UpdateModelWithSchemaFieldsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"modelId", "name", "description", "key", "public", "fields"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "modelId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModelID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "key":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
+		case "public":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("public"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Public = data
+		case "fields":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
+			data, err := ec.unmarshalOCreateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Fields = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Context, obj any) (gqlmodel.UpdateModelsOrderInput, error) {
 	var it gqlmodel.UpdateModelsOrderInput
 	asMap := map[string]any{}
@@ -45529,6 +45700,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateModelsOrder":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateModelsOrder(ctx, field)
+			})
+		case "updateModelWithSchemaFields":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateModelWithSchemaFields(ctx, field)
 			})
 		case "deleteModel":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -50383,6 +50558,11 @@ func (ec *executionContext) unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v any) (*gqlmodel.CreateFieldInput, error) {
+	res, err := ec.unmarshalInputCreateFieldInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateGroupInput(ctx context.Context, v any) (gqlmodel.CreateGroupInput, error) {
 	res, err := ec.unmarshalInputCreateGroupInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -52453,6 +52633,11 @@ func (ec *executionContext) unmarshalNUpdateModelInput2githubᚗcomᚋreearthᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNUpdateModelWithSchemaFieldsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelWithSchemaFieldsInput(ctx context.Context, v any) (gqlmodel.UpdateModelWithSchemaFieldsInput, error) {
+	res, err := ec.unmarshalInputUpdateModelWithSchemaFieldsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNUpdateModelsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelsOrderInput(ctx context.Context, v any) (gqlmodel.UpdateModelsOrderInput, error) {
 	res, err := ec.unmarshalInputUpdateModelsOrderInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -53407,6 +53592,24 @@ func (ec *executionContext) marshalOCreateAssetUploadPayload2ᚖgithubᚗcomᚋr
 		return graphql.Null
 	}
 	return ec._CreateAssetUploadPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCreateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.CreateFieldInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*gqlmodel.CreateFieldInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNCreateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) marshalOCreateWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateWorkspacePayload) graphql.Marshaler {
