@@ -467,6 +467,9 @@ func (f *fileRepo) publish(ctx context.Context, filename string, public bool) er
 		ACL:    acl,
 	})
 	if err != nil {
+		if errors.Is(err, &types.NoSuchKey{}) {
+			return gateway.ErrFileNotFound
+		}
 		return rerror.ErrInternalBy(err)
 	}
 

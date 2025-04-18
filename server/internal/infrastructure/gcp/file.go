@@ -438,7 +438,7 @@ func (f *fileRepo) publish(ctx context.Context, filename string, public bool) er
 	}
 	if err != nil {
 		if errors.Is(err, storage.ErrObjectNotExist) {
-			return nil
+			return gateway.ErrFileNotFound
 		}
 
 		log.Errorf("gcs: acl err: %+v\n", err)
