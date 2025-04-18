@@ -3,16 +3,20 @@ package e2e
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
@@ -49,6 +53,7 @@ var (
 	aid3   = id.NewAssetID() // no thread
 	auuid1 = uuid.NewString()
 	auuid2 = uuid.NewString()
+	auuid3 = uuid.NewString()
 	itmId1 = id.NewItemID()
 	itmId2 = id.NewItemID()
 	itmId3 = id.NewItemID()
@@ -102,7 +107,7 @@ var (
 	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
 
-func baseSeeder(ctx context.Context, r *repo.Container) error {
+func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) error {
 	defer util.MockNow(now)()
 
 	// region user & integration & workspace & project
@@ -234,11 +239,11 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	g := group.New().NewID().Name("group").Project(p.ID()).Key(gKey1).Schema(s4.ID()).MustBuild()
-	if err := r.Group.Save(ctx, g); err != nil {
+	g0 := group.New().NewID().Name("group").Project(p.ID()).Key(gKey1).Schema(s4.ID()).MustBuild()
+	if err := r.Group.Save(ctx, g0); err != nil {
 		return err
 	}
-	sf6 := schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).ID(fId6).Key(sfKey6).Multiple(true).MustBuild()
+	sf6 := schema.NewField(schema.NewGroup(g0.ID()).TypeProperty()).ID(fId6).Key(sfKey6).Multiple(true).MustBuild()
 	s5 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf6}).MustBuild()
 	if err := r.Schema.Save(ctx, s5); err != nil {
 		return err
@@ -411,9 +416,12 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Thread.Save(ctx, th); err != nil {
 		return err
 	}
+	// endregion
 
+	// region asset
 	f1 := asset.NewFile().Name("aaa.jpg").Size(1000).ContentType("image/jpg").Build()
 	f2 := asset.NewFile().Name("bbb.jpg").Size(1000).ContentType("image/jpg").Build()
+	f3 := asset.NewFile().Name("ccc.jpg").Size(1000).ContentType("image/jpg").Build()
 	a1 := asset.New().ID(aid1).
 		Project(p.ID()).
 		CreatedByUser(u.ID()).
@@ -435,7 +443,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		CreatedByUser(u.ID()).
 		FileName("ccc.jpg").
 		Size(1000).
-		UUID(uuid.NewString()).
+		UUID(auuid3).
 		MustBuild()
 
 	if err := r.Asset.Save(ctx, a1); err != nil {
@@ -451,6 +459,37 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 	if err := r.AssetFile.Save(ctx, a2.ID(), f2); err != nil {
+		return err
+	}
+	if err := r.AssetFile.Save(ctx, a3.ID(), f3); err != nil {
+		return err
+	}
+
+	ff1 := file.File{
+		Name:        "aaa.jpg",
+		Size:        1000,
+		ContentType: "image/jpg",
+		Content:     io.NopCloser(strings.NewReader(strings.Repeat("a", 1000))),
+	}
+	if _, err := g.File.Upload(ctx, &ff1, "assets/"+auuid1[:2]+"/"+auuid1[2:]+"/"+a1.FileName()); err != nil {
+		return err
+	}
+	ff2 := file.File{
+		Name:        "bbb.jpg",
+		Size:        1000,
+		ContentType: "image/jpg",
+		Content:     io.NopCloser(strings.NewReader(strings.Repeat("b", 1000))),
+	}
+	if _, err := g.File.Upload(ctx, &ff2, "assets/"+auuid2[:2]+"/"+auuid2[2:]+"/"+a2.FileName()); err != nil {
+		return err
+	}
+	ff3 := file.File{
+		Name:        "ccc.jpg",
+		Size:        1000,
+		ContentType: "image/jpg",
+		Content:     io.NopCloser(strings.NewReader(strings.Repeat("c", 1000))),
+	}
+	if _, err := g.File.Upload(ctx, &ff3, "assets/"+auuid3[:2]+"/"+auuid3[2:]+"/"+a3.FileName()); err != nil {
 		return err
 	}
 	// endregion

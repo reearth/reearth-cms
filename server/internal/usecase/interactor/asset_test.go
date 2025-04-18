@@ -232,7 +232,7 @@ func TestAsset_DecompressByID(t *testing.T) {
 			}
 			assetUC := NewAsset(db, nil)
 
-			got, err := assetUC.DecompressByID(ctx, tc.args.id, tc.args.operator)
+			got, err := assetUC.Decompress(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -1390,7 +1390,10 @@ type file2 struct {
 	gateway.File
 }
 
-func (f *file2) GetURL(*asset.Asset) string {
+func (f *file2) GetURL(a *asset.Asset) string {
+	if a == nil {
+		return ""
+	}
 	return "xxx"
 }
 
@@ -1400,7 +1403,8 @@ func TestAsset_GetURL(t *testing.T) {
 			File: &file2{},
 		},
 	}
-	assert.Equal(t, "xxx", uc.GetURL(nil))
+	assert.Equal(t, "", uc.GetURL(nil))
+	assert.Equal(t, "xxx", uc.GetURL(&asset.Asset{}))
 }
 
 func mockFs() afero.Fs {

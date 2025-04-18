@@ -48,8 +48,8 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 	}
 
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		aurl := uc.Asset.GetURL(a)
-		aa := integrationapi.NewAsset(a, nil, aurl, true)
+		aUrl := uc.Asset.GetURL(a)
+		aa := integrationapi.NewAsset(a, nil, aUrl, true)
 		return *aa, nil
 	})
 	if err != nil {
@@ -125,8 +125,8 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 		return AssetCreate400Response{}, err
 	}
 
-	aurl := uc.Asset.GetURL(a)
-	aa := integrationapi.NewAsset(a, af, aurl, true)
+	aUrl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, af, aUrl, true)
 	return AssetCreate200JSONResponse(*aa), nil
 }
 
@@ -184,8 +184,8 @@ func (s *Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (A
 		return AssetGet400Response{}, err
 	}
 
-	aurl := uc.Asset.GetURL(a)
-	aa := integrationapi.NewAsset(a, f, aurl, true)
+	aUrl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, f, aUrl, true)
 	return AssetGet200JSONResponse(*aa), nil
 }
 
@@ -216,4 +216,77 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 		ContentEncoding: lo.EmptyableToPtr(au.ContentEncoding),
 		Next:            lo.EmptyableToPtr(au.Next),
 	}, nil
+}
+
+func (s *Server) AssetContentGet(ctx context.Context, request AssetContentGetRequestObject) (AssetContentGetResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	a, err := uc.Asset.FindByUUID(ctx, request.Uuid1+request.Uuid2, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetContentGet404Response{}, err
+		}
+		return AssetContentGet400Response{}, err
+	}
+	if a.FileName() != request.Filename {
+		return AssetContentGet404Response{}, rerror.ErrNotFound
+	}
+
+	rc, _, err := uc.Asset.DownloadByID(ctx, a.ID(), nil, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetContentGet404Response{}, err
+		}
+		return AssetContentGet400Response{}, err
+	}
+
+	return AssetContentGet200ApplicationoctetStreamResponse{
+		Body:          rc,
+		ContentLength: int64(a.Size()),
+	}, nil
+}
+
+func (s *Server) AssetPublish(ctx context.Context, request AssetPublishRequestObject) (AssetPublishResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	a, err := uc.Asset.Publish(ctx, request.AssetId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetPublish404Response{}, err
+		}
+		return AssetPublish400Response{}, err
+	}
+
+	f, err := uc.Asset.FindFileByID(ctx, request.AssetId, op)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return AssetPublish404Response{}, err
+	}
+
+	aUrl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, f, aUrl, true)
+	return AssetPublish200JSONResponse(*aa), nil
+}
+
+func (s *Server) AssetUnpublish(ctx context.Context, request AssetUnpublishRequestObject) (AssetUnpublishResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+
+	a, err := uc.Asset.Unpublish(ctx, request.AssetId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetUnpublish404Response{}, err
+		}
+		return AssetUnpublish400Response{}, err
+	}
+
+	f, err := uc.Asset.FindFileByID(ctx, request.AssetId, op)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return AssetUnpublish404Response{}, err
+	}
+
+	aUrl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, f, aUrl, true)
+	return AssetUnpublish200JSONResponse(*aa), nil
 }

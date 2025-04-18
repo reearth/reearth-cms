@@ -21,6 +21,7 @@ type Asset struct {
 	thread                  *ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
 	flatFiles               bool
+	public                  bool
 }
 
 type URLResolver = func(*Asset) string
@@ -85,6 +86,10 @@ func (a *Asset) FlatFiles() bool {
 	return a.flatFiles
 }
 
+func (a *Asset) Public() bool {
+	return a.public
+}
+
 // setters
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
@@ -97,6 +102,10 @@ func (a *Asset) SetThread(thid id.ThreadID) {
 
 func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
 	a.archiveExtractionStatus = util.CloneRef(s)
+}
+
+func (a *Asset) UpdatePublic(public bool) {
+	a.public = public
 }
 
 // methods
