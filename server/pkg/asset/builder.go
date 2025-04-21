@@ -12,7 +12,9 @@ type Builder struct {
 }
 
 func New() *Builder {
-	return &Builder{a: &Asset{}}
+	a := &Asset{}
+	a.public = false
+	return &Builder{a: a}
 }
 
 func (b *Builder) Build() (*Asset, error) {
@@ -114,5 +116,10 @@ func (b *Builder) ArchiveExtractionStatus(s *ArchiveExtractionStatus) *Builder {
 
 func (b *Builder) FlatFiles(flatFiles bool) *Builder {
 	b.a.flatFiles = flatFiles
+	return b
+}
+
+func (b *Builder) Public(public bool) *Builder {
+	b.a.public = public
 	return b
 }

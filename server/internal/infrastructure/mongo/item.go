@@ -280,7 +280,7 @@ func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.
 }
 
 func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *string, error) {
-	filter, err := json.Marshal(bson.M{"schema": params.OldSchema.String() , "__r": bson.M{"$in": []string{"latest"}}})
+	filter, err := json.Marshal(bson.M{"schema": params.OldSchema.String(), "__r": bson.M{"$in": []string{"latest"}}})
 	if err != nil {
 		return nil, nil, err
 	}

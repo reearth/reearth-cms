@@ -1,10 +1,11 @@
 package schema
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestNewGroup(t *testing.T) {

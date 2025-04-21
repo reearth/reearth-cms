@@ -1,7 +1,7 @@
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
-import { createModel } from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
@@ -23,7 +23,7 @@ function getRgb(colorCode: string) {
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await createModel(page);
+  await createModelFromOverview(page);
   await page
     .getByRole("listitem")
     .filter({ has: page.getByText("Text", { exact: true }) })
@@ -80,9 +80,12 @@ test("Read versions successfully", async ({ page }) => {
 
 test.describe("Version details", () => {
   test.beforeEach(async ({ page }) => {
+    await expect(page.getByLabel(fieldName)).toHaveValue("1");
     await page.getByLabel(fieldName).fill("2");
     await page.getByRole("button", { name: "Save" }).click();
     await closeNotification(page);
+    await expect(page.getByText(dateReg)).toHaveCount(2);
+    await expect(page.getByLabel(fieldName)).toHaveValue("2");
 
     await page.getByText(dateReg).last().click();
   });
