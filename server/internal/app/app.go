@@ -55,10 +55,6 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 		log.Infof("gql: GraphQL Playground is available")
 	}
 
-	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true),
-	))
-
 	usecaseMiddleware := UsecaseMiddleware(cfg.Repos, cfg.Gateways, cfg.AcRepos, cfg.AcGateways, interactor.ContainerConfig{
 		SignupSecret:    cfg.Config.SignupSecret,
 		AuthSrvUIDomain: cfg.Config.Host_Web,
@@ -69,7 +65,7 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 	api.GET("/ping", Ping())
 	api.POST(
 		"/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev),
-		internalJWTMiddleware,
+		jwtParseMiddleware(cfg),
 		authMiddleware(cfg),
 		usecaseMiddleware,
 	)
@@ -89,9 +85,15 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 		private,
 	), integration.NewStrictHandler(integration.NewServer(), nil))
 
-	serveFiles(e, cfg.Gateways.File)
+	serveFiles(e, cfg)
 	Web(e, cfg.Config.WebConfig(), cfg.Config.Web_Disabled, nil)
 	return e
+}
+
+func jwtParseMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
+	return echo.WrapMiddleware(lo.Must(
+		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true),
+	))
 }
 
 func allowedOrigins(cfg *ServerConfig) []string {
