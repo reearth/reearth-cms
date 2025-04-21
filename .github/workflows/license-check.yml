@@ -18,7 +18,7 @@ jobs:
           check-latest: true
           cache-dependency-path: |
             server/go.sum
-      - uses: reearth/actions/license-checker/go@license-check-go
+      - uses: reearth/actions/license-checker/go@ec26fbcf84f0e954a6ba3511859b18e3d2272c18
         with:
           subdirectory: server
   worker-license-check:
@@ -35,7 +35,7 @@ jobs:
           check-latest: true
           cache-dependency-path: |
             worker/go.sum
-      - uses: reearth/actions/license-checker/go@license-check-go
+      - uses: reearth/actions/license-checker/go@ec26fbcf84f0e954a6ba3511859b18e3d2272c18
         with:
           subdirectory: server
   web-license-check:
