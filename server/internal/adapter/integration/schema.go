@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
@@ -33,15 +32,11 @@ func (s *Server) SchemaFilter(ctx context.Context, request SchemaFilterRequestOb
 		return nil, err
 	}
 
-	var sort *model.Sort
-	if request.Params.Sort != nil {
-		sort = toModelSort(*request.Params.Sort, request.Params.Dir)
-	}
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	params := interfaces.FindByProjectAndKeywordParam{
-		ProjectID: prj.ID(),
-		Keyword:   lo.FromPtrOr(request.Params.Keyword, ""),
-		Sort:      sort,
+		ProjectID:  prj.ID(),
+		Keyword:    lo.FromPtrOr(request.Params.Keyword, ""),
+		Sort:       toModelSort(request.Params.Sort, request.Params.Dir),
 		Pagination: p,
 	}
 

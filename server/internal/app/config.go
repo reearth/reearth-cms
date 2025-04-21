@@ -39,10 +39,12 @@ type Config struct {
 	S3           S3Config          `pp:",omitempty"`
 	Task         gcp.TaskConfig    `pp:",omitempty"`
 	AWSTask      aws.TaskConfig    `pp:",omitempty"`
-	AssetBaseURL string            `pp:",omitempty"`
 	Web          map[string]string `pp:",omitempty"`
 	Web_Config   JSON              `pp:",omitempty"`
 	Web_Disabled bool              `pp:",omitempty"`
+	// asset
+	Asset_Public bool   `default:"true" pp:",omitempty"`
+	AssetBaseURL string `pp:",omitempty"`
 	// auth
 	Auth          AuthConfigs    `pp:",omitempty"`
 	Auth0         Auth0Config    `pp:",omitempty"`
@@ -60,6 +62,15 @@ type Config struct {
 	DB_Account string          `default:"reearth_account" pp:",omitempty"`
 	DB_CMS     string          `default:"reearth_cms" pp:",omitempty"`
 	DB_Users   []appx.NamedURI `pp:",omitempty"`
+
+	// internal api
+	InternalApi InternalApiConfig `pp:",omitempty"`
+}
+
+type InternalApiConfig struct {
+	Active bool   `default:"false" pp:",omitempty"`
+	Port   string `default:"50051" pp:",omitempty"`
+	Token  string `default:"" pp:",omitempty"`
 }
 
 type AuthConfig struct {
@@ -341,6 +352,7 @@ func (c *Config) secrets() []string {
 	s := []string{
 		c.DB,
 		c.Auth0.ClientSecret,
+		c.InternalApi.Token,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)

@@ -62,7 +62,7 @@ describe("FormModal", () => {
       />,
     );
 
-    expect(screen.getByDisplayValue(name)).toBeVisible();
+    await expect.poll(() => screen.getByDisplayValue(name)).toBeVisible();
     expect(screen.getByDisplayValue(url)).toBeVisible();
     expect(screen.getByDisplayValue(image)).toBeVisible();
   });
@@ -118,7 +118,7 @@ describe("FormModal", () => {
       />,
     );
 
-    expect(screen.getByDisplayValue(name)).toBeVisible();
+    await expect.poll(() => screen.getByDisplayValue(name)).toBeVisible();
     expect(screen.getByDisplayValue(url)).toBeVisible();
     expect(screen.getByDisplayValue(image)).toBeVisible();
     expect(screen.getByDisplayValue(cesiumIonAssetId)).toBeVisible();

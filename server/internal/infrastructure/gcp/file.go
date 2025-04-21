@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -30,30 +31,49 @@ const (
 
 type fileRepo struct {
 	bucketName   string
-	base         *url.URL
+	publicBase   *url.URL
+	privateBase  *url.URL
 	cacheControl string
+	public       bool
 }
 
-func NewFile(bucketName, base, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName, publicBase, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, rerror.NewE(i18n.T("bucket name is empty"))
 	}
 
 	var u *url.URL
-	if base == "" {
-		base = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
+	if publicBase == "" {
+		publicBase = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
 	}
 
-	u, err := url.Parse(base)
+	u, err := url.Parse(publicBase)
 	if err != nil {
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
 
 	return &fileRepo{
 		bucketName:   bucketName,
-		base:         u,
+		publicBase:   u,
+		privateBase:  nil,
 		cacheControl: cacheControl,
+		public:       true,
 	}, nil
+}
+
+func NewFileWithACL(bucketName, publicBase, privateBase, cacheControl string) (gateway.File, error) {
+	f, err := NewFile(bucketName, publicBase, cacheControl)
+	if err != nil {
+		return nil, err
+	}
+	u, err := url.Parse(privateBase)
+	if err != nil {
+		return nil, rerror.NewE(i18n.T("invalid base URL"))
+	}
+	fr := f.(*fileRepo)
+	fr.privateBase = u
+	fr.public = false
+	return fr, nil
 }
 
 func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, h map[string]string) (io.ReadCloser, map[string]string, error) {
@@ -62,7 +82,7 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, h map[str
 		return nil, nil, rerror.ErrNotFound
 	}
 
-	return f.read(ctx, p, h)
+	return f.Read(ctx, p, h)
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
@@ -79,7 +99,7 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 	var fileEntries []gateway.FileEntry
 	for {
 		attrs, err := it.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
 
@@ -119,7 +139,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 		return "", 0, gateway.ErrInvalidFile
 	}
 
-	size, err := f.upload(ctx, file, p)
+	size, err := f.Upload(ctx, file, p)
 	if err != nil {
 		return "", 0, err
 	}
@@ -135,18 +155,64 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 	return f.delete(ctx, p)
 }
 
+// DeleteAssets deletes assets data in batch
+func (f *fileRepo) DeleteAssets(ctx context.Context, UUIDs []string) error {
+	paths := make([]string, 0)
+	for _, uuid := range UUIDs {
+		path := getGCSObjectPathFolder(uuid)
+		if path == "" {
+			return gateway.ErrInvalidFile
+		}
+
+		paths = append(paths, path)
+	}
+
+	return f.batchDelete(ctx, paths)
+}
+
+func (f *fileRepo) PublishAsset(ctx context.Context, u string, fn string) error {
+	if f.public {
+		return gateway.ErrUnsupportedOperation
+	}
+	p := getGCSObjectPath(u, fn)
+	if p == "" {
+		return gateway.ErrInvalidFile
+	}
+
+	return f.publish(ctx, p, true)
+}
+
+func (f *fileRepo) UnpublishAsset(ctx context.Context, u string, fn string) error {
+	if f.public {
+		return gateway.ErrUnsupportedOperation
+	}
+	p := getGCSObjectPath(u, fn)
+	if p == "" {
+		return gateway.ErrInvalidFile
+	}
+
+	return f.publish(ctx, p, false)
+}
+
 func (f *fileRepo) GetURL(a *asset.Asset) string {
-	return getURL(f.base, a.UUID(), a.FileName())
+	base := f.publicBase
+	if !f.public && !a.Public() {
+		base = f.privateBase
+	}
+	return getURL(base, a.UUID(), a.FileName())
+}
+
+func (f *fileRepo) GetBaseURL() string {
+	return f.publicBase.String()
 }
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
-	uuid := param.UUID
 	contentType := param.GetOrGuessContentType()
 	if err := validateContentEncoding(param.ContentEncoding); err != nil {
 		return nil, err
 	}
 
-	p := getGCSObjectPath(uuid, param.Filename)
+	p := getGCSObjectPath(param.UUID, param.Filename)
 	if p == "" {
 		return nil, gateway.ErrInvalidFile
 	}
@@ -194,7 +260,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	}, nil
 }
 
-func (f *fileRepo) read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
+func (f *fileRepo) Read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
 	if filename == "" {
 		return nil, nil, rerror.ErrNotFound
 	}
@@ -266,7 +332,7 @@ func (f *fileRepo) read(ctx context.Context, filename string, headers map[string
 	return reader, headers, nil
 }
 
-func (f *fileRepo) upload(ctx context.Context, file *file.File, objectName string) (int64, error) {
+func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName string) (int64, error) {
 	if file.Name == "" {
 		return 0, gateway.ErrInvalidFile
 	}
@@ -292,18 +358,18 @@ func (f *fileRepo) upload(ctx context.Context, file *file.File, objectName strin
 	}
 
 	writer := object.NewWriter(ctx)
-	writer.ObjectAttrs.CacheControl = f.cacheControl
+	writer.CacheControl = f.cacheControl
 
 	if file.ContentType == "" {
-		writer.ObjectAttrs.ContentType = getContentType(file.Name)
+		writer.ContentType = getContentType(file.Name)
 	} else {
-		writer.ObjectAttrs.ContentType = file.ContentType
+		writer.ContentType = file.ContentType
 	}
 
 	if file.ContentEncoding == "gzip" {
-		writer.ObjectAttrs.ContentEncoding = "gzip"
-		if writer.ObjectAttrs.ContentType == "" || writer.ObjectAttrs.ContentType == "application/gzip" {
-			writer.ObjectAttrs.ContentType = "application/octet-stream"
+		writer.ContentEncoding = "gzip"
+		if writer.ContentType == "" || writer.ContentType == "application/gzip" {
+			writer.ContentType = "application/octet-stream"
 		}
 	}
 
@@ -353,12 +419,141 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	return nil
 }
 
+func (f *fileRepo) publish(ctx context.Context, filename string, public bool) error {
+	if filename == "" {
+		return gateway.ErrInvalidFile
+	}
+
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: get bucket err: %+v\n", err)
+		return rerror.ErrInternalBy(err)
+	}
+
+	object := bucket.Object(filename)
+	if public {
+		err = object.ACL().Set(ctx, storage.AllUsers, storage.RoleReader)
+	} else {
+		err = object.ACL().Delete(ctx, storage.AllUsers)
+	}
+	if err != nil {
+		if errors.Is(err, storage.ErrObjectNotExist) {
+			return gateway.ErrFileNotFound
+		}
+
+		log.Errorf("gcs: acl err: %+v\n", err)
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error {
+	if len(folderNames) == 0 {
+		return gateway.ErrInvalidInput
+	}
+
+	// Get the bucket reference
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: batch delete bucket error: %+v\n", err)
+		return err
+	}
+
+	const numWorkers = 5 // Limit concurrency workers
+
+	// Create channels for folder names and errors
+	folderChan := make(chan string, len(folderNames))
+	errChan := make(chan error, numWorkers)
+	var wg sync.WaitGroup
+
+	// Worker function to delete folders
+	worker := func() {
+		defer wg.Done()
+		for folderName := range folderChan {
+			if err := f.deleteFolder(ctx, bucket, folderName); err != nil {
+				errChan <- fmt.Errorf("failed to delete folder %s: %w", folderName, err)
+			}
+		}
+	}
+
+	// Start worker goroutines
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go worker()
+	}
+
+	// Send folder names to workers
+	for _, folderName := range folderNames {
+		if folderName == "" {
+			continue
+		}
+
+		if folderName[len(folderName)-1] != '/' {
+			folderName += "/" // Ensure folder names end with "/"
+		}
+		folderChan <- folderName
+	}
+	close(folderChan) // Close channel after sending all folder names
+
+	// Wait for all workers to finish
+	wg.Wait()
+	close(errChan)
+
+	// Collect errors
+	var finalErr error
+	for err := range errChan {
+		if err != nil {
+			finalErr = fmt.Errorf("batch delete encountered errors: %w", err)
+		}
+	}
+
+	if finalErr != nil {
+		log.Errorf("Batch delete completed with errors.")
+		return finalErr
+	}
+
+	return nil
+}
+
+func (f *fileRepo) deleteFolder(ctx context.Context, bucket *storage.BucketHandle, folderPrefix string) error {
+	it := bucket.Objects(ctx, &storage.Query{Prefix: folderPrefix})
+
+	for {
+		objAttrs, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Errorf("gcs: list objects error: %+v\n", err)
+			return err
+		}
+
+		obj := bucket.Object(objAttrs.Name)
+		if err := obj.Delete(ctx); err != nil {
+			if errors.Is(err, storage.ErrObjectNotExist) {
+				continue
+			}
+			log.Errorf("gcs: delete object %s error: %+v\n", objAttrs.Name, err)
+			return err
+		}
+	}
+
+	return nil
+}
+
 func getGCSObjectPath(uuid, objectName string) string {
 	if uuid == "" || !IsValidUUID(uuid) {
 		return ""
 	}
 
 	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:], objectName)
+}
+
+func getGCSObjectPathFolder(uuid string) string {
+	if uuid == "" || !IsValidUUID(uuid) {
+		return ""
+	}
+	return path.Join(gcsAssetBasePath, uuid[:2], uuid[2:])
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {

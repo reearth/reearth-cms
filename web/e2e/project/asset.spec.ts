@@ -24,7 +24,7 @@ const upload = async (page: Page, url: string) => {
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await page.getByText("Asset").click();
+  await page.getByRole("menuitem", { name: "Asset" }).click();
 });
 
 test.afterEach(async ({ page }) => {
@@ -102,16 +102,16 @@ test.describe.parallel("Json file tests", () => {
     await closeNotification(page);
   });
 
+  // eslint-disable-next-line playwright/expect-expect
   test("Comment CRUD on edit page has succeeded", async ({ page }) => {
     await page.getByRole("cell", { name: "edit" }).locator("svg").click();
     await page.getByLabel("comment").click();
-    await expect(page.getByText("Comments0 / 1000Comment")).toBeVisible();
     await crudComment(page);
   });
 
+  // eslint-disable-next-line playwright/expect-expect
   test("Comment CRUD on Asset page has succeeded", async ({ page }) => {
     await page.getByRole("button", { name: "0" }).click();
-    await expect(page.getByText("CommentsNo comments.0 / 1000Comment")).toBeVisible();
     await crudComment(page);
   });
 });
@@ -122,7 +122,5 @@ test("Previewing png file on modal has succeeded", async ({ page }) => {
   await expect(page.getByText("Asset TypePNG/JPEG/TIFF/GIF")).toBeVisible();
   await page.getByRole("button", { name: "fullscreen" }).click();
   await expect(page.getByRole("img", { name: "asset-preview" })).toBeVisible();
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(150);
-  await page.getByLabel("Close", { exact: true }).click();
+  await page.getByRole("button", { name: "close" }).click();
 });

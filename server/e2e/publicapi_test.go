@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -334,7 +335,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		Body().
-		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,102,0.5,ccc,,aaa,\n", publicAPIItem6ID.String()))
+		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,0.5,102,ccc,,aaa,\n", publicAPIItem6ID.String()))
 
 	// no geometry field
 	e.GET("/api/p/{project}/{model}.csv", publicAPIProjectAlias, publicAPIModelKey3).
@@ -511,7 +512,7 @@ func TestPublicAPI(t *testing.T) {
 		})
 }
 
-func publicAPISeeder(ctx context.Context, r *repo.Container) error {
+func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	uid := accountdomain.NewUserID()
 	wid := accountdomain.NewWorkspaceID()
 	p1 := project.New().ID(publicAPIProjectID).Workspace(wid).Alias(publicAPIProjectAlias).Publication(

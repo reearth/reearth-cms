@@ -13,7 +13,7 @@ jobs:
           git config --global user.name ${{ vars.GH_APP_USER }}
           git config --global user.email ${{ vars.GH_APP_ID }}+${{ vars.GH_APP_USER }}[bot]@users.noreply.github.com
           git config --global pull.rebase false
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v2
         id: app-token
         with:
           app-id: ${{ vars.GH_APP_ID }}

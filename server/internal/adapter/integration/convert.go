@@ -7,8 +7,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -228,18 +230,20 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 	return nil
 }
 
-func toModelSort(sort integrationapi.SortParam, dir *integrationapi.SortDirParam) *model.Sort {
-	direction := model.DirectionAsc
-	if dir != nil && *dir == integrationapi.SortDirParamDesc {
-		direction = model.DirectionDesc
+func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *model.Sort {
+	direction := model.DirectionDesc
+	if dir != nil && *dir == integrationapi.SortDirParamAsc {
+		direction = model.DirectionAsc
 	}
 
-	column := model.ColumnOrder
-	switch sort {
-	case integrationapi.SortParamCreatedAt:
-		column = model.ColumnCreatedAt
-	case integrationapi.SortParamUpdatedAt:
-		column = model.ColumnUpdatedAt
+	column := model.ColumnCreatedAt
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = model.ColumnCreatedAt
+		case integrationapi.SortParamUpdatedAt:
+			column = model.ColumnUpdatedAt
+		}
 	}
 
 	return &model.Sort{
@@ -250,4 +254,48 @@ func toModelSort(sort integrationapi.SortParam, dir *integrationapi.SortDirParam
 
 func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.Condition {
 	return condition.Into()
+}
+
+func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Role, bool) {
+	if len(roles) == 0 {
+		return nil, true
+	}
+
+	result := make([]workspace.Role, 0, len(roles))
+	for _, r := range roles {
+		role, ok := fromRequestRole(r)
+		if !ok {
+			return nil, false
+		}
+		result = append(result, *role)
+	}
+	return result, true
+}
+
+func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool) {
+	switch r {
+	case integrationapi.OWNER:
+		return lo.ToPtr(workspace.RoleOwner), true
+	case integrationapi.MAINTAINER:
+		return lo.ToPtr(workspace.RoleMaintainer), true
+	case integrationapi.WRITER:
+		return lo.ToPtr(workspace.RoleWriter), true
+	case integrationapi.READER:
+		return lo.ToPtr(workspace.RoleReader), true
+	default:
+		return nil, false
+	}
+}
+
+func fromProjectPublicationScope(p integrationapi.ProjectPublicationScope) *project.PublicationScope {
+	switch p {
+	case integrationapi.PUBLIC:
+		return lo.ToPtr(project.PublicationScopePublic)
+	case integrationapi.PRIVATE:
+		return lo.ToPtr(project.PublicationScopePrivate)
+	case integrationapi.LIMITED:
+		return lo.ToPtr(project.PublicationScopeLimited)
+	default:
+		return nil
+	}
 }

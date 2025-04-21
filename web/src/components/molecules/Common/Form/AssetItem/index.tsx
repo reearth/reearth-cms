@@ -174,12 +174,17 @@ const AssetItem: React.FC<Props> = ({
             <Link
               to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
               target="_blank">
-              <AssetLink type="link" icon={<Icon icon="arrowSquareOut" size={20} />} />
+              <AssetLink
+                color="default"
+                variant="link"
+                icon={<Icon icon="arrowSquareOut" size={20} />}
+              />
             </Link>
           )}
           {value && !disabled && (
             <AssetLink
-              type="link"
+              color="default"
+              variant="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
               onClick={onUnlink}
             />

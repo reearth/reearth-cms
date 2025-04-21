@@ -44,6 +44,10 @@ input PublishModelInput {
   status: Boolean!
 }
 
+input PublishModelsInput {
+  models: [PublishModelInput!]!
+}
+
 # Payloads
 type ModelPayload {
   model: Model!
@@ -56,6 +60,10 @@ type DeleteModelPayload {
 type PublishModelPayload {
   modelId: ID!
   status: Boolean!
+}
+
+type PublishModelsPayload {
+  models: [PublishModelPayload!]!
 }
 
 type ModelsPayload {
@@ -85,4 +93,5 @@ extend type Mutation {
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
   publishModel(input: PublishModelInput!): PublishModelPayload
+  publishModels(input: PublishModelsInput!): PublishModelsPayload
 }
