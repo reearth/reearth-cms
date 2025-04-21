@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -27,6 +27,7 @@ import {
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import { useAuthHeader } from "@reearth-cms/gql";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -71,6 +72,33 @@ const AssetMolecule: React.FC<Props> = ({
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
+  const { getHeader } = useAuthHeader();
+
+  useEffect(() => {
+    const fetchAuthorizedAssetUrl = async () => {
+      const headers = await getHeader();
+
+      try {
+        const response = await fetch(asset.url, {
+          method: "GET",
+          headers,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch asset with auth");
+        }
+
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        setAssetUrl(objectUrl);
+      } catch (err) {
+        console.error("Error fetching authorized asset:", err);
+      }
+    };
+
+    fetchAuthorizedAssetUrl();
+  }, [asset.url, getHeader]);
 
   const renderPreview = useCallback(() => {
     switch (viewerType) {
