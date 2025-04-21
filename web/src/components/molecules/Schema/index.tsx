@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
@@ -21,6 +21,7 @@ import {
   Group,
   Tab,
   SelectedSchemaType,
+  CreateFieldInput,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -46,6 +47,9 @@ type Props = {
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
+  importFields: CreateFieldInput[];
+  hasImportSchemaFieldsError?: boolean;
+  setImportFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -87,6 +91,9 @@ const Schema: React.FC<Props> = ({
   uploadType,
   uploadUrl,
   uploading,
+  importFields,
+  hasImportSchemaFieldsError,
+  setImportFields,
   setUploadUrl,
   setUploadType,
   setFileList,
@@ -308,6 +315,9 @@ const Schema: React.FC<Props> = ({
             uploadUrl={uploadUrl}
             uploading={uploading}
             progress={progress}
+            fields={importFields}
+            hasImportSchemaFieldsError={hasImportSchemaFieldsError}
+            setFields={setImportFields}
             setUploadUrl={setUploadUrl}
             setUploadType={setUploadType}
             setFileList={setFileList}

@@ -73,6 +73,18 @@ export const GET_ASSET_ITEM = gql`
   }
 `;
 
+export const IMPORT_SCHEMA_FIELDS = gql`
+  query ImportSchemaFields($assetId: ID!) {
+    assetSchemaFields(assetId: $assetId) {
+      total_count
+      fields {
+        field_name
+        field_type
+      }
+    }
+  }
+`;
+
 export const CREATE_ASSET = gql`
   mutation CreateAsset(
     $projectId: ID!

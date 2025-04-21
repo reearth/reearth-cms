@@ -5,6 +5,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useGetAssetsLazyQuery,
@@ -16,6 +17,7 @@ import {
   useGetAssetsItemsLazyQuery,
   useCreateAssetUploadMutation,
   useGetAssetLazyQuery,
+  useImportSchemaFieldsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
@@ -36,7 +38,7 @@ export default (isItemsRequired: boolean) => {
   const [hasDeleteRight, setHasDeleteRight] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
 
-  const { workspaceId, projectId } = useParams();
+  const { workspaceId, projectId, modelId } = useParams();
   const navigate = useNavigate();
   const location: {
     state?: {
@@ -339,9 +341,46 @@ export default (isItemsRequired: boolean) => {
     setColumns(cols);
   }, []);
 
+  // import schema fields from asset
+  const { data: importSchemaFieldsData, error: importSchemaFieldsError } = useImportSchemaFieldsQuery({
+    fetchPolicy: "cache-and-network",
+    variables: {
+      assetId: selectedAssetId ?? "",
+    },
+    skip: !selectedAssetId,
+  });
+  
+  const initialFields = useMemo(
+    () =>
+      importSchemaFieldsData?.assetSchemaFields.fields.map(
+        field =>
+          ({
+            title: field.field_name,
+            metadata: false,
+            description: "",
+            key: field.field_name,
+            multiple: false,
+            unique: false,
+            isTitle: false,
+            required: false,
+            type: field.field_type,
+            modelId: modelId,
+            groupId: "",
+          }) as CreateFieldInput,
+      ) ?? [],
+    [importSchemaFieldsData?.assetSchemaFields.fields, modelId],
+  );
+
+  const [importFields, setImportFields] = useState<CreateFieldInput[]>(initialFields);
+  const hasImportSchemaFieldsError = useMemo(() => {
+    return importSchemaFieldsError !== undefined;
+  }, [importSchemaFieldsError]);
+
   return {
     workspaceId,
     projectId,
+    importFields,
+    hasImportSchemaFieldsError,
     assetList,
     selection,
     fileList,
@@ -369,6 +408,7 @@ export default (isItemsRequired: boolean) => {
     setUploadUrl,
     setUploadType,
     handleSelect,
+    setImportFields,
     setFileList,
     setUploadModalVisibility,
     handleAssetsCreate,

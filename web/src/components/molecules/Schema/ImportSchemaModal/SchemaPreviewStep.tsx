@@ -10,10 +10,10 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 
-import { Field, FieldType } from "../types";
+import { CreateFieldInput, FieldType } from "../types";
 
 type Props = {
-  fields: Field[];
+  fields: CreateFieldInput[];
   fieldTypeOptions: { value: string; label: JSX.Element }[];
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   onFieldTypeChange: (id: string, value: FieldType) => void;
@@ -62,7 +62,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
               <Col span={1} />
             </HeaderRow>
           }>
-          {fields?.map((item, index) => (
+          {fields?.map((field, index) => (
             <List.Item className="draggable-item" key={index}>
               <List.Item.Meta
                 title={
@@ -74,17 +74,17 @@ const SchemaPreviewStep: React.FC<Props> = ({
                     </Col>
                     <AlignLeftCol span={11}>
                       <ItemTitle>
-                        <ItemTitleHeading>{item.title}</ItemTitleHeading>
-                        {item.required ? " *" : ""}
-                        <ItemKey>#{item.key}</ItemKey>
-                        {item.unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
-                        {item.isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
+                        <ItemTitleHeading>{field.title}</ItemTitleHeading>
+                        {field.required ? " *" : ""}
+                        <ItemKey>#{field.key}</ItemKey>
+                        {field.unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
+                        {field.isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
                       </ItemTitle>
                     </AlignLeftCol>
                     <AlignLeftCol span={11}>
                       <FieldTypeSelect
-                        value={item.type}
-                        onChange={value => onFieldTypeChange(item.id, value as FieldType)}
+                        value={field.type}
+                        onChange={value => onFieldTypeChange(field.key, value as FieldType)}
                         options={fieldTypeOptions}
                       />
                     </AlignLeftCol>
@@ -93,7 +93,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                         type="text"
                         shape="circle"
                         size="small"
-                        onClick={() => onFieldDelete(item.id, item.title)}
+                        onClick={() => onFieldDelete(field.key, field.title)}
                         icon={<Icon icon="delete" color="#8c8c8c" />}
                         disabled={!hasDeleteRight}
                       />

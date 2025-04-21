@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -16,7 +16,7 @@ import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "../fieldTypes";
-import { Field, FieldType } from "../types";
+import { CreateFieldInput, FieldType } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
@@ -47,6 +47,9 @@ type Props = {
   displayUploadModal: () => void;
   toSchemaPreviewStep: () => void;
   toImportingStep: () => void;
+  fields: CreateFieldInput[];
+  hasImportSchemaFieldsError?: boolean;
+  setFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -79,6 +82,9 @@ const ImportSchemaModal: React.FC<Props> = ({
   uploadType,
   uploadUrl,
   uploading,
+  fields,
+  hasImportSchemaFieldsError,
+  setFields,
   setUploadUrl,
   setUploadType,
   setFileList,
@@ -102,61 +108,37 @@ const ImportSchemaModal: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const initialFields: Field[] = [
-    {
-      id: "01jkde813j9ffyghqs5ewq2mwz",
-      type: "Text",
-      title: "Name",
-      key: "name",
-      description: "",
-      required: false,
-      unique: false,
-      isTitle: false,
-      multiple: false,
-      typeProperty: {
-        defaultValue: null,
-      },
+  const handleFieldReorder = useCallback(
+    (list: CreateFieldInput[], startIndex: number, endIndex: number) => {
+      const result = Array.from(list);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return result;
     },
-    {
-      id: "01jppw7ctmv1ny91z49h2rfcdc",
-      type: "Integer",
-      title: "Age",
-      key: "age",
-      description: "",
-      required: false,
-      unique: false,
-      isTitle: false,
-      multiple: false,
-      typeProperty: {
-        integerDefaultValue: null,
-      },
-    },
-  ];
-
-  const [fields, setFields] = useState<Field[]>(initialFields);
-
-  const handleFieldReorder = useCallback((list: Field[], startIndex: number, endIndex: number) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    return result;
-  }, []);
+    [],
+  );
 
   const handleDragEnd = useCallback(
     (fromIndex: number, toIndex: number) => {
       if (toIndex < 0) return;
       setFields(prev => handleFieldReorder(prev, fromIndex, toIndex));
     },
-    [handleFieldReorder],
+    [handleFieldReorder, setFields],
   );
 
-  const handleFieldDelete = useCallback((id: string) => {
-    setFields(prev => prev.filter(item => item.id !== id));
-  }, []);
+  const handleFieldDelete = useCallback(
+    (key: string) => {
+      setFields(prev => prev.filter(item => item.key !== key));
+    },
+    [setFields],
+  );
 
-  const handleFieldTypeChange = useCallback((id: string, value: FieldType) => {
-    setFields(prev => prev.map(field => (field.id === id ? { ...field, type: value } : field)));
-  }, []);
+  const handleFieldTypeChange = useCallback(
+    (key: string, value: FieldType) => {
+      setFields(prev => prev.map(field => (field.key === key ? { ...field, type: value } : field)));
+    },
+    [setFields],
+  );
 
   const confirmFieldDeletion = useCallback(
     (fieldId: string, name: string) => {
@@ -261,12 +243,15 @@ const ImportSchemaModal: React.FC<Props> = ({
       footer={
         <>
           {currentPage === 0 && (
-            <Button type="primary" disabled={!selectedAsset} onClick={toSchemaPreviewStep}>
+            <Button
+              type="primary"
+              disabled={!selectedAsset || hasImportSchemaFieldsError}
+              onClick={toSchemaPreviewStep}>
               {t("Next")}
             </Button>
           )}
           {currentPage === 1 && (
-            <Button type="primary" onClick={toImportingStep}>
+            <Button type="primary" disabled={fields.length === 0} onClick={toImportingStep}>
               {t("Import Schema")}
             </Button>
           )}

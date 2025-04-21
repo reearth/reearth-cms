@@ -117,6 +117,18 @@ export type AssetItem = {
   modelId: Scalars['ID']['output'];
 };
 
+export type AssetSchemaField = {
+  __typename?: 'AssetSchemaField';
+  field_name: Scalars['String']['output'];
+  field_type: Scalars['String']['output'];
+};
+
+export type AssetSchemaFieldResult = {
+  __typename?: 'AssetSchemaFieldResult';
+  fields: Array<AssetSchemaField>;
+  total_count: Scalars['Int']['output'];
+};
+
 export type AssetSort = {
   direction?: InputMaybe<SortDirection>;
   sortBy: AssetSortType;
@@ -375,6 +387,15 @@ export type DeleteAssetInput = {
 export type DeleteAssetPayload = {
   __typename?: 'DeleteAssetPayload';
   assetId: Scalars['ID']['output'];
+};
+
+export type DeleteAssetsInput = {
+  assetIds: Array<Scalars['ID']['input']>;
+};
+
+export type DeleteAssetsPayload = {
+  __typename?: 'DeleteAssetsPayload';
+  assetIds?: Maybe<Array<Scalars['ID']['output']>>;
 };
 
 export type DeleteCommentInput = {
@@ -797,6 +818,7 @@ export type Mutation = {
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   decompressAsset?: Maybe<DecompressAssetPayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
+  deleteAssets?: Maybe<DeleteAssetsPayload>;
   deleteComment?: Maybe<DeleteCommentPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
   deleteGroup?: Maybe<DeleteGroupPayload>;
@@ -932,6 +954,11 @@ export type MutationDecompressAssetArgs = {
 
 export type MutationDeleteAssetArgs = {
   input: DeleteAssetInput;
+};
+
+
+export type MutationDeleteAssetsArgs = {
+  input: DeleteAssetsInput;
 };
 
 
@@ -1316,6 +1343,7 @@ export type PublishModelPayload = {
 export type Query = {
   __typename?: 'Query';
   assetFile: AssetFile;
+  assetSchemaFields: AssetSchemaFieldResult;
   assets: AssetConnection;
   checkGroupKeyAvailability: KeyAvailability;
   checkModelKeyAvailability: KeyAvailability;
@@ -1338,6 +1366,11 @@ export type Query = {
 
 
 export type QueryAssetFileArgs = {
+  assetId: Scalars['ID']['input'];
+};
+
+
+export type QueryAssetSchemaFieldsArgs = {
   assetId: Scalars['ID']['input'];
 };
 
@@ -2330,6 +2363,13 @@ export type GetAssetItemQueryVariables = Exact<{
 
 
 export type GetAssetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
+
+export type ImportSchemaFieldsQueryVariables = Exact<{
+  assetId: Scalars['ID']['input'];
+}>;
+
+
+export type ImportSchemaFieldsQuery = { __typename?: 'Query', assetSchemaFields: { __typename?: 'AssetSchemaFieldResult', total_count: number, fields: Array<{ __typename?: 'AssetSchemaField', field_name: string, field_type: string }> } };
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -3559,6 +3599,50 @@ export type GetAssetItemQueryHookResult = ReturnType<typeof useGetAssetItemQuery
 export type GetAssetItemLazyQueryHookResult = ReturnType<typeof useGetAssetItemLazyQuery>;
 export type GetAssetItemSuspenseQueryHookResult = ReturnType<typeof useGetAssetItemSuspenseQuery>;
 export type GetAssetItemQueryResult = Apollo.QueryResult<GetAssetItemQuery, GetAssetItemQueryVariables>;
+export const ImportSchemaFieldsDocument = gql`
+    query ImportSchemaFields($assetId: ID!) {
+  assetSchemaFields(assetId: $assetId) {
+    total_count
+    fields {
+      field_name
+      field_type
+    }
+  }
+}
+    `;
+
+/**
+ * __useImportSchemaFieldsQuery__
+ *
+ * To run a query within a React component, call `useImportSchemaFieldsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useImportSchemaFieldsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useImportSchemaFieldsQuery({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useImportSchemaFieldsQuery(baseOptions: Apollo.QueryHookOptions<ImportSchemaFieldsQuery, ImportSchemaFieldsQueryVariables> & ({ variables: ImportSchemaFieldsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ImportSchemaFieldsQuery, ImportSchemaFieldsQueryVariables>(ImportSchemaFieldsDocument, options);
+      }
+export function useImportSchemaFieldsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ImportSchemaFieldsQuery, ImportSchemaFieldsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ImportSchemaFieldsQuery, ImportSchemaFieldsQueryVariables>(ImportSchemaFieldsDocument, options);
+        }
+export function useImportSchemaFieldsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ImportSchemaFieldsQuery, ImportSchemaFieldsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ImportSchemaFieldsQuery, ImportSchemaFieldsQueryVariables>(ImportSchemaFieldsDocument, options);
+        }
+export type ImportSchemaFieldsQueryHookResult = ReturnType<typeof useImportSchemaFieldsQuery>;
+export type ImportSchemaFieldsLazyQueryHookResult = ReturnType<typeof useImportSchemaFieldsLazyQuery>;
+export type ImportSchemaFieldsSuspenseQueryHookResult = ReturnType<typeof useImportSchemaFieldsSuspenseQuery>;
+export type ImportSchemaFieldsQueryResult = Apollo.QueryResult<ImportSchemaFieldsQuery, ImportSchemaFieldsQueryVariables>;
 export const CreateAssetDocument = gql`
     mutation CreateAsset($projectId: ID!, $file: Upload, $token: String, $url: String, $skipDecompression: Boolean) {
   createAsset(

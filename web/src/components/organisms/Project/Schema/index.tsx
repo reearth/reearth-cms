@@ -17,12 +17,15 @@ const ProjectSchema: React.FC = () => {
     projectId,
     assetList,
     fileList,
+    importFields,
+    hasImportSchemaFieldsError,
     loading,
     uploading,
     uploadModalVisibility,
     uploadUrl,
     uploadType,
     handleUploadModalCancel,
+    setImportFields,
     setUploadUrl,
     setUploadType,
     setFileList,
@@ -103,6 +106,9 @@ const ProjectSchema: React.FC = () => {
         uploadType={uploadType}
         uploadUrl={uploadUrl}
         uploading={uploading}
+        importFields={importFields}
+        hasImportSchemaFieldsError={hasImportSchemaFieldsError}
+        setImportFields={setImportFields}
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}
         setFileList={setFileList}
