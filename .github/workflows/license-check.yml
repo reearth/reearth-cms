@@ -56,7 +56,7 @@ jobs:
           subdirectory: server
   worker-license-check:
     name: Worker License Check
-    if: needs.prepare.outputs.server == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.prepare.outputs.worker == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -74,7 +74,7 @@ jobs:
           subdirectory: worker
   web-license-check:
     name: Web License Check
-    if: needs.prepare.outputs.server == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.prepare.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
       run:
