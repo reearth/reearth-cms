@@ -37,7 +37,7 @@ jobs:
             worker/go.sum
       - uses: reearth/actions/license-checker/go@ec26fbcf84f0e954a6ba3511859b18e3d2272c18
         with:
-          subdirectory: server
+          subdirectory: worker
   web-license-check:
     name: Web License Check
     runs-on: ubuntu-latest
