@@ -8,6 +8,7 @@ import (
 
 	adapterhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -17,7 +18,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func baseSeederHTTPUser(ctx context.Context, r *repo.Container) error {
+func baseSeederHTTPUser(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	u := user.New().ID(uId1).
 		Name("e2e").
 		Email("e2e@e2e.com").

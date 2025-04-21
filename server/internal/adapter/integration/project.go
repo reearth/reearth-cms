@@ -128,7 +128,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	var roles []workspace.Role
 	if request.Body.RequestRoles != nil {
 		var ok bool
-		if roles,ok = fromRequestRoles(*request.Body.RequestRoles); !ok {
+		if roles, ok = fromRequestRoles(*request.Body.RequestRoles); !ok {
 			return ProjectUpdate400Response{}, rerror.ErrInvalidParams
 		}
 	}

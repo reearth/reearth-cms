@@ -159,7 +159,7 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 		HasValue("requestRoles", []string{"WRITER"}).
 		HasValue("workspaceId", wId0.String()).
 		Keys().ContainsAll("id", "createdAt", "updatedAt")
-	
+
 	res.Value("publication").Object().Value("scope").IsEqual("LIMITED")
 	res.Value("publication").Object().Value("assetPublic").IsEqual(true)
 	res.Value("publication").Object().Value("token").String().NotEmpty()

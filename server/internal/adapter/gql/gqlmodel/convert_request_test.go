@@ -33,7 +33,7 @@ func TestToRequest(t *testing.T) {
 	assert.Equal(t, &Request{
 		ID: IDFrom(req.ID()),
 		Items: []*RequestItem{{
-			ItemID: IDFrom(itm.Item()),
+			ItemID:  IDFrom(itm.Item()),
 			Version: lo.ToPtr(ver),
 		}},
 		Title:       "foo",

@@ -220,7 +220,7 @@ func sortModels(ms *model.Sort) *usecasex.Sort {
 	case model.ColumnUpdatedAt:
 		res.Key = "updatedat"
 	}
-	
+
 	if ms.Direction == model.DirectionDesc {
 		res.Reverted = true
 	}

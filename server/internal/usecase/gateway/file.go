@@ -68,6 +68,8 @@ type File interface {
 	Upload(context.Context, *file.File, string) (int64, error)
 	DeleteAsset(context.Context, string, string) error
 	DeleteAssets(context.Context, []string) error
+	PublishAsset(context.Context, string, string) error
+	UnpublishAsset(context.Context, string, string) error
 	GetURL(*asset.Asset) string
 	GetBaseURL() string
 	IssueUploadAssetLink(context.Context, IssueUploadAssetParam) (*UploadAssetLink, error)

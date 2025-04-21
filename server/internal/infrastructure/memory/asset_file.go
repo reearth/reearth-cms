@@ -66,7 +66,6 @@ func (r *AssetFile) FindByIDs(ctx context.Context, ids id.AssetIDList) (map[id.A
 	return filesMap, nil
 }
 
-
 func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) error {
 	if r.err != nil {
 		return r.err

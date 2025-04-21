@@ -25,13 +25,13 @@ import (
 	"github.com/spf13/afero"
 )
 
-type Seeder func(ctx context.Context, r *repo.Container) error
+type Seeder func(context.Context, *repo.Container, *gateway.Container) error
 
 func init() {
 	mongotest.Env = "REEARTH_CMS_DB"
 }
 
-func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountrepos *accountrepo.Container) *httpexpect.Expect {
+func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountrepos *accountrepo.Container, gateway *gateway.Container, accountgateway *accountgateway.Container) *httpexpect.Expect {
 	t.Helper()
 
 	if testing.Short() {
@@ -46,16 +46,12 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 	}
 
 	srv := app.NewServer(ctx, &app.ServerConfig{
-		Config:  cfg,
-		Repos:   repos,
-		AcRepos: accountrepos,
-		Gateways: &gateway.Container{
-			File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "https://example.com")),
-		},
-		AcGateways: &accountgateway.Container{
-			Mailer: mailer.New(ctx, &mailer.Config{}),
-		},
-		Debug: true,
+		Config:     cfg,
+		Repos:      repos,
+		AcRepos:    accountrepos,
+		Gateways:   gateway,
+		AcGateways: accountgateway,
+		Debug:      true,
 	})
 
 	ch := make(chan error)
@@ -94,13 +90,25 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 		accountRepos = accountmemory.New()
 	}
 
+	assetBase := cfg.AssetBaseURL
+	if assetBase == "" {
+		assetBase = "https://example.com"
+	}
+
+	gateway := &gateway.Container{
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), assetBase)),
+	}
+	accountGateways := &accountgateway.Container{
+		Mailer: mailer.New(ctx, &mailer.Config{}),
+	}
+
 	if seeder != nil {
-		if err := seeder(ctx, repos); err != nil {
+		if err := seeder(ctx, repos, gateway); err != nil {
 			t.Fatalf("failed to seed the db: %s", err)
 		}
 	}
 
-	return startServer(t, cfg, repos, accountRepos), repos, accountRepos
+	return startServer(t, cfg, repos, accountRepos, gateway, accountGateways), repos, accountRepos
 }
 
 func StartServer(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) *httpexpect.Expect {

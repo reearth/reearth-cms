@@ -19,6 +19,7 @@ type Asset interface {
 	Filtered(ProjectFilter) Asset
 	FindByProject(context.Context, id.ProjectID, AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.AssetID) (*asset.Asset, error)
+	FindByUUID(context.Context, string) (*asset.Asset, error)
 	FindByIDs(context.Context, id.AssetIDList) ([]*asset.Asset, error)
 	Search(context.Context, id.ProjectID, AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error)
 	Save(context.Context, *asset.Asset) error

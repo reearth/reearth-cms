@@ -62,6 +62,7 @@ type AssetUpload struct {
 
 type Asset interface {
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	FindByUUID(context.Context, string, *usecase.Operator) (*asset.Asset, error)
 	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
 	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
 	Search(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
@@ -73,9 +74,10 @@ type Asset interface {
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
-	// BatchDelete deletes assets in batch based on multiple asset IDs
 	BatchDelete(context.Context, id.AssetIDList, *usecase.Operator) ([]id.AssetID, error)
-	DecompressByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	Decompress(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	Publish(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	Unpublish(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (*AssetUpload, error)
 	RetryDecompression(context.Context, string) error
 }

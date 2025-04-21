@@ -40,7 +40,7 @@ func TestView(t *testing.T) {
 
 	// Test UpdatedAt()
 	assert.Equal(t, v.updatedAt, v.UpdatedAt())
-	
+
 	// Test Order()
 	assert.Equal(t, v.order, v.Order())
 

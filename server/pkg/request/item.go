@@ -20,7 +20,7 @@ func (i *Item) Pointer() version.VersionOrRef {
 	return i.pointer
 }
 
-func (i *Item) SetPointer(p version.VersionOrRef)  {
+func (i *Item) SetPointer(p version.VersionOrRef) {
 	i.pointer = p
 }
 

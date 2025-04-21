@@ -27,9 +27,9 @@ type UpdateViewParam struct {
 }
 
 var (
-	ErrLastView = rerror.NewE(i18n.T("model should have at least one view"))
+	ErrLastView                  = rerror.NewE(i18n.T("model should have at least one view"))
 	ErrViewsAreNotInTheSameModel = rerror.NewE(i18n.T("views are not in the same model"))
-	ErrViewsLengthMismatch = rerror.NewE(i18n.T("views length mismatch"))
+	ErrViewsLengthMismatch       = rerror.NewE(i18n.T("views length mismatch"))
 )
 
 type View interface {

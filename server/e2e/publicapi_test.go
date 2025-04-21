@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -511,7 +512,7 @@ func TestPublicAPI(t *testing.T) {
 		})
 }
 
-func publicAPISeeder(ctx context.Context, r *repo.Container) error {
+func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	uid := accountdomain.NewUserID()
 	wid := accountdomain.NewWorkspaceID()
 	p1 := project.New().ID(publicAPIProjectID).Workspace(wid).Alias(publicAPIProjectAlias).Publication(
