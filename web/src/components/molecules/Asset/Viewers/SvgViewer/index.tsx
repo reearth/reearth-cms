@@ -5,22 +5,24 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   url: string;
-  blob?: Blob;
   svgRender: boolean;
 };
 
-const SvgViewer: React.FC<Props> = ({ url, blob, svgRender }) => {
+const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const t = useT();
   const [svgText, setSvgText] = useState("");
 
   const fetchData = useCallback(async () => {
-    const text = await blob?.text();
-    if (!text) {
-      setSvgText(t("No data available"));
+    const res = await fetch(url, {
+      method: "GET",
+    });
+    if (res.status !== 200) {
+      setSvgText(t("Could not display svg"));
       return;
     }
+    const text = await res.text();
     setSvgText(text);
-  }, [blob, t]);
+  }, [url, t]);
 
   useEffect(() => {
     fetchData();

@@ -264,38 +264,8 @@ export default (assetId?: string) => {
     );
   };
 
-  const [assetUrl, setAssetUrl] = useState(asset?.url ?? "");
-  const [assetBlob, setAssetBlob] = useState<Blob>();
-
-  useEffect(() => {
-    const fetchAuthorizedAssetUrl = async () => {
-      if (!asset?.url) return;
-
-      const headers = await getHeader();
-      try {
-        const response = await fetch(asset.url, {
-          method: "GET",
-          headers,
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch asset with auth");
-        }
-        const blob = await response.blob();
-        setAssetBlob(blob);
-        const objectUrl = URL.createObjectURL(blob);
-        setAssetUrl(objectUrl);
-      } catch (err) {
-        console.error("Error fetching authorized asset:", err);
-      }
-    };
-
-    fetchAuthorizedAssetUrl();
-  }, [asset?.url, getHeader]);
-
   return {
     asset,
-    assetUrl,
-    assetBlob,
     assetFileExt,
     isLoading: networkStatus === NetworkStatus.loading || fileLoading,
     selectedPreviewType,
@@ -306,7 +276,6 @@ export default (assetId?: string) => {
     decompressing,
     isSaveDisabled,
     updateLoading,
-    setAssetUrl,
     hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,
