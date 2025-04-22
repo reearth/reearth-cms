@@ -14,6 +14,7 @@ type Props = {
   commentsPanel: JSX.Element;
   asset: Asset;
   assetUrl: string;
+  assetBlob?: Blob;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
@@ -39,6 +40,7 @@ type Props = {
 const AssetWrapper: React.FC<Props> = ({
   asset,
   assetUrl,
+  assetBlob,
   assetFileExt,
   selectedPreviewType,
   isModalVisible,
@@ -79,6 +81,7 @@ const AssetWrapper: React.FC<Props> = ({
           <AssetMolecule
             asset={asset}
             assetUrl={assetUrl}
+            assetBlob={assetBlob}
             assetFileExt={assetFileExt}
             selectedPreviewType={selectedPreviewType}
             isModalVisible={isModalVisible}

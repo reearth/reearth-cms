@@ -6,15 +6,15 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 import { Imagery } from "./Imagery";
 
 type Props = {
-  url: string;
+  blob?: Blob;
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
-const CsvViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
+const CsvViewer: React.FC<Props> = ({ blob, onGetViewer, workspaceSettings }) => {
   return (
     <ResiumViewer onGetViewer={onGetViewer} workspaceSettings={workspaceSettings}>
-      <Imagery url={url} />
+      <Imagery blob={blob} />
     </ResiumViewer>
   );
 };

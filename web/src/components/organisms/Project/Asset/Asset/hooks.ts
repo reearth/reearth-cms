@@ -265,6 +265,7 @@ export default (assetId?: string) => {
   };
 
   const [assetUrl, setAssetUrl] = useState(asset?.url ?? "");
+  const [assetBlob, setAssetBlob] = useState<Blob>();
 
   useEffect(() => {
     const fetchAuthorizedAssetUrl = async () => {
@@ -280,6 +281,7 @@ export default (assetId?: string) => {
           throw new Error("Failed to fetch asset with auth");
         }
         const blob = await response.blob();
+        setAssetBlob(blob);
         const objectUrl = URL.createObjectURL(blob);
         setAssetUrl(objectUrl);
       } catch (err) {
@@ -293,6 +295,7 @@ export default (assetId?: string) => {
   return {
     asset,
     assetUrl,
+    assetBlob,
     assetFileExt,
     isLoading: networkStatus === NetworkStatus.loading || fileLoading,
     selectedPreviewType,

@@ -13,6 +13,7 @@ const Asset: React.FC = () => {
   const {
     asset,
     assetUrl,
+    assetBlob,
     assetFileExt,
     isLoading,
     selectedPreviewType,
@@ -56,6 +57,7 @@ const Asset: React.FC = () => {
       }
       asset={asset}
       assetUrl={assetUrl}
+      assetBlob={assetBlob}
       assetFileExt={assetFileExt}
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}

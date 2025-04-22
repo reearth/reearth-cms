@@ -35,6 +35,7 @@ import useHooks from "./hooks";
 type Props = {
   asset: Asset;
   assetUrl: string;
+  assetBlob?: Blob;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
@@ -56,6 +57,7 @@ type Props = {
 const AssetMolecule: React.FC<Props> = ({
   asset,
   assetUrl,
+  assetBlob,
   assetFileExt,
   selectedPreviewType,
   isModalVisible,
@@ -111,7 +113,7 @@ const AssetMolecule: React.FC<Props> = ({
       case "image":
         return <ImageViewer url={assetUrl} />;
       case "image_svg":
-        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
+        return <SvgViewer url={assetUrl} blob={assetBlob} svgRender={svgRender} />;
       case "model_3d":
         return (
           <GltfViewer
@@ -123,7 +125,7 @@ const AssetMolecule: React.FC<Props> = ({
       case "csv":
         return (
           <CsvViewer
-            url={assetUrl}
+            blob={assetBlob}
             onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
@@ -132,7 +134,16 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, onGetViewer, setAssetUrl, svgRender, viewerType, workspaceSettings]);
+  }, [
+    assetBlob,
+    assetFileExt,
+    assetUrl,
+    onGetViewer,
+    setAssetUrl,
+    svgRender,
+    viewerType,
+    workspaceSettings,
+  ]);
 
   return (
     <BodyContainer>
