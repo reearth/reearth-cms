@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -27,7 +27,6 @@ import {
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
-import { useAuthHeader } from "@reearth-cms/gql";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -35,6 +34,7 @@ import useHooks from "./hooks";
 
 type Props = {
   asset: Asset;
+  assetUrl: string;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
@@ -42,6 +42,7 @@ type Props = {
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
+  setAssetUrl: (url: string) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onAssetDownload: (selected: Asset[]) => Promise<void>;
@@ -54,6 +55,7 @@ type Props = {
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
+  assetUrl,
   assetFileExt,
   selectedPreviewType,
   isModalVisible,
@@ -61,6 +63,7 @@ const AssetMolecule: React.FC<Props> = ({
   displayUnzipFileList,
   decompressing,
   hasUpdateRight,
+  setAssetUrl,
   onAssetItemSelect,
   onAssetDecompress,
   onAssetDownload,
@@ -72,34 +75,10 @@ const AssetMolecule: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
-  const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
-  const { getHeader } = useAuthHeader();
 
   const selected = useMemo(() => [asset], [asset]);
   const disabled = useMemo(() => !selected || selected.length <= 0, [selected]);
-
-  useEffect(() => {
-    const fetchAuthorizedAssetUrl = async () => {
-      const headers = await getHeader();
-      try {
-        const response = await fetch(asset.url, {
-          method: "GET",
-          headers,
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch asset with auth");
-        }
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        setAssetUrl(objectUrl);
-      } catch (err) {
-        console.error("Error fetching authorized asset:", err);
-      }
-    };
-
-    fetchAuthorizedAssetUrl();
-  }, [asset.url, getHeader]);
 
   const renderPreview = useCallback(() => {
     switch (viewerType) {
@@ -153,7 +132,7 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
+  }, [assetFileExt, assetUrl, onGetViewer, setAssetUrl, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
@@ -164,7 +143,7 @@ const AssetMolecule: React.FC<Props> = ({
               <AssetName>{asset.fileName}</AssetName>
               <Buttons>
                 <CopyButton
-                  copyable={{ text: assetUrl, tooltips: [t("Copy URL"), t("URL copied!!")] }}
+                  copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
                   size={16}
                 />
                 <DownloadButton

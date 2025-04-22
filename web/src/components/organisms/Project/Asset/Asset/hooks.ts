@@ -83,30 +83,6 @@ export default (assetId?: string) => {
       : undefined;
   }, [convertedAsset, rawFile?.assetFile]);
 
-  const { getHeader } = useAuthHeader();
-  const handleAssetDownload = async (selected: Asset[]) => {
-    if (!selected?.length) return;
-
-    const headers = await getHeader();
-    await Promise.all(
-      selected.map(async (s: Asset) => {
-        try {
-          const response = await fetch(s.url, {
-            method: "GET",
-            headers,
-          });
-          if (!response.ok) {
-            throw new Error("Failed to fetch asset with auth");
-          }
-          const blob = await response.blob();
-          fileDownload(blob, s.fileName);
-        } catch (err) {
-          console.error("Error fetching authorized asset:", err);
-        }
-      }),
-    );
-  };
-
   const hasUpdateRight = useMemo(
     () =>
       userRights?.asset.update === null
@@ -264,8 +240,59 @@ export default (assetId?: string) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`, { state: location.state });
   }, [location.state, navigate, projectId, workspaceId]);
 
+  const { getHeader } = useAuthHeader();
+  const handleAssetDownload = async (selected: Asset[]) => {
+    if (!selected?.length) return;
+
+    const headers = await getHeader();
+    await Promise.all(
+      selected.map(async (s: Asset) => {
+        try {
+          const response = await fetch(s.url, {
+            method: "GET",
+            headers,
+          });
+          if (!response.ok) {
+            throw new Error("Failed to fetch asset with auth");
+          }
+          const blob = await response.blob();
+          fileDownload(blob, s.fileName);
+        } catch (err) {
+          console.error("Error fetching authorized asset:", err);
+        }
+      }),
+    );
+  };
+
+  const [assetUrl, setAssetUrl] = useState(asset?.url ?? "");
+
+  useEffect(() => {
+    const fetchAuthorizedAssetUrl = async () => {
+      if (!asset?.url) return;
+
+      const headers = await getHeader();
+      try {
+        const response = await fetch(asset.url, {
+          method: "GET",
+          headers,
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch asset with auth");
+        }
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        setAssetUrl(objectUrl);
+      } catch (err) {
+        console.error("Error fetching authorized asset:", err);
+      }
+    };
+
+    fetchAuthorizedAssetUrl();
+  }, [asset?.url, getHeader]);
+
   return {
     asset,
+    assetUrl,
     assetFileExt,
     isLoading: networkStatus === NetworkStatus.loading || fileLoading,
     selectedPreviewType,
@@ -276,6 +303,7 @@ export default (assetId?: string) => {
     decompressing,
     isSaveDisabled,
     updateLoading,
+    setAssetUrl,
     hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,

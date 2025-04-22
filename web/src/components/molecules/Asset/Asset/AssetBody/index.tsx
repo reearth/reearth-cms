@@ -13,6 +13,7 @@ import { useT } from "@reearth-cms/i18n";
 type Props = {
   commentsPanel: JSX.Element;
   asset: Asset;
+  assetUrl: string;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
@@ -22,6 +23,7 @@ type Props = {
   isSaveDisabled: boolean;
   updateLoading: boolean;
   hasUpdateRight: boolean;
+  setAssetUrl: (url: string) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onAssetDownload: (selected: Asset[]) => Promise<void>;
@@ -36,6 +38,7 @@ type Props = {
 
 const AssetWrapper: React.FC<Props> = ({
   asset,
+  assetUrl,
   assetFileExt,
   selectedPreviewType,
   isModalVisible,
@@ -46,6 +49,7 @@ const AssetWrapper: React.FC<Props> = ({
   isSaveDisabled,
   updateLoading,
   hasUpdateRight,
+  setAssetUrl,
   onAssetItemSelect,
   onAssetDecompress,
   onAssetDownload,
@@ -74,6 +78,7 @@ const AssetWrapper: React.FC<Props> = ({
           />
           <AssetMolecule
             asset={asset}
+            assetUrl={assetUrl}
             assetFileExt={assetFileExt}
             selectedPreviewType={selectedPreviewType}
             isModalVisible={isModalVisible}
@@ -81,6 +86,7 @@ const AssetWrapper: React.FC<Props> = ({
             displayUnzipFileList={displayUnzipFileList}
             decompressing={decompressing}
             hasUpdateRight={hasUpdateRight}
+            setAssetUrl={setAssetUrl}
             onAssetDecompress={onAssetDecompress}
             onAssetItemSelect={onAssetItemSelect}
             onAssetDownload={onAssetDownload}
