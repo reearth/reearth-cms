@@ -25,6 +25,7 @@ const Asset: React.FC = () => {
     hasUpdateRight,
     handleAssetDecompress,
     handleAssetItemSelect,
+    handleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,
@@ -63,6 +64,7 @@ const Asset: React.FC = () => {
       hasUpdateRight={hasUpdateRight}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
+      onAssetDownload={handleAssetDownload}
       onTypeChange={handleTypeChange}
       onModalCancel={handleModalCancel}
       onChangeToFullScreen={handleFullScreen}

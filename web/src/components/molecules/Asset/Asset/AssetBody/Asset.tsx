@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -44,6 +44,7 @@ type Props = {
   hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
+  onAssetDownload: (selected: Asset[]) => Promise<void>;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
@@ -62,6 +63,7 @@ const AssetMolecule: React.FC<Props> = ({
   hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
+  onAssetDownload,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -74,23 +76,22 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const { getHeader } = useAuthHeader();
 
+  const selected = useMemo(() => [asset], [asset]);
+  const disabled = useMemo(() => !selected || selected.length <= 0, [selected]);
+
   useEffect(() => {
     const fetchAuthorizedAssetUrl = async () => {
       const headers = await getHeader();
-
       try {
         const response = await fetch(asset.url, {
           method: "GET",
           headers,
         });
-
         if (!response.ok) {
           throw new Error("Failed to fetch asset with auth");
         }
-
         const blob = await response.blob();
         const objectUrl = URL.createObjectURL(blob);
-
         setAssetUrl(objectUrl);
       } catch (err) {
         console.error("Error fetching authorized asset:", err);
@@ -163,10 +164,14 @@ const AssetMolecule: React.FC<Props> = ({
               <AssetName>{asset.fileName}</AssetName>
               <Buttons>
                 <CopyButton
-                  copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
+                  copyable={{ text: assetUrl, tooltips: [t("Copy URL"), t("URL copied!!")] }}
                   size={16}
                 />
-                <DownloadButton selected={[asset]} onlyIcon />
+                <DownloadButton
+                  disabled={disabled}
+                  onlyIcon
+                  onDownload={() => onAssetDownload(selected)}
+                />
               </Buttons>
             </>
           }
@@ -209,7 +214,11 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton selected={[asset]} displayDefaultIcon />
+        <DownloadButton
+          disabled={disabled}
+          displayDefaultIcon
+          onDownload={() => onAssetDownload(selected)}
+        />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>

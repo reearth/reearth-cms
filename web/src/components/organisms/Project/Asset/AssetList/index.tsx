@@ -37,6 +37,7 @@ const AssetList: React.FC = () => {
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleAssetDelete,
+    handleAssetDownload,
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
@@ -84,6 +85,7 @@ const AssetList: React.FC = () => {
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetDelete={handleAssetDelete}
+      onAssetDownload={handleAssetDownload}
       onAssetsReload={handleAssetsReload}
       onSearchTerm={handleSearchTerm}
       onEdit={handleNavigateToAsset}

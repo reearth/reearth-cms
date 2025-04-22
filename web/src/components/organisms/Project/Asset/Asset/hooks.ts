@@ -1,5 +1,6 @@
 import { NetworkStatus } from "@apollo/client";
 import { Ion, Viewer as CesiumViewer } from "cesium";
+import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -23,6 +24,7 @@ import {
 } from "@reearth-cms/components/molecules/Common/Asset";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { config } from "@reearth-cms/config";
+import { useAuthHeader } from "@reearth-cms/gql";
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
@@ -80,6 +82,30 @@ export default (assetId?: string) => {
         }
       : undefined;
   }, [convertedAsset, rawFile?.assetFile]);
+
+  const { getHeader } = useAuthHeader();
+  const handleAssetDownload = async (selected: Asset[]) => {
+    if (!selected?.length) return;
+
+    const headers = await getHeader();
+    await Promise.all(
+      selected.map(async (s: Asset) => {
+        try {
+          const response = await fetch(s.url, {
+            method: "GET",
+            headers,
+          });
+          if (!response.ok) {
+            throw new Error("Failed to fetch asset with auth");
+          }
+          const blob = await response.blob();
+          fileDownload(blob, s.fileName);
+        } catch (err) {
+          console.error("Error fetching authorized asset:", err);
+        }
+      }),
+    );
+  };
 
   const hasUpdateRight = useMemo(
     () =>
@@ -253,6 +279,7 @@ export default (assetId?: string) => {
     hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,
+    handleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,

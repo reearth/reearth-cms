@@ -1,51 +1,36 @@
 import styled from "@emotion/styled";
-import fileDownload from "js-file-download";
-import React, { MouseEventHandler, useCallback } from "react";
+import React, { MouseEventHandler } from "react";
 
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-type Asset = {
-  id: string;
-  fileName: string;
-  url: string;
-};
-
 type DownloadButtonProps = {
   title?: string;
-  selected?: Asset[];
   displayDefaultIcon?: boolean;
   onlyIcon?: boolean;
+  disabled?: boolean;
+  onDownload?: MouseEventHandler<HTMLElement>;
 } & ButtonProps;
 
 const DownloadButton: React.FC<DownloadButtonProps> = ({
   title,
-  selected,
   displayDefaultIcon,
   onlyIcon,
+  disabled,
+  onDownload,
   ...props
 }) => {
   const t = useT();
-  const handleDownload: MouseEventHandler<HTMLElement> | undefined = useCallback(async () => {
-    selected?.map(async s => {
-      const res = await fetch(s.url, {
-        method: "GET",
-      });
-      const blob = await res.blob();
-      fileDownload(blob, s.fileName);
-    });
-  }, [selected]);
-
   return onlyIcon ? (
-    <IconWrapper role="button" onClick={handleDownload}>
+    <IconWrapper role="button" onClick={onDownload}>
       <Icon icon="download" />
     </IconWrapper>
   ) : (
     <Button
       icon={displayDefaultIcon && <Icon icon="download" />}
-      onClick={handleDownload}
-      disabled={!selected || selected.length <= 0}
+      onClick={onDownload}
+      disabled={disabled}
       {...props}>
       {title ?? t("Download")}
     </Button>

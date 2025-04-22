@@ -1,3 +1,4 @@
+import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -6,6 +7,7 @@ import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
+import { useAuthHeader } from "@reearth-cms/gql";
 import {
   useGetAssetsLazyQuery,
   useCreateAssetMutation,
@@ -339,6 +341,30 @@ export default (isItemsRequired: boolean) => {
     setColumns(cols);
   }, []);
 
+  const { getHeader } = useAuthHeader();
+  const handleAssetDownload = async (selected: Asset[]) => {
+    if (!selected?.length) return;
+
+    const headers = await getHeader();
+    await Promise.all(
+      selected.map(async (s: Asset) => {
+        try {
+          const response = await fetch(s.url, {
+            method: "GET",
+            headers,
+          });
+          if (!response.ok) {
+            throw new Error("Failed to fetch asset with auth");
+          }
+          const blob = await response.blob();
+          fileDownload(blob, s.fileName);
+        } catch (err) {
+          console.error("Error fetching authorized asset:", err);
+        }
+      }),
+    );
+  };
+
   return {
     assetList,
     selection,
@@ -373,6 +399,7 @@ export default (isItemsRequired: boolean) => {
     handleAssetCreateFromUrl,
     handleAssetTableChange,
     handleAssetDelete,
+    handleAssetDownload,
     handleSearchTerm,
     handleAssetsGet,
     handleAssetsReload,
