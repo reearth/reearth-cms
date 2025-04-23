@@ -344,6 +344,7 @@ type GuessSchemaField {
   key: String!
   type: String!
   name: String!
+  guessedFieldType: String!
 }
 
 type GuessSchemaFieldResult {
@@ -353,6 +354,7 @@ type GuessSchemaFieldResult {
 
 input GuessSchemaFieldsInput{
   assetId: ID!
+  modelId: ID!
 }
 
 # Payloads

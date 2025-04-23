@@ -493,3 +493,96 @@ func TestSchema_CopyFrom(t *testing.T) {
 	assert.Equal(t, 0, len(s3.fields))
 	assert.Nil(t, s3.titleField)
 }
+
+func TestFieldFrom(t *testing.T) {
+	schemaID := id.NewSchemaID()
+
+	tests := []struct {
+		name  string
+		key   string
+		value any
+		want  GuessFieldData
+	}{
+		{
+			name:  "string input",
+			key:   "name",
+			value: "hello",
+			want: GuessFieldData{
+				SchemaID:  schemaID,
+				Type:      value.TypeText,
+				FieldType: "Text",
+				Name:      "name",
+				Key:       "name",
+			},
+		},
+		{
+			name:  "bool input",
+			key:   "active",
+			value: true,
+			want: GuessFieldData{
+				SchemaID:  schemaID,
+				Type:      value.TypeBool,
+				FieldType: "Boolean",
+				Name:      "active",
+				Key:       "active",
+			},
+		},
+		{
+			name:  "int input",
+			key:   "age",
+			value: 42,
+			want: GuessFieldData{
+				SchemaID:  schemaID,
+				Type:      value.TypeNumber,
+				FieldType: "Int",
+				Name:      "age",
+				Key:       "age",
+			},
+		},
+		{
+			name:  "float input",
+			key:   "height",
+			value: 3.14,
+			want: GuessFieldData{
+				SchemaID:  schemaID,
+				Type:      value.TypeNumber,
+				FieldType: "Float",
+				Name:      "height",
+				Key:       "height",
+			},
+		},
+		{
+			name:  "nil value",
+			key:   "empty",
+			value: nil,
+			want: GuessFieldData{
+				SchemaID:  schemaID,
+				Type:      value.TypeText,
+				FieldType: "",
+				Name:      "empty",
+				Key:       "empty",
+			},
+		},
+		{
+			name:  "unsupported type (map)",
+			key:   "meta",
+			value: map[string]string{"k": "v"},
+			want: GuessFieldData{
+				SchemaID:  schemaID,
+				Type:      value.TypeText,
+				FieldType: "",
+				Name:      "meta",
+				Key:       "meta",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := fieldFrom(tt.key, tt.value, schemaID)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}

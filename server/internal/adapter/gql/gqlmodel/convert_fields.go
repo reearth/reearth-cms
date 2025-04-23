@@ -15,9 +15,10 @@ func ToGuessSchemaFieldData(data *interfaces.GuessSchemaFieldsData) *GuessSchema
 		TotalCount: data.TotalCount,
 		Fields: lo.Map(data.Fields, func(f interfaces.GuessSchemaField, _ int) *GuessSchemaField {
 			return &GuessSchemaField{
-				Name: f.Name,
-				Key:  f.Key,
-				Type: f.Type,
+				Name:             f.Name,
+				Key:              f.Key,
+				Type:             f.Type,
+				GuessedFieldType: f.GuessedFieldType,
 			}
 		}),
 	}
