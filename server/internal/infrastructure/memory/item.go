@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -314,4 +316,80 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 		return true
 	})
 	return res, nil
+}
+
+func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *string, error) {
+	filter, err := json.Marshal(map[string]any{"schema": params.OldSchema.String()})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	c := task.Changes{
+		"id": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"schema": {
+			Type:  task.ChangeTypeSet,
+			Value: params.NewSchema.String(),
+		},
+		"modelid": {
+			Type:  task.ChangeTypeSet,
+			Value: params.NewModel.String(),
+		},
+		"timestamp": {
+			Type:  task.ChangeTypeSet,
+			Value: params.Timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00"), //TODO: should use a better way to format
+		},
+		"updatedbyuser": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"updatedbyintegration": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"originalitem": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"metadataitem": {
+			Type:  task.ChangeTypeULID,
+			Value: params.Timestamp.UnixMilli(),
+		},
+		"thread": {
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__r": { // tag
+			Type:  task.ChangeTypeSet,
+			Value: []string{"latest"},
+		},
+		"__w": { // parent
+			Type:  task.ChangeTypeSet,
+			Value: nil,
+		},
+		"__v": { // version
+			Type:  task.ChangeTypeNew,
+			Value: "version",
+		},
+	}
+	if params.User != nil {
+		c["user"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: *params.User,
+		}
+	}
+	if params.Integration != nil {
+		c["integration"] = task.Change{
+			Type:  task.ChangeTypeSet,
+			Value: *params.Integration,
+		}
+	}
+	changes, err := json.Marshal(c)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return lo.ToPtr(string(filter)), lo.ToPtr(string(changes)), nil
 }

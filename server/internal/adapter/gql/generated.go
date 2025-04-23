@@ -430,6 +430,7 @@ type ComplexityRoot struct {
 		CreateAsset                        func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateAssetUpload                  func(childComplexity int, input gqlmodel.CreateAssetUploadInput) int
 		CreateField                        func(childComplexity int, input gqlmodel.CreateFieldInput) int
+		CreateFields                       func(childComplexity int, input []*gqlmodel.CreateFieldInput) int
 		CreateGroup                        func(childComplexity int, input gqlmodel.CreateGroupInput) int
 		CreateIntegration                  func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
 		CreateItem                         func(childComplexity int, input gqlmodel.CreateItemInput) int
@@ -966,6 +967,7 @@ type MutationResolver interface {
 	DecompressAsset(ctx context.Context, input gqlmodel.DecompressAssetInput) (*gqlmodel.DecompressAssetPayload, error)
 	CreateAssetUpload(ctx context.Context, input gqlmodel.CreateAssetUploadInput) (*gqlmodel.CreateAssetUploadPayload, error)
 	CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error)
+	CreateFields(ctx context.Context, input []*gqlmodel.CreateFieldInput) (*gqlmodel.FieldsPayload, error)
 	UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error)
 	UpdateFields(ctx context.Context, input []*gqlmodel.UpdateFieldInput) (*gqlmodel.FieldsPayload, error)
 	DeleteField(ctx context.Context, input gqlmodel.DeleteFieldInput) (*gqlmodel.DeleteFieldPayload, error)
@@ -2511,6 +2513,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateField(childComplexity, args["input"].(gqlmodel.CreateFieldInput)), true
+
+	case "Mutation.createFields":
+		if e.complexity.Mutation.CreateFields == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createFields_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateFields(childComplexity, args["input"].([]*gqlmodel.CreateFieldInput)), true
 
 	case "Mutation.createGroup":
 		if e.complexity.Mutation.CreateGroup == nil {
@@ -5691,6 +5705,7 @@ type DeleteFieldPayload {
 
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload
+  createFields(input: [CreateFieldInput!]!): FieldsPayload
   updateField(input: UpdateFieldInput!): FieldPayload
   updateFields(input: [UpdateFieldInput!]!): FieldsPayload
   deleteField(input: DeleteFieldInput!): DeleteFieldPayload
@@ -7243,6 +7258,34 @@ func (ec *executionContext) field_Mutation_createField_argsInput(
 	}
 
 	var zeroVal gqlmodel.CreateFieldInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createFields_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createFields_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createFields_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]*gqlmodel.CreateFieldInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal []*gqlmodel.CreateFieldInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInputᚄ(ctx, tmp)
+	}
+
+	var zeroVal []*gqlmodel.CreateFieldInput
 	return zeroVal, nil
 }
 
@@ -19749,6 +19792,62 @@ func (ec *executionContext) fieldContext_Mutation_createField(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createField_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createFields(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createFields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateFields(rctx, fc.Args["input"].([]*gqlmodel.CreateFieldInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.FieldsPayload)
+	fc.Result = res
+	return ec.marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "fields":
+				return ec.fieldContext_FieldsPayload_fields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FieldsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createFields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -41519,13 +41618,20 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.AndCondition:
-		return ec._AndCondition(ctx, sel, &obj)
-	case *gqlmodel.AndCondition:
+	case gqlmodel.TimeFieldCondition:
+		return ec._TimeFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.TimeFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._AndCondition(ctx, sel, obj)
+		return ec._TimeFieldCondition(ctx, sel, obj)
+	case gqlmodel.StringFieldCondition:
+		return ec._StringFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.StringFieldCondition:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._StringFieldCondition(ctx, sel, obj)
 	case gqlmodel.OrCondition:
 		return ec._OrCondition(ctx, sel, &obj)
 	case *gqlmodel.OrCondition:
@@ -41533,13 +41639,13 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 			return graphql.Null
 		}
 		return ec._OrCondition(ctx, sel, obj)
-	case gqlmodel.BasicFieldCondition:
-		return ec._BasicFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.BasicFieldCondition:
+	case gqlmodel.NumberFieldCondition:
+		return ec._NumberFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.NumberFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._BasicFieldCondition(ctx, sel, obj)
+		return ec._NumberFieldCondition(ctx, sel, obj)
 	case gqlmodel.NullableFieldCondition:
 		return ec._NullableFieldCondition(ctx, sel, &obj)
 	case *gqlmodel.NullableFieldCondition:
@@ -41561,27 +41667,20 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 			return graphql.Null
 		}
 		return ec._BoolFieldCondition(ctx, sel, obj)
-	case gqlmodel.StringFieldCondition:
-		return ec._StringFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.StringFieldCondition:
+	case gqlmodel.BasicFieldCondition:
+		return ec._BasicFieldCondition(ctx, sel, &obj)
+	case *gqlmodel.BasicFieldCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._StringFieldCondition(ctx, sel, obj)
-	case gqlmodel.NumberFieldCondition:
-		return ec._NumberFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.NumberFieldCondition:
+		return ec._BasicFieldCondition(ctx, sel, obj)
+	case gqlmodel.AndCondition:
+		return ec._AndCondition(ctx, sel, &obj)
+	case *gqlmodel.AndCondition:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._NumberFieldCondition(ctx, sel, obj)
-	case gqlmodel.TimeFieldCondition:
-		return ec._TimeFieldCondition(ctx, sel, &obj)
-	case *gqlmodel.TimeFieldCondition:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TimeFieldCondition(ctx, sel, obj)
+		return ec._AndCondition(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41591,83 +41690,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.Asset:
-		return ec._Asset(ctx, sel, &obj)
-	case *gqlmodel.Asset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Asset(ctx, sel, obj)
-	case gqlmodel.Group:
-		return ec._Group(ctx, sel, &obj)
-	case *gqlmodel.Group:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Group(ctx, sel, obj)
-	case gqlmodel.Integration:
-		return ec._Integration(ctx, sel, &obj)
-	case *gqlmodel.Integration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Integration(ctx, sel, obj)
-	case gqlmodel.Item:
-		return ec._Item(ctx, sel, &obj)
-	case *gqlmodel.Item:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Item(ctx, sel, obj)
-	case gqlmodel.View:
-		return ec._View(ctx, sel, &obj)
-	case *gqlmodel.View:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._View(ctx, sel, obj)
-	case gqlmodel.Model:
-		return ec._Model(ctx, sel, &obj)
-	case *gqlmodel.Model:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Model(ctx, sel, obj)
-	case gqlmodel.Project:
-		return ec._Project(ctx, sel, &obj)
-	case *gqlmodel.Project:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Project(ctx, sel, obj)
-	case gqlmodel.Request:
-		return ec._Request(ctx, sel, &obj)
-	case *gqlmodel.Request:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Request(ctx, sel, obj)
-	case gqlmodel.Schema:
-		return ec._Schema(ctx, sel, &obj)
-	case *gqlmodel.Schema:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Schema(ctx, sel, obj)
-	case gqlmodel.User:
-		return ec._User(ctx, sel, &obj)
-	case *gqlmodel.User:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._User(ctx, sel, obj)
-	case gqlmodel.Workspace:
-		return ec._Workspace(ctx, sel, &obj)
-	case *gqlmodel.Workspace:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Workspace(ctx, sel, obj)
 	case gqlmodel.WorkspaceSettings:
 		return ec._WorkspaceSettings(ctx, sel, &obj)
 	case *gqlmodel.WorkspaceSettings:
@@ -41675,6 +41697,83 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._WorkspaceSettings(ctx, sel, obj)
+	case gqlmodel.Workspace:
+		return ec._Workspace(ctx, sel, &obj)
+	case *gqlmodel.Workspace:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Workspace(ctx, sel, obj)
+	case gqlmodel.View:
+		return ec._View(ctx, sel, &obj)
+	case *gqlmodel.View:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._View(ctx, sel, obj)
+	case gqlmodel.User:
+		return ec._User(ctx, sel, &obj)
+	case *gqlmodel.User:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
+	case gqlmodel.Schema:
+		return ec._Schema(ctx, sel, &obj)
+	case *gqlmodel.Schema:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Schema(ctx, sel, obj)
+	case gqlmodel.Request:
+		return ec._Request(ctx, sel, &obj)
+	case *gqlmodel.Request:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Request(ctx, sel, obj)
+	case gqlmodel.Project:
+		return ec._Project(ctx, sel, &obj)
+	case *gqlmodel.Project:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Project(ctx, sel, obj)
+	case gqlmodel.Model:
+		return ec._Model(ctx, sel, &obj)
+	case *gqlmodel.Model:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Model(ctx, sel, obj)
+	case gqlmodel.Item:
+		return ec._Item(ctx, sel, &obj)
+	case *gqlmodel.Item:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Item(ctx, sel, obj)
+	case gqlmodel.Integration:
+		return ec._Integration(ctx, sel, &obj)
+	case *gqlmodel.Integration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Integration(ctx, sel, obj)
+	case gqlmodel.Group:
+		return ec._Group(ctx, sel, &obj)
+	case *gqlmodel.Group:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Group(ctx, sel, obj)
+	case gqlmodel.Asset:
+		return ec._Asset(ctx, sel, &obj)
+	case *gqlmodel.Asset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Asset(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41730,90 +41829,6 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case gqlmodel.SchemaFieldText:
-		return ec._SchemaFieldText(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldText:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldText(ctx, sel, obj)
-	case gqlmodel.SchemaFieldTextArea:
-		return ec._SchemaFieldTextArea(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldTextArea:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldTextArea(ctx, sel, obj)
-	case gqlmodel.SchemaFieldRichText:
-		return ec._SchemaFieldRichText(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldRichText:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldRichText(ctx, sel, obj)
-	case gqlmodel.SchemaFieldMarkdown:
-		return ec._SchemaFieldMarkdown(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldMarkdown:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldMarkdown(ctx, sel, obj)
-	case gqlmodel.SchemaFieldAsset:
-		return ec._SchemaFieldAsset(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldAsset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldAsset(ctx, sel, obj)
-	case gqlmodel.SchemaFieldDate:
-		return ec._SchemaFieldDate(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldDate:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldDate(ctx, sel, obj)
-	case gqlmodel.SchemaFieldBool:
-		return ec._SchemaFieldBool(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldBool:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldBool(ctx, sel, obj)
-	case gqlmodel.SchemaFieldSelect:
-		return ec._SchemaFieldSelect(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldSelect:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldSelect(ctx, sel, obj)
-	case gqlmodel.SchemaFieldTag:
-		return ec._SchemaFieldTag(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldTag:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldTag(ctx, sel, obj)
-	case gqlmodel.SchemaFieldInteger:
-		return ec._SchemaFieldInteger(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldInteger:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldInteger(ctx, sel, obj)
-	case gqlmodel.SchemaFieldNumber:
-		return ec._SchemaFieldNumber(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldNumber:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldNumber(ctx, sel, obj)
-	case gqlmodel.SchemaFieldReference:
-		return ec._SchemaFieldReference(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldReference:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SchemaFieldReference(ctx, sel, obj)
 	case gqlmodel.SchemaFieldURL:
 		return ec._SchemaFieldURL(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldURL:
@@ -41821,13 +41836,69 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldURL(ctx, sel, obj)
-	case gqlmodel.SchemaFieldCheckbox:
-		return ec._SchemaFieldCheckbox(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldCheckbox:
+	case gqlmodel.SchemaFieldTextArea:
+		return ec._SchemaFieldTextArea(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldTextArea:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SchemaFieldCheckbox(ctx, sel, obj)
+		return ec._SchemaFieldTextArea(ctx, sel, obj)
+	case gqlmodel.SchemaFieldText:
+		return ec._SchemaFieldText(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldText:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldText(ctx, sel, obj)
+	case gqlmodel.SchemaFieldTag:
+		return ec._SchemaFieldTag(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldTag:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldTag(ctx, sel, obj)
+	case gqlmodel.SchemaFieldSelect:
+		return ec._SchemaFieldSelect(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldSelect:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldSelect(ctx, sel, obj)
+	case gqlmodel.SchemaFieldRichText:
+		return ec._SchemaFieldRichText(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldRichText:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldRichText(ctx, sel, obj)
+	case gqlmodel.SchemaFieldReference:
+		return ec._SchemaFieldReference(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldReference:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldReference(ctx, sel, obj)
+	case gqlmodel.SchemaFieldNumber:
+		return ec._SchemaFieldNumber(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldNumber:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldNumber(ctx, sel, obj)
+	case gqlmodel.SchemaFieldMarkdown:
+		return ec._SchemaFieldMarkdown(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldMarkdown:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldMarkdown(ctx, sel, obj)
+	case gqlmodel.SchemaFieldInteger:
+		return ec._SchemaFieldInteger(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldInteger:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldInteger(ctx, sel, obj)
 	case gqlmodel.SchemaFieldGroup:
 		return ec._SchemaFieldGroup(ctx, sel, &obj)
 	case *gqlmodel.SchemaFieldGroup:
@@ -41849,6 +41920,34 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldGeometryEditor(ctx, sel, obj)
+	case gqlmodel.SchemaFieldDate:
+		return ec._SchemaFieldDate(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldDate:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldDate(ctx, sel, obj)
+	case gqlmodel.SchemaFieldCheckbox:
+		return ec._SchemaFieldCheckbox(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldCheckbox:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldCheckbox(ctx, sel, obj)
+	case gqlmodel.SchemaFieldBool:
+		return ec._SchemaFieldBool(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldBool:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldBool(ctx, sel, obj)
+	case gqlmodel.SchemaFieldAsset:
+		return ec._SchemaFieldAsset(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldAsset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldAsset(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -45421,6 +45520,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createField":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createField(ctx, field)
+			})
+		case "createFields":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createFields(ctx, field)
 			})
 		case "updateField":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -50007,9 +50110,7 @@ func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.S
 
 func (ec *executionContext) unmarshalNAny2ᚕinterfaceᚄ(ctx context.Context, v any) ([]any, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]any, len(vSlice))
 	for i := range vSlice {
@@ -50352,9 +50453,7 @@ func (ec *executionContext) marshalNCondition2ᚕgithubᚗcomᚋreearthᚋreeart
 
 func (ec *executionContext) unmarshalNConditionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ConditionInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ConditionInput, len(vSlice))
 	for i := range vSlice {
@@ -50385,6 +50484,26 @@ func (ec *executionContext) unmarshalNCreateAssetUploadInput2githubᚗcomᚋreea
 func (ec *executionContext) unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v any) (gqlmodel.CreateFieldInput, error) {
 	res, err := ec.unmarshalInputCreateFieldInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.CreateFieldInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*gqlmodel.CreateFieldInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNCreateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNCreateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v any) (*gqlmodel.CreateFieldInput, error) {
+	res, err := ec.unmarshalInputCreateFieldInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateGroupInput(ctx context.Context, v any) (gqlmodel.CreateGroupInput, error) {
@@ -50615,9 +50734,7 @@ func (ec *executionContext) marshalNGeometryEditorSupportedType2githubᚗcomᚋr
 
 func (ec *executionContext) unmarshalNGeometryEditorSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryEditorSupportedTypeᚄ(ctx context.Context, v any) ([]gqlmodel.GeometryEditorSupportedType, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.GeometryEditorSupportedType, len(vSlice))
 	for i := range vSlice {
@@ -50686,9 +50803,7 @@ func (ec *executionContext) marshalNGeometryObjectSupportedType2githubᚗcomᚋr
 
 func (ec *executionContext) unmarshalNGeometryObjectSupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometryObjectSupportedTypeᚄ(ctx context.Context, v any) ([]gqlmodel.GeometryObjectSupportedType, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.GeometryObjectSupportedType, len(vSlice))
 	for i := range vSlice {
@@ -50855,9 +50970,7 @@ func (ec *executionContext) marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋ
 
 func (ec *executionContext) unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx context.Context, v any) ([]gqlmodel.ID, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.ID, len(vSlice))
 	for i := range vSlice {
@@ -51180,9 +51293,7 @@ func (ec *executionContext) marshalNItemField2ᚖgithubᚗcomᚋreearthᚋreeart
 
 func (ec *executionContext) unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ItemFieldInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ItemFieldInput, len(vSlice))
 	for i := range vSlice {
@@ -51256,9 +51367,7 @@ func (ec *executionContext) marshalNMe2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 
 func (ec *executionContext) unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInputᚄ(ctx context.Context, v any) ([]*gqlmodel.MemberInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.MemberInput, len(vSlice))
 	for i := range vSlice {
@@ -51704,9 +51813,7 @@ func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearth�
 
 func (ec *executionContext) unmarshalNPublishModelInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInputᚄ(ctx context.Context, v any) ([]*gqlmodel.PublishModelInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.PublishModelInput, len(vSlice))
 	for i := range vSlice {
@@ -51980,9 +52087,7 @@ func (ec *executionContext) marshalNRequestItem2ᚖgithubᚗcomᚋreearthᚋreea
 
 func (ec *executionContext) unmarshalNRequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx context.Context, v any) ([]*gqlmodel.RequestItemInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.RequestItemInput, len(vSlice))
 	for i := range vSlice {
@@ -52066,9 +52171,7 @@ func (ec *executionContext) marshalNResource2ᚕgithubᚗcomᚋreearthᚋreearth
 
 func (ec *executionContext) unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx context.Context, v any) ([]*gqlmodel.ResourceInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ResourceInput, len(vSlice))
 	for i := range vSlice {
@@ -52240,9 +52343,7 @@ func (ec *executionContext) marshalNSchemaFieldTagValue2ᚖgithubᚗcomᚋreeart
 
 func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInputᚄ(ctx context.Context, v any) ([]*gqlmodel.SchemaFieldTagValueInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.SchemaFieldTagValueInput, len(vSlice))
 	for i := range vSlice {
@@ -52297,9 +52398,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 
 func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -52424,9 +52523,7 @@ func (ec *executionContext) unmarshalNUpdateFieldInput2githubᚗcomᚋreearthᚋ
 
 func (ec *executionContext) unmarshalNUpdateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.UpdateFieldInput, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.UpdateFieldInput, len(vSlice))
 	for i := range vSlice {
@@ -52942,9 +53039,7 @@ func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Conte
 
 func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -53380,9 +53475,7 @@ func (ec *executionContext) unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋ
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.ColumnSelectionInput, len(vSlice))
 	for i := range vSlice {
@@ -53647,9 +53740,7 @@ func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑc
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.ID, len(vSlice))
 	for i := range vSlice {
@@ -54087,9 +54178,7 @@ func (ec *executionContext) unmarshalORequestItemInput2ᚕᚖgithubᚗcomᚋreea
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*gqlmodel.RequestItemInput, len(vSlice))
 	for i := range vSlice {
@@ -54114,9 +54203,7 @@ func (ec *executionContext) unmarshalORequestState2ᚕgithubᚗcomᚋreearthᚋr
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.RequestState, len(vSlice))
 	for i := range vSlice {
@@ -54212,9 +54299,7 @@ func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearth�
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]gqlmodel.Role, len(vSlice))
 	for i := range vSlice {
@@ -54484,9 +54569,7 @@ func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {

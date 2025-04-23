@@ -7,7 +7,7 @@ import (
 
 type Version uuid.UUID
 
-var Zero Version = Version(uuid.UUID{})
+var Zero = Version(uuid.UUID{})
 
 func New() Version {
 	return Version(uuid.New())

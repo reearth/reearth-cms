@@ -15,12 +15,22 @@ jobs:
           check-latest: true
           cache-dependency-path: 'worker/go.sum'
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.64
+          version: v2.0.2
           working-directory: worker
           args: --config=../.golangci.yml
           skip-cache: true
+      - name: Check go.mod tidiness
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+        working-directory: worker
+      - name: Check go fmt
+        working-directory: worker
+        run: |
+          go fmt ./
+          git diff --exit-code ./
   ci-server-test:
     name: test
     runs-on: ubuntu-latest
@@ -44,7 +54,7 @@ jobs:
         env:
           REEARTH_CMS_DB: mongodb://localhost
       - name: Send coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: worker
           file: coverage.txt

@@ -101,4 +101,3 @@ func isValidRFC7946(g *geojson.Geometry) bool {
 	}
 	return false
 }
-

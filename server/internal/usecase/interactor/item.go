@@ -216,10 +216,8 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		isMetadata := false
-		if m.Metadata() != nil && param.SchemaID == *m.Metadata() {
-			isMetadata = true
-		}
+		isMetadata := m.Metadata() != nil && param.SchemaID == *m.Metadata()
+
 		fields = append(fields, groupFields...)
 		ib := item.New().
 			NewID().
@@ -900,7 +898,7 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package,
 		// fromPagination
 		paginationOffset := fromPagination(page, perPage)
 
-		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+		items, pi, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
 		if err != nil {
 			return interfaces.ExportItemsToGeoJSONResponse{}, err
 		}
@@ -912,6 +910,7 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package,
 
 		return interfaces.ExportItemsToGeoJSONResponse{
 			FeatureCollections: featureCollections,
+			PageInfo:           pi,
 		}, nil
 	})
 }

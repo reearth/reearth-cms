@@ -29,6 +29,7 @@ func NewAsset(a *asset.Asset, f *asset.File, url string, all bool) *Asset {
 		Url:                     url,
 		File:                    ToAssetFile(f, all),
 		ArchiveExtractionStatus: ToAssetArchiveExtractionStatus(a.ArchiveExtractionStatus()),
+		Public:                  a.Public(),
 	}
 }
 

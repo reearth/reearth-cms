@@ -1,12 +1,12 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { createModel } from "@reearth-cms/e2e/project/utils/model";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await createModel(page);
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ page }) => {
@@ -50,7 +50,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByText("e2e model name").click();
   await page.locator("li").filter({ hasText: "Reference" }).locator("div").first().click();
   await page.getByLabel("Select the model to reference").click();
-  await expect(page.getByText("e2e model name #e2e-model-key")).toBeVisible();
+  await expect(page.getByText("e2e model name #e2e-model-name")).toBeVisible();
   await expect(page.getByText("ref model #ref-model")).toBeVisible();
 
   await page.getByText("ref model #ref-model").click();
