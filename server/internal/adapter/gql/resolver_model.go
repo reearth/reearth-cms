@@ -6,8 +6,6 @@ package gql
 
 import (
 	"context"
-	"log"
-	"runtime/debug"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -94,61 +92,6 @@ func (r *mutationResolver) UpdateModelsOrder(ctx context.Context, input gqlmodel
 			return gqlmodel.ToModel(mod)
 		}),
 	}, nil
-}
-
-// UpdateModelWithSchemaFields is the resolver for the updateModelWithSchemaFields field.
-func (r *mutationResolver) UpdateModelWithSchemaFields(ctx context.Context, input gqlmodel.UpdateModelWithSchemaFieldsInput) (*gqlmodel.ModelPayload, error) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("PANIC: %v\n%s", r, debug.Stack())
-		}
-	}()
-	modelID, err := gqlmodel.ToID[id.Model](*input.ModelID)
-	if err != nil {
-		return nil, err
-	}
-
-	createFieldParams := make([]interfaces.CreateFieldParam, len(input.Fields))
-	for i, field := range input.Fields {
-		tp, dv, err := gqlmodel.FromSchemaTypeProperty(field.TypeProperty, field.Type, field.Multiple)
-		if err != nil {
-			return nil, err
-		}
-		createFieldParams[i] = interfaces.CreateFieldParam{
-			ModelID:      &modelID,
-			Type:         gqlmodel.FromValueType(field.Type),
-			Name:         field.Title,
-			Description:  field.Description,
-			Key:          field.Key,
-			Multiple:     field.Multiple,
-			Unique:       field.Unique,
-			Required:     field.Required,
-			IsTitle:      field.IsTitle,
-			DefaultValue: dv,
-			TypeProperty: tp,
-		}
-	}
-
-	modelData, err := usecases(ctx).Model.FindByID(ctx, modelID, getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-
-	updatedSchema, err := usecases(ctx).Schema.CreateFieldsForModel(ctx, interfaces.ModelData{
-		ModelID:   lo.ToPtr(modelData.ID()),
-		SchemaID:  modelData.Schema(),
-		ProjectID: modelData.Project(),
-	}, createFieldParams, getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-
-	modelPayloadResponse := gqlmodel.ModelPayload{
-		Model: gqlmodel.ToModel(modelData),
-	}
-	modelPayloadResponse.Model.Schema = gqlmodel.ToSchema(updatedSchema)
-
-	return &modelPayloadResponse, nil
 }
 
 // DeleteModel is the resolver for the deleteModel field.

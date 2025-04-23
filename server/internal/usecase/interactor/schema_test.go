@@ -53,7 +53,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 	m1 := model.New().ID(mId1).Key(id.RandomKey()).Project(p.ID()).Schema(s1.ID()).Metadata(s1.ID().Ref()).MustBuild()
 
 	type args struct {
-		modelData          interfaces.ModelData
+		schemaId           id.SchemaID
 		createFieldsParams []interfaces.CreateFieldParam
 		operator           *usecase.Operator
 	}
@@ -76,11 +76,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 				schema:  schema.List{s1, s2},
 			},
 			args: args{
-				modelData: interfaces.ModelData{
-					ModelID:   lo.ToPtr(mId1),
-					SchemaID:  s1.ID(),
-					ProjectID: p.ID(),
-				},
+				schemaId: s1.ID(),
 				createFieldsParams: []interfaces.CreateFieldParam{
 					{
 						ModelID:      &mId1,
@@ -108,11 +104,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 				schema:  schema.List{s1, s2},
 			},
 			args: args{
-				modelData: interfaces.ModelData{
-					ModelID:   lo.ToPtr(mId1),
-					SchemaID:  s1.ID(),
-					ProjectID: p.ID(),
-				},
+				schemaId: s1.ID(),
 				createFieldsParams: []interfaces.CreateFieldParam{
 					{
 						ModelID:      &mId1,
@@ -141,11 +133,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 				schema:  schema.List{},
 			},
 			args: args{
-				modelData: interfaces.ModelData{
-					ModelID:   lo.ToPtr(mId1),
-					SchemaID:  s1.ID(),
-					ProjectID: p.ID(),
-				},
+				schemaId: s1.ID(),
 				createFieldsParams: []interfaces.CreateFieldParam{
 					{
 						ModelID:      &mId1,
@@ -173,11 +161,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 				schema:  schema.List{s1},
 			},
 			args: args{
-				modelData: interfaces.ModelData{
-					ModelID:   lo.ToPtr(mId1),
-					SchemaID:  s1.ID(),
-					ProjectID: p.ID(),
-				},
+				schemaId: s1.ID(),
 				createFieldsParams: []interfaces.CreateFieldParam{
 					{
 						ModelID:      &mId1,
@@ -218,7 +202,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 				assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
 			}
 
-			got, err := u.CreateFieldsForModel(ctx, tt.args.modelData, tt.args.createFieldsParams, tt.args.operator)
+			got, err := u.CreateFields(ctx, tt.args.schemaId, tt.args.createFieldsParams, tt.args.operator)
 
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)

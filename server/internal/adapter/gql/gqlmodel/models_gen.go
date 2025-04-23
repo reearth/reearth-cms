@@ -1379,15 +1379,6 @@ type UpdateModelInput struct {
 	Public      bool    `json:"public"`
 }
 
-type UpdateModelWithSchemaFieldsInput struct {
-	ModelID     *ID                 `json:"modelId,omitempty"`
-	Name        *string             `json:"name,omitempty"`
-	Description *string             `json:"description,omitempty"`
-	Key         *string             `json:"key,omitempty"`
-	Public      bool                `json:"public"`
-	Fields      []*CreateFieldInput `json:"fields,omitempty"`
-}
-
 type UpdateModelsOrderInput struct {
 	ModelIds []ID `json:"modelIds"`
 }

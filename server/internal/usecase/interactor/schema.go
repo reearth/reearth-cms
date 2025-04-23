@@ -366,7 +366,7 @@ func (i Schema) UpdateFields(ctx context.Context, sid id.SchemaID, params []inte
 			return nil, err
 		}
 
-		return nil, nil
+		return s.Fields(), nil
 	})
 }
 
@@ -452,37 +452,29 @@ func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.Sche
 	return
 }
 
-func (i Schema) CreateFieldsForModel(ctx context.Context, modelData interfaces.ModelData, createFieldsParams []interfaces.CreateFieldParam, op *usecase.Operator) (*schema.Schema, error) {
+func (i Schema) CreateFields(ctx context.Context, sId id.SchemaID, createFieldsParams []interfaces.CreateFieldParam, op *usecase.Operator) (schema.FieldList, error) {
 	return Run1(ctx, op, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) (_ *schema.Schema, err error) {
+		func(ctx context.Context) (_ schema.FieldList, err error) {
+			s, err := i.repos.Schema.FindByID(ctx, sId)
+			if err != nil {
+				return nil, err
+			}
+			if !op.IsMaintainingProject(s.Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
 			if len(createFieldsParams) == 0 {
 				return nil, nil
 			}
 
-			if !op.IsMaintainingProject(modelData.ProjectID) {
-				return nil, interfaces.ErrOperationDenied
-			}
-
-			s, err := i.repos.Schema.FindByID(ctx, modelData.SchemaID)
-			if err != nil {
-				return nil, err
-			}
-
 			// delete current fields if any
-			if len(s.Fields()) > 0 {
-				for _, field := range s.Fields() {
-					f := s.Field(field.ID())
-					if f == nil {
-						return nil, interfaces.ErrFieldNotFound
+			for _, field := range s.Fields() {
+				if field.Type() == value.TypeReference {
+					if err := i.deleteCorrespondingField(ctx, s, field); err != nil {
+						return nil, err
 					}
-					if f.Type() == value.TypeReference {
-						err := i.deleteCorrespondingField(ctx, s, f)
-						if err != nil {
-							return nil, err
-						}
-					}
-					s.RemoveField(field.ID())
 				}
+				s.RemoveField(field.ID())
 			}
 
 			// create new fields
@@ -536,6 +528,6 @@ func (i Schema) CreateFieldsForModel(ctx context.Context, modelData interfaces.M
 				return nil, err
 			}
 
-			return s, nil
+			return s.Fields(), nil
 		})
 }

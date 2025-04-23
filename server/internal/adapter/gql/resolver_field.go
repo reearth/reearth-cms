@@ -58,6 +58,55 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 	}, nil
 }
 
+// CreateFields is the resolver for the createFields field.
+func (r *mutationResolver) CreateFields(ctx context.Context, input []*gqlmodel.CreateFieldInput) (*gqlmodel.FieldsPayload, error) {
+	mid := gqlmodel.ToIDRef[id.Model](input[0].ModelID)
+	gid := gqlmodel.ToIDRef[id.Group](input[0].GroupID)
+	param := interfaces.FindOrCreateSchemaParam{
+		ModelID:  mid,
+		GroupID:  gid,
+		Metadata: input[0].Metadata,
+		Create:   true,
+	}
+	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, param, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	params, err := util.TryMap(input, func(ipt *gqlmodel.CreateFieldInput) (interfaces.CreateFieldParam, error) {
+		tp, dv, err := gqlmodel.FromSchemaTypeProperty(ipt.TypeProperty, ipt.Type, ipt.Multiple)
+		if err != nil {
+			return interfaces.CreateFieldParam{}, err
+		}
+		return interfaces.CreateFieldParam{
+			SchemaID:     s.ID(),
+			Name:         ipt.Title,
+			Description:  ipt.Description,
+			Key:          ipt.Key,
+			Multiple:     ipt.Multiple,
+			Unique:       ipt.Unique,
+			IsTitle:      ipt.IsTitle,
+			Required:     ipt.Required,
+			DefaultValue: dv,
+			TypeProperty: tp,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	fl, err := usecases(ctx).Schema.CreateFields(ctx, s.ID(), params, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.FieldsPayload{
+		Fields: lo.Map(fl, func(sf *schema.Field, _ int) *gqlmodel.SchemaField {
+			return gqlmodel.ToSchemaField(sf, s.TitleField())
+		}),
+	}, nil
+}
+
 // UpdateField is the resolver for the updateField field.
 func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error) {
 	fid, err := gqlmodel.ToID[id.Field](input.FieldID)
