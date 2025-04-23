@@ -2,8 +2,6 @@ package interactor
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"path/filepath"
 	"testing"
 	"time"
@@ -223,7 +221,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 	}
 }
 
-func TestAsset_ConvertToSchemaFields(t *testing.T) {
+func TestAsset_GuessSchemaFields(t *testing.T) {
 	uid := accountdomain.NewUserID()
 
 	ws := workspace.New().NewID().MustBuild()
@@ -233,16 +231,26 @@ func TestAsset_ConvertToSchemaFields(t *testing.T) {
 	a1 := asset.New().ID(aid1).Project(proj1.ID()).UUID(u1).
 		CreatedByUser(uid).Size(1000).FileName("test.geojson").MustBuild()
 	fileContent1 := []byte(`{
-			"type": "Feature",
-			"geometry": {
-			  "type": "Point",
-			  "coordinates": [102.0, 0.5]
-			},
-			"properties": {
-			  "name": "geometry",
-			  "elevation": 1500
-			}
-		  }`)
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "test",
+        "height": 123.5,
+        "age": 2,
+        "is_active": true
+      },
+      "geometry": {
+        "coordinates": [
+          106.83394478570801,
+          -6.170070705932318
+        ],
+        "type": "Point"
+      }
+    }
+  ]
+}`)
 
 	af1 := asset.NewFile().
 		Name("test.geojson").
@@ -251,18 +259,23 @@ func TestAsset_ConvertToSchemaFields(t *testing.T) {
 		Size(uint64(len(fileContent1))).
 		Build()
 
+	mid1 := id.NewModelID()
+	sid1 := id.NewSchemaID()
+	m1 := model.New().ID(mid1).Project(proj1.ID()).Schema(sid1).Key(id.RandomKey()).MustBuild()
+	s1 := schema.New().ID(sid1).Project(proj1.ID()).Workspace(ws.ID()).MustBuild()
+
 	aid2 := id.NewAssetID()
 	u2 := "5030c89f-8f67-4766-b127-49ee6796d464"
 	a2 := asset.New().ID(aid2).Project(proj1.ID()).UUID(u2).
 		CreatedByUser(uid).Size(1000).MustBuild()
-	fileContent2 := []byte(`{
-		"$schema": "https://json-schema.org/draft/2020-12/schema",
-		"$id": "https://example.com/product.schema.json",
-		"type": "object",
-		"properties": {
-		  "name": { "type": "string" }
-		}
-	  }`)
+	fileContent2 := []byte(`[
+    {
+        "name": "John Doe",
+        "age": 30,
+        "is_active": true,
+        "height": 5.9
+    }
+]`)
 	af2 := asset.NewFile().
 		Name("test.json").
 		Path("test.json").
@@ -281,12 +294,18 @@ func TestAsset_ConvertToSchemaFields(t *testing.T) {
 
 	type args struct {
 		assetID id.AssetID
+		modelID id.ModelID
 		op      *usecase.Operator
+	}
+	type seeds struct {
+		assets []*asset.Asset
+		models []*model.Model
+		schema []*schema.Schema
 	}
 	tests := []struct {
 		name      string
 		args      args
-		seeds     []*asset.Asset
+		seeds     seeds
 		seedFiles map[asset.ID]*asset.File
 		want      *interfaces.GuessSchemaFieldsData
 		wantErr   error
@@ -295,42 +314,100 @@ func TestAsset_ConvertToSchemaFields(t *testing.T) {
 			name: "Success GeoJSON file",
 			args: args{
 				assetID: a1.ID(),
+				modelID: mid1,
 				op:      op,
 			},
-			seeds: []*asset.Asset{a1},
+			seeds: seeds{
+				assets: []*asset.Asset{
+					a1,
+				},
+				models: []*model.Model{m1},
+				schema: []*schema.Schema{s1},
+			},
 			seedFiles: map[asset.ID]*asset.File{
 				a1.ID(): af1,
 			},
 			want: &interfaces.GuessSchemaFieldsData{
 				Fields: []interfaces.GuessSchemaField{
 					{
-						Name: "name",
-						Type: "string",
-						Key:  "name",
+						Name:             "geometry",
+						Type:             "geometryObject",
+						Key:              "geometry",
+						GuessedFieldType: "Geometry Object",
+					},
+					{
+						Name:             "name",
+						Type:             "text",
+						Key:              "name",
+						GuessedFieldType: "Text",
+					},
+					{
+						Name:             "height",
+						Type:             "number",
+						Key:              "height",
+						GuessedFieldType: "Float",
+					},
+					{
+						Name:             "age",
+						Type:             "number",
+						Key:              "age",
+						GuessedFieldType: "Int",
+					},
+					{
+						Name:             "is_active",
+						Type:             "bool",
+						Key:              "is_active",
+						GuessedFieldType: "Boolean",
 					},
 				},
-				TotalCount: 1,
+				TotalCount: 5,
 			},
 		},
 		{
 			name: "Success JSON Schema file",
 			args: args{
 				assetID: a2.ID(),
+				modelID: mid1,
 				op:      op,
 			},
-			seeds: []*asset.Asset{a2},
+			seeds: seeds{
+				assets: []*asset.Asset{
+					a2,
+				},
+				models: []*model.Model{m1},
+				schema: []*schema.Schema{s1},
+			},
 			seedFiles: map[asset.ID]*asset.File{
 				a2.ID(): af2,
 			},
 			want: &interfaces.GuessSchemaFieldsData{
 				Fields: []interfaces.GuessSchemaField{
 					{
-						Name: "name",
-						Type: "string",
-						Key:  "name",
+						Name:             "name",
+						Type:             "text",
+						Key:              "name",
+						GuessedFieldType: "Text",
+					},
+					{
+						Name:             "age",
+						Type:             "number",
+						Key:              "age",
+						GuessedFieldType: "Int",
+					},
+					{
+						Name:             "is_active",
+						Type:             "bool",
+						Key:              "is_active",
+						GuessedFieldType: "Boolean",
+					},
+					{
+						Name:             "height",
+						Type:             "number",
+						Key:              "height",
+						GuessedFieldType: "Float",
 					},
 				},
-				TotalCount: 1,
+				TotalCount: 4,
 			},
 			wantErr: nil,
 		},
@@ -362,8 +439,16 @@ func TestAsset_ConvertToSchemaFields(t *testing.T) {
 			db := memory.New()
 			f, _ := fs.NewFile(mockAssetFiles(), "")
 
-			for _, a := range tt.seeds {
+			for _, a := range tt.seeds.assets {
 				err := db.Asset.Save(ctx, a.Clone())
+				assert.NoError(t, err)
+			}
+			for _, m := range tt.seeds.models {
+				err := db.Model.Save(ctx, m.Clone())
+				assert.NoError(t, err)
+			}
+			for _, s := range tt.seeds.schema {
+				err := db.Schema.Save(ctx, s.Clone())
 				assert.NoError(t, err)
 			}
 			for id, f := range tt.seedFiles {
@@ -376,279 +461,43 @@ func TestAsset_ConvertToSchemaFields(t *testing.T) {
 					File: f,
 				},
 			}
-			got, err := schemaUC.GuessSchemaFieldsByAssetID(context.Background(), tt.args.assetID, tt.args.op)
+			got, err := schemaUC.GuessSchemaFieldsByAsset(context.Background(), tt.args.assetID, tt.args.modelID, tt.args.op)
 			assert.Equal(t, tt.want, got)
 			assert.Equal(t, tt.wantErr, err)
 		})
 	}
 }
 
-func Test_detectFieldType(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    any
-		expected string
-	}{
-		{
-			name:     "string type",
-			input:    "hello",
-			expected: "string",
-		},
-		{
-			name:     "float type",
-			input:    3.14,
-			expected: "float",
-		},
-		{
-			name:     "integer type",
-			input:    float64(10), // float64 that looks like int
-			expected: "integer",
-		},
-		{
-			name:     "boolean true",
-			input:    true,
-			expected: "boolean",
-		},
-		{
-			name:     "boolean false",
-			input:    false,
-			expected: "boolean",
-		},
-		{
-			name:     "object (map)",
-			input:    map[string]interface{}{"key": "value"},
-			expected: "object",
-		},
-		{
-			name:     "array (slice)",
-			input:    []interface{}{"item1", 2, false},
-			expected: "array",
-		},
-		{
-			name:     "unknown (nil)",
-			input:    nil,
-			expected: "unknown",
-		},
-		{
-			name:     "unknown (custom type)",
-			input:    struct{ X int }{X: 1},
-			expected: "unknown",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			result := detectFieldType(tt.input)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
-}
-
-func Test_isJSONSchema(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    map[string]any
-		expected bool
-	}{
-		{
-			name: "valid JSON schema",
-			input: map[string]any{
-				"$schema":    "https://json-schema.org/draft/2020-12/schema",
-				"type":       "object",
-				"properties": map[string]any{},
-			},
-			expected: true,
-		},
-		{
-			name: "missing $schema",
-			input: map[string]any{
-				"type":       "object",
-				"properties": map[string]any{},
-			},
-			expected: false,
-		},
-		{
-			name: "missing properties",
-			input: map[string]any{
-				"$schema": "https://json-schema.org/draft/2020-12/schema",
-				"type":    "object",
-			},
-			expected: false,
-		},
-		{
-			name: "type is not a string",
-			input: map[string]interface{}{
-				"$schema":    "https://json-schema.org/draft/2020-12/schema",
-				"type":       123,
-				"properties": map[string]any{},
-			},
-			expected: false,
-		},
-		{
-			name: "type is string but not 'object'",
-			input: map[string]interface{}{
-				"$schema":    "https://json-schema.org/draft/2020-12/schema",
-				"type":       "array",
-				"properties": map[string]any{},
-			},
-			expected: false,
-		},
-		{
-			name:     "completely empty map",
-			input:    map[string]any{},
-			expected: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			result := isJSONSchema(tt.input)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
-}
-
-func Test_extractSchemaFieldData(t *testing.T) {
-	type args struct {
-		contentType string
-		content     []byte
-	}
-	tests := []struct {
-		name           string
-		args           args
-		expectedFields []interfaces.GuessSchemaField
-		expectedCount  int
-		expectErr      error
-	}{
-		{
-			name: "valid JSON schema",
-			args: args{
-				contentType: "application/json",
-				content: mustMarshal(map[string]any{
-					"$schema": "https://json-schema.org/draft/2020-12/schema",
-					"type":    "object",
-					"properties": map[string]any{
-						"name": map[string]any{"type": "string"},
-						"age":  map[string]any{"type": "integer"},
-					},
-				}),
-			},
-			expectedFields: []interfaces.GuessSchemaField{
-				{Name: "name", Type: "string", Key: "name"},
-				{Name: "age", Type: "integer", Key: "age"},
-			},
-			expectedCount: 2,
-			expectErr:     nil,
-		},
-		{
-			name: "invalid JSON schema - missing properties",
-			args: args{
-				contentType: "application/json",
-				content: mustMarshal(map[string]any{
-					"$schema": "https://json-schema.org/draft/2020-12/schema",
-					"type":    "object",
-				}),
-			},
-			expectedFields: nil,
-			expectedCount:  0,
-			expectErr:      interfaces.ErrInvalidJSONSchema,
-		},
-		{
-			name: "invalid JSON (unmarshal error)",
-			args: args{
-				contentType: "application/json",
-				content:     []byte(`{ invalid json`),
-			},
-			expectedFields: nil,
-			expectedCount:  0,
-			expectErr:      errors.New("invalid"),
-		},
-		{
-			name: "valid GeoJSON with properties",
-			args: args{
-				contentType: "application/geo+json",
-				content: mustMarshal(map[string]any{
-					"type": "Feature",
-					"geometry": map[string]any{
-						"type":        "Point",
-						"coordinates": []interface{}{102.0, 0.5},
-					},
-					"properties": map[string]any{
-						"name":        "Mountain",
-						"elevation 1": 1500,
-						"active":      true,
-					},
-				}),
-			},
-			expectedFields: []interfaces.GuessSchemaField{
-				{Name: "name", Type: "string", Key: "name"},
-				{Name: "elevation 1", Type: "integer", Key: "elevation-1"},
-				{Name: "active", Type: "boolean", Key: "active"},
-			},
-			expectedCount: 3,
-			expectErr:     nil,
-		},
-		{
-			name: "invalid geojson (unmarshal error)",
-			args: args{
-				contentType: "application/geo+json",
-				content:     []byte(`{ "type": "Feature", "properties": "not-an-object"`),
-			},
-			expectedFields: nil,
-			expectedCount:  0,
-			expectErr:      errors.New("JSON"),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := extractSchemaFieldData(tt.args.contentType, tt.args.content)
-
-			if tt.expectErr != nil {
-				assert.Error(t, err)
-				if !errors.Is(tt.expectErr, interfaces.ErrInvalidJSONSchema) {
-					assert.Contains(t, err.Error(), tt.expectErr.Error())
-				}
-			} else {
-				assert.NoError(t, err)
-			}
-
-			if got != nil {
-				assert.Equal(t, tt.expectedCount, got.TotalCount)
-				assert.ElementsMatch(t, tt.expectedFields, got.Fields)
-			}
-		})
-	}
-}
-
-func mustMarshal(v any) []byte {
-	b, _ := json.Marshal(v)
-	return b
-}
-
 func mockAssetFiles() afero.Fs {
 	fileContent1 := []byte(`{
-		"type": "Feature",
-		"geometry": {
-		  "type": "Point",
-		  "coordinates": [102.0, 0.5]
-		},
-		"properties": {
-		  "name": "geometry"
-		}
-	  }`)
-	fileContent2 := []byte(`{
-		"$schema": "https://json-schema.org/draft/2020-12/schema",
-		"$id": "https://example.com/product.schema.json",
-		"type": "object",
-		"properties": {
-		  "name": { "type": "string" }
-		}
-	  }`)
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "test",
+        "height": 123.5,
+        "age": 2,
+        "is_active": true
+      },
+      "geometry": {
+        "coordinates": [
+          106.83394478570801,
+          -6.170070705932318
+        ],
+        "type": "Point"
+      }
+    }
+  ]
+}`)
+	fileContent2 := []byte(`[
+    {
+        "name": "John Doe",
+        "age": 30,
+        "is_active": true,
+        "height": 5.9
+    }
+]`)
 	files := map[string][]byte{
 		filepath.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464", "test.geojson"): fileContent1,
 		filepath.Join("assets", "50", "30c89f-8f67-4766-b127-49ee6796d464", "test.json"):    fileContent2,

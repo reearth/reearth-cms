@@ -2,15 +2,12 @@ package interactor
 
 import (
 	"context"
-	"encoding/json"
-	"io"
-	"regexp"
-	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -571,12 +568,12 @@ type GeoJSONFeature struct {
 	Properties map[string]interface{} `json:"properties"`
 }
 
-func (i *Schema) GuessSchemaFieldsByAssetID(ctx context.Context, assetID id.AssetID, operator *usecase.Operator) (*interfaces.GuessSchemaFieldsData, error) {
+func (i *Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID, modelID id.ModelID, operator *usecase.Operator) (*interfaces.GuessSchemaFieldsData, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return &interfaces.GuessSchemaFieldsData{}, interfaces.ErrInvalidOperator
 	}
 
-	asset, err := i.repos.Asset.FindByID(ctx, assetID)
+	assetData, err := i.repos.Asset.FindByID(ctx, assetID)
 	if err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
@@ -587,137 +584,46 @@ func (i *Schema) GuessSchemaFieldsByAssetID(ctx context.Context, assetID id.Asse
 	}
 
 	// check if file is a json or geojson
-	if assetFileData.ContentType() != "application/json" && assetFileData.ContentType() != "application/geo+json" {
+	isGeoJSON := assetFileData.ContentType() == asset.GeoJSONContentType
+
+	if assetFileData.ContentType() != asset.JSONContentType && !isGeoJSON {
 		return &interfaces.GuessSchemaFieldsData{}, interfaces.ErrInvalidContentTypeForSchemaConversion
 	}
 
 	// read file
-	file, _, err := i.gateways.File.ReadAsset(ctx, asset.UUID(), assetFileData.Path(), nil)
-	if err != nil {
-		return &interfaces.GuessSchemaFieldsData{}, err
-	}
-	// read file content
-	content, err := io.ReadAll(file)
+	file, _, err := i.gateways.File.ReadAsset(ctx, assetData.UUID(), assetFileData.Path(), nil)
 	if err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 
-	schemaFieldData, err := extractSchemaFieldData(assetFileData.ContentType(), content)
+	m, err := i.repos.Model.FindByID(ctx, modelID)
 	if err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
-	return schemaFieldData, nil
-}
 
-func extractSchemaFieldData(contentType string, content []byte) (*interfaces.GuessSchemaFieldsData, error) {
-	result := &interfaces.GuessSchemaFieldsData{}
-
-	switch contentType {
-	case "application/json":
-		var raw map[string]any
-		if err := json.Unmarshal(content, &raw); err != nil {
-			return result, err
-		}
-
-		// ✅ Detect JSON Schema
-		if isJSONSchema(raw) {
-			// Extract from "properties"
-			if props, ok := raw["properties"].(map[string]any); ok {
-				for name, val := range props {
-					if def, ok := val.(map[string]any); ok {
-						typeValue, ok := def["type"].(string)
-						if !ok {
-							continue
-						}
-						result.Fields = append(result.Fields, interfaces.GuessSchemaField{
-							Name: name,
-							Type: typeValue,
-							Key:  toKey(name),
-						})
-					}
-				}
-				result.TotalCount = len(result.Fields)
-				return result, nil
-			} else {
-				return result, interfaces.ErrInvalidJSONSchema
-			}
-		} else {
-			return result, interfaces.ErrInvalidJSONSchema
-		}
-
-	case "application/geo+json":
-		var geoData GeoJSONFeature
-		if err := json.Unmarshal(content, &geoData); err != nil {
-			return result, err
-		}
-
-		if geoData.Properties == nil {
-			return result, nil
-		}
-
-		for name, value := range geoData.Properties {
-			result.Fields = append(result.Fields, interfaces.GuessSchemaField{
-				Name: name,
-				Type: detectFieldType(value),
-				Key:  toKey(name),
-			})
-		}
+	schema, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 
-	result.TotalCount = len(result.Fields)
-	return result, nil
-}
-
-func isJSONSchema(data map[string]interface{}) bool {
-	_, hasSchema := data["$schema"]
-	_, hasProperties := data["properties"]
-	typeVal, isTypeObj := data["type"].(string)
-	return hasSchema && hasProperties && isTypeObj && typeVal == "object"
-}
-
-func detectFieldType(value any) string {
-	switch v := value.(type) {
-	case string:
-		return "string"
-	case float64:
-		// If the number is whole, assume it's an integer
-		if v == float64(int(v)) {
-			return "integer"
-		}
-		return "float"
-	case bool:
-		return "boolean"
-	case map[string]interface{}:
-		return "object"
-	case []interface{}:
-		return "array"
-	default:
-		return "unknown"
-	}
-}
-
-// toKey converts a title string into a valid key:
-// - Lowercases everything
-// - Replaces spaces with hyphens
-// - Removes invalid characters (only allows a-z, 0-9, -, _)
-// - Truncates to 32 characters max
-func toKey(title string) string {
-	// Lowercase
-	key := strings.ToLower(title)
-
-	// Replace spaces and consecutive whitespace with hyphens
-	key = regexp.MustCompile(`\s+`).ReplaceAllString(key, "-")
-
-	// Remove all characters that are not a-z, 0-9, -, _
-	key = regexp.MustCompile(`[^a-z0-9_-]`).ReplaceAllString(key, "")
-
-	// Trim to max length of 32
-	if len(key) > 32 {
-		key = key[:32]
+	predictedFields, err := schema.GuessSchemaFieldFromAssetFile(file, isGeoJSON)
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 
-	// Remove leading/trailing hyphens (optional cleanup)
-	key = strings.Trim(key, "-")
+	fields := make([]interfaces.GuessSchemaField, 0, len(predictedFields))
 
-	return key
+	for _, f := range predictedFields {
+		fields = append(fields, interfaces.GuessSchemaField{
+			Name:             f.Name,
+			Key:              f.Key,
+			Type:             string(f.Type),
+			GuessedFieldType: f.FieldType,
+		})
+	}
+
+	return &interfaces.GuessSchemaFieldsData{
+		Fields:     fields,
+		TotalCount: len(fields),
+	}, nil
 }

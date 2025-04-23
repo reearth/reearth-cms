@@ -53,9 +53,10 @@ type GuessSchemaFieldsData struct {
 }
 
 type GuessSchemaField struct {
-	Name string
-	Type string
-	Key  string
+	Name             string
+	Type             string
+	Key              string
+	GuessedFieldType string
 }
 
 var (
@@ -83,5 +84,5 @@ type Schema interface {
 	UpdateFields(context.Context, id.SchemaID, []UpdateFieldParam, *usecase.Operator) (schema.FieldList, error)
 	DeleteField(context.Context, id.SchemaID, id.FieldID, *usecase.Operator) error
 	GetSchemasAndGroupSchemasByIDs(context.Context, id.SchemaIDList, *usecase.Operator) (schema.List, schema.List, error)
-	GuessSchemaFieldsByAssetID(context.Context, id.AssetID, *usecase.Operator) (*GuessSchemaFieldsData, error)
+	GuessSchemaFieldsByAsset(context.Context, id.AssetID, id.ModelID, *usecase.Operator) (*GuessSchemaFieldsData, error)
 }
