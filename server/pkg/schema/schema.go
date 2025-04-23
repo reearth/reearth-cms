@@ -304,13 +304,22 @@ func guessFromFlatJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessFiel
 		return nil, fmt.Errorf("JSON array is empty")
 	}
 
-	var obj map[string]any
-	if err := decoder.Decode(&obj); err != nil {
+	var raw json.RawMessage
+	if err := decoder.Decode(&raw); err != nil {
 		return nil, fmt.Errorf("failed to decode first object in array: %w", err)
 	}
 
+	orderedMap := orderedmap.New()
+	if err := json.Unmarshal(raw, &orderedMap); err != nil {
+		return nil, fmt.Errorf("error decoding JSON object: %v", err)
+	}
+
 	fields := make([]GuessFieldData, 0)
-	for k, v := range obj {
+	for _, k := range orderedMap.Keys() {
+		v, _ := orderedMap.Get(k)
+		if k == "id" {
+			continue
+		}
 		key := id.NewKey(k)
 		if !key.IsValid() {
 			return nil, rerror.ErrInvalidParams
