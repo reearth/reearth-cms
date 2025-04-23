@@ -281,10 +281,9 @@ type ComplexityRoot struct {
 	}
 
 	GuessSchemaField struct {
-		GuessedFieldType func(childComplexity int) int
-		Key              func(childComplexity int) int
-		Name             func(childComplexity int) int
-		Type             func(childComplexity int) int
+		Key  func(childComplexity int) int
+		Name func(childComplexity int) int
+		Type func(childComplexity int) int
 	}
 
 	GuessSchemaFieldResult struct {
@@ -1813,13 +1812,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.GroupsPayload.Groups(childComplexity), true
-
-	case "GuessSchemaField.guessedFieldType":
-		if e.complexity.GuessSchemaField.GuessedFieldType == nil {
-			break
-		}
-
-		return e.complexity.GuessSchemaField.GuessedFieldType(childComplexity), true
 
 	case "GuessSchemaField.key":
 		if e.complexity.GuessSchemaField.Key == nil {
@@ -5828,7 +5820,6 @@ type GuessSchemaField {
   key: String!
   type: String!
   name: String!
-  guessedFieldType: String!
 }
 
 type GuessSchemaFieldResult {
@@ -14936,50 +14927,6 @@ func (ec *executionContext) fieldContext_GuessSchemaField_name(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _GuessSchemaField_guessedFieldType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GuessSchemaField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_GuessSchemaField_guessedFieldType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.GuessedFieldType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_GuessSchemaField_guessedFieldType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "GuessSchemaField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _GuessSchemaFieldResult_total_count(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GuessSchemaFieldResult) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GuessSchemaFieldResult_total_count(ctx, field)
 	if err != nil {
@@ -15069,8 +15016,6 @@ func (ec *executionContext) fieldContext_GuessSchemaFieldResult_fields(_ context
 				return ec.fieldContext_GuessSchemaField_type(ctx, field)
 			case "name":
 				return ec.fieldContext_GuessSchemaField_name(ctx, field)
-			case "guessedFieldType":
-				return ec.fieldContext_GuessSchemaField_guessedFieldType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GuessSchemaField", field.Name)
 		},
@@ -44809,11 +44754,6 @@ func (ec *executionContext) _GuessSchemaField(ctx context.Context, sel ast.Selec
 			}
 		case "name":
 			out.Values[i] = ec._GuessSchemaField_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "guessedFieldType":
-			out.Values[i] = ec._GuessSchemaField_guessedFieldType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

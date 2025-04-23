@@ -528,10 +528,9 @@ type GroupsPayload struct {
 }
 
 type GuessSchemaField struct {
-	Key              string `json:"key"`
-	Type             string `json:"type"`
-	Name             string `json:"name"`
-	GuessedFieldType string `json:"guessedFieldType"`
+	Key  string `json:"key"`
+	Type string `json:"type"`
+	Name string `json:"name"`
 }
 
 type GuessSchemaFieldResult struct {

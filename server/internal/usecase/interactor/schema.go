@@ -615,10 +615,9 @@ func (i *Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetI
 
 	for _, f := range predictedFields {
 		fields = append(fields, interfaces.GuessSchemaField{
-			Name:             f.Name,
-			Key:              f.Key,
-			Type:             string(f.Type),
-			GuessedFieldType: f.FieldType,
+			Name: f.Name,
+			Key:  f.Key,
+			Type: string(f.Type),
 		})
 	}
 

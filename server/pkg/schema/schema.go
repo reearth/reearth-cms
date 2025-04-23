@@ -188,11 +188,10 @@ func (s *Schema) CopyFrom(s2 *Schema) {
 }
 
 type GuessFieldData struct {
-	SchemaID  id.SchemaID
-	Type      value.Type
-	FieldType string
-	Name      string
-	Key       string
+	SchemaID id.SchemaID
+	Type     value.Type
+	Name     string
+	Key      string
 }
 
 func (s *Schema) GuessSchemaFieldFromAssetFile(file io.ReadCloser, isGeoJSON bool) ([]GuessFieldData, error) {
@@ -268,11 +267,10 @@ func guessFromGeoJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessField
 	fields := make([]GuessFieldData, 0)
 	// Add geometry field
 	fields = append(fields, GuessFieldData{
-		SchemaID:  schemaID,
-		Type:      value.TypeGeometryObject,
-		FieldType: "Geometry Object",
-		Name:      "geometry",
-		Key:       "geometry",
+		SchemaID: schemaID,
+		Type:     value.TypeGeometryObject,
+		Name:     "geometry",
+		Key:      "geometry",
 	})
 
 	for _, k := range propsMap.Keys() {
@@ -331,12 +329,10 @@ func guessFromFlatJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessFiel
 
 func fieldFrom(k string, v any, schemaID id.SchemaID) GuessFieldData {
 	t := value.TypeText
-	guessedFieldType := ""
 	if v != nil {
 		switch val := v.(type) {
 		case bool:
 			t = value.TypeBool
-			guessedFieldType = "Boolean"
 		case int,
 			int8,
 			int16,
@@ -348,33 +344,28 @@ func fieldFrom(k string, v any, schemaID id.SchemaID) GuessFieldData {
 			uint32,
 			uint64:
 			t = value.TypeNumber
-			guessedFieldType = "Int"
 		case float32:
 			if math.Trunc(float64(val)) == float64(val) {
-				guessedFieldType = "Int"
+				t = value.TypeInteger
 			} else {
-				guessedFieldType = "Float"
+				t = value.TypeNumber
 			}
-			t = value.TypeNumber
 		case float64:
 			if math.Trunc(val) == val {
-				guessedFieldType = "Int"
+				t = value.TypeInteger
 			} else {
-				guessedFieldType = "Float"
+				t = value.TypeNumber
 			}
-			t = value.TypeNumber
 		case string:
 			t = value.TypeText
-			guessedFieldType = "Text"
 		default:
 			t = value.TypeText
 		}
 	}
 	return GuessFieldData{
-		SchemaID:  schemaID,
-		Type:      t,
-		FieldType: guessedFieldType,
-		Name:      k,
-		Key:       k,
+		SchemaID: schemaID,
+		Type:     t,
+		Name:     k,
+		Key:      k,
 	}
 }

@@ -53,10 +53,9 @@ type GuessSchemaFieldsData struct {
 }
 
 type GuessSchemaField struct {
-	Name             string
-	Type             string
-	Key              string
-	GuessedFieldType string
+	Name string
+	Type string
+	Key  string
 }
 
 var (
