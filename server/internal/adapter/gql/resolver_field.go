@@ -65,6 +65,11 @@ func (r *mutationResolver) CreateFields(ctx context.Context, input []*gqlmodel.C
 	if mid == nil && gid == nil {
 		return nil, interfaces.ErrEitherModelOrGroup
 	}
+	for _, ipt := range input {
+		if !IsEqual(ipt.ModelID, input[0].ModelID) || !IsEqual(ipt.GroupID, input[0].GroupID) {
+			return nil, interfaces.ErrEitherModelOrGroup
+		}
+	}
 
 	param := interfaces.FindOrCreateSchemaParam{
 		ModelID:  mid,
@@ -78,9 +83,6 @@ func (r *mutationResolver) CreateFields(ctx context.Context, input []*gqlmodel.C
 	}
 
 	params, err := util.TryMap(input, func(ipt *gqlmodel.CreateFieldInput) (interfaces.CreateFieldParam, error) {
-		if gqlmodel.ToIDRef[id.Model](ipt.ModelID) != mid {
-			return interfaces.CreateFieldParam{}, interfaces.ErrEitherModelOrGroup
-		}
 		tp, dv, err := gqlmodel.FromSchemaTypeProperty(ipt.TypeProperty, ipt.Type, ipt.Multiple)
 		if err != nil {
 			return interfaces.CreateFieldParam{}, err
@@ -282,6 +284,17 @@ func (r *schemaFieldReferenceResolver) CorrespondingField(ctx context.Context, o
 	}
 
 	return ff, nil
+}
+
+// TODO: move to reearthx.util
+func IsEqual[T comparable](a, b *T) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+	return *a == *b
 }
 
 // SchemaField returns SchemaFieldResolver implementation.

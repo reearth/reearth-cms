@@ -123,7 +123,7 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 				},
 				operator: op,
 			},
-			wantErr: schema.ErrInvalidKey,
+			wantErr: id.ErrDuplicatedKey,
 		},
 		{
 			name: "schema not found",
