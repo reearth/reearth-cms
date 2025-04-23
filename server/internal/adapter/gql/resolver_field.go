@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -66,7 +67,7 @@ func (r *mutationResolver) CreateFields(ctx context.Context, input []*gqlmodel.C
 		return nil, interfaces.ErrEitherModelOrGroup
 	}
 	for _, ipt := range input {
-		if !IsEqual(ipt.ModelID, input[0].ModelID) || !IsEqual(ipt.GroupID, input[0].GroupID) {
+		if !utils.IsPtrEqual(ipt.ModelID, input[0].ModelID) || !utils.IsPtrEqual(ipt.GroupID, input[0].GroupID) {
 			return nil, interfaces.ErrEitherModelOrGroup
 		}
 	}
@@ -284,17 +285,6 @@ func (r *schemaFieldReferenceResolver) CorrespondingField(ctx context.Context, o
 	}
 
 	return ff, nil
-}
-
-// TODO: move to reearthx.util
-func IsEqual[T comparable](a, b *T) bool {
-	if a == nil && b == nil {
-		return true
-	}
-	if a == nil || b == nil {
-		return false
-	}
-	return *a == *b
 }
 
 // SchemaField returns SchemaFieldResolver implementation.
