@@ -561,13 +561,6 @@ func (i Schema) CreateFields(ctx context.Context, sId id.SchemaID, createFieldsP
 		})
 }
 
-// GeoJSONFeature represents a basic GeoJSON structure
-type GeoJSONFeature struct {
-	Type       string                 `json:"type"`
-	Geometry   map[string]interface{} `json:"geometry"`
-	Properties map[string]interface{} `json:"properties"`
-}
-
 func (i *Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID, modelID id.ModelID, operator *usecase.Operator) (*interfaces.GuessSchemaFieldsData, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return &interfaces.GuessSchemaFieldsData{}, interfaces.ErrInvalidOperator
