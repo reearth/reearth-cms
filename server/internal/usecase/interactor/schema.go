@@ -479,8 +479,8 @@ func (i Schema) CreateFields(ctx context.Context, sId id.SchemaID, createFieldsP
 
 			// create new fields
 			for _, createFieldParam := range createFieldsParams {
-				if createFieldParam.Key == "" || s.HasFieldByKey(createFieldParam.Key) {
-					return nil, schema.ErrInvalidKey
+				if s.HasFieldByKey(createFieldParam.Key) {
+					return nil, id.ErrDuplicatedKey
 				}
 
 				newField, err := schema.NewField(createFieldParam.TypeProperty).

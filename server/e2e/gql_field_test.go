@@ -496,9 +496,9 @@ func TestCreateFields(t *testing.T) {
 		{
 			"modelId":     mId1,
 			"type":        "Text",
-			"title":       "test",
-			"key":         "test-1",
-			"description": "test",
+			"title":       "field1",
+			"key":         "field-1",
+			"description": "first field",
 			"multiple":    false,
 			"unique":      false,
 			"required":    false,
@@ -511,19 +511,49 @@ func TestCreateFields(t *testing.T) {
 				},
 			},
 		},
+		{
+			"modelId":     mId1,
+			"type":        "Number",
+			"title":       "field2",
+			"key":         "field-2",
+			"description": "second field",
+			"multiple":    false,
+			"unique":      false,
+			"required":    true,
+			"isTitle":     false,
+			"metadata":    false,
+			"typeProperty": map[string]any{
+				"number": map[string]any{
+					"defaultValue": 0,
+					"min":          0,
+					"max":          100,
+				},
+			},
+		},
 	})
 
-	res.Object().
+	f := res.Object().
 		Value("data").Object().
 		Value("createFields").Object().
-		Value("fields").Array().Value(0).Object().
-		HasValue("title", "test").
-		HasValue("key", "test-1").
+		Value("fields").Array()
+	f.Length().IsEqual(2)
+	f.Value(0).Object().
+		HasValue("title", "field1").
+		HasValue("key", "field-1").
 		HasValue("type", "Text"). // enum values are case-sensitive
-		HasValue("description", "test").
+		HasValue("description", "first field").
 		HasValue("multiple", false).
 		HasValue("unique", false).
 		HasValue("required", false).
+		HasValue("isTitle", false)
+	f.Value(1).Object().
+		HasValue("title", "field2").
+		HasValue("key", "field-2").
+		HasValue("type", "Number"). // enum values are case-sensitive
+		HasValue("description", "second field").
+		HasValue("multiple", false).
+		HasValue("unique", false).
+		HasValue("required", true).
 		HasValue("isTitle", false)
 }
 

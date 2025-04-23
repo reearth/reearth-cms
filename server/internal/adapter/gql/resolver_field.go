@@ -62,6 +62,10 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 func (r *mutationResolver) CreateFields(ctx context.Context, input []*gqlmodel.CreateFieldInput) (*gqlmodel.FieldsPayload, error) {
 	mid := gqlmodel.ToIDRef[id.Model](input[0].ModelID)
 	gid := gqlmodel.ToIDRef[id.Group](input[0].GroupID)
+	if mid == nil && gid == nil {
+		return nil, interfaces.ErrEitherModelOrGroup
+	}
+
 	param := interfaces.FindOrCreateSchemaParam{
 		ModelID:  mid,
 		GroupID:  gid,
@@ -74,11 +78,15 @@ func (r *mutationResolver) CreateFields(ctx context.Context, input []*gqlmodel.C
 	}
 
 	params, err := util.TryMap(input, func(ipt *gqlmodel.CreateFieldInput) (interfaces.CreateFieldParam, error) {
+		if gqlmodel.ToIDRef[id.Model](ipt.ModelID) != mid {
+			return interfaces.CreateFieldParam{}, interfaces.ErrEitherModelOrGroup
+		}
 		tp, dv, err := gqlmodel.FromSchemaTypeProperty(ipt.TypeProperty, ipt.Type, ipt.Multiple)
 		if err != nil {
 			return interfaces.CreateFieldParam{}, err
 		}
 		return interfaces.CreateFieldParam{
+			ModelID:      mid,
 			SchemaID:     s.ID(),
 			Name:         ipt.Title,
 			Description:  ipt.Description,
