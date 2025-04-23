@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 
 	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -339,14 +340,20 @@ func fieldFrom(k string, v any, schemaID id.SchemaID) GuessFieldData {
 			uint64:
 			t = value.TypeNumber
 			guessedFieldType = "Int"
-		case float32, float64:
-			if val == float32(int(val.(float64))) || val == float64(int(val.(float64))) {
-				t = value.TypeNumber
+		case float32:
+			if math.Trunc(float64(val)) == float64(val) {
 				guessedFieldType = "Int"
 			} else {
-				t = value.TypeNumber
 				guessedFieldType = "Float"
 			}
+			t = value.TypeNumber
+		case float64:
+			if math.Trunc(val) == val {
+				guessedFieldType = "Int"
+			} else {
+				guessedFieldType = "Float"
+			}
+			t = value.TypeNumber
 		case string:
 			t = value.TypeText
 			guessedFieldType = "Text"
