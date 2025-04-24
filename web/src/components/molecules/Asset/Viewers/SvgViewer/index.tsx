@@ -16,7 +16,7 @@ const SvgViewer: React.FC<Props> = ({ url, blob, svgRender }) => {
   const fetchData = useCallback(async () => {
     const text = await blob?.text();
     if (!text) {
-      setSvgText(t("No data available"));
+      setSvgText(t("Could not display svg"));
       return;
     }
     setSvgText(text);

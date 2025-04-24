@@ -242,19 +242,29 @@ export default (assetId?: string) => {
 
   const { getHeader } = useAuthHeader();
   const handleSingleAssetDownload = async (asset: Asset) => {
-    const headers = await getHeader();
     try {
+      const headers = await getHeader();
       const response = await fetch(asset.url, {
         method: "GET",
         headers,
       });
+
       if (!response.ok) {
-        throw new Error("Failed to fetch asset with auth");
+        throw new Error(`Failed to download ${asset.fileName}: HTTP ${response.status}`);
       }
+
       const blob = await response.blob();
       fileDownload(blob, asset.fileName);
+      Notification.success({
+        message: t("Download successful"),
+        description: asset.fileName,
+      });
     } catch (err) {
-      console.error("Error fetching authorized asset:", err);
+      console.error("Download error:", err);
+      Notification.error({
+        message: t("Download failed"),
+        description: asset.fileName,
+      });
     }
   };
 
