@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -78,9 +78,6 @@ const AssetMolecule: React.FC<Props> = ({
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
-
-  const selected = useMemo(() => [asset], [asset]);
-  const disabled = useMemo(() => !selected || selected.length <= 0, [selected]);
 
   const renderPreview = useCallback(() => {
     switch (viewerType) {
