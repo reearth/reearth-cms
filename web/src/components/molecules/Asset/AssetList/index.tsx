@@ -43,6 +43,7 @@ type Props = {
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
+  onAssetDownload: (selected: Asset[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
   onEdit: (assetId: string) => void;
   onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
@@ -81,6 +82,7 @@ const AssetList: React.FC<Props> = ({
   onAssetsCreate,
   onAssetCreateFromUrl,
   onAssetDelete,
+  onAssetDownload,
   onSearchTerm,
   onEdit,
   onSelect,
@@ -167,6 +169,7 @@ const AssetList: React.FC<Props> = ({
             onSelect={onSelect}
             onAssetsReload={onAssetsReload}
             onAssetDelete={onAssetDelete}
+            onAssetDownload={onAssetDownload}
             onAssetTableChange={onAssetTableChange}
           />
         </Wrapper>
