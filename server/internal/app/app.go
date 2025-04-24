@@ -38,9 +38,15 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 		middleware.Recover(),
 		otelecho.Middleware("reearth-cms"),
 	)
-	if len(allowedOrigins(cfg)) > 0 {
-		e.Use(corsMiddleware(cfg))
+	origins := allowedOrigins(cfg)
+	if len(origins) > 0 {
+		e.Use(
+			middleware.CORSWithConfig(middleware.CORSConfig{
+				AllowOrigins: origins,
+			}),
+		)
 	}
+
 	// GraphQL Playground without auth
 	if cfg.Debug || cfg.Config.Dev {
 		e.GET("/graphql", echo.WrapHandler(
@@ -88,15 +94,6 @@ func jwtParseMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	return echo.WrapMiddleware(lo.Must(
 		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true),
 	))
-}
-
-func corsMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
-	return middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     allowedOrigins(cfg),
-		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
-		AllowHeaders:     []string{"*"},
-		AllowCredentials: true,
-	})
 }
 
 func allowedOrigins(cfg *ServerConfig) []string {

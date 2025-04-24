@@ -24,7 +24,6 @@ func privateAssetsMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	eh := func(c echo.Context) error { return nil }
 	authHandler := authMiddleware(cfg)(eh)
 	jwtHandler := jwtParseMiddleware(cfg)(eh)
-	corsHandler := corsMiddleware(cfg)(eh)
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
@@ -39,7 +38,6 @@ func privateAssetsMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 			} else {
 				_ = jwtHandler(ctx)
 				_ = authHandler(ctx)
-				_ = corsHandler(ctx)
 			}
 
 			return next(ctx)
