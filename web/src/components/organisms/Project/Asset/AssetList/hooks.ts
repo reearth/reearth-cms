@@ -342,11 +342,12 @@ export default (isItemsRequired: boolean) => {
   }, []);
 
   const { getHeader } = useAuthHeader();
-  const handleAssetDownload = async (selected: Asset[]) => {
+  const handleMultipleAssetDownload = async (selected: Asset[]) => {
     if (!selected?.length) return;
 
     const headers = await getHeader();
-    await Promise.all(
+    const failedAssets: string[] = [];
+    await Promise.allSettled(
       selected.map(async (s: Asset) => {
         try {
           const response = await fetch(s.url, {
@@ -354,15 +355,34 @@ export default (isItemsRequired: boolean) => {
             headers,
           });
           if (!response.ok) {
-            throw new Error("Failed to fetch asset with auth");
+            throw new Error(`Failed to download ${s.fileName}: HTTP ${response.status}`);
           }
           const blob = await response.blob();
           fileDownload(blob, s.fileName);
         } catch (err) {
-          console.error("Error fetching authorized asset:", err);
+          console.error("Download error:", err);
+          failedAssets.push(s.fileName);
         }
       }),
     );
+
+    if (failedAssets.length === selected.length) {
+      Notification.error({
+        message: t("All downloads failed"),
+        description: failedAssets.join(", "),
+      });
+    } else if (failedAssets.length > 0) {
+      Notification.warning({
+        message: t("Some downloads failed"),
+        description: t(
+          `Success: ${selected.length - failedAssets.length}, Failed: ${failedAssets.join(", ")}`,
+        ),
+      });
+    } else {
+      Notification.success({
+        message: t("All downloads completed successfully"),
+      });
+    }
   };
 
   return {
@@ -399,7 +419,7 @@ export default (isItemsRequired: boolean) => {
     handleAssetCreateFromUrl,
     handleAssetTableChange,
     handleAssetDelete,
-    handleAssetDownload,
+    handleMultipleAssetDownload ,
     handleSearchTerm,
     handleAssetsGet,
     handleAssetsReload,

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -43,7 +43,7 @@ type Props = {
   hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
-  onAssetDownload: (selected: Asset[]) => Promise<void>;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
@@ -73,9 +73,6 @@ const AssetMolecule: React.FC<Props> = ({
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
-
-  const selected = useMemo(() => [asset], [asset]);
-  const disabled = useMemo(() => !selected || selected.length <= 0, [selected]);
 
   const renderPreview = useCallback(() => {
     switch (viewerType) {
@@ -144,9 +141,9 @@ const AssetMolecule: React.FC<Props> = ({
                   size={16}
                 />
                 <DownloadButton
-                  disabled={disabled}
+                  disabled={!asset}
                   onlyIcon
-                  onDownload={() => onAssetDownload(selected)}
+                  onDownload={() => onAssetDownload(asset)}
                 />
               </Buttons>
             </>
@@ -191,9 +188,9 @@ const AssetMolecule: React.FC<Props> = ({
           </Card>
         )}
         <DownloadButton
-          disabled={disabled}
+          disabled={!asset}
           displayDefaultIcon
-          onDownload={() => onAssetDownload(selected)}
+          onDownload={() => onAssetDownload(asset)}
         />
       </BodyWrapper>
       <SideBarWrapper>

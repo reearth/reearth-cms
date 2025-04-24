@@ -24,7 +24,7 @@ type Props = {
   hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
-  onAssetDownload: (selected: Asset[]) => Promise<void>;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onTypeChange: (value: PreviewType) => void;
   onModalCancel: () => void;
   onChangeToFullScreen: () => void;

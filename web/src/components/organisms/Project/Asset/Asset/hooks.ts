@@ -241,27 +241,31 @@ export default (assetId?: string) => {
   }, [location.state, navigate, projectId, workspaceId]);
 
   const { getHeader } = useAuthHeader();
-  const handleAssetDownload = async (selected: Asset[]) => {
-    if (!selected?.length) return;
+  const handleSingleAssetDownload = async (asset: Asset) => {
+    try {
+      const headers = await getHeader();
+      const response = await fetch(asset.url, {
+        method: "GET",
+        headers,
+      });
 
-    const headers = await getHeader();
-    await Promise.all(
-      selected.map(async (s: Asset) => {
-        try {
-          const response = await fetch(s.url, {
-            method: "GET",
-            headers,
-          });
-          if (!response.ok) {
-            throw new Error("Failed to fetch asset with auth");
-          }
-          const blob = await response.blob();
-          fileDownload(blob, s.fileName);
-        } catch (err) {
-          console.error("Error fetching authorized asset:", err);
-        }
-      }),
-    );
+      if (!response.ok) {
+        throw new Error(`Failed to download ${asset.fileName}: HTTP ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      fileDownload(blob, asset.fileName);
+      Notification.success({
+        message: t("Download successful"),
+        description: asset.fileName,
+      });
+    } catch (err) {
+      console.error("Download error:", err);
+      Notification.error({
+        message: t("Download failed"),
+        description: asset.fileName,
+      });
+    }
   };
 
   return {
@@ -279,7 +283,7 @@ export default (assetId?: string) => {
     hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,
-    handleAssetDownload,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,
