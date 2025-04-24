@@ -16,12 +16,17 @@ func serveFiles(e *echo.Echo, cfg *ServerConfig) {
 	if cfg.Gateways.File == nil {
 		return
 	}
+	e.GET("/assets/:uuid1/:uuid2/:filename", handleAssetByUUID(cfg), privateAssetsMiddleware(cfg))
+	e.GET("/assets/:filename", handleAssetByFileName(cfg))
+}
 
+func privateAssetsMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	eh := func(c echo.Context) error { return nil }
-	authMiddleware := authMiddleware(cfg)(eh)
-	jwtParseMiddleware := jwtParseMiddleware(cfg)(eh)
+	authHandler := authMiddleware(cfg)(eh)
+	jwtHandler := jwtParseMiddleware(cfg)(eh)
+	corsHandler := corsMiddleware(cfg)(eh)
 
-	m := func(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
 			token := ctx.Request().Header.Get("Authorization")
 
@@ -30,36 +35,20 @@ func serveFiles(e *echo.Echo, cfg *ServerConfig) {
 			}
 
 			if strings.HasPrefix(token, "Bearer secret_") {
-				_ = authMiddleware(ctx)
+				_ = authHandler(ctx)
 			} else {
-				_ = jwtParseMiddleware(ctx)
-				_ = authMiddleware(ctx)
+				_ = jwtHandler(ctx)
+				_ = authHandler(ctx)
+				_ = corsHandler(ctx)
 			}
 
 			return next(ctx)
 		}
 	}
+}
 
-	streamFile := func(ctx echo.Context, fileName string, reader io.Reader, headers map[string]string) error {
-		if headers == nil {
-			headers = map[string]string{}
-		}
-		for _, h := range headers {
-			ctx.Response().Header().Set(h, headers[h])
-		}
-
-		if headers["Content-Type"] == "" {
-			headers["Content-Type"] = "application/octet-stream"
-			if ext := path.Ext(fileName); ext != "" {
-				if ct := mime.TypeByExtension(ext); ct != "" {
-					headers["Content-Type"] = ct
-				}
-			}
-		}
-		return ctx.Stream(http.StatusOK, headers["Content-Type"], reader)
-	}
-
-	e.GET("/assets/:uuid1/:uuid2/:filename", func(ctx echo.Context) error {
+func handleAssetByUUID(cfg *ServerConfig) echo.HandlerFunc {
+	return func(ctx echo.Context) error {
 		filename := ctx.Param("filename")
 		uuid := ctx.Param("uuid1") + ctx.Param("uuid2")
 		if !cfg.Config.Asset_Public {
@@ -74,22 +63,45 @@ func serveFiles(e *echo.Echo, cfg *ServerConfig) {
 				}
 			}
 		}
-		r, h, err := cfg.Gateways.File.ReadAsset(ctx.Request().Context(), uuid, filename, assetHeaders(ctx.Request().Header))
+		r, h, err := cfg.Gateways.File.ReadAsset(
+			ctx.Request().Context(), uuid, filename, assetHeaders(ctx.Request().Header),
+		)
 		if err != nil {
 			return err
 		}
 		return streamFile(ctx, filename, r, h)
-	}, m)
+	}
+}
 
-	e.GET("/assets/:filename", func(ctx echo.Context) error {
+func handleAssetByFileName(cfg *ServerConfig) echo.HandlerFunc {
+	return func(ctx echo.Context) error {
 		filename := ctx.Param("filename")
-		h := assetHeaders(ctx.Request().Header)
-		r, headers, err := cfg.Gateways.File.Read(ctx.Request().Context(), filename, h)
+		r, h, err := cfg.Gateways.File.Read(
+			ctx.Request().Context(), filename, assetHeaders(ctx.Request().Header),
+		)
 		if err != nil {
 			return err
 		}
-		return streamFile(ctx, filename, r, headers)
-	})
+		return streamFile(ctx, filename, r, h)
+	}
+}
+
+func streamFile(c echo.Context, fileName string, reader io.Reader, headers map[string]string) error {
+	if headers == nil {
+		headers = make(map[string]string)
+	}
+	for key, val := range headers {
+		c.Response().Header().Set(key, val)
+	}
+	if headers["Content-Type"] == "" {
+		headers["Content-Type"] = "application/octet-stream"
+		if ext := path.Ext(fileName); ext != "" {
+			if ct := mime.TypeByExtension(ext); ct != "" {
+				headers["Content-Type"] = ct
+			}
+		}
+	}
+	return c.Stream(http.StatusOK, headers["Content-Type"], reader)
 }
 
 func assetHeaders(h http.Header) map[string]string {
