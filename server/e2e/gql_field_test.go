@@ -49,6 +49,43 @@ func createField(e *httpexpect.Expect, mID, title, desc, key string, multiple, u
 	return json.Path("$.data.createField.field.id").Raw().(string), json
 }
 
+func createFields(e *httpexpect.Expect, fields []map[string]any) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `#graphql
+		mutation CreateFields($input: [CreateFieldInput!]!) {
+			createFields(input: $input) {
+				fields {
+					  id
+					  title
+					  key
+					  type
+					  description
+					  multiple
+					  unique
+					  required
+					  isTitle
+					  __typename
+					}
+					__typename
+			}
+		}`,
+		Variables: map[string]any{
+			"input": fields,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
 func createMetaField(e *httpexpect.Expect, mID, title, desc, key string, multiple, unique, isTitle, required bool, fType string, fTypeProp map[string]any) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation CreateField($modelId: ID!, $type: SchemaFieldType!, $metadata: Boolean, $title: String!, $description: String, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
@@ -447,6 +484,77 @@ func TestCreateField(t *testing.T) {
 		Value("node").Object().
 		HasValue("id", mId)
 
+}
+
+func TestCreateFields(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+	mId1, _ := createModel(e, pId, "test1", "test", "test-1")
+
+	res := createFields(e, []map[string]any{
+		{
+			"modelId":     mId1,
+			"type":        "Text",
+			"title":       "field1",
+			"key":         "field-1",
+			"description": "first field",
+			"multiple":    false,
+			"unique":      false,
+			"required":    false,
+			"isTitle":     false,
+			"metadata":    false,
+			"typeProperty": map[string]any{
+				"text": map[string]any{
+					"defaultValue": "",
+					"maxLength":    100,
+				},
+			},
+		},
+		{
+			"modelId":     mId1,
+			"type":        "Number",
+			"title":       "field2",
+			"key":         "field-2",
+			"description": "second field",
+			"multiple":    false,
+			"unique":      false,
+			"required":    true,
+			"isTitle":     false,
+			"metadata":    false,
+			"typeProperty": map[string]any{
+				"number": map[string]any{
+					"defaultValue": 0,
+					"min":          0,
+					"max":          100,
+				},
+			},
+		},
+	})
+
+	f := res.Object().
+		Value("data").Object().
+		Value("createFields").Object().
+		Value("fields").Array()
+	f.Length().IsEqual(2)
+	f.Value(0).Object().
+		HasValue("title", "field1").
+		HasValue("key", "field-1").
+		HasValue("type", "Text"). // enum values are case-sensitive
+		HasValue("description", "first field").
+		HasValue("multiple", false).
+		HasValue("unique", false).
+		HasValue("required", false).
+		HasValue("isTitle", false)
+	f.Value(1).Object().
+		HasValue("title", "field2").
+		HasValue("key", "field-2").
+		HasValue("type", "Number"). // enum values are case-sensitive
+		HasValue("description", "second field").
+		HasValue("multiple", false).
+		HasValue("unique", false).
+		HasValue("required", true).
+		HasValue("isTitle", false)
 }
 
 func TestClearFieldDefaultValue(t *testing.T) {
