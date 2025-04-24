@@ -8,16 +8,16 @@ import { useT } from "@reearth-cms/i18n";
 type DownloadButtonProps = {
   title?: string;
   displayDefaultIcon?: boolean;
-  onlyIcon?: boolean;
   disabled?: boolean;
+  onlyIcon?: boolean;
   onDownload?: MouseEventHandler<HTMLElement>;
 } & ButtonProps;
 
 const DownloadButton: React.FC<DownloadButtonProps> = ({
   title,
   displayDefaultIcon,
-  onlyIcon,
   disabled,
+  onlyIcon,
   onDownload,
   ...props
 }) => {
@@ -29,8 +29,8 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   ) : (
     <Button
       icon={displayDefaultIcon && <Icon icon="download" />}
-      onClick={onDownload}
       disabled={disabled}
+      onClick={onDownload}
       {...props}>
       {title ?? t("Download")}
     </Button>

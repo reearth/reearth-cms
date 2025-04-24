@@ -46,7 +46,7 @@ type Props = {
   setAssetUrl: (url: string) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
-  onAssetDownload: (selected: Asset[]) => Promise<void>;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
@@ -158,9 +158,9 @@ const AssetMolecule: React.FC<Props> = ({
                   size={16}
                 />
                 <DownloadButton
-                  disabled={disabled}
+                  disabled={!asset}
                   onlyIcon
-                  onDownload={() => onAssetDownload(selected)}
+                  onDownload={() => onAssetDownload(asset)}
                 />
               </Buttons>
             </>
@@ -205,9 +205,9 @@ const AssetMolecule: React.FC<Props> = ({
           </Card>
         )}
         <DownloadButton
-          disabled={disabled}
+          disabled={!asset}
           displayDefaultIcon
-          onDownload={() => onAssetDownload(selected)}
+          onDownload={() => onAssetDownload(asset)}
         />
       </BodyWrapper>
       <SideBarWrapper>

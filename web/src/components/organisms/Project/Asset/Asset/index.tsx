@@ -28,7 +28,7 @@ const Asset: React.FC = () => {
     setAssetUrl,
     handleAssetDecompress,
     handleAssetItemSelect,
-    handleAssetDownload,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,
@@ -70,7 +70,7 @@ const Asset: React.FC = () => {
       setAssetUrl={setAssetUrl}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
-      onAssetDownload={handleAssetDownload}
+      onAssetDownload={handleSingleAssetDownload}
       onTypeChange={handleTypeChange}
       onModalCancel={handleModalCancel}
       onChangeToFullScreen={handleFullScreen}

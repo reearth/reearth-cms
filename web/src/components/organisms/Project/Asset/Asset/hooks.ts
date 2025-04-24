@@ -241,27 +241,21 @@ export default (assetId?: string) => {
   }, [location.state, navigate, projectId, workspaceId]);
 
   const { getHeader } = useAuthHeader();
-  const handleAssetDownload = async (selected: Asset[]) => {
-    if (!selected?.length) return;
-
+  const handleSingleAssetDownload = async (asset: Asset) => {
     const headers = await getHeader();
-    await Promise.all(
-      selected.map(async (s: Asset) => {
-        try {
-          const response = await fetch(s.url, {
-            method: "GET",
-            headers,
-          });
-          if (!response.ok) {
-            throw new Error("Failed to fetch asset with auth");
-          }
-          const blob = await response.blob();
-          fileDownload(blob, s.fileName);
-        } catch (err) {
-          console.error("Error fetching authorized asset:", err);
-        }
-      }),
-    );
+    try {
+      const response = await fetch(asset.url, {
+        method: "GET",
+        headers,
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch asset with auth");
+      }
+      const blob = await response.blob();
+      fileDownload(blob, asset.fileName);
+    } catch (err) {
+      console.error("Error fetching authorized asset:", err);
+    }
   };
 
   const [assetUrl, setAssetUrl] = useState(asset?.url ?? "");
@@ -310,7 +304,7 @@ export default (assetId?: string) => {
     hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,
-    handleAssetDownload,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,
