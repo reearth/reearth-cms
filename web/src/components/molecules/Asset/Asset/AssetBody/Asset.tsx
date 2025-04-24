@@ -43,6 +43,7 @@ type Props = {
   hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
@@ -61,6 +62,7 @@ const AssetMolecule: React.FC<Props> = ({
   hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
+  onAssetDownload,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -138,7 +140,11 @@ const AssetMolecule: React.FC<Props> = ({
                   copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
                   size={16}
                 />
-                <DownloadButton selected={[asset]} onlyIcon />
+                <DownloadButton
+                  disabled={!asset}
+                  onlyIcon
+                  onDownload={() => onAssetDownload(asset)}
+                />
               </Buttons>
             </>
           }
@@ -181,7 +187,11 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton selected={[asset]} displayDefaultIcon />
+        <DownloadButton
+          disabled={!asset}
+          displayDefaultIcon
+          onDownload={() => onAssetDownload(asset)}
+        />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>

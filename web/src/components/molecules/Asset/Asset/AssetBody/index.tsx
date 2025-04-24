@@ -24,6 +24,7 @@ type Props = {
   hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onTypeChange: (value: PreviewType) => void;
   onModalCancel: () => void;
   onChangeToFullScreen: () => void;
@@ -47,6 +48,7 @@ const AssetWrapper: React.FC<Props> = ({
   hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
+  onAssetDownload,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -81,6 +83,7 @@ const AssetWrapper: React.FC<Props> = ({
             hasUpdateRight={hasUpdateRight}
             onAssetDecompress={onAssetDecompress}
             onAssetItemSelect={onAssetItemSelect}
+            onAssetDownload={onAssetDownload}
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}
             onChangeToFullScreen={onChangeToFullScreen}
