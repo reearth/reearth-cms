@@ -357,6 +357,7 @@ type DeleteFieldPayload {
 
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload
+  createFields(input: [CreateFieldInput!]!): FieldsPayload
   updateField(input: UpdateFieldInput!): FieldPayload
   updateFields(input: [UpdateFieldInput!]!): FieldsPayload
   deleteField(input: DeleteFieldInput!): DeleteFieldPayload

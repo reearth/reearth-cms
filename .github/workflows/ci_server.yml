@@ -1,8 +1,6 @@
 name: ci-server
 on:
   workflow_call:
-env:
-  GO_VERSION: "1.24"
 
 jobs:
   ci-server-lint:
@@ -14,8 +12,9 @@ jobs:
       - name: go setup
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
-          cache-dependency-path: server/go.mod
+          go-version-file: 'server/go.mod'
+          check-latest: true
+          cache-dependency-path: 'server/go.sum'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
@@ -33,6 +32,11 @@ jobs:
         run: |
           go generate ./internal/adapter/gql
           git diff --exit-code ./internal/adapter/gql
+      - name: Check go fmt
+        working-directory: server
+        run: |
+          go fmt ./
+          git diff --exit-code ./
   ci-server-i18n:
     name: i18n
     runs-on: ubuntu-latest
@@ -45,8 +49,9 @@ jobs:
       - name: go setup
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
-          cache-dependency-path: server/go.mod
+          go-version-file: 'server/go.mod'
+          check-latest: true
+          cache-dependency-path: 'server/go.sum'
       - name: check forgotten translations
         working-directory: server
         run: make i18n-ci
@@ -64,8 +69,9 @@ jobs:
       - name: go setup
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
-          cache-dependency-path: server/go.mod
+          go-version-file: 'server/go.mod'
+          check-latest: true
+          cache-dependency-path: 'server/go.sum'
       - name: test
         run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m
         working-directory: server

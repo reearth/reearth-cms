@@ -93,7 +93,7 @@ func TestRowFromItem(t *testing.T) {
 		MustBuild()
 	row3, ok3 := RowFromItem(i3, []*schema.Field{sf3, sf4})
 	assert.True(t, ok3)
-	assert.Equal(t, []string{i1.ID().String(), "139.28179282584915", "36.58570985749664", "30", "true"}, row3)
+	assert.Equal(t, []string{i1.ID().String(), "36.58570985749664", "139.28179282584915", "30", "true"}, row3)
 }
 
 func TestExtractFirstPointField(t *testing.T) {

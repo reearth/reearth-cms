@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/url"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -90,8 +91,13 @@ func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
+	u, err := url.Parse(s3AssetBasePath)
+	if err != nil {
+		return err
+	}
+
 	var urlFn = func(a *asset.Asset) string {
-		return getURL(s3AssetBasePath, a.UUID(), a.FileName())
+		return getURL(u, a.UUID(), a.FileName())
 	}
 
 	data, err := marshalWebhookData(p.Webhook, urlFn)

@@ -82,8 +82,8 @@ export default () => {
   );
 
   return {
-    workspaceSettings,
     loading,
+    workspaceSettings,
     hasUpdateRight,
     updateLoading,
     handleWorkspaceSettingsUpdate,

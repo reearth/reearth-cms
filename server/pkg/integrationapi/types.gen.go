@@ -387,6 +387,7 @@ type Asset struct {
 	Name                    *string                       `json:"name,omitempty"`
 	PreviewType             *AssetPreviewType             `json:"previewType,omitempty"`
 	ProjectId               id.ProjectID                  `json:"projectId"`
+	Public                  bool                          `json:"public"`
 	TotalSize               *float32                      `json:"totalSize,omitempty"`
 	UpdatedAt               time.Time                     `json:"updatedAt"`
 	Url                     string                        `json:"url"`

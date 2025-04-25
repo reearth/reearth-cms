@@ -42,6 +42,12 @@ type UpdateFieldParam struct {
 	DefaultValue *value.Multiple
 }
 
+type ModelData struct {
+	ModelID   *id.ModelID
+	SchemaID  id.SchemaID
+	ProjectID id.ProjectID
+}
+
 var (
 	ErrInvalidTypeProperty       = rerror.NewE(i18n.T("invalid type property"))
 	ErrReferencedFiledKeyExists  = rerror.NewE(i18n.T("referenced field key exists"))
@@ -58,6 +64,7 @@ type Schema interface {
 	FindByModel(context.Context, id.ModelID, *usecase.Operator) (*schema.Package, error)
 	FindByGroup(context.Context, id.GroupID, *usecase.Operator) (*schema.Schema, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
+	CreateFields(context.Context, id.SchemaID, []CreateFieldParam, *usecase.Operator) (schema.FieldList, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateFields(context.Context, id.SchemaID, []UpdateFieldParam, *usecase.Operator) (schema.FieldList, error)
 	DeleteField(context.Context, id.SchemaID, id.FieldID, *usecase.Operator) error

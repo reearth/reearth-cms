@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -55,6 +56,65 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 
 	return &gqlmodel.FieldPayload{
 		Field: gqlmodel.ToSchemaField(f, s.TitleField()),
+	}, nil
+}
+
+// CreateFields is the resolver for the createFields field.
+func (r *mutationResolver) CreateFields(ctx context.Context, input []*gqlmodel.CreateFieldInput) (*gqlmodel.FieldsPayload, error) {
+	mid := gqlmodel.ToIDRef[id.Model](input[0].ModelID)
+	gid := gqlmodel.ToIDRef[id.Group](input[0].GroupID)
+	if mid == nil && gid == nil {
+		return nil, interfaces.ErrEitherModelOrGroup
+	}
+	for _, ipt := range input {
+		if !utils.IsPtrEqual(ipt.ModelID, input[0].ModelID) || !utils.IsPtrEqual(ipt.GroupID, input[0].GroupID) {
+			return nil, interfaces.ErrEitherModelOrGroup
+		}
+	}
+
+	param := interfaces.FindOrCreateSchemaParam{
+		ModelID:  mid,
+		GroupID:  gid,
+		Metadata: input[0].Metadata,
+		Create:   true,
+	}
+	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, param, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	params, err := util.TryMap(input, func(ipt *gqlmodel.CreateFieldInput) (interfaces.CreateFieldParam, error) {
+		tp, dv, err := gqlmodel.FromSchemaTypeProperty(ipt.TypeProperty, ipt.Type, ipt.Multiple)
+		if err != nil {
+			return interfaces.CreateFieldParam{}, err
+		}
+		return interfaces.CreateFieldParam{
+			ModelID:      mid,
+			SchemaID:     s.ID(),
+			Name:         ipt.Title,
+			Description:  ipt.Description,
+			Key:          ipt.Key,
+			Multiple:     ipt.Multiple,
+			Unique:       ipt.Unique,
+			IsTitle:      ipt.IsTitle,
+			Required:     ipt.Required,
+			DefaultValue: dv,
+			TypeProperty: tp,
+		}, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	fl, err := usecases(ctx).Schema.CreateFields(ctx, s.ID(), params, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.FieldsPayload{
+		Fields: lo.Map(fl, func(sf *schema.Field, _ int) *gqlmodel.SchemaField {
+			return gqlmodel.ToSchemaField(sf, s.TitleField())
+		}),
 	}, nil
 }
 

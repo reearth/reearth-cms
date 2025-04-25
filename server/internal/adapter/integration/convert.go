@@ -272,7 +272,6 @@ func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Ro
 	return result, true
 }
 
-
 func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool) {
 	switch r {
 	case integrationapi.OWNER:
