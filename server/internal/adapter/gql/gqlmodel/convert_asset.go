@@ -40,6 +40,7 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		ThreadID:                IDFromRef(a.Thread()),
 		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 		Size:                    int64(a.Size()),
+		Public:                  a.Public(),
 	}
 }
 
