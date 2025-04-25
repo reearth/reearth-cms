@@ -31,6 +31,8 @@ func (c *AssetLoader) FindByID(ctx context.Context, assetId gqlmodel.ID) (*gqlmo
 		return nil, err
 	}
 
+	
+
 	return gqlmodel.ToAsset(a, c.usecase.GetURL), nil
 }
 

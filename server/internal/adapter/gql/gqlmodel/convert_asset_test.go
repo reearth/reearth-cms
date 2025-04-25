@@ -33,7 +33,7 @@ func TestToAsset(t *testing.T) {
 		FileName:      "aaa.jpg",
 		ThreadID:      lo.ToPtr(ID(thid.String())),
 		Size:          1000,
-		Public:        true,
+		Public:        false,
 	}
 
 	var a2 *asset.Asset = nil
@@ -61,8 +61,8 @@ func TestToAsset(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			resolver := func(_ *asset.Asset) string {
-				return "xxx"
+			resolver := func(_ *asset.Asset) (string, bool) {
+				return "xxx", false
 			}
 			got := ToAsset(tc.arg, resolver)
 			assert.Equal(t, tc.want, got)
