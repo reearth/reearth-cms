@@ -128,5 +128,6 @@ func (a *Asset) Clone() *Asset {
 		thread:                  a.thread.CloneRef(),
 		archiveExtractionStatus: a.archiveExtractionStatus,
 		flatFiles:               a.flatFiles,
+		public:                  a.public,
 	}
 }
