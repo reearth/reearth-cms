@@ -83,8 +83,8 @@ func TestNewItem(t *testing.T) {
 			},
 			"ggggg": resGroup,
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), asset.List{as}, func(a *asset.Asset) string {
-		return "https://example.com/" + a.ID().String() + af.Path()
+	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), asset.List{as}, func(a *asset.Asset) (string, bool) {
+		return "https://example.com/" + a.ID().String() + af.Path(), false
 	}, nil))
 
 	// no assets
@@ -138,8 +138,8 @@ func TestNewItem_Multiple(t *testing.T) {
 				URL:  "https://example.com/" + as.ID().String() + af.Path(),
 			}},
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), asset.List{as}, func(a *asset.Asset) string {
-		return "https://example.com/" + a.ID().String() + af.Path()
+	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), asset.List{as}, func(a *asset.Asset) (string, bool) {
+		return "https://example.com/" + a.ID().String() + af.Path(), false
 	}, nil))
 
 	// no assets
