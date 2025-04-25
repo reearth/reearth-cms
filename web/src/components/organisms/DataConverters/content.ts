@@ -91,6 +91,7 @@ export const fromGraphQLAsset = (asset: GQLAsset | undefined): Asset | undefined
     comments: asset.thread?.comments?.map(comment => fromGraphQLComment(comment)) ?? [],
     archiveExtractionStatus: asset.archiveExtractionStatus as ArchiveExtractionStatus,
     items: asset.items ?? [],
+    public: asset.public,
   };
 };
 
