@@ -246,7 +246,7 @@ export default (assetId?: string) => {
       const headers = await getHeader();
       const response = await fetch(asset.url, {
         method: "GET",
-        headers,
+        ...(asset.public ? {} : { headers }),
       });
 
       if (!response.ok) {
