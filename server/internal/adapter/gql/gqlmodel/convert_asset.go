@@ -6,7 +6,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) (string, bool)) *Asset {
+func ToAsset(a *asset.Asset, urlResolver asset.URLResolver) *Asset {
 	if a == nil {
 		return nil
 	}
