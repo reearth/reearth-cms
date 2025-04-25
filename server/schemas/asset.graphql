@@ -16,6 +16,7 @@ type Asset implements Node {
   url: String!
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
+  public: Boolean!
 }
 
 type AssetItem {

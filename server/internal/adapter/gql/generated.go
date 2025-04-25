@@ -88,6 +88,7 @@ type ComplexityRoot struct {
 		PreviewType             func(childComplexity int) int
 		Project                 func(childComplexity int) int
 		ProjectID               func(childComplexity int) int
+		Public                  func(childComplexity int) int
 		Size                    func(childComplexity int) int
 		Thread                  func(childComplexity int) int
 		ThreadID                func(childComplexity int) int
@@ -1197,6 +1198,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.ProjectID(childComplexity), true
+
+	case "Asset.public":
+		if e.complexity.Asset.Public == nil {
+			break
+		}
+
+		return e.complexity.Asset.Public(childComplexity), true
 
 	case "Asset.size":
 		if e.complexity.Asset.Size == nil {
@@ -5194,6 +5202,7 @@ schema {
   url: String!
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
+  public: Boolean!
 }
 
 type AssetItem {
@@ -10738,6 +10747,50 @@ func (ec *executionContext) fieldContext_Asset_archiveExtractionStatus(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_public(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_public(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Public, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_public(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AssetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AssetConnection_edges(ctx, field)
 	if err != nil {
@@ -10861,6 +10914,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(_ context.Context
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -11080,6 +11135,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(_ context.Context, field
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -12558,6 +12615,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -12947,6 +13006,8 @@ func (ec *executionContext) fieldContext_DecompressAssetPayload_asset(_ context.
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -16141,6 +16202,8 @@ func (ec *executionContext) fieldContext_Item_assets(_ context.Context, field gr
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -31413,6 +31476,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -42260,6 +42325,11 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "archiveExtractionStatus":
 			out.Values[i] = ec._Asset_archiveExtractionStatus(ctx, field, obj)
+		case "public":
+			out.Values[i] = ec._Asset_public(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
