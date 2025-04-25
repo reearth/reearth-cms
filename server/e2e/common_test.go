@@ -90,14 +90,18 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 		accountRepos = accountmemory.New()
 	}
 
-	assetBase := cfg.AssetBaseURL
-	if assetBase == "" {
-		assetBase = "https://example.com"
+	if cfg.AssetBaseURL == "" {
+		cfg.AssetBaseURL = "https://example.com"
+	}
+	if cfg.Host == "" {
+		cfg.Host = "https://example.com"
 	}
 
-	gateway := &gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), assetBase)),
+	f := lo.Must(fs.NewFile(afero.NewMemMapFs(), cfg.AssetBaseURL))
+	if !cfg.Asset_Public {
+		f = lo.Must(fs.NewFileWithACL(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.Host))
 	}
+	gateway := &gateway.Container{File: f}
 	accountGateways := &accountgateway.Container{
 		Mailer: mailer.New(ctx, &mailer.Config{}),
 	}
