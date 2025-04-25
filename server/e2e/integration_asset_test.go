@@ -121,7 +121,7 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object()
-	res.HasValue("public", false)
+	res.HasValue("public", true)
 	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
 	aUrl := strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
@@ -160,7 +160,7 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		JSON().
 		Object().
 		HasValue("id", aid1.String()).
-		HasValue("public", false)
+		HasValue("public", true)
 
 	res = e.GET("/api/assets/{assetId}", aid1).
 		WithHeader("authorization", "Bearer "+secret).
@@ -169,7 +169,7 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		JSON().
 		Object()
 
-	res.HasValue("public", false)
+	res.HasValue("public", true)
 	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
 	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
@@ -221,7 +221,7 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object()
-	res.HasValue("public", false)
+	res.HasValue("public", true)
 	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
 	aUrl := strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
@@ -260,7 +260,7 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		JSON().
 		Object().
 		HasValue("id", aid1.String()).
-		HasValue("public", false)
+		HasValue("public", true)
 
 	res = e.GET("/api/assets/{assetId}", aid1).
 		WithHeader("authorization", "Bearer "+secret).
@@ -269,12 +269,11 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		JSON().
 		Object()
 
-	res.HasValue("public", false)
+	res.HasValue("public", true)
 	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
 	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
 	e.GET(aUrl).
 		Expect().
 		Status(http.StatusOK)
-
 }
