@@ -257,12 +257,12 @@ func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.Delet
 
 // GuessSchemaFields is the resolver for the guessSchemaFields field.
 func (r *queryResolver) GuessSchemaFields(ctx context.Context, input gqlmodel.GuessSchemaFieldsInput) (*gqlmodel.GuessSchemaFieldResult, error) {
-	assetID, err := id.AssetIDFrom(string(input.AssetID))
+	assetID, err := gqlmodel.ToID[id.Asset](input.AssetID)
 	if err != nil {
 		return nil, err
 	}
 
-	modelID, err := id.ModelIDFrom(string(input.ModelID))
+	modelID, err := gqlmodel.ToID[id.Model](input.ModelID)
 	if err != nil {
 		return nil, err
 	}
