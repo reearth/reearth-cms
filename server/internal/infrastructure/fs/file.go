@@ -60,7 +60,7 @@ func NewFileWithACL(fs afero.Fs, publicBase, privateBase string) (gateway.File, 
 	fr := f.(*fileRepo)
 	fr.public = false
 	fr.privateBase = u
-	return f, nil
+	return fr, nil
 }
 
 func (f *fileRepo) ReadAsset(ctx context.Context, fileUUID string, fn string, h map[string]string) (io.ReadCloser, map[string]string, error) {
