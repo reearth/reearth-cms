@@ -65,6 +65,13 @@ type Config struct {
 
 	// internal api
 	InternalApi InternalApiConfig `pp:",omitempty"`
+
+	// server
+	Server ServerConfig2 `pp:",omitempty"`
+}
+
+type ServerConfig2 struct {
+	Active bool `default:"true" pp:",omitempty"`
 }
 
 type InternalApiConfig struct {

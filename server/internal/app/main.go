@@ -60,25 +60,26 @@ type ServerConfig struct {
 }
 
 func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
-	port := cfg.Config.Port
-	if port == "" {
-		port = "8080"
-	}
-
-	host := cfg.Config.ServerHost
-	if host == "" {
-		if cfg.Debug {
-			host = "localhost"
-		} else {
-			host = "0.0.0.0"
+	w := &WebServer{}
+	if cfg.Config.Server.Active {
+		port := cfg.Config.Port
+		if port == "" {
+			port = "8080"
 		}
-	}
-	address := host + ":" + port
 
-	w := &WebServer{
-		appAddress: address,
+		host := cfg.Config.ServerHost
+		if host == "" {
+			if cfg.Debug {
+				host = "localhost"
+			} else {
+				host = "0.0.0.0"
+			}
+		}
+		address := host + ":" + port
+
+		w.appAddress = address
+		w.appServer = initEcho(cfg)
 	}
-	w.appServer = initEcho(cfg)
 
 	if cfg.Config.InternalApi.Active {
 		w.internalPort = ":" + cfg.Config.InternalApi.Port
@@ -95,11 +96,13 @@ func (w *WebServer) Run(ctx context.Context) {
 		debugLog += " with debug mode"
 	}
 
-	go func() {
-		err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
-		log.Fatalc(ctx, err.Error())
-	}()
-	log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
+	if w.appServer != nil {
+		go func() {
+			err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
+			log.Fatalc(ctx, err.Error())
+		}()
+		log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
+	}
 
 	if w.internalServer != nil {
 		go func() {
