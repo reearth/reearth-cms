@@ -195,11 +195,6 @@ type GuessFieldData struct {
 }
 
 func (s *Schema) GuessSchemaFieldFromAssetFile(file io.ReadCloser, isGeoJSON bool) ([]GuessFieldData, error) {
-	defer func() {
-		if err := file.Close(); err != nil {
-			fmt.Printf("warning: failed to close file: %v", err)
-		}
-	}()
 	decoder := json.NewDecoder(file)
 
 	if isGeoJSON {
