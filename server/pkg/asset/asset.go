@@ -24,7 +24,7 @@ type Asset struct {
 	public                  bool
 }
 
-type URLResolver = func(*Asset) string
+type URLResolver = func(*Asset) (string, bool)
 
 // getters
 

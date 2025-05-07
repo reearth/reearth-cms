@@ -91,13 +91,15 @@ func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
+	// TODO: maybe the host is missing here and should be handled based on asset url management
 	u, err := url.Parse(s3AssetBasePath)
 	if err != nil {
 		return err
 	}
 
-	var urlFn = func(a *asset.Asset) string {
-		return getURL(u, a.UUID(), a.FileName())
+	var urlFn = func(a *asset.Asset) (string, bool) {
+		// TODO: handle bucket publicity as well as asset publicity for asset url management
+		return getURL(u, a.UUID(), a.FileName()), a.Public()
 	}
 
 	data, err := marshalWebhookData(p.Webhook, urlFn)

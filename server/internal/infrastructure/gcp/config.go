@@ -6,6 +6,7 @@ type TaskConfig struct {
 	Topic                   string `pp:",omitempty"`
 	GCSHost                 string `pp:",omitempty"`
 	GCSBucket               string `pp:",omitempty"`
+	GCSPublic               bool   `pp:",omitempty"`
 	DecompressorImage       string `default:"reearth/reearth-cms-decompressor"`
 	DecompressorTopic       string `default:"decompress"`
 	DecompressorGzipExt     string `default:"gml"`

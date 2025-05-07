@@ -80,11 +80,11 @@ func TestNewEventWith(t *testing.T) {
 
 	ev := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).Project(&prj).MustBuild()
 	ev1 := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.Type("test")).Operator(operator.OperatorFromUser(u.ID())).Object("test").Project(&prj).MustBuild()
-	d1, _ := New(ev, "test", func(a *asset.Asset) string {
-		return "test.com"
+	d1, _ := New(ev, "test", func(a *asset.Asset) (string, bool) {
+		return "test.com", false
 	})
-	d2, _ := New(ev.Object(), "test", func(a *asset.Asset) string {
-		return "test.com"
+	d2, _ := New(ev.Object(), "test", func(a *asset.Asset) (string, bool) {
+		return "test.com", false
 	})
 	type args struct {
 		event       *event.Event[any]
@@ -104,8 +104,8 @@ func TestNewEventWith(t *testing.T) {
 				event:    ev,
 				override: ev,
 				v:        "test",
-				urlResolver: func(a *asset.Asset) string {
-					return "test.com"
+				urlResolver: func(a *asset.Asset) (string, bool) {
+					return "test.com", false
 				},
 			},
 			want: Event{
@@ -127,8 +127,8 @@ func TestNewEventWith(t *testing.T) {
 				event:    ev,
 				override: nil,
 				v:        "test",
-				urlResolver: func(a *asset.Asset) string {
-					return "test.com"
+				urlResolver: func(a *asset.Asset) (string, bool) {
+					return "test.com", false
 				},
 			},
 			want: Event{

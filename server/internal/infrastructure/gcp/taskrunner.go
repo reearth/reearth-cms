@@ -315,13 +315,15 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
+	// TODO: handle base url depending on asset url management
 	u, err := url.Parse(t.conf.GCSHost)
 	if err != nil {
 		return fmt.Errorf("failed to parse GCS host as a URL: %w", err)
 	}
 
-	var urlFn = func(a *asset.Asset) string {
-		return getURL(u, a.UUID(), a.FileName())
+	var urlFn = func(a *asset.Asset) (string, bool) {
+		// u should be based on asset publicity or bucket publicity
+		return getURL(u, a.UUID(), a.FileName()), t.conf.GCSPublic || a.Public()
 	}
 
 	data, err := marshalWebhookData(p.Webhook, urlFn)

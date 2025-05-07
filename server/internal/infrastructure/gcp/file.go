@@ -194,12 +194,13 @@ func (f *fileRepo) UnpublishAsset(ctx context.Context, u string, fn string) erro
 	return f.publish(ctx, p, false)
 }
 
-func (f *fileRepo) GetURL(a *asset.Asset) string {
-	base := f.publicBase
-	if !f.public && !a.Public() {
-		base = f.privateBase
+func (f *fileRepo) GetURL(a *asset.Asset) (string, bool) {
+	base := f.privateBase
+	publiclyAccessible := f.public || a.Public()
+	if publiclyAccessible {
+		base = f.publicBase
 	}
-	return getURL(base, a.UUID(), a.FileName())
+	return getURL(base, a.UUID(), a.FileName()), publiclyAccessible
 }
 
 func (f *fileRepo) GetBaseURL() string {

@@ -6,14 +6,15 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
+func ToAsset(a *asset.Asset, urlResolver asset.URLResolver) *Asset {
 	if a == nil {
 		return nil
 	}
 
 	var url string
+	var isPublic bool
 	if urlResolver != nil {
-		url = urlResolver(a)
+		url, isPublic = urlResolver(a)
 	}
 
 	var createdBy ID
@@ -40,7 +41,7 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		ThreadID:                IDFromRef(a.Thread()),
 		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 		Size:                    int64(a.Size()),
-		Public:                  a.Public(),
+		Public:                  isPublic,
 	}
 }
 

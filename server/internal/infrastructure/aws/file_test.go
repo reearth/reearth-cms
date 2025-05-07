@@ -32,7 +32,8 @@ func TestFile_GetURL(t *testing.T) {
 
 	expected, err := url.JoinPath(host, s3AssetBasePath, u[:2], u[2:], n)
 	assert.NoError(t, err)
-	actual := r.GetURL(a)
+	// TODO: add tests for public and private assets and buckets
+	actual, _ := r.GetURL(a)
 	assert.Equal(t, expected, actual)
 }
 

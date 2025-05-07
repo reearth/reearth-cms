@@ -174,7 +174,8 @@ func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asse
 	u := ""
 	var files []string
 	if urlResolver != nil {
-		u = urlResolver(a)
+		// TODO: how to handle public api with asset url management
+		u, _ = urlResolver(a)
 		base, _ := url.Parse(u)
 		base.Path = path.Dir(base.Path)
 
@@ -203,7 +204,8 @@ type ItemAsset struct {
 func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
 	u := ""
 	if urlResolver != nil {
-		u = urlResolver(a)
+		// TODO: how to handle public api with asset url management
+		u, _ = urlResolver(a)
 	}
 
 	return ItemAsset{

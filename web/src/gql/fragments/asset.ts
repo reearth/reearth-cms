@@ -26,6 +26,7 @@ export const assetFragment = gql`
       ...threadFragment
     }
     archiveExtractionStatus
+    public
   }
   ${assetFileFragment}
   ${integrationFragment}

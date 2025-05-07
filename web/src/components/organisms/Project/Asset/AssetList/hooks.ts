@@ -352,7 +352,7 @@ export default (isItemsRequired: boolean) => {
         try {
           const response = await fetch(s.url, {
             method: "GET",
-            headers,
+            ...(s.public ? {} : { headers }),
           });
           if (!response.ok) {
             throw new Error(`Failed to download ${s.fileName}: HTTP ${response.status}`);
@@ -419,7 +419,7 @@ export default (isItemsRequired: boolean) => {
     handleAssetCreateFromUrl,
     handleAssetTableChange,
     handleAssetDelete,
-    handleMultipleAssetDownload ,
+    handleMultipleAssetDownload,
     handleSearchTerm,
     handleAssetsGet,
     handleAssetsReload,

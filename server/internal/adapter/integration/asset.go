@@ -48,8 +48,7 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 	}
 
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		aUrl := uc.Asset.GetURL(a)
-		aa := integrationapi.NewAsset(a, nil, aUrl, true)
+		aa := integrationapi.NewAsset(a, nil, uc.Asset.GetURL, true)
 		return *aa, nil
 	})
 	if err != nil {
@@ -125,8 +124,7 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 		return AssetCreate400Response{}, err
 	}
 
-	aUrl := uc.Asset.GetURL(a)
-	aa := integrationapi.NewAsset(a, af, aUrl, true)
+	aa := integrationapi.NewAsset(a, af, uc.Asset.GetURL, true)
 	return AssetCreate200JSONResponse(*aa), nil
 }
 
@@ -184,8 +182,7 @@ func (s *Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (A
 		return AssetGet400Response{}, err
 	}
 
-	aUrl := uc.Asset.GetURL(a)
-	aa := integrationapi.NewAsset(a, f, aUrl, true)
+	aa := integrationapi.NewAsset(a, f, uc.Asset.GetURL, true)
 	return AssetGet200JSONResponse(*aa), nil
 }
 
@@ -264,8 +261,7 @@ func (s *Server) AssetPublish(ctx context.Context, request AssetPublishRequestOb
 		return AssetPublish404Response{}, err
 	}
 
-	aUrl := uc.Asset.GetURL(a)
-	aa := integrationapi.NewAsset(a, f, aUrl, true)
+	aa := integrationapi.NewAsset(a, f, uc.Asset.GetURL, true)
 	return AssetPublish200JSONResponse(*aa), nil
 }
 
@@ -286,7 +282,6 @@ func (s *Server) AssetUnpublish(ctx context.Context, request AssetUnpublishReque
 		return AssetUnpublish404Response{}, err
 	}
 
-	aUrl := uc.Asset.GetURL(a)
-	aa := integrationapi.NewAsset(a, f, aUrl, true)
+	aa := integrationapi.NewAsset(a, f, uc.Asset.GetURL, true)
 	return AssetUnpublish200JSONResponse(*aa), nil
 }

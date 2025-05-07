@@ -20,7 +20,7 @@ func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) 
 	case *event.Event[any]:
 		res, err = NewEvent(o, v, urlResolver)
 	case *asset.Asset:
-		res = NewAsset(o, nil, urlResolver(o), true)
+		res = NewAsset(o, nil, urlResolver, true)
 	case *asset.File:
 		res = ToAssetFile(o, true)
 	case *item.Item:

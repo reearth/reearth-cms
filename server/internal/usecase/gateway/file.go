@@ -70,7 +70,7 @@ type File interface {
 	DeleteAssets(context.Context, []string) error
 	PublishAsset(context.Context, string, string) error
 	UnpublishAsset(context.Context, string, string) error
-	GetURL(*asset.Asset) string
+	GetURL(*asset.Asset) (string, bool)
 	GetBaseURL() string
 	IssueUploadAssetLink(context.Context, IssueUploadAssetParam) (*UploadAssetLink, error)
 	UploadedAsset(context.Context, *asset.Upload) (*file.File, error)

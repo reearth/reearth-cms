@@ -100,7 +100,7 @@ func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, headers map[st
 	return f, headers, nil
 }
 
-func (i *Asset) GetURL(a *asset.Asset) string {
+func (i *Asset) GetURL(a *asset.Asset) (string, bool) {
 	return i.gateways.File.GetURL(a)
 }
 

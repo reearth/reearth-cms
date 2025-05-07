@@ -82,8 +82,8 @@ func TestIntegrationDeleteAssetAPI(t *testing.T) {
 // Test asset Publish/Unpublish API with private asset bucket
 func TestIntegrationPublishAssetAPI1(t *testing.T) {
 	e := StartServer(t, &app.Config{
-		Host:         "http://localhost:8080",
-		AssetBaseURL: "http://localhost:8080",
+		Host:         "https://api.example.com",
+		AssetBaseURL: "https://assets.example.com",
 		Asset_Public: false,
 	}, true, baseSeeder)
 
@@ -122,12 +122,16 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		JSON().
 		Object()
 	res.HasValue("public", false)
-	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
+	res.Value("url").String().Match("https://api.example.com/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
-	aUrl := strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
+	aUrl := strings.TrimPrefix(res.Value("url").String().Raw(), "https://api.example.com")
 	e.GET(aUrl).
 		Expect().
 		Status(http.StatusNotFound)
+	e.GET(aUrl).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
 
 	e.POST("/api/assets/{assetId}/publish", aid1).
 		WithHeader("authorization", "Bearer "+secret).
@@ -146,9 +150,9 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		Object()
 
 	res.HasValue("public", true)
-	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
+	res.Value("url").String().Match("https://assets.example.com/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
-	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
+	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "https://assets.example.com")
 	e.GET(aUrl).
 		Expect().
 		Status(http.StatusOK)
@@ -170,20 +174,24 @@ func TestIntegrationPublishAssetAPI1(t *testing.T) {
 		Object()
 
 	res.HasValue("public", false)
-	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
+	res.Value("url").String().Match("https://api.example.com/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
-	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
+	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "https://api.example.com")
 	e.GET(aUrl).
 		Expect().
 		Status(http.StatusNotFound)
+	e.GET(aUrl).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
 
 }
 
 // Test asset Publish/Unpublish API with public asset bucket
 func TestIntegrationPublishAssetAPI2(t *testing.T) {
 	e := StartServer(t, &app.Config{
-		Host:         "http://localhost:8080",
-		AssetBaseURL: "http://localhost:8080",
+		Host:         "https://api.example.com",
+		AssetBaseURL: "https://assets.example.com",
 		Asset_Public: true,
 	}, true, baseSeeder)
 
@@ -221,10 +229,10 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object()
-	res.HasValue("public", false)
-	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
+	res.HasValue("public", true)
+	res.Value("url").String().Match("https://assets.example.com/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
-	aUrl := strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
+	aUrl := strings.TrimPrefix(res.Value("url").String().Raw(), "https://assets.example.com")
 	e.GET(aUrl).
 		Expect().
 		Status(http.StatusOK)
@@ -246,9 +254,9 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		Object()
 
 	res.HasValue("public", true)
-	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
+	res.Value("url").String().Match("https://assets.example.com/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
-	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
+	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "https://assets.example.com")
 	e.GET(aUrl).
 		Expect().
 		Status(http.StatusOK)
@@ -260,7 +268,7 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		JSON().
 		Object().
 		HasValue("id", aid1.String()).
-		HasValue("public", false)
+		HasValue("public", true)
 
 	res = e.GET("/api/assets/{assetId}", aid1).
 		WithHeader("authorization", "Bearer "+secret).
@@ -269,12 +277,11 @@ func TestIntegrationPublishAssetAPI2(t *testing.T) {
 		JSON().
 		Object()
 
-	res.HasValue("public", false)
-	res.Value("url").String().Match("localhost:8080/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
+	res.HasValue("public", true)
+	res.Value("url").String().Match("https://assets.example.com/assets/[0-9a-f]{2}/[0-9a-f-]{34}/aaa.jpg")
 
-	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "http://localhost:8080")
+	aUrl = strings.TrimPrefix(res.Value("url").String().Raw(), "https://assets.example.com")
 	e.GET(aUrl).
 		Expect().
 		Status(http.StatusOK)
-
 }

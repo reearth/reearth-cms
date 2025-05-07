@@ -64,21 +64,22 @@ func Test_NewAsset(t *testing.T) {
 		CreatedByUser(uid).Thread(id.NewThreadID().Ref()).CreatedAt(timeNow).MustBuild()
 
 	f1 := asset.NewFile().Name(name).Path(path).ContentType("s").Size(10).Build()
+	fn := func(*asset.Asset) (string, bool) { return "www.", false }
 
 	tests := []struct {
-		name string
-		a    *asset.Asset
-		f    *asset.File
-		url  string
-		all  bool
-		want *Asset
+		name  string
+		a     *asset.Asset
+		f     *asset.File
+		urlFn asset.URLResolver
+		all   bool
+		want  *Asset
 	}{
 		{
-			name: "success",
-			a:    a,
-			f:    f1,
-			url:  "www.",
-			all:  true,
+			name:  "success",
+			a:     a,
+			f:     f1,
+			urlFn: fn,
+			all:   true,
 			want: &Asset{
 				Name:      lo.ToPtr("aaa"),
 				Id:        a.ID(),
@@ -97,19 +98,19 @@ func Test_NewAsset(t *testing.T) {
 			},
 		},
 		{
-			name: "asset and file input is nil",
-			a:    nil,
-			f:    nil,
-			url:  "www.",
-			all:  false,
-			want: nil,
+			name:  "asset and file input is nil",
+			a:     nil,
+			f:     nil,
+			urlFn: fn,
+			all:   false,
+			want:  nil,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := NewAsset(tt.a, tt.f, tt.url, tt.all)
+			result := NewAsset(tt.a, tt.f, tt.urlFn, tt.all)
 
 			assert.Equal(t, result, tt.want)
 		})

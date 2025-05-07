@@ -37,6 +37,7 @@ export type Asset = {
   comments: Comment[];
   archiveExtractionStatus?: ArchiveExtractionStatus;
   items: AssetItem[];
+  public: boolean;
 };
 
 export type AssetItem = {
