@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -198,13 +199,13 @@ func (s *Schema) GuessSchemaFieldFromAssetFile(file io.ReadCloser, isGeoJSON boo
 	decoder := json.NewDecoder(file)
 
 	if isGeoJSON {
-		return guessFromGeoJSON(decoder, s.ID())
+		return s.guessFromGeoJSON(decoder, s.ID())
 	} else {
-		return guessFromFlatJSON(decoder, s.ID())
+		return s.guessFromFlatJSON(decoder, s.ID())
 	}
 }
 
-func guessFromGeoJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessFieldData, error) {
+func (s *Schema) guessFromGeoJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessFieldData, error) {
 	// Expect opening object {
 	tok, err := decoder.Token()
 	if err != nil {
@@ -277,13 +278,30 @@ func guessFromGeoJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessField
 		if !key.IsValid() {
 			return nil, rerror.ErrInvalidParams
 		}
-		fields = append(fields, fieldFrom(key.String(), v, schemaID))
+
+		newField := fieldFrom(key.String(), v, schemaID)
+		f := s.FieldByIDOrKey(nil, &key)
+		if f != nil && !isAssignable(newField.Type, f.Type()) {
+			continue
+		}
+
+		if f == nil {
+			prevField, found := lo.Find(fields, func(fp GuessFieldData) bool {
+				return fp.Key == key.String()
+			})
+			if found && prevField.Type != newField.Type {
+				return nil, rerror.NewE(i18n.T("data type mismatch"))
+			}
+			if !found {
+				fields = append(fields, newField)
+			}
+		}
 	}
 
 	return fields, nil
 }
 
-func guessFromFlatJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessFieldData, error) {
+func (s *Schema) guessFromFlatJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessFieldData, error) {
 	// Decode just the first object from a JSON array
 	tok, err := decoder.Token()
 	if err != nil {
@@ -317,7 +335,23 @@ func guessFromFlatJSON(decoder *json.Decoder, schemaID id.SchemaID) ([]GuessFiel
 		if !key.IsValid() {
 			return nil, rerror.ErrInvalidParams
 		}
-		fields = append(fields, fieldFrom(key.String(), v, schemaID))
+		newField := fieldFrom(key.String(), v, schemaID)
+		f := s.FieldByIDOrKey(nil, &key)
+		if f != nil && !isAssignable(newField.Type, f.Type()) {
+			continue
+		}
+
+		if f == nil {
+			prevField, found := lo.Find(fields, func(fp GuessFieldData) bool {
+				return fp.Key == key.String()
+			})
+			if found && prevField.Type != newField.Type {
+				return nil, rerror.NewE(i18n.T("data type mismatch"))
+			}
+			if !found {
+				fields = append(fields, newField)
+			}
+		}
 	}
 	return fields, nil
 }
@@ -363,4 +397,27 @@ func fieldFrom(k string, v any, schemaID id.SchemaID) GuessFieldData {
 		Name:     k,
 		Key:      k,
 	}
+}
+
+func isAssignable(vt1, vt2 value.Type) bool {
+	if vt1 == vt2 {
+		return true
+	}
+	if vt1 == value.TypeInteger &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown || vt2 == value.TypeNumber) {
+		return true
+	}
+	if vt1 == value.TypeNumber &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	if vt1 == value.TypeBool &&
+		(vt2 == value.TypeCheckbox || vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	if vt1 == value.TypeText &&
+		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
+		return true
+	}
+	return false
 }
