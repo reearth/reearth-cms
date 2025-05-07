@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"io"
+	"strings"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -576,6 +578,131 @@ func TestFieldFrom(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got := fieldFrom(tt.key, tt.value, schemaID)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestSchema_GuessSchemaFieldFromAssetFile(t *testing.T) {
+	// Create a schema ID for testing
+	schemaID := id.NewSchemaID()
+	schema := &Schema{id: schemaID}
+
+	// Define test cases
+	tests := []struct {
+		name      string
+		jsonData  string
+		isGeoJSON bool
+		want      []GuessFieldData
+		wantErr   bool
+	}{
+		{
+			name: "flat JSON with various field types",
+			jsonData: `[
+                {
+                    "name": "John Doe",
+                    "age": 30,
+                    "active": true,
+                    "height": 1.85
+                }
+            ]`,
+			isGeoJSON: false,
+			want: []GuessFieldData{
+				{SchemaID: schemaID, Type: value.TypeText, Name: "name", Key: "name"},
+				{SchemaID: schemaID, Type: value.TypeInteger, Name: "age", Key: "age"},
+				{SchemaID: schemaID, Type: value.TypeBool, Name: "active", Key: "active"},
+				{SchemaID: schemaID, Type: value.TypeNumber, Name: "height", Key: "height"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "GeoJSON with point geometry",
+			jsonData: `{
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [125.6, 10.1]
+                        },
+                        "properties": {
+                            "name": "Location A",
+                            "category": "Park",
+                            "visitors": 1500
+                        }
+                    }
+                ]
+            }`,
+			isGeoJSON: true,
+			want: []GuessFieldData{
+				{SchemaID: schemaID, Type: value.TypeGeometryObject, Name: "geometry", Key: "geometry"},
+				{SchemaID: schemaID, Type: value.TypeText, Name: "name", Key: "name"},
+				{SchemaID: schemaID, Type: value.TypeText, Name: "category", Key: "category"},
+				{SchemaID: schemaID, Type: value.TypeInteger, Name: "visitors", Key: "visitors"},
+			},
+			wantErr: false,
+		},
+		{
+			name:      "invalid JSON",
+			jsonData:  `{invalid json`,
+			isGeoJSON: false,
+			want:      nil,
+			wantErr:   true,
+		},
+		{
+			name:      "empty JSON array",
+			jsonData:  `[]`,
+			isGeoJSON: false,
+			want:      nil,
+			wantErr:   true,
+		},
+		{
+			name: "invalid GeoJSON (missing features)",
+			jsonData: `{
+                "type": "FeatureCollection"
+            }`,
+			isGeoJSON: true,
+			want:      nil,
+			wantErr:   true,
+		},
+		{
+			name: "invalid GeoJSON (missing properties)",
+			jsonData: `{
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [125.6, 10.1]
+                        }
+                    }
+                ]
+            }`,
+			isGeoJSON: true,
+			want:      nil,
+			wantErr:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			// Create a ReadCloser from the JSON string
+			file := io.NopCloser(strings.NewReader(tt.jsonData))
+
+			// Call the function
+			got, err := schema.GuessSchemaFieldFromAssetFile(file, tt.isGeoJSON)
+
+			// Check error
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+
+			// Compare the results
 			assert.Equal(t, tt.want, got)
 		})
 	}
