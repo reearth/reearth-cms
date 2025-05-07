@@ -15,7 +15,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -433,29 +432,6 @@ func (i Item) updateSchema(ctx context.Context, s *schema.Schema, params []inter
 	}
 	log.Infof("schema %s updated, %v new field saved.", s.ID(), len(params))
 	return fields, nil
-}
-
-func isAssignable(vt1, vt2 value.Type) bool {
-	if vt1 == vt2 {
-		return true
-	}
-	if vt1 == value.TypeInteger &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown || vt2 == value.TypeNumber) {
-		return true
-	}
-	if vt1 == value.TypeNumber &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	if vt1 == value.TypeBool &&
-		(vt2 == value.TypeCheckbox || vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	if vt1 == value.TypeText &&
-		(vt2 == value.TypeText || vt2 == value.TypeRichText || vt2 == value.TypeMarkdown) {
-		return true
-	}
-	return false
 }
 
 func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, sp schema.Package) ([]interfaces.ImportItemParam, error) {
