@@ -195,10 +195,12 @@ type GuessFieldData struct {
 	Key      string
 }
 
-func (s *Schema) GuessSchemaFieldFromAssetFile(file io.ReadCloser, isGeoJSON bool) ([]GuessFieldData, error) {
+func (s *Schema) GuessSchemaFieldFromAssetFile(file io.ReadCloser, isGeoJSON bool, isItemImport bool, orderedMap *orderedmap.OrderedMap) ([]GuessFieldData, error) {
 	decoder := json.NewDecoder(file)
 
-	if isGeoJSON {
+	if isItemImport {
+		return s.guessJsonForItemImport(s.ID(), orderedMap, isGeoJSON)
+	} else if isGeoJSON {
 		return s.guessFromGeoJSON(decoder, s.ID())
 	} else {
 		return s.guessFromFlatJSON(decoder, s.ID())
@@ -352,6 +354,47 @@ func (s *Schema) guessFromFlatJSON(decoder *json.Decoder, schemaID id.SchemaID) 
 				fields = append(fields, newField)
 			}
 		}
+	}
+	return fields, nil
+}
+
+func (s *Schema) guessJsonForItemImport(schemaID id.SchemaID, orderedMap *orderedmap.OrderedMap, isGeoJson bool) ([]GuessFieldData, error) {
+	fields := make([]GuessFieldData, 0)
+	if isGeoJson {
+		properties, ok := orderedMap.Get("properties")
+		if !ok {
+			return nil, rerror.ErrInvalidParams
+		}
+		orderedMap = lo.ToPtr(properties.(orderedmap.OrderedMap))
+	}
+	for _, k := range orderedMap.Keys() {
+		v, _ := orderedMap.Get(k)
+		if k == "id" {
+			continue
+		}
+
+		key := id.NewKey(k)
+		if !key.IsValid() {
+			return nil, rerror.ErrInvalidParams
+		}
+		newField := fieldFrom(key.String(), v, schemaID)
+		f := s.FieldByIDOrKey(nil, &key)
+		if f != nil && !isAssignable(newField.Type, f.Type()) {
+			continue
+		}
+
+		if f == nil {
+			prevField, found := lo.Find(fields, func(fp GuessFieldData) bool {
+				return fp.Key == key.String()
+			})
+			if found && prevField.Type != newField.Type {
+				return nil, rerror.NewE(i18n.T("data type mismatch"))
+			}
+			if !found {
+				fields = append(fields, newField)
+			}
+		}
+
 	}
 	return fields, nil
 }

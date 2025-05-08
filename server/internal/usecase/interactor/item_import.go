@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -123,11 +124,15 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 
 		// guess schema fields from first object
 		if param.MutateSchema && first {
+			orderedMap := orderedmap.New()
+			if err := json.Unmarshal(rawJSON, &orderedMap); err != nil {
+				return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+			}
 			// Create a ReadCloser from the raw JSON
 			jsonReader := io.NopCloser(bytes.NewReader(rawJSON))
 
 			// Use GuessSchemaFieldFromAssetFile to get field data
-			guessedFields, err := s.GuessSchemaFieldFromAssetFile(jsonReader, param.Format == interfaces.ImportFormatTypeGeoJSON)
+			guessedFields, err := s.GuessSchemaFieldFromAssetFile(jsonReader, param.Format == interfaces.ImportFormatTypeGeoJSON, true, orderedMap)
 			if err != nil {
 				return res.Into(), fmt.Errorf("error guessing schema fields: %v", err)
 			}

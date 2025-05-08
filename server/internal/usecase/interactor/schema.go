@@ -599,7 +599,7 @@ func (i *Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetI
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 
-	predictedFields, err := schema.GuessSchemaFieldFromAssetFile(file, isGeoJSON)
+	predictedFields, err := schema.GuessSchemaFieldFromAssetFile(file, isGeoJSON, false, nil)
 	if err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
