@@ -627,3 +627,83 @@ func TestClearFieldDefaultValue(t *testing.T) {
 
 	assert.Equal(t, []any{nil, nil, nil}, dv)
 }
+
+func TestGuessSchemaFields(t *testing.T) {
+	// Start server
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	// Create project
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-schema-guess")
+
+	// Create model
+	mId, _ := createModel(e, pId, "test", "test", "test-schema-guess")
+
+	// Upload JSON asset with sample data
+	jsonContent := `[{"name": "Item 1", "count": 42, "active": true, "tags": ["tag1", "tag2"]}]`
+	assetId := uploadAsset(e, pId, "./sample.json", jsonContent).Object().Value("id").String().Raw()
+
+	// Call GuessSchemaFields query
+	requestBody := GraphQLRequest{
+		Query: `query GuessSchemaFields($input: GuessSchemaFieldsInput!) {
+            guessSchemaFields(input: $input) {
+                total_count
+                fields {
+                    name
+                    key
+                    type
+                }
+            }
+        }`,
+		Variables: map[string]any{
+			"input": map[string]any{
+				"assetId": assetId,
+				"modelId": mId,
+			},
+		},
+	}
+
+	// Execute query and verify response
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+		// Verify response structure and content
+	res.Object().
+		Value("data").Object().
+		Value("guessSchemaFields").Object().
+		HasValue("total_count", 4)
+
+	fields := res.Path("$.data.guessSchemaFields.fields").Array()
+	fields.Length().IsEqual(4)
+
+	// Check for each expected field individually
+	fields.ContainsAny(map[string]any{
+		"key":  "name",
+		"type": "text",
+		"name": "name",
+	})
+
+	fields.ContainsAny(map[string]any{
+		"key":  "count",
+		"type": "integer",
+		"name": "count",
+	})
+
+	fields.ContainsAny(map[string]any{
+		"key":  "active",
+		"type": "bool",
+		"name": "active",
+	})
+
+	fields.ContainsAny(map[string]any{
+		"key":  "tags",
+		"type": "text",
+		"name": "tags",
+	})
+
+}
