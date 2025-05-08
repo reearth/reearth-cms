@@ -257,11 +257,10 @@ func (s *Schema) guessFromGeoJSON(decoder *json.Decoder, schemaID id.SchemaID) (
 	if !ok {
 		return nil, fmt.Errorf("missing 'properties' in GeoJSON feature")
 	}
-	propsPtr, ok := properties.(*orderedmap.OrderedMap)
+	propsMap, ok := properties.(orderedmap.OrderedMap)
 	if !ok {
 		return nil, fmt.Errorf("invalid properties map type")
 	}
-	propsMap := propsPtr
 
 	fields := make([]GuessFieldData, 0)
 	// Add geometry field
