@@ -63,6 +63,7 @@ type Schema interface {
 	FindByIDs(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
 	FindByModel(context.Context, id.ModelID, *usecase.Operator) (*schema.Package, error)
 	FindByGroup(context.Context, id.GroupID, *usecase.Operator) (*schema.Schema, error)
+	FindByGroups(context.Context, id.GroupIDList, *usecase.Operator) (schema.List, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
 	CreateFields(context.Context, id.SchemaID, []CreateFieldParam, *usecase.Operator) (schema.FieldList, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)

@@ -6,7 +6,10 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/group"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
@@ -31,14 +34,28 @@ func (s *Server) GroupFilter(ctx context.Context, request GroupFilterRequestObje
 		}
 		return GroupFilter500Response{}, err
 	}
-	groups := make([]integrationapi.Group, 0, len(gl))
-	for _, g := range gl {
-		ss, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
-		if err != nil {
-			return GroupFilter500Response{}, err
-		}
-		groups = append(groups, integrationapi.NewGroup(g, ss))
+
+	gIDs := lo.Map(gl, func(g *group.Group, _ int) id.GroupID {
+		return g.ID()
+	})
+
+	schemas, err := uc.Schema.FindByGroups(ctx, gIDs, op)
+	if err != nil {
+		return GroupFilter500Response{}, err
 	}
+
+	schemaMap := lo.Associate(schemas, func(s *schema.Schema) (id.SchemaID, *schema.Schema) {
+		return s.ID(), s
+	})
+
+	groups := lo.Map(gl, func(g *group.Group, _ int) integrationapi.Group {
+		sID := g.Schema()
+		var ss *schema.Schema
+		if !sID.IsEmpty() {
+			ss = schemaMap[sID]
+		}
+		return integrationapi.NewGroup(g, ss)
+	})
 
 	return GroupFilter200JSONResponse{
 		Groups:     &groups,
@@ -90,7 +107,12 @@ func (s *Server) GroupGet(ctx context.Context, request GroupGetRequestObject) (G
 		return GroupGet500Response{}, err
 	}
 
-	return GroupGet200JSONResponse(integrationapi.NewGroup(g, nil)), nil
+	gs, err := uc.Schema.FindByGroup(ctx, g.ID(), op)
+	if err != nil {
+		return GroupGet500Response{}, err
+	}
+
+	return GroupGet200JSONResponse(integrationapi.NewGroup(g, gs)), nil
 }
 
 func (s *Server) GroupUpdate(ctx context.Context, request GroupUpdateRequestObject) (GroupUpdateResponseObject, error) {
