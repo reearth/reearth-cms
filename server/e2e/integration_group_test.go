@@ -25,6 +25,10 @@ func TestIntegrationGroupFilter(t *testing.T) {
 	// Success
 	res := e.GET(endpoint, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 50).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "asc").
 		Expect().
 		Status(http.StatusOK).
 		JSON().

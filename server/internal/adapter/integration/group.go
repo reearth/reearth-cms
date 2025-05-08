@@ -27,8 +27,7 @@ func (s *Server) GroupFilter(ctx context.Context, request GroupFilterRequestObje
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	// TODO: support sort
-	var sort *group.Sort = nil
+	sort := toGroupSort(request.Params.Sort, request.Params.Dir)
 	gl, pi, err := uc.Group.Filter(ctx, prj.ID(), sort, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {

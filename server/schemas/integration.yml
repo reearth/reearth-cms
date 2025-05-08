@@ -258,6 +258,8 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
     get:
       operationId: GroupFilter
       security:
