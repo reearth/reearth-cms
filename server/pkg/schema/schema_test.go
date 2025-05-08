@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -590,11 +591,13 @@ func TestSchema_GuessSchemaFieldFromAssetFile(t *testing.T) {
 
 	// Define test cases
 	tests := []struct {
-		name      string
-		jsonData  string
-		isGeoJSON bool
-		want      []GuessFieldData
-		wantErr   bool
+		name         string
+		jsonData     string
+		isGeoJSON    bool
+		isItemImport bool
+		orderedMap   *orderedmap.OrderedMap
+		want         []GuessFieldData
+		wantErr      bool
 	}{
 		{
 			name: "flat JSON with various field types",
@@ -606,7 +609,9 @@ func TestSchema_GuessSchemaFieldFromAssetFile(t *testing.T) {
                     "height": 1.85
                 }
             ]`,
-			isGeoJSON: false,
+			isGeoJSON:    false,
+			isItemImport: false,
+			orderedMap:   nil,
 			want: []GuessFieldData{
 				{SchemaID: schemaID, Type: value.TypeText, Name: "name", Key: "name"},
 				{SchemaID: schemaID, Type: value.TypeInteger, Name: "age", Key: "age"},
@@ -634,7 +639,9 @@ func TestSchema_GuessSchemaFieldFromAssetFile(t *testing.T) {
                     }
                 ]
             }`,
-			isGeoJSON: true,
+			isGeoJSON:    true,
+			isItemImport: false,
+			orderedMap:   nil,
 			want: []GuessFieldData{
 				{SchemaID: schemaID, Type: value.TypeGeometryObject, Name: "geometry", Key: "geometry"},
 				{SchemaID: schemaID, Type: value.TypeText, Name: "name", Key: "name"},
@@ -644,27 +651,76 @@ func TestSchema_GuessSchemaFieldFromAssetFile(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:      "invalid JSON",
-			jsonData:  `{invalid json`,
-			isGeoJSON: false,
-			want:      nil,
-			wantErr:   true,
+			name:         "item import with ordered map",
+			jsonData:     ``, // Not used when isItemImport is true
+			isGeoJSON:    false,
+			isItemImport: true,
+			orderedMap: func() *orderedmap.OrderedMap {
+				om := orderedmap.New()
+				om.Set("name", "John Doe")
+				om.Set("age", 30)
+				om.Set("active", true)
+				om.Set("height", 1.85)
+				return om
+			}(),
+			want: []GuessFieldData{
+				{SchemaID: schemaID, Type: value.TypeText, Name: "name", Key: "name"},
+				{SchemaID: schemaID, Type: value.TypeNumber, Name: "age", Key: "age"},
+				{SchemaID: schemaID, Type: value.TypeBool, Name: "active", Key: "active"},
+				{SchemaID: schemaID, Type: value.TypeNumber, Name: "height", Key: "height"},
+			},
+			wantErr: false,
 		},
 		{
-			name:      "empty JSON array",
-			jsonData:  `[]`,
-			isGeoJSON: false,
-			want:      nil,
-			wantErr:   true,
+			name:         "item import with GeoJSON ordered map",
+			jsonData:     ``, // Not used when isItemImport is true
+			isGeoJSON:    true,
+			isItemImport: true,
+			orderedMap: func() *orderedmap.OrderedMap {
+				properties := orderedmap.New()
+				properties.Set("name", "Location A")
+				properties.Set("category", "Park")
+				properties.Set("visitors", 1500)
+
+				om := orderedmap.New()
+				om.Set("properties", *properties)
+				return om
+			}(),
+			want: []GuessFieldData{
+				{SchemaID: schemaID, Type: value.TypeText, Name: "name", Key: "name"},
+				{SchemaID: schemaID, Type: value.TypeText, Name: "category", Key: "category"},
+				{SchemaID: schemaID, Type: value.TypeNumber, Name: "visitors", Key: "visitors"},
+			},
+			wantErr: false,
+		},
+		{
+			name:         "invalid JSON",
+			jsonData:     `{invalid json`,
+			isGeoJSON:    false,
+			isItemImport: false,
+			orderedMap:   nil,
+			want:         nil,
+			wantErr:      true,
+		},
+		{
+			name:         "empty JSON array",
+			jsonData:     `[]`,
+			isGeoJSON:    false,
+			isItemImport: false,
+			orderedMap:   nil,
+			want:         nil,
+			wantErr:      true,
 		},
 		{
 			name: "invalid GeoJSON (missing features)",
 			jsonData: `{
                 "type": "FeatureCollection"
             }`,
-			isGeoJSON: true,
-			want:      nil,
-			wantErr:   true,
+			isGeoJSON:    true,
+			isItemImport: false,
+			orderedMap:   nil,
+			want:         nil,
+			wantErr:      true,
 		},
 		{
 			name: "invalid GeoJSON (missing properties)",
@@ -680,20 +736,35 @@ func TestSchema_GuessSchemaFieldFromAssetFile(t *testing.T) {
                     }
                 ]
             }`,
-			isGeoJSON: true,
-			want:      nil,
-			wantErr:   true,
+			isGeoJSON:    true,
+			isItemImport: false,
+			orderedMap:   nil,
+			want:         nil,
+			wantErr:      true,
+		},
+		{
+			name:         "item import with invalid ordered map (missing properties in GeoJSON)",
+			jsonData:     ``,
+			isGeoJSON:    true,
+			isItemImport: true,
+			orderedMap:   orderedmap.New(), // Empty ordered map without properties
+			want:         nil,
+			wantErr:      true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			// Create a ReadCloser from the JSON string
-			file := io.NopCloser(strings.NewReader(tt.jsonData))
 
-			// Call the function
-			got, err := schema.GuessSchemaFieldFromAssetFile(file, tt.isGeoJSON)
+			var file io.ReadCloser
+			if !tt.isItemImport {
+				// Create a ReadCloser from the JSON string only if not item import
+				file = io.NopCloser(strings.NewReader(tt.jsonData))
+			}
+
+			// Call the function with all parameters
+			got, err := schema.GuessSchemaFieldFromAssetFile(file, tt.isGeoJSON, tt.isItemImport, tt.orderedMap)
 
 			// Check error
 			if tt.wantErr {
