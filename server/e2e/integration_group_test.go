@@ -23,7 +23,7 @@ func TestIntegrationGroupFilter(t *testing.T) {
 		Status(http.StatusNotFound)
 
 	// Success
-	e.GET(endpoint, pid.String()).
+	res := e.GET(endpoint, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -32,6 +32,27 @@ func TestIntegrationGroupFilter(t *testing.T) {
 		HasValue("page", 1).
 		HasValue("perPage", 50).
 		HasValue("totalCount", 2)
+
+	groups := res.Value("groups").Array()
+	groups.Length().IsEqual(2)
+
+	g1 := groups.Value(0).Object()
+	g1.
+		HasValue("id", gId1).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid4).
+		HasValue("name", "group").
+		HasValue("description", "").
+		HasValue("key", gKey1.String())
+
+	g2 := groups.Value(1).Object()
+	g2.
+		HasValue("id", gId2).
+		HasValue("projectId", pid).
+		HasValue("schemaId", gsId).
+		HasValue("name", "group2").
+		HasValue("description", "").
+		HasValue("key", gKey2.String())
 }
 
 func TestIntegrationGroupCreate(t *testing.T) {
@@ -44,14 +65,24 @@ func TestIntegrationGroupCreate(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	// Success
-	e.POST(endpoint, pid.String()).
+	created := e.POST(endpoint, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
 			"name": "Create Group",
 			"key":  "create-group",
 		}).
 		Expect().
-		Status(http.StatusCreated)
+		Status(http.StatusCreated).
+		JSON().
+		Object()
+
+	created.
+		HasValue("name", "Create Group").
+		HasValue("key", "create-group").
+		HasValue("description", "").
+		HasValue("projectId", pid)
+	created.Value("id").NotNull()
+	created.Value("schemaId").NotNull()
 
 	// Duplicate key
 	e.POST(endpoint, pid.String()).
@@ -81,13 +112,20 @@ func TestIntegrationGroupGet(t *testing.T) {
 
 	// Get by ID - success
 	endpoint = "/api/groups/{groupId}"
-	e.GET(endpoint, groupID).
+	got := e.GET(endpoint, groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", groupID)
+		Object()
+
+	got.
+		HasValue("id", groupID).
+		HasValue("name", "ToGet").
+		HasValue("key", "to-get").
+		HasValue("description", "").
+		HasValue("projectId", pid)
+	got.Value("schemaId").NotNull()
 
 	// Get by ID - not found
 	e.GET(endpoint, "gr_xxxxxx").
@@ -113,14 +151,21 @@ func TestIntegrationGroupUpdate(t *testing.T) {
 
 	// Update by ID - success
 	endpoint = "/api/groups/{groupId}"
-	e.PATCH(endpoint, groupID).
+	updated := e.PATCH(endpoint, groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "Updated Name"}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("name", "Updated Name")
+		Object()
+
+	updated.
+		HasValue("id", groupID).
+		HasValue("name", "Updated Name").
+		HasValue("key", "to-update").
+		HasValue("description", "").
+		HasValue("projectId", pid)
+	updated.Value("schemaId").NotNull()
 
 	// Update by ID - not found
 	e.PATCH(endpoint, "gr_unknown").
@@ -148,13 +193,13 @@ func TestIntegrationGroupDelete(t *testing.T) {
 
 	// Delete by ID - success
 	endpoint = "/api/groups/{groupId}"
-	e.DELETE(endpoint, groupID).
+	deleted := e.DELETE(endpoint, groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", groupID)
+		Object()
+	deleted.HasValue("id", groupID)
 
 	// Delete by ID - already deleted
 	e.DELETE(endpoint, groupID).
@@ -180,13 +225,20 @@ func TestIntegrationGroupGetWithProject(t *testing.T) {
 
 	// Get by ID - success
 	endpoint = "/api/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
-	e.GET(endpoint, pid.String(), groupID).
+	got := e.GET(endpoint, pid.String(), groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", groupID)
+		Object()
+
+	got.
+		HasValue("id", groupID).
+		HasValue("name", "ToGet").
+		HasValue("key", "to-get").
+		HasValue("description", "").
+		HasValue("projectId", pid)
+	got.Value("schemaId").NotNull()
 
 	// Get by ID - not found
 	e.GET(endpoint, pid.String(), "gr_xxxxxx").
@@ -195,13 +247,20 @@ func TestIntegrationGroupGetWithProject(t *testing.T) {
 		Status(http.StatusNotFound)
 
 	// Get by key - success
-	e.GET(endpoint, pid.String(), "to-get").
+	got2 := e.GET(endpoint, pid.String(), "to-get").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", groupID)
+		Object()
+
+	got2.
+		HasValue("id", groupID).
+		HasValue("name", "ToGet").
+		HasValue("key", "to-get").
+		HasValue("description", "").
+		HasValue("projectId", pid)
+	got2.Value("schemaId").NotNull()
 
 	// Get by key - not found
 	e.GET(endpoint, pid.String(), "unknown").
@@ -227,14 +286,21 @@ func TestIntegrationGroupUpdateWithProject(t *testing.T) {
 
 	// Update by ID - success
 	endpoint = "/api/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
-	e.PATCH(endpoint, pid.String(), groupID).
+	updated := e.PATCH(endpoint, pid.String(), groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "Updated Name"}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("name", "Updated Name")
+		Object()
+
+	updated.
+		HasValue("id", groupID).
+		HasValue("name", "Updated Name").
+		HasValue("key", "to-update").
+		HasValue("description", "").
+		HasValue("projectId", pid)
+	updated.Value("schemaId").NotNull()
 
 	// Update by ID - not found
 	e.PATCH(endpoint, pid.String(), "gr_unknown").
@@ -244,14 +310,20 @@ func TestIntegrationGroupUpdateWithProject(t *testing.T) {
 		Status(http.StatusNotFound)
 
 	// Update by key - success
-	e.PATCH(endpoint, pid.String(), "to-update").
+	updated2 := e.PATCH(endpoint, pid.String(), "to-update").
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "Updated Again"}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("name", "Updated Again")
+		Object()
+
+	updated2.
+		HasValue("name", "Updated Again").
+		HasValue("key", "to-update").
+		HasValue("description", "").
+		HasValue("projectId", pid)
+	updated2.Value("schemaId").NotNull()
 
 	// Update by key - not found
 	e.PATCH(endpoint, pid.String(), "not-found").
@@ -273,6 +345,7 @@ func TestIntegrationGroupDeleteWithProject(t *testing.T) {
 		Status(http.StatusCreated).
 		JSON().
 		Object()
+
 	created2 := e.POST(endpoint, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "ToDelete2", "key": "to-delete2"}).
@@ -284,15 +357,17 @@ func TestIntegrationGroupDeleteWithProject(t *testing.T) {
 	groupID1 := created1.Value("id").String().Raw()
 	groupID2 := created2.Value("id").String().Raw()
 
-	// Delete by ID - success
+	// Delete
 	endpoint = "/api/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
-	e.DELETE(endpoint, pid.String(), groupID2).
+
+	// Delete by ID - success
+	deleted := e.DELETE(endpoint, pid.String(), groupID2).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", groupID2)
+		Object()
+	deleted.HasValue("id", groupID2)
 
 	// Delete by ID - already deleted
 	e.DELETE(endpoint, pid.String(), groupID2).
@@ -301,13 +376,13 @@ func TestIntegrationGroupDeleteWithProject(t *testing.T) {
 		Status(http.StatusNotFound)
 
 	// Delete by key - success
-	e.DELETE(endpoint, pid.String(), "to-delete").
+	deleted2 := e.DELETE(endpoint, pid.String(), "to-delete").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", groupID1)
+		Object()
+	deleted2.HasValue("id", groupID1)
 
 	// Delete by key - already deleted
 	e.DELETE(endpoint, pid.String(), "to-delete").
