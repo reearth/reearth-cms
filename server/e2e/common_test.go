@@ -46,7 +46,7 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 	}
 
 	cfg.Server.Active = true
-	srv := app.NewServer(ctx, &app.ServerConfig{
+	srv := app.NewServer(ctx, &app.ApplicationContext{
 		Config:     cfg,
 		Repos:      repos,
 		AcRepos:    accountrepos,

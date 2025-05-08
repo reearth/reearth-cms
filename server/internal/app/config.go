@@ -67,10 +67,11 @@ type Config struct {
 	InternalApi InternalApiConfig `pp:",omitempty"`
 
 	// server
-	Server ServerConfig2 `pp:",omitempty"`
+	Server ServerConfig `pp:",omitempty"`
 }
 
-type ServerConfig2 struct {
+type ServerConfig struct {
+	// TODO: move all server config to this struct
 	Active bool `default:"true" pp:",omitempty"`
 }
 
