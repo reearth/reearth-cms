@@ -1388,23 +1388,30 @@ func TestAsset_Delete(t *testing.T) {
 
 type file2 struct {
 	gateway.File
+	public bool
 }
 
-func (f *file2) GetURL(a *asset.Asset) string {
+func (f *file2) GetURL(a *asset.Asset) (string, bool) {
 	if a == nil {
-		return ""
+		return "", f.public
 	}
-	return "xxx"
+	return "xxx", f.public
 }
 
 func TestAsset_GetURL(t *testing.T) {
 	uc := &Asset{
 		gateways: &gateway.Container{
-			File: &file2{},
+			File: &file2{
+				public: true,
+			},
 		},
 	}
-	assert.Equal(t, "", uc.GetURL(nil))
-	assert.Equal(t, "xxx", uc.GetURL(&asset.Asset{}))
+	res, isPublic := uc.GetURL(nil)
+	assert.Equal(t, "", res)
+	assert.True(t, isPublic)
+	res, isPublic = uc.GetURL(&asset.Asset{})
+	assert.Equal(t, "xxx",res)
+	assert.True(t, isPublic)
 }
 
 func mockFs() afero.Fs {

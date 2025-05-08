@@ -124,6 +124,7 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	if conf.Task.GCPProject != "" {
 		conf.Task.GCSHost = conf.Host
 		conf.Task.GCSBucket = conf.GCS.BucketName
+		conf.Task.GCSPublic = conf.Asset_Public
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
 			log.Fatalf("task runner: gcp init error: %+v", err)
