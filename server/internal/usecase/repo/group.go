@@ -12,7 +12,7 @@ type Group interface {
 	Filtered(ProjectFilter) Group
 	FindByID(context.Context, id.GroupID) (*group.Group, error)
 	FindByIDs(context.Context, id.GroupIDList) (group.List, error)
-	Filter(context.Context, id.ProjectID, *usecasex.Pagination) (group.List, *usecasex.PageInfo,error)
+	Filter(context.Context, id.ProjectID, *group.Sort, *usecasex.Pagination) (group.List, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID) (group.List, error)
 	FindByIDOrKey(context.Context, id.ProjectID, group.IDOrKey) (*group.Group, error)
 	FindByKey(context.Context, id.ProjectID, string) (*group.Group, error)

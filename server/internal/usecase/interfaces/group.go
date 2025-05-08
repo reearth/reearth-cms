@@ -31,7 +31,7 @@ type UpdateGroupParam struct {
 type Group interface {
 	FindByID(context.Context, id.GroupID, *usecase.Operator) (*group.Group, error)
 	FindByIDs(context.Context, id.GroupIDList, *usecase.Operator) (group.List, error)
-	Filter(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (group.List, *usecasex.PageInfo, error)
+	Filter(context.Context, id.ProjectID, *group.Sort, *usecasex.Pagination, *usecase.Operator) (group.List, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID, *usecase.Operator) (group.List, error)
 	FindByModel(context.Context, id.ModelID, *usecase.Operator) (group.List, error)
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*group.Group, error)

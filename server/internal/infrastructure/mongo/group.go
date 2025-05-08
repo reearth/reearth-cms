@@ -60,13 +60,13 @@ func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List,
 	return prepareGroups(list, res), nil
 }
 
-func (r *Group) Filter(ctx context.Context, pid id.ProjectID, pagination *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
+func (r *Group) Filter(ctx context.Context, pid id.ProjectID, sort *group.Sort, pagination *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(pid) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
 	return r.paginate(ctx, bson.M{
 		"project": pid.String(),
-	}, nil, pagination)
+	}, sortGroups(sort), pagination)
 }
 
 func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
@@ -188,4 +188,24 @@ func prepareGroups(list id.GroupIDList, rows group.List) group.List {
 		}
 	}
 	return res
+}
+
+func sortGroups(gs *group.Sort) *usecasex.Sort {
+	res := usecasex.Sort{Key: "order", Reverted: false}
+	if gs == nil {
+		return &res
+	}
+
+	switch gs.Column {
+	case group.ColumnCreatedAt:
+		res.Key = "id"
+	case group.ColumnOrder:
+		res.Key = "order"
+	}
+
+	if gs.Direction == group.DirectionDesc {
+		res.Reverted = true
+	}
+
+	return &res
 }

@@ -46,12 +46,12 @@ func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operat
 	return g.Ordered(), nil
 }
 
-func (i Group) Filter(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (group.List, *usecasex.PageInfo, error) {
-	g, p, err := i.repos.Group.Filter(ctx, projectID, pagination)
+func (i Group) Filter(ctx context.Context, projectID id.ProjectID, sort *group.Sort, pagination *usecasex.Pagination, operator *usecase.Operator) (group.List, *usecasex.PageInfo, error) {
+	g, p, err := i.repos.Group.Filter(ctx, projectID, sort, pagination)
 	if err != nil {
 		return nil, nil, err
 	}
-	return g.Ordered(), p, nil
+	return g, p, nil
 }
 
 func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, operator *usecase.Operator) (*group.Group, error) {
