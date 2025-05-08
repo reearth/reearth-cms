@@ -39,23 +39,51 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 }
 
 func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.Asset, error) {
-	return i.repos.Asset.FindByID(ctx, aid)
+	a, err := i.repos.Asset.FindByID(ctx, aid)
+	if err != nil {
+		return nil, err
+	}
+	if a != nil {
+		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
+	return a, nil
 }
 
 func (i *Asset) FindByUUID(ctx context.Context, uuid string, _ *usecase.Operator) (*asset.Asset, error) {
-	return i.repos.Asset.FindByUUID(ctx, uuid)
+	a, err := i.repos.Asset.FindByUUID(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+	if a != nil {
+		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
+	return a, nil
 }
 
 func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.Operator) (asset.List, error) {
-	return i.repos.Asset.FindByIDs(ctx, assets)
+	al, err := i.repos.Asset.FindByIDs(ctx, assets)
+	if err != nil {
+		return nil, err
+	}
+	lo.ForEach(al, func(a *asset.Asset, _ int) {
+		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	})
+	return al, nil
 }
 
 func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
-	return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
+	al, pi, err := i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
 		Sort:       filter.Sort,
 		Keyword:    filter.Keyword,
 		Pagination: filter.Pagination,
 	})
+	if err != nil {
+		return nil, nil, err
+	}
+	lo.ForEach(al, func(a *asset.Asset, _ int) {
+		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	})
+	return al, pi, nil
 }
 
 func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, error) {
@@ -98,10 +126,6 @@ func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, headers map[st
 	}
 
 	return f, headers, nil
-}
-
-func (i *Asset) GetURL(a *asset.Asset) (string, bool) {
-	return i.gateways.File.GetURL(a)
 }
 
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, afile *asset.File, err error) {
@@ -193,6 +217,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
+			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+
 			f := asset.NewFile().
 				Name(file.Name).
 				Path(file.Name).
@@ -249,6 +275,8 @@ func (i *Asset) Decompress(ctx context.Context, aId id.AssetID, operator *usecas
 			if err != nil {
 				return nil, err
 			}
+
+			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 
 			if !operator.CanUpdate(a) {
 				return nil, interfaces.ErrOperationDenied

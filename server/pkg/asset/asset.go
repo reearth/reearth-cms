@@ -22,9 +22,15 @@ type Asset struct {
 	archiveExtractionStatus *ArchiveExtractionStatus
 	flatFiles               bool
 	public                  bool
+	accessInfoResolver      *AccessInfoResolver
 }
 
-type URLResolver = func(*Asset) (string, bool)
+type AccessInfoResolver = func(*Asset) *AccessInfo
+
+type AccessInfo struct {
+	Url    string
+	Public bool
+}
 
 // getters
 
@@ -90,6 +96,24 @@ func (a *Asset) Public() bool {
 	return a.public
 }
 
+func (a *Asset) AccessInfo() AccessInfo {
+	if a.accessInfoResolver == nil {
+		return AccessInfo{
+			Url:    "",
+			Public: false,
+		}
+	}
+	resolver := *a.accessInfoResolver
+	ai := resolver(a)
+	if ai == nil {
+		return AccessInfo{
+			Url:    "",
+			Public: false,
+		}
+	}
+	return *ai
+}
+
 // setters
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
@@ -106,6 +130,10 @@ func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
 
 func (a *Asset) UpdatePublic(public bool) {
 	a.public = public
+}
+
+func (a *Asset) SetAccessInfoResolver(resolver AccessInfoResolver) {
+	a.accessInfoResolver = &resolver
 }
 
 // methods
