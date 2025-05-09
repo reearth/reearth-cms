@@ -44,6 +44,13 @@ jobs:
             --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
+      - name: Deploy to Internal API Cloud Run
+        run: |
+          gcloud run deploy reearth-cms-internal-api \
+            --image ${{ secrets.SERVER_IMAGE_GC }} \
+            --region ${{ secrets.GC_REGION }} \
+            --platform managed \
+            --quiet
 
   deploy_web:
     runs-on: ubuntu-latest
