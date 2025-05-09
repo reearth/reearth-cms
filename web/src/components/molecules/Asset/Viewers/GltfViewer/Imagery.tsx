@@ -11,25 +11,38 @@ export const Imagery: React.FC<Props> = ({ url }) => {
 
   const loadModel = useCallback(async () => {
     if (!viewer) return;
-    viewer.entities.removeAll();
-    const entity = viewer.entities.add({
-      position: Cartesian3.fromDegrees(
-        Math.floor(Math.random() * 360 - 180),
-        Math.floor(Math.random() * 180 - 90),
-        0,
-      ),
-      model: {
-        uri: url,
-        minimumPixelSize: 128,
-        maximumScale: 20000,
-      },
-    });
-    viewer.trackedEntity = entity;
+
+    try {
+      viewer.entities.removeAll();
+      const entity = viewer.entities.add({
+        position: Cartesian3.fromDegrees(
+          Math.floor(Math.random() * 360 - 180),
+          Math.floor(Math.random() * 180 - 90),
+          0,
+        ),
+        model: {
+          uri: url,
+          minimumPixelSize: 128,
+          maximumScale: 20000,
+          show: true,
+        },
+      });
+      viewer.trackedEntity = entity;
+      await viewer.zoomTo(entity);
+    } catch (err) {
+      console.error("Error loading GLTF model:", err);
+    }
   }, [url, viewer]);
 
   useEffect(() => {
     loadModel();
-  }, [loadModel]);
+    return () => {
+      if (viewer) {
+        viewer.entities.removeAll();
+        viewer.trackedEntity = undefined;
+      }
+    };
+  }, [loadModel, viewer]);
 
   return null;
 };

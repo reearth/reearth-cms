@@ -4,22 +4,28 @@ import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium"
 
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource>;
 
-const GeoJsonComponent: React.FC<Props> = ({ data }) => {
+const GeoJsonComponent: React.FC<Props> = ({ data, ...props }) => {
   const { viewer } = useCesium();
 
-  const handleLoad = useCallback(
-    async (ds: GeoJsonDataSource) => {
-      try {
-        await viewer?.zoomTo(ds);
-        ds.show = true;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [viewer],
-  );
+  const handleLoad = useCallback(async (ds: GeoJsonDataSource) => {
+    if (!viewer) return;
 
-  return <ResiumGeoJsonDataSource data={data} clampToGround={true} onLoad={handleLoad} />;
+    try {
+      await viewer.zoomTo(ds);
+      ds.show = true;
+    } catch (error) {
+      console.error("Failed to load GeoJSON data:", error);
+    }
+  }, [viewer]);
+
+  return (
+    <ResiumGeoJsonDataSource 
+      data={data} 
+      clampToGround 
+      onLoad={handleLoad} 
+      {...props} 
+    />
+  );
 };
 
 export default GeoJsonComponent;
