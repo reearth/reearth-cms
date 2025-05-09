@@ -12,10 +12,11 @@ import (
 	"github.com/hellofresh/health-go/v5"
 	"github.com/hellofresh/health-go/v5/checks/mongo"
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearthx/log"
 )
 
 // HealthCheck returns an echo.HandlerFunc that serves the health check endpoint
-func HealthCheck(conf *Config) echo.HandlerFunc {
+func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 	checks := []health.Config{
 		{
 			Name:      "db",
@@ -44,21 +45,29 @@ func HealthCheck(conf *Config) echo.HandlerFunc {
 	}
 
 	for _, a := range conf.Auths() {
-		issuerURL := a.ISS
 		if a.ISS != "" {
+			u, err := url.Parse(a.ISS)
+			if err != nil {
+				log.Fatalf("invalid issuer URL: %v", err)
+			}
 			checks = append(checks, health.Config{
 				Name:      "auth:" + a.ISS,
 				Timeout:   time.Second * 5,
 				SkipOnErr: false,
-				Check:     func(ctx context.Context) error { return authServerPingCheck(issuerURL) },
+				Check: func(ctx context.Context) error {
+					return authServerPingCheck(u.JoinPath(".well-known/openid-configuration").String())
+				},
 			})
 		}
 	}
 
-	h, _ := health.New(health.WithComponent(health.Component{
+	h, err := health.New(health.WithComponent(health.Component{
 		Name:    "reearth-cms",
-		Version: "1.0.0",
+		Version: ver,
 	}), health.WithChecks(checks...))
+	if err != nil {
+		log.Fatalf("failed to create health check: %v", err)
+	}
 
 	return echo.WrapHandler(h.Handler())
 }
@@ -89,11 +98,7 @@ func authServerPingCheck(issuerURL string) (checkErr error) {
 	client := http.Client{
 		Timeout: 2 * time.Second,
 	}
-	u, err := url.Parse(issuerURL)
-	if err != nil {
-		return fmt.Errorf("invalid issuer URL: %v", err)
-	}
-	resp, err := client.Get(u.JoinPath(".well-known/openid-configuration").String())
+	resp, err := client.Get(issuerURL)
 	if err != nil {
 		return fmt.Errorf("auth server unreachable: %v", err)
 	}
@@ -104,8 +109,8 @@ func authServerPingCheck(issuerURL string) (checkErr error) {
 		}
 	}(resp.Body)
 
-	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		return nil
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("auth server unhealthy, status: %d", resp.StatusCode)
 	}
-	return fmt.Errorf("auth server unhealthy, status: %d", resp.StatusCode)
+	return nil
 }
