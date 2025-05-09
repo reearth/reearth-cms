@@ -45,7 +45,8 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 		t.Fatalf("server failed to listen: %v", err)
 	}
 
-	srv := app.NewServer(ctx, &app.ServerConfig{
+	cfg.Server.Active = true
+	srv := app.NewServer(ctx, &app.ApplicationContext{
 		Config:     cfg,
 		Repos:      repos,
 		AcRepos:    accountrepos,

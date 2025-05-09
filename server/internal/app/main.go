@@ -33,7 +33,7 @@ func Start(debug bool, version string) {
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
 	// Start web server
-	NewServer(ctx, &ServerConfig{
+	NewServer(ctx, &ApplicationContext{
 		Config:     conf,
 		Debug:      debug,
 		Repos:      repos,
@@ -50,7 +50,7 @@ type WebServer struct {
 	internalServer *grpc.Server
 }
 
-type ServerConfig struct {
+type ApplicationContext struct {
 	Config     *Config
 	Debug      bool
 	Repos      *repo.Container
@@ -59,30 +59,31 @@ type ServerConfig struct {
 	AcGateways *accountgateway.Container
 }
 
-func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
-	port := cfg.Config.Port
-	if port == "" {
-		port = "8080"
-	}
-
-	host := cfg.Config.ServerHost
-	if host == "" {
-		if cfg.Debug {
-			host = "localhost"
-		} else {
-			host = "0.0.0.0"
+func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
+	w := &WebServer{}
+	if appCtx.Config.Server.Active {
+		port := appCtx.Config.Port
+		if port == "" {
+			port = "8080"
 		}
-	}
-	address := host + ":" + port
 
-	w := &WebServer{
-		appAddress: address,
-	}
-	w.appServer = initEcho(cfg)
+		host := appCtx.Config.ServerHost
+		if host == "" {
+			if appCtx.Debug {
+				host = "localhost"
+			} else {
+				host = "0.0.0.0"
+			}
+		}
+		address := host + ":" + port
 
-	if cfg.Config.InternalApi.Active {
-		w.internalPort = ":" + cfg.Config.InternalApi.Port
-		w.internalServer = initGrpc(cfg)
+		w.appAddress = address
+		w.appServer = initEcho(appCtx)
+	}
+
+	if appCtx.Config.InternalApi.Active {
+		w.internalPort = ":" + appCtx.Config.InternalApi.Port
+		w.internalServer = initGrpc(appCtx)
 	}
 	return w
 }
@@ -95,11 +96,15 @@ func (w *WebServer) Run(ctx context.Context) {
 		debugLog += " with debug mode"
 	}
 
-	go func() {
-		err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
-		log.Fatalc(ctx, err.Error())
-	}()
-	log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
+	if w.appServer != nil {
+		go func() {
+			err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
+			log.Fatalc(ctx, err.Error())
+		}()
+		log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
+	} else {
+		log.Info("server: http server is not configured")
+	}
 
 	if w.internalServer != nil {
 		go func() {
@@ -110,7 +115,9 @@ func (w *WebServer) Run(ctx context.Context) {
 			err = w.internalServer.Serve(l)
 			log.Fatalc(ctx, err.Error())
 		}()
-		log.Infof("server: started internal grpc server at %s", w.internalPort)
+		log.Infof("server: started%s internal grpc server at %s", debugLog, w.internalPort)
+	} else {
+		log.Info("server: grpc server is not configured")
 	}
 
 	quit := make(chan os.Signal, 1)
@@ -126,5 +133,8 @@ func (w *WebServer) Shutdown(ctx context.Context) error {
 	if w.internalServer != nil {
 		w.internalServer.GracefulStop()
 	}
-	return w.appServer.Shutdown(ctx)
+	if w.appServer != nil {
+		return w.appServer.Shutdown(ctx)
+	}
+	return nil
 }
