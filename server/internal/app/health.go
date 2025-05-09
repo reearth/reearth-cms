@@ -44,12 +44,13 @@ func HealthCheck(conf *Config) echo.HandlerFunc {
 	}
 
 	for _, a := range conf.Auths() {
+		issuerURL := a.ISS
 		if a.ISS != "" {
 			checks = append(checks, health.Config{
 				Name:      "auth:" + a.ISS,
 				Timeout:   time.Second * 5,
 				SkipOnErr: false,
-				Check:     func(ctx context.Context) error { return authServerPingCheck(a.ISS) },
+				Check:     func(ctx context.Context) error { return authServerPingCheck(issuerURL) },
 			})
 		}
 	}
