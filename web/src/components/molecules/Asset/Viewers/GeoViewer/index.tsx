@@ -1,5 +1,5 @@
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
@@ -17,9 +17,10 @@ type Props = {
 };
 
 const GeoViewer: React.FC<Props> = ({ url, assetFileExt, onGetViewer, workspaceSettings }) => {
-  const ext = getExtension(url) ?? assetFileExt;
+  const ext = useMemo(() => getExtension(url) ?? assetFileExt, [url, assetFileExt]);
+
   const renderAsset = useCallback(() => {
-    switch (ext) {
+    switch (ext?.toLowerCase()) {
       case "czml":
         return <CzmlComponent data={url} />;
       case "kml":
