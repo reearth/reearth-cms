@@ -72,7 +72,7 @@ const AssetMolecule: React.FC<Props> = ({
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
-  const assetBaseUrl = useMemo(() => asset.url.slice(0, asset.url.lastIndexOf("/")), [asset.url]);
+  const assetBaseUrl = useMemo(() => assetUrl.slice(0, assetUrl.lastIndexOf("/")), [assetUrl]);
 
   const previewComponent = useMemo(() => {
     switch (viewerType) {

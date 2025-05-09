@@ -9,12 +9,10 @@ const Cesium3dTileSetComponent: React.FC<Props> = ({ ...props }) => {
 
   const handleReady = useCallback(
     async (tileset: Cesium3DTileset) => {
-      if (!viewer || tileset.isDestroyed()) return;
-
+      if (!viewer) return;
       try {
         await new Promise(resolve => requestAnimationFrame(resolve));
         if (tileset.isDestroyed()) return;
-
         await viewer.zoomTo(tileset);
         tileset.show = true;
       } catch (error) {
