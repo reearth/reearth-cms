@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -83,7 +84,7 @@ func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
 	return nil
 }
 
-func authServerPingCheck(issuerURL string) error {
+func authServerPingCheck(issuerURL string) (checkErr error) {
 	client := http.Client{
 		Timeout: 2 * time.Second,
 	}
@@ -95,7 +96,12 @@ func authServerPingCheck(issuerURL string) error {
 	if err != nil {
 		return fmt.Errorf("auth server unreachable: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			checkErr = fmt.Errorf("failed to close response body: %v", err)
+		}
+	}(resp.Body)
 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return nil
