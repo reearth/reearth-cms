@@ -340,6 +340,22 @@ input DeleteFieldInput {
   metadata: Boolean
 }
 
+type GuessSchemaField {
+  key: String!
+  type: String!
+  name: String!
+}
+
+type GuessSchemaFieldResult {
+  total_count: Int!
+  fields: [GuessSchemaField!]!
+}
+
+input GuessSchemaFieldsInput{
+  assetId: ID!
+  modelId: ID!
+}
+
 # Payloads
 type FieldPayload {
   field: SchemaField!
@@ -353,7 +369,9 @@ type DeleteFieldPayload {
   fieldId: ID!
 }
 
-# extend type Query {}
+extend type Query {
+  guessSchemaFields(input: GuessSchemaFieldsInput!): GuessSchemaFieldResult!
+}
 
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload
