@@ -5,7 +5,7 @@ import { useCesium } from "resium";
 import mapPin from "./mapPin.svg";
 
 type Props = {
-  url: string;
+  blob?: Blob;
 };
 
 type GeoObj = {
@@ -14,18 +14,12 @@ type GeoObj = {
   [x: string]: string | undefined;
 };
 
-export const Imagery: React.FC<Props> = ({ url }) => {
+export const Imagery: React.FC<Props> = ({ blob }) => {
   const { viewer } = useCesium();
 
   const dataFetch = useCallback(async () => {
-    const res = await fetch(url, {
-      method: "GET",
-    });
-    if (res.status !== 200) {
-      return;
-    }
-    return await res.text();
-  }, [url]);
+    return await blob?.text();
+  }, [blob]);
 
   const csvTextToObjects = useCallback((text: string) => {
     const result: GeoObj[] = [];

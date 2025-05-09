@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -34,6 +34,8 @@ import useHooks from "./hooks";
 
 type Props = {
   asset: Asset;
+  assetUrl: string;
+  assetBlob?: Blob;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
@@ -41,6 +43,7 @@ type Props = {
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
+  setAssetUrl: (url: string) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onAssetDownload: (asset: Asset) => Promise<void>;
@@ -53,6 +56,8 @@ type Props = {
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
+  assetUrl,
+  assetBlob,
   assetFileExt,
   selectedPreviewType,
   isModalVisible,
@@ -60,6 +65,7 @@ const AssetMolecule: React.FC<Props> = ({
   displayUnzipFileList,
   decompressing,
   hasUpdateRight,
+  setAssetUrl,
   onAssetItemSelect,
   onAssetDecompress,
   onAssetDownload,
@@ -71,7 +77,6 @@ const AssetMolecule: React.FC<Props> = ({
 }) => {
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
-  const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
 
   const renderPreview = useCallback(() => {
@@ -105,7 +110,7 @@ const AssetMolecule: React.FC<Props> = ({
       case "image":
         return <ImageViewer url={assetUrl} />;
       case "image_svg":
-        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
+        return <SvgViewer url={assetUrl} blob={assetBlob} svgRender={svgRender} />;
       case "model_3d":
         return (
           <GltfViewer
@@ -117,7 +122,7 @@ const AssetMolecule: React.FC<Props> = ({
       case "csv":
         return (
           <CsvViewer
-            url={assetUrl}
+            blob={assetBlob}
             onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
@@ -126,7 +131,16 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
+  }, [
+    assetBlob,
+    assetFileExt,
+    assetUrl,
+    onGetViewer,
+    setAssetUrl,
+    svgRender,
+    viewerType,
+    workspaceSettings,
+  ]);
 
   return (
     <BodyContainer>
