@@ -27,18 +27,18 @@ var (
 	debugIntegrationHeaderKey = "X-Reearth-Debug-Integration"
 )
 
-func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
+func authMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
 			req := c.Request()
 			ctx := req.Context()
 
-			ctx, err = attachUserOperator(ctx, req, cfg)
+			ctx, err = attachUserOperator(ctx, req, appCtx)
 			if err != nil {
 				return err
 			}
 
-			ctx, err = attachIntegrationOperator(ctx, req, cfg)
+			ctx, err = attachIntegrationOperator(ctx, req, appCtx)
 			if err != nil {
 				return err
 			}
@@ -49,25 +49,25 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	}
 }
 
-func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfig) (context.Context, error) {
+func attachUserOperator(ctx context.Context, req *http.Request, appCtx *ApplicationContext) (context.Context, error) {
 	var u *user.User
 
 	if ai := adapter.GetAuthInfo(ctx); ai != nil {
 		var err error
-		userUsecase := accountinteractor.NewMultiUser(cfg.AcRepos, cfg.AcGateways, cfg.Config.SignupSecret, cfg.Config.Host_Web, cfg.AcRepos.Users)
+		userUsecase := accountinteractor.NewMultiUser(appCtx.AcRepos, appCtx.AcGateways, appCtx.Config.SignupSecret, appCtx.Config.Host_Web, appCtx.AcRepos.Users)
 		u, err = userUsecase.FetchBySub(ctx, ai.Sub)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if cfg.Debug {
+	if appCtx.Debug {
 		if val := req.Header.Get(debugUserHeaderKey); val != "" {
 			uId, err := accountdomain.UserIDFrom(val)
 			if err != nil {
 				return nil, err
 			}
-			us, err := cfg.Repos.User.FindByID(ctx, uId)
+			us, err := appCtx.Repos.User.FindByID(ctx, uId)
 			if err == nil {
 				u = us
 			}
@@ -77,7 +77,7 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 	// generate operator
 	if u != nil {
 		defaultLang := req.Header.Get("Accept-Language")
-		op, err := generateUserOperator(ctx, cfg, u, defaultLang)
+		op, err := generateUserOperator(ctx, appCtx, u, defaultLang)
 		if err != nil {
 			return nil, err
 		}
@@ -88,11 +88,11 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 	return ctx, nil
 }
 
-func attachIntegrationOperator(ctx context.Context, req *http.Request, cfg *ServerConfig) (context.Context, error) {
+func attachIntegrationOperator(ctx context.Context, req *http.Request, appCtx *ApplicationContext) (context.Context, error) {
 	var i *integration.Integration
 	if token := getToken(req); token != "" {
 		var err error
-		i, err = cfg.Repos.Integration.FindByToken(ctx, token)
+		i, err = appCtx.Repos.Integration.FindByToken(ctx, token)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
 				return nil, echo.ErrUnauthorized
@@ -101,13 +101,13 @@ func attachIntegrationOperator(ctx context.Context, req *http.Request, cfg *Serv
 		}
 	}
 
-	if cfg.Debug {
+	if appCtx.Debug {
 		if val := req.Header.Get(debugIntegrationHeaderKey); val != "" {
 			iId, err := id.IntegrationIDFrom(val)
 			if err != nil {
 				return nil, err
 			}
-			i, err = cfg.Repos.Integration.FindByID(ctx, iId)
+			i, err = appCtx.Repos.Integration.FindByID(ctx, iId)
 			if err != nil {
 				return nil, err
 			}
@@ -116,7 +116,7 @@ func attachIntegrationOperator(ctx context.Context, req *http.Request, cfg *Serv
 
 	if i != nil {
 		defaultLang := req.Header.Get("Accept-Language")
-		op, err := generateIntegrationOperator(ctx, cfg, i, defaultLang)
+		op, err := generateIntegrationOperator(ctx, appCtx, i, defaultLang)
 		if err != nil {
 			return nil, err
 		}
@@ -127,13 +127,13 @@ func attachIntegrationOperator(ctx context.Context, req *http.Request, cfg *Serv
 	return ctx, nil
 }
 
-func publicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
+func publicAPIAuthMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
 			ctx := req.Context()
 			if token := getToken(req); token != "" {
-				p, err := cfg.Repos.Project.FindByPublicAPIToken(ctx, token)
+				p, err := appCtx.Repos.Project.FindByPublicAPIToken(ctx, token)
 				if err != nil {
 					if errors.Is(err, rerror.ErrNotFound) {
 						return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
@@ -164,14 +164,14 @@ func getToken(req *http.Request) string {
 	return ""
 }
 
-func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User, defaultLang string) (*usecase.Operator, error) {
+func generateUserOperator(ctx context.Context, appCtx *ApplicationContext, u *user.User, defaultLang string) (*usecase.Operator, error) {
 	if u == nil {
 		return nil, nil
 	}
 
 	uid := u.ID()
 
-	w, err := cfg.Repos.Workspace.FindByUser(ctx, uid)
+	w, err := appCtx.Repos.Workspace.FindByUser(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User, 
 	mw := w.FilterByUserRole(uid, workspace.RoleMaintainer).IDs()
 	ow := w.FilterByUserRole(uid, workspace.RoleOwner).IDs()
 
-	rp, wp, mp, op, err := operatorProjects(ctx, cfg, w, rw, ww, mw, ow)
+	rp, wp, mp, op, err := operatorProjects(ctx, appCtx, w, rw, ww, mw, ow)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User, 
 	}, nil
 }
 
-func operatorProjects(ctx context.Context, cfg *ServerConfig, w workspace.List, rw, ww, mw, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
+func operatorProjects(ctx context.Context, appCtx *ApplicationContext, w workspace.List, rw, ww, mw, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
 	rp := id.ProjectIDList{}
 	wp := id.ProjectIDList{}
 	mp := id.ProjectIDList{}
@@ -223,7 +223,7 @@ func operatorProjects(ctx context.Context, cfg *ServerConfig, w workspace.List, 
 	}
 	var cur *usecasex.Cursor
 	for {
-		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, w.IDs(), usecasex.CursorPagination{
+		projects, pi, err := appCtx.Repos.Project.FindByWorkspaces(ctx, w.IDs(), usecasex.CursorPagination{
 			After: cur,
 			First: lo.ToPtr(int64(100)),
 		}.Wrap())
@@ -251,7 +251,7 @@ func operatorProjects(ctx context.Context, cfg *ServerConfig, w workspace.List, 
 	return rp, wp, mp, op, nil
 }
 
-func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *integration.Integration, lang string) (*usecase.Operator, error) {
+func generateIntegrationOperator(ctx context.Context, appCtx *ApplicationContext, i *integration.Integration, lang string) (*usecase.Operator, error) {
 	if i == nil {
 		return nil, nil
 	}
@@ -261,7 +261,7 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	if err != nil {
 		return nil, err
 	}
-	w, err := cfg.Repos.Workspace.FindByIntegration(ctx, aid)
+	w, err := appCtx.Repos.Workspace.FindByIntegration(ctx, aid)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	mw := w.FilterByIntegrationRole(aid, workspace.RoleMaintainer).IDs()
 	ow := w.FilterByIntegrationRole(aid, workspace.RoleOwner).IDs()
 
-	rp, wp, mp, op, err := operatorProjects(ctx, cfg, w, rw, ww, mw, ow)
+	rp, wp, mp, op, err := operatorProjects(ctx, appCtx, w, rw, ww, mw, ow)
 	if err != nil {
 		return nil, err
 	}
