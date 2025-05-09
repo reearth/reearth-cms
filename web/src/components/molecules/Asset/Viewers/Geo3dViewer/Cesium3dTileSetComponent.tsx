@@ -9,17 +9,19 @@ const Cesium3dTileSetComponent: React.FC<Props> = ({ ...props }) => {
 
   const handleReady = useCallback(
     async (tileset: Cesium3DTileset) => {
+      try {
+        if (!viewer || tileset.isDestroyed()) return;
       // Wait one frame to prevent unexpected error from next frame
       // because of 3D tiles is handled asynchronously.
-      requestAnimationFrame(async () => {
+        await new Promise(resolve => requestAnimationFrame(resolve));
+
         if (tileset.isDestroyed()) return;
-        try {
-          await viewer?.zoomTo(tileset);
-          tileset.show = true;
-        } catch (error) {
-          console.error(error);
-        }
-      });
+
+        await viewer.zoomTo(tileset);
+        tileset.show = true;
+      } catch (error) {
+        console.error("Error loading tileset:", error);
+      }
     },
     [viewer],
   );
