@@ -63,6 +63,7 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 	// apis
 	api := e.Group("/api", private)
 	api.GET("/ping", Ping())
+	api.GET("/health", HealthCheck(cfg.Config))
 	api.POST(
 		"/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev),
 		jwtParseMiddleware(cfg),
