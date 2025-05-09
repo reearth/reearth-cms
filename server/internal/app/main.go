@@ -36,6 +36,7 @@ func Start(debug bool, version string) {
 	NewServer(ctx, &ApplicationContext{
 		Config:     conf,
 		Debug:      debug,
+		Version:    version,
 		Repos:      repos,
 		Gateways:   gateways,
 		AcRepos:    acRepos,
@@ -53,6 +54,7 @@ type WebServer struct {
 type ApplicationContext struct {
 	Config     *Config
 	Debug      bool
+	Version    string
 	Repos      *repo.Container
 	Gateways   *gateway.Container
 	AcRepos    *accountrepo.Container
