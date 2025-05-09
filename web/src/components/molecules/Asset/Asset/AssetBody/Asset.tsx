@@ -130,11 +130,15 @@ const AssetMolecule: React.FC<Props> = ({
 
   const handleDownload = useCallback(() => {
     if (asset) {
-      onAssetDownload(asset).catch(error => {
-        console.error("Download failed:", error);
-      });
+      onAssetDownload(asset);
     }
   }, [asset, onAssetDownload]);
+
+  const handleDecompress = useCallback(() => {
+    if (asset) {
+      onAssetDecompress(asset.id);
+    }
+  }, [asset, onAssetDecompress]);
 
   return (
     <BodyContainer>
@@ -173,7 +177,7 @@ const AssetMolecule: React.FC<Props> = ({
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
                 {asset.archiveExtractionStatus === "SKIPPED" && (
                   <UnzipButton
-                    onClick={() => onAssetDecompress(asset.id)}
+                    onClick={handleDecompress}
                     loading={decompressing}
                     icon={<Icon icon="unzip" />}>
                     {t("Unzip")}

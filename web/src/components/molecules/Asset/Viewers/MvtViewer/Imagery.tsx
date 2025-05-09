@@ -111,7 +111,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
     };
   }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewer]);
 
-  const handleLayerChange = useCallback((value: unknown, _option?: unknown) => {
+  const handleLayerChange = useCallback((value: unknown) => {
     if (typeof value === "string") {
       setCurrentLayer(value);
     }
