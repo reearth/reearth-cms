@@ -21,9 +21,6 @@ const SvgViewer: React.FC<Props> = ({ url, svgRender, alt = "Image preview", hei
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const text = await response.text();
-      if (!text.startsWith("<svg")) {
-        throw new Error("Invalid SVG content");
-      }
       setSvgContent(text);
     } catch (err) {
       console.error("Error fetching SVG:", err);
