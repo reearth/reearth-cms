@@ -6,34 +6,41 @@ import { useT } from "@reearth-cms/i18n";
 type Props = {
   url: string;
   svgRender: boolean;
+  alt?: string;
+  height?: number;
 };
 
-const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
+const SvgViewer: React.FC<Props> = ({ url, svgRender, alt = "Image preview", height = 500 }) => {
   const t = useT();
-  const [svgText, setSvgText] = useState("");
+  const [svgContent, setSvgContent] = useState("");
 
-  const fetchData = useCallback(async () => {
-    const res = await fetch(url, {
-      method: "GET",
-    });
-    if (res.status !== 200) {
-      setSvgText(t("Could not display svg"));
-      return;
+  const fetchSvgData = useCallback(async () => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const text = await response.text();
+      if (!text.startsWith("<svg")) {
+        throw new Error("Invalid SVG content");
+      }
+      setSvgContent(text);
+    } catch (err) {
+      console.error("Error fetching SVG:", err);
+      setSvgContent(t("Could not display svg"));
     }
-    const text = await res.text();
-    setSvgText(text);
   }, [url, t]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchSvgData();
+  }, [fetchSvgData]);
 
-  return svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>;
+  return svgRender ? <SvgImage src={url} alt={alt} $height={height} /> : <p>{svgContent}</p>;
 };
 
-const Image = styled.img`
+const SvgImage = styled.img<{ $height: number }>`
   width: 100%;
-  height: 500px;
+  height: ${({ $height }) => `${$height}px`};
   object-fit: contain;
 `;
 
