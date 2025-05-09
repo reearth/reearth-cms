@@ -188,24 +188,28 @@ export function parseMetadata(json: unknown): Metadata {
   const result: Metadata = {};
   const jsonObj = json as Record<string, unknown>;
 
-  if (typeof jsonObj.json === "string") {
-    try {
-      const parsed = JSON.parse(jsonObj.json);
-      result.layers = parsed?.vector_layers?.map((l: { id?: string }) => l.id).filter(Boolean);
-    } catch {
-      // ignore
-    }
+  if (typeof jsonObj.maxzoom === "number") {
+    result.maximumLevel = jsonObj.maxzoom;
   }
 
   if (typeof jsonObj.center === "string") {
-    const coords = jsonObj.center.split(",").map(Number).filter(Number.isFinite);
-    if (coords.length >= 2) {
+    const coords = jsonObj.center.split(",").map(Number);
+    if (coords.length >= 2 && coords.every(coord => !isNaN(coord))) {
       result.center = [coords[0], coords[1], coords[2] || 0];
     }
   }
 
-  if (typeof jsonObj.maxzoom === "number") {
-    result.maximumLevel = jsonObj.maxzoom;
+  if (typeof jsonObj.json === "string") {
+    try {
+      const parsedJson = JSON.parse(jsonObj.json);
+      if (parsedJson?.vector_layers?.length) {
+        result.layers = parsedJson.vector_layers
+          .map((layer: { id?: string }) => layer.id)
+          .filter((id: string | undefined): id is string => !!id);
+      }
+    } catch (error) {
+      console.error("Failed to parse metadata JSON:", error);
+    }
   }
 
   return result;
