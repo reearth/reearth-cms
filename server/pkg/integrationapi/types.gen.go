@@ -10,6 +10,7 @@ import (
 	"github.com/iancoleman/orderedmap"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -501,6 +502,18 @@ type File struct {
 	Size        *float32 `json:"size,omitempty"`
 }
 
+// Group defines model for group.
+type Group struct {
+	Description string        `json:"description"`
+	Fields      []SchemaField `json:"fields"`
+	Id          id.GroupID    `json:"id"`
+	Key         string        `json:"key"`
+	Name        string        `json:"name"`
+	ProjectId   id.ProjectID  `json:"projectId"`
+	Schema      Schema        `json:"schema"`
+	SchemaId    id.SchemaID   `json:"schemaId"`
+}
+
 // Item defines model for item.
 type Item struct {
 	CreatedAt      *time.Time `json:"createdAt,omitempty"`
@@ -652,6 +665,12 @@ type FieldIdOrKeyParam = schema.FieldIDOrKey
 // FieldIdParam defines model for fieldIdParam.
 type FieldIdParam = id.FieldID
 
+// GroupIdOrKeyParam defines model for groupIdOrKeyParam.
+type GroupIdOrKeyParam = group.IDOrKey
+
+// GroupIdParam defines model for groupIdParam.
+type GroupIdParam = id.GroupID
+
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
 
@@ -704,6 +723,13 @@ type AssetCommentCreateJSONBody struct {
 // AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
 type AssetCommentUpdateJSONBody struct {
 	Content *string `json:"content,omitempty"`
+}
+
+// GroupUpdateJSONBody defines parameters for GroupUpdate.
+type GroupUpdateJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
 }
 
 // ItemGetParams defines parameters for ItemGet.
@@ -852,6 +878,50 @@ type ItemsAsGeoJSONParams struct {
 
 // ItemsAsGeoJSONParamsRef defines parameters for ItemsAsGeoJSON.
 type ItemsAsGeoJSONParamsRef string
+
+// GroupFilterParams defines parameters for GroupFilter.
+type GroupFilterParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+}
+
+// GroupCreateJSONBody defines parameters for GroupCreate.
+type GroupCreateJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         string  `json:"key"`
+	Name        string  `json:"name"`
+}
+
+// GroupCreateParams defines parameters for GroupCreate.
+type GroupCreateParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+}
+
+// GroupUpdateWithProjectJSONBody defines parameters for GroupUpdateWithProject.
+type GroupUpdateWithProjectJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
 
 // ModelFilterParams defines parameters for ModelFilter.
 type ModelFilterParams struct {
@@ -1094,6 +1164,9 @@ type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
 // AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
 type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody
 
+// GroupUpdateJSONRequestBody defines body for GroupUpdate for application/json ContentType.
+type GroupUpdateJSONRequestBody GroupUpdateJSONBody
+
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.
 type ItemUpdateJSONRequestBody ItemUpdateJSONBody
 
@@ -1120,6 +1193,12 @@ type ItemFilterJSONRequestBody ItemFilterJSONBody
 
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
+
+// GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
+type GroupCreateJSONRequestBody GroupCreateJSONBody
+
+// GroupUpdateWithProjectJSONRequestBody defines body for GroupUpdateWithProject for application/json ContentType.
+type GroupUpdateWithProjectJSONRequestBody GroupUpdateWithProjectJSONBody
 
 // ModelCreateJSONRequestBody defines body for ModelCreate for application/json ContentType.
 type ModelCreateJSONRequestBody ModelCreateJSONBody
