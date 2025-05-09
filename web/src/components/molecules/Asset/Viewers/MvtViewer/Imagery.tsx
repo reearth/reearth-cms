@@ -182,7 +182,7 @@ type Metadata = {
   maximumLevel?: number;
 };
 
-function parseMetadata(json: unknown): Metadata {
+export function parseMetadata(json: unknown): Metadata {
   if (!json || typeof json !== "object") return {};
 
   const result: Metadata = {};
