@@ -1411,18 +1411,6 @@ func TestAsset_Delete(t *testing.T) {
 	}
 }
 
-type file2 struct {
-	gateway.File
-	public bool
-}
-
-func (f *file2) GetURL(a *asset.Asset) (string, bool) {
-	if a == nil {
-		return "", f.public
-	}
-	return "xxx", f.public
-}
-
 func mockFs() afero.Fs {
 	files := map[string]string{
 		path.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464", "xxx.zip"):                 "xxx",
