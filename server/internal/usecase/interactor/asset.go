@@ -65,9 +65,9 @@ func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.O
 	if err != nil {
 		return nil, err
 	}
-	lo.ForEach(al, func(a *asset.Asset, _ int) {
-		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
-	})
+	if al != nil {
+		al.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
 	return al, nil
 }
 
@@ -80,9 +80,9 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter inte
 	if err != nil {
 		return nil, nil, err
 	}
-	lo.ForEach(al, func(a *asset.Asset, _ int) {
-		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
-	})
+	if al != nil {
+		al.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
 	return al, pi, nil
 }
 
@@ -313,6 +313,10 @@ func (i *Asset) Publish(ctx context.Context, aId id.AssetID, operator *usecase.O
 			return nil, err
 		}
 
+		if a != nil {
+			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		}
+
 		if !operator.CanUpdate(a) {
 			return nil, interfaces.ErrOperationDenied
 		}
@@ -341,6 +345,10 @@ func (i *Asset) Unpublish(ctx context.Context, aId id.AssetID, operator *usecase
 		a, err := i.repos.Asset.FindByID(ctx, aId)
 		if err != nil {
 			return nil, err
+		}
+
+		if a != nil {
+			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 		}
 
 		if !operator.CanUpdate(a) {
@@ -516,6 +524,10 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 				return nil, err
 			}
 
+			if a != nil {
+				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			}
+
 			if !operator.CanUpdate(a) {
 				return nil, interfaces.ErrOperationDenied
 			}
@@ -548,6 +560,10 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 					return nil, err
 				}
 				return nil, fmt.Errorf("failed to find an asset: %v", err)
+			}
+
+			if a != nil {
+				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 			}
 
 			if !op.CanUpdate(a) {

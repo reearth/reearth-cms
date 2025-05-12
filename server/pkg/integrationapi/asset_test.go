@@ -66,7 +66,7 @@ func Test_NewAsset(t *testing.T) {
 	f1 := asset.NewFile().Name(name).Path(path).ContentType("s").Size(10).Build()
 	a.SetAccessInfoResolver(func(*asset.Asset) *asset.AccessInfo {
 		return &asset.AccessInfo{
-			Public: true,
+			Public: false,
 			Url:    "www.",
 		}
 	})
@@ -99,6 +99,7 @@ func Test_NewAsset(t *testing.T) {
 				TotalSize:   lo.ToPtr(float32(100)),
 				PreviewType: lo.ToPtr(Unknown),
 				ProjectId:   pid,
+				Public:      false,
 			},
 		},
 		{

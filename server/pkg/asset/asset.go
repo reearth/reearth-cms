@@ -97,19 +97,17 @@ func (a *Asset) Public() bool {
 }
 
 func (a *Asset) AccessInfo() AccessInfo {
+	defaultAccessInfo := AccessInfo{
+		Url:    "",
+		Public: false,
+	}
 	if a.accessInfoResolver == nil {
-		return AccessInfo{
-			Url:    "",
-			Public: false,
-		}
+		return defaultAccessInfo
 	}
 	resolver := *a.accessInfoResolver
 	ai := resolver(a)
 	if ai == nil {
-		return AccessInfo{
-			Url:    "",
-			Public: false,
-		}
+		return defaultAccessInfo
 	}
 	return *ai
 }
@@ -133,6 +131,10 @@ func (a *Asset) UpdatePublic(public bool) {
 }
 
 func (a *Asset) SetAccessInfoResolver(resolver AccessInfoResolver) {
+	if resolver == nil {
+		a.accessInfoResolver = nil
+		return
+	}
 	a.accessInfoResolver = &resolver
 }
 
