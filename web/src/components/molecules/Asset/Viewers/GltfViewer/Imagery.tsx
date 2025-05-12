@@ -33,7 +33,6 @@ export const Imagery: React.FC<Props> = ({ url }) => {
         console.error(err);
       }
     };
-
     loadModel();
 
     return () => {

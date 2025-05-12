@@ -53,7 +53,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
       viewer.entities.removeAll();
       for (const obj of objects) {
         if (obj.lng && obj.lat) {
-          viewer?.entities.add({
+          viewer.entities.add({
             position: Cartesian3.fromDegrees(Number(obj.lng), Number(obj.lat)),
             billboard: {
               image: mapPin,
@@ -76,7 +76,11 @@ export const Imagery: React.FC<Props> = ({ url }) => {
       if (text) addPointsToViewer(parseCsv(text));
     };
     loadAndRenderData();
-  }, [dataFetch, parseCsv, addPointsToViewer]);
+
+    return () => {
+      if (viewer) viewer.entities.removeAll();
+    };
+  }, [dataFetch, parseCsv, addPointsToViewer, viewer]);
 
   return null;
 };
