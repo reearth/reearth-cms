@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState } from "react";
+import { useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -74,7 +74,7 @@ const AssetMolecule: React.FC<Props> = ({
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
 
-  const renderPreview = useCallback(() => {
+  const viewerComponent = useMemo(() => {
     switch (viewerType) {
       case "geo":
         return (
@@ -159,7 +159,7 @@ const AssetMolecule: React.FC<Props> = ({
               handleModalCancel={onModalCancel}
             />
           }>
-          {renderPreview()}
+          {viewerComponent}
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
@@ -169,9 +169,7 @@ const AssetMolecule: React.FC<Props> = ({
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
                 {asset.archiveExtractionStatus === "SKIPPED" && (
                   <UnzipButton
-                    onClick={() => {
-                      onAssetDecompress(asset.id);
-                    }}
+                    onClick={() => onAssetDecompress(asset.id)}
                     loading={decompressing}
                     icon={<Icon icon="unzip" />}>
                     {t("Unzip")}
