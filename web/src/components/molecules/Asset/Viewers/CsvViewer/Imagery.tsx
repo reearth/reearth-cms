@@ -78,7 +78,9 @@ export const Imagery: React.FC<Props> = ({ url }) => {
     loadAndRenderData();
 
     return () => {
-      if (viewer) viewer.entities.removeAll();
+      if (viewer) {
+        viewer.entities.removeAll();
+      }
     };
   }, [dataFetch, parseCsv, addPointsToViewer, viewer]);
 
