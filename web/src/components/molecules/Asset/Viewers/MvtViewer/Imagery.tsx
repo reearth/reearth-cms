@@ -20,10 +20,17 @@ type Props = {
 export type Property = Record<string, unknown>;
 
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
+
 type TileCoordinates = {
   x: number;
   y: number;
   level: number;
+};
+
+type Metadata = {
+  layers?: string[];
+  center?: [lng: number, lat: number, height: number];
+  maximumLevel?: number;
 };
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
@@ -169,12 +176,6 @@ const idFromGeometry = (
   const hash = md5.create();
   hash.update([tile.x, tile.y, tile.level, ...coords].join(":"));
   return hash.hex();
-};
-
-type Metadata = {
-  layers?: string[];
-  center?: [lng: number, lat: number, height: number];
-  maximumLevel?: number;
 };
 
 export function parseMetadata(json: unknown): Metadata {
