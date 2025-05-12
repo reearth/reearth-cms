@@ -160,7 +160,9 @@ const fetchLayers = async (url: string) => {
   try {
     const base = getMvtBaseUrl(url);
     const res = await fetch(`${base}/metadata.json`);
-    if (!res.ok) return undefined;
+    if (!res.ok) {
+      throw new Error("Error fetching MVT layers");
+    }
     return { ...parseMetadata(await res.json()), base };
   } catch (err) {
     console.error(err);
@@ -172,7 +174,7 @@ const idFromGeometry = (
   geometry: ReturnType<VectorTileFeature["loadGeometry"]>,
   tile: TileCoordinates,
 ): string => {
-  const coords = geometry.flatMap(point => point.map(({ x, y }) => [x, y]));
+  const coords = geometry.flatMap(i => i.map(({ x, y }) => [x, y]));
   const hash = md5.create();
   hash.update([tile.x, tile.y, tile.level, ...coords].join(":"));
   return hash.hex();
