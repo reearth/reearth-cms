@@ -4,11 +4,12 @@ import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
 
 type Props = ComponentProps<typeof ResiumKmlDataSource>;
 
-const KmlComponent: React.FC<Props> = ({ data }) => {
+const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
   const { viewer } = useCesium();
 
   const handleLoad = useCallback(
     async (ds: KmlDataSource) => {
+      if (!viewer) return;
       for (const entity of ds.entities.values) {
         if (entity.billboard) {
           entity.billboard.disableDepthTestDistance = new ConstantProperty(
@@ -20,7 +21,7 @@ const KmlComponent: React.FC<Props> = ({ data }) => {
         }
       }
       try {
-        await viewer?.zoomTo(ds);
+        await viewer.zoomTo(ds);
         ds.show = true;
       } catch (error) {
         console.error(error);
@@ -29,7 +30,7 @@ const KmlComponent: React.FC<Props> = ({ data }) => {
     [viewer],
   );
 
-  return <ResiumKmlDataSource data={data} onLoad={handleLoad} clampToGround />;
+  return <ResiumKmlDataSource data={data} onLoad={handleLoad} clampToGround {...props} />;
 };
 
 export default KmlComponent;
