@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -72,9 +72,9 @@ const AssetMolecule: React.FC<Props> = ({
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
-  const assetBaseUrl = useMemo(() => assetUrl.slice(0, assetUrl.lastIndexOf("/")), [assetUrl]);
+  const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
 
-  const previewComponent = useMemo(() => {
+  const viewerComponent = useMemo(() => {
     switch (viewerType) {
       case "geo":
         return (
@@ -128,18 +128,6 @@ const AssetMolecule: React.FC<Props> = ({
     }
   }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
 
-  const handleDownload = useCallback(() => {
-    if (asset) {
-      onAssetDownload(asset);
-    }
-  }, [asset, onAssetDownload]);
-
-  const handleDecompress = useCallback(() => {
-    if (asset) {
-      onAssetDecompress(asset.id);
-    }
-  }, [asset, onAssetDecompress]);
-
   return (
     <BodyContainer>
       <BodyWrapper>
@@ -152,7 +140,11 @@ const AssetMolecule: React.FC<Props> = ({
                   copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
                   size={16}
                 />
-                <DownloadButton disabled={!asset} onlyIcon onDownload={handleDownload} />
+                <DownloadButton
+                  disabled={!asset}
+                  onlyIcon
+                  onDownload={() => onAssetDownload(asset)}
+                />
               </Buttons>
             </>
           }
@@ -167,7 +159,7 @@ const AssetMolecule: React.FC<Props> = ({
               handleModalCancel={onModalCancel}
             />
           }>
-          {previewComponent}
+          {viewerComponent}
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
@@ -177,7 +169,7 @@ const AssetMolecule: React.FC<Props> = ({
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
                 {asset.archiveExtractionStatus === "SKIPPED" && (
                   <UnzipButton
-                    onClick={handleDecompress}
+                    onClick={() => onAssetDecompress(asset.id)}
                     loading={decompressing}
                     icon={<Icon icon="unzip" />}>
                     {t("Unzip")}
@@ -193,7 +185,11 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton disabled={!asset} displayDefaultIcon onDownload={handleDownload} />
+        <DownloadButton
+          disabled={!asset}
+          displayDefaultIcon
+          onDownload={() => onAssetDownload(asset)}
+        />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>

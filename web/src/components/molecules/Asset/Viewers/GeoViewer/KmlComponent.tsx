@@ -7,38 +7,30 @@ type Props = ComponentProps<typeof ResiumKmlDataSource>;
 const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
   const { viewer } = useCesium();
 
-  const handleLoad = useCallback(async (ds: KmlDataSource) => {
-    if (!viewer) return;
-
-    for (const entity of ds.entities.values) {
-      if (entity.billboard) {
-        entity.billboard.disableDepthTestDistance = new ConstantProperty(
-          Number.POSITIVE_INFINITY,
-        );
+  const handleLoad = useCallback(
+    async (ds: KmlDataSource) => {
+      if (!viewer) return;
+      for (const entity of ds.entities.values) {
+        if (entity.billboard) {
+          entity.billboard.disableDepthTestDistance = new ConstantProperty(
+            Number.POSITIVE_INFINITY,
+          );
+        }
+        if (entity.label) {
+          entity.label.disableDepthTestDistance = new ConstantProperty(Number.POSITIVE_INFINITY);
+        }
       }
-      if (entity.label) {
-        entity.label.disableDepthTestDistance = new ConstantProperty(
-          Number.POSITIVE_INFINITY,
-        );
+      try {
+        await viewer.zoomTo(ds);
+        ds.show = true;
+      } catch (error) {
+        console.error(error);
       }
-    }
-
-    try {
-      await viewer.zoomTo(ds);
-      ds.show = true;
-    } catch (error) {
-      console.error("Failed to load KML data:", error);
-    }
-  }, [viewer]);
-
-  return (
-    <ResiumKmlDataSource 
-      data={data} 
-      onLoad={handleLoad} 
-      clampToGround 
-      {...props} 
-    />
+    },
+    [viewer],
   );
+
+  return <ResiumKmlDataSource data={data} onLoad={handleLoad} clampToGround {...props} />;
 };
 
 export default KmlComponent;

@@ -1,5 +1,4 @@
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
@@ -13,15 +12,8 @@ type Props = {
 };
 
 const CsvViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
-  const handleViewerReady = useCallback(
-    (viewer?: CesiumViewer) => {
-      onGetViewer(viewer);
-    },
-    [onGetViewer],
-  );
-
   return (
-    <ResiumViewer onGetViewer={handleViewerReady} workspaceSettings={workspaceSettings}>
+    <ResiumViewer onGetViewer={onGetViewer} workspaceSettings={workspaceSettings}>
       <Imagery url={url} />
     </ResiumViewer>
   );

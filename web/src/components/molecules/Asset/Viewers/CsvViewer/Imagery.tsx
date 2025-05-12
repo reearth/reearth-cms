@@ -17,15 +17,17 @@ type GeoObj = {
 export const Imagery: React.FC<Props> = ({ url }) => {
   const { viewer } = useCesium();
 
-  const fetchCsvData = useCallback(async () => {
+  const dataFetch = useCallback(async () => {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const res = await fetch(url, {
+        method: "GET",
+      });
+      if (!res.ok) {
+        throw new Error("Error loading CSV data");
       }
-      return await response.text();
+      return await res.text();
     } catch (err) {
-      console.error("Error loading CSV data:", err);
+      console.error(err);
     }
   }, [url]);
 
@@ -70,11 +72,11 @@ export const Imagery: React.FC<Props> = ({ url }) => {
 
   useEffect(() => {
     const loadAndRenderData = async () => {
-      const text = await fetchCsvData();
+      const text = await dataFetch();
       if (text) addPointsToViewer(parseCsv(text));
     };
     loadAndRenderData();
-  }, [fetchCsvData, parseCsv, addPointsToViewer]);
+  }, [dataFetch, parseCsv, addPointsToViewer]);
 
   return null;
 };

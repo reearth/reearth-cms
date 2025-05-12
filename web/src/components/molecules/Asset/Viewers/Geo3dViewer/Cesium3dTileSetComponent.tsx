@@ -15,8 +15,8 @@ const Cesium3dTileSetComponent: React.FC<Props> = ({ ...props }) => {
         if (tileset.isDestroyed()) return;
         await viewer.zoomTo(tileset);
         tileset.show = true;
-      } catch (error) {
-        console.error("Error loading 3D tileset:", error);
+      } catch (err) {
+        console.error(err);
       }
     },
     [viewer],

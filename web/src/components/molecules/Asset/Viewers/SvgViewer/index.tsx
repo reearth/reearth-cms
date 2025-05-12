@@ -1,43 +1,42 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   url: string;
   svgRender: boolean;
-  alt?: string;
-  height?: number;
 };
 
-const SvgViewer: React.FC<Props> = ({ url, svgRender, alt = "Image preview", height = 500 }) => {
+const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const t = useT();
-  const [svgContent, setSvgContent] = useState("");
-
-  const fetchSvgData = useCallback(async () => {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const text = await response.text();
-      setSvgContent(text);
-    } catch (err) {
-      console.error("Error fetching SVG:", err);
-      setSvgContent(t("Could not display svg"));
-    }
-  }, [url, t]);
+  const [svgText, setSvgText] = useState("");
 
   useEffect(() => {
-    fetchSvgData();
-  }, [fetchSvgData]);
+    const fetchData = async () => {
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+        });
+        if (!res.ok) {
+          throw new Error("Could not fetch svg data");
+        }
+        const text = await res.text();
+        setSvgText(text);
+      } catch (err) {
+        setSvgText(t("Could not display svg"));
+        console.error(err);
+      }
+    };
+    fetchData();
+  }, [t, url]);
 
-  return svgRender ? <SvgImage src={url} alt={alt} $height={height} /> : <p>{svgContent}</p>;
+  return svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>;
 };
 
-const SvgImage = styled.img<{ $height: number }>`
+const Image = styled.img`
   width: 100%;
-  height: ${({ $height }) => `${$height}px`};
+  height: 500px;
   object-fit: contain;
 `;
 

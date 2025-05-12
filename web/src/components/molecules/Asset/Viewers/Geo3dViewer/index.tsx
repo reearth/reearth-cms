@@ -17,8 +17,8 @@ type Props = {
 
 const Geo3dViewer: React.FC<Props> = ({ url, setAssetUrl, onGetViewer, workspaceSettings }) => {
   useEffect(() => {
-    const ext = getExtension(url);
-    if (compressedFileFormats.includes(ext) && !url.endsWith("/tileset.json")) {
+    const assetExtension = getExtension(url);
+    if (compressedFileFormats.includes(assetExtension) && !url.endsWith("/tileset.json")) {
       const baseUrl = url.replace(/\.\w+$/, "");
       setAssetUrl(`${baseUrl}/tileset.json`);
     }

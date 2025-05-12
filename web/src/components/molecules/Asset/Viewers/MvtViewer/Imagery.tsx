@@ -17,9 +17,7 @@ type Props = {
   handleProperties: (prop: Property) => void;
 };
 
-export type Property = Record<string, unknown> & {
-  attributes?: unknown;
-};
+export type Property = Record<string, unknown>;
 
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
 type TileCoordinates = {
@@ -37,13 +35,15 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const [maximumLevel, setMaximumLevel] = useState<number>();
 
   const zoomTo = useCallback(
-    (coords: [number, number, number], useDefaultRange = false) => {
+    ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange = false) => {
       if (!viewer) return;
-
-      viewer.camera.flyToBoundingSphere(new BoundingSphere(Cartesian3.fromDegrees(...coords)), {
-        duration: 0,
-        offset: useDefaultRange ? defaultOffset : normalOffset,
-      });
+      viewer.camera.flyToBoundingSphere(
+        new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
+        {
+          duration: 0,
+          offset: useDefaultRange ? defaultOffset : normalOffset,
+        },
+      );
     },
     [viewer],
   );
@@ -53,14 +53,13 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
       try {
         const data = await fetchLayers(url);
         if (!data) return;
-
         setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
         setLayers(data.layers ?? []);
         setCurrentLayer(data.layers?.[0] || "");
         setMaximumLevel(data.maximumLevel);
         zoomTo(data.center || defaultCameraPosition, !data.center);
-      } catch (error) {
-        console.error("Failed to load MVT data:", error);
+      } catch (err) {
+        console.error(err);
       }
     },
     [zoomTo],
@@ -69,11 +68,10 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const style = useCallback(
     (f: VectorTileFeature, tile: TileCoordinates) => {
       const fid = idFromGeometry(f.loadGeometry(), tile);
-      const isPoint = VectorTileFeature.types[f.type] === "Point";
       return {
         strokeStyle: "white",
         fillStyle: selectedFeature === fid ? "orange" : "red",
-        lineWidth: isPoint ? 5 : 1,
+        lineWidth: VectorTileFeature.types[f.type] === "Point" ? 5 : 1,
       };
     },
     [selectedFeature],
@@ -93,7 +91,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   }, [loadData, url]);
 
   useEffect(() => {
-    if (!viewer) return;
+    if (!viewer || !currentLayer) return;
 
     const imageryProvider = new CesiumMVTImageryProvider({
       urlTemplate,
@@ -103,32 +101,29 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
       maximumLevel,
     });
 
-    const imageryLayer = viewer.scene.imageryLayers.addImageryProvider(imageryProvider);
+    const layers = viewer.scene.imageryLayers;
+    const imageryLayer = layers.addImageryProvider(imageryProvider);
     imageryLayer.alpha = 0.5;
 
     return () => {
-      viewer.scene.imageryLayers.remove(imageryLayer);
+      layers.remove(imageryLayer);
     };
   }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewer]);
-
-  const handleLayerChange = useCallback((value: unknown) => {
+  const handleChange = useCallback((value: unknown) => {
     if (typeof value === "string") {
       setCurrentLayer(value);
     }
   }, []);
 
-  const layerOptions = useMemo(
-    () => layers.map(layer => ({ label: layer, value: layer })),
-    [layers],
-  );
+  const options = useMemo(() => layers.map(l => ({ label: l, value: l })), [layers]);
 
   return (
     <StyledInput
       placeholder="Layer name"
       value={currentLayer}
-      options={layerOptions}
-      onChange={handleLayerChange}
-      onSelect={handleLayerChange}
+      options={options}
+      onChange={handleChange}
+      onSelect={handleChange}
     />
   );
 };
@@ -157,11 +152,11 @@ const getMvtBaseUrl = (url: string): string => {
 const fetchLayers = async (url: string) => {
   try {
     const base = getMvtBaseUrl(url);
-    const response = await fetch(`${base}/metadata.json`);
-    if (!response.ok) return undefined;
-    return { ...parseMetadata(await response.json()), base };
-  } catch (error) {
-    console.error("Failed to fetch layers:", error);
+    const res = await fetch(`${base}/metadata.json`);
+    if (!res.ok) return undefined;
+    return { ...parseMetadata(await res.json()), base };
+  } catch (err) {
+    console.error(err);
     return undefined;
   }
 };
@@ -178,7 +173,7 @@ const idFromGeometry = (
 
 type Metadata = {
   layers?: string[];
-  center?: [number, number, number];
+  center?: [lng: number, lat: number, height: number];
   maximumLevel?: number;
 };
 
@@ -205,10 +200,10 @@ export function parseMetadata(json: unknown): Metadata {
       if (parsedJson?.vector_layers?.length) {
         result.layers = parsedJson.vector_layers
           .map((layer: { id?: string }) => layer.id)
-          .filter((id: string | undefined): id is string => !!id);
+          .filter((id?: string): id is string => !!id);
       }
-    } catch (error) {
-      console.error("Failed to parse metadata JSON:", error);
+    } catch (err) {
+      console.error(err);
     }
   }
 

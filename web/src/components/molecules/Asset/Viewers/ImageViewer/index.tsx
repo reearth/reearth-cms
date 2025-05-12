@@ -2,17 +2,13 @@ import styled from "@emotion/styled";
 
 type Props = {
   url: string;
-  alt?: string;
-  height?: number;
 };
 
-const ImageViewer: React.FC<Props> = ({ url, alt = "Image preview", height = 500 }) => {
-  return <StyledImage src={url} alt={alt} $height={height} />;
-};
+const ImageViewer: React.FC<Props> = ({ url }) => <Image src={url} alt="image-preview" />;
 
-const StyledImage = styled.img<{ $height: number }>`
+const Image = styled.img`
   width: 100%;
-  height: ${({ $height }) => `${$height}px`};
+  height: 500px;
   object-fit: contain;
 `;
 
