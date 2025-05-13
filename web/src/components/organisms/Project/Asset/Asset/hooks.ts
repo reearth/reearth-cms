@@ -50,6 +50,10 @@ export default (assetId?: string) => {
   const [collapsed, setCollapsed] = useState(true);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
+  useEffect(() => {
+    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
+  }, []);
+
   const { data: rawAsset, networkStatus } = useGetAssetItemQuery({
     variables: {
       assetId: assetId ?? "",
@@ -187,9 +191,9 @@ export default (assetId?: string) => {
 
   const viewerRef = useRef<CesiumViewer>();
 
-  const handleGetViewer = (viewer?: CesiumViewer) => {
+  const handleGetViewer = useCallback((viewer?: CesiumViewer) => {
     viewerRef.current = viewer;
-  };
+  }, []);
 
   const handleFullScreen = useCallback(() => {
     if (viewerType === "unknown") {
@@ -220,10 +224,6 @@ export default (assetId?: string) => {
     },
     [setCollapsed],
   );
-
-  useEffect(() => {
-    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
-  }, []);
 
   const handleSave = useCallback(async () => {
     if (assetId) {

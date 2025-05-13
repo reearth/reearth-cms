@@ -43,14 +43,15 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
 
   const zoomTo = useCallback(
     ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
-      if (!viewer) return;
-      viewer?.camera.flyToBoundingSphere(
-        new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
-        {
-          duration: 0,
-          offset: useDefaultRange ? defaultOffset : normalOffset,
-        },
-      );
+      if (viewer) {
+        viewer.camera.flyToBoundingSphere(
+          new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
+          {
+            duration: 0,
+            offset: useDefaultRange ? defaultOffset : normalOffset,
+          },
+        );
+      }
     },
     [viewer],
   );
