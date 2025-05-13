@@ -42,9 +42,9 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const [maximumLevel, setMaximumLevel] = useState<number>();
 
   const zoomTo = useCallback(
-    ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange = false) => {
+    ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
       if (!viewer) return;
-      viewer.camera.flyToBoundingSphere(
+      viewer?.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
           duration: 0,
@@ -98,7 +98,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   }, [loadData, url]);
 
   useEffect(() => {
-    if (!viewer || !currentLayer) return;
+    if (!viewer) return;
 
     const imageryProvider = new CesiumMVTImageryProvider({
       urlTemplate,
@@ -116,6 +116,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
       layers.remove(imageryLayer);
     };
   }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewer]);
+
   const handleChange = useCallback((value: unknown) => {
     if (typeof value === "string") {
       setCurrentLayer(value);
@@ -180,34 +181,36 @@ const idFromGeometry = (
   return hash.hex();
 };
 
-export function parseMetadata(json: unknown): Metadata {
-  if (!json || typeof json !== "object") return {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseMetadata(json: any): Metadata | undefined {
+  if (!json || typeof json !== "object") return;
 
   const result: Metadata = {};
-  const jsonObj = json as Record<string, unknown>;
 
-  if (typeof jsonObj.maxzoom === "number") {
-    result.maximumLevel = jsonObj.maxzoom;
-  }
-
-  if (typeof jsonObj.center === "string") {
-    const coords = jsonObj.center.split(",").map(Number);
-    if (coords.length >= 2 && coords.every(coord => !isNaN(coord))) {
-      result.center = [coords[0], coords[1], coords[2] || 0];
-    }
-  }
-
-  if (typeof jsonObj.json === "string") {
+  if (typeof json.json === "string") {
     try {
-      const parsedJson = JSON.parse(jsonObj.json);
-      if (parsedJson?.vector_layers?.length) {
-        result.layers = parsedJson.vector_layers
-          .map((layer: { id?: string }) => layer.id)
-          .filter((id?: string): id is string => !!id);
-      }
-    } catch (err) {
-      console.error(err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      result.layers = JSON.parse(json.json)?.vector_layers?.map((l: any): string => l.id);
+    } catch {
+      // ignore
     }
+  }
+
+  try {
+    if (typeof json.center === "string") {
+      const c = (json.center as string).split(",", 3).map(s => parseFloat(s));
+      result.center = [c[0], c[1], c[2]];
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    if (typeof json.maxzoom === "number") {
+      result.maximumLevel = json.maxzoom;
+    }
+  } catch {
+    // ignore
   }
 
   return result;

@@ -11,7 +11,7 @@ const GeoJsonComponent: React.FC<Props> = ({ data, ...props }) => {
     async (ds: GeoJsonDataSource) => {
       if (!viewer) return;
       try {
-        await viewer.zoomTo(ds);
+        await viewer?.zoomTo(ds);
         ds.show = true;
       } catch (error) {
         console.error(error);
