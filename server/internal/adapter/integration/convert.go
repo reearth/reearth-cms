@@ -2,6 +2,7 @@ package integration
 
 import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -247,6 +248,26 @@ func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirPara
 	}
 
 	return &model.Sort{
+		Column:    column,
+		Direction: direction,
+	}
+}
+
+func toGroupSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *group.Sort {
+	direction := group.DirectionDesc
+	if dir != nil && *dir == integrationapi.SortDirParamAsc {
+		direction = group.DirectionAsc
+	}
+
+	column := group.ColumnCreatedAt
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = group.ColumnCreatedAt
+		}
+	}
+
+	return &group.Sort{
 		Column:    column,
 		Direction: direction,
 	}
