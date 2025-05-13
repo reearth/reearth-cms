@@ -151,13 +151,25 @@ func (f *fileRepo) UnpublishAsset(_ context.Context, u string, fn string) error 
 	return nil
 }
 
-func (f *fileRepo) GetURL(a *asset.Asset) (string, bool) {
-	base := f.privateBase
-	publiclyAccessible := f.public || a.Public()
-	if publiclyAccessible {
-		base = f.publicBase
+func (f *fileRepo) GetAccessInfoResolver() asset.AccessInfoResolver {
+	return func(a *asset.Asset) *asset.AccessInfo {
+		base := f.privateBase
+		publiclyAccessible := f.public || a.Public()
+		if publiclyAccessible {
+			base = f.publicBase
+		}
+		return &asset.AccessInfo{
+			Url:    grtURL(base, a.UUID(), url.PathEscape(a.FileName())),
+			Public: publiclyAccessible,
+		}
 	}
-	return grtURL(base, a.UUID(), url.PathEscape(a.FileName())), publiclyAccessible
+}
+
+func (f *fileRepo) GetAccessInfo(a *asset.Asset) *asset.AccessInfo {
+	if a == nil {
+		return nil
+	}
+	return f.GetAccessInfoResolver()(a)
 }
 
 func grtURL(host *url.URL, uuid, fName string) string {

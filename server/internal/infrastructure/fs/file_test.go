@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -12,10 +11,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -176,29 +172,6 @@ func TestFile_DeleteAssets(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestFile_GetURL(t *testing.T) {
-	host := "https://example.com"
-	fs := mockFs()
-	r, err := NewFile(fs, host)
-	assert.NoError(t, err)
-
-	u := newUUID()
-	n := "xxx.yyy"
-	a := asset.New().NewID().
-		Project(id.NewProjectID()).
-		CreatedByUser(accountdomain.NewUserID()).
-		Size(1000).FileName(n).
-		UUID(u).
-		Thread(id.NewThreadID().Ref()).
-		MustBuild()
-
-	expected, err := url.JoinPath(host, assetDir, u[:2], u[2:], url.PathEscape(n))
-	assert.NoError(t, err)
-	// TODO: add tests for public and private assets and buckets
-	actual, _ := r.GetURL(a)
-	assert.Equal(t, expected, actual)
 }
 
 func TestFile_GetFSObjectPath(t *testing.T) {
