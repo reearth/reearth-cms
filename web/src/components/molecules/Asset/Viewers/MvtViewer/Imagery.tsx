@@ -20,23 +20,31 @@ type Props = {
 export type Property = Record<string, unknown>;
 
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
+
 type TileCoordinates = {
   x: number;
   y: number;
   level: number;
 };
 
+type Metadata = {
+  layers?: string[];
+  center?: [lng: number, lat: number, height: number];
+  maximumLevel?: number;
+};
+
 export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const { viewer } = useCesium();
-  const [selectedFeature, setSelectFeature] = useState<string>();
+  const [selectedFeature, setSelectedFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
-  const [maximumLevel, setMaximumLevel] = useState<number | undefined>();
+  const [maximumLevel, setMaximumLevel] = useState<number>();
 
   const zoomTo = useCallback(
-    ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
-      viewer?.camera.flyToBoundingSphere(
+    ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange = false) => {
+      if (!viewer) return;
+      viewer.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
           duration: 0,
@@ -51,15 +59,14 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
     async (url: string) => {
       try {
         const data = await fetchLayers(url);
-        if (data) {
-          setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
-          setLayers(data.layers ?? []);
-          setCurrentLayer(data.layers?.[0] || "");
-          setMaximumLevel(data.maximumLevel);
-        }
-        zoomTo(data?.center || defaultCameraPosition, !data?.center);
-      } catch (error) {
-        console.error(error);
+        if (!data) return;
+        setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
+        setLayers(data.layers ?? []);
+        setCurrentLayer(data.layers?.[0] || "");
+        setMaximumLevel(data.maximumLevel);
+        zoomTo(data.center || defaultCameraPosition, !data.center);
+      } catch (err) {
+        console.error(err);
       }
     },
     [zoomTo],
@@ -80,7 +87,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const onSelectFeature = useCallback(
     (feature: VectorTileFeature, tileCoords: TileCoordinates) => {
       const id = idFromGeometry(feature.loadGeometry(), tileCoords);
-      setSelectFeature(id);
+      setSelectedFeature(id);
       handleProperties(feature.properties);
     },
     [handleProperties],
@@ -91,6 +98,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   }, [loadData, url]);
 
   useEffect(() => {
+    if (!viewer || !currentLayer) return;
+
     const imageryProvider = new CesiumMVTImageryProvider({
       urlTemplate,
       layerName: currentLayer,
@@ -99,20 +108,18 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
       maximumLevel,
     });
 
-    if (viewer) {
-      const layers = viewer.scene.imageryLayers;
-      const currentLayer = layers.addImageryProvider(imageryProvider);
-      currentLayer.alpha = 0.5;
+    const layers = viewer.scene.imageryLayers;
+    const imageryLayer = layers.addImageryProvider(imageryProvider);
+    imageryLayer.alpha = 0.5;
 
-      return () => {
-        layers.remove(currentLayer);
-      };
-    }
+    return () => {
+      layers.remove(imageryLayer);
+    };
   }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewer]);
-
   const handleChange = useCallback((value: unknown) => {
-    if (typeof value !== "string") return;
-    setCurrentLayer(value);
+    if (typeof value === "string") {
+      setCurrentLayer(value);
+    }
   }, []);
 
   const options = useMemo(() => layers.map(l => ({ label: l, value: l })), [layers]);
@@ -135,76 +142,73 @@ const StyledInput = styled(AutoComplete)`
   width: 147px;
 `;
 
-const getMvtBaseUrl = (url: string) => {
+const getMvtBaseUrl = (url: string): string => {
   const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
-  const compressedExtRegex = /\.zip|\.7z$/;
+  const compressedExtRegex = /\.(zip|7z)$/;
   const nameRegex = /\/\w+\.\w+$/;
-  const base = url.match(templateRegex)
-    ? url.replace(templateRegex, "")
-    : url.match(compressedExtRegex)
-      ? url.replace(compressedExtRegex, "")
-      : url.replace(nameRegex, "");
-  return base;
+
+  if (templateRegex.test(url)) {
+    return url.replace(templateRegex, "");
+  }
+  if (compressedExtRegex.test(url)) {
+    return url.replace(compressedExtRegex, "");
+  }
+  return url.replace(nameRegex, "");
 };
 
 const fetchLayers = async (url: string) => {
-  const base = getMvtBaseUrl(url);
-  const res = await fetch(`${base}/metadata.json`);
-  if (!res.ok) return;
-  return { ...parseMetadata(await res.json()), base };
-};
-
-type TileCoords = {
-  x: number;
-  y: number;
-  level: number;
+  try {
+    const base = getMvtBaseUrl(url);
+    const res = await fetch(`${base}/metadata.json`);
+    if (!res.ok) {
+      throw new Error("Error fetching MVT layers");
+    }
+    return { ...parseMetadata(await res.json()), base };
+  } catch (err) {
+    console.error(err);
+    return undefined;
+  }
 };
 
 const idFromGeometry = (
   geometry: ReturnType<VectorTileFeature["loadGeometry"]>,
-  tile: TileCoords,
-) => {
-  const id = [tile.x, tile.y, tile.level, ...geometry.flatMap(i => i.map(j => [j.x, j.y]))].join(
-    ":",
-  );
-
+  tile: TileCoordinates,
+): string => {
+  const coords = geometry.flatMap(i => i.map(({ x, y }) => [x, y]));
   const hash = md5.create();
-  hash.update(id);
-
+  hash.update([tile.x, tile.y, tile.level, ...coords].join(":"));
   return hash.hex();
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseMetadata(json: any):
-  | {
-      layers: string[];
-      center?: [lng: number, lat: number, height: number];
-      maximumLevel?: number;
-    }
-  | undefined {
-  if (!json) return;
+export function parseMetadata(json: unknown): Metadata {
+  if (!json || typeof json !== "object") return {};
 
-  let layers: string[] = [];
-  if (typeof json.json === "string") {
+  const result: Metadata = {};
+  const jsonObj = json as Record<string, unknown>;
+
+  if (typeof jsonObj.maxzoom === "number") {
+    result.maximumLevel = jsonObj.maxzoom;
+  }
+
+  if (typeof jsonObj.center === "string") {
+    const coords = jsonObj.center.split(",").map(Number);
+    if (coords.length >= 2 && coords.every(coord => !isNaN(coord))) {
+      result.center = [coords[0], coords[1], coords[2] || 0];
+    }
+  }
+
+  if (typeof jsonObj.json === "string") {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      layers = JSON.parse(json.json)?.vector_layers?.map((l: any): string => l.id);
-    } catch {
-      // ignore
+      const parsedJson = JSON.parse(jsonObj.json);
+      if (parsedJson?.vector_layers?.length) {
+        result.layers = parsedJson.vector_layers
+          .map((layer: { id?: string }) => layer.id)
+          .filter((id?: string): id is string => !!id);
+      }
+    } catch (err) {
+      console.error(err);
     }
   }
 
-  let center: [lng: number, lat: number, height: number] | undefined = undefined;
-  try {
-    if (typeof json.center === "string") {
-      const c = (json.center as string).split(",", 3).map(s => parseFloat(s));
-      center = [c[0], c[1], c[2]];
-    }
-  } catch {
-    // ignore
-  }
-
-  const maximumLevel = json.maxzoom;
-
-  return { layers, center, maximumLevel };
+  return result;
 }

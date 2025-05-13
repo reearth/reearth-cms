@@ -27,6 +27,12 @@ func TestNewItem(t *testing.T) {
 		NewUUID().
 		MustBuild()
 	af := asset.NewFile().Name("name.json").Path("name.json").Size(1).Build()
+	as.SetAccessInfoResolver(func(_ *asset.Asset) *asset.AccessInfo {
+		return &asset.AccessInfo{
+			Public: true,
+			Url:    "https://example.com/" + as.ID().String() + af.Path(),
+		}
+	})
 	s2 := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -83,9 +89,7 @@ func TestNewItem(t *testing.T) {
 			},
 			"ggggg": resGroup,
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), asset.List{as}, func(a *asset.Asset) (string, bool) {
-		return "https://example.com/" + a.ID().String() + af.Path(), false
-	}, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), asset.List{as}, nil))
 
 	// no assets
 	assert.Equal(t, Item{
@@ -94,7 +98,7 @@ func TestNewItem(t *testing.T) {
 			"aaaaa": "aaaa",
 			"ggggg": resGroup,
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), nil, nil, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), nil, nil))
 }
 
 func TestNewItem_Multiple(t *testing.T) {
@@ -107,6 +111,12 @@ func TestNewItem_Multiple(t *testing.T) {
 		NewUUID().
 		MustBuild()
 	af := asset.NewFile().Name("name.json").Path("name.json").Size(1).ContentType("application/json").Build()
+	as.SetAccessInfoResolver(func(_ *asset.Asset) *asset.AccessInfo {
+		return &asset.AccessInfo{
+			Public: true,
+			Url:    "https://example.com/" + as.ID().String() + af.Path(),
+		}
+	})
 	s := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -138,9 +148,7 @@ func TestNewItem_Multiple(t *testing.T) {
 				URL:  "https://example.com/" + as.ID().String() + af.Path(),
 			}},
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), asset.List{as}, func(a *asset.Asset) (string, bool) {
-		return "https://example.com/" + a.ID().String() + af.Path(), false
-	}, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), asset.List{as}, nil))
 
 	// no assets
 	assert.Equal(t, Item{
@@ -148,7 +156,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), nil, nil, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), nil, nil))
 }
 
 func TestItem_MarshalJSON(t *testing.T) {

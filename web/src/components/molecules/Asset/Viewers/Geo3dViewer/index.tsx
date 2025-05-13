@@ -18,12 +18,11 @@ type Props = {
 const Geo3dViewer: React.FC<Props> = ({ url, setAssetUrl, onGetViewer, workspaceSettings }) => {
   useEffect(() => {
     const assetExtension = getExtension(url);
-    if (compressedFileFormats.includes(assetExtension)) {
-      const nameRegex = /\.\w+$/;
-      const base = url.replace(nameRegex, "");
-      setAssetUrl(`${base}/tileset.json`);
+    if (compressedFileFormats.includes(assetExtension) && !url.endsWith("/tileset.json")) {
+      const baseUrl = url.replace(/\.\w+$/, "");
+      setAssetUrl(`${baseUrl}/tileset.json`);
     }
-  }, [setAssetUrl, url]);
+  }, [url, setAssetUrl]);
 
   return (
     <ResiumViewer onGetViewer={onGetViewer} workspaceSettings={workspaceSettings}>
