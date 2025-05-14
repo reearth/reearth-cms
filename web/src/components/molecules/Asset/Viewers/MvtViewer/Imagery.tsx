@@ -190,32 +190,33 @@ const idFromGeometry = (
   return hash.hex();
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseMetadata(json: any): Metadata | undefined {
+export function parseMetadata(json: unknown): Metadata | undefined {
   if (!json || typeof json !== "object") return;
 
   const result: Metadata = {};
+  const jsonObj = json as Record<string, unknown>;
 
-  if (typeof json.json === "string") {
+  if (typeof jsonObj.json === "string") {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      result.layers = JSON.parse(json.json)?.vector_layers?.map((l: any): string => l.id);
+      result.layers = JSON.parse(jsonObj.json)?.vector_layers?.map(
+        (layer: { id: string }): string => layer.id,
+      );
     } catch {
       // ignore
     }
   }
 
-  if (typeof json.center === "string") {
+  if (typeof jsonObj.center === "string") {
     try {
-      const c = json.center.split(",", 3).map(parseFloat);
-      result.center = [c[0], c[1], c[2]];
+      const coords = jsonObj.center.split(",", 3).map(parseFloat);
+      result.center = [coords[0], coords[1], coords[2]];
     } catch {
       // ignore
     }
   }
 
-  if (typeof json.maxzoom === "number") {
-    result.maximumLevel = json.maxzoom;
+  if (typeof jsonObj.maxzoom === "number") {
+    result.maximumLevel = jsonObj.maxzoom;
   }
 
   return result;
