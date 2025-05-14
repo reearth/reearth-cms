@@ -1,12 +1,20 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
+import {
+  Cartesian3,
+  Math,
+  BoundingSphere,
+  HeadingPitchRange,
+  Viewer,
+  ImageryLayerCollection,
+  ImageryLayer,
+} from "cesium";
 import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useCesium } from "resium";
+import { MutableRefObject, useCallback, useEffect, useMemo, useState } from "react";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
+import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 
 const defaultCameraPosition: [number, number, number] = [139.767052, 35.681167, 100];
 const defaultOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 3000000);
@@ -14,6 +22,7 @@ const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
 type Props = {
   url: string;
+  viewerRef: MutableRefObject<Viewer | undefined>;
   handleProperties: (prop: Property) => void;
 };
 
@@ -33,8 +42,7 @@ type Metadata = {
   maximumLevel?: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
-  const { viewer } = useCesium();
+export const Imagery: React.FC<Props> = ({ url, viewerRef, handleProperties }) => {
   const [selectedFeature, setSelectedFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
@@ -42,18 +50,17 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const [maximumLevel, setMaximumLevel] = useState<number>();
 
   const zoomTo = useCallback(
-    ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
-      if (viewer) {
-        viewer.camera.flyToBoundingSphere(
-          new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
-          {
-            duration: 0,
-            offset: useDefaultRange ? defaultOffset : normalOffset,
-          },
-        );
-      }
+    async ([lng, lat, height]: [number, number, number], useDefaultRange?: boolean) => {
+      const viewer = await waitForViewer(viewerRef);
+      viewer.camera.flyToBoundingSphere(
+        new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
+        {
+          duration: 0,
+          offset: useDefaultRange ? defaultOffset : normalOffset,
+        },
+      );
     },
-    [viewer],
+    [viewerRef],
   );
 
   const loadData = useCallback(
@@ -65,7 +72,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
         setLayers(data.layers ?? []);
         setCurrentLayer(data.layers?.[0] || "");
         setMaximumLevel(data.maximumLevel);
-        zoomTo(data.center || defaultCameraPosition, !data.center);
+        await zoomTo(data.center || defaultCameraPosition, !data.center);
       } catch (err) {
         console.error(err);
       }
@@ -99,24 +106,31 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   }, [loadData, url]);
 
   useEffect(() => {
-    if (!viewer) return;
+    let layers: ImageryLayerCollection;
+    let imageryLayer: ImageryLayer;
 
-    const imageryProvider = new CesiumMVTImageryProvider({
-      urlTemplate,
-      layerName: currentLayer,
-      style,
-      onSelectFeature,
-      maximumLevel,
-    });
+    const addLayer = async () => {
+      const viewer = await waitForViewer(viewerRef);
+      const imageryProvider = new CesiumMVTImageryProvider({
+        urlTemplate,
+        layerName: currentLayer,
+        style,
+        onSelectFeature,
+        maximumLevel,
+      });
 
-    const layers = viewer.scene.imageryLayers;
-    const imageryLayer = layers.addImageryProvider(imageryProvider);
-    imageryLayer.alpha = 0.5;
+      layers = viewer.scene.imageryLayers;
+      imageryLayer = layers.addImageryProvider(imageryProvider);
+      imageryLayer.alpha = 0.5;
+    };
+    addLayer();
 
     return () => {
-      layers.remove(imageryLayer);
+      if (layers && imageryLayer) {
+        layers.remove(imageryLayer);
+      }
     };
-  }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewer]);
+  }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewerRef]);
 
   const handleChange = useCallback((value: unknown) => {
     if (typeof value === "string") {
@@ -149,12 +163,8 @@ const getMvtBaseUrl = (url: string): string => {
   const compressedExtRegex = /\.(zip|7z)$/;
   const nameRegex = /\/\w+\.\w+$/;
 
-  if (templateRegex.test(url)) {
-    return url.replace(templateRegex, "");
-  }
-  if (compressedExtRegex.test(url)) {
-    return url.replace(compressedExtRegex, "");
-  }
+  if (templateRegex.test(url)) return url.replace(templateRegex, "");
+  if (compressedExtRegex.test(url)) return url.replace(compressedExtRegex, "");
   return url.replace(nameRegex, "");
 };
 
@@ -162,9 +172,7 @@ const fetchLayers = async (url: string) => {
   try {
     const base = getMvtBaseUrl(url);
     const res = await fetch(`${base}/metadata.json`);
-    if (!res.ok) {
-      throw new Error("Error fetching MVT layers");
-    }
+    if (!res.ok) throw new Error("Error fetching MVT layers");
     return { ...parseMetadata(await res.json()), base };
   } catch (err) {
     console.error(err);
@@ -197,21 +205,17 @@ export function parseMetadata(json: any): Metadata | undefined {
     }
   }
 
-  try {
-    if (typeof json.center === "string") {
-      const c = (json.center as string).split(",", 3).map(s => parseFloat(s));
+  if (typeof json.center === "string") {
+    try {
+      const c = json.center.split(",", 3).map(parseFloat);
       result.center = [c[0], c[1], c[2]];
+    } catch {
+      // ignore
     }
-  } catch {
-    // ignore
   }
 
-  try {
-    if (typeof json.maxzoom === "number") {
-      result.maximumLevel = json.maxzoom;
-    }
-  } catch {
-    // ignore
+  if (typeof json.maxzoom === "number") {
+    result.maximumLevel = json.maxzoom;
   }
 
   return result;

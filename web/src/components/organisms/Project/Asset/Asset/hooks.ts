@@ -190,7 +190,6 @@ export default (assetId?: string) => {
   );
 
   const viewerRef = useRef<CesiumViewer>();
-
   const handleGetViewer = useCallback((viewer?: CesiumViewer) => {
     viewerRef.current = viewer;
   }, []);
@@ -275,6 +274,7 @@ export default (assetId?: string) => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
+    viewerRef,
     viewerType,
     displayUnzipFileList,
     decompressing,

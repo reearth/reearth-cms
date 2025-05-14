@@ -13,7 +13,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
     const loadModel = async () => {
       if (!viewer) return;
       try {
-        viewer.entities.removeAll();
+        viewer?.entities.removeAll();
         const entity = viewer.entities.add({
           position: Cartesian3.fromDegrees(
             Math.floor(Math.random() * 360 - 180),
@@ -28,7 +28,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
           },
         });
         viewer.trackedEntity = entity;
-        await viewer.zoomTo(entity);
+        await viewer?.zoomTo(entity);
       } catch (err) {
         console.error(err);
       }

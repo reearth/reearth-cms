@@ -8,11 +8,12 @@ import { Imagery, Property } from "./Imagery";
 
 type Props = {
   url: string;
-  onGetViewer: (viewer?: CesiumViewer) => void;
+  viewerRef: React.MutableRefObject<CesiumViewer | undefined>;
   workspaceSettings: WorkspaceSettings;
+  onGetViewer: (viewer?: CesiumViewer) => void;
 };
 
-const MvtViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
+const MvtViewer: React.FC<Props> = ({ url, viewerRef, workspaceSettings, onGetViewer }) => {
   const [properties, setProperties] = useState<Property>();
 
   const handleProperties = useCallback((prop: Property) => {
@@ -35,7 +36,7 @@ const MvtViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => 
       onGetViewer={onGetViewer}
       properties={properties}
       workspaceSettings={workspaceSettings}>
-      <Imagery url={url} handleProperties={handleProperties} />
+      <Imagery url={url} viewerRef={viewerRef} handleProperties={handleProperties} />
     </ResiumViewer>
   );
 };

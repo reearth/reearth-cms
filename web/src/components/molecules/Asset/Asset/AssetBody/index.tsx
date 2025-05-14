@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
+import { MutableRefObject } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
@@ -16,6 +17,7 @@ type Props = {
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
+  viewerRef: MutableRefObject<CesiumViewer | undefined>;
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
@@ -39,6 +41,7 @@ const AssetWrapper: React.FC<Props> = ({
   assetFileExt,
   selectedPreviewType,
   isModalVisible,
+  viewerRef,
   viewerType,
   displayUnzipFileList,
   decompressing,
@@ -77,6 +80,7 @@ const AssetWrapper: React.FC<Props> = ({
             assetFileExt={assetFileExt}
             selectedPreviewType={selectedPreviewType}
             isModalVisible={isModalVisible}
+            viewerRef={viewerRef}
             viewerType={viewerType}
             displayUnzipFileList={displayUnzipFileList}
             decompressing={decompressing}
