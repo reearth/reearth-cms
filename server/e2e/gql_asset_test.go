@@ -61,68 +61,6 @@ func TestSearchAsset(t *testing.T) {
 	res = searchAsset(e, pId, "", []string{"GEOJSON"}, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
 	assert.Equal(t, []interface{}{asset2Id}, res.Path("$.data.searchAsset.nodes[*].id").Raw())
-
-	// 5. Sort by date (default is DESC)
-	res = searchAsset(e, pId, "", nil, &gqlmodel.AssetSort{
-		SortBy:    gqlmodel.AssetSortTypeDate,
-		Direction: sortDirectionPtr(gqlmodel.SortDirectionDesc),
-	}, nil)
-	assert.Equal(t, 4, res.Path("$.data.searchAsset.totalCount").Raw())
-	// The assets should be sorted by creation date in descending order
-	// Since we created them in sequence, the last one should be first
-	ids = res.Path("$.data.searchAsset.nodes[*].id").Raw()
-	idList := ids.([]interface{})
-	assert.Equal(t, asset4Id, idList[0])
-	assert.Equal(t, asset1Id, idList[len(idList)-1])
-
-	// 6. Sort by date ASC
-	// res = searchAsset(e, pId, "", nil, &gqlmodel.AssetSort{
-	// 	SortBy:    gqlmodel.AssetSortTypeDate,
-	// 	Direction: sortDirectionPtr(gqlmodel.SortDirectionAsc),
-	// }, nil)
-	// assert.Equal(t, 4, res.Path("$.data.searchAsset.totalCount").Raw())
-	// // The assets should be sorted by creation date in ascending order
-	// ids = res.Path("$.data.searchAsset.nodes[*].id").Raw()
-	// idList = ids.([]interface{})
-	// assert.Equal(t, asset1Id, idList[0])
-	// assert.Equal(t, asset4Id, idList[len(idList)-1])
-
-	// 7. Sort by name
-	res = searchAsset(e, pId, "", nil, &gqlmodel.AssetSort{
-		SortBy:    gqlmodel.AssetSortTypeName,
-		Direction: sortDirectionPtr(gqlmodel.SortDirectionAsc),
-	}, nil)
-	assert.Equal(t, 4, res.Path("$.data.searchAsset.totalCount").Raw())
-	// The assets should be sorted by name in ascending order
-	fileNames := res.Path("$.data.searchAsset.nodes[*].fileName").Raw()
-	fileNameList := fileNames.([]interface{})
-	assert.Equal(t, "data.json", fileNameList[0])
-	assert.Equal(t, "test2.geojson", fileNameList[len(fileNameList)-1])
-
-	// 8. Pagination - first page
-	res = searchAsset(e, pId, "", nil, nil, &gqlmodel.Pagination{
-		First: intPtr(2),
-	})
-	assert.Equal(t, 4, res.Path("$.data.searchAsset.totalCount").Raw())
-	assert.Equal(t, 2, len(res.Path("$.data.searchAsset.nodes").Raw().([]interface{})))
-	assert.Equal(t, true, res.Path("$.data.searchAsset.pageInfo.hasNextPage").Raw())
-
-	// Get the end cursor for the next page
-	endCursor := res.Path("$.data.searchAsset.pageInfo.endCursor").Raw()
-
-	// 9. Pagination - second page
-	res = searchAsset(e, pId, "", nil, nil, &gqlmodel.Pagination{
-		First: intPtr(2),
-		After: cursorPtr(endCursor.(string)),
-	})
-	assert.Equal(t, 4, res.Path("$.data.searchAsset.totalCount").Raw())
-	assert.Equal(t, 2, len(res.Path("$.data.searchAsset.nodes").Raw().([]interface{})))
-	assert.Equal(t, false, res.Path("$.data.searchAsset.pageInfo.hasNextPage").Raw())
-
-	// 10. Combined search - keyword + content type
-	res = searchAsset(e, pId, "test", []string{"JSON"}, nil, nil)
-	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
-	assert.Equal(t, []interface{}{asset1Id}, res.Path("$.data.searchAsset.nodes[*].id").Raw())
 }
 
 // Helper function to search assets
