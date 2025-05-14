@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,26 +40,32 @@ func TestSearchAsset(t *testing.T) {
 	// 1. Search by ID
 	res := searchAsset(e, pId, asset1Id, nil, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
-	assert.Equal(t, []interface{}{asset1Id}, res.Path("$.data.searchAsset.nodes[*].id").Raw())
+	assert.Equal(t, asset1Id, res.Path("$.data.searchAsset.edges[0].node.id").Raw())
 
 	// 2. Search by keyword (filename)
 	res = searchAsset(e, pId, "test", nil, nil, nil)
 	assert.Equal(t, 2, res.Path("$.data.searchAsset.totalCount").Raw())
-	ids := res.Path("$.data.searchAsset.nodes[*].id").Raw()
+	ids := []string{
+		res.Path("$.data.searchAsset.edges[0].node.id").String().Raw(),
+		res.Path("$.data.searchAsset.edges[1].node.id").String().Raw(),
+	}
 	assert.Contains(t, ids, asset1Id)
 	assert.Contains(t, ids, asset2Id)
 
 	// 3. Search by content type - JSON
 	res = searchAsset(e, pId, "", []string{"JSON"}, nil, nil)
 	assert.Equal(t, 2, res.Path("$.data.searchAsset.totalCount").Raw())
-	ids = res.Path("$.data.searchAsset.nodes[*].id").Raw()
+	ids = []string{
+		res.Path("$.data.searchAsset.edges[0].node.id").String().Raw(),
+		res.Path("$.data.searchAsset.edges[1].node.id").String().Raw(),
+	}
 	assert.Contains(t, ids, asset1Id)
 	assert.Contains(t, ids, asset4Id)
 
 	// 4. Search by content type - GEOJSON
 	res = searchAsset(e, pId, "", []string{"GEOJSON"}, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
-	assert.Equal(t, []interface{}{asset2Id}, res.Path("$.data.searchAsset.nodes[*].id").Raw())
+	assert.Equal(t, asset2Id, res.Path("$.data.searchAsset.edges[0].node.id").Raw())
 }
 
 // Helper function to search assets
@@ -122,12 +127,15 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 	query := `
 		query SearchAsset($query: AssetQueryInput!, $sort: AssetSort, $pagination: Pagination) {
 			searchAsset(input: {query: $query, sort: $sort, pagination: $pagination}) {
-				nodes {
-					id
-					fileName
-					contentType
-					size
-					createdAt
+				edges {
+					node {
+						id
+						fileName
+						projectId
+						contentType
+						size
+						createdAt
+					}
 				}
 				totalCount
 				pageInfo {
@@ -249,18 +257,4 @@ func escapeForJSON(s string) string {
 	s = strings.ReplaceAll(s, "\r", "\\r")
 	s = strings.ReplaceAll(s, "\t", "\\t")
 	return s
-}
-
-// Helper functions for pointers
-func intPtr(i int) *int {
-	return &i
-}
-
-func cursorPtr(s string) *usecasex.Cursor {
-	c := usecasex.Cursor(s)
-	return &c
-}
-
-func sortDirectionPtr(d gqlmodel.SortDirection) *gqlmodel.SortDirection {
-	return &d
 }
