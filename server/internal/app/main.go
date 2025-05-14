@@ -45,6 +45,7 @@ func Start(debug bool, version string) {
 }
 
 type WebServer struct {
+	debug          bool
 	appAddress     string
 	appServer      *echo.Echo
 	internalPort   string
@@ -62,7 +63,9 @@ type ApplicationContext struct {
 }
 
 func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
-	w := &WebServer{}
+	w := &WebServer{
+		debug: appCtx.Debug,
+	}
 	if appCtx.Config.Server.Active {
 		port := appCtx.Config.Port
 		if port == "" {
@@ -94,7 +97,7 @@ func (w *WebServer) Run(ctx context.Context) {
 	defer log.Infof("server: shutdown")
 
 	debugLog := ""
-	if w.appServer.Debug {
+	if w.debug {
 		debugLog += " with debug mode"
 	}
 
@@ -127,16 +130,24 @@ func (w *WebServer) Run(ctx context.Context) {
 	<-quit
 }
 
-func (w *WebServer) Serve(l net.Listener) error {
+func (w *WebServer) HttpServe(l net.Listener) error {
 	return w.appServer.Server.Serve(l)
 }
 
-func (w *WebServer) Shutdown(ctx context.Context) error {
-	if w.internalServer != nil {
-		w.internalServer.GracefulStop()
-	}
+func (w *WebServer) GrpcServe(l net.Listener) error {
+	return w.internalServer.Serve(l)
+}
+
+func (w *WebServer) HttpShutdown(ctx context.Context) error {
 	if w.appServer != nil {
 		return w.appServer.Shutdown(ctx)
+	}
+	return nil
+}
+
+func (w *WebServer) GrpcShutdown(ctx context.Context) error {
+	if w.internalServer != nil {
+		w.internalServer.GracefulStop()
 	}
 	return nil
 }
