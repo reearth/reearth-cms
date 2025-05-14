@@ -138,12 +138,16 @@ func (w *WebServer) GrpcServe(l net.Listener) error {
 	return w.internalServer.Serve(l)
 }
 
-func (w *WebServer) Shutdown(ctx context.Context) error {
-	if w.internalServer != nil {
-		w.internalServer.GracefulStop()
-	}
+func (w *WebServer) HttpShutdown(ctx context.Context) error {
 	if w.appServer != nil {
 		return w.appServer.Shutdown(ctx)
+	}
+	return nil
+}
+
+func (w *WebServer) GrpcShutdown(ctx context.Context) error {
+	if w.internalServer != nil {
+		w.internalServer.GracefulStop()
 	}
 	return nil
 }

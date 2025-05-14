@@ -41,16 +41,6 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 
 	ctx := context.Background()
 
-	l1, err := net.Listen("tcp", ":0")
-	if err != nil {
-		t.Fatalf("http server failed to listen: %v", err)
-	}
-
-	l2, err := net.Listen("tcp", ":"+cfg.InternalApi.Port)
-	if err != nil {
-		t.Fatalf("grpc server failed to listen: %v", err)
-	}
-
 	cfg.Server.Active = true
 	srv := app.NewServer(ctx, &app.ApplicationContext{
 		Config:     cfg,
@@ -61,6 +51,11 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 		Debug:      true,
 	})
 
+	l1, err := net.Listen("tcp", ":0")
+	if err != nil {
+		t.Fatalf("http server failed to listen: %v", err)
+	}
+
 	ch1 := make(chan error)
 	go func() {
 		if err := srv.HttpServe(l1); !errors.Is(err, http.ErrServerClosed) {
@@ -69,26 +64,40 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 		close(ch1)
 	}()
 
-	ch2 := make(chan error)
-	go func() {
-		if err := srv.GrpcServe(l2); !errors.Is(err, grpc.ErrServerStopped) {
-			ch2 <- err
-		}
-		close(ch2)
-	}()
-
 	t.Cleanup(func() {
-		if err := srv.Shutdown(context.Background()); err != nil {
+		if err := srv.HttpShutdown(context.Background()); err != nil {
 			t.Fatalf("server shutdown: %v", err)
 		}
 
 		if err := <-ch1; err != nil {
 			t.Fatalf("http server serve: %v", err)
 		}
-		if err := <-ch2; err != nil {
-			t.Fatalf("grpc server serve: %v", err)
-		}
 	})
+
+	if cfg.InternalApi.Active {
+		l2, err := net.Listen("tcp", ":"+cfg.InternalApi.Port)
+		if err != nil {
+			t.Fatalf("grpc server failed to listen: %v", err)
+		}
+
+		ch2 := make(chan error)
+		go func() {
+			if err := srv.GrpcServe(l2); !errors.Is(err, grpc.ErrServerStopped) {
+				ch2 <- err
+			}
+			close(ch2)
+		}()
+
+		t.Cleanup(func() {
+			if err := srv.GrpcShutdown(context.Background()); err != nil {
+				t.Fatalf("server shutdown: %v", err)
+			}
+
+			if err := <-ch2; err != nil {
+				t.Fatalf("grpc server serve: %v", err)
+			}
+		})
+	}
 
 	return httpexpect.Default(t, "http://"+l1.Addr().String())
 }
