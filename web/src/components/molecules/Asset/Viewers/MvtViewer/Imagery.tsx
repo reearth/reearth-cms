@@ -5,9 +5,9 @@ import {
   Math,
   BoundingSphere,
   HeadingPitchRange,
-  Viewer,
   ImageryLayerCollection,
   ImageryLayer,
+  Viewer as CesiumViewer,
 } from "cesium";
 import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
@@ -22,7 +22,7 @@ const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
 type Props = {
   url: string;
-  viewerRef: MutableRefObject<Viewer | undefined>;
+  viewerRef: MutableRefObject<CesiumViewer | undefined>;
   handleProperties: (prop: Property) => void;
 };
 
@@ -111,6 +111,7 @@ export const Imagery: React.FC<Props> = ({ url, viewerRef, handleProperties }) =
 
     const addLayer = async () => {
       const viewer = await waitForViewer(viewerRef);
+      layers = viewer.scene.imageryLayers;
       const imageryProvider = new CesiumMVTImageryProvider({
         urlTemplate,
         layerName: currentLayer,
@@ -118,8 +119,6 @@ export const Imagery: React.FC<Props> = ({ url, viewerRef, handleProperties }) =
         onSelectFeature,
         maximumLevel,
       });
-
-      layers = viewer.scene.imageryLayers;
       imageryLayer = layers.addImageryProvider(imageryProvider);
       imageryLayer.alpha = 0.5;
     };

@@ -1,11 +1,11 @@
-import { Viewer } from "cesium";
+import { Viewer as CesiumViewer } from "cesium";
 import { MutableRefObject } from "react";
 
 export function waitForViewer(
-  viewerRef: MutableRefObject<Viewer | undefined>,
+  viewerRef: MutableRefObject<CesiumViewer | undefined>,
   timeout = 10000,
   interval = 100,
-): Promise<Viewer> {
+): Promise<CesiumViewer> {
   return new Promise((resolve, reject) => {
     const start = Date.now();
 
