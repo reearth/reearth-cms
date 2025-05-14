@@ -435,12 +435,15 @@ func TestRemoveIntegrationsFromWorkspace(t *testing.T) {
 	assert.False(t, w.Members().HasIntegration(iId1))
 	assert.False(t, w.Members().HasIntegration(iId3))
 
+	// Expected error message format includes the list of integration IDs
+	expectedErrorMsg := fmt.Sprintf("target user does not exist in the workspace: [%s %s]", iId1, iId3)
+
 	e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
-		Value("errors").Array().Value(0).Object().Value("message").IsEqual("target user does not exist in the workspace")
+		Value("errors").Array().Value(0).Object().Value("message").IsEqual(expectedErrorMsg)
 }
 
 func TestUpdateIntegrationOfWorkspace(t *testing.T) {
