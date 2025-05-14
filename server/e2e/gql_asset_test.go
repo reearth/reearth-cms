@@ -304,11 +304,11 @@ func createAssetProject(e *httpexpect.Expect, workspaceId, name, description, al
 
 // Helper function to escape a string for JSON
 func escapeForJSON(s string) string {
-	s = strings.Replace(s, "\\", "\\\\", -1)
-	s = strings.Replace(s, "\"", "\\\"", -1)
-	s = strings.Replace(s, "\n", "\\n", -1)
-	s = strings.Replace(s, "\r", "\\r", -1)
-	s = strings.Replace(s, "\t", "\\t", -1)
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+	s = strings.ReplaceAll(s, "\"", "\\\"")
+	s = strings.ReplaceAll(s, "\n", "\\n")
+	s = strings.ReplaceAll(s, "\r", "\\r")
+	s = strings.ReplaceAll(s, "\t", "\\t")
 	return s
 }
 
