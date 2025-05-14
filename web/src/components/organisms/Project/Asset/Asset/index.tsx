@@ -18,7 +18,6 @@ const Asset: React.FC = () => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
-    viewerRef,
     viewerType,
     displayUnzipFileList,
     decompressing,
@@ -43,7 +42,7 @@ const Asset: React.FC = () => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDelayed(true);
-    }, 1000);
+    }, 1500);
     return () => clearTimeout(timeout);
   }, []);
 
@@ -72,7 +71,6 @@ const Asset: React.FC = () => {
       assetFileExt={assetFileExt}
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}
-      viewerRef={viewerRef}
       viewerType={viewerType}
       displayUnzipFileList={displayUnzipFileList}
       decompressing={decompressing}

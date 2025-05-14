@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { MutableRefObject, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -37,7 +37,6 @@ type Props = {
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
-  viewerRef: MutableRefObject<CesiumViewer | undefined>;
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
@@ -57,7 +56,6 @@ const AssetMolecule: React.FC<Props> = ({
   assetFileExt,
   selectedPreviewType,
   isModalVisible,
-  viewerRef,
   viewerType,
   displayUnzipFileList,
   decompressing,
@@ -91,7 +89,6 @@ const AssetMolecule: React.FC<Props> = ({
         return (
           <Geo3dViewer
             url={assetUrl}
-            viewerRef={viewerRef}
             setAssetUrl={setAssetUrl}
             workspaceSettings={workspaceSettings}
             onGetViewer={onGetViewer}
@@ -101,7 +98,6 @@ const AssetMolecule: React.FC<Props> = ({
         return (
           <MvtViewer
             url={assetUrl}
-            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
             onGetViewer={onGetViewer}
           />
@@ -130,7 +126,7 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerRef, viewerType, workspaceSettings]);
+  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
