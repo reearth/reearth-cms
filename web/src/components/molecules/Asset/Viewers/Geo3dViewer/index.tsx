@@ -1,5 +1,5 @@
 import { Viewer as CesiumViewer } from "cesium";
-import { useEffect } from "react";
+import { MutableRefObject, useEffect } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { compressedFileFormats } from "@reearth-cms/components/molecules/Common/Asset";
@@ -10,12 +10,19 @@ import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 
 type Props = {
   url: string;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   setAssetUrl: (url: string) => void;
+  viewerRef: MutableRefObject<CesiumViewer | undefined>;
   workspaceSettings: WorkspaceSettings;
+  onGetViewer: (viewer?: CesiumViewer) => void;
 };
 
-const Geo3dViewer: React.FC<Props> = ({ url, setAssetUrl, onGetViewer, workspaceSettings }) => {
+const Geo3dViewer: React.FC<Props> = ({
+  url,
+  setAssetUrl,
+  viewerRef,
+  workspaceSettings,
+  onGetViewer,
+}) => {
   useEffect(() => {
     const assetExtension = getExtension(url);
     if (compressedFileFormats.includes(assetExtension)) {
@@ -26,7 +33,7 @@ const Geo3dViewer: React.FC<Props> = ({ url, setAssetUrl, onGetViewer, workspace
 
   return (
     <ResiumViewer onGetViewer={onGetViewer} workspaceSettings={workspaceSettings}>
-      <Cesium3dTileSetComponent url={url} />
+      <Cesium3dTileSetComponent url={url} viewerRef={viewerRef} />
     </ResiumViewer>
   );
 };

@@ -91,9 +91,10 @@ const AssetMolecule: React.FC<Props> = ({
         return (
           <Geo3dViewer
             url={assetUrl}
+            viewerRef={viewerRef}
             setAssetUrl={setAssetUrl}
-            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
+            onGetViewer={onGetViewer}
           />
         );
       case "geo_mvt":
