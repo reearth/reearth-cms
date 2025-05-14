@@ -36,7 +36,7 @@ func (c *Controller) GetAsset(ctx context.Context, prj, i string) (Asset, error)
 		return Asset{}, err
 	}
 
-	return NewAsset(a, f, c.assetUrlResolver), nil
+	return NewAsset(a, f), nil
 }
 
 func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (ListResult[Asset], error) {
@@ -68,6 +68,6 @@ func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (L
 	}
 
 	return NewListResult(util.Map(al, func(a *asset.Asset) Asset {
-		return NewAsset(a, fileMap[a.ID()], c.assetUrlResolver)
+		return NewAsset(a, fileMap[a.ID()])
 	}), pi, p.Pagination), nil
 }

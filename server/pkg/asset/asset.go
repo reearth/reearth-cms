@@ -21,9 +21,16 @@ type Asset struct {
 	thread                  *ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
 	flatFiles               bool
+	public                  bool
+	accessInfoResolver      *AccessInfoResolver
 }
 
-type URLResolver = func(*Asset) string
+type AccessInfoResolver = func(*Asset) *AccessInfo
+
+type AccessInfo struct {
+	Url    string
+	Public bool
+}
 
 // getters
 
@@ -85,6 +92,26 @@ func (a *Asset) FlatFiles() bool {
 	return a.flatFiles
 }
 
+func (a *Asset) Public() bool {
+	return a.public
+}
+
+func (a *Asset) AccessInfo() AccessInfo {
+	defaultAccessInfo := AccessInfo{
+		Url:    "",
+		Public: false,
+	}
+	if a.accessInfoResolver == nil {
+		return defaultAccessInfo
+	}
+	resolver := *a.accessInfoResolver
+	ai := resolver(a)
+	if ai == nil {
+		return defaultAccessInfo
+	}
+	return *ai
+}
+
 // setters
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
@@ -97,6 +124,18 @@ func (a *Asset) SetThread(thid id.ThreadID) {
 
 func (a *Asset) UpdateArchiveExtractionStatus(s *ArchiveExtractionStatus) {
 	a.archiveExtractionStatus = util.CloneRef(s)
+}
+
+func (a *Asset) UpdatePublic(public bool) {
+	a.public = public
+}
+
+func (a *Asset) SetAccessInfoResolver(resolver AccessInfoResolver) {
+	if resolver == nil {
+		a.accessInfoResolver = nil
+		return
+	}
+	a.accessInfoResolver = &resolver
 }
 
 // methods
@@ -119,5 +158,6 @@ func (a *Asset) Clone() *Asset {
 		thread:                  a.thread.CloneRef(),
 		archiveExtractionStatus: a.archiveExtractionStatus,
 		flatFiles:               a.flatFiles,
+		public:                  a.public,
 	}
 }

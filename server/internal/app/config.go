@@ -39,10 +39,12 @@ type Config struct {
 	S3           S3Config          `pp:",omitempty"`
 	Task         gcp.TaskConfig    `pp:",omitempty"`
 	AWSTask      aws.TaskConfig    `pp:",omitempty"`
-	AssetBaseURL string            `pp:",omitempty"`
 	Web          map[string]string `pp:",omitempty"`
 	Web_Config   JSON              `pp:",omitempty"`
 	Web_Disabled bool              `pp:",omitempty"`
+	// asset
+	Asset_Public bool   `default:"true" pp:",omitempty"`
+	AssetBaseURL string `pp:",omitempty"`
 	// auth
 	Auth          AuthConfigs    `pp:",omitempty"`
 	Auth0         Auth0Config    `pp:",omitempty"`
@@ -63,6 +65,14 @@ type Config struct {
 
 	// internal api
 	InternalApi InternalApiConfig `pp:",omitempty"`
+
+	// server
+	Server ServerConfig `pp:",omitempty"`
+}
+
+type ServerConfig struct {
+	// TODO: move all server config to this struct
+	Active bool `default:"true" pp:",omitempty"`
 }
 
 type InternalApiConfig struct {

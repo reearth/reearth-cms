@@ -72,6 +72,34 @@ func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Oper
 	return schema.NewPackage(s, sList.Schema(m.Metadata()), gsm, rs), nil
 }
 
+func (i Schema) FindByGroup(ctx context.Context, gID id.GroupID, _ *usecase.Operator) (*schema.Schema, error) {
+	g, err := i.repos.Group.FindByID(ctx, gID)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := i.repos.Schema.FindByID(ctx, g.Schema())
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+func (i Schema) FindByGroups(ctx context.Context, gIDs id.GroupIDList, op *usecase.Operator) (schema.List, error) {
+	groups, err := i.repos.Group.FindByIDs(ctx, gIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	schemas, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs())
+	if err != nil {
+		return nil, err
+	}
+
+	return schemas, nil
+}
+
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, op *usecase.Operator) (*schema.Field, error) {
 	return Run1(ctx, op, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
@@ -366,7 +394,7 @@ func (i Schema) UpdateFields(ctx context.Context, sid id.SchemaID, params []inte
 			return nil, err
 		}
 
-		return nil, nil
+		return s.Fields(), nil
 	})
 }
 
@@ -450,4 +478,84 @@ func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.Sche
 	}
 	groupSchemas = append(groupSchemas, gsl...)
 	return
+}
+
+func (i Schema) CreateFields(ctx context.Context, sId id.SchemaID, createFieldsParams []interfaces.CreateFieldParam, op *usecase.Operator) (schema.FieldList, error) {
+	return Run1(ctx, op, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ schema.FieldList, err error) {
+			s, err := i.repos.Schema.FindByID(ctx, sId)
+			if err != nil {
+				return nil, err
+			}
+			if !op.IsMaintainingProject(s.Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			if len(createFieldsParams) == 0 {
+				return nil, nil
+			}
+
+			// delete current fields if any
+			for _, field := range s.Fields() {
+				if field.Type() == value.TypeReference {
+					if err := i.deleteCorrespondingField(ctx, s, field); err != nil {
+						return nil, err
+					}
+				}
+				s.RemoveField(field.ID())
+			}
+
+			// create new fields
+			for _, createFieldParam := range createFieldsParams {
+				if s.HasFieldByKey(createFieldParam.Key) {
+					return nil, id.ErrDuplicatedKey
+				}
+
+				newField, err := schema.NewField(createFieldParam.TypeProperty).
+					NewID().
+					Unique(createFieldParam.Unique).
+					Multiple(createFieldParam.Multiple).
+					Required(createFieldParam.Required).
+					Name(createFieldParam.Name).
+					Description(lo.FromPtr(createFieldParam.Description)).
+					Key(id.NewKey(createFieldParam.Key)).
+					DefaultValue(createFieldParam.DefaultValue).
+					Build()
+				if err != nil {
+					return nil, err
+				}
+
+				if createFieldParam.Type == value.TypeReference {
+					err = i.createCorrespondingField(ctx, s, newField, createFieldParam)
+					if err != nil {
+						return nil, err
+					}
+				}
+
+				if createFieldParam.Type == value.TypeGroup {
+					var g *schema.FieldGroup
+					createFieldParam.TypeProperty.Match(schema.TypePropertyMatch{
+						Group: func(f *schema.FieldGroup) {
+							g = f
+						},
+					})
+					_, err = i.repos.Group.FindByID(ctx, g.Group())
+					if err != nil {
+						return nil, err
+					}
+				}
+
+				s.AddField(newField)
+
+				if err := setTitleField(&createFieldParam.IsTitle, s, newField.ID().Ref()); err != nil {
+					return nil, err
+				}
+			}
+
+			if err := i.repos.Schema.Save(ctx, s); err != nil {
+				return nil, err
+			}
+
+			return s.Fields(), nil
+		})
 }

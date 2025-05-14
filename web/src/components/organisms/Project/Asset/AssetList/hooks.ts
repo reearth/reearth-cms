@@ -1,3 +1,4 @@
+import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -6,6 +7,7 @@ import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
+import { useAuthHeader } from "@reearth-cms/gql";
 import {
   useGetAssetsLazyQuery,
   useCreateAssetMutation,
@@ -339,6 +341,50 @@ export default (isItemsRequired: boolean) => {
     setColumns(cols);
   }, []);
 
+  const { getHeader } = useAuthHeader();
+  const handleMultipleAssetDownload = async (selected: Asset[]) => {
+    if (!selected?.length) return;
+
+    const headers = await getHeader();
+    const failedAssets: string[] = [];
+    await Promise.allSettled(
+      selected.map(async (s: Asset) => {
+        try {
+          const response = await fetch(s.url, {
+            method: "GET",
+            ...(s.public ? {} : { headers }),
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to download ${s.fileName}: HTTP ${response.status}`);
+          }
+          const blob = await response.blob();
+          fileDownload(blob, s.fileName);
+        } catch (err) {
+          console.error("Download error:", err);
+          failedAssets.push(s.fileName);
+        }
+      }),
+    );
+
+    if (failedAssets.length === selected.length) {
+      Notification.error({
+        message: t("All downloads failed"),
+        description: failedAssets.join(", "),
+      });
+    } else if (failedAssets.length > 0) {
+      Notification.warning({
+        message: t("Some downloads failed"),
+        description: t(
+          `Success: ${selected.length - failedAssets.length}, Failed: ${failedAssets.join(", ")}`,
+        ),
+      });
+    } else {
+      Notification.success({
+        message: t("All downloads completed successfully"),
+      });
+    }
+  };
+
   return {
     assetList,
     selection,
@@ -373,6 +419,7 @@ export default (isItemsRequired: boolean) => {
     handleAssetCreateFromUrl,
     handleAssetTableChange,
     handleAssetDelete,
+    handleMultipleAssetDownload,
     handleSearchTerm,
     handleAssetsGet,
     handleAssetsReload,

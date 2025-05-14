@@ -88,6 +88,7 @@ type ComplexityRoot struct {
 		PreviewType             func(childComplexity int) int
 		Project                 func(childComplexity int) int
 		ProjectID               func(childComplexity int) int
+		Public                  func(childComplexity int) int
 		Size                    func(childComplexity int) int
 		Thread                  func(childComplexity int) int
 		ThreadID                func(childComplexity int) int
@@ -430,6 +431,7 @@ type ComplexityRoot struct {
 		CreateAsset                        func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateAssetUpload                  func(childComplexity int, input gqlmodel.CreateAssetUploadInput) int
 		CreateField                        func(childComplexity int, input gqlmodel.CreateFieldInput) int
+		CreateFields                       func(childComplexity int, input []*gqlmodel.CreateFieldInput) int
 		CreateGroup                        func(childComplexity int, input gqlmodel.CreateGroupInput) int
 		CreateIntegration                  func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
 		CreateItem                         func(childComplexity int, input gqlmodel.CreateItemInput) int
@@ -966,6 +968,7 @@ type MutationResolver interface {
 	DecompressAsset(ctx context.Context, input gqlmodel.DecompressAssetInput) (*gqlmodel.DecompressAssetPayload, error)
 	CreateAssetUpload(ctx context.Context, input gqlmodel.CreateAssetUploadInput) (*gqlmodel.CreateAssetUploadPayload, error)
 	CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error)
+	CreateFields(ctx context.Context, input []*gqlmodel.CreateFieldInput) (*gqlmodel.FieldsPayload, error)
 	UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error)
 	UpdateFields(ctx context.Context, input []*gqlmodel.UpdateFieldInput) (*gqlmodel.FieldsPayload, error)
 	DeleteField(ctx context.Context, input gqlmodel.DeleteFieldInput) (*gqlmodel.DeleteFieldPayload, error)
@@ -1195,6 +1198,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Asset.ProjectID(childComplexity), true
+
+	case "Asset.public":
+		if e.complexity.Asset.Public == nil {
+			break
+		}
+
+		return e.complexity.Asset.Public(childComplexity), true
 
 	case "Asset.size":
 		if e.complexity.Asset.Size == nil {
@@ -2511,6 +2521,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateField(childComplexity, args["input"].(gqlmodel.CreateFieldInput)), true
+
+	case "Mutation.createFields":
+		if e.complexity.Mutation.CreateFields == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createFields_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateFields(childComplexity, args["input"].([]*gqlmodel.CreateFieldInput)), true
 
 	case "Mutation.createGroup":
 		if e.complexity.Mutation.CreateGroup == nil {
@@ -5180,6 +5202,7 @@ schema {
   url: String!
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
+  public: Boolean!
 }
 
 type AssetItem {
@@ -5691,6 +5714,7 @@ type DeleteFieldPayload {
 
 extend type Mutation {
   createField(input: CreateFieldInput!): FieldPayload
+  createFields(input: [CreateFieldInput!]!): FieldsPayload
   updateField(input: UpdateFieldInput!): FieldPayload
   updateFields(input: [UpdateFieldInput!]!): FieldsPayload
   deleteField(input: DeleteFieldInput!): DeleteFieldPayload
@@ -7243,6 +7267,34 @@ func (ec *executionContext) field_Mutation_createField_argsInput(
 	}
 
 	var zeroVal gqlmodel.CreateFieldInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createFields_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createFields_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createFields_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]*gqlmodel.CreateFieldInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal []*gqlmodel.CreateFieldInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInputᚄ(ctx, tmp)
+	}
+
+	var zeroVal []*gqlmodel.CreateFieldInput
 	return zeroVal, nil
 }
 
@@ -10695,6 +10747,50 @@ func (ec *executionContext) fieldContext_Asset_archiveExtractionStatus(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _Asset_public(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Asset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Asset_public(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Public, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Asset_public(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Asset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AssetConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AssetConnection_edges(ctx, field)
 	if err != nil {
@@ -10818,6 +10914,8 @@ func (ec *executionContext) fieldContext_AssetConnection_nodes(_ context.Context
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -11037,6 +11135,8 @@ func (ec *executionContext) fieldContext_AssetEdge_node(_ context.Context, field
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -12515,6 +12615,8 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -12904,6 +13006,8 @@ func (ec *executionContext) fieldContext_DecompressAssetPayload_asset(_ context.
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -16098,6 +16202,8 @@ func (ec *executionContext) fieldContext_Item_assets(_ context.Context, field gr
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -19749,6 +19855,62 @@ func (ec *executionContext) fieldContext_Mutation_createField(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createField_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createFields(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createFields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateFields(rctx, fc.Args["input"].([]*gqlmodel.CreateFieldInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.FieldsPayload)
+	fc.Result = res
+	return ec.marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "fields":
+				return ec.fieldContext_FieldsPayload_fields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FieldsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createFields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -31314,6 +31476,8 @@ func (ec *executionContext) fieldContext_UpdateAssetPayload_asset(_ context.Cont
 				return ec.fieldContext_Asset_fileName(ctx, field)
 			case "archiveExtractionStatus":
 				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
@@ -42161,6 +42325,11 @@ func (ec *executionContext) _Asset(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "archiveExtractionStatus":
 			out.Values[i] = ec._Asset_archiveExtractionStatus(ctx, field, obj)
+		case "public":
+			out.Values[i] = ec._Asset_public(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -45421,6 +45590,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createField":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createField(ctx, field)
+			})
+		case "createFields":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createFields(ctx, field)
 			})
 		case "updateField":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -50381,6 +50554,26 @@ func (ec *executionContext) unmarshalNCreateAssetUploadInput2githubᚗcomᚋreea
 func (ec *executionContext) unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v any) (gqlmodel.CreateFieldInput, error) {
 	res, err := ec.unmarshalInputCreateFieldInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInputᚄ(ctx context.Context, v any) ([]*gqlmodel.CreateFieldInput, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*gqlmodel.CreateFieldInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNCreateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNCreateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v any) (*gqlmodel.CreateFieldInput, error) {
+	res, err := ec.unmarshalInputCreateFieldInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateGroupInput(ctx context.Context, v any) (gqlmodel.CreateGroupInput, error) {

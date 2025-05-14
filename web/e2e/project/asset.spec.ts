@@ -24,7 +24,7 @@ const upload = async (page: Page, url: string) => {
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await page.getByText("Asset").click();
+  await page.getByRole("menuitem", { name: "Asset" }).click();
 });
 
 test.afterEach(async ({ page }) => {
@@ -89,12 +89,14 @@ test.describe.parallel("Json file tests", () => {
     await page.getByRole("button", { name: "download Download" }).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toEqual(jsonName);
+    await closeNotification(page);
 
     await page.getByLabel("edit").locator("svg").click();
     const download1Promise = page.waitForEvent("download");
     await page.getByRole("button", { name: "download Download" }).click();
     const download1 = await download1Promise;
     expect(download1.suggestedFilename()).toEqual(jsonName);
+    await closeNotification(page);
 
     await page.getByLabel("Back").click();
     await page.getByLabel("", { exact: true }).check();
@@ -122,7 +124,5 @@ test("Previewing png file on modal has succeeded", async ({ page }) => {
   await expect(page.getByText("Asset TypePNG/JPEG/TIFF/GIF")).toBeVisible();
   await page.getByRole("button", { name: "fullscreen" }).click();
   await expect(page.getByRole("img", { name: "asset-preview" })).toBeVisible();
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(150);
-  await page.getByLabel("Close", { exact: true }).click();
+  await page.getByRole("button", { name: "close" }).click();
 });

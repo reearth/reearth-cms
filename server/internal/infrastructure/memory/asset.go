@@ -31,7 +31,7 @@ func (r *Asset) Filtered(f repo.ProjectFilter) repo.Asset {
 	}
 }
 
-func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, error) {
+func (r *Asset) FindByID(_ context.Context, id id.AssetID) (*asset.Asset, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -41,7 +41,17 @@ func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, erro
 	}), rerror.ErrNotFound)
 }
 
-func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Asset, error) {
+func (r *Asset) FindByUUID(_ context.Context, uuid string) (*asset.Asset, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	return rerror.ErrIfNil(r.data.Find(func(key asset.ID, value *asset.Asset) bool {
+		return value.UUID() == uuid && r.f.CanRead(value.Project())
+	}), rerror.ErrNotFound)
+}
+
+func (r *Asset) FindByIDs(_ context.Context, ids id.AssetIDList) (asset.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -52,7 +62,7 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	return res, nil
 }
 
-func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (r *Asset) FindByProject(_ context.Context, id id.ProjectID, filter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -81,7 +91,7 @@ func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, filter repo.
 
 }
 
-func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
+func (r *Asset) Save(_ context.Context, a *asset.Asset) error {
 	if !r.f.CanWrite(a.Project()) {
 		return repo.ErrOperationDenied
 	}
@@ -94,7 +104,7 @@ func (r *Asset) Save(ctx context.Context, a *asset.Asset) error {
 	return nil
 }
 
-func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
+func (r *Asset) Delete(_ context.Context, id id.AssetID) error {
 	if r.err != nil {
 		return r.err
 	}

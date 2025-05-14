@@ -15,32 +15,52 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
 )
 
 type fileRepo struct {
-	fs      afero.Fs
-	urlBase *url.URL
+	fs          afero.Fs
+	publicBase  *url.URL
+	privateBase *url.URL
+	public      bool
 }
 
-func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
+func NewFile(fs afero.Fs, publicBase string) (gateway.File, error) {
 	var b *url.URL
-	if urlBase == "" {
-		urlBase = defaultBase
+	if publicBase == "" {
+		publicBase = defaultBase
 	}
 
 	var err error
-	b, err = url.Parse(urlBase)
+	b, err = url.Parse(publicBase)
 	if err != nil {
 		return nil, ErrInvalidBaseURL
 	}
 
 	return &fileRepo{
-		fs:      fs,
-		urlBase: b,
+		fs:         fs,
+		publicBase: b,
+		public:     true,
 	}, nil
+}
+
+func NewFileWithACL(fs afero.Fs, publicBase, privateBase string) (gateway.File, error) {
+	f, err := NewFile(fs, publicBase)
+	if err != nil {
+		return nil, err
+	}
+
+	u, err := url.Parse(privateBase)
+	if err != nil {
+		return nil, rerror.NewE(i18n.T("invalid base URL"))
+	}
+	fr := f.(*fileRepo)
+	fr.public = false
+	fr.privateBase = u
+	return fr, nil
 }
 
 func (f *fileRepo) ReadAsset(ctx context.Context, fileUUID string, fn string, h map[string]string) (io.ReadCloser, map[string]string, error) {
@@ -123,20 +143,48 @@ func (f *fileRepo) DeleteAsset(_ context.Context, fileUUID string, fn string) er
 	return f.delete(p)
 }
 
-func (f *fileRepo) GetURL(a *asset.Asset) string {
-	fileUUID := a.UUID()
-	return f.urlBase.JoinPath(assetDir, fileUUID[:2], fileUUID[2:], url.PathEscape(a.FileName())).String()
+func (f *fileRepo) PublishAsset(_ context.Context, u string, fn string) error {
+	return nil
+}
+
+func (f *fileRepo) UnpublishAsset(_ context.Context, u string, fn string) error {
+	return nil
+}
+
+func (f *fileRepo) GetAccessInfoResolver() asset.AccessInfoResolver {
+	return func(a *asset.Asset) *asset.AccessInfo {
+		base := f.privateBase
+		publiclyAccessible := f.public || a.Public()
+		if publiclyAccessible {
+			base = f.publicBase
+		}
+		return &asset.AccessInfo{
+			Url:    grtURL(base, a.UUID(), url.PathEscape(a.FileName())),
+			Public: publiclyAccessible,
+		}
+	}
+}
+
+func (f *fileRepo) GetAccessInfo(a *asset.Asset) *asset.AccessInfo {
+	if a == nil {
+		return nil
+	}
+	return f.GetAccessInfoResolver()(a)
+}
+
+func grtURL(host *url.URL, uuid, fName string) string {
+	return host.JoinPath(assetDir, uuid[:2], uuid[2:], fName).String()
 }
 
 func (f *fileRepo) GetBaseURL() string {
-	return f.urlBase.String()
+	return f.publicBase.String()
 }
 
-func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
+func (f *fileRepo) IssueUploadAssetLink(_ context.Context, _ gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
 	return nil, gateway.ErrUnsupportedOperation
 }
 
-func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
+func (f *fileRepo) UploadedAsset(_ context.Context, _ *asset.Upload) (*file.File, error) {
 	return nil, gateway.ErrUnsupportedOperation
 }
 

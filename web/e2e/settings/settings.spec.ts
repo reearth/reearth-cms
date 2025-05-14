@@ -61,8 +61,6 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
 });
 
 test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(500);
   await expect(page.getByRole("switch")).toBeEnabled();
   await page.getByRole("switch").click();
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
@@ -152,9 +150,10 @@ test("Tiles reordering has succeeded", async ({ page }) => {
 });
 
 test("Terrain reordering has succeeded", async ({ page }) => {
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(500);
+  await expect(page.getByRole("switch")).toBeEnabled();
   await page.getByRole("switch").click();
+  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).toBeVisible();
   await page.getByRole("button", { name: "plus Add new Terrain option" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "plus Add new Terrain option" }).click();

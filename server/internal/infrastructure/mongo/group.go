@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -59,6 +60,15 @@ func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List,
 	return prepareGroups(list, res), nil
 }
 
+func (r *Group) Filter(ctx context.Context, pid id.ProjectID, sort *group.Sort, pagination *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(pid) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+	return r.paginate(ctx, bson.M{
+		"project": pid.String(),
+	}, sortGroups(sort), pagination)
+}
+
 func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
 	if !r.f.CanRead(pid) {
 		return nil, nil
@@ -84,6 +94,26 @@ func (r *Group) FindByKey(ctx context.Context, projectID id.ProjectID, key strin
 		"key":     key,
 		"project": projectID.String(),
 	})
+}
+
+func (r *Group) FindByIDOrKey(ctx context.Context, pid id.ProjectID, g group.IDOrKey) (*group.Group, error) {
+	gid := g.ID()
+	key := g.Key()
+	if gid == nil && (key == nil || *key == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	filter := bson.M{
+		"project": pid.String(),
+	}
+	if gid != nil {
+		filter["id"] = gid.String()
+	}
+	if key != nil {
+		filter["key"] = *key
+	}
+
+	return r.findOne(ctx, filter)
 }
 
 func (r *Group) Save(ctx context.Context, group *group.Group) error {
@@ -137,6 +167,15 @@ func (r *Group) writeFilter(filter interface{}) interface{} {
 	return applyProjectFilter(filter, r.f.Writable)
 }
 
+func (r *Group) paginate(ctx context.Context, filter bson.M, sort *usecasex.Sort, pagination *usecasex.Pagination) (group.List, *usecasex.PageInfo, error) {
+	c := mongodoc.NewGroupConsumer()
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c)
+	if err != nil {
+		return nil, nil, rerror.ErrInternalBy(err)
+	}
+	return c.Result, pageInfo, nil
+}
+
 // prepare filters the results and sorts them according to original IDs list
 func prepareGroups(list id.GroupIDList, rows group.List) group.List {
 	res := make(group.List, 0, len(list))
@@ -149,4 +188,24 @@ func prepareGroups(list id.GroupIDList, rows group.List) group.List {
 		}
 	}
 	return res
+}
+
+func sortGroups(gs *group.Sort) *usecasex.Sort {
+	res := usecasex.Sort{Key: "order", Reverted: false}
+	if gs == nil {
+		return &res
+	}
+
+	switch gs.Column {
+	case group.ColumnCreatedAt:
+		res.Key = "id"
+	case group.ColumnOrder:
+		res.Key = "order"
+	}
+
+	if gs.Direction == group.DirectionDesc {
+		res.Reverted = true
+	}
+
+	return &res
 }

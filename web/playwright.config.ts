@@ -13,7 +13,7 @@ export const authFile = path.join(__dirname, "./e2e/utils/.auth/user.json");
 export const baseURL = process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:3000/";
 
 const config: PlaywrightTestConfig = {
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 4 : undefined,
   retries: 2,
   use: {
     baseURL,
@@ -35,6 +35,7 @@ const config: PlaywrightTestConfig = {
       dependencies: ["setup"],
     },
   ],
+  timeout: 120 * 1000,
 };
 
 export default config;

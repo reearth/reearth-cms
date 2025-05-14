@@ -33,9 +33,10 @@ func Start(debug bool, version string) {
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
 	// Start web server
-	NewServer(ctx, &ServerConfig{
+	NewServer(ctx, &ApplicationContext{
 		Config:     conf,
 		Debug:      debug,
+		Version:    version,
 		Repos:      repos,
 		Gateways:   gateways,
 		AcRepos:    acRepos,
@@ -44,45 +45,50 @@ func Start(debug bool, version string) {
 }
 
 type WebServer struct {
+	debug          bool
 	appAddress     string
 	appServer      *echo.Echo
 	internalPort   string
 	internalServer *grpc.Server
 }
 
-type ServerConfig struct {
+type ApplicationContext struct {
 	Config     *Config
 	Debug      bool
+	Version    string
 	Repos      *repo.Container
 	Gateways   *gateway.Container
 	AcRepos    *accountrepo.Container
 	AcGateways *accountgateway.Container
 }
 
-func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
-	port := cfg.Config.Port
-	if port == "" {
-		port = "8080"
-	}
-
-	host := cfg.Config.ServerHost
-	if host == "" {
-		if cfg.Debug {
-			host = "localhost"
-		} else {
-			host = "0.0.0.0"
-		}
-	}
-	address := host + ":" + port
-
+func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
 	w := &WebServer{
-		appAddress: address,
+		debug: appCtx.Debug,
 	}
-	w.appServer = initEcho(cfg)
+	if appCtx.Config.Server.Active {
+		port := appCtx.Config.Port
+		if port == "" {
+			port = "8080"
+		}
 
-	if cfg.Config.InternalApi.Active {
-		w.internalPort = ":" + cfg.Config.InternalApi.Port
-		w.internalServer = initGrpc(cfg)
+		host := appCtx.Config.ServerHost
+		if host == "" {
+			if appCtx.Debug {
+				host = "localhost"
+			} else {
+				host = "0.0.0.0"
+			}
+		}
+		address := host + ":" + port
+
+		w.appAddress = address
+		w.appServer = initEcho(appCtx)
+	}
+
+	if appCtx.Config.InternalApi.Active {
+		w.internalPort = ":" + appCtx.Config.InternalApi.Port
+		w.internalServer = initGrpc(appCtx)
 	}
 	return w
 }
@@ -91,15 +97,19 @@ func (w *WebServer) Run(ctx context.Context) {
 	defer log.Infof("server: shutdown")
 
 	debugLog := ""
-	if w.appServer.Debug {
+	if w.debug {
 		debugLog += " with debug mode"
 	}
 
-	go func() {
-		err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
-		log.Fatalc(ctx, err.Error())
-	}()
-	log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
+	if w.appServer != nil {
+		go func() {
+			err := w.appServer.StartH2CServer(w.appAddress, &http2.Server{})
+			log.Fatalc(ctx, err.Error())
+		}()
+		log.Infof("server: started%s at http://%s", debugLog, w.appAddress)
+	} else {
+		log.Info("server: http server is not configured")
+	}
 
 	if w.internalServer != nil {
 		go func() {
@@ -110,7 +120,9 @@ func (w *WebServer) Run(ctx context.Context) {
 			err = w.internalServer.Serve(l)
 			log.Fatalc(ctx, err.Error())
 		}()
-		log.Infof("server: started internal grpc server at %s", w.internalPort)
+		log.Infof("server: started%s internal grpc server at %s", debugLog, w.internalPort)
+	} else {
+		log.Info("server: grpc server is not configured")
 	}
 
 	quit := make(chan os.Signal, 1)
@@ -118,13 +130,24 @@ func (w *WebServer) Run(ctx context.Context) {
 	<-quit
 }
 
-func (w *WebServer) Serve(l net.Listener) error {
+func (w *WebServer) HttpServe(l net.Listener) error {
 	return w.appServer.Server.Serve(l)
 }
 
-func (w *WebServer) Shutdown(ctx context.Context) error {
+func (w *WebServer) GrpcServe(l net.Listener) error {
+	return w.internalServer.Serve(l)
+}
+
+func (w *WebServer) HttpShutdown(ctx context.Context) error {
+	if w.appServer != nil {
+		return w.appServer.Shutdown(ctx)
+	}
+	return nil
+}
+
+func (w *WebServer) GrpcShutdown(ctx context.Context) error {
 	if w.internalServer != nil {
 		w.internalServer.GracefulStop()
 	}
-	return w.appServer.Shutdown(ctx)
+	return nil
 }

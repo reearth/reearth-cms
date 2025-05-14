@@ -25,7 +25,7 @@ var (
 		"project,size,id",
 		"!createdat,!id",
 	}
-	assetUniqueIndexes = []string{"id"}
+	assetUniqueIndexes = []string{"id", "uuid"}
 )
 
 type Asset struct {
@@ -61,7 +61,13 @@ func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, erro
 	})
 }
 
-func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Asset, error) {
+func (r *Asset) FindByUUID(ctx context.Context, uuid string) (*asset.Asset, error) {
+	return r.findOne(ctx, bson.M{
+		"uuid": uuid,
+	})
+}
+
+func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) (asset.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -79,7 +85,7 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	return filterAssets(ids, res), nil
 }
 
-func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
@@ -25,6 +26,7 @@ const Asset: React.FC = () => {
     hasUpdateRight,
     handleAssetDecompress,
     handleAssetItemSelect,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,
@@ -35,10 +37,25 @@ const Asset: React.FC = () => {
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
+  const [delayed, setDelayed] = useState(false);
 
-  return isLoading ? (
-    <Loading spinnerSize="large" minHeight="100vh" />
-  ) : asset ? (
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDelayed(true);
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (!delayed || isLoading) {
+    return <Loading spinnerSize="large" minHeight="100vh" />;
+  }
+
+  if (!asset) {
+    return <NotFound />;
+  }
+
+  return (
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
@@ -63,6 +80,7 @@ const Asset: React.FC = () => {
       hasUpdateRight={hasUpdateRight}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
+      onAssetDownload={handleSingleAssetDownload}
       onTypeChange={handleTypeChange}
       onModalCancel={handleModalCancel}
       onChangeToFullScreen={handleFullScreen}
@@ -71,8 +89,6 @@ const Asset: React.FC = () => {
       onGetViewer={handleGetViewer}
       workspaceSettings={workspaceSettings}
     />
-  ) : (
-    <NotFound />
   );
 };
 

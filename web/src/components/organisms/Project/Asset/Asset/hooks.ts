@@ -1,5 +1,6 @@
 import { NetworkStatus } from "@apollo/client";
 import { Ion, Viewer as CesiumViewer } from "cesium";
+import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -23,6 +24,7 @@ import {
 } from "@reearth-cms/components/molecules/Common/Asset";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { config } from "@reearth-cms/config";
+import { useAuthHeader } from "@reearth-cms/gql";
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
@@ -47,6 +49,10 @@ export default (assetId?: string) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+
+  useEffect(() => {
+    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
+  }, []);
 
   const { data: rawAsset, networkStatus } = useGetAssetItemQuery({
     variables: {
@@ -184,10 +190,9 @@ export default (assetId?: string) => {
   );
 
   const viewerRef = useRef<CesiumViewer>();
-
-  const handleGetViewer = (viewer?: CesiumViewer) => {
+  const handleGetViewer = useCallback((viewer?: CesiumViewer) => {
     viewerRef.current = viewer;
-  };
+  }, []);
 
   const handleFullScreen = useCallback(() => {
     if (viewerType === "unknown") {
@@ -219,10 +224,6 @@ export default (assetId?: string) => {
     [setCollapsed],
   );
 
-  useEffect(() => {
-    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
-  }, []);
-
   const handleSave = useCallback(async () => {
     if (assetId) {
       setIsSaveDisabled(true);
@@ -237,6 +238,34 @@ export default (assetId?: string) => {
   const handleBack = useCallback(() => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`, { state: location.state });
   }, [location.state, navigate, projectId, workspaceId]);
+
+  const { getHeader } = useAuthHeader();
+  const handleSingleAssetDownload = async (asset: Asset) => {
+    try {
+      const headers = await getHeader();
+      const response = await fetch(asset.url, {
+        method: "GET",
+        ...(asset.public ? {} : { headers }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to download ${asset.fileName}: HTTP ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      fileDownload(blob, asset.fileName);
+      Notification.success({
+        message: t("Download successful"),
+        description: asset.fileName,
+      });
+    } catch (err) {
+      console.error("Download error:", err);
+      Notification.error({
+        message: t("Download failed"),
+        description: asset.fileName,
+      });
+    }
+  };
 
   return {
     asset,
@@ -253,6 +282,7 @@ export default (assetId?: string) => {
     hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,

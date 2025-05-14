@@ -48,6 +48,24 @@ type ServerInterface interface {
 	// Update AssetComment
 	// (PATCH /assets/{assetId}/comments/{commentId})
 	AssetCommentUpdate(ctx echo.Context, assetId AssetIdParam, commentId CommentIdParam) error
+	// publish asset
+	// (POST /assets/{assetId}/publish)
+	AssetPublish(ctx echo.Context, assetId AssetIdParam) error
+	// publish asset
+	// (POST /assets/{assetId}/unpublish)
+	AssetUnpublish(ctx echo.Context, assetId AssetIdParam) error
+	// get asset content
+	// (GET /assets/{uuid1}/{uuid2}/{filename})
+	AssetContentGet(ctx echo.Context, uuid1 string, uuid2 string, filename string) error
+	// Delete a group.
+	// (DELETE /groups/{groupId})
+	GroupDelete(ctx echo.Context, groupId GroupIdParam) error
+	// Retrieve a specific group.
+	// (GET /groups/{groupId})
+	GroupGet(ctx echo.Context, groupId GroupIdParam) error
+	// Update a group's details.
+	// (PATCH /groups/{groupId})
+	GroupUpdate(ctx echo.Context, groupId GroupIdParam) error
 	// delete an item
 	// (DELETE /items/{itemId})
 	ItemDelete(ctx echo.Context, itemId ItemIdParam) error
@@ -102,6 +120,21 @@ type ServerInterface interface {
 	// Returns a schema as json by model ID
 	// (GET /models/{modelId}/schema.json)
 	SchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error
+	// Returns a list of groups in a project.
+	// (GET /projects/{projectIdOrAlias}/groups)
+	GroupFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params GroupFilterParams) error
+	// Create a new group in a project.
+	// (POST /projects/{projectIdOrAlias}/groups)
+	GroupCreate(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params GroupCreateParams) error
+	// Delete a group within a project.
+	// (DELETE /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
+	// Retrieve a group within a project.
+	// (GET /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
+	// Update a group's details within a project.
+	// (PATCH /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
 	// Returns a list of models.
 	// (GET /projects/{projectIdOrAlias}/models)
 	ModelFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error
@@ -321,6 +354,128 @@ func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.AssetCommentUpdate(ctx, assetId, commentId)
+	return err
+}
+
+// AssetPublish converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetPublish(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetId" -------------
+	var assetId AssetIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetPublish(ctx, assetId)
+	return err
+}
+
+// AssetUnpublish converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetUnpublish(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetId" -------------
+	var assetId AssetIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetUnpublish(ctx, assetId)
+	return err
+}
+
+// AssetContentGet converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetContentGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "uuid1" -------------
+	var uuid1 string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "uuid1", ctx.Param("uuid1"), &uuid1, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter uuid1: %s", err))
+	}
+
+	// ------------- Path parameter "uuid2" -------------
+	var uuid2 string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "uuid2", ctx.Param("uuid2"), &uuid2, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter uuid2: %s", err))
+	}
+
+	// ------------- Path parameter "filename" -------------
+	var filename string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "filename", ctx.Param("filename"), &filename, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter filename: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetContentGet(ctx, uuid1, uuid2, filename)
+	return err
+}
+
+// GroupDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "groupId" -------------
+	var groupId GroupIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupId", ctx.Param("groupId"), &groupId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupDelete(ctx, groupId)
+	return err
+}
+
+// GroupGet converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "groupId" -------------
+	var groupId GroupIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupId", ctx.Param("groupId"), &groupId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupGet(ctx, groupId)
+	return err
+}
+
+// GroupUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "groupId" -------------
+	var groupId GroupIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupId", ctx.Param("groupId"), &groupId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupUpdate(ctx, groupId)
 	return err
 }
 
@@ -774,6 +929,180 @@ func (w *ServerInterfaceWrapper) SchemaByModelAsJSON(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.SchemaByModelAsJSON(ctx, modelId)
+	return err
+}
+
+// GroupFilter converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupFilter(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GroupFilterParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupFilter(ctx, projectIdOrAlias, params)
+	return err
+}
+
+// GroupCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GroupCreateParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupCreate(ctx, projectIdOrAlias, params)
+	return err
+}
+
+// GroupDeleteWithProject converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupDeleteWithProject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "groupIdOrKey" -------------
+	var groupIdOrKey GroupIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupDeleteWithProject(ctx, projectIdOrAlias, groupIdOrKey)
+	return err
+}
+
+// GroupGetWithProject converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupGetWithProject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "groupIdOrKey" -------------
+	var groupIdOrKey GroupIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupGetWithProject(ctx, projectIdOrAlias, groupIdOrKey)
+	return err
+}
+
+// GroupUpdateWithProject converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupUpdateWithProject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "groupIdOrKey" -------------
+	var groupIdOrKey GroupIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupUpdateWithProject(ctx, projectIdOrAlias, groupIdOrKey)
 	return err
 }
 
@@ -1704,6 +2033,12 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/assets/:assetId/comments", wrapper.AssetCommentCreate)
 	router.DELETE(baseURL+"/assets/:assetId/comments/:commentId", wrapper.AssetCommentDelete)
 	router.PATCH(baseURL+"/assets/:assetId/comments/:commentId", wrapper.AssetCommentUpdate)
+	router.POST(baseURL+"/assets/:assetId/publish", wrapper.AssetPublish)
+	router.POST(baseURL+"/assets/:assetId/unpublish", wrapper.AssetUnpublish)
+	router.GET(baseURL+"/assets/:uuid1/:uuid2/:filename", wrapper.AssetContentGet)
+	router.DELETE(baseURL+"/groups/:groupId", wrapper.GroupDelete)
+	router.GET(baseURL+"/groups/:groupId", wrapper.GroupGet)
+	router.PATCH(baseURL+"/groups/:groupId", wrapper.GroupUpdate)
 	router.DELETE(baseURL+"/items/:itemId", wrapper.ItemDelete)
 	router.GET(baseURL+"/items/:itemId", wrapper.ItemGet)
 	router.PATCH(baseURL+"/items/:itemId", wrapper.ItemUpdate)
@@ -1722,6 +2057,11 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/models/:modelId/items.geojson", wrapper.ItemsAsGeoJSON)
 	router.GET(baseURL+"/models/:modelId/metadata_schema.json", wrapper.MetadataSchemaByModelAsJSON)
 	router.GET(baseURL+"/models/:modelId/schema.json", wrapper.SchemaByModelAsJSON)
+	router.GET(baseURL+"/projects/:projectIdOrAlias/groups", wrapper.GroupFilter)
+	router.POST(baseURL+"/projects/:projectIdOrAlias/groups", wrapper.GroupCreate)
+	router.DELETE(baseURL+"/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupDeleteWithProject)
+	router.GET(baseURL+"/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupGetWithProject)
+	router.PATCH(baseURL+"/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupUpdateWithProject)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelFilter)
 	router.POST(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelCreate)
 	router.DELETE(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelDeleteWithProject)
@@ -2048,6 +2388,285 @@ type AssetCommentUpdate404Response struct {
 
 func (response AssetCommentUpdate404Response) VisitAssetCommentUpdateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
+	return nil
+}
+
+type AssetPublishRequestObject struct {
+	AssetId AssetIdParam `json:"assetId"`
+}
+
+type AssetPublishResponseObject interface {
+	VisitAssetPublishResponse(w http.ResponseWriter) error
+}
+
+type AssetPublish200JSONResponse Asset
+
+func (response AssetPublish200JSONResponse) VisitAssetPublishResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetPublish400Response struct {
+}
+
+func (response AssetPublish400Response) VisitAssetPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetPublish401Response = UnauthorizedErrorResponse
+
+func (response AssetPublish401Response) VisitAssetPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetPublish404Response struct {
+}
+
+func (response AssetPublish404Response) VisitAssetPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type AssetUnpublishRequestObject struct {
+	AssetId AssetIdParam `json:"assetId"`
+}
+
+type AssetUnpublishResponseObject interface {
+	VisitAssetUnpublishResponse(w http.ResponseWriter) error
+}
+
+type AssetUnpublish200JSONResponse Asset
+
+func (response AssetUnpublish200JSONResponse) VisitAssetUnpublishResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetUnpublish400Response struct {
+}
+
+func (response AssetUnpublish400Response) VisitAssetUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetUnpublish401Response = UnauthorizedErrorResponse
+
+func (response AssetUnpublish401Response) VisitAssetUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetUnpublish404Response struct {
+}
+
+func (response AssetUnpublish404Response) VisitAssetUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type AssetContentGetRequestObject struct {
+	Uuid1    string `json:"uuid1"`
+	Uuid2    string `json:"uuid2"`
+	Filename string `json:"filename"`
+}
+
+type AssetContentGetResponseObject interface {
+	VisitAssetContentGetResponse(w http.ResponseWriter) error
+}
+
+type AssetContentGet200ApplicationoctetStreamResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response AssetContentGet200ApplicationoctetStreamResponse) VisitAssetContentGetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/octet-stream")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type AssetContentGet400Response struct {
+}
+
+func (response AssetContentGet400Response) VisitAssetContentGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetContentGet401Response = UnauthorizedErrorResponse
+
+func (response AssetContentGet401Response) VisitAssetContentGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetContentGet404Response struct {
+}
+
+func (response AssetContentGet404Response) VisitAssetContentGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupDeleteRequestObject struct {
+	GroupId GroupIdParam `json:"groupId"`
+}
+
+type GroupDeleteResponseObject interface {
+	VisitGroupDeleteResponse(w http.ResponseWriter) error
+}
+
+type GroupDelete200JSONResponse struct {
+	Id *id.GroupID `json:"id,omitempty"`
+}
+
+func (response GroupDelete200JSONResponse) VisitGroupDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupDelete400Response struct {
+}
+
+func (response GroupDelete400Response) VisitGroupDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupDelete401Response = UnauthorizedErrorResponse
+
+func (response GroupDelete401Response) VisitGroupDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupDelete404Response struct {
+}
+
+func (response GroupDelete404Response) VisitGroupDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupDelete500Response struct {
+}
+
+func (response GroupDelete500Response) VisitGroupDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GroupGetRequestObject struct {
+	GroupId GroupIdParam `json:"groupId"`
+}
+
+type GroupGetResponseObject interface {
+	VisitGroupGetResponse(w http.ResponseWriter) error
+}
+
+type GroupGet200JSONResponse Group
+
+func (response GroupGet200JSONResponse) VisitGroupGetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupGet400Response struct {
+}
+
+func (response GroupGet400Response) VisitGroupGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupGet401Response = UnauthorizedErrorResponse
+
+func (response GroupGet401Response) VisitGroupGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupGet404Response struct {
+}
+
+func (response GroupGet404Response) VisitGroupGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupGet500Response struct {
+}
+
+func (response GroupGet500Response) VisitGroupGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GroupUpdateRequestObject struct {
+	GroupId GroupIdParam `json:"groupId"`
+	Body    *GroupUpdateJSONRequestBody
+}
+
+type GroupUpdateResponseObject interface {
+	VisitGroupUpdateResponse(w http.ResponseWriter) error
+}
+
+type GroupUpdate200JSONResponse Group
+
+func (response GroupUpdate200JSONResponse) VisitGroupUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupUpdate400Response struct {
+}
+
+func (response GroupUpdate400Response) VisitGroupUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupUpdate401Response = UnauthorizedErrorResponse
+
+func (response GroupUpdate401Response) VisitGroupUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupUpdate404Response struct {
+}
+
+func (response GroupUpdate404Response) VisitGroupUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupUpdate500Response struct {
+}
+
+func (response GroupUpdate500Response) VisitGroupUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
 	return nil
 }
 
@@ -2859,6 +3478,252 @@ type SchemaByModelAsJSON500Response struct {
 }
 
 func (response SchemaByModelAsJSON500Response) VisitSchemaByModelAsJSONResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GroupFilterRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	Params           GroupFilterParams
+}
+
+type GroupFilterResponseObject interface {
+	VisitGroupFilterResponse(w http.ResponseWriter) error
+}
+
+type GroupFilter200JSONResponse struct {
+	Groups     *[]Group `json:"groups,omitempty"`
+	Page       *int     `json:"page,omitempty"`
+	PerPage    *int     `json:"perPage,omitempty"`
+	TotalCount *int     `json:"totalCount,omitempty"`
+}
+
+func (response GroupFilter200JSONResponse) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupFilter400Response struct {
+}
+
+func (response GroupFilter400Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupFilter401Response = UnauthorizedErrorResponse
+
+func (response GroupFilter401Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupFilter404Response struct {
+}
+
+func (response GroupFilter404Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupFilter500Response struct {
+}
+
+func (response GroupFilter500Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GroupCreateRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	Params           GroupCreateParams
+	Body             *GroupCreateJSONRequestBody
+}
+
+type GroupCreateResponseObject interface {
+	VisitGroupCreateResponse(w http.ResponseWriter) error
+}
+
+type GroupCreate201JSONResponse Group
+
+func (response GroupCreate201JSONResponse) VisitGroupCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupCreate400Response struct {
+}
+
+func (response GroupCreate400Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupCreate401Response = UnauthorizedErrorResponse
+
+func (response GroupCreate401Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupCreate500Response struct {
+}
+
+func (response GroupCreate500Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GroupDeleteWithProjectRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	GroupIdOrKey     GroupIdOrKeyParam     `json:"groupIdOrKey"`
+}
+
+type GroupDeleteWithProjectResponseObject interface {
+	VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error
+}
+
+type GroupDeleteWithProject200JSONResponse struct {
+	Id *id.GroupID `json:"id,omitempty"`
+}
+
+func (response GroupDeleteWithProject200JSONResponse) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupDeleteWithProject400Response struct {
+}
+
+func (response GroupDeleteWithProject400Response) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupDeleteWithProject401Response = UnauthorizedErrorResponse
+
+func (response GroupDeleteWithProject401Response) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupDeleteWithProject404Response struct {
+}
+
+func (response GroupDeleteWithProject404Response) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupDeleteWithProject500Response struct {
+}
+
+func (response GroupDeleteWithProject500Response) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GroupGetWithProjectRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	GroupIdOrKey     GroupIdOrKeyParam     `json:"groupIdOrKey"`
+}
+
+type GroupGetWithProjectResponseObject interface {
+	VisitGroupGetWithProjectResponse(w http.ResponseWriter) error
+}
+
+type GroupGetWithProject200JSONResponse Group
+
+func (response GroupGetWithProject200JSONResponse) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupGetWithProject400Response struct {
+}
+
+func (response GroupGetWithProject400Response) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupGetWithProject401Response = UnauthorizedErrorResponse
+
+func (response GroupGetWithProject401Response) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupGetWithProject404Response struct {
+}
+
+func (response GroupGetWithProject404Response) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupGetWithProject500Response struct {
+}
+
+func (response GroupGetWithProject500Response) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GroupUpdateWithProjectRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	GroupIdOrKey     GroupIdOrKeyParam     `json:"groupIdOrKey"`
+	Body             *GroupUpdateWithProjectJSONRequestBody
+}
+
+type GroupUpdateWithProjectResponseObject interface {
+	VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error
+}
+
+type GroupUpdateWithProject200JSONResponse Group
+
+func (response GroupUpdateWithProject200JSONResponse) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupUpdateWithProject400Response struct {
+}
+
+func (response GroupUpdateWithProject400Response) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupUpdateWithProject401Response = UnauthorizedErrorResponse
+
+func (response GroupUpdateWithProject401Response) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupUpdateWithProject404Response struct {
+}
+
+func (response GroupUpdateWithProject404Response) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupUpdateWithProject500Response struct {
+}
+
+func (response GroupUpdateWithProject500Response) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
@@ -4184,6 +5049,24 @@ type StrictServerInterface interface {
 	// Update AssetComment
 	// (PATCH /assets/{assetId}/comments/{commentId})
 	AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error)
+	// publish asset
+	// (POST /assets/{assetId}/publish)
+	AssetPublish(ctx context.Context, request AssetPublishRequestObject) (AssetPublishResponseObject, error)
+	// publish asset
+	// (POST /assets/{assetId}/unpublish)
+	AssetUnpublish(ctx context.Context, request AssetUnpublishRequestObject) (AssetUnpublishResponseObject, error)
+	// get asset content
+	// (GET /assets/{uuid1}/{uuid2}/{filename})
+	AssetContentGet(ctx context.Context, request AssetContentGetRequestObject) (AssetContentGetResponseObject, error)
+	// Delete a group.
+	// (DELETE /groups/{groupId})
+	GroupDelete(ctx context.Context, request GroupDeleteRequestObject) (GroupDeleteResponseObject, error)
+	// Retrieve a specific group.
+	// (GET /groups/{groupId})
+	GroupGet(ctx context.Context, request GroupGetRequestObject) (GroupGetResponseObject, error)
+	// Update a group's details.
+	// (PATCH /groups/{groupId})
+	GroupUpdate(ctx context.Context, request GroupUpdateRequestObject) (GroupUpdateResponseObject, error)
 	// delete an item
 	// (DELETE /items/{itemId})
 	ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error)
@@ -4238,6 +5121,21 @@ type StrictServerInterface interface {
 	// Returns a schema as json by model ID
 	// (GET /models/{modelId}/schema.json)
 	SchemaByModelAsJSON(ctx context.Context, request SchemaByModelAsJSONRequestObject) (SchemaByModelAsJSONResponseObject, error)
+	// Returns a list of groups in a project.
+	// (GET /projects/{projectIdOrAlias}/groups)
+	GroupFilter(ctx context.Context, request GroupFilterRequestObject) (GroupFilterResponseObject, error)
+	// Create a new group in a project.
+	// (POST /projects/{projectIdOrAlias}/groups)
+	GroupCreate(ctx context.Context, request GroupCreateRequestObject) (GroupCreateResponseObject, error)
+	// Delete a group within a project.
+	// (DELETE /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupDeleteWithProject(ctx context.Context, request GroupDeleteWithProjectRequestObject) (GroupDeleteWithProjectResponseObject, error)
+	// Retrieve a group within a project.
+	// (GET /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupGetWithProject(ctx context.Context, request GroupGetWithProjectRequestObject) (GroupGetWithProjectResponseObject, error)
+	// Update a group's details within a project.
+	// (PATCH /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupUpdateWithProject(ctx context.Context, request GroupUpdateWithProjectRequestObject) (GroupUpdateWithProjectResponseObject, error)
 	// Returns a list of models.
 	// (GET /projects/{projectIdOrAlias}/models)
 	ModelFilter(ctx context.Context, request ModelFilterRequestObject) (ModelFilterResponseObject, error)
@@ -4523,6 +5421,164 @@ func (sh *strictHandler) AssetCommentUpdate(ctx echo.Context, assetId AssetIdPar
 		return err
 	} else if validResponse, ok := response.(AssetCommentUpdateResponseObject); ok {
 		return validResponse.VisitAssetCommentUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetPublish operation middleware
+func (sh *strictHandler) AssetPublish(ctx echo.Context, assetId AssetIdParam) error {
+	var request AssetPublishRequestObject
+
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetPublish(ctx.Request().Context(), request.(AssetPublishRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetPublish")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetPublishResponseObject); ok {
+		return validResponse.VisitAssetPublishResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetUnpublish operation middleware
+func (sh *strictHandler) AssetUnpublish(ctx echo.Context, assetId AssetIdParam) error {
+	var request AssetUnpublishRequestObject
+
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetUnpublish(ctx.Request().Context(), request.(AssetUnpublishRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetUnpublish")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetUnpublishResponseObject); ok {
+		return validResponse.VisitAssetUnpublishResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetContentGet operation middleware
+func (sh *strictHandler) AssetContentGet(ctx echo.Context, uuid1 string, uuid2 string, filename string) error {
+	var request AssetContentGetRequestObject
+
+	request.Uuid1 = uuid1
+	request.Uuid2 = uuid2
+	request.Filename = filename
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetContentGet(ctx.Request().Context(), request.(AssetContentGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetContentGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetContentGetResponseObject); ok {
+		return validResponse.VisitAssetContentGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupDelete operation middleware
+func (sh *strictHandler) GroupDelete(ctx echo.Context, groupId GroupIdParam) error {
+	var request GroupDeleteRequestObject
+
+	request.GroupId = groupId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupDelete(ctx.Request().Context(), request.(GroupDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupDeleteResponseObject); ok {
+		return validResponse.VisitGroupDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupGet operation middleware
+func (sh *strictHandler) GroupGet(ctx echo.Context, groupId GroupIdParam) error {
+	var request GroupGetRequestObject
+
+	request.GroupId = groupId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupGet(ctx.Request().Context(), request.(GroupGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupGetResponseObject); ok {
+		return validResponse.VisitGroupGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupUpdate operation middleware
+func (sh *strictHandler) GroupUpdate(ctx echo.Context, groupId GroupIdParam) error {
+	var request GroupUpdateRequestObject
+
+	request.GroupId = groupId
+
+	var body GroupUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupUpdate(ctx.Request().Context(), request.(GroupUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupUpdateResponseObject); ok {
+		return validResponse.VisitGroupUpdateResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -5035,6 +6091,148 @@ func (sh *strictHandler) SchemaByModelAsJSON(ctx echo.Context, modelId ModelIdPa
 		return err
 	} else if validResponse, ok := response.(SchemaByModelAsJSONResponseObject); ok {
 		return validResponse.VisitSchemaByModelAsJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupFilter operation middleware
+func (sh *strictHandler) GroupFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params GroupFilterParams) error {
+	var request GroupFilterRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupFilter(ctx.Request().Context(), request.(GroupFilterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupFilter")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupFilterResponseObject); ok {
+		return validResponse.VisitGroupFilterResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupCreate operation middleware
+func (sh *strictHandler) GroupCreate(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params GroupCreateParams) error {
+	var request GroupCreateRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Params = params
+
+	var body GroupCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupCreate(ctx.Request().Context(), request.(GroupCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupCreateResponseObject); ok {
+		return validResponse.VisitGroupCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupDeleteWithProject operation middleware
+func (sh *strictHandler) GroupDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
+	var request GroupDeleteWithProjectRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.GroupIdOrKey = groupIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupDeleteWithProject(ctx.Request().Context(), request.(GroupDeleteWithProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupDeleteWithProject")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupDeleteWithProjectResponseObject); ok {
+		return validResponse.VisitGroupDeleteWithProjectResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupGetWithProject operation middleware
+func (sh *strictHandler) GroupGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
+	var request GroupGetWithProjectRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.GroupIdOrKey = groupIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupGetWithProject(ctx.Request().Context(), request.(GroupGetWithProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupGetWithProject")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupGetWithProjectResponseObject); ok {
+		return validResponse.VisitGroupGetWithProjectResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupUpdateWithProject operation middleware
+func (sh *strictHandler) GroupUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
+	var request GroupUpdateWithProjectRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.GroupIdOrKey = groupIdOrKey
+
+	var body GroupUpdateWithProjectJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupUpdateWithProject(ctx.Request().Context(), request.(GroupUpdateWithProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupUpdateWithProject")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupUpdateWithProjectResponseObject); ok {
+		return validResponse.VisitGroupUpdateWithProjectResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -5847,86 +7045,95 @@ func (sh *strictHandler) ProjectUpdate(ctx echo.Context, workspaceId WorkspaceId
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"T09P/wsAAP//fkhVSLLFAAA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -91,6 +91,7 @@ type Asset struct {
 	URL                     string                   `json:"url"`
 	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
+	Public                  bool                     `json:"public"`
 }
 
 func (Asset) IsNode()        {}
