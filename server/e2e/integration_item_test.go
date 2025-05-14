@@ -105,9 +105,9 @@ var (
 	sfkey9 = id.NewKey("number-key")
 	gKey1  = id.RandomKey()
 	gKey2  = id.RandomKey()
-	igId1   = id.NewItemGroupID()
-	igId2   = id.NewItemGroupID()
-	igId3   = id.NewItemGroupID()
+	igId1  = id.NewItemGroupID()
+	igId2  = id.NewItemGroupID()
+	igId3  = id.NewItemGroupID()
 
 	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
@@ -119,6 +119,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	u := user.New().ID(uId).
 		Name("e2e").
 		Email("e2e@e2e.com").
+		Workspace(wId0).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
 		return err
