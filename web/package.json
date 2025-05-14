@@ -18,7 +18,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "e2e": "playwright test --workers=4",
+    "e2e": "playwright test",
     "lint": "eslint .",
     "fix": "eslint --fix .",
     "format": "prettier --write .",

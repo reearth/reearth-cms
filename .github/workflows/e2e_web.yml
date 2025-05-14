@@ -1,6 +1,13 @@
 name: Web E2E test
 on:
+  push:
+    branches: [test-web/test-4-workers]
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Target branch"
+        required: false
+        default: "main"
   schedule:
     - cron: "0 3 * * 1-5"
   workflow_call:
@@ -33,9 +40,6 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: reearth/reearth-cms
-          ref: ${{ inputs.branch || 'main' }}
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
