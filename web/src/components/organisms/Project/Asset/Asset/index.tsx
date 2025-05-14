@@ -37,7 +37,6 @@ const Asset: React.FC = () => {
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
-
   const [delayed, setDelayed] = useState(false);
 
   useEffect(() => {
@@ -46,10 +45,10 @@ const Asset: React.FC = () => {
         case "geo":
         case "model_3d":
         case "csv":
-          return 1000;
+          return 1500;
         case "geo_3d_tiles":
         case "geo_mvt":
-          return 1500;
+          return 2000;
         case "image":
         case "image_svg":
         case "unknown":
