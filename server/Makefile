@@ -5,7 +5,7 @@ test:
 	go test -race -v ./...
 
 build:
-	go build ./cmd/reearth-cms
+	go build ./cmd/reearth-cms && go test -run=XXX_NO_MATCH_XXX ./...
 
 run-app:
 	go run ./cmd/reearth-cms

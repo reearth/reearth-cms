@@ -117,7 +117,7 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        ref={node => onGetViewer(node?.cesiumElement)}>
+        ref={node => node && onGetViewer(node.cesiumElement)}>
         {children}
       </StyledViewer>
       <InfoBox

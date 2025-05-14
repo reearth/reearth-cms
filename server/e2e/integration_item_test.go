@@ -47,6 +47,8 @@ var (
 	mId3   = id.NewModelID()
 	mId4   = id.NewModelID()
 	mId5   = id.NewModelID()
+	gId1   = id.NewGroupID()
+	gId2   = id.NewGroupID()
 	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
@@ -89,6 +91,8 @@ var (
 	sid1   = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
 	sid3   = id.NewSchemaID()
+	sid4   = id.NewSchemaID()
+	gsId   = id.NewSchemaID()
 	palias = "PROJECT_ALIAS"
 	sfKey1 = id.RandomKey()
 	sfKey2 = id.NewKey("asset")
@@ -100,9 +104,10 @@ var (
 	sfKey8 = id.NewKey("geometry-editor-key")
 	sfkey9 = id.NewKey("number-key")
 	gKey1  = id.RandomKey()
-	gId1   = id.NewItemGroupID()
-	gId2   = id.NewItemGroupID()
-	gId3   = id.NewItemGroupID()
+	gKey2  = id.RandomKey()
+	igId1   = id.NewItemGroupID()
+	igId2   = id.NewItemGroupID()
+	igId3   = id.NewItemGroupID()
 
 	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
@@ -234,12 +239,12 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	}
 
 	sf5 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId5).Key(sfKey5).Multiple(true).MustBuild()
-	s4 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf5}).MustBuild()
+	s4 := schema.New().ID(sid4).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf5}).MustBuild()
 	if err := r.Schema.Save(ctx, s4); err != nil {
 		return err
 	}
 
-	g0 := group.New().NewID().Name("group").Project(p.ID()).Key(gKey1).Schema(s4.ID()).MustBuild()
+	g0 := group.New().ID(gId1).Name("group").Project(p.ID()).Key(gKey1).Schema(s4.ID()).MustBuild()
 	if err := r.Group.Save(ctx, g0); err != nil {
 		return err
 	}
@@ -360,9 +365,9 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Thread(thId4.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
-			item.NewField(fId6, value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(gId1), value.TypeGroup.Value(gId2)}), nil),
-			item.NewField(fId5, value.MultipleFrom(value.TypeAsset, []*value.Value{value.TypeAsset.Value(aid1), value.TypeAsset.Value(aid2)}), gId1.Ref()),
-			item.NewField(fId5, value.MultipleFrom(value.TypeAsset, []*value.Value{value.TypeAsset.Value(aid2), value.TypeAsset.Value(aid1)}), gId2.Ref()),
+			item.NewField(fId6, value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(igId1), value.TypeGroup.Value(igId2)}), nil),
+			item.NewField(fId5, value.MultipleFrom(value.TypeAsset, []*value.Value{value.TypeAsset.Value(aid1), value.TypeAsset.Value(aid2)}), igId1.Ref()),
+			item.NewField(fId5, value.MultipleFrom(value.TypeAsset, []*value.Value{value.TypeAsset.Value(aid2), value.TypeAsset.Value(aid1)}), igId2.Ref()),
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm4); err != nil {
@@ -501,11 +506,11 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 	gsf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default group").AsMultiple()).MustBuild()
-	gs := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{gsf}).MustBuild()
+	gs := schema.New().ID(gsId).Workspace(w.ID()).Project(pid).Fields([]*schema.Field{gsf}).MustBuild()
 	if err := r.Schema.Save(ctx, gs); err != nil {
 		return err
 	}
-	gp := group.New().NewID().Name("group2").Project(pid).Key(id.RandomKey()).Schema(gs.ID()).MustBuild()
+	gp := group.New().ID(gId2).Name("group2").Project(pid).Key(gKey2).Schema(gs.ID()).MustBuild()
 	if err := r.Group.Save(ctx, gp); err != nil {
 		return err
 	}
@@ -1836,7 +1841,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
 				map[string]any{
-					"group": gId1.String(),
+					"group": igId1.String(),
 					"id":    fId5.String(),
 					"type":  "asset",
 					"value": []string{aid1.String()},
@@ -1858,14 +1863,14 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	r.Value("fields").
 		IsEqual([]any{
 			map[string]any{
-				"group": gId1.String(),
+				"group": igId1.String(),
 				"id":    fId5.String(),
 				"type":  "asset",
 				"value": []string{aid1.String()},
 				"key":   sfKey5.String(),
 			},
 			map[string]any{
-				"group": gId2.String(),
+				"group": igId2.String(),
 				"id":    fId5.String(),
 				"type":  "asset",
 				"value": []string{aid2.String(), aid1.String()},
@@ -1874,7 +1879,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			map[string]any{
 				"id":    fId6.String(),
 				"type":  "group",
-				"value": []string{gId1.String(), gId2.String()},
+				"value": []string{igId1.String(), igId2.String()},
 				"key":   sfKey6.String(),
 			},
 		})
@@ -1884,7 +1889,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
 				map[string]any{
-					"group": gId3.String(),
+					"group": igId3.String(),
 					"id":    fId5.String(),
 					"type":  "asset",
 					"value": []string{aid2.String()},
@@ -1893,7 +1898,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				map[string]any{
 					"id":    fId6.String(),
 					"type":  "group",
-					"value": []string{gId1.String(), gId2.String(), gId3.String()},
+					"value": []string{igId1.String(), igId2.String(), igId3.String()},
 					"key":   sfKey6.String(),
 				},
 			},
@@ -1906,21 +1911,21 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	r.Value("fields").
 		IsEqual([]any{
 			map[string]any{
-				"group": gId1.String(),
+				"group": igId1.String(),
 				"id":    fId5.String(),
 				"type":  "asset",
 				"value": []string{aid1.String()},
 				"key":   sfKey5.String(),
 			},
 			map[string]any{
-				"group": gId2.String(),
+				"group": igId2.String(),
 				"id":    fId5.String(),
 				"type":  "asset",
 				"value": []string{aid2.String(), aid1.String()},
 				"key":   sfKey5.String(),
 			},
 			map[string]any{
-				"group": gId3.String(),
+				"group": igId3.String(),
 				"id":    fId5.String(),
 				"type":  "asset",
 				"value": []string{aid2.String()},
@@ -1929,7 +1934,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			map[string]any{
 				"id":    fId6.String(),
 				"type":  "group",
-				"value": []string{gId1.String(), gId2.String(), gId3.String()},
+				"value": []string{igId1.String(), igId2.String(), igId3.String()},
 				"key":   sfKey6.String(),
 			},
 		})
@@ -2094,14 +2099,14 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 	r.Value("fields").
 		IsEqual([]any{
 			map[string]any{
-				"group": gId1.String(),
+				"group": igId1.String(),
 				"id":    fId5.String(),
 				"type":  "asset",
 				"value": []string{aid1.String(), aid2.String()},
 				"key":   sfKey5.String(),
 			},
 			map[string]any{
-				"group": gId2.String(),
+				"group": igId2.String(),
 				"id":    fId5.String(),
 				"type":  "asset",
 				"value": []string{aid2.String(), aid1.String()},
@@ -2110,7 +2115,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			map[string]any{
 				"id":    fId6.String(),
 				"type":  "group",
-				"value": []string{gId1.String(), gId2.String()},
+				"value": []string{igId1.String(), igId2.String()},
 				"key":   sfKey6.String(),
 			},
 		})

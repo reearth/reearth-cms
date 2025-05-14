@@ -63,6 +63,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	// apis
 	api := e.Group("/api", private)
 	api.GET("/ping", Ping())
+	api.GET("/health", HealthCheck(appCtx.Config, appCtx.Version))
 	api.POST(
 		"/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev),
 		jwtParseMiddleware(appCtx),
