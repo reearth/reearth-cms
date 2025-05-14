@@ -40,30 +40,12 @@ const Asset: React.FC = () => {
   const [delayed, setDelayed] = useState(false);
 
   useEffect(() => {
-    const getDelay = (type: typeof viewerType): number => {
-      switch (type) {
-        case "geo":
-        case "model_3d":
-        case "csv":
-          return 1500;
-        case "geo_3d_tiles":
-        case "geo_mvt":
-          return 2000;
-        case "image":
-        case "image_svg":
-        case "unknown":
-        default:
-          return 0;
-      }
-    };
-
-    const delay = getDelay(viewerType);
     const timeout = setTimeout(() => {
       setDelayed(true);
-    }, delay);
+    }, 2000);
 
     return () => clearTimeout(timeout);
-  }, [viewerType]);
+  }, []);
 
   if (!delayed || isLoading) {
     return <Loading spinnerSize="large" minHeight="100vh" />;
