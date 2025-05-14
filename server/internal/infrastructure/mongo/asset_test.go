@@ -435,16 +435,13 @@ func TestAssetRepo_Search(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := accountdomain.NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	// c := asset.NewFile().Path("/").Build()
-	// f := asset.NewFile().Path("/").Children([]*asset.File{c}).Build()
+
 	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
 	a1 := asset.New().NewID().Project(pid1).CreatedAt(tim).ArchiveExtractionStatus(s).NewUUID().
 		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 	a2 := asset.New().NewID().Project(pid1).CreatedAt(tim).ArchiveExtractionStatus(s).NewUUID().
 		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
 	a1f, a2f := a1.Clone(), a2.Clone()
-	// a1f.SetFile(f)
-	// a2f.SetFile(f)
 
 	type args struct {
 		tid          id.ProjectID

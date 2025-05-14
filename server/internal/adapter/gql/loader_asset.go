@@ -124,7 +124,7 @@ func (c *AssetLoader) Search(ctx context.Context, query gqlmodel.AssetQueryInput
 	edges := make([]*gqlmodel.AssetEdge, 0, len(assets))
 	nodes := make([]*gqlmodel.Asset, 0, len(assets))
 	for _, a := range assets {
-		asset := gqlmodel.ToAsset(a, c.usecase.GetURL)
+		asset := gqlmodel.ToAsset(a)
 		edges = append(edges, &gqlmodel.AssetEdge{
 			Node:   asset,
 			Cursor: usecasex.Cursor(asset.ID),

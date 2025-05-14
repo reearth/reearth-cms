@@ -5,9 +5,13 @@ import (
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
+
+var ErrInvalidContentTypes = rerror.NewE(i18n.T("invalid content types"))
 
 func ToAsset(a *asset.Asset) *Asset {
 	if a == nil {
