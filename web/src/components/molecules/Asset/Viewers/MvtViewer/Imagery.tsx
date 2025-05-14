@@ -7,11 +7,11 @@ import {
   HeadingPitchRange,
   ImageryLayerCollection,
   ImageryLayer,
-  Viewer as CesiumViewer,
 } from "cesium";
 import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
-import { MutableRefObject, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCesium } from "resium";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
@@ -22,7 +22,6 @@ const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
 type Props = {
   url: string;
-  viewerRef: MutableRefObject<CesiumViewer | undefined>;
   handleProperties: (prop: Property) => void;
 };
 
@@ -42,7 +41,8 @@ type Metadata = {
   maximumLevel?: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url, viewerRef, handleProperties }) => {
+export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
+  const { viewer } = useCesium();
   const [selectedFeature, setSelectedFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
@@ -51,8 +51,8 @@ export const Imagery: React.FC<Props> = ({ url, viewerRef, handleProperties }) =
 
   const zoomTo = useCallback(
     async ([lng, lat, height]: [number, number, number], useDefaultRange?: boolean) => {
-      const viewer = await waitForViewer(viewerRef);
-      viewer.camera.flyToBoundingSphere(
+      const resolvedViewer = await waitForViewer(viewer);
+      resolvedViewer.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
           duration: 0,
@@ -60,24 +60,7 @@ export const Imagery: React.FC<Props> = ({ url, viewerRef, handleProperties }) =
         },
       );
     },
-    [viewerRef],
-  );
-
-  const loadData = useCallback(
-    async (url: string) => {
-      try {
-        const data = await fetchLayers(url);
-        if (!data) return;
-        setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
-        setLayers(data.layers ?? []);
-        setCurrentLayer(data.layers?.[0] || "");
-        setMaximumLevel(data.maximumLevel);
-        await zoomTo(data.center || defaultCameraPosition, !data.center);
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    [zoomTo],
+    [viewer],
   );
 
   const style = useCallback(
@@ -102,16 +85,29 @@ export const Imagery: React.FC<Props> = ({ url, viewerRef, handleProperties }) =
   );
 
   useEffect(() => {
+    const loadData = async (url: string) => {
+      try {
+        const data = await fetchLayers(url);
+        if (!data) return;
+        setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
+        setLayers(data.layers ?? []);
+        setCurrentLayer(data.layers?.[0] || "");
+        setMaximumLevel(data.maximumLevel);
+        await zoomTo(data.center || defaultCameraPosition, !data.center);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     loadData(url);
-  }, [loadData, url]);
+  }, [url, zoomTo]);
 
   useEffect(() => {
     let layers: ImageryLayerCollection;
     let imageryLayer: ImageryLayer;
 
     const addLayer = async () => {
-      const viewer = await waitForViewer(viewerRef);
-      layers = viewer.scene.imageryLayers;
+      const resolvedViewer = await waitForViewer(viewer);
+      layers = resolvedViewer.scene.imageryLayers;
       const imageryProvider = new CesiumMVTImageryProvider({
         urlTemplate,
         layerName: currentLayer,
@@ -129,7 +125,7 @@ export const Imagery: React.FC<Props> = ({ url, viewerRef, handleProperties }) =
         layers.remove(imageryLayer);
       }
     };
-  }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewerRef]);
+  }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewer]);
 
   const handleChange = useCallback((value: unknown) => {
     if (typeof value === "string") {

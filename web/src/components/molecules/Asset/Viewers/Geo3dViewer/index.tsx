@@ -10,12 +10,12 @@ import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 
 type Props = {
   url: string;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   setAssetUrl: (url: string) => void;
   workspaceSettings: WorkspaceSettings;
+  onGetViewer: (viewer?: CesiumViewer) => void;
 };
 
-const Geo3dViewer: React.FC<Props> = ({ url, setAssetUrl, onGetViewer, workspaceSettings }) => {
+const Geo3dViewer: React.FC<Props> = ({ url, setAssetUrl, workspaceSettings, onGetViewer }) => {
   useEffect(() => {
     const assetExtension = getExtension(url);
     if (compressedFileFormats.includes(assetExtension)) {
