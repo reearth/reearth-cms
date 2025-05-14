@@ -5,7 +5,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewAsset(a *asset.Asset, f *asset.File, urlFn asset.URLResolver, all bool) *Asset {
+func NewAsset(a *asset.Asset, f *asset.File, all bool) *Asset {
 	if a == nil {
 		return nil
 	}
@@ -18,10 +18,7 @@ func NewAsset(a *asset.Asset, f *asset.File, urlFn asset.URLResolver, all bool) 
 		n = lo.ToPtr(fn)
 	}
 
-	url, isPublic := "", false
-	if urlFn != nil {
-		url, isPublic = urlFn(a)
-	}
+	ai := a.AccessInfo()
 
 	return &Asset{
 		Id:                      a.ID(),
@@ -31,10 +28,10 @@ func NewAsset(a *asset.Asset, f *asset.File, urlFn asset.URLResolver, all bool) 
 		PreviewType:             ToPreviewType(a.PreviewType()),
 		ProjectId:               a.Project(),
 		TotalSize:               lo.ToPtr(float32(a.Size())),
-		Url:                     url,
+		Url:                     ai.Url,
 		File:                    ToAssetFile(f, all),
 		ArchiveExtractionStatus: ToAssetArchiveExtractionStatus(a.ArchiveExtractionStatus()),
-		Public:                  isPublic,
+		Public:                  ai.Public,
 	}
 }
 

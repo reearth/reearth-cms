@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
@@ -12,21 +12,24 @@ const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const t = useT();
   const [svgText, setSvgText] = useState("");
 
-  const fetchData = useCallback(async () => {
-    const res = await fetch(url, {
-      method: "GET",
-    });
-    if (res.status !== 200) {
-      setSvgText(t("Could not display svg"));
-      return;
-    }
-    const text = await res.text();
-    setSvgText(text);
-  }, [url, t]);
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+        });
+        if (!res.ok) {
+          throw new Error("Could not fetch svg data");
+        }
+        const text = await res.text();
+        setSvgText(text);
+      } catch (err) {
+        setSvgText(t("Could not display svg"));
+        console.error(err);
+      }
+    };
     fetchData();
-  }, [fetchData]);
+  }, [t, url]);
 
   return svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>;
 };

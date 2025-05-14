@@ -12,24 +12,24 @@ import (
 	"github.com/reearth/reearthx/rerror"
 )
 
-func serveFiles(e *echo.Echo, cfg *ServerConfig) {
-	if cfg.Gateways.File == nil {
+func serveFiles(e *echo.Echo, appCtx *ApplicationContext) {
+	if appCtx.Gateways.File == nil {
 		return
 	}
-	e.GET("/assets/:uuid1/:uuid2/:filename", handleAssetByUUID(cfg), privateAssetsMiddleware(cfg))
-	e.GET("/assets/:filename", handleAssetByFileName(cfg))
+	e.GET("/assets/:uuid1/:uuid2/:filename", handleAssetByUUID(appCtx), privateAssetsMiddleware(appCtx))
+	e.GET("/assets/:filename", handleAssetByFileName(appCtx))
 }
 
-func privateAssetsMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
+func privateAssetsMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 	eh := func(c echo.Context) error { return nil }
-	authHandler := authMiddleware(cfg)(eh)
-	jwtHandler := jwtParseMiddleware(cfg)(eh)
+	authHandler := authMiddleware(appCtx)(eh)
+	jwtHandler := jwtParseMiddleware(appCtx)(eh)
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
 			token := ctx.Request().Header.Get("Authorization")
 
-			if cfg.Config.Asset_Public || token == "" || !strings.HasPrefix(token, "Bearer ") {
+			if appCtx.Config.Asset_Public || token == "" || !strings.HasPrefix(token, "Bearer ") {
 				return next(ctx)
 			}
 
@@ -45,12 +45,12 @@ func privateAssetsMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 	}
 }
 
-func handleAssetByUUID(cfg *ServerConfig) echo.HandlerFunc {
+func handleAssetByUUID(appCtx *ApplicationContext) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		filename := ctx.Param("filename")
 		uuid := ctx.Param("uuid1") + ctx.Param("uuid2")
-		if !cfg.Config.Asset_Public {
-			a, err := cfg.Repos.Asset.FindByUUID(ctx.Request().Context(), uuid)
+		if !appCtx.Config.Asset_Public {
+			a, err := appCtx.Repos.Asset.FindByUUID(ctx.Request().Context(), uuid)
 			if err != nil {
 				return err
 			}
@@ -61,7 +61,7 @@ func handleAssetByUUID(cfg *ServerConfig) echo.HandlerFunc {
 				}
 			}
 		}
-		r, h, err := cfg.Gateways.File.ReadAsset(
+		r, h, err := appCtx.Gateways.File.ReadAsset(
 			ctx.Request().Context(), uuid, filename, assetHeaders(ctx.Request().Header),
 		)
 		if err != nil {
@@ -71,10 +71,10 @@ func handleAssetByUUID(cfg *ServerConfig) echo.HandlerFunc {
 	}
 }
 
-func handleAssetByFileName(cfg *ServerConfig) echo.HandlerFunc {
+func handleAssetByFileName(appCtx *ApplicationContext) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		filename := ctx.Param("filename")
-		r, h, err := cfg.Gateways.File.Read(
+		r, h, err := appCtx.Gateways.File.Read(
 			ctx.Request().Context(), filename, assetHeaders(ctx.Request().Header),
 		)
 		if err != nil {

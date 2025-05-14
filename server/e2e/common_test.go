@@ -23,6 +23,7 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
+	"google.golang.org/grpc"
 )
 
 type Seeder func(context.Context, *repo.Container, *gateway.Container) error
@@ -40,12 +41,8 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 
 	ctx := context.Background()
 
-	l, err := net.Listen("tcp", ":0")
-	if err != nil {
-		t.Fatalf("server failed to listen: %v", err)
-	}
-
-	srv := app.NewServer(ctx, &app.ServerConfig{
+	cfg.Server.Active = true
+	srv := app.NewServer(ctx, &app.ApplicationContext{
 		Config:     cfg,
 		Repos:      repos,
 		AcRepos:    accountrepos,
@@ -54,25 +51,55 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 		Debug:      true,
 	})
 
-	ch := make(chan error)
+	l1, err := net.Listen("tcp", ":0")
+	if err != nil {
+		t.Fatalf("http server failed to listen: %v", err)
+	}
+
+	ch1 := make(chan error)
 	go func() {
-		if err := srv.Serve(l); !errors.Is(err, http.ErrServerClosed) {
-			ch <- err
+		if err := srv.HttpServe(l1); !errors.Is(err, http.ErrServerClosed) {
+			ch1 <- err
 		}
-		close(ch)
+		close(ch1)
 	}()
 
 	t.Cleanup(func() {
-		if err := srv.Shutdown(context.Background()); err != nil {
+		if err := srv.HttpShutdown(context.Background()); err != nil {
 			t.Fatalf("server shutdown: %v", err)
 		}
 
-		if err := <-ch; err != nil {
-			t.Fatalf("server serve: %v", err)
+		if err := <-ch1; err != nil {
+			t.Fatalf("http server serve: %v", err)
 		}
 	})
 
-	return httpexpect.Default(t, "http://"+l.Addr().String())
+	if cfg.InternalApi.Active {
+		l2, err := net.Listen("tcp", ":"+cfg.InternalApi.Port)
+		if err != nil {
+			t.Fatalf("grpc server failed to listen: %v", err)
+		}
+
+		ch2 := make(chan error)
+		go func() {
+			if err := srv.GrpcServe(l2); !errors.Is(err, grpc.ErrServerStopped) {
+				ch2 <- err
+			}
+			close(ch2)
+		}()
+
+		t.Cleanup(func() {
+			if err := srv.GrpcShutdown(context.Background()); err != nil {
+				t.Fatalf("server shutdown: %v", err)
+			}
+
+			if err := <-ch2; err != nil {
+				t.Fatalf("grpc server serve: %v", err)
+			}
+		})
+	}
+
+	return httpexpect.Default(t, "http://"+l1.Addr().String())
 }
 
 func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, *repo.Container, *accountrepo.Container) {

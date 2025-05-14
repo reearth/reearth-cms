@@ -51,7 +51,7 @@ func (r *Asset) FindByUUID(_ context.Context, uuid string) (*asset.Asset, error)
 	}), rerror.ErrNotFound)
 }
 
-func (r *Asset) FindByIDs(_ context.Context, ids id.AssetIDList) ([]*asset.Asset, error) {
+func (r *Asset) FindByIDs(_ context.Context, ids id.AssetIDList) (asset.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -62,7 +62,7 @@ func (r *Asset) FindByIDs(_ context.Context, ids id.AssetIDList) ([]*asset.Asset
 	return res, nil
 }
 
-func (r *Asset) FindByProject(_ context.Context, id id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (r *Asset) FindByProject(_ context.Context, id id.ProjectID, filter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}

@@ -135,10 +135,9 @@ func ToValue(v *value.Value, sf *schema.Field, assets *AssetContext) any {
 }
 
 type AssetContext struct {
-	Map     asset.Map
-	Files   map[asset.ID]*asset.File
-	BaseURL func(a *asset.Asset) (string, bool)
-	All     bool
+	Map   asset.Map
+	Files map[asset.ID]*asset.File
+	All   bool
 }
 
 func (c *AssetContext) ResolveAsset(id asset.ID) *Asset {
@@ -148,7 +147,7 @@ func (c *AssetContext) ResolveAsset(id asset.ID) *Asset {
 			if c.Files != nil {
 				f = c.Files[id]
 			}
-			return NewAsset(a, f, c.BaseURL, c.All)
+			return NewAsset(a, f, c.All)
 		}
 	}
 	return nil

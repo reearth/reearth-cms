@@ -67,14 +67,14 @@ func (i Item) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
-func NewItem(i *item.Item, sp *schema.Package, assets asset.List, urlResolver asset.URLResolver, refItems []Item) Item {
+func NewItem(i *item.Item, sp *schema.Package, assets asset.List, refItems []Item) Item {
 	gsf := schema.FieldList{}
 	for _, groupSchema := range sp.GroupSchemas() {
 		gsf = append(gsf, groupSchema.Fields().Clone()...)
 	}
 	itm := Item{
 		ID:     i.ID().String(),
-		Fields: NewItemFields(i.Fields(), sp.Schema().Fields(), gsf, refItems, assets, urlResolver),
+		Fields: NewItemFields(i.Fields(), sp.Schema().Fields(), gsf, refItems, assets),
 	}
 
 	return itm
@@ -95,7 +95,7 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 	return i
 }
 
-func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, refItems []Item, assets asset.List, urlResolver asset.URLResolver) ItemFields {
+func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, refItems []Item, assets asset.List) ItemFields {
 	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (k string, val any) {
 		sf := sfields.Find(f.FieldID())
 		if sf == nil {
@@ -117,7 +117,7 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 					continue
 				}
 				if as, ok := lo.Find(assets, func(a *asset.Asset) bool { return a != nil && a.ID() == aid }); ok {
-					itemAssets = append(itemAssets, NewItemAsset(as, urlResolver))
+					itemAssets = append(itemAssets, NewItemAsset(as))
 				}
 			}
 
@@ -144,7 +144,7 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 					continue
 				}
 				gf := fields.FieldsByGroup(itgID)
-				igf := NewItemFields(gf, groupFields, nil, nil, assets, urlResolver)
+				igf := NewItemFields(gf, groupFields, nil, nil, assets)
 				res = append(res, igf)
 			}
 			if sf.Multiple() {
@@ -170,13 +170,13 @@ type Asset struct {
 	Files       []string `json:"files,omitempty"`
 }
 
-func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asset {
-	u := ""
+func NewAsset(a *asset.Asset, f *asset.File) Asset {
+	// TODO: how to handle public api with asset url management
+	ai := a.AccessInfo()
+
 	var files []string
-	if urlResolver != nil {
-		// TODO: how to handle public api with asset url management
-		u, _ = urlResolver(a)
-		base, _ := url.Parse(u)
+	if ai.Url != "" {
+		base, _ := url.Parse(ai.Url)
 		base.Path = path.Dir(base.Path)
 
 		files = lo.Map(f.FilePaths(), func(p string, _ int) string {
@@ -189,7 +189,7 @@ func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asse
 	return Asset{
 		Type:        "asset",
 		ID:          a.ID().String(),
-		URL:         u,
+		URL:         ai.Url,
 		ContentType: f.ContentType(),
 		Files:       files,
 	}
@@ -201,17 +201,12 @@ type ItemAsset struct {
 	URL  string `json:"url,omitempty"`
 }
 
-func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
-	u := ""
-	if urlResolver != nil {
-		// TODO: how to handle public api with asset url management
-		u, _ = urlResolver(a)
-	}
-
+func NewItemAsset(a *asset.Asset) ItemAsset {
+	ai := a.AccessInfo()
 	return ItemAsset{
 		Type: "asset",
 		ID:   a.ID().String(),
-		URL:  u,
+		URL:  ai.Url,
 	}
 }
 

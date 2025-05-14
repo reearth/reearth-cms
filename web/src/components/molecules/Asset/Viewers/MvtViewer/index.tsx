@@ -8,21 +8,25 @@ import { Imagery, Property } from "./Imagery";
 
 type Props = {
   url: string;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
+  onGetViewer: (viewer?: CesiumViewer) => void;
 };
 
-const MvtViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
+const MvtViewer: React.FC<Props> = ({ url, workspaceSettings, onGetViewer }) => {
   const [properties, setProperties] = useState<Property>();
+
   const handleProperties = useCallback((prop: Property) => {
-    if (typeof prop !== "object" || !prop || typeof prop.attributes !== "string") {
+    if (!prop || typeof prop !== "object") {
+      setProperties(undefined);
+      return;
+    }
+
+    try {
+      const attributes =
+        typeof prop.attributes === "string" ? JSON.parse(prop.attributes) : prop.attributes;
+      setProperties({ ...prop, attributes });
+    } catch {
       setProperties(prop);
-    } else {
-      try {
-        setProperties({ ...prop, attributes: JSON.parse(prop.attributes) });
-      } catch {
-        setProperties(prop);
-      }
     }
   }, []);
 

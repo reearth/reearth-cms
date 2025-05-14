@@ -166,13 +166,25 @@ func (f *fileRepo) UnpublishAsset(ctx context.Context, u string, fn string) erro
 	return f.publish(ctx, getS3ObjectPath(u, fn), false)
 }
 
-func (f *fileRepo) GetURL(a *asset.Asset) (string, bool) {
-	base := f.privateBase
-	publiclyAccessible := f.public || a.Public()
-	if publiclyAccessible {
-		base = f.publicBase
+func (f *fileRepo) GetAccessInfoResolver() asset.AccessInfoResolver {
+	return func(a *asset.Asset) *asset.AccessInfo {
+		base := f.privateBase
+		publiclyAccessible := f.public || a.Public()
+		if publiclyAccessible {
+			base = f.publicBase
+		}
+		return &asset.AccessInfo{
+			Url:    getURL(base, a.UUID(), a.FileName()),
+			Public: publiclyAccessible,
+		}
 	}
-	return getURL(base, a.UUID(), a.FileName()), publiclyAccessible
+}
+
+func (f *fileRepo) GetAccessInfo(a *asset.Asset) *asset.AccessInfo {
+	if a == nil {
+		return nil
+	}
+	return f.GetAccessInfoResolver()(a)
 }
 
 func (f *fileRepo) GetBaseURL() string {

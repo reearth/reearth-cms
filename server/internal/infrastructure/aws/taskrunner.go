@@ -4,13 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"net/url"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -91,18 +89,7 @@ func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
-	// TODO: maybe the host is missing here and should be handled based on asset url management
-	u, err := url.Parse(s3AssetBasePath)
-	if err != nil {
-		return err
-	}
-
-	var urlFn = func(a *asset.Asset) (string, bool) {
-		// TODO: handle bucket publicity as well as asset publicity for asset url management
-		return getURL(u, a.UUID(), a.FileName()), a.Public()
-	}
-
-	data, err := marshalWebhookData(p.Webhook, urlFn)
+	data, err := marshalWebhookData(p.Webhook)
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}

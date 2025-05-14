@@ -6,16 +6,12 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToAsset(a *asset.Asset, urlResolver asset.URLResolver) *Asset {
+func ToAsset(a *asset.Asset) *Asset {
 	if a == nil {
 		return nil
 	}
 
-	var url string
-	var isPublic bool
-	if urlResolver != nil {
-		url, isPublic = urlResolver(a)
-	}
+	ai := a.AccessInfo()
 
 	var createdBy ID
 	var createdByType OperatorType
@@ -36,12 +32,12 @@ func ToAsset(a *asset.Asset, urlResolver asset.URLResolver) *Asset {
 		CreatedByType:           createdByType,
 		PreviewType:             ToPreviewType(a.PreviewType()),
 		UUID:                    a.UUID(),
-		URL:                     url,
+		URL:                     ai.Url,
 		FileName:                a.FileName(),
 		ThreadID:                IDFromRef(a.Thread()),
 		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 		Size:                    int64(a.Size()),
-		Public:                  isPublic,
+		Public:                  ai.Public,
 	}
 }
 
