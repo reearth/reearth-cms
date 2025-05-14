@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
@@ -38,9 +39,23 @@ const Asset: React.FC = () => {
 
   const { workspaceSettings } = useSettingsHooks();
 
-  return isLoading ? (
-    <Loading spinnerSize="large" minHeight="100vh" />
-  ) : asset ? (
+  const [delayed, setDelayed] = useState(false);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDelayed(true);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (!delayed || isLoading) {
+    return <Loading spinnerSize="large" minHeight="100vh" />;
+  }
+
+  if (!asset) {
+    return <NotFound />;
+  }
+
+  return (
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
@@ -75,8 +90,6 @@ const Asset: React.FC = () => {
       onGetViewer={handleGetViewer}
       workspaceSettings={workspaceSettings}
     />
-  ) : (
-    <NotFound />
   );
 };
 
