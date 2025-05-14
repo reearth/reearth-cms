@@ -2,6 +2,8 @@ import { GeoJsonDataSource } from "cesium";
 import { ComponentProps, useCallback } from "react";
 import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium";
 
+import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
+
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource>;
 
 const GeoJsonComponent: React.FC<Props> = ({ data, ...props }) => {
@@ -9,9 +11,9 @@ const GeoJsonComponent: React.FC<Props> = ({ data, ...props }) => {
 
   const handleLoad = useCallback(
     async (ds: GeoJsonDataSource) => {
-      if (!viewer) return;
       try {
-        await viewer?.zoomTo(ds);
+        const resolvedViewer = await waitForViewer(viewer);
+        await resolvedViewer.zoomTo(ds);
         ds.show = true;
       } catch (error) {
         console.error(error);
