@@ -63,23 +63,6 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
     [viewer],
   );
 
-  const loadData = useCallback(
-    async (url: string) => {
-      try {
-        const data = await fetchLayers(url);
-        if (!data) return;
-        setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
-        setLayers(data.layers ?? []);
-        setCurrentLayer(data.layers?.[0] || "");
-        setMaximumLevel(data.maximumLevel);
-        await zoomTo(data.center || defaultCameraPosition, !data.center);
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    [zoomTo],
-  );
-
   const style = useCallback(
     (f: VectorTileFeature, tile: TileCoordinates) => {
       const fid = idFromGeometry(f.loadGeometry(), tile);
@@ -102,8 +85,21 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   );
 
   useEffect(() => {
+    const loadData = async (url: string) => {
+      try {
+        const data = await fetchLayers(url);
+        if (!data) return;
+        setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
+        setLayers(data.layers ?? []);
+        setCurrentLayer(data.layers?.[0] || "");
+        setMaximumLevel(data.maximumLevel);
+        await zoomTo(data.center || defaultCameraPosition, !data.center);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     loadData(url);
-  }, [loadData, url]);
+  }, [url, zoomTo]);
 
   useEffect(() => {
     let layers: ImageryLayerCollection;
