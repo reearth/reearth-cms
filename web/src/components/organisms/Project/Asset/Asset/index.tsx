@@ -37,12 +37,13 @@ const Asset: React.FC = () => {
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
-
   const [delayed, setDelayed] = useState(false);
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDelayed(true);
-    }, 1500);
+    }, 2000);
+
     return () => clearTimeout(timeout);
   }, []);
 

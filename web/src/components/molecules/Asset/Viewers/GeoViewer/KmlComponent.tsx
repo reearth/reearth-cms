@@ -2,6 +2,8 @@ import { KmlDataSource, ConstantProperty } from "cesium";
 import { ComponentProps, useCallback } from "react";
 import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
 
+import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
+
 type Props = ComponentProps<typeof ResiumKmlDataSource>;
 
 const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
@@ -9,7 +11,6 @@ const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
 
   const handleLoad = useCallback(
     async (ds: KmlDataSource) => {
-      if (!viewer) return;
       for (const entity of ds.entities.values) {
         if (entity.billboard) {
           entity.billboard.disableDepthTestDistance = new ConstantProperty(
@@ -21,7 +22,8 @@ const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
         }
       }
       try {
-        await viewer?.zoomTo(ds);
+        const resolvedViewer = await waitForViewer(viewer);
+        await resolvedViewer.zoomTo(ds);
         ds.show = true;
       } catch (error) {
         console.error(error);
