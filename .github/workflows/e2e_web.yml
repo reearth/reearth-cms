@@ -64,6 +64,8 @@ jobs:
         run: |
           echo "REEARTH_CMS_API is $REEARTH_CMS_API"
           echo "REEARTH_CMS_E2E_BASEURL is $REEARTH_CMS_E2E_BASEURL"
+      - name: Check CI env
+        run: echo "CI = $CI"
       - name: Run Playwright tests
         run: yarn e2e
       - uses: actions/upload-artifact@v4
