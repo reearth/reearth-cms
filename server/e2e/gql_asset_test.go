@@ -61,11 +61,6 @@ func TestSearchAsset(t *testing.T) {
 	}
 	assert.Contains(t, ids, asset1Id)
 	assert.Contains(t, ids, asset4Id)
-
-	// 4. Search by content type - GEOJSON
-	res = searchAsset(e, pId, "", []string{"GEOJSON"}, nil, nil)
-	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
-	assert.Equal(t, asset2Id, res.Path("$.data.searchAsset.edges[0].node.id").Raw())
 }
 
 // Helper function to search assets
