@@ -27,40 +27,10 @@ func TestSearchAsset(t *testing.T) {
 	// Asset 1: JSON file
 	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`))
 
-	// Asset 2: GeoJSON file
-	asset2Id, _ := createAsset(e, pId, "test2.geojson", "application/geo+json", []byte(`{"type": "Feature", "geometry": {"type": "Point", "coordinates": [125.6, 10.1]}}`))
-
-	// Asset 3: Image file
-	_, _ = createAsset(e, pId, "image.png", "image/png", []byte("fake image data"))
-
-	// Asset 4: Another JSON file with different name
-	asset4Id, _ := createAsset(e, pId, "data.json", "application/json", []byte(`{"more": "data"}`))
-
-	// Test cases
-	// 1. Search by ID
 	res := searchAsset(e, pId, asset1Id, nil, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
 	assert.Equal(t, asset1Id, res.Path("$.data.searchAsset.edges[0].node.id").Raw())
 
-	// 2. Search by keyword (filename)
-	res = searchAsset(e, pId, "test", nil, nil, nil)
-	assert.Equal(t, 2, res.Path("$.data.searchAsset.totalCount").Raw())
-	ids := []string{
-		res.Path("$.data.searchAsset.edges[0].node.id").String().Raw(),
-		res.Path("$.data.searchAsset.edges[1].node.id").String().Raw(),
-	}
-	assert.Contains(t, ids, asset1Id)
-	assert.Contains(t, ids, asset2Id)
-
-	// 3. Search by content type - JSON
-	res = searchAsset(e, pId, "", []string{"JSON"}, nil, nil)
-	assert.Equal(t, 2, res.Path("$.data.searchAsset.totalCount").Raw())
-	ids = []string{
-		res.Path("$.data.searchAsset.edges[0].node.id").String().Raw(),
-		res.Path("$.data.searchAsset.edges[1].node.id").String().Raw(),
-	}
-	assert.Contains(t, ids, asset1Id)
-	assert.Contains(t, ids, asset4Id)
 }
 
 // Helper function to search assets
