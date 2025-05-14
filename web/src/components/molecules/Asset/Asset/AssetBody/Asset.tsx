@@ -156,10 +156,10 @@ const AssetMolecule: React.FC<Props> = ({
               url={assetUrl}
               isModalVisible={isModalVisible}
               viewerType={viewerType}
-              handleCodeSourceClick={handleCodeSourceClick}
-              handleRenderClick={handleRenderClick}
-              handleFullScreen={onChangeToFullScreen}
-              handleModalCancel={onModalCancel}
+              onCodeSourceClick={handleCodeSourceClick}
+              onRenderClick={handleRenderClick}
+              onFullScreen={onChangeToFullScreen}
+              onModalCancel={onModalCancel}
             />
           }>
           {viewerComponent}

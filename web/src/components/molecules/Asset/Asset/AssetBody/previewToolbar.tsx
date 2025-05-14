@@ -8,20 +8,20 @@ type Props = {
   url: string;
   isModalVisible: boolean;
   viewerType: ViewerType;
-  handleCodeSourceClick: () => void;
-  handleRenderClick: () => void;
-  handleFullScreen: () => void;
-  handleModalCancel: () => void;
+  onCodeSourceClick: () => void;
+  onRenderClick: () => void;
+  onFullScreen: () => void;
+  onModalCancel: () => void;
 };
 
 const PreviewToolbar: React.FC<Props> = ({
   url,
   isModalVisible,
   viewerType,
-  handleCodeSourceClick,
-  handleRenderClick,
-  handleFullScreen,
-  handleModalCancel,
+  onCodeSourceClick,
+  onRenderClick,
+  onFullScreen,
+  onModalCancel,
 }) => {
   const t = useT();
   const isSVGButtonVisible = viewerType === "image_svg";
@@ -31,14 +31,14 @@ const PreviewToolbar: React.FC<Props> = ({
     <>
       {isSVGButtonVisible && (
         <>
-          <Button onClick={handleCodeSourceClick}>{t("Source Code")}</Button>
-          <Button onClick={handleRenderClick}>{t("Render")}</Button>
+          <Button onClick={onCodeSourceClick}>{t("Source Code")}</Button>
+          <Button onClick={onRenderClick}>{t("Render")}</Button>
         </>
       )}
       {isFullScreenButtonVisible && (
-        <Button type="link" icon={<Icon icon="fullscreen" />} onClick={handleFullScreen} />
+        <Button type="link" icon={<Icon icon="fullscreen" />} onClick={onFullScreen} />
       )}
-      <PreviewModal url={url} visible={isModalVisible} handleCancel={handleModalCancel} />
+      <PreviewModal url={url} visible={isModalVisible} onCancel={onModalCancel} />
     </>
   );
 };
