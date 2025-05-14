@@ -50,10 +50,10 @@ export const Imagery: React.FC<Props> = ({ url }) => {
   const addPointsToViewer = useCallback(
     (objects: GeoObj[]) => {
       if (!viewer) return;
-      viewer.entities.removeAll();
+      viewer?.entities.removeAll();
       for (const obj of objects) {
         if (obj.lng && obj.lat) {
-          viewer.entities.add({
+          viewer?.entities.add({
             position: Cartesian3.fromDegrees(Number(obj.lng), Number(obj.lat)),
             billboard: {
               image: mapPin,
@@ -65,7 +65,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
           });
         }
       }
-      viewer.zoomTo(viewer.entities);
+      viewer?.zoomTo(viewer.entities);
     },
     [viewer],
   );

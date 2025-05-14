@@ -274,6 +274,7 @@ export default (assetId?: string) => {
     selectedPreviewType,
     isModalVisible,
     collapsed,
+    viewerRef,
     viewerType,
     displayUnzipFileList,
     decompressing,
