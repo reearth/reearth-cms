@@ -21,7 +21,7 @@ func TestSearchAsset(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	// Create a project
-	pId, _ := createAssetProject(e, "workspace-1", "asset-test", "asset test project", "asset-test")
+	pId, _ := createAssetProject(e, wId.String(), "asset-test", "asset test project", "asset-test")
 
 	// Upload assets with different properties
 	// Asset 1: JSON file
