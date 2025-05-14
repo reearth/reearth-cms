@@ -14,7 +14,7 @@ const Cesium3dTileSetComponent: React.FC<Props> = ({ ...props }) => {
         // Wait for the next frame to ensure everything is properly initialized
         await new Promise(resolve => requestAnimationFrame(resolve));
         if (tileset.isDestroyed()) return;
-        await viewer.zoomTo(tileset);
+        await viewer?.zoomTo(tileset);
         tileset.show = true;
       } catch (err) {
         console.error(err);

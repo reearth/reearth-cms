@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useMemo, useState } from "react";
+import { MutableRefObject, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -37,6 +37,7 @@ type Props = {
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
   isModalVisible: boolean;
+  viewerRef: MutableRefObject<CesiumViewer | undefined>;
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
@@ -56,6 +57,7 @@ const AssetMolecule: React.FC<Props> = ({
   assetFileExt,
   selectedPreviewType,
   isModalVisible,
+  viewerRef,
   viewerType,
   displayUnzipFileList,
   decompressing,
@@ -98,8 +100,9 @@ const AssetMolecule: React.FC<Props> = ({
         return (
           <MvtViewer
             url={assetUrl}
-            onGetViewer={onGetViewer}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
+            onGetViewer={onGetViewer}
           />
         );
       case "image":
@@ -126,7 +129,7 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
+  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerRef, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
@@ -153,10 +156,10 @@ const AssetMolecule: React.FC<Props> = ({
               url={assetUrl}
               isModalVisible={isModalVisible}
               viewerType={viewerType}
-              handleCodeSourceClick={handleCodeSourceClick}
-              handleRenderClick={handleRenderClick}
-              handleFullScreen={onChangeToFullScreen}
-              handleModalCancel={onModalCancel}
+              onCodeSourceClick={handleCodeSourceClick}
+              onRenderClick={handleRenderClick}
+              onFullScreen={onChangeToFullScreen}
+              onModalCancel={onModalCancel}
             />
           }>
           {viewerComponent}
