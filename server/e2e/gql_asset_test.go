@@ -141,76 +141,87 @@ func createAsset(
 	url string,
 ) (string, *httpexpect.Value) {
 	// GraphQL mutation to create an asset
-	query := `mutation CreateAsset($input: CreateAssetInput!) {createAsset(input: $input) {asset {id fileName contentType size createdAt}}}`
+	query := `mutation CreateAsset($input: CreateAssetInput!) {
+		createAsset(input: $input) {
+			asset {
+				id
+				fileName
+				contentType
+				size
+				createdAt
+			}
+		}
+	}`
 
-	// Create variables map
-	variables := map[string]any{
-		"input": map[string]any{
-			"projectId": projectId,
-		},
+	// Build base input
+	inputMap := map[string]any{
+		"projectId": projectId,
 	}
 
-	// Add optional parameters if provided
-	inputMap := variables["input"].(map[string]any)
-
+	// Add optional flags
 	if skipDecompression {
 		inputMap["skipDecompression"] = skipDecompression
 	}
-
 	if contentEncoding != "" {
 		inputMap["contentEncoding"] = contentEncoding
 	}
 
-	if token != "" {
+	// Handle mutual exclusivity
+	uploadMethodCount := 0
+	if data != nil {
+		inputMap["file"] = nil // Required placeholder for multipart injection
+		uploadMethodCount++
+	}
+	if token != "" || url != "" {
 		inputMap["token"] = token
-	}
-
-	if url != "" {
 		inputMap["url"] = url
+		uploadMethodCount++
 	}
 
-	// Create the request body
+	if uploadMethodCount != 1 {
+		fmt.Println("❌ Must provide either file OR url/token, not both or neither.")
+		return "", nil
+	}
+
+	variables := map[string]any{
+		"input": inputMap,
+	}
+
 	requestBody := GraphQLRequest{
 		Query:     query,
 		Variables: variables,
 	}
 
-	// Debug: log the request body
-	opsJSON, _ := json.MarshalIndent(requestBody, "", "  ")
-	fmt.Println("📤 Request Body:\n", string(opsJSON))
+	// Debug: print the outgoing operations payload
+	prettyOps, _ := json.MarshalIndent(requestBody, "", "  ")
+	fmt.Println("📤 Request Body:\n", string(prettyOps))
 
 	var res *httpexpect.Value
 
 	if data != nil {
-		// For file upload (multipart)
+		// File upload (multipart)
 		operations, _ := json.Marshal(requestBody)
 		mapJSON := `{ "0": ["variables.input.file"] }`
-
-		// Debug: log file + multipart setup
-		fmt.Println("📎 Multipart Upload with File:", fileName)
-		fmt.Println("📄 Content-Type:", contentType)
 
 		resp := e.POST("/api/graphql").
 			WithHeader("Origin", "https://example.com").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithMultipart().
-			WithFormField("operations", string(operations)). // ✅ fixed to form field
-			WithFormField("map", mapJSON).                   // ✅ fixed to form field
+			WithFormField("operations", string(operations)).
+			WithFormField("map", mapJSON).
 			WithFile("0", fileName, strings.NewReader(string(data))).
 			Expect()
 
-		// Debug: log status and raw response
 		fmt.Println("📥 HTTP Status:", resp.Status(http.StatusOK))
 		fmt.Println("📬 Response Body:\n", resp.Body().Raw())
 
-		// Fail early if not 200 OK
 		if resp.Raw().StatusCode != http.StatusOK {
 			return "", nil
 		}
 
 		res = resp.JSON()
 	} else {
-		// JSON body for URL/token input
+		// URL/token method (standard JSON body)
 		resp := e.POST("/api/graphql").
 			WithHeader("Origin", "https://example.com").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -228,6 +239,5 @@ func createAsset(
 		res = resp.JSON()
 	}
 
-	// Extract the asset ID from the response
 	return res.Path("$.data.createAsset.asset.id").String().Raw(), res
 }
