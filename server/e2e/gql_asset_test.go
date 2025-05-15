@@ -17,6 +17,9 @@ import (
 var _ = accountdomain.UserID{}
 
 func TestSearchAsset(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
 
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
@@ -98,17 +101,13 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 						fileName
 						projectId
 						contentType
-						size
-						createdAt
 					}
 				}
-				totalCount
 				pageInfo {
 					hasNextPage
-					hasPreviousPage
-					startCursor
 					endCursor
 				}
+				totalCount
 			}
 		}
 	`
