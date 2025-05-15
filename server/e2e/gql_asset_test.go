@@ -32,7 +32,7 @@ func TestSearchAsset(t *testing.T) {
 	// Asset 1: JSON file
 	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
 
-	res := searchAsset(e, pId, "", nil, nil, nil)
+	res := searchAsset(e, pId, nil, nil, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
 	assert.Equal(t, asset1Id, res.Path("$.data.searchAsset.edges[0].node.id").Raw())
 
