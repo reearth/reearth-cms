@@ -15,32 +15,15 @@ const SvgViewer: React.FC<Props> = ({ url, blob, svgRender }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const res = await fetch(url, {
-          method: "GET",
-        });
-        if (!res.ok) {
-          throw new Error("Could not fetch svg data");
-        }
-        const text = await res.text();
-        setSvgText(text);
-      } catch (err) {
+      const text = await blob?.text();
+      if (!text) {
         setSvgText(t("Could not display svg"));
-        console.error(err);
+        return;
       }
+      setSvgText(text);
     };
-  const fetchData = useCallback(async () => {
-    const text = await blob?.text();
-    if (!text) {
-      setSvgText(t("Could not display svg"));
-      return;
-    }
-    setSvgText(text);
-  }, [blob, t]);
-
-  useEffect(() => {
     fetchData();
-  }, [t, url]);
+  }, [blob, t]);
 
   return svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>;
 };
