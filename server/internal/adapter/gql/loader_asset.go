@@ -31,7 +31,7 @@ func (c *AssetLoader) FindByID(ctx context.Context, assetId gqlmodel.ID) (*gqlmo
 		return nil, err
 	}
 
-	return gqlmodel.ToAsset(a, c.usecase.GetURL), nil
+	return gqlmodel.ToAsset(a), nil
 }
 
 func (c *AssetLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
@@ -52,7 +52,7 @@ func (c *AssetLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlm
 		if !ok {
 			return nil
 		}
-		return gqlmodel.ToAsset(a, c.usecase.GetURL)
+		return gqlmodel.ToAsset(a)
 	}), nil
 }
 
@@ -76,7 +76,7 @@ func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 	edges := make([]*gqlmodel.AssetEdge, 0, len(assets))
 	nodes := make([]*gqlmodel.Asset, 0, len(assets))
 	for _, a := range assets {
-		asset := gqlmodel.ToAsset(a, c.usecase.GetURL)
+		asset := gqlmodel.ToAsset(a)
 		edges = append(edges, &gqlmodel.AssetEdge{
 			Node:   asset,
 			Cursor: usecasex.Cursor(asset.ID),

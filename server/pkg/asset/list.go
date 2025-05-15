@@ -17,6 +17,14 @@ func (l List) SortByID() List {
 	return m
 }
 
+func (l List) SetAccessInfoResolver(r AccessInfoResolver) {
+	lo.ForEach(l, func(a *Asset, _ int) {
+		if a != nil {
+			a.SetAccessInfoResolver(r)
+		}
+	})
+}
+
 func (l List) Clone() List {
 	return util.Map(l, func(p *Asset) *Asset { return p.Clone() })
 }

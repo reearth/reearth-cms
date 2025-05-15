@@ -253,6 +253,86 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  '/projects/{projectIdOrAlias}/groups':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+    get:
+      operationId: GroupFilter
+      security:
+        - bearerAuth: []
+      summary: Returns a list of groups in a project.
+      tags:
+        - Groups
+      description: Returns a list of groups belonging to the specified project.
+      responses:
+        '200':
+          description: A list of groups in the project.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/group'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Project not found
+        '500':
+          description: Internal server error
+    post:
+      operationId: GroupCreate
+      summary: Create a new group in a project.
+      tags:
+        - Groups
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - key
+              properties:
+                name:
+                  type: string
+                key:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: The created group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: Internal server error
   '/projects/{projectIdOrAlias}/schemata':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
@@ -620,6 +700,94 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+        '500':
+          description: Internal server error
+  '/groups/{groupId}':
+    parameters:
+      - $ref: '#/components/parameters/groupIdParam'
+    get:
+      operationId: GroupGet
+      security:
+        - bearerAuth: []
+      summary: Retrieve a specific group.
+      tags:
+        - Groups
+      description: Returns details of a group.
+      responses:
+        '200':
+          description: Group details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+    patch:
+      operationId: GroupUpdate
+      security:
+        - bearerAuth: []
+      summary: Update a group's details.
+      tags:
+        - Groups
+      description: Updates the name, key, or description of a group.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: The updated group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+    delete:
+      operationId: GroupDelete
+      summary: Delete a group.
+      tags:
+        - Groups
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Group successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.GroupID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
         '500':
           description: Internal server error
   '/schemata/{schemaId}/fields':
@@ -1267,6 +1435,96 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
+        '500':
+          description: Internal server error
+  '/projects/{projectIdOrAlias}/groups/{groupIdOrKey}':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/groupIdOrKeyParam'
+    get:
+      operationId: GroupGetWithProject
+      security:
+        - bearerAuth: []
+      summary: Retrieve a group within a project.
+      tags:
+        - Groups
+      description: Returns details of a specific group within the specified project.
+      responses:
+        '200':
+          description: Group details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+    patch:
+      operationId: GroupUpdateWithProject
+      security:
+        - bearerAuth: []
+      summary: Update a group's details within a project.
+      tags:
+        - Groups
+      description: Updates the name, key, or description of a group within a specific project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: The updated group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+    delete:
+      operationId: GroupDeleteWithProject
+      security:
+        - bearerAuth: []
+      summary: Delete a group within a project.
+      tags:
+        - Groups
+      description: Deletes a group within a specified project.
+      responses:
+        '200':
+          description: Group successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.GroupID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
         '500':
           description: Internal server error
   '/items/{itemId}':
@@ -1940,6 +2198,14 @@ components:
       schema:
         type: string
         x-go-type: id.ModelID
+    groupIdParam:
+      name: groupId
+      in: path
+      description: ID of the group in the project
+      required: true
+      schema:
+        type: string
+        x-go-type: id.GroupID
     schemaIdParam:
       name: schemaId
       in: path
@@ -1964,6 +2230,14 @@ components:
       schema:
         type: string
         x-go-type: model.IDOrKey
+    groupIdOrKeyParam:
+      name: groupIdOrKey
+      in: path
+      description: ID or key of the group in the project
+      required: true
+      schema:
+        type: string
+        x-go-type: group.IDOrKey
     fieldIdOrKeyParam:
       name: fieldIdOrKey
       in: path
@@ -2146,6 +2420,39 @@ components:
         lastModified:
           type: string
           format: date-time
+    group:
+      type: object
+      required:
+        - id
+        - schemaId
+        - projectId
+        - name
+        - description
+        - key
+        - schema
+        - fields
+      properties:
+        id:
+          x-go-type: id.GroupID
+          type: string
+        schemaId:
+          x-go-type: id.SchemaID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        schema:
+          $ref: '#/components/schemas/schema'
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/schemaField'
     schema:
       type: object
       properties:
