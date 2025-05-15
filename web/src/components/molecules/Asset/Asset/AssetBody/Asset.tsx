@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback } from "react";
+import { useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -37,9 +37,9 @@ type Props = {
   assetUrl: string;
   assetBlob?: Blob;
   assetFileExt?: string;
-  selectedPreviewType: PreviewType;
+  selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
-  viewerType: ViewerType;
+  viewerType?: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
@@ -79,7 +79,7 @@ const AssetMolecule: React.FC<Props> = ({
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
 
-  const renderPreview = useCallback(() => {
+  const viewerComponent = useMemo(() => {
     switch (viewerType) {
       case "geo":
         return (
@@ -95,16 +95,16 @@ const AssetMolecule: React.FC<Props> = ({
           <Geo3dViewer
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
+            onGetViewer={onGetViewer}
           />
         );
       case "geo_mvt":
         return (
           <MvtViewer
             url={assetUrl}
-            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
+            onGetViewer={onGetViewer}
           />
         );
       case "image":
@@ -167,13 +167,13 @@ const AssetMolecule: React.FC<Props> = ({
               url={assetUrl}
               isModalVisible={isModalVisible}
               viewerType={viewerType}
-              handleCodeSourceClick={handleCodeSourceClick}
-              handleRenderClick={handleRenderClick}
-              handleFullScreen={onChangeToFullScreen}
-              handleModalCancel={onModalCancel}
+              onCodeSourceClick={handleCodeSourceClick}
+              onRenderClick={handleRenderClick}
+              onFullScreen={onChangeToFullScreen}
+              onModalCancel={onModalCancel}
             />
           }>
-          {renderPreview()}
+          {viewerComponent}
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
@@ -183,9 +183,7 @@ const AssetMolecule: React.FC<Props> = ({
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
                 {asset.archiveExtractionStatus === "SKIPPED" && (
                   <UnzipButton
-                    onClick={() => {
-                      onAssetDecompress(asset.id);
-                    }}
+                    onClick={() => onAssetDecompress(asset.id)}
                     loading={decompressing}
                     icon={<Icon icon="unzip" />}>
                     {t("Unzip")}

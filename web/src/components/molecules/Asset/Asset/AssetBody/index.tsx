@@ -16,9 +16,9 @@ type Props = {
   assetUrl: string;
   assetBlob?: Blob;
   assetFileExt?: string;
-  selectedPreviewType: PreviewType;
+  selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
-  viewerType: ViewerType;
+  viewerType?: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   isSaveDisabled: boolean;

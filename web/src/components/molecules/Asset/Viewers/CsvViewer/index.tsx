@@ -6,6 +6,7 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 import { Imagery } from "./Imagery";
 
 type Props = {
+  url: string;
   blob?: Blob;
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
   workspaceSettings: WorkspaceSettings;

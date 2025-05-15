@@ -19,7 +19,13 @@ func TestToAsset(t *testing.T) {
 	var pti = asset.PreviewTypeImage
 	uuid := uuid.New().String()
 	thid := id.NewThreadID()
-	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).UUID(uuid).Thread(thid.Ref()).MustBuild()
+	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).UUID(uuid).Thread(thid.Ref()).Public(true).MustBuild()
+	a1.SetAccessInfoResolver(func(_ *asset.Asset) *asset.AccessInfo {
+		return &asset.AccessInfo{
+			Public: false,
+			Url:    "xxx",
+		}
+	})
 
 	want1 := Asset{
 		ID:            ID(id1.String()),
@@ -33,6 +39,7 @@ func TestToAsset(t *testing.T) {
 		FileName:      "aaa.jpg",
 		ThreadID:      lo.ToPtr(ID(thid.String())),
 		Size:          1000,
+		Public:        false,
 	}
 
 	var a2 *asset.Asset = nil
@@ -60,10 +67,7 @@ func TestToAsset(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			resolver := func(_ *asset.Asset) string {
-				return "xxx"
-			}
-			got := ToAsset(tc.arg, resolver)
+			got := ToAsset(tc.arg)
 			assert.Equal(t, tc.want, got)
 		})
 	}

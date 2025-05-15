@@ -16,6 +16,7 @@ const Asset: React.FC = () => {
     assetBlob,
     assetFileExt,
     isLoading,
+    isDelayed,
     selectedPreviewType,
     isModalVisible,
     collapsed,
@@ -40,9 +41,15 @@ const Asset: React.FC = () => {
 
   const { workspaceSettings } = useSettingsHooks();
 
-  return isLoading ? (
-    <Loading spinnerSize="large" minHeight="100vh" />
-  ) : asset ? (
+  if (!isDelayed || isLoading) {
+    return <Loading spinnerSize="large" minHeight="100vh" />;
+  }
+
+  if (!asset) {
+    return <NotFound />;
+  }
+
+  return (
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
@@ -79,8 +86,6 @@ const Asset: React.FC = () => {
       onGetViewer={handleGetViewer}
       workspaceSettings={workspaceSettings}
     />
-  ) : (
-    <NotFound />
   );
 };
 

@@ -2,9 +2,11 @@ import { KmlDataSource, ConstantProperty } from "cesium";
 import { ComponentProps, useCallback } from "react";
 import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
 
+import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
+
 type Props = ComponentProps<typeof ResiumKmlDataSource>;
 
-const KmlComponent: React.FC<Props> = ({ data }) => {
+const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
   const { viewer } = useCesium();
 
   const handleLoad = useCallback(
@@ -20,7 +22,8 @@ const KmlComponent: React.FC<Props> = ({ data }) => {
         }
       }
       try {
-        await viewer?.zoomTo(ds);
+        const resolvedViewer = await waitForViewer(viewer);
+        await resolvedViewer.zoomTo(ds);
         ds.show = true;
       } catch (error) {
         console.error(error);
@@ -29,7 +32,7 @@ const KmlComponent: React.FC<Props> = ({ data }) => {
     [viewer],
   );
 
-  return <ResiumKmlDataSource data={data} onLoad={handleLoad} clampToGround />;
+  return <ResiumKmlDataSource data={data} onLoad={handleLoad} clampToGround {...props} />;
 };
 
 export default KmlComponent;

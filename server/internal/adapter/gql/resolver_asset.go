@@ -77,7 +77,7 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 	}
 
 	return &gqlmodel.CreateAssetPayload{
-		Asset: gqlmodel.ToAsset(res, uc.GetURL),
+		Asset: gqlmodel.ToAsset(res),
 	}, nil
 }
 
@@ -98,7 +98,7 @@ func (r *mutationResolver) UpdateAsset(ctx context.Context, input gqlmodel.Updat
 	}
 
 	return &gqlmodel.UpdateAssetPayload{
-		Asset: gqlmodel.ToAsset(res, uc.GetURL),
+		Asset: gqlmodel.ToAsset(res),
 	}, nil
 }
 
@@ -151,7 +151,7 @@ func (r *mutationResolver) DecompressAsset(ctx context.Context, input gqlmodel.D
 		return nil, err2
 	}
 
-	return &gqlmodel.DecompressAssetPayload{Asset: gqlmodel.ToAsset(res, uc.GetURL)}, nil
+	return &gqlmodel.DecompressAssetPayload{Asset: gqlmodel.ToAsset(res)}, nil
 }
 
 // CreateAssetUpload is the resolver for the createAssetUpload field.

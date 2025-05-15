@@ -23,7 +23,8 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await closeNotification(page);
   await expect(page.getByText("url1#url1")).toBeVisible();
 
-  await page.getByRole("button", { name: "ellipsis" }).click();
+  const ellipsisButton = page.getByRole("button", { name: "ellipsis" }).first();
+  await ellipsisButton.click();
   await expect(page.getByLabel("Display name")).toHaveValue("url1");
   await expect(page.getByLabel("Field Key")).toHaveValue("url1");
   await expect(page.getByLabel("Description")).toHaveValue("url1 description");
@@ -39,7 +40,8 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
 
   await page.getByRole("button", { name: "Cancel" }).click();
   await page.getByRole("menuitem", { name: "Content" }).click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
+  const newItemButton = page.getByRole("button", { name: "plus New Item" });
+  await newItemButton.click();
   await expect(page.getByLabel("url1")).toBeVisible();
   await expect(page.getByText("url1 description")).toBeVisible();
 
@@ -50,9 +52,12 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByLabel("url1")).toHaveValue("http://test1.com");
 
   await page.getByRole("button", { name: "Back" }).click();
-  await expect(page.getByRole("link", { name: "http://test1.com" })).toBeVisible();
-  await page.getByRole("link", { name: "http://test1.com" }).hover();
-  await page.getByRole("tooltip", { name: "edit" }).locator("svg").click();
+  const urlLink = page.getByRole("link", { name: "http://test1.com" });
+  await expect(urlLink).toBeVisible();
+  await urlLink.hover();
+  const editButton = page.getByRole("tooltip", { name: "edit" }).locator("svg");
+  await editButton.waitFor({ state: "visible" });
+  await editButton.click();
   await page.getByRole("textbox").fill("http://test2.com");
   await page.locator(".ant-table-body").click();
   await closeNotification(page);
@@ -92,7 +97,8 @@ test("Url metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Back" }).click();
   await page.getByRole("menuitem", { name: "Schema" }).click();
   await page.getByRole("tab", { name: "Meta Data" }).click();
-  await page.getByRole("button", { name: "ellipsis" }).click();
+  const ellipsisButton = page.getByRole("button", { name: "ellipsis" }).first();
+  await ellipsisButton.click();
   await page.getByLabel("Display name").fill("new url1");
   await page.getByLabel("Field Key").fill("new-url1");
   await page.getByLabel("Description").fill("new url1 description");
@@ -125,15 +131,14 @@ test("Url metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://default2.com");
   await page.getByRole("button", { name: "Back" }).click();
   await page.getByRole("button", { name: "x2" }).click();
-  await expect(page.getByRole("tooltip").getByRole("link").nth(0)).toContainText(
-    "http://default1.com",
-  );
-  await expect(page.getByRole("tooltip").getByRole("link").nth(1)).toContainText(
-    "http://default2.com",
-  );
-
-  await page.getByRole("link", { name: "http://default2.com" }).hover();
-  await page.getByRole("tooltip", { name: "edit" }).locator("svg").click();
+  const tooltipLinks = page.getByRole("tooltip").getByRole("link");
+  await expect(tooltipLinks.nth(0)).toContainText("http://default1.com");
+  await expect(tooltipLinks.nth(1)).toContainText("http://default2.com");
+  const urlLink = page.getByRole("link", { name: "http://default2.com" });
+  await urlLink.hover();
+  const editButton = page.getByRole("tooltip", { name: "edit" }).locator("svg");
+  await editButton.waitFor({ state: "visible" });
+  await editButton.click();
   await page.getByRole("textbox").fill("http://new-default2.com");
   await page.getByRole("tooltip").getByText("new url1").click();
   await closeNotification(page);
@@ -149,13 +154,8 @@ test("Url metadata editing has succeeded", async ({ page }) => {
 
   await page.getByRole("button", { name: "Back" }).click();
   await page.getByRole("button", { name: "x3" }).click();
-  await expect(page.getByRole("tooltip").getByRole("link").nth(0)).toContainText(
-    "http://default1.com",
-  );
-  await expect(page.getByRole("tooltip").getByRole("link").nth(1)).toContainText(
-    "http://new-default2.com",
-  );
-  await expect(page.getByRole("tooltip").getByRole("link").nth(2)).toContainText(
-    "http://default3.com",
-  );
+  const updatedTooltipLinks = page.getByRole("tooltip").getByRole("link");
+  await expect(updatedTooltipLinks.nth(0)).toContainText("http://default1.com");
+  await expect(updatedTooltipLinks.nth(1)).toContainText("http://new-default2.com");
+  await expect(updatedTooltipLinks.nth(2)).toContainText("http://default3.com");
 });
