@@ -17,6 +17,9 @@ import (
 var _ = accountdomain.UserID{}
 
 func TestSearchAsset(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
 
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
@@ -25,7 +28,7 @@ func TestSearchAsset(t *testing.T) {
 
 	// Upload assets with different properties
 	// Asset 1: JSON file
-	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`))
+	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
 
 	res := searchAsset(e, pId, asset1Id, nil, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
@@ -124,7 +127,7 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 }
 
 // Helper function to create an asset
-func createAsset(e *httpexpect.Expect, projectId string, fileName string, contentType string, data []byte) (string, *httpexpect.Value) {
+func createAsset(e *httpexpect.Expect, projectId string, fileName string, contentType string, data []byte, skipDecompression bool, contentEncoding string, token string, url string) (string, *httpexpect.Value) {
 	// GraphQL mutation to create an asset
 	query := `
 		mutation CreateAsset($input: CreateAssetInput!) {
@@ -141,26 +144,101 @@ func createAsset(e *httpexpect.Expect, projectId string, fileName string, conten
 	`
 
 	// Execute the mutation with a file upload
-	operationsJSON := fmt.Sprintf(`{
-		"query": "%s",
-		"variables": {
-			"input": {
-				"projectId": "%s",
-				"file": null
-			}
-		}
-	}`, escapeForJSON(query), projectId)
+	var operationsJSON string
 
-	res := e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithMultipart().
-		WithFile("operations", "operations.json", strings.NewReader(operationsJSON)).
-		WithFile("0", fileName, strings.NewReader(string(data))).
-		WithFormField("Content-Type", contentType).
-		Expect().
-		Status(200).
-		JSON()
+	// Build the input object parts
+	inputParts := []string{fmt.Sprintf(`"projectId": "%s"`, projectId)}
+
+	// Add optional parameters if provided
+	if skipDecompression {
+		inputParts = append(inputParts, `"skipDecompression": true`)
+	}
+
+	if contentEncoding != "" {
+		inputParts = append(inputParts, fmt.Sprintf(`"contentEncoding": "%s"`, contentEncoding))
+	}
+
+	if token != "" {
+		inputParts = append(inputParts, fmt.Sprintf(`"token": "%s"`, token))
+	}
+
+	if url != "" {
+		inputParts = append(inputParts, fmt.Sprintf(`"url": "%s"`, url))
+	}
+
+	// If we're uploading a file
+	if data != nil {
+		inputParts = append(inputParts, `"file": null`)
+
+		// Construct the final JSON
+		operationsJSON = fmt.Sprintf(`{
+			"query": "%s",
+			"variables": {
+				"input": {
+					%s
+				}
+			}
+		}`, escapeForJSON(query), strings.Join(inputParts, ", "))
+	} else if url != "" || token != "" {
+		// Construct the final JSON without file
+		operationsJSON = fmt.Sprintf(`{
+			"query": "%s",
+			"variables": {
+				"input": {
+					%s
+				}
+			}
+		}`, escapeForJSON(query), strings.Join(inputParts, ", "))
+	} else {
+		// Default case with file
+		inputParts = append(inputParts, `"file": null`)
+		operationsJSON = fmt.Sprintf(`{
+			"query": "%s",
+			"variables": {
+				"input": {
+					%s
+				}
+			}
+		}`, escapeForJSON(query), strings.Join(inputParts, ", "))
+	}
+
+	var res *httpexpect.Value
+
+	// Handle different cases based on what's provided
+	if data != nil {
+		// File upload case
+		mapJSON := `{ "0": ["variables.input.file"] }`
+
+		res = e.POST("/api/graphql").
+			WithHeader("Origin", "https://example.com").
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
+			WithMultipart().
+			WithFile("operations", "operations.json", strings.NewReader(operationsJSON)).
+			WithFile("map", "map.json", strings.NewReader(mapJSON)).
+			WithFile("0", fileName, strings.NewReader(string(data))).
+			WithFormField("Content-Type", contentType).
+			Expect().
+			Status(200).
+			JSON()
+	} else {
+		// URL or token case - no file upload needed
+		res = e.POST("/api/graphql").
+			WithHeader("Origin", "https://example.com").
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
+			WithHeader("Content-Type", "application/json").
+			WithJSON(GraphQLRequest{
+				Query: query,
+				Variables: map[string]interface{}{
+					"input": map[string]interface{}{
+						"projectId":         projectId,
+						"skipDecompression": skipDecompression,
+					},
+				},
+			}).
+			Expect().
+			Status(200).
+			JSON()
+	}
 
 	// Extract the asset ID from the response
 	assetId := res.Path("$.data.createAsset.asset.id").String().Raw()
