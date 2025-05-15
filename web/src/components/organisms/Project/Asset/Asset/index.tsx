@@ -40,12 +40,15 @@ const Asset: React.FC = () => {
   const [delayed, setDelayed] = useState(false);
 
   useEffect(() => {
+    if (!viewerType) return;
+    const delay =
+      viewerType === "image" || viewerType === "image_svg" || viewerType === "unknown" ? 0 : 2000;
     const timeout = setTimeout(() => {
       setDelayed(true);
-    }, 2000);
+    }, delay);
 
     return () => clearTimeout(timeout);
-  }, []);
+  }, [viewerType]);
 
   if (!delayed || isLoading) {
     return <Loading spinnerSize="large" minHeight="100vh" />;

@@ -44,7 +44,7 @@ export default (assetId?: string) => {
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
   const location = useLocation();
-  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
+  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>();
   const [decompressing, setDecompressing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
@@ -131,7 +131,7 @@ export default (assetId?: string) => {
           Notification.success({ message: t("Asset is being decompressed!") });
         }
       })(),
-    [t, decompressAssetMutation, setDecompressing],
+    [t, decompressAssetMutation],
   );
 
   useEffect(() => {
@@ -148,41 +148,34 @@ export default (assetId?: string) => {
     [convertedAsset?.previewType],
   );
 
-  const [viewerType, setViewerType] = useState<ViewerType>("unknown");
   const assetFileExt = getExtension(convertedAsset?.fileName);
 
-  useEffect(() => {
+  const viewerType = useMemo((): ViewerType | undefined => {
+    if (!convertedAsset?.previewType || !assetFileExt) return;
+
     switch (true) {
-      case selectedPreviewType === "GEO" &&
+      case convertedAsset.previewType === "GEO" &&
         (geoFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo");
-        break;
-      case selectedPreviewType === "GEO_3D_TILES" &&
+        return "geo";
+      case convertedAsset.previewType === "GEO_3D_TILES" &&
         (geo3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo_3d_tiles");
-        break;
-      case selectedPreviewType === "GEO_MVT" &&
+        return "geo_3d_tiles";
+      case convertedAsset.previewType === "GEO_MVT" &&
         (geoMvtFormat.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo_mvt");
-        break;
-      case selectedPreviewType === "MODEL_3D" &&
+        return "geo_mvt";
+      case convertedAsset.previewType === "MODEL_3D" &&
         (model3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("model_3d");
-        break;
-      case selectedPreviewType === "CSV" && csvFormats.includes(assetFileExt):
-        setViewerType("csv");
-        break;
-      case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
-        setViewerType("image");
-        break;
-      case selectedPreviewType === "IMAGE_SVG" && imageSVGFormat.includes(assetFileExt):
-        setViewerType("image_svg");
-        break;
+        return "model_3d";
+      case convertedAsset.previewType === "CSV" && csvFormats.includes(assetFileExt):
+        return "csv";
+      case convertedAsset.previewType === "IMAGE" && imageFormats.includes(assetFileExt):
+        return "image";
+      case convertedAsset.previewType === "IMAGE_SVG" && imageSVGFormat.includes(assetFileExt):
+        return "image_svg";
       default:
-        setViewerType("unknown");
-        break;
+        return "unknown";
     }
-  }, [convertedAsset?.previewType, assetFileExt, selectedPreviewType]);
+  }, [convertedAsset?.previewType, assetFileExt]);
 
   const displayUnzipFileList = useMemo(
     () => compressedFileFormats.includes(assetFileExt),
