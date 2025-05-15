@@ -278,29 +278,38 @@ export default (assetId?: string) => {
   const [assetBlob, setAssetBlob] = useState<Blob>();
 
   useEffect(() => {
-    const fetchAuthorizedAssetUrl = async () => {
-      if (!asset?.url) return;
+    if (assetUrl && assetBlob) return;
 
-      const headers = await getHeader();
+    let objectUrl: string | undefined;
+    const fetchAsset = async () => {
+      if (!asset) return;
       try {
+        const headers = await getHeader();
         const response = await fetch(asset.url, {
           method: "GET",
-          headers,
+          ...(asset.public ? {} : { headers }),
         });
+
         if (!response.ok) {
-          throw new Error("Failed to fetch asset with auth");
+          throw new Error("Failed to fetch asset");
         }
+
         const blob = await response.blob();
+        objectUrl = URL.createObjectURL(blob);
         setAssetBlob(blob);
-        const objectUrl = URL.createObjectURL(blob);
         setAssetUrl(objectUrl);
       } catch (err) {
-        console.error("Error fetching authorized asset:", err);
+        console.error(err);
       }
     };
+    fetchAsset();
 
-    fetchAuthorizedAssetUrl();
-  }, [asset?.url, getHeader]);
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [asset?.url, asset?.public, getHeader, asset, assetUrl, assetBlob]);
 
   return {
     asset,

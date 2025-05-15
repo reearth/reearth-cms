@@ -25,13 +25,31 @@ const SvgViewer: React.FC<Props> = ({ url, blob, svgRender }) => {
     fetchData();
   }, [blob, t]);
 
-  return svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>;
+  return svgRender ? (
+    url ? (
+      <Image src={url} alt="svg-preview" />
+    ) : (
+      <LoadingContainer>
+        <p>{t("Loading")}</p>
+      </LoadingContainer>
+    )
+  ) : (
+    <p>{svgText}</p>
+  );
 };
 
 const Image = styled.img`
   width: 100%;
   height: 500px;
   object-fit: contain;
+`;
+
+const LoadingContainer = styled.div`
+  width: 100%;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default SvgViewer;

@@ -7,7 +7,7 @@ import { Imagery } from "./Imagery";
 
 type Props = {
   blob?: Blob;
-  onGetViewer: (viewer: CesiumViewer | undefined) => void;
+  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
