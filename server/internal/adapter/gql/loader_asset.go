@@ -134,7 +134,7 @@ func (c *AssetLoader) Search(ctx context.Context, query gqlmodel.AssetQueryInput
 	}
 
 	totalCount := 0
-	if pi.TotalCount == 0 {
+	if pi != nil {
 		totalCount = int(pi.TotalCount)
 	} else {
 		totalCount = len(assets)
