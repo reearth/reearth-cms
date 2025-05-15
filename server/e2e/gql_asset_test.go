@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -143,10 +144,22 @@ func createAsset(e *httpexpect.Expect, projectId string, fileName string, conten
 		}
 	`
 
+	// Execute the mutation with a file upload
+	operationsJSON := fmt.Sprintf(`{
+		"query": "%s",
+		"variables": {
+			"input": {
+				"projectId": "%s",
+				"file": null
+			}
+		}
+	}`, escapeForJSON(query), projectId)
+
 	res := e.POST("/api/graphql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithMultipart().
+		WithFile("operations", "operations.json", strings.NewReader(operationsJSON)).
 		WithFile("0", fileName, strings.NewReader(string(data))).
 		WithFormField("Content-Type", contentType).
 		Expect().
