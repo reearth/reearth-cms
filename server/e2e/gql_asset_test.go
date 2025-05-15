@@ -32,7 +32,7 @@ func TestSearchAsset(t *testing.T) {
 	// Asset 1: JSON file
 	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
 
-	res := searchAsset(e, pId, asset1Id, nil, nil, nil)
+	res := searchAsset(e, pId, "", nil, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
 	assert.Equal(t, asset1Id, res.Path("$.data.searchAsset.edges[0].node.id").Raw())
 
@@ -192,10 +192,6 @@ func createAsset(
 		Variables: variables,
 	}
 
-	// Debug: print the outgoing operations payload
-	prettyOps, _ := json.MarshalIndent(requestBody, "", "  ")
-	fmt.Println("📤 Request Body:\n", string(prettyOps))
-
 	var res *httpexpect.Value
 
 	if data != nil {
@@ -212,9 +208,6 @@ func createAsset(
 			WithFile("0", fileName, strings.NewReader(string(data))).
 			Expect()
 
-		fmt.Println("📥 HTTP Status:", resp.Status(http.StatusOK))
-		fmt.Println("📬 Response Body:\n", resp.Body().Raw())
-
 		if resp.Raw().StatusCode != http.StatusOK {
 			return "", nil
 		}
@@ -228,9 +221,6 @@ func createAsset(
 			WithHeader("Content-Type", "application/json").
 			WithJSON(requestBody).
 			Expect()
-
-		fmt.Println("📥 HTTP Status:", resp.Status(http.StatusOK))
-		fmt.Println("📬 Response Body:\n", resp.Body().Raw())
 
 		if resp.Raw().StatusCode != http.StatusOK {
 			return "", nil
