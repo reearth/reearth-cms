@@ -141,17 +141,7 @@ func createAsset(
 	url string,
 ) (string, *httpexpect.Value) {
 	// GraphQL mutation to create an asset
-	query := `mutation CreateAsset($input: CreateAssetInput!) {
-		createAsset(input: $input) {
-			asset {
-				id
-				fileName
-				contentType
-				size
-				createdAt
-			}
-		}
-	}`
+	query := `mutation CreateAsset($input: CreateAssetInput!) {createAsset(input: $input) {asset {id fileName contentType size createdAt}}}`
 
 	// Create variables map
 	variables := map[string]any{
