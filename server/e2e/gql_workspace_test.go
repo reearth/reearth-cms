@@ -378,7 +378,7 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
 	w, err := ar.Workspace.FindByID(context.Background(), wId)
-	assert.NoError(t, err)
+	assert.Nil(t, err)
 	assert.True(t, w.Members().HasIntegration(iId1))
 
 	query := fmt.Sprintf(`mutation { removeIntegrationFromWorkspace(input: {workspaceId: "%s", integrationId: "%s"}){ workspace{ id } }}`, wId, iId1)
@@ -434,7 +434,7 @@ func TestRemoveIntegrationsFromWorkspace(t *testing.T) {
 	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
 	w, err := ar.Workspace.FindByID(context.Background(), wId)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.True(t, w.Members().HasIntegration(iId1))
 	assert.True(t, w.Members().HasIntegration(iId3))
 
