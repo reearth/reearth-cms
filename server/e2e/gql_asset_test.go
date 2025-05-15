@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -29,7 +30,7 @@ func TestSearchAsset(t *testing.T) {
 
 	// Upload assets with different properties
 	// Asset 1: JSON file
-	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
+	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "test", "test")
 
 	res := searchAsset(e, pId, asset1Id, nil, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
@@ -128,7 +129,17 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 }
 
 // Helper function to create an asset
-func createAsset(e *httpexpect.Expect, projectId string, fileName string, contentType string, data []byte, skipDecompression bool, contentEncoding string, token string, url string) (string, *httpexpect.Value) {
+func createAsset(
+	e *httpexpect.Expect,
+	projectId string,
+	fileName string,
+	contentType string,
+	data []byte,
+	skipDecompression bool,
+	contentEncoding string,
+	token string,
+	url string,
+) (string, *httpexpect.Value) {
 	// GraphQL mutation to create an asset
 	query := `mutation CreateAsset($input: CreateAssetInput!) {
 		createAsset(input: $input) {
@@ -174,38 +185,57 @@ func createAsset(e *httpexpect.Expect, projectId string, fileName string, conten
 		Variables: variables,
 	}
 
+	// Debug: log the request body
+	opsJSON, _ := json.MarshalIndent(requestBody, "", "  ")
+	fmt.Println("📤 Request Body:\n", string(opsJSON))
+
 	var res *httpexpect.Value
 
-	// Handle different cases based on what's provided
 	if data != nil {
-		// For file upload, we need to use multipart form
+		// For file upload (multipart)
 		operations, _ := json.Marshal(requestBody)
-
-		// Create the map JSON for file uploads
 		mapJSON := `{ "0": ["variables.input.file"] }`
 
-		// Execute the request with file upload
-		res = e.POST("/api/graphql").
+		// Debug: log file + multipart setup
+		fmt.Println("📎 Multipart Upload with File:", fileName)
+		fmt.Println("📄 Content-Type:", contentType)
+
+		resp := e.POST("/api/graphql").
 			WithHeader("Origin", "https://example.com").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithMultipart().
-			WithFile("operations", "operations.json", strings.NewReader(string(operations))).
-			WithFile("map", "map.json", strings.NewReader(mapJSON)).
+			WithFormField("operations", string(operations)). // ✅ fixed to form field
+			WithFormField("map", mapJSON).                   // ✅ fixed to form field
 			WithFile("0", fileName, strings.NewReader(string(data))).
-			WithFormField("Content-Type", contentType).
-			Expect().
-			Status(http.StatusOK).
-			JSON()
+			Expect()
+
+		// Debug: log status and raw response
+		fmt.Println("📥 HTTP Status:", resp.Status(http.StatusOK))
+		fmt.Println("📬 Response Body:\n", resp.Body().Raw())
+
+		// Fail early if not 200 OK
+		if resp.Raw().StatusCode != http.StatusOK {
+			return "", nil
+		}
+
+		res = resp.JSON()
 	} else {
-		// For URL or token, we can use regular JSON request
-		res = e.POST("/api/graphql").
+		// JSON body for URL/token input
+		resp := e.POST("/api/graphql").
 			WithHeader("Origin", "https://example.com").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithHeader("Content-Type", "application/json").
 			WithJSON(requestBody).
-			Expect().
-			Status(http.StatusOK).
-			JSON()
+			Expect()
+
+		fmt.Println("📥 HTTP Status:", resp.Status(http.StatusOK))
+		fmt.Println("📬 Response Body:\n", resp.Body().Raw())
+
+		if resp.Raw().StatusCode != http.StatusOK {
+			return "", nil
+		}
+
+		res = resp.JSON()
 	}
 
 	// Extract the asset ID from the response
