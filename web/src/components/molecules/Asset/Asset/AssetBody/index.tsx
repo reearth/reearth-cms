@@ -14,9 +14,9 @@ type Props = {
   commentsPanel: JSX.Element;
   asset: Asset;
   assetFileExt?: string;
-  selectedPreviewType: PreviewType;
+  selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
-  viewerType: ViewerType;
+  viewerType?: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   isSaveDisabled: boolean;
