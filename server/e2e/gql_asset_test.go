@@ -21,7 +21,7 @@ func TestSearchAsset(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
 	// Create a project
-	pId, _ := createAssetProject(e, wId.String(), "asset-test", "asset test project", "asset-test")
+	pId, _ := createProject(e, wId.String(), "asset-test", "asset test project", "asset-test")
 
 	// Upload assets with different properties
 	// Asset 1: JSON file
@@ -172,46 +172,6 @@ func createAsset(e *httpexpect.Expect, projectId string, fileName string, conten
 	// Extract the asset ID from the response
 	assetId := res.Path("$.data.createAsset.asset.id").String().Raw()
 	return assetId, res
-}
-
-// Helper function to create a project for asset tests
-func createAssetProject(e *httpexpect.Expect, workspaceId, name, description, alias string) (string, *httpexpect.Value) {
-	query := `
-		mutation CreateProject($input: CreateProjectInput!) {
-			createProject(input: $input) {
-				project {
-					id
-					name
-					description
-					alias
-				}
-			}
-		}
-	`
-
-	variables := map[string]interface{}{
-		"input": map[string]interface{}{
-			"workspaceId": workspaceId,
-			"name":        name,
-			"description": description,
-			"alias":       alias,
-		},
-	}
-
-	res := e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(GraphQLRequest{
-			Query:     query,
-			Variables: variables,
-		}).
-		Expect().
-		Status(200).
-		JSON()
-
-	projectId := res.Path("$.data.createProject.project.id").String().Raw()
-	return projectId, res
 }
 
 // Helper function to escape a string for JSON
