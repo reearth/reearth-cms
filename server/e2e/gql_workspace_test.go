@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -377,7 +378,7 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
 	w, err := ar.Workspace.FindByID(context.Background(), wId)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.True(t, w.Members().HasIntegration(iId1))
 
 	query := fmt.Sprintf(`mutation { removeIntegrationFromWorkspace(input: {workspaceId: "%s", integrationId: "%s"}){ workspace{ id } }}`, wId, iId1)
@@ -406,6 +407,29 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 		Value("errors").Array().Value(0).Object().Value("message").IsEqual("target user does not exist in the workspace")
 }
 
+func removeIntegrationsFromWorkspace(e *httpexpect.Expect, wId string, integrationIds []string) *httpexpect.Value {
+	query := fmt.Sprintf(`mutation { removeIntegrationsFromWorkspace(input: {workspaceId: "%s", integrationIds: ["%s"]}){ workspace{ id } }}`,
+		wId, strings.Join(integrationIds, "\", \""))
+	request := GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		panic(err)
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
 func TestRemoveIntegrationsFromWorkspace(t *testing.T) {
 	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
 
@@ -415,20 +439,7 @@ func TestRemoveIntegrationsFromWorkspace(t *testing.T) {
 	assert.True(t, w.Members().HasIntegration(iId3))
 
 	integrationIds := []string{iId1.String(), iId3.String()}
-	query := fmt.Sprintf(`mutation { removeIntegrationsFromWorkspace(input: {workspaceId: "%s", integrationIds: ["%s"]}){ workspace{ id } }}`,
-		wId, strings.Join(integrationIds, "\", \""))
-	request := GraphQLRequest{
-		Query: query,
-	}
-	jsonData, err := json.Marshal(request)
-	if err != nil {
-		assert.Nil(t, err)
-	}
-	e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
-		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK)
+	removeIntegrationsFromWorkspace(e, wId.String(), integrationIds)
 
 	w, err = ar.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
@@ -438,11 +449,8 @@ func TestRemoveIntegrationsFromWorkspace(t *testing.T) {
 	// Expected error message format includes the list of integration IDs
 	expectedErrorMsg := fmt.Sprintf("target user does not exist in the workspace: [%s %s]", iId1, iId3)
 
-	e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
-		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+	res := removeIntegrationsFromWorkspace(e, wId.String(), integrationIds)
+	res.Object().
 		Value("errors").Array().Value(0).Object().Value("message").IsEqual(expectedErrorMsg)
 }
 
