@@ -121,6 +121,7 @@ func (c *AssetLoader) Search(ctx context.Context, query gqlmodel.AssetQueryInput
 	if err != nil {
 		return nil, err
 	}
+
 	edges := make([]*gqlmodel.AssetEdge, 0, len(assets))
 	nodes := make([]*gqlmodel.Asset, 0, len(assets))
 	for _, a := range assets {
@@ -132,11 +133,18 @@ func (c *AssetLoader) Search(ctx context.Context, query gqlmodel.AssetQueryInput
 		nodes = append(nodes, asset)
 	}
 
+	totalCount := 0
+	if pi.TotalCount == 0 {
+		totalCount = int(pi.TotalCount)
+	} else {
+		totalCount = len(assets)
+	}
+
 	return &gqlmodel.AssetConnection{
 		Edges:      edges,
 		Nodes:      nodes,
 		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: int(pi.TotalCount),
+		TotalCount: totalCount,
 	}, nil
 }
 
