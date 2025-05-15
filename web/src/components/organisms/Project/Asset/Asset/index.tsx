@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
@@ -15,6 +14,7 @@ const Asset: React.FC = () => {
     asset,
     assetFileExt,
     isLoading,
+    isDelayed,
     selectedPreviewType,
     isModalVisible,
     collapsed,
@@ -37,20 +37,8 @@ const Asset: React.FC = () => {
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
-  const [delayed, setDelayed] = useState(false);
 
-  useEffect(() => {
-    if (!viewerType) return;
-    const delay =
-      viewerType === "image" || viewerType === "image_svg" || viewerType === "unknown" ? 0 : 2000;
-    const timeout = setTimeout(() => {
-      setDelayed(true);
-    }, delay);
-
-    return () => clearTimeout(timeout);
-  }, [viewerType]);
-
-  if (!delayed || isLoading) {
+  if (!isDelayed || isLoading) {
     return <Loading spinnerSize="large" minHeight="100vh" />;
   }
 

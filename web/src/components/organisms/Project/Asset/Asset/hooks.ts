@@ -151,31 +151,31 @@ export default (assetId?: string) => {
   const assetFileExt = getExtension(convertedAsset?.fileName);
 
   const viewerType = useMemo((): ViewerType | undefined => {
-    if (!convertedAsset?.previewType || !assetFileExt) return;
+    if (!selectedPreviewType || !assetFileExt) return;
 
     switch (true) {
-      case convertedAsset.previewType === "GEO" &&
+      case selectedPreviewType === "GEO" &&
         (geoFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
         return "geo";
-      case convertedAsset.previewType === "GEO_3D_TILES" &&
+      case selectedPreviewType === "GEO_3D_TILES" &&
         (geo3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
         return "geo_3d_tiles";
-      case convertedAsset.previewType === "GEO_MVT" &&
+      case selectedPreviewType === "GEO_MVT" &&
         (geoMvtFormat.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
         return "geo_mvt";
-      case convertedAsset.previewType === "MODEL_3D" &&
+      case selectedPreviewType === "MODEL_3D" &&
         (model3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
         return "model_3d";
-      case convertedAsset.previewType === "CSV" && csvFormats.includes(assetFileExt):
+      case selectedPreviewType === "CSV" && csvFormats.includes(assetFileExt):
         return "csv";
-      case convertedAsset.previewType === "IMAGE" && imageFormats.includes(assetFileExt):
+      case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
         return "image";
-      case convertedAsset.previewType === "IMAGE_SVG" && imageSVGFormat.includes(assetFileExt):
+      case selectedPreviewType === "IMAGE_SVG" && imageSVGFormat.includes(assetFileExt):
         return "image_svg";
       default:
         return "unknown";
     }
-  }, [convertedAsset?.previewType, assetFileExt]);
+  }, [assetFileExt, selectedPreviewType]);
 
   const displayUnzipFileList = useMemo(
     () => compressedFileFormats.includes(assetFileExt),
@@ -260,10 +260,25 @@ export default (assetId?: string) => {
     }
   };
 
+  const [isDelayed, setIsDelayed] = useState(false);
+
+  useEffect(() => {
+    if (!viewerType) return;
+
+    const delayedTypes = new Set<ViewerType>(["geo", "geo_3d_tiles", "geo_mvt", "model_3d", "csv"]);
+    const delay = delayedTypes.has(viewerType) ? 2000 : 0;
+    const timeout = setTimeout(() => {
+      setIsDelayed(true);
+    }, delay);
+
+    return () => clearTimeout(timeout);
+  }, [viewerType]);
+
   return {
     asset,
     assetFileExt,
     isLoading: networkStatus === NetworkStatus.loading || fileLoading,
+    isDelayed,
     selectedPreviewType,
     isModalVisible,
     collapsed,
