@@ -30,7 +30,7 @@ func TestSearchAsset(t *testing.T) {
 
 	// Upload assets with different properties
 	// Asset 1: JSON file
-	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "test", "test")
+	asset1Id, _ := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
 
 	res := searchAsset(e, pId, asset1Id, nil, nil, nil)
 	assert.Equal(t, 1, res.Path("$.data.searchAsset.totalCount").Raw())
