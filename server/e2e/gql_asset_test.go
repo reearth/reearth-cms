@@ -17,9 +17,6 @@ import (
 var _ = accountdomain.UserID{}
 
 func TestSearchAsset(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test in short mode.")
-	}
 
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 
