@@ -7,7 +7,6 @@ package gql
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -205,15 +204,11 @@ func (r *queryResolver) Assets(ctx context.Context, projectID gqlmodel.ID, keywo
 
 // SearchAsset is the resolver for the searchAsset field.
 func (r *queryResolver) SearchAsset(ctx context.Context, input gqlmodel.SearchAssetsInput) (*gqlmodel.AssetConnection, error) {
-	res, err := loaders(ctx).Asset.Search(ctx, gqlmodel.AssetQueryInput{
+	return loaders(ctx).Asset.Search(ctx, gqlmodel.AssetQueryInput{
 		Project:      input.Query.Project,
 		Q:            input.Query.Q,
 		ContentTypes: input.Query.ContentTypes,
 	}, input.Sort, input.Pagination)
-	if err != nil {
-		fmt.Println("err log: ", err)
-	}
-	return res, err
 }
 
 // Asset returns AssetResolver implementation.
