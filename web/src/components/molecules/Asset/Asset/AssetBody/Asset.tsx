@@ -35,9 +35,9 @@ import useHooks from "./hooks";
 type Props = {
   asset: Asset;
   assetFileExt?: string;
-  selectedPreviewType: PreviewType;
+  selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
-  viewerType: ViewerType;
+  viewerType?: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
