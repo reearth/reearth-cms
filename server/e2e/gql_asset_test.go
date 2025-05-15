@@ -1,7 +1,8 @@
 package e2e
 
 import (
-	"fmt"
+	"encoding/json"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -129,128 +130,84 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 // Helper function to create an asset
 func createAsset(e *httpexpect.Expect, projectId string, fileName string, contentType string, data []byte, skipDecompression bool, contentEncoding string, token string, url string) (string, *httpexpect.Value) {
 	// GraphQL mutation to create an asset
-	query := `
-		mutation CreateAsset($input: CreateAssetInput!) {
-			createAsset(input: $input) {
-				asset {
-					id
-					fileName
-					contentType
-					size
-					createdAt
-				}
+	query := `mutation CreateAsset($input: CreateAssetInput!) {
+		createAsset(input: $input) {
+			asset {
+				id
+				fileName
+				contentType
+				size
+				createdAt
 			}
 		}
-	`
+	}`
 
-	// Execute the mutation with a file upload
-	var operationsJSON string
-
-	// Build the input object parts
-	inputParts := []string{fmt.Sprintf(`"projectId": "%s"`, projectId)}
+	// Create variables map
+	variables := map[string]any{
+		"input": map[string]any{
+			"projectId": projectId,
+		},
+	}
 
 	// Add optional parameters if provided
+	inputMap := variables["input"].(map[string]any)
+
 	if skipDecompression {
-		inputParts = append(inputParts, `"skipDecompression": true`)
+		inputMap["skipDecompression"] = skipDecompression
 	}
 
 	if contentEncoding != "" {
-		inputParts = append(inputParts, fmt.Sprintf(`"contentEncoding": "%s"`, contentEncoding))
+		inputMap["contentEncoding"] = contentEncoding
 	}
 
 	if token != "" {
-		inputParts = append(inputParts, fmt.Sprintf(`"token": "%s"`, token))
+		inputMap["token"] = token
 	}
 
 	if url != "" {
-		inputParts = append(inputParts, fmt.Sprintf(`"url": "%s"`, url))
+		inputMap["url"] = url
 	}
 
-	// If we're uploading a file
-	if data != nil {
-		inputParts = append(inputParts, `"file": null`)
-
-		// Construct the final JSON
-		operationsJSON = fmt.Sprintf(`{
-			"query": "%s",
-			"variables": {
-				"input": {
-					%s
-				}
-			}
-		}`, escapeForJSON(query), strings.Join(inputParts, ", "))
-	} else if url != "" || token != "" {
-		// Construct the final JSON without file
-		operationsJSON = fmt.Sprintf(`{
-			"query": "%s",
-			"variables": {
-				"input": {
-					%s
-				}
-			}
-		}`, escapeForJSON(query), strings.Join(inputParts, ", "))
-	} else {
-		// Default case with file
-		inputParts = append(inputParts, `"file": null`)
-		operationsJSON = fmt.Sprintf(`{
-			"query": "%s",
-			"variables": {
-				"input": {
-					%s
-				}
-			}
-		}`, escapeForJSON(query), strings.Join(inputParts, ", "))
+	// Create the request body
+	requestBody := GraphQLRequest{
+		Query:     query,
+		Variables: variables,
 	}
 
 	var res *httpexpect.Value
 
 	// Handle different cases based on what's provided
 	if data != nil {
-		// File upload case
+		// For file upload, we need to use multipart form
+		operations, _ := json.Marshal(requestBody)
+
+		// Create the map JSON for file uploads
 		mapJSON := `{ "0": ["variables.input.file"] }`
 
+		// Execute the request with file upload
 		res = e.POST("/api/graphql").
 			WithHeader("Origin", "https://example.com").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithMultipart().
-			WithFile("operations", "operations.json", strings.NewReader(operationsJSON)).
+			WithFile("operations", "operations.json", strings.NewReader(string(operations))).
 			WithFile("map", "map.json", strings.NewReader(mapJSON)).
 			WithFile("0", fileName, strings.NewReader(string(data))).
 			WithFormField("Content-Type", contentType).
 			Expect().
-			Status(200).
+			Status(http.StatusOK).
 			JSON()
 	} else {
-		// URL or token case - no file upload needed
+		// For URL or token, we can use regular JSON request
 		res = e.POST("/api/graphql").
 			WithHeader("Origin", "https://example.com").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithHeader("Content-Type", "application/json").
-			WithJSON(GraphQLRequest{
-				Query: query,
-				Variables: map[string]interface{}{
-					"input": map[string]interface{}{
-						"projectId":         projectId,
-						"skipDecompression": skipDecompression,
-					},
-				},
-			}).
+			WithJSON(requestBody).
 			Expect().
-			Status(200).
+			Status(http.StatusOK).
 			JSON()
 	}
 
 	// Extract the asset ID from the response
-	assetId := res.Path("$.data.createAsset.asset.id").String().Raw()
-	return assetId, res
-}
-
-// Helper function to escape a string for JSON
-func escapeForJSON(s string) string {
-	s = strings.ReplaceAll(s, "\\", "\\\\")
-	s = strings.ReplaceAll(s, "\"", "\\\"")
-	s = strings.ReplaceAll(s, "\n", "\\n")
-	s = strings.ReplaceAll(s, "\r", "\\r")
-	s = strings.ReplaceAll(s, "\t", "\\t")
-	return s
+	return res.Path("$.data.createAsset.asset.id").String().Raw(), res
 }
