@@ -74,8 +74,8 @@ type Config struct {
 }
 
 type HealthCheckConfig struct {
-	Username string `default:"" envconfig:"HEALTH_CHECK_USERNAME"`
-	Password string `default:"" envconfig:"HEALTH_CHECK_PASSWORD"`
+	Username string `pp:",omitempty"`
+	Password string `pp:",omitempty"`
 }
 
 type ServerConfig struct {
