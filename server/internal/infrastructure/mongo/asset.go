@@ -105,6 +105,44 @@ func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo
 	return r.paginate(ctx, filter, uFilter.Sort, uFilter.Pagination)
 }
 
+func (r *Asset) Search(ctx context.Context, projectID id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(projectID) {
+		return nil, usecasex.EmptyPageInfo(), nil
+	}
+
+	var filters any = bson.M{
+		"project": projectID.String(),
+	}
+
+	if filter.Keyword != nil && *filter.Keyword != "" {
+		filters = mongox.And(filters, "", bson.M{
+			"filename": bson.M{
+				"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*filter.Keyword)), Options: "i"},
+			},
+		})
+	}
+
+	// Multiple content types
+	if len(filter.ContentTypes) > 0 {
+		var typeFilters []bson.M
+		for _, ct := range filter.ContentTypes {
+			typeFilters = append(typeFilters, bson.M{
+				"file.contenttype": bson.M{
+					"$regex": primitive.Regex{
+						Pattern: fmt.Sprintf("^%s$", regexp.QuoteMeta(ct)),
+						Options: "i", // case-insensitive match
+					},
+				},
+			})
+		}
+		filters = mongox.And(filters, "", bson.M{
+			"$or": typeFilters,
+		})
+	}
+
+	return r.paginate(ctx, filters, filter.Sort, filter.Pagination)
+}
+
 func (r *Asset) UpdateProject(ctx context.Context, from, to id.ProjectID) error {
 	if !r.f.CanWrite(from) || !r.f.CanWrite(to) {
 		return repo.ErrOperationDenied
@@ -149,7 +187,7 @@ func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
 	return r.client.RemoveAll(ctx, r.writeFilter(filter))
 }
 
-func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (r *Asset) paginate(ctx context.Context, filter any, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	c := mongodoc.NewAssetConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c, options.Find().SetProjection(bson.M{"file": 0}))
 	if err != nil {

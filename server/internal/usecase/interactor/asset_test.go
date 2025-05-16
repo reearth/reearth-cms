@@ -597,6 +597,175 @@ func TestAsset_FindByProject(t *testing.T) {
 	}
 }
 
+func TestAsset_Search(t *testing.T) {
+	pid := id.NewProjectID()
+	aid1 := id.NewAssetID()
+	uid1 := accountdomain.NewUserID()
+	a1 := asset.New().ID(aid1).Project(pid).NewUUID().
+		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	aid2 := id.NewAssetID()
+	uid2 := accountdomain.NewUserID()
+	a2 := asset.New().ID(aid2).Project(pid).NewUUID().
+		CreatedByUser(uid2).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	aid3 := id.NewAssetID()
+	uid3 := accountdomain.NewUserID()
+	a3 := asset.New().ID(aid3).Project(pid).NewUUID().
+		CreatedByUser(uid3).Size(1000).Thread(id.NewThreadID().Ref()).FileName("a.txt").MustBuild()
+
+	op := &usecase.Operator{}
+
+	type args struct {
+		pid      id.ProjectID
+		f        interfaces.AssetFilter
+		operator *usecase.Operator
+	}
+	tests := []struct {
+		name    string
+		seeds   asset.List
+		args    args
+		want    asset.List
+		wantErr error
+	}{
+		{
+			name:  "0 count in empty db",
+			seeds: asset.List{},
+			args: args{
+				pid:      id.NewProjectID(),
+				operator: op,
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "0 count with asset for another projects",
+			seeds: asset.List{
+				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args: args{
+				pid:      id.NewProjectID(),
+				operator: op,
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "1 count with single asset",
+			seeds: asset.List{
+				a1,
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+				},
+				operator: op,
+			},
+			want:    asset.List{a1},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with multi assets",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+				},
+				operator: op,
+			},
+			want:    asset.List{a1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi assets",
+			seeds: asset.List{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+				},
+				operator: op,
+			},
+			want:    asset.List{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name: "success content type filter",
+			seeds: asset.List{
+				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).
+					Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+					ContentTypes: []string{"image/jpeg", "image/png"},
+				},
+				operator: op,
+			},
+			want:    nil, // empty as asset file data is not set in Asset object
+			wantErr: nil,
+		},
+		{
+			name: "success keyword filter",
+			seeds: asset.List{
+				a3,
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+					Keyword:    lo.ToPtr("a"),
+				},
+				operator: op,
+			},
+			want:    asset.List{a3}, // empty as asset file data is not set in Asset object
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
+				assert.NoError(t, err)
+			}
+			assetUC := NewAsset(db, nil)
+
+			got, _, err := assetUC.Search(ctx, tc.args.pid, tc.args.f, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestAsset_Create(t *testing.T) {
 	mocktime := time.Now()
 	ws := workspace.New().NewID().MustBuild()

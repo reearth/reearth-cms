@@ -1,10 +1,17 @@
 package gqlmodel
 
 import (
+	"path/filepath"
+	"strings"
+
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
+
+var ErrInvalidContentTypes = rerror.NewE(i18n.T("invalid content types"))
 
 func ToAsset(a *asset.Asset) *Asset {
 	if a == nil {
@@ -38,6 +45,7 @@ func ToAsset(a *asset.Asset) *Asset {
 		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 		Size:                    int64(a.Size()),
 		Public:                  ai.Public,
+		ContentType:             detectContentTypeByFilename(a.FileName()),
 	}
 }
 
@@ -160,4 +168,31 @@ func (s *AssetSort) Into() *usecasex.Sort {
 		Key:      key,
 		Reverted: s.Direction != nil && *s.Direction == SortDirectionDesc,
 	}
+}
+
+func detectContentTypeByFilename(filename string) *string {
+	ext := strings.ToLower(filepath.Ext(filename))
+
+	var contentType string
+
+	switch ext {
+	case ".json":
+		contentType = "application/json"
+	case ".geojson":
+		contentType = "application/geo+json"
+	case ".csv":
+		contentType = "text/csv"
+	case ".html", ".htm":
+		contentType = "text/html"
+	case ".xml":
+		contentType = "application/xml"
+	case ".pdf":
+		contentType = "application/pdf"
+	case ".txt":
+		contentType = "text/plain"
+	default:
+		return nil
+	}
+
+	return &contentType
 }

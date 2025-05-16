@@ -396,6 +396,151 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 	}
 }
 
+func TestAssetRepo_Search(t *testing.T) {
+	pid1 := id.NewProjectID()
+	uid1 := accountdomain.NewUserID()
+	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
+	a1 := asset.New().NewID().Project(pid1).ArchiveExtractionStatus(s).NewUUID().
+		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+	a2 := asset.New().NewID().Project(pid1).ArchiveExtractionStatus(s).NewUUID().
+		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	type args struct {
+		pid   id.ProjectID
+		pInfo *usecasex.Pagination
+	}
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		filter  *repo.ProjectFilter
+		want    []*asset.Asset
+		wantErr error
+	}{
+		{
+			name:    "0 count in empty db",
+			seeds:   []*asset.Asset{},
+			args:    args{id.NewProjectID(), nil},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "0 count with asset for another workspaces",
+			seeds: []*asset.Asset{
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{id.NewProjectID(), nil},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "1 count with single asset",
+			seeds: []*asset.Asset{
+				a1,
+			},
+			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "1 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "2 count with multi assets",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
+			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name: "get 1st page of 2",
+			seeds: []*asset.Asset{
+				a1,
+				a2,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			want:    []*asset.Asset{a1, a2},
+			wantErr: nil,
+		},
+		{
+			name: "project filter operation succeed",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
+			want:    []*asset.Asset{a1},
+			wantErr: nil,
+		},
+		{
+			name: "project filter operation denied",
+			seeds: asset.List{
+				a1,
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
+			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
+			want:    nil,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewAsset()
+			ctx := context.Background()
+			for _, a := range tc.seeds {
+				err := r.Save(ctx, a.Clone())
+				assert.NoError(t, err)
+			}
+
+			if tc.filter != nil {
+				r = r.Filtered(*tc.filter)
+			}
+
+			got, _, err := r.Search(ctx, tc.args.pid, repo.AssetFilter{})
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestAssetRepo_Delete(t *testing.T) {
 	pid1 := id.NewProjectID()
 	id1 := id.NewAssetID()

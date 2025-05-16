@@ -37,6 +37,7 @@ internal: 内部
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
 invalid base URL: 無効なベースURLです。
+invalid content types: 無効なコンテンツタイプです。
 invalid cursor: 無効なカーソルです。
 invalid default values: 無効なデフォルト値です。
 invalid document: 無効なドキュメントです。
