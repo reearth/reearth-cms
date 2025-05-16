@@ -7,7 +7,7 @@ import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/Ass
 import mapPin from "./mapPin.svg";
 
 type Props = {
-  url: string;
+  blob?: Blob;
 };
 
 type GeoObj = {
@@ -16,22 +16,12 @@ type GeoObj = {
   [x: string]: string | undefined;
 };
 
-export const Imagery: React.FC<Props> = ({ url }) => {
+export const Imagery: React.FC<Props> = ({ blob }) => {
   const { viewer } = useCesium();
 
   const dataFetch = useCallback(async () => {
-    try {
-      const res = await fetch(url, {
-        method: "GET",
-      });
-      if (!res.ok) {
-        throw new Error("Error loading CSV data");
-      }
-      return await res.text();
-    } catch (err) {
-      console.error(err);
-    }
-  }, [url]);
+    return await blob?.text();
+  }, [blob]);
 
   const parseCsv = useCallback((text: string): GeoObj[] => {
     const result: GeoObj[] = [];
