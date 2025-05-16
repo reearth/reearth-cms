@@ -68,6 +68,10 @@ type Config struct {
 
 	// server
 	Server ServerConfig `pp:",omitempty"`
+
+	// Optional Health Check HTTP Basic Auth
+	HealthCheckUsername string `default:"" envconfig:"HEALTH_CHECK_USERNAME"`
+	HealthCheckPassword string `default:"" envconfig:"HEALTH_CHECK_PASSWORD"`
 }
 
 type ServerConfig struct {

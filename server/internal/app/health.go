@@ -17,59 +17,73 @@ import (
 
 // HealthCheck returns an echo.HandlerFunc that serves the health check endpoint
 func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
-	checks := []health.Config{
-		{
-			Name:      "db",
-			Timeout:   time.Second * 5,
-			SkipOnErr: false,
-			Check:     mongo.New(mongo.Config{DSN: conf.DB}),
-		},
-	}
+    checks := []health.Config{
+        {
+            Name:      "db",
+            Timeout:   time.Second * 5,
+            SkipOnErr: false,
+            Check:     mongo.New(mongo.Config{DSN: conf.DB}),
+        },
+    }
 
-	for _, u := range conf.DB_Users {
-		checks = append(checks, health.Config{
-			Name:      "db-" + u.Name,
-			Timeout:   time.Second * 5,
-			SkipOnErr: false,
-			Check:     mongo.New(mongo.Config{DSN: u.URI}),
-		})
-	}
+    for _, u := range conf.DB_Users {
+        checks = append(checks, health.Config{
+            Name:      "db-" + u.Name,
+            Timeout:   time.Second * 5,
+            SkipOnErr: false,
+            Check:     mongo.New(mongo.Config{DSN: u.URI}),
+        })
+    }
 
-	if conf.GCS.BucketName != "" {
-		checks = append(checks, health.Config{
-			Name:      "gcs",
-			Timeout:   time.Second * 5,
-			SkipOnErr: false,
-			Check:     func(ctx context.Context) error { return gcsCheck(ctx, conf.GCS.BucketName) },
-		})
-	}
+    if conf.GCS.BucketName != "" {
+        checks = append(checks, health.Config{
+            Name:      "gcs",
+            Timeout:   time.Second * 5,
+            SkipOnErr: false,
+            Check:     func(ctx context.Context) error { return gcsCheck(ctx, conf.GCS.BucketName) },
+        })
+    }
 
-	for _, a := range conf.Auths() {
-		if a.ISS != "" {
-			u, err := url.Parse(a.ISS)
-			if err != nil {
-				log.Fatalf("invalid issuer URL: %v", err)
-			}
-			checks = append(checks, health.Config{
-				Name:      "auth:" + a.ISS,
-				Timeout:   time.Second * 5,
-				SkipOnErr: false,
-				Check: func(ctx context.Context) error {
-					return authServerPingCheck(u.JoinPath(".well-known/openid-configuration").String())
-				},
-			})
-		}
-	}
+    for _, a := range conf.Auths() {
+        if a.ISS != "" {
+            u, err := url.Parse(a.ISS)
+            if err != nil {
+                log.Fatalf("invalid issuer URL: %v", err)
+            }
+            checks = append(checks, health.Config{
+                Name:      "auth:" + a.ISS,
+                Timeout:   time.Second * 5,
+                SkipOnErr: false,
+                Check: func(ctx context.Context) error {
+                    return authServerPingCheck(u.JoinPath(".well-known/openid-configuration").String())
+                },
+            })
+        }
+    }
 
-	h, err := health.New(health.WithComponent(health.Component{
-		Name:    "reearth-cms",
-		Version: ver,
-	}), health.WithChecks(checks...))
-	if err != nil {
-		log.Fatalf("failed to create health check: %v", err)
-	}
+    h, err := health.New(health.WithComponent(health.Component{
+        Name:    "reearth-cms",
+        Version: ver,
+    }), health.WithChecks(checks...))
+    if err != nil {
+        log.Fatalf("failed to create health check: %v", err)
+    }
 
-	return echo.WrapHandler(h.Handler())
+    return func(c echo.Context) error {
+        // Optional HTTP Basic Auth
+        if conf.HealthCheckUsername != "" && conf.HealthCheckPassword != "" {
+            username, password, ok := c.Request().BasicAuth()
+            if !ok || username != conf.HealthCheckUsername || password != conf.HealthCheckPassword {
+                return c.JSON(http.StatusUnauthorized, map[string]string{
+                    "error": "unauthorized",
+                })
+            }
+        }
+
+        // Serve the health check
+        h.Handler().ServeHTTP(c.Response(), c.Request())
+        return nil
+    }
 }
 
 func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
