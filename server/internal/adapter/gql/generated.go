@@ -3596,7 +3596,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			break
 		}
 
-		args, err := ec.field_Query_guessSchemaFields_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_guessSchemaFields_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
