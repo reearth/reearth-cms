@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -404,6 +405,53 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
 		Value("errors").Array().Value(0).Object().Value("message").IsEqual("target user does not exist in the workspace")
+}
+
+func removeIntegrationsFromWorkspace(e *httpexpect.Expect, wId string, integrationIds []string) *httpexpect.Value {
+	query := fmt.Sprintf(`mutation { removeIntegrationsFromWorkspace(input: {workspaceId: "%s", integrationIds: ["%s"]}){ workspace{ id } }}`,
+		wId, strings.Join(integrationIds, "\", \""))
+	request := GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		panic(err)
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func TestRemoveIntegrationsFromWorkspace(t *testing.T) {
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
+
+	w, err := ar.Workspace.FindByID(context.Background(), wId)
+	assert.NoError(t, err)
+	assert.True(t, w.Members().HasIntegration(iId1))
+	assert.True(t, w.Members().HasIntegration(iId3))
+
+	integrationIds := []string{iId1.String(), iId3.String()}
+	removeIntegrationsFromWorkspace(e, wId.String(), integrationIds)
+
+	w, err = ar.Workspace.FindByID(context.Background(), wId)
+	assert.Nil(t, err)
+	assert.False(t, w.Members().HasIntegration(iId1))
+	assert.False(t, w.Members().HasIntegration(iId3))
+
+	// Expected error message format includes the list of integration IDs
+	expectedErrorMsg := fmt.Sprintf("target user does not exist in the workspace: [%s %s]", iId1, iId3)
+
+	res := removeIntegrationsFromWorkspace(e, wId.String(), integrationIds)
+	res.Object().
+		Value("errors").Array().Value(0).Object().Value("message").IsEqual(expectedErrorMsg)
 }
 
 func TestUpdateIntegrationOfWorkspace(t *testing.T) {
