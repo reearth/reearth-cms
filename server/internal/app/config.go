@@ -68,6 +68,14 @@ type Config struct {
 
 	// server
 	Server ServerConfig `pp:",omitempty"`
+
+	// Health Check Configuration
+	HealthCheck HealthCheckConfig `pp:",omitempty"`
+}
+
+type HealthCheckConfig struct {
+	Username string `pp:",omitempty"`
+	Password string `pp:",omitempty"`
 }
 
 type ServerConfig struct {
@@ -361,6 +369,8 @@ func (c *Config) secrets() []string {
 		c.DB,
 		c.Auth0.ClientSecret,
 		c.InternalApi.Token,
+		c.HealthCheck.Username,
+		c.HealthCheck.Password,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)

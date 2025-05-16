@@ -69,6 +69,11 @@ input RemoveIntegrationFromWorkspaceInput {
     integrationId: ID!
 }
 
+input RemoveIntegrationsFromWorkspaceInput {
+    workspaceId: ID!
+    integrationIds: [ID!]!
+}
+
 input UpdateUserOfWorkspaceInput {
     workspaceId: ID!
     userId: ID!
@@ -103,6 +108,10 @@ type RemoveIntegrationFromWorkspacePayload {
     workspace: Workspace!
 }
 
+type RemoveIntegrationsFromWorkspacePayload {
+    workspace: Workspace!
+}
+
 type RemoveMultipleMembersFromWorkspacePayload {
     workspace: Workspace!
 }
@@ -123,6 +132,7 @@ extend type Mutation {
     addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddUsersToWorkspacePayload
     removeMultipleMembersFromWorkspace(input: RemoveMultipleMembersFromWorkspaceInput!): RemoveMultipleMembersFromWorkspacePayload
     removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveIntegrationFromWorkspacePayload
+    removeIntegrationsFromWorkspace(input: RemoveIntegrationsFromWorkspaceInput!): RemoveIntegrationsFromWorkspacePayload
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }

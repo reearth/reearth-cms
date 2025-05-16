@@ -69,7 +69,21 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 		log.Fatalf("failed to create health check: %v", err)
 	}
 
-	return echo.WrapHandler(h.Handler())
+	return func(c echo.Context) error {
+		// Optional HTTP Basic Auth
+		if conf.HealthCheck.Username != "" && conf.HealthCheck.Password != "" {
+			username, password, ok := c.Request().BasicAuth()
+			if !ok || username != conf.HealthCheck.Username || password != conf.HealthCheck.Password {
+				return c.JSON(http.StatusUnauthorized, map[string]string{
+					"error": "unauthorized",
+				})
+			}
+		}
+
+		// Serve the health check
+		h.Handler().ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
 }
 
 func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
