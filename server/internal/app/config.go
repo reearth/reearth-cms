@@ -369,6 +369,8 @@ func (c *Config) secrets() []string {
 		c.DB,
 		c.Auth0.ClientSecret,
 		c.InternalApi.Token,
+		c.HealthCheck.Username,
+		c.HealthCheck.Password,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)
