@@ -12,8 +12,6 @@ const Asset: React.FC = () => {
   const { assetId } = useParams();
   const {
     asset,
-    assetUrl,
-    assetBlob,
     assetFileExt,
     isLoading,
     isDelayed,
@@ -26,7 +24,6 @@ const Asset: React.FC = () => {
     isSaveDisabled,
     updateLoading,
     hasUpdateRight,
-    setAssetUrl,
     handleAssetDecompress,
     handleAssetItemSelect,
     handleSingleAssetDownload,
@@ -63,8 +60,6 @@ const Asset: React.FC = () => {
         />
       }
       asset={asset}
-      assetUrl={assetUrl}
-      assetBlob={assetBlob}
       assetFileExt={assetFileExt}
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}
@@ -74,7 +69,6 @@ const Asset: React.FC = () => {
       isSaveDisabled={isSaveDisabled}
       updateLoading={updateLoading}
       hasUpdateRight={hasUpdateRight}
-      setAssetUrl={setAssetUrl}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
       onAssetDownload={handleSingleAssetDownload}

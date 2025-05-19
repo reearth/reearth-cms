@@ -17,7 +17,7 @@ type Props = {
 };
 
 const GeoViewer: React.FC<Props> = ({ url, assetFileExt, onGetViewer, workspaceSettings }) => {
-  const ext = useMemo(() => getExtension(url) || assetFileExt, [url, assetFileExt]);
+  const ext = useMemo(() => getExtension(url) ?? assetFileExt, [url, assetFileExt]);
 
   const geoComponent = useMemo(() => {
     switch (ext?.toLowerCase()) {

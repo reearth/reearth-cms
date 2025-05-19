@@ -274,47 +274,8 @@ export default (assetId?: string) => {
     return () => clearTimeout(timeout);
   }, [viewerType]);
 
-  const [assetUrl, setAssetUrl] = useState(asset?.url ?? "");
-  const [assetBlob, setAssetBlob] = useState<Blob>();
-
-  useEffect(() => {
-    if (assetUrl && assetBlob) return;
-
-    let objectUrl: string | undefined;
-    const fetchAsset = async () => {
-      if (!asset) return;
-      try {
-        const headers = await getHeader();
-        const response = await fetch(asset.url, {
-          method: "GET",
-          ...(asset.public ? {} : { headers }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch asset");
-        }
-
-        const blob = await response.blob();
-        objectUrl = URL.createObjectURL(blob);
-        setAssetBlob(blob);
-        setAssetUrl(objectUrl);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchAsset();
-
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
-  }, [asset?.url, asset?.public, getHeader, asset, assetUrl, assetBlob]);
-
   return {
     asset,
-    assetUrl,
-    assetBlob,
     assetFileExt,
     isLoading: networkStatus === NetworkStatus.loading || fileLoading,
     isDelayed,
@@ -326,7 +287,6 @@ export default (assetId?: string) => {
     decompressing,
     isSaveDisabled,
     updateLoading,
-    setAssetUrl,
     hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,

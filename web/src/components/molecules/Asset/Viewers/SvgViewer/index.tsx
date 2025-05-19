@@ -5,51 +5,39 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   url: string;
-  blob?: Blob;
   svgRender: boolean;
 };
 
-const SvgViewer: React.FC<Props> = ({ url, blob, svgRender }) => {
+const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const t = useT();
   const [svgText, setSvgText] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      const text = await blob?.text();
-      if (!text) {
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+        });
+        if (!res.ok) {
+          throw new Error("Could not fetch svg data");
+        }
+        const text = await res.text();
+        setSvgText(text);
+      } catch (err) {
         setSvgText(t("Could not display svg"));
-        return;
+        console.error(err);
       }
-      setSvgText(text);
     };
     fetchData();
-  }, [blob, t]);
+  }, [t, url]);
 
-  return svgRender ? (
-    url ? (
-      <Image src={url} alt="svg-preview" />
-    ) : (
-      <LoadingContainer>
-        <p>{t("Loading")}</p>
-      </LoadingContainer>
-    )
-  ) : (
-    <p>{svgText}</p>
-  );
+  return svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>;
 };
 
 const Image = styled.img`
   width: 100%;
   height: 500px;
   object-fit: contain;
-`;
-
-const LoadingContainer = styled.div`
-  width: 100%;
-  height: 500px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
 
 export default SvgViewer;
