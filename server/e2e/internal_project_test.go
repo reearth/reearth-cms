@@ -17,7 +17,7 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	StartServer(t, &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
-			Port:   "52050",
+			Port:   "0", // Let os assign a random port
 			Token:  "TestToken",
 		},
 	}, true, baseSeeder)
