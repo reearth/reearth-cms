@@ -17,12 +17,14 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	StartServer(t, &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
-			Port:   "0", // Let os assign a random port
+			Port:   "52050",
 			Token:  "TestToken",
 		},
 	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient("localhost:52050", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
 
 	client := pb.NewReEarthCMSClient(clientConn)
