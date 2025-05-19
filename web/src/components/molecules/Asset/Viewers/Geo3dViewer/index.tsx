@@ -12,16 +12,16 @@ import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 type Props = {
   isAssetPublic?: boolean;
   url: string;
-  setAssetUrl: (url: string) => void;
   workspaceSettings: WorkspaceSettings;
+  setAssetUrl: (url: string) => void;
   onGetViewer: (viewer?: CesiumViewer) => void;
 };
 
 const Geo3dViewer: React.FC<Props> = ({
   isAssetPublic,
   url,
-  setAssetUrl,
   workspaceSettings,
+  setAssetUrl,
   onGetViewer,
 }) => {
   useEffect(() => {

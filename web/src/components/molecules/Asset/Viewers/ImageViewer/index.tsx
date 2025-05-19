@@ -9,9 +9,9 @@ type Props = React.ImgHTMLAttributes<HTMLImageElement> & {
 };
 
 const ImageViewer: React.FC<Props> = ({
+  alt = "image-preview",
   isAssetPublic = true,
   url,
-  alt = "image-preview",
   ...props
 }) => {
   const { getHeader } = useAuthHeader();

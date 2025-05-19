@@ -6,15 +6,15 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = React.ImgHTMLAttributes<HTMLImageElement> & {
   isAssetPublic?: boolean;
-  url: string;
   svgRender: boolean;
+  url: string;
 };
 
 const SvgViewer: React.FC<Props> = ({
-  isAssetPublic,
-  url,
-  svgRender,
   alt = "image-preview",
+  isAssetPublic,
+  svgRender,
+  url,
   ...props
 }) => {
   const t = useT();

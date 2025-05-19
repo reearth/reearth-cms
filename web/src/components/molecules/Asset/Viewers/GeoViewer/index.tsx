@@ -13,16 +13,16 @@ type Props = {
   isAssetPublic?: boolean;
   url: string;
   assetFileExt?: string;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
+  onGetViewer: (viewer?: CesiumViewer) => void;
 };
 
 const GeoViewer: React.FC<Props> = ({
   isAssetPublic,
   url,
   assetFileExt,
-  onGetViewer,
   workspaceSettings,
+  onGetViewer,
 }) => {
   const ext = useMemo(() => getExtension(url) ?? assetFileExt, [url, assetFileExt]);
 

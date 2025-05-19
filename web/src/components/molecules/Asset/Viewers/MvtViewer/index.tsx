@@ -7,6 +7,7 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 import { Imagery, Property } from "./Imagery";
 
 type Props = {
+  isAssetPublic?: boolean;
   url: string;
   workspaceSettings: WorkspaceSettings;
   onGetViewer: (viewer?: CesiumViewer) => void;
