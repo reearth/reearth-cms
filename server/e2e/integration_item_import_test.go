@@ -421,26 +421,28 @@ func TestIntegrationModelImportJSONWithJsonInput3(t *testing.T) {
 	i := a.Value(0).Object()
 	i.Value("id").NotNull().IsEqual(iId)
 	i.Value("fields").Array().Length().IsEqual(3)
-	i.Value("fields").Array().IsEqual([]map[string]any{
-		{
-			"id":    f.textFId,
-			"key":   "text",
-			"type":  "text",
-			"value": "test1",
-		},
-		{
+
+	// Check that each expected field is present, regardless of order
+	fields := i.Value("fields").Array()
+
+	// Check for text field
+	fields.ContainsAll(map[string]any{
+		"id":    f.textFId,
+		"key":   "text",
+		"type":  "text",
+		"value": "test1",
+	},
+		map[string]any{
 			"id":    f.boolFId,
 			"key":   "bool",
 			"type":  "bool",
 			"value": true,
-		},
-		{
+		}, map[string]any{
 			"id":    f.numberFId,
 			"key":   "number",
 			"type":  "number",
 			"value": 1.1,
-		},
-	})
+		})
 
 	// endregion
 }
