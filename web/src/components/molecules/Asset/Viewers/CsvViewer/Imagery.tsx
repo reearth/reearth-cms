@@ -3,10 +3,12 @@ import { useCallback, useEffect } from "react";
 import { useCesium } from "resium";
 
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
+import { useAuthHeader } from "@reearth-cms/gql";
 
 import mapPin from "./mapPin.svg";
 
 type Props = {
+  isAssetPublic?: boolean;
   url: string;
 };
 
@@ -16,13 +18,16 @@ type GeoObj = {
   [x: string]: string | undefined;
 };
 
-export const Imagery: React.FC<Props> = ({ url }) => {
+export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
   const { viewer } = useCesium();
+  const { getHeader } = useAuthHeader();
 
   const dataFetch = useCallback(async () => {
     try {
+      const headers = await getHeader();
       const res = await fetch(url, {
         method: "GET",
+        headers: isAssetPublic ? {} : headers,
       });
       if (!res.ok) {
         throw new Error("Error loading CSV data");
@@ -31,7 +36,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
     } catch (err) {
       console.error(err);
     }
-  }, [url]);
+  }, [getHeader, isAssetPublic, url]);
 
   const parseCsv = useCallback((text: string): GeoObj[] => {
     const result: GeoObj[] = [];

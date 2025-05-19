@@ -1,22 +1,33 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 
+import { useAuthHeader } from "@reearth-cms/gql";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+type Props = React.ImgHTMLAttributes<HTMLImageElement> & {
+  isAssetPublic?: boolean;
   url: string;
   svgRender: boolean;
 };
 
-const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
+const SvgViewer: React.FC<Props> = ({
+  isAssetPublic,
+  url,
+  svgRender,
+  alt = "image-preview",
+  ...props
+}) => {
   const t = useT();
+  const { getHeader } = useAuthHeader();
   const [svgText, setSvgText] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const headers = isAssetPublic ? {} : await getHeader();
         const res = await fetch(url, {
           method: "GET",
+          headers,
         });
         if (!res.ok) {
           throw new Error("Could not fetch svg data");
@@ -29,9 +40,17 @@ const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
       }
     };
     fetchData();
-  }, [t, url]);
+  }, [getHeader, isAssetPublic, t, url]);
 
-  return svgRender ? <Image src={url} alt="svg-preview" /> : <p>{svgText}</p>;
+  if (!svgRender) {
+    return <Image src={url} alt={alt} {...props} />;
+  }
+
+  if (!svgText) {
+    return <p>Loading...</p>;
+  }
+
+  return <p>{svgText}</p>;
 };
 
 const Image = styled.img`
