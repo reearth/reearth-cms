@@ -464,6 +464,7 @@ type ComplexityRoot struct {
 		RegenerateIntegrationToken         func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
 		RegeneratePublicAPIToken           func(childComplexity int, input gqlmodel.RegeneratePublicAPITokenInput) int
 		RemoveIntegrationFromWorkspace     func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
+		RemoveIntegrationsFromWorkspace    func(childComplexity int, input gqlmodel.RemoveIntegrationsFromWorkspaceInput) int
 		RemoveMultipleMembersFromWorkspace func(childComplexity int, input gqlmodel.RemoveMultipleMembersFromWorkspaceInput) int
 		RemoveMyAuth                       func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		UnpublishItem                      func(childComplexity int, input gqlmodel.UnpublishItemInput) int
@@ -587,6 +588,10 @@ type ComplexityRoot struct {
 	}
 
 	RemoveIntegrationFromWorkspacePayload struct {
+		Workspace func(childComplexity int) int
+	}
+
+	RemoveIntegrationsFromWorkspacePayload struct {
 		Workspace func(childComplexity int) int
 	}
 
@@ -1021,6 +1026,7 @@ type MutationResolver interface {
 	AddIntegrationToWorkspace(ctx context.Context, input gqlmodel.AddIntegrationToWorkspaceInput) (*gqlmodel.AddUsersToWorkspacePayload, error)
 	RemoveMultipleMembersFromWorkspace(ctx context.Context, input gqlmodel.RemoveMultipleMembersFromWorkspaceInput) (*gqlmodel.RemoveMultipleMembersFromWorkspacePayload, error)
 	RemoveIntegrationFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationFromWorkspaceInput) (*gqlmodel.RemoveIntegrationFromWorkspacePayload, error)
+	RemoveIntegrationsFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationsFromWorkspaceInput) (*gqlmodel.RemoveIntegrationsFromWorkspacePayload, error)
 	UpdateUserOfWorkspace(ctx context.Context, input gqlmodel.UpdateUserOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
 	UpdateIntegrationOfWorkspace(ctx context.Context, input gqlmodel.UpdateIntegrationOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
 	UpdateWorkspaceSettings(ctx context.Context, input gqlmodel.UpdateWorkspaceSettingsInput) (*gqlmodel.UpdateWorkspaceSettingsPayload, error)
@@ -1096,7 +1102,7 @@ func (e *executableSchema) Schema() *ast.Schema {
 	return parsedSchema
 }
 
-func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
+func (e *executableSchema) Complexity(ctx context.Context, typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
@@ -2443,7 +2449,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_addComment_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_addComment_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2455,7 +2461,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_addIntegrationToWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_addIntegrationToWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2467,7 +2473,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_addUsersToWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_addUsersToWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2479,7 +2485,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_approveRequest_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_approveRequest_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2491,7 +2497,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createAsset_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createAsset_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2503,7 +2509,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createAssetUpload_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createAssetUpload_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2515,7 +2521,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createField_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createField_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2527,7 +2533,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createFields_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createFields_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2539,7 +2545,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createGroup_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createGroup_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2551,7 +2557,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createIntegration_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createIntegration_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2563,7 +2569,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2575,7 +2581,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createModel_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createModel_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2587,7 +2593,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createProject_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createProject_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2599,7 +2605,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createRequest_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createRequest_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2611,7 +2617,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createThreadWithComment_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createThreadWithComment_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2623,7 +2629,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createView_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createView_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2635,7 +2641,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createWebhook_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createWebhook_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2647,7 +2653,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2659,7 +2665,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_decompressAsset_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_decompressAsset_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2671,7 +2677,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteAsset_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteAsset_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2683,7 +2689,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteAssets_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteAssets_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2695,7 +2701,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteComment_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteComment_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2707,7 +2713,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteField_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteField_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2719,7 +2725,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteGroup_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteGroup_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2731,7 +2737,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteIntegration_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteIntegration_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2743,7 +2749,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteIntegrations_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteIntegrations_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2755,7 +2761,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2767,7 +2773,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteMe_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteMe_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2779,7 +2785,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteModel_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteModel_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2791,7 +2797,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteProject_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteProject_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2803,7 +2809,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteRequest_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteRequest_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2815,7 +2821,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteView_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteView_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2827,7 +2833,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteWebhook_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteWebhook_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2839,7 +2845,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2851,7 +2857,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_publishItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_publishItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2863,7 +2869,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_publishModel_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_publishModel_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2875,7 +2881,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_publishModels_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_publishModels_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2887,7 +2893,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_regenerateIntegrationToken_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_regenerateIntegrationToken_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2899,7 +2905,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_regeneratePublicApiToken_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_regeneratePublicApiToken_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2911,19 +2917,31 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_removeIntegrationFromWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_removeIntegrationFromWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.RemoveIntegrationFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveIntegrationFromWorkspaceInput)), true
 
+	case "Mutation.removeIntegrationsFromWorkspace":
+		if e.complexity.Mutation.RemoveIntegrationsFromWorkspace == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeIntegrationsFromWorkspace_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveIntegrationsFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveIntegrationsFromWorkspaceInput)), true
+
 	case "Mutation.removeMultipleMembersFromWorkspace":
 		if e.complexity.Mutation.RemoveMultipleMembersFromWorkspace == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_removeMultipleMembersFromWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_removeMultipleMembersFromWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2935,7 +2953,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_removeMyAuth_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_removeMyAuth_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2947,7 +2965,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_unpublishItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_unpublishItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2959,7 +2977,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateAsset_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateAsset_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2971,7 +2989,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateComment_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateComment_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2983,7 +3001,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateField_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateField_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2995,7 +3013,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateFields_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateFields_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3007,7 +3025,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateGroup_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateGroup_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3019,7 +3037,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateGroupsOrder_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateGroupsOrder_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3031,7 +3049,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateIntegration_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateIntegration_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3043,7 +3061,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateIntegrationOfWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateIntegrationOfWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3055,7 +3073,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3067,7 +3085,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateMe_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateMe_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3079,7 +3097,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateModel_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateModel_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3091,7 +3109,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateModelsOrder_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateModelsOrder_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3103,7 +3121,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateProject_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateProject_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3115,7 +3133,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateRequest_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateRequest_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3127,7 +3145,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateUserOfWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateUserOfWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3139,7 +3157,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateView_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateView_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3151,7 +3169,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateViewsOrder_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateViewsOrder_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3163,7 +3181,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateWebhook_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateWebhook_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3175,7 +3193,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateWorkspace_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateWorkspace_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3187,7 +3205,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateWorkspaceSettings_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateWorkspaceSettings_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3451,7 +3469,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_assetFile_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_assetFile_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3463,7 +3481,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_assets_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_assets_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3475,7 +3493,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_checkGroupKeyAvailability_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_checkGroupKeyAvailability_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3487,7 +3505,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_checkModelKeyAvailability_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_checkModelKeyAvailability_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3499,7 +3517,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_checkProjectAlias_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_checkProjectAlias_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3511,7 +3529,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_groups_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_groups_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3523,7 +3541,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_isItemReferenced_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_isItemReferenced_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3542,7 +3560,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_models_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_models_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3554,7 +3572,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_modelsByGroup_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_modelsByGroup_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3566,7 +3584,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_node_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_node_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3578,7 +3596,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_nodes_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_nodes_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3590,7 +3608,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_projects_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_projects_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3602,7 +3620,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_requests_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_requests_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3614,7 +3632,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_searchItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_searchItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3626,7 +3644,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_userByNameOrEmail_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_userByNameOrEmail_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3638,7 +3656,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_userSearch_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_userSearch_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3650,7 +3668,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_versionsByItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_versionsByItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3662,7 +3680,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_view_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_view_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -3675,6 +3693,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RemoveIntegrationFromWorkspacePayload.Workspace(childComplexity), true
+
+	case "RemoveIntegrationsFromWorkspacePayload.workspace":
+		if e.complexity.RemoveIntegrationsFromWorkspacePayload.Workspace == nil {
+			break
+		}
+
+		return e.complexity.RemoveIntegrationsFromWorkspacePayload.Workspace(childComplexity), true
 
 	case "RemoveMultipleMembersFromWorkspacePayload.workspace":
 		if e.complexity.RemoveMultipleMembersFromWorkspacePayload.Workspace == nil {
@@ -4932,6 +4957,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRegenerateIntegrationTokenInput,
 		ec.unmarshalInputRegeneratePublicApiTokenInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
+		ec.unmarshalInputRemoveIntegrationsFromWorkspaceInput,
 		ec.unmarshalInputRemoveMultipleMembersFromWorkspaceInput,
 		ec.unmarshalInputRemoveMyAuthInput,
 		ec.unmarshalInputRequestItemInput,
@@ -6897,6 +6923,11 @@ input RemoveIntegrationFromWorkspaceInput {
     integrationId: ID!
 }
 
+input RemoveIntegrationsFromWorkspaceInput {
+    workspaceId: ID!
+    integrationIds: [ID!]!
+}
+
 input UpdateUserOfWorkspaceInput {
     workspaceId: ID!
     userId: ID!
@@ -6931,6 +6962,10 @@ type RemoveIntegrationFromWorkspacePayload {
     workspace: Workspace!
 }
 
+type RemoveIntegrationsFromWorkspacePayload {
+    workspace: Workspace!
+}
+
 type RemoveMultipleMembersFromWorkspacePayload {
     workspace: Workspace!
 }
@@ -6951,6 +6986,7 @@ extend type Mutation {
     addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddUsersToWorkspacePayload
     removeMultipleMembersFromWorkspace(input: RemoveMultipleMembersFromWorkspaceInput!): RemoveMultipleMembersFromWorkspacePayload
     removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveIntegrationFromWorkspacePayload
+    removeIntegrationsFromWorkspace(input: RemoveIntegrationsFromWorkspaceInput!): RemoveIntegrationsFromWorkspacePayload
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }
@@ -8191,6 +8227,34 @@ func (ec *executionContext) field_Mutation_removeIntegrationFromWorkspace_argsIn
 	}
 
 	var zeroVal gqlmodel.RemoveIntegrationFromWorkspaceInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_removeIntegrationsFromWorkspace_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_removeIntegrationsFromWorkspace_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_removeIntegrationsFromWorkspace_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.RemoveIntegrationsFromWorkspaceInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.RemoveIntegrationsFromWorkspaceInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRemoveIntegrationsFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationsFromWorkspaceInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.RemoveIntegrationsFromWorkspaceInput
 	return zeroVal, nil
 }
 
@@ -22839,6 +22903,62 @@ func (ec *executionContext) fieldContext_Mutation_removeIntegrationFromWorkspace
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_removeIntegrationsFromWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeIntegrationsFromWorkspace(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RemoveIntegrationsFromWorkspace(rctx, fc.Args["input"].(gqlmodel.RemoveIntegrationsFromWorkspaceInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.RemoveIntegrationsFromWorkspacePayload)
+	fc.Result = res
+	return ec.marshalORemoveIntegrationsFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationsFromWorkspacePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeIntegrationsFromWorkspace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workspace":
+				return ec.fieldContext_RemoveIntegrationsFromWorkspacePayload_workspace(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RemoveIntegrationsFromWorkspacePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeIntegrationsFromWorkspace_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_updateUserOfWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_updateUserOfWorkspace(ctx, field)
 	if err != nil {
@@ -26144,6 +26264,60 @@ func (ec *executionContext) _RemoveIntegrationFromWorkspacePayload_workspace(ctx
 func (ec *executionContext) fieldContext_RemoveIntegrationFromWorkspacePayload_workspace(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RemoveIntegrationFromWorkspacePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Workspace_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Workspace_name(ctx, field)
+			case "members":
+				return ec.fieldContext_Workspace_members(ctx, field)
+			case "personal":
+				return ec.fieldContext_Workspace_personal(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Workspace", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RemoveIntegrationsFromWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.RemoveIntegrationsFromWorkspacePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemoveIntegrationsFromWorkspacePayload_workspace(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Workspace, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Workspace)
+	fc.Result = res
+	return ec.marshalNWorkspace2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspace(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RemoveIntegrationsFromWorkspacePayload_workspace(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemoveIntegrationsFromWorkspacePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -38940,6 +39114,40 @@ func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ct
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRemoveIntegrationsFromWorkspaceInput(ctx context.Context, obj any) (gqlmodel.RemoveIntegrationsFromWorkspaceInput, error) {
+	var it gqlmodel.RemoveIntegrationsFromWorkspaceInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"workspaceId", "integrationIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "workspaceId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.WorkspaceID = data
+		case "integrationIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationIds"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IntegrationIds = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, obj any) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveMultipleMembersFromWorkspaceInput
 	asMap := map[string]any{}
@@ -45803,6 +46011,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_removeIntegrationFromWorkspace(ctx, field)
 			})
+		case "removeIntegrationsFromWorkspace":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeIntegrationsFromWorkspace(ctx, field)
+			})
 		case "updateUserOfWorkspace":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateUserOfWorkspace(ctx, field)
@@ -46942,6 +47154,45 @@ func (ec *executionContext) _RemoveIntegrationFromWorkspacePayload(ctx context.C
 			out.Values[i] = graphql.MarshalString("RemoveIntegrationFromWorkspacePayload")
 		case "workspace":
 			out.Values[i] = ec._RemoveIntegrationFromWorkspacePayload_workspace(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var removeIntegrationsFromWorkspacePayloadImplementors = []string{"RemoveIntegrationsFromWorkspacePayload"}
+
+func (ec *executionContext) _RemoveIntegrationsFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.RemoveIntegrationsFromWorkspacePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removeIntegrationsFromWorkspacePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RemoveIntegrationsFromWorkspacePayload")
+		case "workspace":
+			out.Values[i] = ec._RemoveIntegrationsFromWorkspacePayload_workspace(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -50169,6 +50420,7 @@ func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.S
 		}
 		return graphql.Null
 	}
+	_ = sel
 	res := graphql.MarshalAny(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -50389,6 +50641,7 @@ func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (
 }
 
 func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalBoolean(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -50633,6 +50886,7 @@ func (ec *executionContext) unmarshalNCursor2githubᚗcomᚋreearthᚋreearthx�
 }
 
 func (ec *executionContext) marshalNCursor2githubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx context.Context, sel ast.SelectionSet, v usecasex.Cursor) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -50648,6 +50902,7 @@ func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, 
 }
 
 func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -50768,6 +51023,7 @@ func (ec *executionContext) unmarshalNFileSize2int64(ctx context.Context, v any)
 }
 
 func (ec *executionContext) marshalNFileSize2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalInt64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -50783,6 +51039,7 @@ func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v any) 
 }
 
 func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalFloatContext(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -51029,6 +51286,7 @@ func (ec *executionContext) unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcms�
 }
 
 func (ec *executionContext) marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ID) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -51074,6 +51332,7 @@ func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, 
 }
 
 func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -51416,6 +51675,7 @@ func (ec *executionContext) unmarshalNLang2golangᚗorgᚋxᚋtextᚋlanguageᚐ
 }
 
 func (ec *executionContext) marshalNLang2golangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx context.Context, sel ast.SelectionSet, v language.Tag) graphql.Marshaler {
+	_ = sel
 	res := gqlmodel.MarshalLang(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -51975,6 +52235,11 @@ func (ec *executionContext) unmarshalNRemoveIntegrationFromWorkspaceInput2github
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNRemoveIntegrationsFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationsFromWorkspaceInput(ctx context.Context, v any) (gqlmodel.RemoveIntegrationsFromWorkspaceInput, error) {
+	res, err := ec.unmarshalInputRemoveIntegrationsFromWorkspaceInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRemoveMultipleMembersFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspaceInput(ctx context.Context, v any) (gqlmodel.RemoveMultipleMembersFromWorkspaceInput, error) {
 	res, err := ec.unmarshalInputRemoveMultipleMembersFromWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -52457,6 +52722,7 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) 
 }
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -52562,6 +52828,7 @@ func (ec *executionContext) unmarshalNURL2netᚋurlᚐURL(ctx context.Context, v
 }
 
 func (ec *executionContext) marshalNURL2netᚋurlᚐURL(ctx context.Context, sel ast.SelectionSet, v url.URL) graphql.Marshaler {
+	_ = sel
 	res := gqlmodel.MarshalURL(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -53098,6 +53365,7 @@ func (ec *executionContext) unmarshalN__DirectiveLocation2string(ctx context.Con
 }
 
 func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -53286,6 +53554,7 @@ func (ec *executionContext) unmarshalN__TypeKind2string(ctx context.Context, v a
 }
 
 func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -53322,6 +53591,8 @@ func (ec *executionContext) marshalOAny2interface(ctx context.Context, sel ast.S
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalAny(v)
 	return res
 }
@@ -53458,6 +53729,8 @@ func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v any) (
 }
 
 func (ec *executionContext) marshalOBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalBoolean(v)
 	return res
 }
@@ -53474,6 +53747,8 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalBoolean(*v)
 	return res
 }
@@ -53622,6 +53897,8 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthx�
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalString(string(*v))
 	return res
 }
@@ -53638,6 +53915,8 @@ func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context,
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalTime(*v)
 	return res
 }
@@ -53780,6 +54059,7 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
 	res := graphql.MarshalFloatContext(*v)
 	return graphql.WrapContextMarshaler(ctx, res)
 }
@@ -53854,6 +54134,8 @@ func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalString(string(*v))
 	return res
 }
@@ -53870,6 +54152,8 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalInt(*v)
 	return res
 }
@@ -53983,6 +54267,8 @@ func (ec *executionContext) marshalOLang2ᚖgolangᚗorgᚋxᚋtextᚋlanguage�
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := gqlmodel.MarshalLang(*v)
 	return res
 }
@@ -54180,6 +54466,13 @@ func (ec *executionContext) marshalORemoveIntegrationFromWorkspacePayload2ᚖgit
 		return graphql.Null
 	}
 	return ec._RemoveIntegrationFromWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORemoveIntegrationsFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationsFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveIntegrationsFromWorkspacePayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RemoveIntegrationsFromWorkspacePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORemoveMultipleMembersFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMultipleMembersFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveMultipleMembersFromWorkspacePayload) graphql.Marshaler {
@@ -54682,6 +54975,8 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalString(*v)
 	return res
 }
@@ -54785,6 +55080,8 @@ func (ec *executionContext) marshalOURL2ᚖnetᚋurlᚐURL(ctx context.Context, 
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := gqlmodel.MarshalURL(*v)
 	return res
 }
@@ -54851,6 +55148,8 @@ func (ec *executionContext) marshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalUpload(*v)
 	return res
 }
