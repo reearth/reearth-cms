@@ -22,7 +22,9 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 		},
 	}, true, baseSeeder)
 
-	clientConn, err := grpc.NewClient("localhost:52050", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
 	assert.NoError(t, err)
 
 	client := pb.NewReEarthCMSClient(clientConn)
