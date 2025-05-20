@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useAuthHeader } from "@reearth-cms/gql";
 import { useT } from "@reearth-cms/i18n";
@@ -28,7 +28,6 @@ const ImageViewer: React.FC<Props> = ({ alt = "image-preview", isAssetPublic, ur
         const response = await fetch(url, {
           method: "GET",
           headers: headers,
-          credentials: "include",
         });
 
         if (!response.ok) throw new Error("Failed to fetch protected image");
