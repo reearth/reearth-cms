@@ -112,6 +112,7 @@ const AssetMolecule: React.FC<Props> = ({
       case "model_3d":
         return (
           <GltfViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
             workspaceSettings={workspaceSettings}
             onGetViewer={onGetViewer}
@@ -120,6 +121,7 @@ const AssetMolecule: React.FC<Props> = ({
       case "csv":
         return (
           <CsvViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
             workspaceSettings={workspaceSettings}
             onGetViewer={onGetViewer}
