@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuthHeader } from "@reearth-cms/gql";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = React.ImgHTMLAttributes<HTMLImageElement> & {
+type Props = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src"> & {
   isAssetPublic?: boolean;
   url: string;
 };

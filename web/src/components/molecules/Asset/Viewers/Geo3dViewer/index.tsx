@@ -24,6 +24,8 @@ const Geo3dViewer: React.FC<Props> = ({
   setAssetUrl,
   onGetViewer,
 }) => {
+  const { getHeader } = useAuthHeader();
+
   useEffect(() => {
     const assetExtension = getExtension(url);
     if (compressedFileFormats.includes(assetExtension)) {
@@ -32,12 +34,10 @@ const Geo3dViewer: React.FC<Props> = ({
     }
   }, [setAssetUrl, url]);
 
-  const { getHeader } = useAuthHeader();
   const resource = useMemo(async () => {
-    const headers = await getHeader();
     return new Resource({
       url: url,
-      headers: isAssetPublic ? {} : headers,
+      headers: isAssetPublic ? {} : await getHeader(),
     });
   }, [getHeader, isAssetPublic, url]);
 

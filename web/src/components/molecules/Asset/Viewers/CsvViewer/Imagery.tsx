@@ -24,14 +24,11 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
 
   const dataFetch = useCallback(async () => {
     try {
-      const headers = await getHeader();
       const res = await fetch(url, {
         method: "GET",
-        headers: isAssetPublic ? {} : headers,
+        headers: isAssetPublic ? {} : await getHeader(),
       });
-      if (!res.ok) {
-        throw new Error("Error loading CSV data");
-      }
+      if (!res.ok) throw new Error("Error loading CSV data");
       return await res.text();
     } catch (err) {
       console.error(err);

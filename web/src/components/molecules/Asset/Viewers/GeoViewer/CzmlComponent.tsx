@@ -19,13 +19,7 @@ const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
     if (resource) return;
     const prepareResource = async () => {
       if (!url) return;
-
-      if (isAssetPublic) {
-        setResource(new Resource({ url }));
-      } else {
-        const headers = await getHeader();
-        setResource(new Resource({ url, headers }));
-      }
+      setResource(new Resource({ url, headers: isAssetPublic ? {} : await getHeader() }));
     };
     prepareResource();
   }, [url, isAssetPublic, getHeader, resource]);

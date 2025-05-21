@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuthHeader } from "@reearth-cms/gql";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = React.ImgHTMLAttributes<HTMLImageElement> & {
+type Props = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src"> & {
   isAssetPublic?: boolean;
   svgRender: boolean;
   url: string;
@@ -24,8 +24,6 @@ const SvgViewer: React.FC<Props> = ({
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    let revokeUrl: string | null = null;
-
     const fetchData = async () => {
       try {
         const headers = isAssetPublic ? {} : await getHeader();
@@ -33,15 +31,12 @@ const SvgViewer: React.FC<Props> = ({
           method: "GET",
           headers,
         });
-        if (!res.ok) {
-          throw new Error("Could not fetch svg data");
-        }
+        if (!res.ok) throw new Error("Could not fetch svg data");
         const text = await res.text();
         setSvgText(text);
         const blob = new Blob([text], { type: "image/svg+xml" });
         const objectUrl = URL.createObjectURL(blob);
         setBlobUrl(objectUrl);
-        revokeUrl = objectUrl;
       } catch (err) {
         setSvgText(t("Could not display svg"));
         setLoaded(true);
@@ -52,11 +47,13 @@ const SvgViewer: React.FC<Props> = ({
     if (!svgText && !blobUrl) {
       fetchData();
     }
-
-    return () => {
-      if (revokeUrl) URL.revokeObjectURL(revokeUrl);
-    };
   }, [blobUrl, getHeader, isAssetPublic, svgRender, svgText, t, url]);
+
+  useEffect(() => {
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, [blobUrl]);
 
   return (
     <MainContainer>
