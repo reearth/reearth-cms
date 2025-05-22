@@ -27,22 +27,52 @@ func TestSearchAsset(t *testing.T) {
 
 	// Upload assets with different properties
 	// Asset 1: JSON file
-	_, assetRes := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
+	_, jsonAssetRes := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
 
-	// Check if asset was created successfully
-	if assetRes != nil {
+	// Asset 2: GeoJSON file
+	_, geoJsonAssetRes := createAsset(e, pId, "test2.geojson", "application/geo+json", []byte(`{
+		"type": "FeatureCollection",
+		"features": [
+			{
+				"type": "Feature",
+				"geometry": {
+					"type": "Point",
+					"coordinates": [125.6, 10.1]
+				},
+				"properties": {
+					"name": "Test Point"
+				}
+			}
+		]
+	}`), false, "", "", "")
 
-		// Now search for the asset
+	// Check if assets were created successfully
+	if jsonAssetRes != nil && geoJsonAssetRes != nil {
+		// Search for all assets (no filter)
 		res := searchAsset(e, pId, nil, nil, nil, nil)
-
 		totalCount := res.Path("$.data.assets.totalCount").Raw()
-
 		assert.Equal(t, float64(0), totalCount) // currently assets are not indexed
 
+		// Search with content type filter for JSON
+		jsonContentTypes := []string{"application/json"}
+		jsonRes := searchAsset(e, pId, nil, jsonContentTypes, nil, nil)
+		jsonTotalCount := jsonRes.Path("$.data.assets.totalCount").Raw()
+		assert.Equal(t, float64(0), jsonTotalCount) // currently assets are not indexed
+
+		// Search with content type filter for GeoJSON
+		geoJsonContentTypes := []string{"application/geo+json"}
+		geoJsonRes := searchAsset(e, pId, nil, geoJsonContentTypes, nil, nil)
+		geoJsonTotalCount := geoJsonRes.Path("$.data.assets.totalCount").Raw()
+		assert.Equal(t, float64(0), geoJsonTotalCount) // currently assets are not indexed
+
+		// Search with content type filter for both JSON and GeoJSON
+		bothContentTypes := []string{"application/json", "application/geo+json"}
+		bothRes := searchAsset(e, pId, nil, bothContentTypes, nil, nil)
+		bothTotalCount := bothRes.Path("$.data.assets.totalCount").Raw()
+		assert.Equal(t, float64(0), bothTotalCount) // currently assets are not indexed
 	} else {
 		t.Log("Asset creation failed")
 	}
-
 }
 
 // Helper function to search assets
