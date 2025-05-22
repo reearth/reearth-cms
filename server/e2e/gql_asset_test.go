@@ -40,7 +40,7 @@ func TestSearchAsset(t *testing.T) {
 
 		totalCount := res.Path("$.data.assets.totalCount").Raw()
 
-		assert.Equal(t, 0, totalCount) // currently assets are not indexed
+		assert.Equal(t, float64(0), totalCount) // currently assets are not indexed
 
 	} else {
 		t.Log("Asset creation failed")
