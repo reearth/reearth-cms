@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strings"
 	"testing"
@@ -203,6 +202,10 @@ func createAsset(
 		inputMap["contentEncoding"] = contentEncoding
 	}
 
+	if contentType != "" {
+		inputMap["contentType"] = contentType
+	}
+
 	// Handle mutual exclusivity
 	uploadMethodCount := 0
 	if data != nil {
@@ -213,11 +216,6 @@ func createAsset(
 		inputMap["token"] = token
 		inputMap["url"] = url
 		uploadMethodCount++
-	}
-
-	if uploadMethodCount != 1 {
-		log.Print("❌ Must provide either file OR url/token, not both or neither.")
-		return "", nil
 	}
 
 	variables := map[string]any{
