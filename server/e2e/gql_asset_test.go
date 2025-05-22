@@ -206,16 +206,13 @@ func createAsset(
 		inputMap["contentType"] = contentType
 	}
 
-	// Handle mutual exclusivity
-	uploadMethodCount := 0
 	if data != nil {
 		inputMap["file"] = nil // Required placeholder for multipart injection
-		uploadMethodCount++
+
 	}
 	if token != "" || url != "" {
 		inputMap["token"] = token
 		inputMap["url"] = url
-		uploadMethodCount++
 	}
 
 	variables := map[string]any{
