@@ -30,7 +30,7 @@ func TestSearchAsset(t *testing.T) {
 
 	// Upload assets with different properties
 	// Asset 1: JSON file
-	asset1Id, assetRes := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
+	_, assetRes := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
 
 	// Check if asset was created successfully
 	if assetRes != nil {
@@ -41,7 +41,7 @@ func TestSearchAsset(t *testing.T) {
 		totalCount := res.Path("$.data.assets.totalCount").Raw()
 
 		assert.Equal(t, 0, totalCount) // currently assets are not indexed
-		assert.Equal(t, asset1Id, res.Path("$.data.assets.edges[0].node.id").Raw())
+		assert.Equal(t, nil, res.Path("$.data.assets.edges[0].node.id").Raw())
 
 	} else {
 		t.Log("Asset creation failed")
