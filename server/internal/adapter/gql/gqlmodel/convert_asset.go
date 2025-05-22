@@ -5,13 +5,9 @@ import (
 	"strings"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
-	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
-
-var ErrInvalidContentTypes = rerror.NewE(i18n.T("invalid content types"))
 
 func ToAsset(a *asset.Asset) *Asset {
 	if a == nil {
@@ -195,4 +191,25 @@ func detectContentTypeByFilename(filename string) *string {
 	}
 
 	return &contentType
+}
+
+func FromContentType(ct ContentTypesEnum) string {
+	switch ct {
+	case ContentTypesEnumJSON:
+		return "application/json"
+	case ContentTypesEnumGeojson:
+		return "application/geo+json"
+	case ContentTypesEnumCSV:
+		return "text/csv"
+	case ContentTypesEnumHTML:
+		return "text/html"
+	case ContentTypesEnumXML:
+		return "application/xml"
+	case ContentTypesEnumPDF:
+		return "application/pdf"
+	case ContentTypesEnumPlain:
+		return "text/plain"
+	default:
+		return ""
+	}
 }

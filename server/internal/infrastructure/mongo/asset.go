@@ -85,59 +85,25 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) (asset.List, 
 	return filterAssets(ids, res), nil
 }
 
-func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(id) {
+func (r *Asset) Search(ctx context.Context, pID id.ProjectID, filter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(pID) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
-	var filter interface{} = bson.M{
-		"project": id.String(),
-	}
-
-	if uFilter.Keyword != nil && *uFilter.Keyword != "" {
-		filter = mongox.And(filter, "", bson.M{
-			"filename": bson.M{
-				"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
-			},
-		})
-	}
-
-	return r.paginate(ctx, filter, uFilter.Sort, uFilter.Pagination)
-}
-
-func (r *Asset) Search(ctx context.Context, projectID id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(projectID) {
-		return nil, usecasex.EmptyPageInfo(), nil
-	}
-
-	var filters any = bson.M{
-		"project": projectID.String(),
+	filters := bson.M{
+		"project": pID.String(),
 	}
 
 	if filter.Keyword != nil && *filter.Keyword != "" {
-		filters = mongox.And(filters, "", bson.M{
-			"filename": bson.M{
-				"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*filter.Keyword)), Options: "i"},
-			},
-		})
+		filters["filename"] = bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*filter.Keyword)), Options: "i"},
+		}
 	}
 
-	// Multiple content types
 	if len(filter.ContentTypes) > 0 {
-		var typeFilters []bson.M
-		for _, ct := range filter.ContentTypes {
-			typeFilters = append(typeFilters, bson.M{
-				"file.contenttype": bson.M{
-					"$regex": primitive.Regex{
-						Pattern: fmt.Sprintf("^%s$", regexp.QuoteMeta(ct)),
-						Options: "i", // case-insensitive match
-					},
-				},
-			})
+		filters["file.contenttype"] = bson.M{
+			"$in": filter.ContentTypes,
 		}
-		filters = mongox.And(filters, "", bson.M{
-			"$or": typeFilters,
-		})
 	}
 
 	return r.paginate(ctx, filters, filter.Sort, filter.Pagination)

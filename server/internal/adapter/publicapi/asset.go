@@ -49,7 +49,7 @@ func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (L
 		return ListResult[Asset]{}, rerror.ErrNotFound
 	}
 
-	al, pi, err := c.usecases.Asset.FindByProject(ctx, prj.ID(), interfaces.AssetFilter{
+	al, pi, err := c.usecases.Asset.Search(ctx, prj.ID(), interfaces.AssetFilter{
 		Sort:       nil,
 		Keyword:    nil,
 		Pagination: p.Pagination,

@@ -63,36 +63,7 @@ func (r *Asset) FindByIDs(_ context.Context, ids id.AssetIDList) (asset.List, er
 	return res, nil
 }
 
-func (r *Asset) FindByProject(_ context.Context, id id.ProjectID, filter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(id) {
-		return nil, usecasex.EmptyPageInfo(), nil
-	}
-
-	if r.err != nil {
-		return nil, nil, r.err
-	}
-
-	result := asset.List(r.data.FindAll(func(_ asset.ID, v *asset.Asset) bool {
-		return v.Project() == id
-	})).SortByID()
-
-	var startCursor, endCursor *usecasex.Cursor
-	if len(result) > 0 {
-		startCursor = lo.ToPtr(usecasex.Cursor(result[0].ID().String()))
-		endCursor = lo.ToPtr(usecasex.Cursor(result[len(result)-1].ID().String()))
-	}
-
-	return result, usecasex.NewPageInfo(
-		int64(len(result)),
-		startCursor,
-		endCursor,
-		true,
-		true,
-	), nil
-
-}
-
-func (r *Asset) Search(ctx context.Context, id id.ProjectID, filter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (r *Asset) Search(_ context.Context, id id.ProjectID, filter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -157,14 +128,14 @@ func (r *Asset) Delete(_ context.Context, id id.AssetID) error {
 	return nil
 }
 
-func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
+func (r *Asset) BatchDelete(_ context.Context, ids id.AssetIDList) error {
 	if r.err != nil {
 		return r.err
 	}
 
-	for _, id := range ids {
-		if a, ok := r.data.Load(id); ok && r.f.CanWrite(a.Project()) {
-			r.data.Delete(id)
+	for _, aId := range ids {
+		if a, ok := r.data.Load(aId); ok && r.f.CanWrite(a.Project()) {
+			r.data.Delete(aId)
 		}
 	}
 	return nil

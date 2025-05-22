@@ -126,9 +126,9 @@ type AssetItem struct {
 }
 
 type AssetQueryInput struct {
-	Project      ID                  `json:"project"`
-	Q            *string             `json:"q,omitempty"`
-	ContentTypes []*ContentTypesEnum `json:"contentTypes,omitempty"`
+	Project      ID                 `json:"project"`
+	Keyword      *string            `json:"keyword,omitempty"`
+	ContentTypes []ContentTypesEnum `json:"contentTypes,omitempty"`
 }
 
 type AssetSort struct {
@@ -1839,16 +1839,26 @@ type ContentTypesEnum string
 const (
 	ContentTypesEnumJSON    ContentTypesEnum = "JSON"
 	ContentTypesEnumGeojson ContentTypesEnum = "GEOJSON"
+	ContentTypesEnumCSV     ContentTypesEnum = "CSV"
+	ContentTypesEnumHTML    ContentTypesEnum = "HTML"
+	ContentTypesEnumXML     ContentTypesEnum = "XML"
+	ContentTypesEnumPDF     ContentTypesEnum = "PDF"
+	ContentTypesEnumPlain   ContentTypesEnum = "PLAIN"
 )
 
 var AllContentTypesEnum = []ContentTypesEnum{
 	ContentTypesEnumJSON,
 	ContentTypesEnumGeojson,
+	ContentTypesEnumCSV,
+	ContentTypesEnumHTML,
+	ContentTypesEnumXML,
+	ContentTypesEnumPDF,
+	ContentTypesEnumPlain,
 }
 
 func (e ContentTypesEnum) IsValid() bool {
 	switch e {
-	case ContentTypesEnumJSON, ContentTypesEnumGeojson:
+	case ContentTypesEnumJSON, ContentTypesEnumGeojson, ContentTypesEnumCSV, ContentTypesEnumHTML, ContentTypesEnumXML, ContentTypesEnumPDF, ContentTypesEnumPlain:
 		return true
 	}
 	return false

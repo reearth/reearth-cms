@@ -56,6 +56,11 @@ enum ArchiveExtractionStatus {
 enum ContentTypesEnum {
   JSON
   GEOJSON
+  CSV
+  HTML
+  XML
+  PDF
+  PLAIN
 }
 
 input CreateAssetInput {
@@ -102,8 +107,8 @@ input DecompressAssetInput {
 
 input AssetQueryInput {
   project: ID!
-  q: String
-  contentTypes: [ContentTypesEnum]
+  keyword: String
+  contentTypes: [ContentTypesEnum!]
 }
 
 input SearchAssetsInput {
@@ -175,8 +180,7 @@ input AssetSort {
 
 extend type Query {
   assetFile(assetId: ID!): AssetFile!
-  assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
-  searchAsset(input: SearchAssetsInput!): AssetConnection!
+  assets(input: SearchAssetsInput!): AssetConnection!
 }
 
 extend type Mutation {

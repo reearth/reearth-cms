@@ -584,7 +584,7 @@ func TestAsset_FindByProject(t *testing.T) {
 			}
 			assetUC := NewAsset(db, &g)
 
-			got, _, err := assetUC.FindByProject(ctx, tc.args.pid, tc.args.f, tc.args.operator)
+			got, _, err := assetUC.Search(ctx, tc.args.pid, tc.args.f, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -598,6 +598,9 @@ func TestAsset_FindByProject(t *testing.T) {
 }
 
 func TestAsset_Search(t *testing.T) {
+	g := gateway.Container{
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+	}
 	pid := id.NewProjectID()
 	aid1 := id.NewAssetID()
 	uid1 := accountdomain.NewUserID()
@@ -753,7 +756,7 @@ func TestAsset_Search(t *testing.T) {
 				err := db.Asset.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
-			assetUC := NewAsset(db, nil)
+			assetUC := NewAsset(db, &g)
 
 			got, _, err := assetUC.Search(ctx, tc.args.pid, tc.args.f, tc.args.operator)
 			if tc.wantErr != nil {
@@ -761,6 +764,7 @@ func TestAsset_Search(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
+			got.SetAccessInfoResolver(nil)
 			assert.Equal(t, tc.want, got)
 		})
 	}
