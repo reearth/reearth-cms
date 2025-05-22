@@ -38,15 +38,11 @@ func TestSearchAsset(t *testing.T) {
 		// Now search for the asset
 		res := searchAsset(e, pId, nil, nil, nil, nil)
 
-		totalCount := res.Path("$.data.searchAsset.totalCount").Raw()
+		totalCount := res.Path("$.data.assets.totalCount").Raw()
 
-		// Only assert if we have results
-		if totalCount != nil && totalCount.(int) > 0 {
-			assert.Equal(t, 1, totalCount)
-			assert.Equal(t, asset1Id, res.Path("$.data.searchAsset.edges[0].node.id").Raw())
-		} else {
-			t.Log("No assets found in search results")
-		}
+		assert.Equal(t, 0, totalCount) // currently assets are not indexed
+		assert.Equal(t, asset1Id, res.Path("$.data.assets.edges[0].node.id").Raw())
+
 	} else {
 		t.Log("Asset creation failed")
 	}
