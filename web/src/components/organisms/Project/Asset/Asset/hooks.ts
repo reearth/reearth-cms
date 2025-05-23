@@ -265,8 +265,24 @@ export default (assetId?: string) => {
   useEffect(() => {
     if (!viewerType) return;
 
-    const delayedTypes = new Set<ViewerType>(["geo", "geo_3d_tiles", "geo_mvt", "model_3d", "csv"]);
-    const delay = delayedTypes.has(viewerType) ? 2000 : 0;
+    let delay = 0;
+    switch (viewerType) {
+      case "image":
+      case "image_svg":
+      case "unknown":
+        delay = 0;
+        break;
+      case "geo":
+        delay = 2500;
+        break;
+      case "geo_3d_tiles":
+      case "geo_mvt":
+      case "model_3d":
+      case "csv":
+        delay = 2000;
+        break;
+    }
+
     const timeout = setTimeout(() => {
       setIsDelayed(true);
     }, delay);
