@@ -1,4 +1,3 @@
-import { Viewer as CesiumViewer } from "cesium";
 import { useCallback, useState } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
@@ -10,10 +9,10 @@ type Props = {
   isAssetPublic?: boolean;
   url: string;
   workspaceSettings: WorkspaceSettings;
-  onGetViewer: (viewer?: CesiumViewer) => void;
+  viewerRef?: any;
 };
 
-const MvtViewer: React.FC<Props> = ({ isAssetPublic, url, workspaceSettings, onGetViewer }) => {
+const MvtViewer: React.FC<Props> = ({ viewerRef, isAssetPublic, url, workspaceSettings }) => {
   const [properties, setProperties] = useState<Property>();
 
   const handleProperties = useCallback((prop: Property) => {
@@ -33,10 +32,10 @@ const MvtViewer: React.FC<Props> = ({ isAssetPublic, url, workspaceSettings, onG
 
   return (
     <ResiumViewer
-      onGetViewer={onGetViewer}
+      viewerRef={viewerRef}
       properties={properties}
       workspaceSettings={workspaceSettings}>
-      <Imagery isAssetPublic={isAssetPublic} url={url} handleProperties={handleProperties} />
+      <Imagery viewerRef={viewerRef} isAssetPublic={isAssetPublic} url={url} handleProperties={handleProperties} />
     </ResiumViewer>
   );
 };

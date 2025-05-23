@@ -1,16 +1,16 @@
 import { CzmlDataSource, Resource } from "cesium";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
-import { CzmlDataSource as ResiumCzmlDataSource, useCesium } from "resium";
+import { CzmlDataSource as ResiumCzmlDataSource } from "resium";
 
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = ComponentProps<typeof ResiumCzmlDataSource> & {
+  viewerRef?: any;
   isAssetPublic?: boolean;
   url: string;
 };
 
-const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
-  const { viewer } = useCesium();
+const CzmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...props }) => {
   const { getHeader } = useAuthHeader();
   const [resource, setResource] = useState<Resource>();
 
@@ -31,13 +31,13 @@ const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
   const handleLoad = useCallback(
     async (ds: CzmlDataSource) => {
       try {
-        await viewer?.zoomTo(ds);
+        await viewerRef.current?.cesiumElement?.zoomTo(ds.entities);
         ds.show = true;
       } catch (error) {
         console.error(error);
       }
     },
-    [viewer],
+    [viewerRef],
   );
 
   return <ResiumCzmlDataSource data={resource} onLoad={handleLoad} {...props} />;

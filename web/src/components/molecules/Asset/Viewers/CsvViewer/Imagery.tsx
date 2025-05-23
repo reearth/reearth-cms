@@ -1,13 +1,12 @@
 import { Cartesian3 } from "cesium";
 import { useCallback, useEffect } from "react";
-import { useCesium } from "resium";
 
-import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 import mapPin from "./mapPin.svg";
 
 type Props = {
+  viewerRef?: any;
   isAssetPublic?: boolean;
   url: string;
 };
@@ -18,8 +17,7 @@ type GeoObj = {
   [x: string]: string | undefined;
 };
 
-export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
-  const { viewer } = useCesium();
+export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
   const { getHeader } = useAuthHeader();
 
   const dataFetch = useCallback(async () => {
@@ -53,11 +51,11 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
 
   const addPointsToViewer = useCallback(
     async (objects: GeoObj[]) => {
-      const resolvedViewer = await waitForViewer(viewer);
-      resolvedViewer.entities.removeAll();
+      const viewer = viewerRef?.current?.cesiumElement;
+      viewer.entities.removeAll();
       for (const obj of objects) {
         if (obj.lng && obj.lat) {
-          resolvedViewer.entities.add({
+          viewer.entities.add({
             position: Cartesian3.fromDegrees(Number(obj.lng), Number(obj.lat)),
             billboard: {
               image: mapPin,
@@ -69,9 +67,9 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
           });
         }
       }
-      resolvedViewer.zoomTo(resolvedViewer.entities);
+      viewer.zoomTo(viewer.entities);
     },
-    [viewer],
+    [viewerRef],
   );
 
   useEffect(() => {
@@ -80,13 +78,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
       if (text) await addPointsToViewer(parseCsv(text));
     };
     loadAndRenderData();
-
-    return () => {
-      if (viewer) {
-        viewer.entities.removeAll();
-      }
-    };
-  }, [dataFetch, parseCsv, addPointsToViewer, viewer]);
+  }, [dataFetch, parseCsv, addPointsToViewer, viewerRef]);
 
   return null;
 };

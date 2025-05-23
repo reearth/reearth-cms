@@ -1,19 +1,18 @@
 import { GeoJsonDataSource, Resource } from "cesium";
-import { ComponentProps, useEffect, useState } from "react";
-import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
+import { GeoJsonDataSource as ResiumGeoJsonDataSource } from "resium";
 
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource> & {
+  viewerRef?: any;
   isAssetPublic?: boolean;
   url: string;
 };
 
-const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
-  const { viewer } = useCesium();
+const GeoJsonComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...props }) => {
   const { getHeader } = useAuthHeader();
   const [resource, setResource] = useState<Resource>();
-  const [dataSource, setDataSource] = useState<GeoJsonDataSource>();
 
   useEffect(() => {
     if (resource || !url) return;
@@ -29,36 +28,19 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => 
     prepareResource();
   }, [url, isAssetPublic, getHeader, resource]);
 
-  useEffect(() => {
-    if (!dataSource || !resource) return;
-
-    const loadDataSource = async () => {
+  const handleLoad = useCallback(
+    async (ds: GeoJsonDataSource) => {
       try {
-        await dataSource.load(resource);
-        dataSource.show = true;
-        viewer?.zoomTo(dataSource.entities);
+        await viewerRef.current?.cesiumElement?.zoomTo(ds.entities);
+        ds.show = true;
       } catch (error) {
         console.error(error);
       }
-    };
-    loadDataSource();
-
-    return () => {
-      if (dataSource) {
-        dataSource.entities.removeAll();
-        viewer?.dataSources.remove(dataSource);
-      }
-    };
-  }, [dataSource, resource, viewer]);
-
-  return (
-    <ResiumGeoJsonDataSource
-      data={resource}
-      clampToGround
-      onLoad={ds => setDataSource(ds)}
-      {...props}
-    />
+    },
+    [viewerRef],
   );
+
+  return <ResiumGeoJsonDataSource data={resource} clampToGround onLoad={handleLoad} {...props} />;
 };
 
 export default GeoJsonComponent;

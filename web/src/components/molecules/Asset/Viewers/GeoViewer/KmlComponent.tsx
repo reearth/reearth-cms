@@ -1,16 +1,16 @@
 import { KmlDataSource, ConstantProperty, Resource } from "cesium";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
-import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
+import { KmlDataSource as ResiumKmlDataSource } from "resium";
 
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = ComponentProps<typeof ResiumKmlDataSource> & {
+  viewerRef?: any;
   isAssetPublic?: boolean;
   url: string;
 };
 
-const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
-  const { viewer } = useCesium();
+const KmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...props }) => {
   const { getHeader } = useAuthHeader();
   const [resource, setResource] = useState<Resource>();
 
@@ -41,13 +41,13 @@ const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
         }
       }
       try {
-        await viewer?.zoomTo(ds);
+        await viewerRef.current?.cesiumElement?.zoomTo(ds);
         ds.show = true;
       } catch (error) {
         console.error(error);
       }
     },
-    [viewer],
+    [viewerRef],
   );
 
   return <ResiumKmlDataSource data={resource} clampToGround onLoad={handleLoad} {...props} />;
