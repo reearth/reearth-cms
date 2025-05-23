@@ -164,68 +164,6 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 		JSON()
 }
 
-// Helper function to create an asset upload
-func createAssetUpload(
-	e *httpexpect.Expect,
-	projectId string,
-	fileName string,
-	contentLength int,
-	contentType string,
-	contentEncoding string,
-) (string, string, *httpexpect.Value) {
-	// GraphQL mutation to create an asset upload
-	query := `mutation CreateAssetUpload($input: CreateAssetUploadInput!) {
-		createAssetUpload(input: $input) {
-			token
-			url
-			contentType
-			contentLength
-			contentEncoding
-			next
-		}
-	}`
-
-	// Build input
-	inputMap := map[string]any{
-		"projectId": projectId,
-		"filename":  fileName,
-	}
-
-	if contentLength > 0 {
-		inputMap["contentLength"] = contentLength
-	}
-
-	if contentEncoding != "" {
-		inputMap["contentEncoding"] = contentEncoding
-	}
-
-	if contentType != "" {
-		inputMap["contentType"] = contentType
-	}
-
-	variables := map[string]any{
-		"input": inputMap,
-	}
-
-	// Execute the query
-	res := e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(GraphQLRequest{
-			Query:     query,
-			Variables: variables,
-		}).
-		Expect().
-		Status(200).
-		JSON()
-
-	token := res.Path("$.data.createAssetUpload.token").String().Raw()
-	url := res.Path("$.data.createAssetUpload.url").String().Raw()
-
-	return token, url, res
-}
-
 // Helper function to create an asset
 func createAsset(
 	e *httpexpect.Expect,
@@ -238,21 +176,6 @@ func createAsset(
 	token string,
 	url string,
 ) (string, *httpexpect.Value) {
-	// If we have data but no token/url, create an asset upload first
-	if data != nil && token == "" && url == "" {
-		// Create asset upload
-		token, uploadUrl, _ := createAssetUpload(e, projectId, fileName, len(data), contentType, contentEncoding)
-
-		if token != "" && uploadUrl != "" {
-			// Upload the file to the provided URL
-			e.PUT(uploadUrl).
-				WithHeader("Content-Type", contentType).
-				WithBytes(data).
-				Expect().
-				Status(200)
-		}
-	}
-
 	// GraphQL mutation to create an asset
 	query := `mutation CreateAsset($input: CreateAssetInput!) {
 		createAsset(input: $input) {
@@ -280,7 +203,7 @@ func createAsset(
 	}
 
 	// Handle upload method
-	if data != nil && token == "" {
+	if data != nil {
 		// Direct file upload (multipart)
 		inputMap["file"] = nil // Required placeholder for multipart injection
 	} else if token != "" {
@@ -302,7 +225,7 @@ func createAsset(
 
 	var res *httpexpect.Value
 
-	if data != nil && token == "" {
+	if data != nil {
 		// File upload (multipart)
 		operations, _ := json.Marshal(requestBody)
 		mapJSON := `{ "0": ["variables.input.file"] }`
