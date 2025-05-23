@@ -16,10 +16,15 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => 
   const [resource, setResource] = useState<Resource>();
 
   useEffect(() => {
-    if (resource) return;
+    if (resource || !url) return;
+
     const prepareResource = async () => {
-      if (!url) return;
-      setResource(new Resource({ url, headers: isAssetPublic ? {} : await getHeader() }));
+      try {
+        const headers = isAssetPublic ? {} : await getHeader();
+        setResource(new Resource({ url, headers }));
+      } catch (error) {
+        console.error(error);
+      }
     };
     prepareResource();
   }, [url, isAssetPublic, getHeader, resource]);
@@ -29,7 +34,6 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => 
       try {
         const resolvedViewer = await waitForViewer(viewer);
         await resolvedViewer.zoomTo(ds);
-        ds.show = true;
       } catch (error) {
         console.error(error);
       }
@@ -37,7 +41,19 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => 
     [viewer],
   );
 
-  return <ResiumGeoJsonDataSource data={resource} clampToGround onLoad={handleLoad} {...props} />;
+  const handleLoading = useCallback((GeoJsonDataSource: GeoJsonDataSource, isLoaded: boolean) => {
+    if (isLoaded) GeoJsonDataSource.show = true;
+  }, []);
+
+  return (
+    <ResiumGeoJsonDataSource
+      data={resource}
+      clampToGround
+      onLoad={handleLoad}
+      onLoading={handleLoading}
+      {...props}
+    />
+  );
 };
 
 export default GeoJsonComponent;
