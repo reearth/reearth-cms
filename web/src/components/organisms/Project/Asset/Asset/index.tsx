@@ -33,7 +33,7 @@ const Asset: React.FC = () => {
     handleFullScreen,
     handleBack,
     handleSave,
-    handleGetViewer,
+    viewerRef,
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
@@ -77,7 +77,7 @@ const Asset: React.FC = () => {
       onChangeToFullScreen={handleFullScreen}
       onBack={handleBack}
       onSave={handleSave}
-      onGetViewer={handleGetViewer}
+      viewerRef={viewerRef}
       workspaceSettings={workspaceSettings}
     />
   );

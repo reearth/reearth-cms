@@ -1,20 +1,19 @@
-import { Viewer as CesiumViewer } from "cesium";
-
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 import { Imagery } from "./Imagery";
 
 type Props = {
+  isAssetPublic?: boolean;
   url: string;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
+  viewerRef: any;
 };
 
-const CsvViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
+const CsvViewer: React.FC<Props> = ({ isAssetPublic, url, workspaceSettings, viewerRef }) => {
   return (
-    <ResiumViewer onGetViewer={onGetViewer} workspaceSettings={workspaceSettings}>
-      <Imagery url={url} />
+    <ResiumViewer viewerRef={viewerRef} workspaceSettings={workspaceSettings}>
+      <Imagery viewerRef={viewerRef} isAssetPublic={isAssetPublic} url={url} />
     </ResiumViewer>
   );
 };

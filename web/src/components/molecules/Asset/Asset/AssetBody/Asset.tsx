@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { Viewer as CesiumViewer } from "cesium";
 import { useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -47,7 +46,7 @@ type Props = {
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-  onGetViewer: (viewer?: CesiumViewer) => void;
+  viewerRef: any;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -66,7 +65,7 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
-  onGetViewer,
+  viewerRef,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -79,54 +78,59 @@ const AssetMolecule: React.FC<Props> = ({
       case "geo":
         return (
           <GeoViewer
-            url={assetUrl}
             assetFileExt={assetFileExt}
-            onGetViewer={onGetViewer}
+            isAssetPublic={asset.public}
+            url={assetUrl}
             workspaceSettings={workspaceSettings}
+            viewerRef={viewerRef}
           />
         );
       case "geo_3d_tiles":
         return (
           <Geo3dViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
             setAssetUrl={setAssetUrl}
             workspaceSettings={workspaceSettings}
-            onGetViewer={onGetViewer}
+            viewerRef={viewerRef}
           />
         );
       case "geo_mvt":
         return (
           <MvtViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
             workspaceSettings={workspaceSettings}
-            onGetViewer={onGetViewer}
+            viewerRef={viewerRef}
           />
         );
       case "image":
-        return <ImageViewer url={assetUrl} />;
+        return <ImageViewer isAssetPublic={asset.public} url={assetUrl} />;
       case "image_svg":
-        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
+        return <SvgViewer isAssetPublic={asset.public} svgRender={svgRender} url={assetUrl} />;
       case "model_3d":
         return (
           <GltfViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
-            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
+            viewerRef={viewerRef}
           />
         );
       case "csv":
         return (
           <CsvViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
-            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
+            viewerRef={viewerRef}
           />
         );
       case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
+  }, [asset.public, assetFileExt, assetUrl, viewerRef, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>

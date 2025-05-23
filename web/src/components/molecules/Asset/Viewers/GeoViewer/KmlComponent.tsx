@@ -1,13 +1,32 @@
-import { KmlDataSource, ConstantProperty } from "cesium";
-import { ComponentProps, useCallback } from "react";
-import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
+import { KmlDataSource, ConstantProperty, Resource } from "cesium";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
+import { KmlDataSource as ResiumKmlDataSource } from "resium";
 
-import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
+import { useAuthHeader } from "@reearth-cms/gql";
 
-type Props = ComponentProps<typeof ResiumKmlDataSource>;
+type Props = ComponentProps<typeof ResiumKmlDataSource> & {
+  viewerRef?: any;
+  isAssetPublic?: boolean;
+  url: string;
+};
 
-const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
-  const { viewer } = useCesium();
+const KmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...props }) => {
+  const { getHeader } = useAuthHeader();
+  const [resource, setResource] = useState<Resource>();
+
+  useEffect(() => {
+    if (resource || !url) return;
+
+    const prepareResource = async () => {
+      try {
+        const headers = isAssetPublic ? {} : await getHeader();
+        setResource(new Resource({ url, headers }));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    prepareResource();
+  }, [url, isAssetPublic, getHeader, resource]);
 
   const handleLoad = useCallback(
     async (ds: KmlDataSource) => {
@@ -22,17 +41,16 @@ const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
         }
       }
       try {
-        const resolvedViewer = await waitForViewer(viewer);
-        await resolvedViewer.zoomTo(ds);
+        await viewerRef.current?.cesiumElement?.zoomTo(ds);
         ds.show = true;
       } catch (error) {
         console.error(error);
       }
     },
-    [viewer],
+    [viewerRef],
   );
 
-  return <ResiumKmlDataSource data={data} onLoad={handleLoad} clampToGround {...props} />;
+  return <ResiumKmlDataSource data={resource} clampToGround onLoad={handleLoad} {...props} />;
 };
 
 export default KmlComponent;
