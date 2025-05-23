@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -26,10 +27,20 @@ func TestSearchAsset(t *testing.T) {
 
 	// Upload assets with different properties
 	// Asset 1: JSON file
-	_, jsonAssetRes := createAsset(e, pId, "test1.json", "application/json", []byte(`{"test": "data"}`), false, "", "", "")
+	jsonData := []byte(`{"test": "data"}`)
+	token, url := createAssetUpload(e, pId, "test1.json", len(jsonData))
+	if token != "" && url != "" {
+		// Upload the file to the provided URL
+		e.PUT(url).
+			WithHeader("Content-Type", "application/json").
+			WithBytes(jsonData).
+			Expect().
+			Status(200)
+	}
+	_, jsonAssetRes := createAsset(e, pId, "", "", nil, false, "", token, "")
 
 	// Asset 2: GeoJSON file
-	_, geoJsonAssetRes := createAsset(e, pId, "test2.geojson", "application/geo+json", []byte(`{
+	geoJsonData := []byte(`{
 		"type": "FeatureCollection",
 		"features": [
 			{
@@ -43,7 +54,17 @@ func TestSearchAsset(t *testing.T) {
 				}
 			}
 		]
-	}`), false, "", "", "")
+	}`)
+	token2, url2 := createAssetUpload(e, pId, "test2.geojson", len(geoJsonData))
+	if token2 != "" && url2 != "" {
+		// Upload the file to the provided URL
+		e.PUT(url2).
+			WithHeader("Content-Type", "application/geo+json").
+			WithBytes(geoJsonData).
+			Expect().
+			Status(200)
+	}
+	_, geoJsonAssetRes := createAsset(e, pId, "", "", nil, false, "", token2, "")
 
 	// Check if assets were created successfully
 	if jsonAssetRes != nil && geoJsonAssetRes != nil {
@@ -53,19 +74,19 @@ func TestSearchAsset(t *testing.T) {
 		assert.Equal(t, float64(0), totalCount) // currently assets are not indexed
 
 		// Search with content type filter for JSON
-		jsonContentTypes := []string{"application/json"}
+		jsonContentTypes := []string{"JSON"}
 		jsonRes := searchAsset(e, pId, nil, jsonContentTypes, nil, nil)
 		jsonTotalCount := jsonRes.Path("$.data.assets.totalCount").Raw()
 		assert.Equal(t, float64(0), jsonTotalCount) // currently assets are not indexed
 
 		// Search with content type filter for GeoJSON
-		geoJsonContentTypes := []string{"application/geo+json"}
+		geoJsonContentTypes := []string{"GEOJSON"}
 		geoJsonRes := searchAsset(e, pId, nil, geoJsonContentTypes, nil, nil)
 		geoJsonTotalCount := geoJsonRes.Path("$.data.assets.totalCount").Raw()
 		assert.Equal(t, float64(0), geoJsonTotalCount) // currently assets are not indexed
 
 		// Search with content type filter for both JSON and GeoJSON
-		bothContentTypes := []string{"application/json", "application/geo+json"}
+		bothContentTypes := []string{"JSON", "GEOJSON"}
 		bothRes := searchAsset(e, pId, nil, bothContentTypes, nil, nil)
 		bothTotalCount := bothRes.Path("$.data.assets.totalCount").Raw()
 		assert.Equal(t, float64(0), bothTotalCount) // currently assets are not indexed
@@ -164,6 +185,63 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 		JSON()
 }
 
+// Helper function to create an asset upload
+func createAssetUpload(e *httpexpect.Expect, projectId string, filename string, contentLength int) (string, string) {
+	// GraphQL mutation to create an asset upload
+	query := `mutation CreateAssetUpload($input: CreateAssetUploadInput!) {
+		createAssetUpload(input: $input) {
+			token
+			url
+			contentType
+			contentLength
+			contentEncoding
+			next
+		}
+	}`
+
+	// Build input
+	inputMap := map[string]interface{}{
+		"projectId": projectId,
+	}
+
+	if filename != "" {
+		inputMap["filename"] = filename
+	}
+
+	if contentLength > 0 {
+		inputMap["contentLength"] = contentLength
+	}
+
+	variables := map[string]interface{}{
+		"input": inputMap,
+	}
+
+	// Execute the query
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(GraphQLRequest{
+			Query:     query,
+			Variables: variables,
+		}).
+		Expect().
+		Status(200).
+		JSON()
+
+	// Check for errors
+	errors := res.Path("$.errors").Array()
+	if errors.Length().Raw() > 0 {
+		fmt.Printf("Error creating asset upload: %v\n", errors.Raw())
+		return "", ""
+	}
+
+	token := res.Path("$.data.createAssetUpload.token").String().Raw()
+	url := res.Path("$.data.createAssetUpload.url").String().Raw()
+
+	return token, url
+}
+
 // Helper function to create an asset
 func createAsset(
 	e *httpexpect.Expect,
@@ -190,7 +268,7 @@ func createAsset(
 	}`
 
 	// Build base input
-	inputMap := map[string]any{
+	inputMap := map[string]interface{}{
 		"projectId": projectId,
 	}
 
@@ -214,7 +292,7 @@ func createAsset(
 		}
 	}
 
-	variables := map[string]any{
+	variables := map[string]interface{}{
 		"input": inputMap,
 	}
 
@@ -254,6 +332,13 @@ func createAsset(
 		}
 
 		res = resp.JSON()
+	}
+
+	// Check for errors
+	errors := res.Path("$.errors").Array()
+	if errors.Length().Raw() > 0 {
+		fmt.Printf("Error creating asset: %v\n", errors.Raw())
+		return "", nil
 	}
 
 	return res.Path("$.data.createAsset.asset.id").String().Raw(), res
