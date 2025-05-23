@@ -2,7 +2,6 @@ import { KmlDataSource, ConstantProperty, Resource } from "cesium";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
 import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
 
-import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = ComponentProps<typeof ResiumKmlDataSource> & {
@@ -42,8 +41,8 @@ const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
         }
       }
       try {
-        const resolvedViewer = await waitForViewer(viewer);
-        await resolvedViewer.zoomTo(ds);
+        await viewer?.zoomTo(ds);
+        ds.show = true;
       } catch (error) {
         console.error(error);
       }
@@ -51,19 +50,7 @@ const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
     [viewer],
   );
 
-  const handleLoading = useCallback((kmlDataSouce: KmlDataSource, isLoaded: boolean) => {
-    if (isLoaded) kmlDataSouce.show = true;
-  }, []);
-
-  return (
-    <ResiumKmlDataSource
-      data={resource}
-      clampToGround
-      onLoad={handleLoad}
-      onLoading={handleLoading}
-      {...props}
-    />
-  );
+  return <ResiumKmlDataSource data={resource} clampToGround onLoad={handleLoad} {...props} />;
 };
 
 export default KmlComponent;
