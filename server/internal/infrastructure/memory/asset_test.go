@@ -251,7 +251,7 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 	}
 }
 
-func TestAssetRepo_FindByProject(t *testing.T) {
+func TestAssetRepo_Search(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := accountdomain.NewUserID()
 	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
@@ -385,7 +385,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByProject(ctx, tc.args.pid, repo.AssetFilter{})
+			got, _, err := r.Search(ctx, tc.args.pid, repo.AssetFilter{})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

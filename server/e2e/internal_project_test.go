@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// GET /assets/{assetId}
+// GRPC List Projects
 func TestInternalGetProjectsAPI(t *testing.T) {
 	StartServer(t, &app.Config{
 		InternalApi: app.InternalApiConfig{
@@ -40,9 +40,11 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 
 	assert.Equal(t, int32(1), l.TotalCount)
 	assert.Equal(t, 1, len(l.Projects))
-	assert.Equal(t, pid.String(), l.Projects[0].Id)
-	assert.Equal(t, "p1", l.Projects[0].Name)
-	assert.Equal(t, palias, l.Projects[0].Alias)
-	assert.Equal(t, wId0.String(), l.Projects[0].WorkspaceId)
-	assert.Equal(t, lo.ToPtr("p1 desc"), l.Projects[0].Description)
+
+	p1 := l.Projects[0]
+	assert.Equal(t, pid.String(), p1.Id)
+	assert.Equal(t, "p1", p1.Name)
+	assert.Equal(t, palias, p1.Alias)
+	assert.Equal(t, wId0.String(), p1.WorkspaceId)
+	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
 }

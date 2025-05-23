@@ -1,5 +1,6 @@
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import * as Apollo from "@apollo/client";
+import { gql } from "@apollo/client";
+
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -70,6 +71,7 @@ export type Asset = Node & {
   __typename?: 'Asset';
   archiveExtractionStatus?: Maybe<ArchiveExtractionStatus>;
   contentEncoding?: Maybe<Scalars['String']['output']>;
+  contentType?: Maybe<Scalars["String"]["output"]>;
   createdAt: Scalars['DateTime']['output'];
   createdBy: Operator;
   createdById: Scalars['ID']['output'];
@@ -116,6 +118,12 @@ export type AssetItem = {
   __typename?: 'AssetItem';
   itemId: Scalars['ID']['output'];
   modelId: Scalars['ID']['output'];
+};
+
+export type AssetQueryInput = {
+  contentTypes?: InputMaybe<Array<ContentTypesEnum>>;
+  keyword?: InputMaybe<Scalars["String"]["input"]>;
+  project: Scalars["ID"]["input"];
 };
 
 export type AssetSort = {
@@ -224,6 +232,16 @@ export type ConditionInput = {
   string?: InputMaybe<StringFieldConditionInput>;
   time?: InputMaybe<TimeFieldConditionInput>;
 };
+
+export enum ContentTypesEnum {
+  Csv = "CSV",
+  Geojson = "GEOJSON",
+  Html = "HTML",
+  Json = "JSON",
+  Pdf = "PDF",
+  Plain = "PLAIN",
+  Xml = "XML"
+}
 
 export type CorrespondingFieldInput = {
   description: Scalars['String']['input'];
@@ -837,6 +855,7 @@ export type Mutation = {
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
   regeneratePublicApiToken?: Maybe<ProjectPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveIntegrationFromWorkspacePayload>;
+  removeIntegrationsFromWorkspace?: Maybe<RemoveIntegrationsFromWorkspacePayload>;
   removeMultipleMembersFromWorkspace?: Maybe<RemoveMultipleMembersFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   unpublishItem?: Maybe<UnpublishItemPayload>;
@@ -1060,6 +1079,11 @@ export type MutationRegeneratePublicApiTokenArgs = {
 
 export type MutationRemoveIntegrationFromWorkspaceArgs = {
   input: RemoveIntegrationFromWorkspaceInput;
+};
+
+
+export type MutationRemoveIntegrationsFromWorkspaceArgs = {
+  input: RemoveIntegrationsFromWorkspaceInput;
 };
 
 
@@ -1395,10 +1419,7 @@ export type QueryAssetFileArgs = {
 
 
 export type QueryAssetsArgs = {
-  keyword?: InputMaybe<Scalars['String']['input']>;
-  pagination?: InputMaybe<Pagination>;
-  projectId: Scalars['ID']['input'];
-  sort?: InputMaybe<AssetSort>;
+  input: SearchAssetsInput;
 };
 
 
@@ -1510,6 +1531,16 @@ export type RemoveIntegrationFromWorkspaceInput = {
 
 export type RemoveIntegrationFromWorkspacePayload = {
   __typename?: 'RemoveIntegrationFromWorkspacePayload';
+  workspace: Workspace;
+};
+
+export type RemoveIntegrationsFromWorkspaceInput = {
+  integrationIds: Array<Scalars["ID"]["input"]>;
+  workspaceId: Scalars["ID"]["input"];
+};
+
+export type RemoveIntegrationsFromWorkspacePayload = {
+  __typename?: "RemoveIntegrationsFromWorkspacePayload";
   workspace: Workspace;
 };
 
@@ -1907,6 +1938,12 @@ export type SchemaFieldUrlInput = {
 export type SchemaMarkdownTextInput = {
   defaultValue?: InputMaybe<Scalars['Any']['input']>;
   maxLength?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type SearchAssetsInput = {
+  pagination?: InputMaybe<Pagination>;
+  query: AssetQueryInput;
+  sort?: InputMaybe<AssetSort>;
 };
 
 export type SearchItemInput = {
@@ -3378,10 +3415,7 @@ export const WorkspaceFragmentFragmentDoc = gql`
 export const GetAssetsDocument = gql`
     query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
   assets(
-    projectId: $projectId
-    keyword: $keyword
-    sort: $sort
-    pagination: $pagination
+    input: {query: {project: $projectId, keyword: $keyword, contentTypes: []}, sort: $sort, pagination: $pagination}
   ) {
     nodes {
       ...assetFragment
@@ -3435,10 +3469,7 @@ export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQ
 export const GetAssetsItemsDocument = gql`
     query GetAssetsItems($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
   assets(
-    projectId: $projectId
-    keyword: $keyword
-    sort: $sort
-    pagination: $pagination
+    input: {query: {project: $projectId, keyword: $keyword, contentTypes: []}, sort: $sort, pagination: $pagination}
   ) {
     nodes {
       ...assetFragment

@@ -198,8 +198,12 @@ func (r *queryResolver) AssetFile(ctx context.Context, assetID gqlmodel.ID) (*gq
 }
 
 // Assets is the resolver for the assets field.
-func (r *queryResolver) Assets(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
-	return loaders(ctx).Asset.FindByProject(ctx, projectID, keyword, sort, pagination)
+func (r *queryResolver) Assets(ctx context.Context, input gqlmodel.SearchAssetsInput) (*gqlmodel.AssetConnection, error) {
+	return loaders(ctx).Asset.Search(ctx, gqlmodel.AssetQueryInput{
+		Project:      input.Query.Project,
+		Keyword:      input.Query.Keyword,
+		ContentTypes: input.Query.ContentTypes,
+	}, input.Sort, input.Pagination)
 }
 
 // Asset returns AssetResolver implementation.

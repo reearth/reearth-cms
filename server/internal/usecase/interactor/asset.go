@@ -71,11 +71,12 @@ func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.O
 	return al, nil
 }
 
-func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
-	al, pi, err := i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
-		Sort:       filter.Sort,
-		Keyword:    filter.Keyword,
-		Pagination: filter.Pagination,
+func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+	al, pi, err := i.repos.Asset.Search(ctx, projectID, repo.AssetFilter{
+		Sort:         filter.Sort,
+		Keyword:      filter.Keyword,
+		Pagination:   filter.Pagination,
+		ContentTypes: filter.ContentTypes,
 	})
 	if err != nil {
 		return nil, nil, err
