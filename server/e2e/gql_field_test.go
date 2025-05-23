@@ -719,7 +719,8 @@ func TestGuessSchemaFields(t *testing.T) {
 				"properties": {
 					"name": "Point Example",
 					"category": "landmark",
-					"elevation": 100.5
+					"elevation": 100.5,
+					"length": 15.2
 				},
 				"geometry": {
 					"type": "Point",
@@ -730,8 +731,7 @@ func TestGuessSchemaFields(t *testing.T) {
 				"type": "Feature",
 				"properties": {
 					"name": "Line Example",
-					"category": "route",
-					"length": 15.2
+					"category": "route"
 				},
 				"geometry": {
 					"type": "LineString",
