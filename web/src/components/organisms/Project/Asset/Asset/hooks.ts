@@ -1,8 +1,9 @@
 import { NetworkStatus } from "@apollo/client";
-import { Ion } from "cesium";
+import { Ion, Viewer as CesiumViewer } from "cesium";
 import fileDownload from "js-file-download";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, RefObject } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
@@ -182,7 +183,7 @@ export default (assetId?: string) => {
     [assetFileExt],
   );
   const handleFullScreen = useCallback(
-    (viewerRef: any) => {
+    (viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>) => {
       if (viewerType === "unknown") {
         return;
       } else if (viewerType === "image" || viewerType === "image_svg") {

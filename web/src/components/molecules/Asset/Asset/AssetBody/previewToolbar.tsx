@@ -1,3 +1,7 @@
+import { Viewer as CesiumViewer } from "cesium";
+import { RefObject } from "react";
+import { CesiumComponentRef } from "resium";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
@@ -8,10 +12,10 @@ type Props = {
   url: string;
   isModalVisible: boolean;
   viewerType?: ViewerType;
-  viewerRef: any;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   onCodeSourceClick: () => void;
   onRenderClick: () => void;
-  onFullScreen: (viewerRef: any) => void;
+  onFullScreen: (viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>) => void;
   onModalCancel: () => void;
 };
 
