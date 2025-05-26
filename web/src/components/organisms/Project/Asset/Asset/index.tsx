@@ -14,7 +14,6 @@ const Asset: React.FC = () => {
     asset,
     assetFileExt,
     isLoading,
-    isDelayed,
     selectedPreviewType,
     isModalVisible,
     collapsed,
@@ -38,7 +37,7 @@ const Asset: React.FC = () => {
 
   const { workspaceSettings } = useSettingsHooks();
 
-  if (!isDelayed || isLoading) {
+  if (isLoading) {
     return <Loading spinnerSize="large" minHeight="100vh" />;
   }
 

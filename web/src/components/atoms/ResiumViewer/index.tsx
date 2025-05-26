@@ -6,6 +6,7 @@ import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import { useT } from "@reearth-cms/i18n";
 
 import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
@@ -27,6 +28,7 @@ const ResiumViewer: React.FC<Props> = ({
   onSelect,
   workspaceSettings,
 }) => {
+  const t = useT();
   const [properties, setProperties] = useState<Property>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
@@ -94,6 +96,7 @@ const ResiumViewer: React.FC<Props> = ({
     const maxRetries = 5;
     const retryDelay = 500;
     let timeout: NodeJS.Timeout;
+    let hasRemounted = false;
 
     const checkViewer = () => {
       const viewer = viewerRef.current?.cesiumElement;
@@ -107,16 +110,14 @@ const ResiumViewer: React.FC<Props> = ({
         console.warn("Cesium Viewer was not initialized after retries.");
       }
 
-      if (viewer?.isDestroyed?.()) {
-        setViewerKey(prev => prev + 1); // Force Viewer remount
+      if (viewer?.isDestroyed?.() && !hasRemounted) {
+        hasRemounted = true;
+        setViewerKey(prev => prev + 1);
       }
     };
-
     checkViewer();
 
-    return () => {
-      clearTimeout(timeout);
-    };
+    return () => clearTimeout(timeout);
   }, [viewerRef]);
 
   const imagery = useMemo(() => {
@@ -131,7 +132,7 @@ const ResiumViewer: React.FC<Props> = ({
 
   return (
     <Container>
-      {isLoading && <LoadingOverlay>Loading Viewer...</LoadingOverlay>}
+      {isLoading && <LoadingOverlay>{t("Loading")}</LoadingOverlay>}
       <StyledViewer
         key={viewerKey}
         navigationHelpButton={false}
@@ -183,6 +184,11 @@ const StyledViewer = styled(Viewer)<{ hidden?: boolean }>`
 `;
 
 const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
