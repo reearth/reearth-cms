@@ -54,7 +54,7 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url, handle
 
   const zoomTo = useCallback(
     async ([lng, lat, height]: [number, number, number], useDefaultRange?: boolean) => {
-      const viewer = viewerRef?.current?.cesiumElement;
+      const viewer = viewerRef.current?.cesiumElement;
       viewer?.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
@@ -109,7 +109,7 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url, handle
     let imageryLayer: ImageryLayer;
 
     const addLayer = async () => {
-      if (!viewerRef?.current?.cesiumElement) return;
+      if (!viewerRef.current?.cesiumElement) return;
       layers = viewerRef.current.cesiumElement.scene.imageryLayers;
       const imageryProvider = new CesiumMVTImageryProvider({
         urlTemplate,

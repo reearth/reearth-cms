@@ -31,7 +31,7 @@ const CzmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...prop
   const handleLoad = useCallback(
     async (ds: CzmlDataSource) => {
       try {
-        await viewerRef?.current?.cesiumElement?.zoomTo(ds.entities);
+        await viewerRef.current?.cesiumElement?.zoomTo(ds.entities);
         ds.show = true;
       } catch (error) {
         console.error(error);

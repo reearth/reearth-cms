@@ -21,7 +21,7 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
           url: url,
           headers: isAssetPublic ? {} : headers,
         });
-        const viewer = viewerRef?.current?.cesiumElement;
+        const viewer = viewerRef.current?.cesiumElement;
         if (!viewer) return;
         viewer.entities.removeAll();
         const entity = viewer?.entities.add({

@@ -41,7 +41,7 @@ const KmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...props
         }
       }
       try {
-        await viewerRef?.current?.cesiumElement?.zoomTo(ds);
+        await viewerRef.current?.cesiumElement?.zoomTo(ds);
         ds.show = true;
       } catch (error) {
         console.error(error);
