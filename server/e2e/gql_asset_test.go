@@ -270,12 +270,6 @@ func createAsset(
 		res = resp.JSON()
 	}
 
-	// Check for errors only if they exist
-	if res.Path("$.errors").Raw() != nil {
-		fmt.Printf("Error creating asset: %v\n", res.Path("$.errors").Raw())
-		return "", res
-	}
-
 	// Extract asset ID
 	assetId := res.Path("$.data.createAsset.asset.id").String().Raw()
 	return assetId, res
