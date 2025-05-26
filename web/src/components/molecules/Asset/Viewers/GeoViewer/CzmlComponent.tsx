@@ -2,6 +2,7 @@ import { CzmlDataSource, Resource } from "cesium";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
 import { CzmlDataSource as ResiumCzmlDataSource, useCesium } from "resium";
 
+import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = ComponentProps<typeof ResiumCzmlDataSource> & {
@@ -31,8 +32,8 @@ const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
   const handleLoad = useCallback(
     async (ds: CzmlDataSource) => {
       try {
-        await viewer?.zoomTo(ds);
-        ds.show = true;
+        const resolvedViewer = await waitForViewer(viewer);
+        await resolvedViewer.zoomTo(ds);
       } catch (error) {
         console.error(error);
       }
@@ -40,7 +41,18 @@ const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
     [viewer],
   );
 
-  return <ResiumCzmlDataSource data={resource} onLoad={handleLoad} {...props} />;
+  const handleLoading = useCallback((CzmlDataSource: CzmlDataSource, isLoaded: boolean) => {
+    if (isLoaded) CzmlDataSource.show = true;
+  }, []);
+
+  return (
+    <ResiumCzmlDataSource
+      data={resource}
+      onLoad={handleLoad}
+      onLoading={handleLoading}
+      {...props}
+    />
+  );
 };
 
 export default CzmlComponent;
