@@ -31,7 +31,6 @@ const ResiumViewer: React.FC<Props> = ({
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const mvtClickedFlag = useRef(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,7 +54,9 @@ const ResiumViewer: React.FC<Props> = ({
       let props: any = {};
       if (target instanceof Cesium3DTileFeature) {
         const propertyIds = target.getPropertyIds();
-        for (const propertyId of propertyIds) {
+        const length = propertyIds.length;
+        for (let i = 0; i < length; ++i) {
+          const propertyId = propertyIds[i];
           props[propertyId] = target.getProperty(propertyId);
         }
         onSelect?.(String(target.featureId));
@@ -86,17 +87,6 @@ const ResiumViewer: React.FC<Props> = ({
     }
   }, [passedProps, setSortedProperties]);
 
-  useEffect(() => {
-    const checkViewer = () => {
-      if (viewerRef.current?.cesiumElement) {
-        setIsLoading(false);
-      } else {
-        requestAnimationFrame(checkViewer);
-      }
-    };
-    checkViewer();
-  }, [viewerRef]);
-
   const imagery = useMemo(() => {
     return workspaceSettings.tiles ? imageryGet(workspaceSettings.tiles.resources) : [];
   }, [workspaceSettings.tiles]);
@@ -109,7 +99,6 @@ const ResiumViewer: React.FC<Props> = ({
 
   return (
     <Container>
-      {isLoading && <LoadingOverlay>Loading Viewer...</LoadingOverlay>}
       <StyledViewer
         navigationHelpButton={false}
         homeButton={false}
@@ -128,7 +117,6 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        style={{"visibility": isLoading ? "hidden" : "visible"}}
         ref={viewerRef}>
         {children}
       </StyledViewer>
@@ -156,20 +144,4 @@ const StyledViewer = styled(Viewer)`
   .cesium-baseLayerPicker-choices {
     text-align: left;
   }
-`;
-
-const LoadingOverlay = styled.div`
-  position: absolute;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.7);
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #555;
 `;

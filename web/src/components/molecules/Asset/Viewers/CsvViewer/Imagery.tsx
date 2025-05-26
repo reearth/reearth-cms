@@ -52,7 +52,7 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
 
   const addPointsToViewer = useCallback(
     async (objects: GeoObj[]) => {
-      const viewer = viewerRef.current?.cesiumElement;
+      const viewer = viewerRef?.current?.cesiumElement;
       viewer?.entities.removeAll();
       for (const obj of objects) {
         if (obj.lng && obj.lat) {
