@@ -263,11 +263,11 @@ export default (assetId?: string) => {
   useEffect(() => {
     if (!viewerType) return;
 
-    const delayedTypes = new Set<ViewerType>(["geo", "geo_3d_tiles", "geo_mvt", "model_3d", "csv"]);
-    const delay = delayedTypes.has(viewerType) ? 2000 : 0;
+    // const delayedTypes = new Set<ViewerType>(["geo", "geo_3d_tiles", "geo_mvt", "model_3d", "csv"]);
+    // const delay = delayedTypes.has(viewerType) ? 2000 : 0;
     const timeout = setTimeout(() => {
       setIsDelayed(true);
-    }, delay);
+    }, 0);
 
     return () => clearTimeout(timeout);
   }, [viewerType]);

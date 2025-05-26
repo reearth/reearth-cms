@@ -32,6 +32,7 @@ const ResiumViewer: React.FC<Props> = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [viewerKey, setViewerKey] = useState(0);
   const mvtClickedFlag = useRef(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,9 +90,33 @@ const ResiumViewer: React.FC<Props> = ({
   }, [passedProps, setSortedProperties]);
 
   useEffect(() => {
-    if (viewerRef.current?.cesiumElement) {
-      setIsLoading(false);
-    }
+    let retryCount = 0;
+    const maxRetries = 5;
+    const retryDelay = 500;
+    let timeout: NodeJS.Timeout;
+
+    const checkViewer = () => {
+      const viewer = viewerRef.current?.cesiumElement;
+
+      if (viewer && !viewer.isDestroyed?.()) {
+        setIsLoading(false);
+      } else if (retryCount < maxRetries) {
+        retryCount++;
+        timeout = setTimeout(checkViewer, retryDelay);
+      } else {
+        console.warn("Cesium Viewer was not initialized after retries.");
+      }
+
+      if (viewer?.isDestroyed?.()) {
+        setViewerKey(prev => prev + 1); // Force Viewer remount
+      }
+    };
+
+    checkViewer();
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [viewerRef]);
 
   const imagery = useMemo(() => {
@@ -108,6 +133,7 @@ const ResiumViewer: React.FC<Props> = ({
     <Container>
       {isLoading && <LoadingOverlay>Loading Viewer...</LoadingOverlay>}
       <StyledViewer
+        key={viewerKey}
         navigationHelpButton={false}
         homeButton={false}
         projectionPicker={false}
