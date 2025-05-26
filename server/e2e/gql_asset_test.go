@@ -28,16 +28,7 @@ func TestSearchAsset(t *testing.T) {
 	// Upload assets with different properties
 	// Asset 1: JSON file
 	jsonData := []byte(`{"test": "data"}`)
-	token, url := createAssetUpload(e, pId, "test1.json", len(jsonData))
-	if token != "" && url != "" {
-		// Upload the file to the provided URL
-		e.PUT(url).
-			WithHeader("Content-Type", "application/json").
-			WithBytes(jsonData).
-			Expect().
-			Status(200)
-	}
-	_, jsonAssetRes := createAsset(e, pId, "", "", nil, false, "", token, "")
+	jsonAssetId, jsonAssetRes := createAssetWithUpload(e, pId, "test1.json", "application/json", jsonData, false, "")
 
 	// Asset 2: GeoJSON file
 	geoJsonData := []byte(`{
@@ -55,19 +46,10 @@ func TestSearchAsset(t *testing.T) {
 			}
 		]
 	}`)
-	token2, url2 := createAssetUpload(e, pId, "test2.geojson", len(geoJsonData))
-	if token2 != "" && url2 != "" {
-		// Upload the file to the provided URL
-		e.PUT(url2).
-			WithHeader("Content-Type", "application/geo+json").
-			WithBytes(geoJsonData).
-			Expect().
-			Status(200)
-	}
-	_, geoJsonAssetRes := createAsset(e, pId, "", "", nil, false, "", token2, "")
+	geoJsonAssetId, geoJsonAssetRes := createAssetWithUpload(e, pId, "test2.geojson", "application/geo+json", geoJsonData, false, "")
 
 	// Check if assets were created successfully
-	if jsonAssetRes != nil && geoJsonAssetRes != nil {
+	if jsonAssetId != "" && geoJsonAssetId != "" {
 		// Search for all assets (no filter)
 		res := searchAsset(e, pId, nil, nil, nil, nil)
 		totalCount := res.Path("$.data.assets.totalCount").Raw()
@@ -92,6 +74,12 @@ func TestSearchAsset(t *testing.T) {
 		assert.Equal(t, float64(0), bothTotalCount) // currently assets are not indexed
 	} else {
 		t.Log("Asset creation failed")
+		if jsonAssetRes != nil {
+			t.Logf("JSON asset response: %v", jsonAssetRes.Raw())
+		}
+		if geoJsonAssetRes != nil {
+			t.Logf("GeoJSON asset response: %v", geoJsonAssetRes.Raw())
+		}
 	}
 }
 
@@ -242,6 +230,38 @@ func createAssetUpload(e *httpexpect.Expect, projectId string, filename string, 
 	return token, url
 }
 
+// Helper function to create an asset with upload
+func createAssetWithUpload(
+	e *httpexpect.Expect,
+	projectId string,
+	fileName string,
+	contentType string,
+	data []byte,
+	skipDecompression bool,
+	contentEncoding string,
+) (string, *httpexpect.Value) {
+	// First, create an asset upload
+	token, url := createAssetUpload(e, projectId, fileName, len(data))
+	if token == "" || url == "" {
+		fmt.Printf("Failed to get upload URL for %s\n", fileName)
+		return "", nil
+	}
+
+	// Upload the file to the provided URL
+	uploadResp := e.PUT(url).
+		WithHeader("Content-Type", contentType).
+		WithBytes(data).
+		Expect()
+
+	if uploadResp.Raw().StatusCode != http.StatusOK {
+		fmt.Printf("Failed to upload file to URL: %s, status: %d\n", url, uploadResp.Raw().StatusCode)
+		return "", nil
+	}
+
+	// Now create the asset using the token
+	return createAsset(e, projectId, fileName, contentType, nil, skipDecompression, contentEncoding, token, "")
+}
+
 // Helper function to create an asset
 func createAsset(
 	e *httpexpect.Expect,
@@ -290,6 +310,9 @@ func createAsset(
 		if url != "" {
 			inputMap["url"] = url
 		}
+	} else {
+		fmt.Println("Error: Neither file data nor token provided")
+		return "", nil
 	}
 
 	variables := map[string]interface{}{
@@ -328,7 +351,8 @@ func createAsset(
 			Expect()
 
 		if resp.Raw().StatusCode != http.StatusOK {
-			return "", nil
+			fmt.Printf("Error: GraphQL request failed with status %d\n", resp.Raw().StatusCode)
+			return "", resp.JSON()
 		}
 
 		res = resp.JSON()
@@ -338,8 +362,13 @@ func createAsset(
 	errors := res.Path("$.errors").Array()
 	if errors.Length().Raw() > 0 {
 		fmt.Printf("Error creating asset: %v\n", errors.Raw())
-		return "", nil
+		return "", res
 	}
 
-	return res.Path("$.data.createAsset.asset.id").String().Raw(), res
+	assetId := res.Path("$.data.createAsset.asset.id").String().Raw()
+	if assetId == "" {
+		fmt.Println("Error: No asset ID returned")
+	}
+
+	return assetId, res
 }
