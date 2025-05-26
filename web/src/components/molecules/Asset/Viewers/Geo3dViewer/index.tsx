@@ -1,5 +1,5 @@
-import { Resource , Viewer as CesiumViewer } from "cesium";
-import { useEffect, useMemo ,  RefObject } from "react";
+import { Resource, Viewer as CesiumViewer } from "cesium";
+import { useEffect, useMemo, RefObject } from "react";
 import { CesiumComponentRef } from "resium";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
@@ -44,7 +44,7 @@ const Geo3dViewer: React.FC<Props> = ({
 
   return (
     <ResiumViewer viewerRef={viewerRef} workspaceSettings={workspaceSettings}>
-      <Cesium3dTileSetComponent viewerRef={viewerRef} url={resource} />
+      <Cesium3dTileSetComponent url={resource} />
     </ResiumViewer>
   );
 };

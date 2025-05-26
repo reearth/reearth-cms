@@ -1,17 +1,17 @@
-import { KmlDataSource, ConstantProperty, Resource, Viewer as CesiumViewer } from "cesium";
-import { ComponentProps, useCallback, useEffect, useState, RefObject } from "react";
-import { KmlDataSource as ResiumKmlDataSource, CesiumComponentRef } from "resium";
+import { KmlDataSource, ConstantProperty, Resource } from "cesium";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
+import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
 
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = ComponentProps<typeof ResiumKmlDataSource> & {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   isAssetPublic?: boolean;
   url: string;
 };
 
-const KmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...props }) => {
+const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
+  const { viewer } = useCesium();
   const { getHeader } = useAuthHeader();
   const [resource, setResource] = useState<Resource>();
 
@@ -42,14 +42,14 @@ const KmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...props
         }
       }
       try {
-        const resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
+        const resolvedViewer = await waitForViewer(viewer);
         await resolvedViewer.zoomTo(ds.entities);
         ds.show = true;
       } catch (error) {
         console.error(error);
       }
     },
-    [viewerRef],
+    [viewer],
   );
 
   return (

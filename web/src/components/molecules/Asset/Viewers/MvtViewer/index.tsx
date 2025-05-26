@@ -37,12 +37,7 @@ const MvtViewer: React.FC<Props> = ({ isAssetPublic, viewerRef, url, workspaceSe
       properties={properties}
       viewerRef={viewerRef}
       workspaceSettings={workspaceSettings}>
-      <Imagery
-        isAssetPublic={isAssetPublic}
-        url={url}
-        viewerRef={viewerRef}
-        handleProperties={handleProperties}
-      />
+      <Imagery isAssetPublic={isAssetPublic} url={url} handleProperties={handleProperties} />
     </ResiumViewer>
   );
 };

@@ -1,5 +1,5 @@
 import { Viewer as CesiumViewer } from "cesium";
-import { useMemo , RefObject } from "react";
+import { useMemo, RefObject } from "react";
 import { CesiumComponentRef } from "resium";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
@@ -30,14 +30,14 @@ const GeoViewer: React.FC<Props> = ({
   const geoComponent = useMemo(() => {
     switch (ext?.toLowerCase()) {
       case "czml":
-        return <CzmlComponent viewerRef={viewerRef} url={url} isAssetPublic={isAssetPublic} />;
+        return <CzmlComponent url={url} isAssetPublic={isAssetPublic} />;
       case "kml":
-        return <KmlComponent viewerRef={viewerRef} url={url} isAssetPublic={isAssetPublic} />;
+        return <KmlComponent url={url} isAssetPublic={isAssetPublic} />;
       case "geojson":
       default:
-        return <GeoJsonComponent viewerRef={viewerRef} url={url} isAssetPublic={isAssetPublic} />;
+        return <GeoJsonComponent url={url} isAssetPublic={isAssetPublic} />;
     }
-  }, [ext, viewerRef, url, isAssetPublic]);
+  }, [ext, url, isAssetPublic]);
 
   return (
     <ResiumViewer

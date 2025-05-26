@@ -17,7 +17,7 @@ type Props = {
 const GltfViewer: React.FC<Props> = ({ isAssetPublic, url, viewerRef, workspaceSettings }) => {
   return (
     <ResiumViewer viewerRef={viewerRef} workspaceSettings={workspaceSettings}>
-      <Imagery viewerRef={viewerRef} isAssetPublic={isAssetPublic} url={url} />
+      <Imagery isAssetPublic={isAssetPublic} url={url} />
     </ResiumViewer>
   );
 };

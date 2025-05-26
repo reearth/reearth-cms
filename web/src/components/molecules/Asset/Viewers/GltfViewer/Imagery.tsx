@@ -1,6 +1,6 @@
-import { Cartesian3, Resource, Viewer as CesiumViewer } from "cesium";
-import { useEffect, RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import { Cartesian3, Resource } from "cesium";
+import { useEffect } from "react";
+import { useCesium } from "resium";
 
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
@@ -8,14 +8,13 @@ import { useAuthHeader } from "@reearth-cms/gql";
 type Props = {
   isAssetPublic?: boolean;
   url: string;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
 };
 
-export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef }) => {
+export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
+  const { viewer } = useCesium();
   const { getHeader } = useAuthHeader();
 
   useEffect(() => {
-    let resolvedViewer: CesiumViewer | undefined;
     const loadModel = async () => {
       try {
         const headers = await getHeader();
@@ -23,7 +22,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef }) => {
           url: url,
           headers: isAssetPublic ? {} : headers,
         });
-        resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
+        const resolvedViewer = await waitForViewer(viewer);
         resolvedViewer.entities.removeAll();
         const entity = resolvedViewer.entities.add({
           position: Cartesian3.fromDegrees(
@@ -45,14 +44,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef }) => {
       }
     };
     loadModel();
-
-    return () => {
-      if (resolvedViewer) {
-        resolvedViewer.entities.removeAll();
-        resolvedViewer.trackedEntity = undefined;
-      }
-    };
-  }, [getHeader, isAssetPublic, url, viewerRef]);
+  }, [getHeader, isAssetPublic, url, viewer]);
 
   return null;
 };

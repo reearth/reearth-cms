@@ -1,17 +1,17 @@
-import { CzmlDataSource, Resource, Viewer as CesiumViewer } from "cesium";
-import { ComponentProps, useCallback, useEffect, useState, RefObject } from "react";
-import { CzmlDataSource as ResiumCzmlDataSource, CesiumComponentRef } from "resium";
+import { CzmlDataSource, Resource } from "cesium";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
+import { CzmlDataSource as ResiumCzmlDataSource, useCesium } from "resium";
 
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = ComponentProps<typeof ResiumCzmlDataSource> & {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   isAssetPublic?: boolean;
   url: string;
 };
 
-const CzmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...props }) => {
+const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
+  const { viewer } = useCesium();
   const { getHeader } = useAuthHeader();
   const [resource, setResource] = useState<Resource>();
 
@@ -32,14 +32,14 @@ const CzmlComponent: React.FC<Props> = ({ viewerRef, isAssetPublic, url, ...prop
   const handleLoad = useCallback(
     async (ds: CzmlDataSource) => {
       try {
-        const resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
+        const resolvedViewer = await waitForViewer(viewer);
         await resolvedViewer.zoomTo(ds.entities);
         ds.show = true;
       } catch (error) {
         console.error(error);
       }
     },
-    [viewerRef],
+    [viewer],
   );
 
   return (

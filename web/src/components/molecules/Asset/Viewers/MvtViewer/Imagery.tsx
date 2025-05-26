@@ -7,12 +7,11 @@ import {
   HeadingPitchRange,
   ImageryLayerCollection,
   ImageryLayer,
-  Viewer as CesiumViewer,
 } from "cesium";
 import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
-import { useCallback, useEffect, useMemo, useState, RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCesium } from "resium";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
@@ -25,7 +24,6 @@ const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 type Props = {
   isAssetPublic?: boolean;
   url: string;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   handleProperties: (prop: Property) => void;
 };
 
@@ -45,7 +43,8 @@ type Metadata = {
   maximumLevel?: number;
 };
 
-export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef, handleProperties }) => {
+export const Imagery: React.FC<Props> = ({ isAssetPublic, url, handleProperties }) => {
+  const { viewer } = useCesium();
   const { getHeader } = useAuthHeader();
   const [selectedFeature, setSelectedFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
@@ -55,7 +54,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef, handle
 
   const zoomTo = useCallback(
     async ([lng, lat, height]: [number, number, number], useDefaultRange?: boolean) => {
-      const resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
+      const resolvedViewer = await waitForViewer(viewer);
       resolvedViewer.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
@@ -64,7 +63,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef, handle
         },
       );
     },
-    [viewerRef],
+    [viewer],
   );
 
   const style = useCallback(
@@ -110,7 +109,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef, handle
     let imageryLayer: ImageryLayer;
 
     const addLayer = async () => {
-      const resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
+      const resolvedViewer = await waitForViewer(viewer);
       layers = resolvedViewer.scene.imageryLayers;
       const imageryProvider = new CesiumMVTImageryProvider({
         urlTemplate,
@@ -138,7 +137,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef, handle
     onSelectFeature,
     style,
     urlTemplate,
-    viewerRef,
+    viewer,
   ]);
 
   const handleChange = useCallback((value: unknown) => {

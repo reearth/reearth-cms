@@ -1,6 +1,6 @@
-import { GeoJsonDataSource, Resource, Viewer as CesiumViewer } from "cesium";
-import { ComponentProps, useCallback, useEffect, useState, RefObject } from "react";
-import { GeoJsonDataSource as ResiumGeoJsonDataSource, CesiumComponentRef } from "resium";
+import { GeoJsonDataSource, Resource } from "cesium";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
+import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium";
 
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
@@ -8,10 +8,10 @@ import { useAuthHeader } from "@reearth-cms/gql";
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource> & {
   isAssetPublic?: boolean;
   url: string;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
 };
 
-const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, viewerRef, ...props }) => {
+const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
+  const { viewer } = useCesium();
   const { getHeader } = useAuthHeader();
   const [resource, setResource] = useState<Resource>();
 
@@ -32,14 +32,14 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, viewerRef, ...p
   const handleLoad = useCallback(
     async (ds: GeoJsonDataSource) => {
       try {
-        const resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
+        const resolvedViewer = await waitForViewer(viewer);
         await resolvedViewer.zoomTo(ds.entities);
         ds.show = true;
       } catch (error) {
         console.error(error);
       }
     },
-    [viewerRef],
+    [viewer],
   );
 
   return (
