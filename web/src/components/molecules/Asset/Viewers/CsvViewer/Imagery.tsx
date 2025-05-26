@@ -28,7 +28,9 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
         method: "GET",
         headers: isAssetPublic ? {} : await getHeader(),
       });
-      if (!res.ok) throw new Error("Error loading CSV data");
+      if (!res.ok) {
+        throw new Error("Error loading CSV data");
+      }
       return await res.text();
     } catch (err) {
       console.error(err);

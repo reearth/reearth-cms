@@ -16,10 +16,11 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => 
   const [resource, setResource] = useState<Resource>();
 
   useEffect(() => {
-    if (resource) return;
+    if (resource || isAssetPublic) return;
+
     const prepareResource = async () => {
-      if (!url) return;
-      setResource(new Resource({ url, headers: isAssetPublic ? {} : await getHeader() }));
+      const headers = await getHeader();
+      setResource(new Resource({ url, headers }));
     };
     prepareResource();
   }, [url, isAssetPublic, getHeader, resource]);
@@ -37,7 +38,14 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => 
     [viewer],
   );
 
-  return <ResiumGeoJsonDataSource data={resource} clampToGround onLoad={handleLoad} {...props} />;
+  return (
+    <ResiumGeoJsonDataSource
+      data={isAssetPublic ? url : resource}
+      clampToGround
+      onLoad={handleLoad}
+      {...props}
+    />
+  );
 };
 
 export default GeoJsonComponent;
