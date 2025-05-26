@@ -88,8 +88,7 @@ const ResiumViewer: React.FC<Props> = ({
 
   useEffect(() => {
     const checkViewer = () => {
-      const viewer = viewerRef.current?.cesiumElement;
-      if (viewer && !viewer.isDestroyed()) {
+      if (viewerRef.current?.cesiumElement) {
         setIsLoading(false);
       } else {
         requestAnimationFrame(checkViewer);
@@ -129,7 +128,7 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        style={{ visibility: isLoading ? "hidden" : "visible" }}
+        style={{"visibility": isLoading ? "hidden" : "visible"}}
         ref={viewerRef}>
         {children}
       </StyledViewer>
