@@ -26,10 +26,9 @@ type Props = {
   onAssetDownload: (asset: Asset) => Promise<void>;
   onTypeChange: (value: PreviewType) => void;
   onModalCancel: () => void;
-  onChangeToFullScreen: () => void;
+  onChangeToFullScreen: (viewerRef: any) => void;
   onBack: () => void;
   onSave: () => void;
-  viewerRef: any;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -53,7 +52,6 @@ const AssetWrapper: React.FC<Props> = ({
   onChangeToFullScreen,
   onBack,
   onSave,
-  viewerRef,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -86,7 +84,6 @@ const AssetWrapper: React.FC<Props> = ({
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}
             onChangeToFullScreen={onChangeToFullScreen}
-            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         </Wrapper>
