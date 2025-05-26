@@ -1,19 +1,27 @@
-import { Cartesian3 } from "cesium";
+import { Cartesian3, Resource } from "cesium";
 import { useEffect } from "react";
 import { useCesium } from "resium";
 
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
+import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = {
+  isAssetPublic?: boolean;
   url: string;
 };
 
-export const Imagery: React.FC<Props> = ({ url }) => {
+export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
   const { viewer } = useCesium();
+  const { getHeader } = useAuthHeader();
 
   useEffect(() => {
     const loadModel = async () => {
       try {
+        const headers = await getHeader();
+        const resource = new Resource({
+          url: url,
+          headers: isAssetPublic ? {} : headers,
+        });
         const resolvedViewer = await waitForViewer(viewer);
         resolvedViewer.entities.removeAll();
         const entity = resolvedViewer.entities.add({
@@ -23,7 +31,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
             0,
           ),
           model: {
-            uri: url,
+            uri: resource,
             minimumPixelSize: 128,
             maximumScale: 20000,
             show: true,
@@ -43,7 +51,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
         viewer.trackedEntity = undefined;
       }
     };
-  }, [url, viewer]);
+  }, [getHeader, isAssetPublic, url, viewer]);
 
   return null;
 };

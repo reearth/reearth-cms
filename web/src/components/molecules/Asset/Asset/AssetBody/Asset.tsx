@@ -79,15 +79,17 @@ const AssetMolecule: React.FC<Props> = ({
       case "geo":
         return (
           <GeoViewer
-            url={assetUrl}
             assetFileExt={assetFileExt}
-            onGetViewer={onGetViewer}
+            isAssetPublic={asset.public}
+            url={assetUrl}
             workspaceSettings={workspaceSettings}
+            onGetViewer={onGetViewer}
           />
         );
       case "geo_3d_tiles":
         return (
           <Geo3dViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
             setAssetUrl={setAssetUrl}
             workspaceSettings={workspaceSettings}
@@ -97,36 +99,39 @@ const AssetMolecule: React.FC<Props> = ({
       case "geo_mvt":
         return (
           <MvtViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
             workspaceSettings={workspaceSettings}
             onGetViewer={onGetViewer}
           />
         );
       case "image":
-        return <ImageViewer url={assetUrl} />;
+        return <ImageViewer isAssetPublic={asset.public} url={assetUrl} />;
       case "image_svg":
-        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
+        return <SvgViewer isAssetPublic={asset.public} svgRender={svgRender} url={assetUrl} />;
       case "model_3d":
         return (
           <GltfViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
-            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
+            onGetViewer={onGetViewer}
           />
         );
       case "csv":
         return (
           <CsvViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
-            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
+            onGetViewer={onGetViewer}
           />
         );
       case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
+  }, [asset.public, assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
