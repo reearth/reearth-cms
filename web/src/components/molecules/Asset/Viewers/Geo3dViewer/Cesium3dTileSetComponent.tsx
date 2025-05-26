@@ -1,25 +1,28 @@
 import { Cesium3DTileset } from "cesium";
 import { ComponentProps, useCallback } from "react";
-import { Cesium3DTileset as Resium3DTileset } from "resium";
+import { Cesium3DTileset as Resium3DTileset, useCesium } from "resium";
 
-type Props = ComponentProps<typeof Resium3DTileset> & {
-  viewerRef?: any;
-};
+import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 
-const Cesium3dTileSetComponent: React.FC<Props> = ({ viewerRef, ...props }) => {
+type Props = ComponentProps<typeof Resium3DTileset>;
+
+const Cesium3dTileSetComponent: React.FC<Props> = ({ ...props }) => {
+  const { viewer } = useCesium();
+
   const handleReady = useCallback(
     async (tileset: Cesium3DTileset) => {
       try {
         // Wait for the next frame to ensure everything is properly initialized
         await new Promise(resolve => requestAnimationFrame(resolve));
         if (tileset.isDestroyed()) return;
-        await viewerRef.current?.cesiumElement?.zoomTo(tileset);
+        const resolvedViewer = await waitForViewer(viewer);
+        await resolvedViewer.zoomTo(tileset);
         tileset.show = true;
       } catch (err) {
         console.error(err);
       }
     },
-    [viewerRef],
+    [viewer],
   );
 
   return <Resium3DTileset {...props} onReady={handleReady} />;

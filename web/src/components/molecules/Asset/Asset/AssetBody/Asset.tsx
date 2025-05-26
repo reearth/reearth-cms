@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Viewer as CesiumViewer } from "cesium";
 import { useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -46,7 +47,7 @@ type Props = {
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-  viewerRef: any;
+  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -65,7 +66,7 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
-  viewerRef,
+  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -82,7 +83,7 @@ const AssetMolecule: React.FC<Props> = ({
             isAssetPublic={asset.public}
             url={assetUrl}
             workspaceSettings={workspaceSettings}
-            viewerRef={viewerRef}
+            onGetViewer={onGetViewer}
           />
         );
       case "geo_3d_tiles":
@@ -92,7 +93,7 @@ const AssetMolecule: React.FC<Props> = ({
             url={assetUrl}
             setAssetUrl={setAssetUrl}
             workspaceSettings={workspaceSettings}
-            viewerRef={viewerRef}
+            onGetViewer={onGetViewer}
           />
         );
       case "geo_mvt":
@@ -101,7 +102,7 @@ const AssetMolecule: React.FC<Props> = ({
             isAssetPublic={asset.public}
             url={assetUrl}
             workspaceSettings={workspaceSettings}
-            viewerRef={viewerRef}
+            onGetViewer={onGetViewer}
           />
         );
       case "image":
@@ -114,7 +115,7 @@ const AssetMolecule: React.FC<Props> = ({
             isAssetPublic={asset.public}
             url={assetUrl}
             workspaceSettings={workspaceSettings}
-            viewerRef={viewerRef}
+            onGetViewer={onGetViewer}
           />
         );
       case "csv":
@@ -123,14 +124,14 @@ const AssetMolecule: React.FC<Props> = ({
             isAssetPublic={asset.public}
             url={assetUrl}
             workspaceSettings={workspaceSettings}
-            viewerRef={viewerRef}
+            onGetViewer={onGetViewer}
           />
         );
       case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [asset.public, assetFileExt, assetUrl, viewerRef, svgRender, viewerType, workspaceSettings]);
+  }, [asset.public, assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>

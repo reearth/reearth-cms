@@ -3,7 +3,6 @@ import { Ion, Viewer as CesiumViewer } from "cesium";
 import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
@@ -183,7 +182,10 @@ export default (assetId?: string) => {
     [assetFileExt],
   );
 
-  const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
+  const viewerRef = useRef<CesiumViewer>();
+  const handleGetViewer = useCallback((viewer?: CesiumViewer) => {
+    viewerRef.current = viewer;
+  }, []);
 
   const handleFullScreen = useCallback(() => {
     if (viewerType === "unknown") {
@@ -191,7 +193,7 @@ export default (assetId?: string) => {
     } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
     } else {
-      viewerRef.current?.cesiumElement?.canvas.requestFullscreen();
+      viewerRef.current?.canvas.requestFullscreen();
     }
   }, [viewerType]);
 
@@ -295,6 +297,6 @@ export default (assetId?: string) => {
     handleFullScreen,
     handleSave,
     handleBack,
-    viewerRef,
+    handleGetViewer,
   };
 };

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Cesium3DTileFeature, JulianDate, Entity } from "cesium";
+import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
@@ -11,7 +11,7 @@ import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
 type Props = {
-  viewerRef: any;
+  onGetViewer: (viewer?: CesiumViewer) => void;
   children: React.ReactNode;
   properties?: Property;
   showDescription?: boolean;
@@ -20,7 +20,7 @@ type Props = {
 };
 
 const ResiumViewer: React.FC<Props> = ({
-  viewerRef,
+  onGetViewer,
   children,
   properties: passedProps,
   showDescription,
@@ -117,7 +117,7 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        ref={viewerRef}>
+        ref={node => node && onGetViewer(node.cesiumElement)}>
         {children}
       </StyledViewer>
       <InfoBox
