@@ -28,7 +28,7 @@ func TestSearchAsset(t *testing.T) {
 	// Upload assets with different properties
 	// Asset 1: JSON file
 	jsonData := []byte(`{"test": "data"}`)
-	jsonAssetId, jsonAssetRes := createAssetWithUpload(e, pId, "test1.json", "application/json", jsonData, false, "")
+	jsonAssetId, jsonAssetRes := createAsset(e, pId, "test1.json", "application/json", jsonData, false, "", "", "")
 
 	// Asset 2: GeoJSON file
 	geoJsonData := []byte(`{
@@ -46,7 +46,7 @@ func TestSearchAsset(t *testing.T) {
 			}
 		]
 	}`)
-	geoJsonAssetId, geoJsonAssetRes := createAssetWithUpload(e, pId, "test2.geojson", "application/geo+json", geoJsonData, false, "")
+	geoJsonAssetId, geoJsonAssetRes := createAsset(e, pId, "test2.geojson", "application/geo+json", geoJsonData, false, "", "", "")
 
 	// Check if assets were created successfully
 	if jsonAssetId != "" && geoJsonAssetId != "" {
@@ -171,95 +171,6 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 		Expect().
 		Status(200).
 		JSON()
-}
-
-// Helper function to create an asset upload
-func createAssetUpload(e *httpexpect.Expect, projectId string, filename string, contentLength int) (string, string) {
-	// GraphQL mutation to create an asset upload
-	query := `mutation CreateAssetUpload($input: CreateAssetUploadInput!) {
-		createAssetUpload(input: $input) {
-			token
-			url
-			contentType
-			contentLength
-			contentEncoding
-			next
-		}
-	}`
-
-	// Build input
-	inputMap := map[string]interface{}{
-		"projectId": projectId,
-	}
-
-	if filename != "" {
-		inputMap["filename"] = filename
-	}
-
-	if contentLength > 0 {
-		inputMap["contentLength"] = contentLength
-	}
-
-	variables := map[string]interface{}{
-		"input": inputMap,
-	}
-
-	// Execute the query
-	res := e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(GraphQLRequest{
-			Query:     query,
-			Variables: variables,
-		}).
-		Expect().
-		Status(200).
-		JSON()
-
-	// Check for errors
-	errors := res.Path("$.errors").Array()
-	if errors.Length().Raw() > 0 {
-		fmt.Printf("Error creating asset upload: %v\n", errors.Raw())
-		return "", ""
-	}
-
-	token := res.Path("$.data.createAssetUpload.token").String().Raw()
-	url := res.Path("$.data.createAssetUpload.url").String().Raw()
-
-	return token, url
-}
-
-// Helper function to create an asset with upload
-func createAssetWithUpload(
-	e *httpexpect.Expect,
-	projectId string,
-	fileName string,
-	contentType string,
-	data []byte,
-	skipDecompression bool,
-	contentEncoding string,
-) (string, *httpexpect.Value) {
-	// First, create an asset upload
-	token, url := createAssetUpload(e, projectId, fileName, len(data))
-	if token == "" || url == "" {
-		fmt.Printf("Failed to get upload URL for %s\n", fileName)
-		return "", nil
-	}
-
-	// Upload the file to the provided URL
-	uploadResp := e.PUT(url).
-		WithHeader("Content-Type", contentType).
-		WithBytes(data).
-		Expect()
-
-	if uploadResp.Raw().StatusCode != http.StatusOK {
-		fmt.Printf("Failed to upload file to URL: %s, status: %d\n", url, uploadResp.Raw().StatusCode)
-		return "", nil
-	}
-
-	// Now create the asset using the token
-	return createAsset(e, projectId, fileName, contentType, nil, skipDecompression, contentEncoding, token, "")
 }
 
 // Helper function to create an asset
