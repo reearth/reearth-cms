@@ -1,8 +1,9 @@
 import { NetworkStatus } from "@apollo/client";
-import { Ion } from "cesium";
+import { Ion, Viewer as CesiumViewer } from "cesium";
 import fileDownload from "js-file-download";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
@@ -181,18 +182,18 @@ export default (assetId?: string) => {
     () => compressedFileFormats.includes(assetFileExt),
     [assetFileExt],
   );
-  const handleFullScreen = useCallback(
-    (viewerRef: any) => {
-      if (viewerType === "unknown") {
-        return;
-      } else if (viewerType === "image" || viewerType === "image_svg") {
-        setIsModalVisible(true);
-      } else {
-        viewerRef.current?.cesiumElement?.canvas.requestFullscreen();
-      }
-    },
-    [viewerType],
-  );
+
+  const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
+
+  const handleFullScreen = useCallback(() => {
+    if (viewerType === "unknown") {
+      return;
+    } else if (viewerType === "image" || viewerType === "image_svg") {
+      setIsModalVisible(true);
+    } else {
+      viewerRef.current?.cesiumElement?.canvas.requestFullscreen();
+    }
+  }, [viewerType]);
 
   const handleAssetItemSelect = useCallback(
     (assetItem: AssetItem) => {
@@ -294,5 +295,6 @@ export default (assetId?: string) => {
     handleFullScreen,
     handleSave,
     handleBack,
+    viewerRef,
   };
 };

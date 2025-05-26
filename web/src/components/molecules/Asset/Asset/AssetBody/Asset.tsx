@@ -1,7 +1,5 @@
 import styled from "@emotion/styled";
-import { Viewer as CesiumViewer } from "cesium";
-import { useMemo, useState, useRef } from "react";
-import { CesiumComponentRef } from "resium";
+import { useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -47,7 +45,8 @@ type Props = {
   onAssetDownload: (asset: Asset) => Promise<void>;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
-  onChangeToFullScreen: (viewerRef: any) => void;
+  onChangeToFullScreen: () => void;
+  viewerRef: any;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -66,13 +65,13 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
+  viewerRef,
   workspaceSettings,
 }) => {
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
-  const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
 
   const viewerComponent = useMemo(() => {
     switch (viewerType) {
@@ -158,7 +157,6 @@ const AssetMolecule: React.FC<Props> = ({
               url={assetUrl}
               isModalVisible={isModalVisible}
               viewerType={viewerType}
-              viewerRef={viewerRef}
               onCodeSourceClick={handleCodeSourceClick}
               onRenderClick={handleRenderClick}
               onFullScreen={onChangeToFullScreen}

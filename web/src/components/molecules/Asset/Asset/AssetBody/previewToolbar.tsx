@@ -8,10 +8,9 @@ type Props = {
   url: string;
   isModalVisible: boolean;
   viewerType?: ViewerType;
-  viewerRef: any;
   onCodeSourceClick: () => void;
   onRenderClick: () => void;
-  onFullScreen: (viewerRef: any) => void;
+  onFullScreen: () => void;
   onModalCancel: () => void;
 };
 
@@ -19,7 +18,6 @@ const PreviewToolbar: React.FC<Props> = ({
   url,
   isModalVisible,
   viewerType,
-  viewerRef,
   onCodeSourceClick,
   onRenderClick,
   onFullScreen,
@@ -38,11 +36,7 @@ const PreviewToolbar: React.FC<Props> = ({
         </>
       )}
       {isFullScreenButtonVisible && (
-        <Button
-          type="link"
-          icon={<Icon icon="fullscreen" />}
-          onClick={() => onFullScreen(viewerRef)}
-        />
+        <Button type="link" icon={<Icon icon="fullscreen" />} onClick={onFullScreen} />
       )}
       <PreviewModal url={url} visible={isModalVisible} onCancel={onModalCancel} />
     </>
