@@ -15,7 +15,6 @@ import { useCallback, useEffect, useMemo, useState, RefObject } from "react";
 import { CesiumComponentRef } from "resium";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
-import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 const defaultCameraPosition: [number, number, number] = [139.767052, 35.681167, 100];
@@ -23,9 +22,9 @@ const defaultOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 3000000);
 const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
 type Props = {
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   isAssetPublic?: boolean;
   url: string;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   handleProperties: (prop: Property) => void;
 };
 
@@ -45,7 +44,7 @@ type Metadata = {
   maximumLevel?: number;
 };
 
-export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef, handleProperties }) => {
+export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url, handleProperties }) => {
   const { getHeader } = useAuthHeader();
   const [selectedFeature, setSelectedFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
@@ -55,8 +54,8 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef, handle
 
   const zoomTo = useCallback(
     async ([lng, lat, height]: [number, number, number], useDefaultRange?: boolean) => {
-      const resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
-      resolvedViewer.camera.flyToBoundingSphere(
+      const viewer = viewerRef.current?.cesiumElement;
+      viewer?.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
           duration: 0,
@@ -110,8 +109,8 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef, handle
     let imageryLayer: ImageryLayer;
 
     const addLayer = async () => {
-      const resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
-      layers = resolvedViewer.scene.imageryLayers;
+      if (!viewerRef.current?.cesiumElement) return;
+      layers = viewerRef.current.cesiumElement.scene.imageryLayers;
       const imageryProvider = new CesiumMVTImageryProvider({
         urlTemplate,
         headers: isAssetPublic ? {} : await getHeader(),

@@ -19,7 +19,6 @@ type Props = {
   selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
   viewerType?: ViewerType;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   isSaveDisabled: boolean;
@@ -30,7 +29,7 @@ type Props = {
   onAssetDownload: (asset: Asset) => Promise<void>;
   onTypeChange: (value: PreviewType) => void;
   onModalCancel: () => void;
-  onChangeToFullScreen: () => void;
+  onChangeToFullScreen: (viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>) => void;
   onBack: () => void;
   onSave: () => void;
   workspaceSettings: WorkspaceSettings;
@@ -42,7 +41,6 @@ const AssetWrapper: React.FC<Props> = ({
   selectedPreviewType,
   isModalVisible,
   viewerType,
-  viewerRef,
   displayUnzipFileList,
   decompressing,
   commentsPanel,
@@ -80,7 +78,6 @@ const AssetWrapper: React.FC<Props> = ({
             selectedPreviewType={selectedPreviewType}
             isModalVisible={isModalVisible}
             viewerType={viewerType}
-            viewerRef={viewerRef}
             displayUnzipFileList={displayUnzipFileList}
             decompressing={decompressing}
             hasUpdateRight={hasUpdateRight}

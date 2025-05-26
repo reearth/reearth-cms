@@ -1,3 +1,7 @@
+import { Viewer as CesiumViewer } from "cesium";
+import { RefObject } from "react";
+import { CesiumComponentRef } from "resium";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
@@ -8,9 +12,10 @@ type Props = {
   url: string;
   isModalVisible: boolean;
   viewerType?: ViewerType;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   onCodeSourceClick: () => void;
   onRenderClick: () => void;
-  onFullScreen: () => void;
+  onFullScreen: (viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>) => void;
   onModalCancel: () => void;
 };
 
@@ -18,6 +23,7 @@ const PreviewToolbar: React.FC<Props> = ({
   url,
   isModalVisible,
   viewerType,
+  viewerRef,
   onCodeSourceClick,
   onRenderClick,
   onFullScreen,
@@ -36,7 +42,11 @@ const PreviewToolbar: React.FC<Props> = ({
         </>
       )}
       {isFullScreenButtonVisible && (
-        <Button type="link" icon={<Icon icon="fullscreen" />} onClick={onFullScreen} />
+        <Button
+          type="link"
+          icon={<Icon icon="fullscreen" />}
+          onClick={() => onFullScreen(viewerRef)}
+        />
       )}
       <PreviewModal url={url} visible={isModalVisible} onCancel={onModalCancel} />
     </>

@@ -2,7 +2,6 @@ import { Cartesian3, Viewer as CesiumViewer } from "cesium";
 import { RefObject, useCallback, useEffect } from "react";
 import { CesiumComponentRef } from "resium";
 
-import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 import mapPin from "./mapPin.svg";
@@ -28,9 +27,7 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
         method: "GET",
         headers: isAssetPublic ? {} : await getHeader(),
       });
-      if (!res.ok) {
-        throw new Error("Error loading CSV data");
-      }
+      if (!res.ok) throw new Error("Error loading CSV data");
       return await res.text();
     } catch (err) {
       console.error(err);
@@ -55,11 +52,11 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
 
   const addPointsToViewer = useCallback(
     async (objects: GeoObj[]) => {
-      const resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
-      resolvedViewer.entities.removeAll();
+      const viewer = viewerRef.current?.cesiumElement;
+      viewer?.entities.removeAll();
       for (const obj of objects) {
         if (obj.lng && obj.lat) {
-          resolvedViewer.entities.add({
+          viewer?.entities.add({
             position: Cartesian3.fromDegrees(Number(obj.lng), Number(obj.lat)),
             billboard: {
               image: mapPin,
@@ -71,7 +68,7 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
           });
         }
       }
-      resolvedViewer.zoomTo(resolvedViewer.entities);
+      viewer?.zoomTo(viewer?.entities);
     },
     [viewerRef],
   );
@@ -82,13 +79,6 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
       if (text) await addPointsToViewer(parseCsv(text));
     };
     loadAndRenderData();
-
-    const currentViewerRef = viewerRef.current;
-    return () => {
-      if (currentViewerRef?.cesiumElement) {
-        currentViewerRef.cesiumElement.entities.removeAll();
-      }
-    };
   }, [dataFetch, parseCsv, addPointsToViewer, viewerRef]);
 
   return null;

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
+import { Cesium3DTileFeature, JulianDate, Entity, Viewer as CesiumViewer } from "cesium";
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
@@ -55,9 +55,7 @@ const ResiumViewer: React.FC<Props> = ({
       let props: any = {};
       if (target instanceof Cesium3DTileFeature) {
         const propertyIds = target.getPropertyIds();
-        const length = propertyIds.length;
-        for (let i = 0; i < length; ++i) {
-          const propertyId = propertyIds[i];
+        for (const propertyId of propertyIds) {
           props[propertyId] = target.getProperty(propertyId);
         }
         onSelect?.(String(target.featureId));
@@ -89,9 +87,15 @@ const ResiumViewer: React.FC<Props> = ({
   }, [passedProps, setSortedProperties]);
 
   useEffect(() => {
-    if (viewerRef.current?.cesiumElement) {
-      setIsLoading(false);
-    }
+    const checkViewer = () => {
+      const viewer = viewerRef.current?.cesiumElement;
+      if (viewer && !viewer.isDestroyed()) {
+        setIsLoading(false);
+      } else {
+        requestAnimationFrame(checkViewer);
+      }
+    };
+    checkViewer();
   }, [viewerRef]);
 
   const imagery = useMemo(() => {
@@ -125,7 +129,7 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        hidden={isLoading}
+        style={{ visibility: isLoading ? "hidden" : "visible" }}
         ref={viewerRef}>
         {children}
       </StyledViewer>
@@ -146,8 +150,7 @@ const Container = styled.div`
   position: relative;
 `;
 
-const StyledViewer = styled(Viewer)<{ hidden?: boolean }>`
-  visibility: ${({ hidden }) => (hidden ? "hidden" : "visible")};
+const StyledViewer = styled(Viewer)`
   .cesium-baseLayerPicker-dropDown {
     box-sizing: content-box;
   }
@@ -157,7 +160,17 @@ const StyledViewer = styled(Viewer)<{ hidden?: boolean }>`
 `;
 
 const LoadingOverlay = styled.div`
+  position: absolute;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #555;
 `;
