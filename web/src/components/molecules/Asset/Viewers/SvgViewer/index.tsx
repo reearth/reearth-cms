@@ -31,7 +31,9 @@ const SvgViewer: React.FC<Props> = ({
           method: "GET",
           headers,
         });
-        if (!res.ok) throw new Error("Could not fetch svg data");
+        if (!res.ok) {
+          throw new Error("Could not fetch svg data");
+        }
         const text = await res.text();
         setSvgText(text);
         const blob = new Blob([text], { type: "image/svg+xml" });

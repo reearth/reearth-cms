@@ -14,7 +14,7 @@ type Props = {
   workspaceSettings: WorkspaceSettings;
 };
 
-const MvtViewer: React.FC<Props> = ({ viewerRef, isAssetPublic, url, workspaceSettings }) => {
+const MvtViewer: React.FC<Props> = ({ isAssetPublic, viewerRef, url, workspaceSettings }) => {
   const [properties, setProperties] = useState<Property>();
 
   const handleProperties = useCallback((prop: Property) => {
@@ -34,13 +34,13 @@ const MvtViewer: React.FC<Props> = ({ viewerRef, isAssetPublic, url, workspaceSe
 
   return (
     <ResiumViewer
-      viewerRef={viewerRef}
       properties={properties}
+      viewerRef={viewerRef}
       workspaceSettings={workspaceSettings}>
       <Imagery
-        viewerRef={viewerRef}
         isAssetPublic={isAssetPublic}
         url={url}
+        viewerRef={viewerRef}
         handleProperties={handleProperties}
       />
     </ResiumViewer>

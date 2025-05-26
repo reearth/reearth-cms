@@ -239,7 +239,6 @@ const AssetMolecule: React.FC<Props> = ({
   );
 };
 
-// styles
 const AssetName = styled.span`
   min-width: 0;
   word-wrap: break-word;
