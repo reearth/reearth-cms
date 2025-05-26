@@ -16,15 +16,10 @@ const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
   const [resource, setResource] = useState<Resource>();
 
   useEffect(() => {
-    if (resource || !url) return;
-
+    if (resource) return;
     const prepareResource = async () => {
-      try {
-        const headers = isAssetPublic ? {} : await getHeader();
-        setResource(new Resource({ url, headers }));
-      } catch (error) {
-        console.error(error);
-      }
+      if (!url) return;
+      setResource(new Resource({ url, headers: isAssetPublic ? {} : await getHeader() }));
     };
     prepareResource();
   }, [url, isAssetPublic, getHeader, resource]);
@@ -44,6 +39,7 @@ const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
       try {
         const resolvedViewer = await waitForViewer(viewer);
         await resolvedViewer.zoomTo(ds);
+        ds.show = true;
       } catch (error) {
         console.error(error);
       }
@@ -51,19 +47,7 @@ const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
     [viewer],
   );
 
-  const handleLoading = useCallback((kmlDataSouce: KmlDataSource, isLoaded: boolean) => {
-    if (isLoaded) kmlDataSouce.show = true;
-  }, []);
-
-  return (
-    <ResiumKmlDataSource
-      data={resource}
-      clampToGround
-      onLoad={handleLoad}
-      onLoading={handleLoading}
-      {...props}
-    />
-  );
+  return <ResiumKmlDataSource data={resource} onLoad={handleLoad} clampToGround {...props} />;
 };
 
 export default KmlComponent;

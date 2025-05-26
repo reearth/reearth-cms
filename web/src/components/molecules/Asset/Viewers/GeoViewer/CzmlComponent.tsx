@@ -16,15 +16,10 @@ const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
   const [resource, setResource] = useState<Resource>();
 
   useEffect(() => {
-    if (resource || !url) return;
-
+    if (resource) return;
     const prepareResource = async () => {
-      try {
-        const headers = isAssetPublic ? {} : await getHeader();
-        setResource(new Resource({ url, headers }));
-      } catch (error) {
-        console.error(error);
-      }
+      if (!url) return;
+      setResource(new Resource({ url, headers: isAssetPublic ? {} : await getHeader() }));
     };
     prepareResource();
   }, [url, isAssetPublic, getHeader, resource]);
@@ -34,6 +29,7 @@ const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
       try {
         const resolvedViewer = await waitForViewer(viewer);
         await resolvedViewer.zoomTo(ds);
+        ds.show = true;
       } catch (error) {
         console.error(error);
       }
@@ -41,18 +37,7 @@ const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
     [viewer],
   );
 
-  const handleLoading = useCallback((CzmlDataSource: CzmlDataSource, isLoaded: boolean) => {
-    if (isLoaded) CzmlDataSource.show = true;
-  }, []);
-
-  return (
-    <ResiumCzmlDataSource
-      data={resource}
-      onLoad={handleLoad}
-      onLoading={handleLoading}
-      {...props}
-    />
-  );
+  return <ResiumCzmlDataSource data={resource} onLoad={handleLoad} {...props} />;
 };
 
 export default CzmlComponent;
