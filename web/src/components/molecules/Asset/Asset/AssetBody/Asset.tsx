@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useMemo, useState, useRef, RefObject } from "react";
+import { useMemo, useState, RefObject } from "react";
 import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -27,10 +27,8 @@ import {
   CsvViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
-import GeoJSONViewer from "@reearth-cms/components/molecules/Asset/Viewers/GeoJSONViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -41,6 +39,7 @@ type Props = {
   selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
   viewerType?: ViewerType;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
@@ -49,7 +48,7 @@ type Props = {
   onAssetDownload: (asset: Asset) => Promise<void>;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
-  onChangeToFullScreen: (viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>) => void;
+  onChangeToFullScreen: () => void;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -59,6 +58,7 @@ const AssetMolecule: React.FC<Props> = ({
   selectedPreviewType,
   isModalVisible,
   viewerType,
+  viewerRef,
   displayUnzipFileList,
   decompressing,
   hasUpdateRight,
@@ -74,41 +74,27 @@ const AssetMolecule: React.FC<Props> = ({
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
-  const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
 
   const viewerComponent = useMemo(() => {
     switch (viewerType) {
-      case "geo": {
-        const ext = getExtension(assetUrl) ?? assetFileExt;
-        if (ext === "geojson") {
-          return (
-            <GeoJSONViewer
-              assetFileExt={assetFileExt}
-              isAssetPublic={asset.public}
-              url={assetUrl}
-              workspaceSettings={workspaceSettings}
-              viewerRef={viewerRef}
-            />
-          );
-        }
+      case "geo":
         return (
           <GeoViewer
             assetFileExt={assetFileExt}
             isAssetPublic={asset.public}
             url={assetUrl}
-            workspaceSettings={workspaceSettings}
             viewerRef={viewerRef}
+            workspaceSettings={workspaceSettings}
           />
         );
-      }
       case "geo_3d_tiles":
         return (
           <Geo3dViewer
             isAssetPublic={asset.public}
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            workspaceSettings={workspaceSettings}
             viewerRef={viewerRef}
+            workspaceSettings={workspaceSettings}
           />
         );
       case "geo_mvt":
@@ -116,8 +102,8 @@ const AssetMolecule: React.FC<Props> = ({
           <MvtViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            workspaceSettings={workspaceSettings}
             viewerRef={viewerRef}
+            workspaceSettings={workspaceSettings}
           />
         );
       case "image":
@@ -129,8 +115,8 @@ const AssetMolecule: React.FC<Props> = ({
           <GltfViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            workspaceSettings={workspaceSettings}
             viewerRef={viewerRef}
+            workspaceSettings={workspaceSettings}
           />
         );
       case "csv":
@@ -138,8 +124,8 @@ const AssetMolecule: React.FC<Props> = ({
           <CsvViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            workspaceSettings={workspaceSettings}
             viewerRef={viewerRef}
+            workspaceSettings={workspaceSettings}
           />
         );
       case "unknown":
@@ -173,7 +159,6 @@ const AssetMolecule: React.FC<Props> = ({
               url={assetUrl}
               isModalVisible={isModalVisible}
               viewerType={viewerType}
-              viewerRef={viewerRef}
               onCodeSourceClick={handleCodeSourceClick}
               onRenderClick={handleRenderClick}
               onFullScreen={onChangeToFullScreen}

@@ -2,18 +2,20 @@ import { Cartesian3, Resource, Viewer as CesiumViewer } from "cesium";
 import { useEffect, RefObject } from "react";
 import { CesiumComponentRef } from "resium";
 
+import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   isAssetPublic?: boolean;
   url: string;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
 };
 
-export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
+export const Imagery: React.FC<Props> = ({ isAssetPublic, url, viewerRef }) => {
   const { getHeader } = useAuthHeader();
 
   useEffect(() => {
+    let resolvedViewer: CesiumViewer | undefined;
     const loadModel = async () => {
       try {
         const headers = await getHeader();
@@ -21,10 +23,9 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
           url: url,
           headers: isAssetPublic ? {} : headers,
         });
-        const viewer = viewerRef.current?.cesiumElement;
-        if (!viewer) return;
-        viewer.entities.removeAll();
-        const entity = viewer?.entities.add({
+        resolvedViewer = await waitForViewer(viewerRef.current?.cesiumElement);
+        resolvedViewer.entities.removeAll();
+        const entity = resolvedViewer.entities.add({
           position: Cartesian3.fromDegrees(
             Math.floor(Math.random() * 360 - 180),
             Math.floor(Math.random() * 180 - 90),
@@ -37,13 +38,20 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
             show: true,
           },
         });
-        viewer.trackedEntity = entity;
-        await viewer.zoomTo(entity);
+        resolvedViewer.trackedEntity = entity;
+        await resolvedViewer.zoomTo(entity);
       } catch (err) {
         console.error(err);
       }
     };
     loadModel();
+
+    return () => {
+      if (resolvedViewer) {
+        resolvedViewer.entities.removeAll();
+        resolvedViewer.trackedEntity = undefined;
+      }
+    };
   }, [getHeader, isAssetPublic, url, viewerRef]);
 
   return null;

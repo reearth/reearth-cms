@@ -19,6 +19,7 @@ const Asset: React.FC = () => {
     isModalVisible,
     collapsed,
     viewerType,
+    viewerRef,
     displayUnzipFileList,
     decompressing,
     isSaveDisabled,
@@ -63,6 +64,7 @@ const Asset: React.FC = () => {
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}
       viewerType={viewerType}
+      viewerRef={viewerRef}
       displayUnzipFileList={displayUnzipFileList}
       decompressing={decompressing}
       isSaveDisabled={isSaveDisabled}

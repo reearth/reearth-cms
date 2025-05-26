@@ -10,11 +10,11 @@ import { Imagery } from "./Imagery";
 type Props = {
   isAssetPublic?: boolean;
   url: string;
-  workspaceSettings: WorkspaceSettings;
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  workspaceSettings: WorkspaceSettings;
 };
 
-const GltfViewer: React.FC<Props> = ({ isAssetPublic, url, workspaceSettings, viewerRef }) => {
+const GltfViewer: React.FC<Props> = ({ isAssetPublic, url, viewerRef, workspaceSettings }) => {
   return (
     <ResiumViewer viewerRef={viewerRef} workspaceSettings={workspaceSettings}>
       <Imagery viewerRef={viewerRef} isAssetPublic={isAssetPublic} url={url} />

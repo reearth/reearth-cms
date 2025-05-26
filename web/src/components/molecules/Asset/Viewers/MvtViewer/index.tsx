@@ -10,8 +10,8 @@ import { Imagery, Property } from "./Imagery";
 type Props = {
   isAssetPublic?: boolean;
   url: string;
-  workspaceSettings: WorkspaceSettings;
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  workspaceSettings: WorkspaceSettings;
 };
 
 const MvtViewer: React.FC<Props> = ({ viewerRef, isAssetPublic, url, workspaceSettings }) => {
