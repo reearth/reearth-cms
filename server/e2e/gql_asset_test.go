@@ -3,7 +3,6 @@ package e2e
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 	"testing"
 
@@ -48,38 +47,43 @@ func TestSearchAsset(t *testing.T) {
 	}`)
 	geoJsonAssetId, geoJsonAssetRes := createAsset(e, pId, "test2.geojson", "application/geo+json", geoJsonData, false, "", "", "")
 
+	// Log asset creation results
+	t.Logf("JSON asset ID: %s", jsonAssetId)
+	t.Logf("GeoJSON asset ID: %s", geoJsonAssetId)
+
 	// Check if assets were created successfully
-	if jsonAssetId != "" && geoJsonAssetId != "" {
-		// Search for all assets (no filter)
-		res := searchAsset(e, pId, nil, nil, nil, nil)
-		totalCount := res.Path("$.data.assets.totalCount").Raw()
-		assert.Equal(t, float64(0), totalCount) // currently assets are not indexed
+	assert.NotEmpty(t, jsonAssetId, "JSON asset ID should not be empty")
+	assert.NotEmpty(t, geoJsonAssetId, "GeoJSON asset ID should not be empty")
 
-		// Search with content type filter for JSON
-		jsonContentTypes := []string{"JSON"}
-		jsonRes := searchAsset(e, pId, nil, jsonContentTypes, nil, nil)
-		jsonTotalCount := jsonRes.Path("$.data.assets.totalCount").Raw()
-		assert.Equal(t, float64(0), jsonTotalCount) // currently assets are not indexed
+	// Search for all assets (no filter)
+	res := searchAsset(e, pId, nil, nil, nil, nil)
+	totalCount := res.Path("$.data.assets.totalCount").Raw()
+	assert.Equal(t, float64(0), totalCount) // currently assets are not indexed
 
-		// Search with content type filter for GeoJSON
-		geoJsonContentTypes := []string{"GEOJSON"}
-		geoJsonRes := searchAsset(e, pId, nil, geoJsonContentTypes, nil, nil)
-		geoJsonTotalCount := geoJsonRes.Path("$.data.assets.totalCount").Raw()
-		assert.Equal(t, float64(0), geoJsonTotalCount) // currently assets are not indexed
+	// Search with content type filter for JSON
+	jsonContentTypes := []string{"JSON"}
+	jsonRes := searchAsset(e, pId, nil, jsonContentTypes, nil, nil)
+	jsonTotalCount := jsonRes.Path("$.data.assets.totalCount").Raw()
+	assert.Equal(t, float64(0), jsonTotalCount) // currently assets are not indexed
 
-		// Search with content type filter for both JSON and GeoJSON
-		bothContentTypes := []string{"JSON", "GEOJSON"}
-		bothRes := searchAsset(e, pId, nil, bothContentTypes, nil, nil)
-		bothTotalCount := bothRes.Path("$.data.assets.totalCount").Raw()
-		assert.Equal(t, float64(0), bothTotalCount) // currently assets are not indexed
-	} else {
-		t.Log("Asset creation failed")
-		if jsonAssetRes != nil {
-			t.Logf("JSON asset response: %v", jsonAssetRes.Raw())
-		}
-		if geoJsonAssetRes != nil {
-			t.Logf("GeoJSON asset response: %v", geoJsonAssetRes.Raw())
-		}
+	// Search with content type filter for GeoJSON
+	geoJsonContentTypes := []string{"GEOJSON"}
+	geoJsonRes := searchAsset(e, pId, nil, geoJsonContentTypes, nil, nil)
+	geoJsonTotalCount := geoJsonRes.Path("$.data.assets.totalCount").Raw()
+	assert.Equal(t, float64(0), geoJsonTotalCount) // currently assets are not indexed
+
+	// Search with content type filter for both JSON and GeoJSON
+	bothContentTypes := []string{"JSON", "GEOJSON"}
+	bothRes := searchAsset(e, pId, nil, bothContentTypes, nil, nil)
+	bothTotalCount := bothRes.Path("$.data.assets.totalCount").Raw()
+	assert.Equal(t, float64(0), bothTotalCount) // currently assets are not indexed
+
+	// Log asset responses for debugging
+	if jsonAssetRes != nil {
+		t.Logf("JSON asset response: %v", jsonAssetRes.Path("$.data.createAsset.asset").Raw())
+	}
+	if geoJsonAssetRes != nil {
+		t.Logf("GeoJSON asset response: %v", geoJsonAssetRes.Path("$.data.createAsset.asset").Raw())
 	}
 }
 
@@ -249,7 +253,8 @@ func createAsset(
 			WithFormField("operations", string(operations)).
 			WithFormField("map", mapJSON).
 			WithFile("0", fileName, strings.NewReader(string(data))).
-			Expect()
+			Expect().
+			Status(200)
 
 		res = resp.JSON()
 	} else {
@@ -259,27 +264,19 @@ func createAsset(
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithHeader("Content-Type", "application/json").
 			WithJSON(requestBody).
-			Expect()
-
-		if resp.Raw().StatusCode != http.StatusOK {
-			fmt.Printf("Error: GraphQL request failed with status %d\n", resp.Raw().StatusCode)
-			return "", resp.JSON()
-		}
+			Expect().
+			Status(200)
 
 		res = resp.JSON()
 	}
 
-	// Check for errors
-	errors := res.Path("$.errors").Array()
-	if errors.Length().Raw() > 0 {
-		fmt.Printf("Error creating asset: %v\n", errors.Raw())
+	// Check for errors only if they exist
+	if res.Path("$.errors").Raw() != nil {
+		fmt.Printf("Error creating asset: %v\n", res.Path("$.errors").Raw())
 		return "", res
 	}
 
+	// Extract asset ID
 	assetId := res.Path("$.data.createAsset.asset.id").String().Raw()
-	if assetId == "" {
-		fmt.Println("Error: No asset ID returned")
-	}
-
 	return assetId, res
 }
