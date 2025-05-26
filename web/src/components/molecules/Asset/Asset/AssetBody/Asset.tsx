@@ -27,8 +27,10 @@ import {
   CsvViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
+import GeoJSONViewer from "@reearth-cms/components/molecules/Asset/Viewers/GeoJSONViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -76,7 +78,19 @@ const AssetMolecule: React.FC<Props> = ({
 
   const viewerComponent = useMemo(() => {
     switch (viewerType) {
-      case "geo":
+      case "geo": {
+        const ext = getExtension(assetUrl) ?? assetFileExt;
+        if (ext === "geojson") {
+          return (
+            <GeoJSONViewer
+              assetFileExt={assetFileExt}
+              isAssetPublic={asset.public}
+              url={assetUrl}
+              workspaceSettings={workspaceSettings}
+              viewerRef={viewerRef}
+            />
+          );
+        }
         return (
           <GeoViewer
             assetFileExt={assetFileExt}
@@ -86,6 +100,7 @@ const AssetMolecule: React.FC<Props> = ({
             viewerRef={viewerRef}
           />
         );
+      }
       case "geo_3d_tiles":
         return (
           <Geo3dViewer
