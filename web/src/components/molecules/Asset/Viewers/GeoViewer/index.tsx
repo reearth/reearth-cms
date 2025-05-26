@@ -1,6 +1,4 @@
-import { Viewer as CesiumViewer } from "cesium";
-import { useMemo , RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import { useMemo } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
@@ -15,7 +13,7 @@ type Props = {
   url: string;
   assetFileExt?: string;
   workspaceSettings: WorkspaceSettings;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: any;
 };
 
 const GeoViewer: React.FC<Props> = ({

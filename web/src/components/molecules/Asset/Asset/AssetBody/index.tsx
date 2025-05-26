@@ -1,7 +1,4 @@
 import styled from "@emotion/styled";
-import { Viewer as CesiumViewer } from "cesium";
-import { RefObject } from "react";
-import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
@@ -29,7 +26,7 @@ type Props = {
   onAssetDownload: (asset: Asset) => Promise<void>;
   onTypeChange: (value: PreviewType) => void;
   onModalCancel: () => void;
-  onChangeToFullScreen: (viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>) => void;
+  onChangeToFullScreen: (viewerRef: any) => void;
   onBack: () => void;
   onSave: () => void;
   workspaceSettings: WorkspaceSettings;

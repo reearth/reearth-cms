@@ -7,12 +7,10 @@ import {
   HeadingPitchRange,
   ImageryLayerCollection,
   ImageryLayer,
-  Viewer as CesiumViewer,
 } from "cesium";
 import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
-import { useCallback, useEffect, useMemo, useState, RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import { useAuthHeader } from "@reearth-cms/gql";
@@ -22,7 +20,7 @@ const defaultOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 3000000);
 const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
 type Props = {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef?: any;
   isAssetPublic?: boolean;
   url: string;
   handleProperties: (prop: Property) => void;
@@ -55,7 +53,7 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url, handle
   const zoomTo = useCallback(
     async ([lng, lat, height]: [number, number, number], useDefaultRange?: boolean) => {
       const viewer = viewerRef?.current?.cesiumElement;
-      viewer?.camera.flyToBoundingSphere(
+      viewer.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
           duration: 0,
@@ -109,8 +107,7 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url, handle
     let imageryLayer: ImageryLayer;
 
     const addLayer = async () => {
-      if (!viewerRef?.current?.cesiumElement) return;
-      layers = viewerRef.current.cesiumElement.scene.imageryLayers;
+      layers = viewerRef?.current?.cesiumElement.scene.imageryLayers;
       const imageryProvider = new CesiumMVTImageryProvider({
         urlTemplate,
         headers: isAssetPublic ? {} : await getHeader(),

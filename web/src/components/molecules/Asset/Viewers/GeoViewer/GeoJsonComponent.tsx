@@ -1,11 +1,11 @@
-import { GeoJsonDataSource, Resource, Viewer as CesiumViewer } from "cesium";
-import { ComponentProps, useCallback, useEffect, useState, RefObject } from "react";
-import { GeoJsonDataSource as ResiumGeoJsonDataSource, CesiumComponentRef } from "resium";
+import { GeoJsonDataSource, Resource } from "cesium";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
+import { GeoJsonDataSource as ResiumGeoJsonDataSource } from "resium";
 
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = ComponentProps<typeof ResiumGeoJsonDataSource> & {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef?: any;
   isAssetPublic?: boolean;
   url: string;
 };

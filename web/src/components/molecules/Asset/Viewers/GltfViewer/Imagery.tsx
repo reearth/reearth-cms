@@ -1,11 +1,10 @@
-import { Cartesian3, Resource, Viewer as CesiumViewer } from "cesium";
-import { useEffect, RefObject } from "react";
-import { CesiumComponentRef } from "resium";
+import { Cartesian3, Resource } from "cesium";
+import { useEffect } from "react";
 
 import { useAuthHeader } from "@reearth-cms/gql";
 
 type Props = {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef?: any;
   isAssetPublic?: boolean;
   url: string;
 };
@@ -22,9 +21,8 @@ export const Imagery: React.FC<Props> = ({ viewerRef, isAssetPublic, url }) => {
           headers: isAssetPublic ? {} : headers,
         });
         const viewer = viewerRef?.current?.cesiumElement;
-        if (!viewer) return;
         viewer.entities.removeAll();
-        const entity = viewer?.entities.add({
+        const entity = viewer.entities.add({
           position: Cartesian3.fromDegrees(
             Math.floor(Math.random() * 360 - 180),
             Math.floor(Math.random() * 180 - 90),

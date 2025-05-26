@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
-import { Cesium3DTileFeature, JulianDate, Entity, Viewer as CesiumViewer } from "cesium";
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
+import { Cesium3DTileFeature, JulianDate, Entity } from "cesium";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
@@ -11,7 +11,7 @@ import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
 type Props = {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: any;
   children: React.ReactNode;
   properties?: Property;
   showDescription?: boolean;
