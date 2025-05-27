@@ -561,7 +561,7 @@ func (i Schema) CreateFields(ctx context.Context, sId id.SchemaID, createFieldsP
 		})
 }
 
-func (i *Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID, modelID id.ModelID, operator *usecase.Operator) (*interfaces.GuessSchemaFieldsData, error) {
+func (i Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID, modelID id.ModelID, operator *usecase.Operator) (*interfaces.GuessSchemaFieldsData, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return &interfaces.GuessSchemaFieldsData{}, interfaces.ErrInvalidOperator
 	}
@@ -576,10 +576,9 @@ func (i *Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetI
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 
-	// check if file is a json or geojson
+	isJSON := assetFileData.ContentType() == asset.JSONContentType
 	isGeoJSON := assetFileData.ContentType() == asset.GeoJSONContentType
-
-	if assetFileData.ContentType() != asset.JSONContentType && !isGeoJSON {
+	if !isJSON && !isGeoJSON {
 		return &interfaces.GuessSchemaFieldsData{}, interfaces.ErrInvalidContentTypeForSchemaConversion
 	}
 
@@ -594,12 +593,12 @@ func (i *Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetI
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 
-	schema, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	s, err := i.repos.Schema.FindByID(ctx, m.Schema())
 	if err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}
 
-	predictedFields, err := schema.GuessSchemaFieldFromAssetFile(file, isGeoJSON, false, nil)
+	predictedFields, err := s.GuessSchemaFieldFromJson(file, isGeoJSON, true)
 	if err != nil {
 		return &interfaces.GuessSchemaFieldsData{}, err
 	}

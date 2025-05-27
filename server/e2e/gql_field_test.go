@@ -163,6 +163,36 @@ func updateField(e *httpexpect.Expect, mID, fID, title, desc, key string, multip
 	return res.Path("$.data.updateField.field.id").Raw().(string), res
 }
 
+func guessSchemaFields(e *httpexpect.Expect, assetId, modelId string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `query GuessSchemaFields($input: GuessSchemaFieldsInput!) {
+            guessSchemaFields(input: $input) {
+                total_count
+                fields {
+                    name
+                    key
+                    type
+                }
+            }
+        }`,
+		Variables: map[string]any{
+			"input": map[string]any{
+				"assetId": assetId,
+				"modelId": modelId,
+			},
+		},
+	}
+
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+}
+
 type fIds struct {
 	textFId           string
 	textAreaFId       string
@@ -628,89 +658,46 @@ func TestClearFieldDefaultValue(t *testing.T) {
 	assert.Equal(t, []any{nil, nil, nil}, dv)
 }
 
-// callGuessSchemaFields is a helper function to call the GuessSchemaFields query
-func callGuessSchemaFields(e *httpexpect.Expect, assetId, modelId string) *httpexpect.Value {
-	requestBody := GraphQLRequest{
-		Query: `query GuessSchemaFields($input: GuessSchemaFieldsInput!) {
-            guessSchemaFields(input: $input) {
-                total_count
-                fields {
-                    name
-                    key
-                    type
-                }
-            }
-        }`,
-		Variables: map[string]any{
-			"input": map[string]any{
-				"assetId": assetId,
-				"modelId": modelId,
-			},
-		},
-	}
-
-	return e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(requestBody).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
-}
-
 func TestGuessSchemaFields(t *testing.T) {
-	// Start server
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-
-	// Create project
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-schema-guess")
-
-	// Create model
 	mId, _ := createModel(e, pId, "test", "test", "test-schema-guess")
 
-	// Upload JSON asset with sample data
+	// region Json input
 	jsonContent := `[{"name": "Item 1", "count": 42, "active": true, "tags": ["tag1", "tag2"]}]`
 	assetId := uploadAsset(e, pId, "./sample.json", jsonContent).Object().Value("id").String().Raw()
 
-	// Call GuessSchemaFields query using the helper function
-	res := callGuessSchemaFields(e, assetId, mId)
+	res := guessSchemaFields(e, assetId, mId)
 
-	// Verify response structure and content
-	res.Object().
-		Value("data").Object().
-		Value("guessSchemaFields").Object().
-		HasValue("total_count", 4)
+	res.Path("$.data.guessSchemaFields.total_count").Number().IsEqual(4)
 
-	fields := res.Path("$.data.guessSchemaFields.fields").Array()
-	fields.Length().IsEqual(4)
+	res.Path("$.data.guessSchemaFields.fields").
+		Array().
+		IsEqual([]map[string]any{
+			{
+				"key":  "name",
+				"type": "text",
+				"name": "name",
+			},
+			{
+				"key":  "count",
+				"type": "integer",
+				"name": "count",
+			},
+			{
+				"key":  "active",
+				"type": "bool",
+				"name": "active",
+			},
+			{
+				"key":  "tags",
+				"type": "text",
+				"name": "tags",
+			},
+		})
+	// endregion
 
-	// Check for each expected field individually
-	fields.ContainsAny(map[string]any{
-		"key":  "name",
-		"type": "text",
-		"name": "name",
-	})
-
-	fields.ContainsAny(map[string]any{
-		"key":  "count",
-		"type": "integer",
-		"name": "count",
-	})
-
-	fields.ContainsAny(map[string]any{
-		"key":  "active",
-		"type": "bool",
-		"name": "active",
-	})
-
-	fields.ContainsAny(map[string]any{
-		"key":  "tags",
-		"type": "text",
-		"name": "tags",
-	})
-
-	// Test with GeoJSON data
+	// region GeoJson input
 	geojsonContent := `{
 		"type": "FeatureCollection",
 		"features": [
@@ -746,49 +733,42 @@ func TestGuessSchemaFields(t *testing.T) {
 		]
 	}`
 
-	geojsonAssetId := uploadAsset(e, pId, "./sample.geojson", geojsonContent).Object().Value("id").String().Raw()
+	geoJsonAssetId := uploadAsset(e, pId, "./sample.geojson", geojsonContent).Object().Value("id").String().Raw()
 
-	// Call GuessSchemaFields query for GeoJSON
-	geojsonRes := callGuessSchemaFields(e, geojsonAssetId, mId)
+	res = guessSchemaFields(e, geoJsonAssetId, mId)
 
-	// Verify GeoJSON response
-	geojsonRes.Object().
-		Value("data").Object().
-		Value("guessSchemaFields").Object()
+	res.Path("$.data.guessSchemaFields.total_count").Number().IsEqual(5)
 
-	geojsonFields := geojsonRes.Path("$.data.guessSchemaFields.fields").Array()
-
-	// Check for geometry field detection
-	geojsonFields.ContainsAny(map[string]any{
-		"key":  "geometry",
-		"type": "geometryObject",
-		"name": "geometry",
-	})
-
-	// Check for property fields
-	geojsonFields.ContainsAny(map[string]any{
-		"key":  "name",
-		"type": "text",
-		"name": "name",
-	})
-
-	geojsonFields.ContainsAny(map[string]any{
-		"key":  "category",
-		"type": "text",
-		"name": "category",
-	})
-
-	geojsonFields.ContainsAny(map[string]any{
-		"key":  "elevation",
-		"type": "number",
-		"name": "elevation",
-	})
-
-	geojsonFields.ContainsAny(map[string]any{
-		"key":  "length",
-		"type": "number",
-		"name": "length",
-	})
+	res.Path("$.data.guessSchemaFields.fields").
+		Array().
+		IsEqual([]map[string]any{
+			{
+				"key":  "geometry",
+				"type": "geometryObject",
+				"name": "geometry",
+			},
+			{
+				"key":  "name",
+				"type": "text",
+				"name": "name",
+			},
+			{
+				"key":  "category",
+				"type": "text",
+				"name": "category",
+			},
+			{
+				"key":  "elevation",
+				"type": "number",
+				"name": "elevation",
+			},
+			{
+				"key":  "length",
+				"type": "number",
+				"name": "length",
+			},
+		})
+	// endregion
 
 	// Test with existing schema
 	// Create a new model with predefined fields
@@ -824,27 +804,27 @@ func TestGuessSchemaFields(t *testing.T) {
 	mixedAssetId := uploadAsset(e, pId, "./mixed.json", mixedContent).Object().Value("id").String().Raw()
 
 	// Call GuessSchemaFields query for the mixed content
-	mixedRes := callGuessSchemaFields(e, mixedAssetId, existingModelId)
+	res = guessSchemaFields(e, mixedAssetId, existingModelId)
 
-	// Verify mixed content response
-	mixedFields := mixedRes.Path("$.data.guessSchemaFields.fields").Array()
+	res.Path("$.data.guessSchemaFields.total_count").Number().IsEqual(3)
+	res.Path("$.data.guessSchemaFields.fields").
+		Array().
+		IsEqual([]map[string]any{
+			{
+				"key":  "rating",
+				"type": "number",
+				"name": "rating",
+			},
+			{
+				"key":  "tags",
+				"type": "text",
+				"name": "tags",
+			},
+			{
+				"key":  "active",
+				"type": "bool",
+				"name": "active",
+			},
+		})
 
-	// Should detect new fields
-	mixedFields.ContainsAny(map[string]any{
-		"key":  "rating",
-		"type": "number",
-		"name": "rating",
-	})
-
-	mixedFields.ContainsAny(map[string]any{
-		"key":  "tags",
-		"type": "text",
-		"name": "tags",
-	})
-
-	mixedFields.ContainsAny(map[string]any{
-		"key":  "active",
-		"type": "bool",
-		"name": "active",
-	})
 }
