@@ -10,26 +10,33 @@ import GeoJsonComponent from "./GeoJsonComponent";
 import KmlComponent from "./KmlComponent";
 
 type Props = {
+  isAssetPublic?: boolean;
   url: string;
   assetFileExt?: string;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
+  onGetViewer: (viewer?: CesiumViewer) => void;
 };
 
-const GeoViewer: React.FC<Props> = ({ url, assetFileExt, onGetViewer, workspaceSettings }) => {
+const GeoViewer: React.FC<Props> = ({
+  isAssetPublic,
+  url,
+  assetFileExt,
+  workspaceSettings,
+  onGetViewer,
+}) => {
   const ext = useMemo(() => getExtension(url) ?? assetFileExt, [url, assetFileExt]);
 
   const geoComponent = useMemo(() => {
     switch (ext?.toLowerCase()) {
       case "czml":
-        return <CzmlComponent data={url} />;
+        return <CzmlComponent url={url} isAssetPublic={isAssetPublic} />;
       case "kml":
-        return <KmlComponent data={url} />;
+        return <KmlComponent url={url} isAssetPublic={isAssetPublic} />;
       case "geojson":
       default:
-        return <GeoJsonComponent data={url} />;
+        return <GeoJsonComponent url={url} isAssetPublic={isAssetPublic} />;
     }
-  }, [ext, url]);
+  }, [ext, url, isAssetPublic]);
 
   return (
     <ResiumViewer

@@ -1,13 +1,29 @@
-import { KmlDataSource, ConstantProperty } from "cesium";
-import { ComponentProps, useCallback } from "react";
+import { KmlDataSource, ConstantProperty, Resource } from "cesium";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
 import { KmlDataSource as ResiumKmlDataSource, useCesium } from "resium";
 
 import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
+import { useAuthHeader } from "@reearth-cms/gql";
 
-type Props = ComponentProps<typeof ResiumKmlDataSource>;
+type Props = ComponentProps<typeof ResiumKmlDataSource> & {
+  isAssetPublic?: boolean;
+  url: string;
+};
 
-const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
+const KmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
   const { viewer } = useCesium();
+  const { getHeader } = useAuthHeader();
+  const [resource, setResource] = useState<Resource>();
+
+  useEffect(() => {
+    if (resource || isAssetPublic) return;
+
+    const prepareResource = async () => {
+      const headers = await getHeader();
+      setResource(new Resource({ url, headers }));
+    };
+    prepareResource();
+  }, [url, isAssetPublic, getHeader, resource]);
 
   const handleLoad = useCallback(
     async (ds: KmlDataSource) => {
@@ -32,7 +48,14 @@ const KmlComponent: React.FC<Props> = ({ data, ...props }) => {
     [viewer],
   );
 
-  return <ResiumKmlDataSource data={data} onLoad={handleLoad} clampToGround {...props} />;
+  return (
+    <ResiumKmlDataSource
+      data={isAssetPublic ? url : resource}
+      onLoad={handleLoad}
+      clampToGround
+      {...props}
+    />
+  );
 };
 
 export default KmlComponent;

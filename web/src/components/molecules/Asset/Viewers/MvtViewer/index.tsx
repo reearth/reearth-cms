@@ -7,12 +7,13 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 import { Imagery, Property } from "./Imagery";
 
 type Props = {
+  isAssetPublic?: boolean;
   url: string;
   workspaceSettings: WorkspaceSettings;
   onGetViewer: (viewer?: CesiumViewer) => void;
 };
 
-const MvtViewer: React.FC<Props> = ({ url, workspaceSettings, onGetViewer }) => {
+const MvtViewer: React.FC<Props> = ({ isAssetPublic, url, workspaceSettings, onGetViewer }) => {
   const [properties, setProperties] = useState<Property>();
 
   const handleProperties = useCallback((prop: Property) => {
@@ -35,7 +36,7 @@ const MvtViewer: React.FC<Props> = ({ url, workspaceSettings, onGetViewer }) => 
       onGetViewer={onGetViewer}
       properties={properties}
       workspaceSettings={workspaceSettings}>
-      <Imagery url={url} handleProperties={handleProperties} />
+      <Imagery isAssetPublic={isAssetPublic} url={url} handleProperties={handleProperties} />
     </ResiumViewer>
   );
 };
