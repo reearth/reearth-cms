@@ -100,16 +100,14 @@ const ResiumViewer: React.FC<Props> = ({
 
     const checkViewer = () => {
       const viewer = viewerRef.current?.cesiumElement;
-
       if (viewer && !viewer.isDestroyed?.()) {
         setIsLoading(false);
       } else if (retryCount < maxRetries) {
         retryCount++;
         timeout = setTimeout(checkViewer, retryDelay);
       } else {
-        console.warn("Cesium Viewer was not initialized after retries.");
+        console.warn(`Cesium Viewer was not initialized after ${retryCount} retries.`);
       }
-
       if (viewer?.isDestroyed?.() && !hasRemounted) {
         hasRemounted = true;
         setViewerKey(prev => prev + 1);

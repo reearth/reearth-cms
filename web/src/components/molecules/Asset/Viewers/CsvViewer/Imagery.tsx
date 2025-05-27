@@ -2,7 +2,6 @@ import { Cartesian3 } from "cesium";
 import { useCallback, useEffect } from "react";
 import { useCesium } from "resium";
 
-import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 import mapPin from "./mapPin.svg";
@@ -55,11 +54,10 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
 
   const addPointsToViewer = useCallback(
     async (objects: GeoObj[]) => {
-      const resolvedViewer = await waitForViewer(viewer);
-      resolvedViewer.entities.removeAll();
+      viewer?.entities.removeAll();
       for (const obj of objects) {
         if (obj.lng && obj.lat) {
-          resolvedViewer.entities.add({
+          viewer?.entities.add({
             position: Cartesian3.fromDegrees(Number(obj.lng), Number(obj.lat)),
             billboard: {
               image: mapPin,
@@ -71,7 +69,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
           });
         }
       }
-      resolvedViewer.zoomTo(resolvedViewer.entities);
+      viewer?.zoomTo(viewer?.entities);
     },
     [viewer],
   );

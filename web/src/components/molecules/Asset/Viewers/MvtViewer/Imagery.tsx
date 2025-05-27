@@ -14,7 +14,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCesium } from "resium";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
-import { waitForViewer } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/waitForViewer";
 import { useAuthHeader } from "@reearth-cms/gql";
 
 const defaultCameraPosition: [number, number, number] = [139.767052, 35.681167, 100];
@@ -54,8 +53,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, handleProperties 
 
   const zoomTo = useCallback(
     async ([lng, lat, height]: [number, number, number], useDefaultRange?: boolean) => {
-      const resolvedViewer = await waitForViewer(viewer);
-      resolvedViewer.camera.flyToBoundingSphere(
+      viewer?.camera.flyToBoundingSphere(
         new BoundingSphere(Cartesian3.fromDegrees(lng, lat, height)),
         {
           duration: 0,
@@ -105,12 +103,13 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, handleProperties 
   }, [url, zoomTo]);
 
   useEffect(() => {
+    if (!viewer) return;
+
     let layers: ImageryLayerCollection;
     let imageryLayer: ImageryLayer;
 
     const addLayer = async () => {
-      const resolvedViewer = await waitForViewer(viewer);
-      layers = resolvedViewer.scene.imageryLayers;
+      layers = viewer.scene.imageryLayers;
       const imageryProvider = new CesiumMVTImageryProvider({
         urlTemplate,
         headers: isAssetPublic ? {} : await getHeader(),
