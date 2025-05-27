@@ -1,10 +1,16 @@
 import { gql } from "@apollo/client";
 
 export const GET_ASSETS = gql`
-  query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
+  query GetAssets(
+    $projectId: ID!
+    $keyword: String
+    $sort: AssetSort
+    $pagination: Pagination
+    $contentTypes: [ContentTypesEnum!]
+  ) {
     assets(
       input: {
-        query: { project: $projectId, keyword: $keyword, contentTypes: [] }
+        query: { project: $projectId, keyword: $keyword, contentTypes: $contentTypes }
         sort: $sort
         pagination: $pagination
       }
@@ -29,10 +35,11 @@ export const GET_ASSETS_ITEMS = gql`
     $keyword: String
     $sort: AssetSort
     $pagination: Pagination
+    $contentTypes: [ContentTypesEnum!]
   ) {
     assets(
       input: {
-        query: { project: $projectId, keyword: $keyword, contentTypes: [] }
+        query: { project: $projectId, keyword: $keyword, contentTypes: $contentTypes }
         sort: $sort
         pagination: $pagination
       }

@@ -1,6 +1,5 @@
-import * as Apollo from "@apollo/client";
-import { gql } from "@apollo/client";
-
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -71,7 +70,7 @@ export type Asset = Node & {
   __typename?: 'Asset';
   archiveExtractionStatus?: Maybe<ArchiveExtractionStatus>;
   contentEncoding?: Maybe<Scalars['String']['output']>;
-  contentType?: Maybe<Scalars["String"]["output"]>;
+  contentType?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   createdBy: Operator;
   createdById: Scalars['ID']['output'];
@@ -122,8 +121,8 @@ export type AssetItem = {
 
 export type AssetQueryInput = {
   contentTypes?: InputMaybe<Array<ContentTypesEnum>>;
-  keyword?: InputMaybe<Scalars["String"]["input"]>;
-  project: Scalars["ID"]["input"];
+  keyword?: InputMaybe<Scalars['String']['input']>;
+  project: Scalars['ID']['input'];
 };
 
 export type AssetSort = {
@@ -234,13 +233,13 @@ export type ConditionInput = {
 };
 
 export enum ContentTypesEnum {
-  Csv = "CSV",
-  Geojson = "GEOJSON",
-  Html = "HTML",
-  Json = "JSON",
-  Pdf = "PDF",
-  Plain = "PLAIN",
-  Xml = "XML"
+  Csv = 'CSV',
+  Geojson = 'GEOJSON',
+  Html = 'HTML',
+  Json = 'JSON',
+  Pdf = 'PDF',
+  Plain = 'PLAIN',
+  Xml = 'XML'
 }
 
 export type CorrespondingFieldInput = {
@@ -1535,12 +1534,12 @@ export type RemoveIntegrationFromWorkspacePayload = {
 };
 
 export type RemoveIntegrationsFromWorkspaceInput = {
-  integrationIds: Array<Scalars["ID"]["input"]>;
-  workspaceId: Scalars["ID"]["input"];
+  integrationIds: Array<Scalars['ID']['input']>;
+  workspaceId: Scalars['ID']['input'];
 };
 
 export type RemoveIntegrationsFromWorkspacePayload = {
-  __typename?: "RemoveIntegrationsFromWorkspacePayload";
+  __typename?: 'RemoveIntegrationsFromWorkspacePayload';
   workspace: Workspace;
 };
 
@@ -2384,6 +2383,7 @@ export type GetAssetsQueryVariables = Exact<{
   keyword?: InputMaybe<Scalars['String']['input']>;
   sort?: InputMaybe<AssetSort>;
   pagination?: InputMaybe<Pagination>;
+  contentTypes?: InputMaybe<Array<ContentTypesEnum> | ContentTypesEnum>;
 }>;
 
 
@@ -2394,6 +2394,7 @@ export type GetAssetsItemsQueryVariables = Exact<{
   keyword?: InputMaybe<Scalars['String']['input']>;
   sort?: InputMaybe<AssetSort>;
   pagination?: InputMaybe<Pagination>;
+  contentTypes?: InputMaybe<Array<ContentTypesEnum> | ContentTypesEnum>;
 }>;
 
 
@@ -3413,9 +3414,9 @@ export const WorkspaceFragmentFragmentDoc = gql`
 }
     ${IntegrationFragmentFragmentDoc}`;
 export const GetAssetsDocument = gql`
-    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
+    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination, $contentTypes: [ContentTypesEnum!]) {
   assets(
-    input: {query: {project: $projectId, keyword: $keyword, contentTypes: []}, sort: $sort, pagination: $pagination}
+    input: {query: {project: $projectId, keyword: $keyword, contentTypes: $contentTypes}, sort: $sort, pagination: $pagination}
   ) {
     nodes {
       ...assetFragment
@@ -3447,6 +3448,7 @@ export const GetAssetsDocument = gql`
  *      keyword: // value for 'keyword'
  *      sort: // value for 'sort'
  *      pagination: // value for 'pagination'
+ *      contentTypes: // value for 'contentTypes'
  *   },
  * });
  */
@@ -3467,9 +3469,9 @@ export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQue
 export type GetAssetsSuspenseQueryHookResult = ReturnType<typeof useGetAssetsSuspenseQuery>;
 export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
 export const GetAssetsItemsDocument = gql`
-    query GetAssetsItems($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
+    query GetAssetsItems($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination, $contentTypes: [ContentTypesEnum!]) {
   assets(
-    input: {query: {project: $projectId, keyword: $keyword, contentTypes: []}, sort: $sort, pagination: $pagination}
+    input: {query: {project: $projectId, keyword: $keyword, contentTypes: $contentTypes}, sort: $sort, pagination: $pagination}
   ) {
     nodes {
       ...assetFragment
@@ -3505,6 +3507,7 @@ export const GetAssetsItemsDocument = gql`
  *      keyword: // value for 'keyword'
  *      sort: // value for 'sort'
  *      pagination: // value for 'pagination'
+ *      contentTypes: // value for 'contentTypes'
  *   },
  * });
  */
