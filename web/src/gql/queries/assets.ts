@@ -1,8 +1,20 @@
 import { gql } from "@apollo/client";
 
 export const GET_ASSETS = gql`
-  query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
-    assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+  query GetAssets(
+    $projectId: ID!
+    $keyword: String
+    $sort: AssetSort
+    $pagination: Pagination
+    $contentTypes: [ContentTypesEnum!]
+  ) {
+    assets(
+      input: {
+        query: { project: $projectId, keyword: $keyword, contentTypes: $contentTypes }
+        sort: $sort
+        pagination: $pagination
+      }
+    ) {
       nodes {
         ...assetFragment
       }
@@ -23,8 +35,15 @@ export const GET_ASSETS_ITEMS = gql`
     $keyword: String
     $sort: AssetSort
     $pagination: Pagination
+    $contentTypes: [ContentTypesEnum!]
   ) {
-    assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+    assets(
+      input: {
+        query: { project: $projectId, keyword: $keyword, contentTypes: $contentTypes }
+        sort: $sort
+        pagination: $pagination
+      }
+    ) {
       nodes {
         ...assetFragment
         items {

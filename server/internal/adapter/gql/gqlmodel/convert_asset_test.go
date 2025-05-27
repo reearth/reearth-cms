@@ -344,3 +344,67 @@ func TestAssetSort_Into(t *testing.T) {
 		})
 	}
 }
+
+func TestConvertAsset_detectContentTypeByFilename(t *testing.T) {
+	tests := []struct {
+		name     string
+		filename string
+		want     *string
+	}{
+		{
+			name:     "json file",
+			filename: "data.json",
+			want:     lo.ToPtr("application/json"),
+		},
+		{
+			name:     "geojson file",
+			filename: "map.geojson",
+			want:     lo.ToPtr("application/geo+json"),
+		},
+		{
+			name:     "csv file",
+			filename: "sheet.csv",
+			want:     lo.ToPtr("text/csv"),
+		},
+		{
+			name:     "html file",
+			filename: "index.html",
+			want:     lo.ToPtr("text/html"),
+		},
+		{
+			name:     "htm file",
+			filename: "legacy.htm",
+			want:     lo.ToPtr("text/html"),
+		},
+		{
+			name:     "pdf file",
+			filename: "report.pdf",
+			want:     lo.ToPtr("application/pdf"),
+		},
+		{
+			name:     "txt file",
+			filename: "readme.txt",
+			want:     lo.ToPtr("text/plain"),
+		},
+		{
+			name:     "unsupported extension",
+			filename: "unknown.xyz",
+			want:     nil,
+		},
+		{
+			name:     "no extension",
+			filename: "README",
+			want:     nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc // capture range variable
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := detectContentTypeByFilename(tc.filename)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}

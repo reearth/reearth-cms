@@ -39,7 +39,7 @@ func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObje
 		Pagination: p,
 	}
 
-	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, f, op)
+	assets, pi, err := uc.Asset.Search(ctx, request.ProjectId, f, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetFilter404Response{}, err
