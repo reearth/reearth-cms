@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useMemo, useState } from "react";
+import { useMemo, useState, RefObject } from "react";
+import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -38,6 +39,7 @@ type Props = {
   selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
   viewerType?: ViewerType;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
@@ -47,7 +49,6 @@ type Props = {
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -57,6 +58,7 @@ const AssetMolecule: React.FC<Props> = ({
   selectedPreviewType,
   isModalVisible,
   viewerType,
+  viewerRef,
   displayUnzipFileList,
   decompressing,
   hasUpdateRight,
@@ -66,7 +68,6 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
-  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -82,8 +83,8 @@ const AssetMolecule: React.FC<Props> = ({
             assetFileExt={assetFileExt}
             isAssetPublic={asset.public}
             url={assetUrl}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
-            onGetViewer={onGetViewer}
           />
         );
       case "geo_3d_tiles":
@@ -92,8 +93,8 @@ const AssetMolecule: React.FC<Props> = ({
             isAssetPublic={asset.public}
             url={assetUrl}
             setAssetUrl={setAssetUrl}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
-            onGetViewer={onGetViewer}
           />
         );
       case "geo_mvt":
@@ -101,8 +102,8 @@ const AssetMolecule: React.FC<Props> = ({
           <MvtViewer
             isAssetPublic={asset.public}
             url={assetUrl}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
-            onGetViewer={onGetViewer}
           />
         );
       case "image":
@@ -114,8 +115,8 @@ const AssetMolecule: React.FC<Props> = ({
           <GltfViewer
             isAssetPublic={asset.public}
             url={assetUrl}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
-            onGetViewer={onGetViewer}
           />
         );
       case "csv":
@@ -123,15 +124,15 @@ const AssetMolecule: React.FC<Props> = ({
           <CsvViewer
             isAssetPublic={asset.public}
             url={assetUrl}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
-            onGetViewer={onGetViewer}
           />
         );
       case "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [asset.public, assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
+  }, [asset.public, assetFileExt, assetUrl, viewerRef, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>

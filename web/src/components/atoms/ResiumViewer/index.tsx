@@ -1,17 +1,18 @@
 import styled from "@emotion/styled";
 import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
+import { useT } from "@reearth-cms/i18n";
 
 import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
 type Props = {
-  onGetViewer: (viewer?: CesiumViewer) => void;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   children: React.ReactNode;
   properties?: Property;
   showDescription?: boolean;
@@ -20,17 +21,20 @@ type Props = {
 };
 
 const ResiumViewer: React.FC<Props> = ({
-  onGetViewer,
+  viewerRef,
   children,
   properties: passedProps,
   showDescription,
   onSelect,
   workspaceSettings,
 }) => {
+  const t = useT();
   const [properties, setProperties] = useState<Property>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [viewerKey, setViewerKey] = useState(0);
   const mvtClickedFlag = useRef(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,6 +91,33 @@ const ResiumViewer: React.FC<Props> = ({
     }
   }, [passedProps, setSortedProperties]);
 
+  useEffect(() => {
+    let retryCount = 0;
+    const maxRetries = 5;
+    const retryDelay = 500;
+    let timeout: NodeJS.Timeout;
+    let hasRemounted = false;
+
+    const checkViewer = () => {
+      const viewer = viewerRef.current?.cesiumElement;
+      if (viewer && !viewer.isDestroyed?.()) {
+        setIsLoading(false);
+      } else if (retryCount < maxRetries) {
+        retryCount++;
+        timeout = setTimeout(checkViewer, retryDelay);
+      } else {
+        console.warn(`Cesium Viewer was not initialized after ${retryCount} retries.`);
+      }
+      if (viewer?.isDestroyed?.() && !hasRemounted) {
+        hasRemounted = true;
+        setViewerKey(prev => prev + 1);
+      }
+    };
+    checkViewer();
+
+    return () => clearTimeout(timeout);
+  }, [viewerRef]);
+
   const imagery = useMemo(() => {
     return workspaceSettings.tiles ? imageryGet(workspaceSettings.tiles.resources) : [];
   }, [workspaceSettings.tiles]);
@@ -99,7 +130,9 @@ const ResiumViewer: React.FC<Props> = ({
 
   return (
     <Container>
+      {isLoading && <LoadingOverlay>{t("Loading")}</LoadingOverlay>}
       <StyledViewer
+        key={viewerKey}
         navigationHelpButton={false}
         homeButton={false}
         projectionPicker={false}
@@ -117,7 +150,8 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        ref={node => node && onGetViewer(node.cesiumElement)}>
+        hidden={isLoading}
+        ref={viewerRef}>
         {children}
       </StyledViewer>
       <InfoBox
@@ -137,11 +171,23 @@ const Container = styled.div`
   position: relative;
 `;
 
-const StyledViewer = styled(Viewer)`
+const StyledViewer = styled(Viewer)<{ hidden?: boolean }>`
+  visibility: ${({ hidden }) => (hidden ? "hidden" : "visible")};
   .cesium-baseLayerPicker-dropDown {
     box-sizing: content-box;
   }
   .cesium-baseLayerPicker-choices {
     text-align: left;
   }
+`;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
