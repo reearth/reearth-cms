@@ -11,6 +11,12 @@ import { useT } from "@reearth-cms/i18n";
 import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
+declare global {
+  interface Window {
+    cesiumViewer?: CesiumViewer;
+  }
+}
+
 type Props = {
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   children: React.ReactNode;
@@ -101,6 +107,7 @@ const ResiumViewer: React.FC<Props> = ({
     const checkViewer = () => {
       const viewer = viewerRef.current?.cesiumElement;
       if (viewer && !viewer.isDestroyed?.()) {
+        window.cesiumViewer = viewer; // For debugging purposes
         setIsLoading(false);
       } else if (retryCount < maxRetries) {
         retryCount++;
