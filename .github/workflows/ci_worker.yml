@@ -15,7 +15,7 @@ jobs:
           check-latest: true
           cache-dependency-path: 'worker/go.sum'
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v8
         with:
           version: v2.0.2
           working-directory: worker
