@@ -6,23 +6,19 @@ Oops!: ''
 PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
 ITEM NOT FOUND ON SERVER: データが見つかりません。
+Enable: 有効
 Model: モデル
-Switch: 切り替え
 End point: エンドポイント
 Assets: アセット
-Private: 非公開
-Limited: 限定公開
-Public: 公開
+Save changes: 変更を保存
+Name: 名前
+Key: ''
+New Key: ''
+Please transfer your project to private to use the API key: ''
+Customize your API key to control the visibility of your models: ''
+Change project visibility: ''
 Accessibility: 公開設定
 Control the visibility scope of the Content API: コンテンツAPIの公開範囲を制御
-Public Scope: 公開範囲
-Choose your project public method.: プロジェクトの公開範囲を選択してください。
-Project Alias: プロジェクトエイリアス
-Edit Project Alias in Project Setting.: プロジェクト設定にてプロジェクトエイリアスを編集することができます。
-Token: トークン
-This is your secret token, please use as your env value.: これは秘密のトークンです。環境変数の値として使用してください。
-Re-generate: 再生成
-Save changes: 変更を保存
 Are you sure you want to delete your account?: 本当にアカウントを削除してよろしいですか？
 Cancel: キャンセル
 Danger Zone: 重要操作
@@ -221,7 +217,6 @@ Reader: 閲覧者
 Writer: 編集者
 Maintainer: メンテナー
 Owner: オーナー
-Name: 名前
 Creator: 作成者
 Remove: 削除
 No Integration yet: まだインテグレーションはありません
@@ -270,6 +265,8 @@ Re-generate The Integration Token?: インテグレーショントークンを�
 If you re-generate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?: インテグレーショントークンを再生成すると、以前のトークンは無効になり、この操作は元に戻せません。本当に続行しますか？
 Reset: リセット
 Integration Token: インテグレーショントークン
+This is your secret token, please use as your env value.: これは秘密のトークンです。環境変数の値として使用してください。
+Re-generate: 再生成
 Code Example: コード例
 your model id here: モデルIDをここに入力してください
 your Integration Token here: インテグレーショントークンをここに入力してください
@@ -443,7 +440,6 @@ The first one in the list will be the default Tile.: リストの最初のタイ
 Add new Tiles option: 新しいタイルを追加
 Terrain: 地形
 The first one in the list will be the default Terrain.: リストの最初の地形がデフォルトの地形となります。
-Enable: 有効
 Add new Terrain option: 新しい地形を追加
 New View: 新しいビュー
 Update View: ビューを更新します
