@@ -14,6 +14,7 @@ const Accessibility: React.FC = () => {
     token,
     handlePublicUpdate,
     handleRegenerateToken,
+    handleSettingsPageOpen,
   } = useHooks();
 
   return (
@@ -28,6 +29,7 @@ const Accessibility: React.FC = () => {
       token={token}
       onPublicUpdate={handlePublicUpdate}
       onRegenerateToken={handleRegenerateToken}
+      onSettingsPageOpen={handleSettingsPageOpen}
     />
   );
 };

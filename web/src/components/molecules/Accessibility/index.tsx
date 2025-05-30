@@ -21,6 +21,7 @@ type Props = {
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
+  onSettingsPageOpen: () => void;
 };
 
 const Accessibility: React.FC<Props> = ({
@@ -30,6 +31,7 @@ const Accessibility: React.FC<Props> = ({
   updateLoading,
   apiUrl,
   onPublicUpdate,
+  onSettingsPageOpen,
 }) => {
   const t = useT();
   const isPublic = initialValues.scope === ProjectPublicationScope.Public;
@@ -51,7 +53,7 @@ const Accessibility: React.FC<Props> = ({
         apiUrl={apiUrl}
         onPublicUpdate={onPublicUpdate}
       />
-      <APIKeyComponent keys={keys} isPublic={isPublic} />
+      <APIKeyComponent keys={keys} isPublic={isPublic} onSettingsPageOpen={onSettingsPageOpen} />
     </InnerContent>
   );
 };

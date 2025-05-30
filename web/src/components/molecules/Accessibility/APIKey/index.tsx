@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -11,16 +10,11 @@ import APIKeyTable from "./APIKeyTable";
 type Props = {
   isPublic: boolean;
   keys: any[];
+  onSettingsPageOpen: () => void;
 };
 
-const APIKeyComponent: React.FC<Props> = ({ isPublic, keys }) => {
+const APIKeyComponent: React.FC<Props> = ({ isPublic, keys, onSettingsPageOpen }) => {
   const t = useT();
-  const navigate = useNavigate();
-  const { workspaceId, projectId } = useParams();
-
-  const handleClick = () => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
-  };
 
   return (
     <ContentSection title="API Key">
@@ -35,7 +29,7 @@ const APIKeyComponent: React.FC<Props> = ({ isPublic, keys }) => {
           <Paragraph>
             {t("Customize your API key to control the visibility of your models")}
           </Paragraph>
-          <Button type="primary" onClick={handleClick}>
+          <Button type="primary" onClick={onSettingsPageOpen}>
             {t("Change project visibility")}
           </Button>
         </PublicContainer>

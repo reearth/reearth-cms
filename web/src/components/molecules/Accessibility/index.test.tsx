@@ -29,6 +29,9 @@ describe("Accessibility", () => {
   const onRegenerateToken = () => {
     return Promise.resolve();
   };
+  const onSettingsPageOpen = () => {
+    return Promise.resolve();
+  };
 
   test("Scope, alias, and public status and API end point of models and assets are displayed successfully", async () => {
     render(
@@ -43,6 +46,7 @@ describe("Accessibility", () => {
         alias={alias}
         onPublicUpdate={onPublicUpdate}
         onRegenerateToken={onRegenerateToken}
+        onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
 
@@ -86,6 +90,7 @@ describe("Accessibility", () => {
         alias={alias}
         onPublicUpdate={onPublicUpdate}
         onRegenerateToken={onRegenerateToken}
+        onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
 
@@ -140,6 +145,7 @@ describe("Accessibility", () => {
         alias={alias}
         onPublicUpdate={onPublicUpdate}
         onRegenerateToken={onRegenerateToken}
+        onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
 
@@ -170,6 +176,7 @@ describe("Accessibility", () => {
         alias={alias}
         onPublicUpdate={onPublicUpdate}
         onRegenerateToken={onRegenerateToken}
+        onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
 
