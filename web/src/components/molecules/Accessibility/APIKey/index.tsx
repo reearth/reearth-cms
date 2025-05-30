@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -14,10 +15,11 @@ type Props = {
 
 const APIKeyComponent: React.FC<Props> = ({ isPublic, keys }) => {
   const t = useT();
+  const navigate = useNavigate();
+  const { workspaceId, projectId } = useParams();
 
   const handleClick = () => {
-    // Logic to change project visibility
-    console.log("Change project visibility clicked");
+    navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
   };
 
   return (

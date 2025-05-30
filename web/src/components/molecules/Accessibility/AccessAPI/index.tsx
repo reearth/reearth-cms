@@ -1,8 +1,10 @@
+import styled from "@emotion/styled";
 import { useState, useEffect, useRef, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import Switch from "@reearth-cms/components/atoms/Switch";
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
@@ -33,6 +35,7 @@ const AccessAPIComponent: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+  const [isAccessAPIEnabled, setIsAccessAPIEnabled] = useState(false);
 
   const [form] = Form.useForm<FormType>();
   useEffect(() => {
@@ -65,6 +68,7 @@ const AccessAPIComponent: React.FC<Props> = ({
   );
 
   const handleSave = useCallback(async () => {
+    console.log(isAccessAPIEnabled);
     try {
       await onPublicUpdate(
         form.getFieldsValue(),
@@ -78,27 +82,60 @@ const AccessAPIComponent: React.FC<Props> = ({
     } catch (e) {
       console.error(e);
     }
-  }, [form, onPublicUpdate]);
+  }, [form, isAccessAPIEnabled, onPublicUpdate]);
+
+  const handleChange = useCallback((checked: boolean) => {
+    console.log("Switch to", checked);
+    setIsAccessAPIEnabled(checked);
+  }, []);
 
   return (
-    <ContentSection title="Open API">
-      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-        <AccessAPITable
-          apiUrl={apiUrl}
-          hasPublishRight={hasPublishRight}
-          models={models}
-          isPublic={isPublic}
-        />
-        {!isPublic && <Button
-          type="primary"
-          disabled={isSaveDisabled}
-          onClick={handleSave}
-          loading={updateLoading}>
-          {t("Save changes")}
-        </Button>}
-      </Form>
+    <ContentSection title="Access API">
+      <ToggleAPIContainer>
+        <Header>{t("Access API")}</Header>
+        <Paragraph>
+          {t("Anyone with the API endpoint can access project data via the API")}
+        </Paragraph>
+        <Switch onChange={handleChange} />
+      </ToggleAPIContainer>
+      {isAccessAPIEnabled && (
+        <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
+          <AccessAPITable
+            apiUrl={apiUrl}
+            hasPublishRight={hasPublishRight}
+            models={models}
+            isPublic={isPublic}
+          />
+          {!isPublic && (
+            <Button
+              type="primary"
+              disabled={isSaveDisabled}
+              onClick={handleSave}
+              loading={updateLoading}>
+              {t("Save changes")}
+            </Button>
+          )}
+        </Form>
+      )}
     </ContentSection>
   );
 };
 
 export default AccessAPIComponent;
+
+const ToggleAPIContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+`;
+
+const Header = styled.h3`
+  color: #262626;
+  padding-bottom: 162x;
+`;
+
+const Paragraph = styled.p`
+  color: #8c8c8c;
+  padding-bottom: 162x;
+`;

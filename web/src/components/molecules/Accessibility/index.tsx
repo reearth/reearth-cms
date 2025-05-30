@@ -1,6 +1,7 @@
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ProjectPublicationScope } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import AccessAPIComponent from "./AccessAPI";
@@ -31,8 +32,7 @@ const Accessibility: React.FC<Props> = ({
   onPublicUpdate,
 }) => {
   const t = useT();
-  // const isPublic = initialValues.scope === ProjectPublicationScope.Public;
-  const isPublic = true;
+  const isPublic = initialValues.scope === ProjectPublicationScope.Public;
   const keys = [
     { name: "Default API Key", key: "secret_SuV6vNbzH3WRh2CoOkaCZrGp5mUXCvLPKM36iYjNIoc" },
   ];

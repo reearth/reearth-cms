@@ -10,6 +10,8 @@ Enable: 有効
 Model: モデル
 End point: エンドポイント
 Assets: アセット
+Access API: ''
+Anyone with the API endpoint can access project data via the API: ''
 Save changes: 変更を保存
 Name: 名前
 Key: ''
