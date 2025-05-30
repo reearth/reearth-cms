@@ -1,3 +1,5 @@
+import { Viewer as CesiumViewer } from "cesium";
+
 import { type AuthInfo, getAuthInfo } from "./authInfo";
 import { configureCognito } from "./aws";
 import { configureFirebase } from "./firebase";
@@ -61,5 +63,6 @@ declare global {
   interface Window {
     REEARTH_CONFIG?: Config;
     REEARTH_E2E_ACCESS_TOKEN?: string;
+    cesiumViewer?: CesiumViewer;
   }
 }

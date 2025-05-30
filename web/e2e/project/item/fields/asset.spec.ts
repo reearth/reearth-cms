@@ -70,7 +70,7 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByText(uploadFileName_2)).toBeVisible();
 });
 
-test("Previewing json file is not destroyed on startup succeeded", async ({ page, context }) => {
+test("Previewing JSON file from content page into new tab succeeded", async ({ page, context }) => {
   await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
   await page.getByLabel("Display name").fill("asset1");
   await page.getByLabel("Settings").locator("#key").fill("asset1");
@@ -96,21 +96,6 @@ test("Previewing json file is not destroyed on startup succeeded", async ({ page
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
 
-  // const viewerDestroyedPromise = new Promise<boolean>(resolve => {
-  //   context.once("page", viewerPage => {
-  //     viewerPage.on("console", msg => {
-  //       if (
-  //         msg.type() === "error" &&
-  //         (msg.text().includes("This object was destroyed") ||
-  //           msg.text().includes("Cannot read properties of undefined"))
-  //       ) {
-  //         resolve(true);
-  //       }
-  //     });
-  //   });
-  //   setTimeout(() => resolve(false), 2000);
-  // });
-
   const [viewerPage] = await Promise.all([
     context.waitForEvent("page"),
     page.getByRole("button", { name: uploadFileName_2 }).last().click(),
@@ -118,13 +103,12 @@ test("Previewing json file is not destroyed on startup succeeded", async ({ page
   await viewerPage.waitForLoadState("domcontentloaded");
 
   const canvas = viewerPage.locator("canvas");
-  await expect(canvas).toBeVisible({ timeout: 5000 });
+  await expect(canvas).toBeVisible();
 
-  // const viewerDestroyed = await viewerDestroyedPromise;
-  const viewerDestroyed = await page.evaluate(() => {
-    return typeof window.cesiumViewer !== "undefined" && window.cesiumViewer.isDestroyed();
+  const viewerIsReady = await viewerPage.evaluate(() => {
+    return !!window.cesiumViewer && window.cesiumViewer.isDestroyed?.() === false;
   });
-  expect(viewerDestroyed).toBe(false);
+  expect(viewerIsReady).toBe(true);
 });
 
 test("Asset field editing has succeeded", async ({ page }) => {
