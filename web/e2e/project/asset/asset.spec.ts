@@ -1,13 +1,10 @@
-import path from "path";
-import { fileURLToPath } from "url";
-
 import { Page } from "@playwright/test";
 
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import { crudComment } from "./utils/comment";
-import { createProject, deleteProject } from "./utils/project";
+import { crudComment } from "../utils/comment";
+import { createProject, deleteProject } from "../utils/project";
 
 const jsonName = "tileset.json";
 const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/${jsonName}`;
@@ -128,48 +125,4 @@ test("Previewing png file on modal has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "fullscreen" }).click();
   await expect(page.getByRole("img", { name: "asset-preview" })).toBeVisible();
   await page.getByRole("button", { name: "close" }).click();
-});
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-test.describe("Zip Upload Tests", () => {
-  test("Uploading and auto-unzipping ZIP file from URL succeeds", async ({ page }) => {
-    const zipName = "13229_nishitokyo-shi_2022_3dtiles_1_op2_bldg_lod1_index.zip";
-    const zipUrl =
-      "https://api.cms.plateau.dev.reearth.io/assets/0f/4ba9ed-1a69-4360-b473-5566fc922a4e/" +
-      zipName;
-    await page.getByRole("button", { name: "upload Upload Asset" }).click();
-    await page.getByRole("tab", { name: "URL" }).click();
-    const urlInput = page.getByPlaceholder("Please input a valid URL");
-    await urlInput.fill(zipUrl);
-    const autoUnzipCheckbox = page.getByRole("checkbox", { name: "Auto Unzip" });
-    await autoUnzipCheckbox.setChecked(true);
-    await expect(autoUnzipCheckbox).toBeChecked();
-    await page.getByRole("button", { name: "Upload", exact: true }).click();
-    await expect(page.locator(".ant-notification-notice").last()).toContainText(
-      "Successfully added asset!",
-    );
-    await closeNotification(page);
-  });
-
-  test("Uploading and auto-unzipping ZIP file via Local tab (AntD)", async ({ page }) => {
-    const zipPath = path.resolve(
-      __dirname,
-      "../assets/1200773-e122cf709898c09758aecfef349964a8d73a83f3.zip",
-    );
-    await page.getByRole("button", { name: "upload Upload Asset" }).click();
-    await page.getByRole("tab", { name: "Local" }).click();
-    const uploadInput = page.locator(".ant-upload input[type='file']");
-    await uploadInput.setInputFiles(zipPath);
-    const autoUnzipCheckbox = page.getByRole("checkbox", { name: "Auto Unzip" });
-    await autoUnzipCheckbox.setChecked(true);
-    await expect(autoUnzipCheckbox).toBeChecked();
-    await page.getByRole("button", { name: "Upload", exact: true }).click();
-    await expect(page.locator(".ant-notification-notice").last()).toContainText(
-      "Successfully added one or more assets!",
-    );
-
-    await closeNotification(page);
-  });
 });
