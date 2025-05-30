@@ -5,3 +5,15 @@ export type FormType = {
   assetPublic: boolean;
   models: Record<string, boolean>;
 };
+
+export type ModelDataType = {
+  key: string;
+  name: string;
+  id: string | string[];
+  endpoint: string;
+};
+
+export type APIKeyType = {
+  name: string;
+  key: string;
+};

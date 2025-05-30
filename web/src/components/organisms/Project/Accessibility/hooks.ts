@@ -1,4 +1,5 @@
 import { useCallback, useState, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormType, PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
@@ -17,6 +18,8 @@ import { useProject, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
+  const navigate = useNavigate();
+  const { workspaceId, projectId } = useParams();
   const [currentProject] = useProject();
   const [userRights] = useUserRights();
   const hasPublishRight = useMemo(
@@ -155,6 +158,10 @@ export default () => {
     [currentProject?.alias],
   );
 
+  const handleSettingsPageOpen = () => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
+  };
+
   return {
     initialValues,
     models,
@@ -166,5 +173,6 @@ export default () => {
     token,
     handlePublicUpdate,
     handleRegenerateToken,
+    handleSettingsPageOpen,
   };
 };
