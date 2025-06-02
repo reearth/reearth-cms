@@ -8,13 +8,10 @@ const Accessibility: React.FC = () => {
     models,
     hasPublishRight,
     updateLoading,
-    regenerateLoading,
     apiUrl,
     alias,
-    token,
     handleAPIKeyEdit,
     handlePublicUpdate,
-    handleAPIKeyRegenerate,
     handleSettingsPageOpen,
   } = useHooks();
 
@@ -24,13 +21,10 @@ const Accessibility: React.FC = () => {
       models={models}
       hasPublishRight={hasPublishRight}
       updateLoading={updateLoading}
-      regenerateLoading={regenerateLoading}
       apiUrl={apiUrl}
       alias={alias}
-      token={token}
       onAPIKeyEdit={handleAPIKeyEdit}
       onPublicUpdate={handlePublicUpdate}
-      onAPIKeyRegenerate={handleAPIKeyRegenerate}
       onSettingsPageOpen={handleSettingsPageOpen}
     />
   );

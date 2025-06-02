@@ -11,16 +11,13 @@ type Props = {
   models: Pick<Model, "id" | "name" | "key">[];
   hasPublishRight: boolean;
   updateLoading: boolean;
-  regenerateLoading: boolean;
   apiUrl: string;
   alias: string;
-  token: string;
   onAPIKeyEdit: (keyId: string) => void;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
-  onAPIKeyRegenerate: (id: string) => Promise<void>;
   onSettingsPageOpen: () => void;
 };
 

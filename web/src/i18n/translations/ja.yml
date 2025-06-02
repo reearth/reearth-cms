@@ -10,15 +10,15 @@ Enable: 有効
 Model: モデル
 End point: エンドポイント
 Assets: アセット
-Access API: ''
-Anyone with the API endpoint can access project data via the API: ''
+Access API:  アクセスAPI
+Anyone with the API endpoint can access project data via the API: エンドポイントを知っている人は誰でもプロジェクトデータにアクセスできます
 Save changes: 変更を保存
 Name: 名前
-Key: ''
-New Key: ''
-Please transfer your project to private to use the API key: ''
-Customize your API key to control the visibility of your models: ''
-Change project visibility: ''
+Key: キー
+New Key: 新しいキー
+Please transfer your project to private to use the API key: キーを使用するには、プロジェクトを非公開にしてください
+Customize your API key to control the visibility of your models: モデルの公開範囲を制御するには、API キーをカスタマイズしてください
+Change project visibility: プロジェクトの公開範囲を変更
 Accessibility: 公開設定
 Control the visibility scope of the Content API: コンテンツAPIの公開範囲を制御
 Are you sure you want to delete your account?: 本当にアカウントを削除してよろしいですか？

@@ -9,10 +9,7 @@ import {
   usePublishModelsMutation,
   useGetModelsQuery,
   useUpdateProjectMutation,
-  useCreateApiKeyMutation,
-  useUpdateApiKeyMutation,
   useDeleteApiKeyMutation,
-  useRegenerateApiKeyMutation,
   Model as GQLModel,
   ProjectVisibility as GQLProjectVisibility,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -22,7 +19,7 @@ import { useProject, useUserRights } from "@reearth-cms/state";
 export default () => {
   const t = useT();
   const navigate = useNavigate();
-  const { workspaceId, projectId, keyId } = useParams();
+  const { workspaceId, projectId } = useParams();
   const [currentProject] = useProject();
   const [userRights] = useUserRights();
   const hasPublishRight = useMemo(
@@ -83,12 +80,7 @@ export default () => {
     refetchQueries: ["GetModels"],
   });
 
-  const [createAPIKeyMutation] = useCreateApiKeyMutation({ refetchQueries: ["GetProject"] });
-  const [updateAPIKeyMutation] = useUpdateApiKeyMutation({ refetchQueries: ["GetProject"] });
   const [deleteAPIKeyMutation] = useDeleteApiKeyMutation({ refetchQueries: ["GetProject"] });
-  const [regenerateAPIKeyMutation] = useRegenerateApiKeyMutation({
-    refetchQueries: ["GetProject"],
-  });
 
   const handlePublicUpdate = useCallback(
     async ({ scope, assetPublic }: FormType, models: { modelId: string; status: boolean }[]) => {
@@ -138,56 +130,6 @@ export default () => {
     ],
   );
 
-  const handleAPIKeyCreate = useCallback(
-    async (
-      name: string,
-      description: string,
-      publication: { publicModels: string[]; publicAssets: boolean },
-    ) => {
-      if (!currentProject?.id) return;
-      try {
-        await createAPIKeyMutation({
-          variables: {
-            projectId: currentProject.id,
-            name,
-            description,
-            publication,
-          },
-        });
-        Notification.success({ message: t("API Key created successfully.") });
-      } catch {
-        Notification.error({ message: t("Failed to create API Key.") });
-      }
-    },
-    [createAPIKeyMutation, currentProject?.id, t],
-  );
-
-  const handleAPIKeyUpdate = useCallback(
-    async (
-      id: string,
-      name: string,
-      description: string,
-      publication: { publicModels: string[]; publicAssets: boolean },
-    ) => {
-      if (!currentProject?.id) return;
-      try {
-        await updateAPIKeyMutation({
-          variables: {
-            id,
-            projectId: currentProject.id,
-            name,
-            description,
-            publication,
-          },
-        });
-        Notification.success({ message: t("API Key updated successfully.") });
-      } catch {
-        Notification.error({ message: t("Failed to update API Key.") });
-      }
-    },
-    [updateAPIKeyMutation, currentProject?.id, t],
-  );
-
   const handleAPIKeyDelete = useCallback(
     async (id: string) => {
       if (!currentProject?.id) return;
@@ -206,24 +148,6 @@ export default () => {
     [deleteAPIKeyMutation, currentProject?.id, t],
   );
 
-  const handleAPIKeyRegenerate = useCallback(
-    async (id: string) => {
-      if (!currentProject?.id) return;
-      try {
-        await regenerateAPIKeyMutation({
-          variables: {
-            projectId: currentProject.id,
-            id,
-          },
-        });
-        Notification.success({ message: t("API Key re-generated successfully.") });
-      } catch {
-        Notification.error({ message: t("Failed to re-generate API Key.") });
-      }
-    },
-    [regenerateAPIKeyMutation, currentProject?.id, t],
-  );
-
   const apiUrl = useMemo(
     () => `${window.REEARTH_CONFIG?.api}/p/${currentProject?.alias}/`,
     [currentProject?.alias],
@@ -233,7 +157,7 @@ export default () => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
   };
 
-  const handleAPIKeyEdit = () => {
+  const handleAPIKeyEdit = (keyId: string) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/${keyId}`);
   };
 
@@ -242,15 +166,10 @@ export default () => {
     models,
     hasPublishRight,
     updateLoading,
-    regenerateLoading: false,
     apiUrl,
     alias,
-    token: "",
     handlePublicUpdate,
-    handleAPIKeyCreate,
-    handleAPIKeyUpdate,
     handleAPIKeyDelete,
-    handleAPIKeyRegenerate,
     handleAPIKeyEdit,
     handleSettingsPageOpen,
   };
