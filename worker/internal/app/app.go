@@ -40,6 +40,9 @@ func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Ec
 
 	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, "pong") })
 
+	// Health check endpoint
+	e.GET("/health", HealthCheck(cfg.Config, cfg.Version))
+
 	t := handler.DecompressHandler()
 	api.POST("/decompress", t, awsSNSSubscriptionConfirmationMiddleware)
 
