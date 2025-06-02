@@ -5,23 +5,19 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
-import { APIKeyType } from "../types";
+import { APIKey, APIKeyModelType } from "../types";
 
 import KeyCell from "./KeyCell";
 
 type Props = {
-  keys: any[];
+  keys: APIKey[];
+  onAPIKeyEdit: (keyId: string) => void;
 };
 
-const APIKeyTable: React.FC<Props> = ({ keys }) => {
+const APIKeyTable: React.FC<Props> = ({ keys, onAPIKeyEdit }) => {
   const t = useT();
 
-  const handleEdit = (key: string) => {
-    // Handle edit action here
-    console.log(`Edit key: ${key}`);
-  };
-
-  const columns: TableColumnsType<APIKeyType> = useMemo(
+  const columns: TableColumnsType<APIKeyModelType> = useMemo(
     () => [
       {
         key: "name",
@@ -38,15 +34,15 @@ const APIKeyTable: React.FC<Props> = ({ keys }) => {
       {
         key: "edit-icon",
         title: "",
-        render: key => <Icon icon="ellipsis" onClick={() => handleEdit(key)} />,
+        render: key => <Icon icon="ellipsis" onClick={() => onAPIKeyEdit(key)} />,
         width: 48,
       },
     ],
-    [t],
+    [onAPIKeyEdit, t],
   );
 
   const dataSource = useMemo(() => {
-    const columns: APIKeyType[] = [];
+    const columns: APIKeyModelType[] = [];
     keys.forEach(key => {
       columns.push({
         name: key.name,

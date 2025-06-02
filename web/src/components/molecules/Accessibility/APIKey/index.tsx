@@ -5,15 +5,18 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useT } from "@reearth-cms/i18n";
 
+import { APIKey } from "../types";
+
 import APIKeyTable from "./APIKeyTable";
 
 type Props = {
   isPublic: boolean;
-  keys: any[];
+  keys: APIKey[];
+  onAPIKeyEdit: (keyId: string) => void;
   onSettingsPageOpen: () => void;
 };
 
-const APIKeyComponent: React.FC<Props> = ({ isPublic, keys, onSettingsPageOpen }) => {
+const APIKeyComponent: React.FC<Props> = ({ isPublic, keys, onAPIKeyEdit, onSettingsPageOpen }) => {
   const t = useT();
 
   return (
@@ -34,7 +37,7 @@ const APIKeyComponent: React.FC<Props> = ({ isPublic, keys, onSettingsPageOpen }
           </Button>
         </PublicContainer>
       ) : (
-        <APIKeyTable keys={keys} />
+        <APIKeyTable keys={keys} onAPIKeyEdit={onAPIKeyEdit} />
       )}
     </ContentSection>
   );

@@ -1,6 +1,26 @@
-export type PublicScope = "PRIVATE" | "LIMITED" | "PUBLIC";
+export type ProjectVisibility = "PRIVATE" | "PUBLIC";
+
+export type PublicationSettings = {
+  publicModels: string[];
+  publicAssets: boolean;
+};
+
+export type APIKey = {
+  id: string;
+  name: string;
+  description: string;
+  key: string;
+  publication: PublicationSettings;
+};
+
+export type ProjectAccessibility = {
+  visibility: ProjectVisibility;
+  publication: PublicationSettings;
+  apiKeys: APIKey[];
+};
+
 export type FormType = {
-  scope: PublicScope;
+  scope: ProjectVisibility;
   alias: string;
   assetPublic: boolean;
   models: Record<string, boolean>;
@@ -13,7 +33,7 @@ export type ModelDataType = {
   endpoint: string;
 };
 
-export type APIKeyType = {
+export type APIKeyModelType = {
   name: string;
   key: string;
 };

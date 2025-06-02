@@ -1,7 +1,6 @@
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
-import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
+import { APIKey, FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { ProjectPublicationScope } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import AccessAPIComponent from "./AccessAPI";
@@ -16,11 +15,12 @@ type Props = {
   apiUrl: string;
   alias: string;
   token: string;
+  onAPIKeyEdit: (keyId: string) => void;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
-  onRegenerateToken: () => Promise<void>;
+  onAPIKeyRegenerate: (id: string) => Promise<void>;
   onSettingsPageOpen: () => void;
 };
 
@@ -30,13 +30,20 @@ const Accessibility: React.FC<Props> = ({
   hasPublishRight,
   updateLoading,
   apiUrl,
+  onAPIKeyEdit,
   onPublicUpdate,
   onSettingsPageOpen,
 }) => {
   const t = useT();
-  const isPublic = initialValues.scope === ProjectPublicationScope.Public;
-  const keys = [
-    { name: "Default API Key", key: "secret_SuV6vNbzH3WRh2CoOkaCZrGp5mUXCvLPKM36iYjNIoc" },
+  const isPublic = initialValues.scope === "PUBLIC";
+  const keys: APIKey[] = [
+    {
+      id: "01g4eg4ay017hpw58fkh9nd89c",
+      name: "Default API Key",
+      description: "Default key for public access",
+      key: "secret_SuV6vNbzH3WRh2CoOkaCZrGp5mUXCvLPKM36iYjNIoc",
+      publication: { publicModels: ["01hth95j5caxs73physevzw15d"], publicAssets: true },
+    },
   ];
 
   return (
@@ -53,7 +60,12 @@ const Accessibility: React.FC<Props> = ({
         apiUrl={apiUrl}
         onPublicUpdate={onPublicUpdate}
       />
-      <APIKeyComponent keys={keys} isPublic={isPublic} onSettingsPageOpen={onSettingsPageOpen} />
+      <APIKeyComponent
+        keys={keys}
+        isPublic={isPublic}
+        onAPIKeyEdit={onAPIKeyEdit}
+        onSettingsPageOpen={onSettingsPageOpen}
+      />
     </InnerContent>
   );
 };

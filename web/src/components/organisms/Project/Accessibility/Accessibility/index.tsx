@@ -12,8 +12,9 @@ const Accessibility: React.FC = () => {
     apiUrl,
     alias,
     token,
+    handleAPIKeyEdit,
     handlePublicUpdate,
-    handleRegenerateToken,
+    handleAPIKeyRegenerate,
     handleSettingsPageOpen,
   } = useHooks();
 
@@ -27,8 +28,9 @@ const Accessibility: React.FC = () => {
       apiUrl={apiUrl}
       alias={alias}
       token={token}
+      onAPIKeyEdit={handleAPIKeyEdit}
       onPublicUpdate={handlePublicUpdate}
-      onRegenerateToken={handleRegenerateToken}
+      onAPIKeyRegenerate={handleAPIKeyRegenerate}
       onSettingsPageOpen={handleSettingsPageOpen}
     />
   );
