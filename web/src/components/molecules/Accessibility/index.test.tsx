@@ -8,13 +8,11 @@ describe("Accessibility", () => {
   const user = userEvent.setup();
 
   const hasPublishRight = true;
-  const token = "";
   const model1Id = "model1Id";
   const model1Name = "model1Name";
   const model1Key = "model1Key";
   const models = [{ id: model1Id, name: model1Name, key: model1Key }];
   const updateLoading = false;
-  const regenerateLoading = false;
   const apiUrl = "https://test.com/api/";
   const alias = "alias";
   const initialValues = {
@@ -29,9 +27,6 @@ describe("Accessibility", () => {
   const onPublicUpdate = () => {
     return Promise.resolve();
   };
-  const onAPIKeyRegenerate = () => {
-    return Promise.resolve();
-  };
   const onSettingsPageOpen = () => {
     return Promise.resolve();
   };
@@ -41,15 +36,12 @@ describe("Accessibility", () => {
       <Accessibility
         initialValues={initialValues}
         hasPublishRight={hasPublishRight}
-        token={token}
         models={models}
         updateLoading={updateLoading}
-        regenerateLoading={regenerateLoading}
         apiUrl={apiUrl}
         alias={alias}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
-        onAPIKeyRegenerate={onAPIKeyRegenerate}
         onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
@@ -80,15 +72,12 @@ describe("Accessibility", () => {
       <Accessibility
         initialValues={initialValues}
         hasPublishRight={hasPublishRight}
-        token={token}
         models={models}
         updateLoading={updateLoading}
-        regenerateLoading={regenerateLoading}
         apiUrl={apiUrl}
         alias={alias}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
-        onAPIKeyRegenerate={onAPIKeyRegenerate}
         onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
@@ -125,15 +114,12 @@ describe("Accessibility", () => {
       <Accessibility
         initialValues={initialValues}
         hasPublishRight={false}
-        token={token}
         models={models}
         updateLoading={updateLoading}
-        regenerateLoading={regenerateLoading}
         apiUrl={apiUrl}
         alias={alias}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
-        onAPIKeyRegenerate={onAPIKeyRegenerate}
         onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
