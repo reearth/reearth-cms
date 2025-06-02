@@ -482,8 +482,14 @@ Failed to delete comment.: コメントの削除に失敗しました。
 Successfully deleted comment!: コメントの削除に成功しました。
 Successfully updated publication settings!: 公開設定の更新に成功しました。
 Failed to update publication settings.: 公開設定の更新に失敗しました。
-Public API Token has been re-generated!: 公開APIトークンの再生成に成功しました！
-The attempt to re-generate the Public API Token has failed.: 公開APIトークンの再生成に失敗しました。
+API Key created successfully.: APIキーの作成に成功しました。
+Failed to create API Key.: APIキーの作成に失敗しました。
+API Key updated successfully.: APIキーの更新に成功しました。
+Failed to update API Key.: APIキーの更新に失敗しました。
+API Key deleted successfully.: APIキーの削除に成功しました。
+Failed to delete API Key.: APIキーの削除に失敗しました。
+API Key re-generated successfully.: APIキーの再生成に成功しました。
+Failed to re-generate API Key.: APIキーの再生成に失敗しました。
 Failed to update asset.: アセットの更新に失敗しました。
 Asset was successfully updated!: アセットの更新に成功しました。
 Failed to decompress asset.: アセットの解凍に失敗しました。
