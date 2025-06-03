@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -16,9 +16,17 @@ import { useProject, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
-  const { keyId } = useParams();
+  const { workspaceId, projectId, keyId } = useParams();
   const [currentProject] = useProject();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [userRights] = useUserRights();
+  const hasCreateRight = useMemo(() => !!userRights?.apiKey.create, [userRights?.apiKey.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.apiKey.update, [userRights?.apiKey.update]);
+  const hasPublishRight = useMemo(
+    () => !!userRights?.project.publish,
+    [userRights?.project.publish],
+  );
 
   const [createAPIKeyMutation, { loading: createLoading }] = useCreateApiKeyMutation({
     refetchQueries: ["GetProject"],
@@ -159,17 +167,17 @@ export default () => {
     },
     [regenerateAPIKeyMutation, currentProject?.id, t],
   );
-  const hasCreateRight = useMemo(() => !!userRights?.apiKey.create, [userRights?.apiKey.create]);
-  const hasUpdateRight = useMemo(() => !!userRights?.apiKey.update, [userRights?.apiKey.update]);
-  const hasPublishRight = useMemo(
-    () => !!userRights?.project.publish,
-    [userRights?.project.publish],
-  );
 
   const apiUrl = useMemo(
     () => `${window.REEARTH_CONFIG?.api}/p/${currentProject?.alias}/`,
     [currentProject?.alias],
   );
+
+  const handleBack = useCallback(() => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`, {
+      state: location.state,
+    });
+  }, [location.state, navigate, projectId, workspaceId]);
 
   return {
     apiUrl,
@@ -187,5 +195,6 @@ export default () => {
     handleAPIKeyCreate,
     handleAPIKeyUpdate,
     handleAPIKeyRegenerate,
+    handleBack,
   };
 };

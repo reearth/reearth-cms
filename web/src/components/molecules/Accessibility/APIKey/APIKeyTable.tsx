@@ -13,7 +13,8 @@ import KeyCell from "./KeyCell";
 
 type Props = {
   keys: APIKey[];
-  hasUpdateRight?: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   onAPIKeyDelete: (id: string) => Promise<void>;
   onAPIKeyEdit: (keyId?: string) => void;
 };
@@ -21,6 +22,7 @@ type Props = {
 const APIKeyTable: React.FC<Props> = ({
   keys,
   hasUpdateRight,
+  hasDeleteRight,
   onAPIKeyDelete,
   onAPIKeyEdit,
 }) => {
@@ -45,7 +47,7 @@ const APIKeyTable: React.FC<Props> = ({
                 icon: <Icon icon="trash" />,
                 danger: true,
                 onClick: () => onAPIKeyDelete(keyObj.id),
-                disabled: !hasUpdateRight,
+                disabled: !hasDeleteRight,
               },
             ],
           }}
@@ -55,7 +57,7 @@ const APIKeyTable: React.FC<Props> = ({
         </Dropdown>
       );
     },
-    [hasUpdateRight, onAPIKeyDelete, onAPIKeyEdit],
+    [hasDeleteRight, hasUpdateRight, onAPIKeyDelete, onAPIKeyEdit],
   );
 
   const columns: TableColumnsType<APIKeyModelType> = useMemo(

@@ -24,6 +24,8 @@ const APIKeyComponent: React.FC<Props> = ({
   isPublic,
   keys,
   hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   onAPIKeyEdit,
   onAPIKeyDelete,
   onSettingsPageOpen,
@@ -48,7 +50,13 @@ const APIKeyComponent: React.FC<Props> = ({
           </Button>
         </PublicContainer>
       ) : (
-        <APIKeyTable keys={keys} onAPIKeyDelete={onAPIKeyDelete} onAPIKeyEdit={onAPIKeyEdit} />
+        <APIKeyTable
+          keys={keys}
+          hasUpdateRight={hasUpdateRight}
+          hasDeleteRight={hasDeleteRight}
+          onAPIKeyDelete={onAPIKeyDelete}
+          onAPIKeyEdit={onAPIKeyEdit}
+        />
       )}
     </ContentSection>
   );

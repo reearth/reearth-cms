@@ -19,6 +19,7 @@ const APIKeyDetails: React.FC = () => {
     handleAPIKeyCreate,
     handleAPIKeyUpdate,
     handleAPIKeyRegenerate,
+    handleBack,
   } = useHooks();
 
   return (
@@ -38,6 +39,7 @@ const APIKeyDetails: React.FC = () => {
       onAPIKeyCreate={handleAPIKeyCreate}
       onAPIKeyUpdate={handleAPIKeyUpdate}
       onAPIKeyRegenerate={handleAPIKeyRegenerate}
+      onBack={handleBack}
     />
   );
 };
