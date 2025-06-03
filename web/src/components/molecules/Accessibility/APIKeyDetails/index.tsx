@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -22,6 +22,8 @@ type Props = {
   currentProject?: Project;
   currentKey?: APIKey;
   hasPublishRight: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
   initialValues: KeyFormType;
   keyId?: string;
   keyModels: Pick<Model, "name" | "id" | "key">[];
@@ -52,26 +54,38 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
   apiUrl,
   currentProject,
   currentKey,
+  hasCreateRight,
+  hasUpdateRight,
   hasPublishRight,
   initialValues,
   keyId,
   keyModels,
-  // createLoading,
+  createLoading,
   updateLoading,
   regenerateLoading,
-  // onAPIKeyCreate,
+  onAPIKeyCreate,
   onAPIKeyUpdate,
   onAPIKeyRegenerate,
 }) => {
   const t = useT();
   const [visible, setVisible] = useState(false);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+  const isNewKey = useMemo(() => keyId === "new", [keyId]);
+  const changedModels = useRef(new Map<string, boolean>());
 
   const [form] = Form.useForm<KeyFormType>();
   useEffect(() => {
     form.setFieldsValue(initialValues);
   }, [form, initialValues]);
-  const changedModels = useRef(new Map<string, boolean>());
+
+  // TODO: think about this logic
+  useEffect(() => {
+    if (!hasCreateRight && isNewKey) {
+      setIsSaveDisabled(true);
+    } else if (!hasUpdateRight && !isNewKey) {
+      setIsSaveDisabled(true);
+    }
+  }, [hasCreateRight, hasUpdateRight, isNewKey]);
 
   const handleSave = useCallback(async () => {
     try {
@@ -85,13 +99,17 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
         publicModels: Array.from(changedModels.current.keys()),
         publicAssets: form.getFieldValue("assetPublic") || false,
       };
-      await onAPIKeyUpdate(id, name, description, publication);
+      if (isNewKey) {
+        await onAPIKeyCreate(name, description, publication);
+      } else {
+        await onAPIKeyUpdate(id, name, description, publication);
+      }
       changedModels.current.clear();
       setIsSaveDisabled(true);
     } catch (e) {
       console.error(e);
     }
-  }, [form, keyId, onAPIKeyUpdate]);
+  }, [form, isNewKey, keyId, onAPIKeyCreate, onAPIKeyUpdate]);
 
   const handleValuesChange = useCallback(
     (changedValues: Partial<KeyFormType>, values: KeyFormType) => {
@@ -118,7 +136,11 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
   );
 
   return (
-    <InnerContent title={t("Accessibility")} flexChildren>
+    <InnerContent
+      title={t(
+        `Accessibility / ${!isNewKey && currentKey?.name ? currentKey?.name : "New API Key"}`,
+      )}
+      flexChildren>
       <ContentSection>
         <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
           <Form.Item name="name" label={t("Name")}>
@@ -168,7 +190,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
             type="primary"
             disabled={isSaveDisabled}
             onClick={handleSave}
-            loading={updateLoading}>
+            loading={createLoading || updateLoading}>
             {t("Save changes")}
           </Button>
         </Form>

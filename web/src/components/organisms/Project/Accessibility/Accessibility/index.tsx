@@ -8,10 +8,14 @@ const Accessibility: React.FC = () => {
     initialValues,
     models,
     hasPublishRight,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
     updateLoading,
     apiUrl,
     alias,
     handleAPIKeyEdit,
+    handleAPIKeyDelete,
     handlePublicUpdate,
     handleSettingsPageOpen,
   } = useHooks();
@@ -22,10 +26,14 @@ const Accessibility: React.FC = () => {
       initialValues={initialValues}
       models={models}
       hasPublishRight={hasPublishRight}
+      hasCreateRight={hasCreateRight}
+      hasUpdateRight={hasUpdateRight}
+      hasDeleteRight={hasDeleteRight}
       updateLoading={updateLoading}
       apiUrl={apiUrl}
       alias={alias}
       onAPIKeyEdit={handleAPIKeyEdit}
+      onAPIKeyDelete={handleAPIKeyDelete}
       onPublicUpdate={handlePublicUpdate}
       onSettingsPageOpen={handleSettingsPageOpen}
     />

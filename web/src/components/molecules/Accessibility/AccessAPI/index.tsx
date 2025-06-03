@@ -11,12 +11,13 @@ import { useT } from "@reearth-cms/i18n";
 import AccessAPITable from "./AccessAPITable";
 
 type Props = {
+  apiUrl: string;
   isPublic?: boolean;
   initialValues: FormType;
-  models: Pick<Model, "id" | "name" | "key">[];
   hasPublishRight: boolean;
+  models: Pick<Model, "id" | "name" | "key">[];
   updateLoading: boolean;
-  apiUrl: string;
+  onAPIKeyEdit: (keyId?: string) => void;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
@@ -24,12 +25,12 @@ type Props = {
 };
 
 const AccessAPIComponent: React.FC<Props> = ({
+  apiUrl,
   isPublic,
   initialValues,
-  models,
   hasPublishRight,
+  models,
   updateLoading,
-  apiUrl,
   onPublicUpdate,
 }) => {
   const t = useT();

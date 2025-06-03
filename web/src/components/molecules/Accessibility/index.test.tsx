@@ -7,6 +7,9 @@ import Accessibility from ".";
 describe("Accessibility", () => {
   const user = userEvent.setup();
 
+  const hasCreateRight = true;
+  const hasUpdateRight = true;
+  const hasDeleteRight = true;
   const hasPublishRight = true;
   const model1Id = "model1Id";
   const model1Name = "model1Name";
@@ -24,6 +27,9 @@ describe("Accessibility", () => {
   const onAPIKeyEdit = () => {
     return Promise.resolve();
   };
+  const onAPIKeyDelete = () => {
+    return Promise.resolve();
+  };
   const onPublicUpdate = () => {
     return Promise.resolve();
   };
@@ -35,11 +41,15 @@ describe("Accessibility", () => {
     render(
       <Accessibility
         initialValues={initialValues}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
         models={models}
         updateLoading={updateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}
@@ -67,11 +77,15 @@ describe("Accessibility", () => {
     render(
       <Accessibility
         initialValues={initialValues}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
         models={models}
         updateLoading={updateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}
@@ -106,11 +120,15 @@ describe("Accessibility", () => {
     render(
       <Accessibility
         initialValues={initialValues}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={false}
         models={models}
         updateLoading={updateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}

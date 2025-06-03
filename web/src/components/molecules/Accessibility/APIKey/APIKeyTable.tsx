@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
@@ -11,11 +13,50 @@ import KeyCell from "./KeyCell";
 
 type Props = {
   keys: APIKey[];
-  onAPIKeyEdit: (keyId: string) => void;
+  hasUpdateRight?: boolean;
+  onAPIKeyDelete: (id: string) => Promise<void>;
+  onAPIKeyEdit: (keyId?: string) => void;
 };
 
-const APIKeyTable: React.FC<Props> = ({ keys, onAPIKeyEdit }) => {
+const APIKeyTable: React.FC<Props> = ({
+  keys,
+  hasUpdateRight,
+  onAPIKeyDelete,
+  onAPIKeyEdit,
+}) => {
   const t = useT();
+
+  const dropdownRender = useCallback(
+    (keyObj: APIKeyModelType) => {
+      return (
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "edit",
+                label: "Edit",
+                onClick: () => onAPIKeyEdit(keyObj.id),
+                icon: <Icon icon="edit" />,
+                disabled: !hasUpdateRight,
+              },
+              {
+                key: "delete",
+                label: "Delete",
+                icon: <Icon icon="trash" />,
+                danger: true,
+                onClick: () => onAPIKeyDelete(keyObj.id),
+                disabled: !hasUpdateRight,
+              },
+            ],
+          }}
+          placement="bottomLeft"
+          arrow>
+          <Button icon={<Icon icon="ellipsis" />} />
+        </Dropdown>
+      );
+    },
+    [hasUpdateRight, onAPIKeyDelete, onAPIKeyEdit],
+  );
 
   const columns: TableColumnsType<APIKeyModelType> = useMemo(
     () => [
@@ -34,17 +75,18 @@ const APIKeyTable: React.FC<Props> = ({ keys, onAPIKeyEdit }) => {
       {
         key: "edit-icon",
         title: "",
-        render: key => <Icon icon="ellipsis" onClick={() => onAPIKeyEdit(key)} />,
+        render: dropdownRender,
         width: 48,
       },
     ],
-    [onAPIKeyEdit, t],
+    [dropdownRender, t],
   );
 
   const dataSource = useMemo(() => {
     const columns: APIKeyModelType[] = [];
     keys.forEach(key => {
       columns.push({
+        id: key.id,
         name: key.name,
         key: key.key,
       });

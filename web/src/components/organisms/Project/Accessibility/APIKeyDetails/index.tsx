@@ -10,6 +10,8 @@ const APIKeyDetails: React.FC = () => {
     currentKey,
     createLoading,
     hasPublishRight,
+    hasCreateRight,
+    hasUpdateRight,
     initialValues,
     keyModels,
     updateLoading,
@@ -22,9 +24,11 @@ const APIKeyDetails: React.FC = () => {
   return (
     <APIKeyDetailsMolecule
       apiUrl={apiUrl}
-      hasPublishRight={hasPublishRight}
       currentProject={currentProject}
       currentKey={currentKey}
+      hasCreateRight={hasCreateRight}
+      hasUpdateRight={hasUpdateRight}
+      hasPublishRight={hasPublishRight}
       initialValues={initialValues}
       keyModels={keyModels}
       keyId={keyId}

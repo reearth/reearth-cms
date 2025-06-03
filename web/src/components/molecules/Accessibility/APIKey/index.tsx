@@ -12,17 +12,28 @@ import APIKeyTable from "./APIKeyTable";
 type Props = {
   isPublic?: boolean;
   keys: APIKey[];
-  onAPIKeyEdit: (keyId: string) => void;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
+  onAPIKeyDelete: (id: string) => Promise<void>;
+  onAPIKeyEdit: (keyId?: string) => void;
   onSettingsPageOpen: () => void;
 };
 
-const APIKeyComponent: React.FC<Props> = ({ isPublic, keys, onAPIKeyEdit, onSettingsPageOpen }) => {
+const APIKeyComponent: React.FC<Props> = ({
+  isPublic,
+  keys,
+  hasCreateRight,
+  onAPIKeyEdit,
+  onAPIKeyDelete,
+  onSettingsPageOpen,
+}) => {
   const t = useT();
 
   return (
     <ContentSection title="API Key">
       <StyledTokenInput>
-        <Button icon={<Icon icon="plus" />} disabled={isPublic}>
+        <Button icon={<Icon icon="plus" />} disabled={isPublic || !hasCreateRight}>
           {t("New Key")}
         </Button>
       </StyledTokenInput>
@@ -37,7 +48,7 @@ const APIKeyComponent: React.FC<Props> = ({ isPublic, keys, onAPIKeyEdit, onSett
           </Button>
         </PublicContainer>
       ) : (
-        <APIKeyTable keys={keys} onAPIKeyEdit={onAPIKeyEdit} />
+        <APIKeyTable keys={keys} onAPIKeyDelete={onAPIKeyDelete} onAPIKeyEdit={onAPIKeyEdit} />
       )}
     </ContentSection>
   );

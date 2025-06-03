@@ -11,10 +11,14 @@ type Props = {
   initialValues: FormType;
   models: Pick<Model, "id" | "name" | "key">[];
   hasPublishRight: boolean;
+  hasCreateRight: boolean;
+  hasUpdateRight: boolean;
+  hasDeleteRight: boolean;
   updateLoading: boolean;
   apiUrl: string;
   alias: string;
-  onAPIKeyEdit: (keyId: string) => void;
+  onAPIKeyEdit: (keyId?: string) => void;
+  onAPIKeyDelete: (id: string) => Promise<void>;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
@@ -27,9 +31,13 @@ const Accessibility: React.FC<Props> = ({
   initialValues,
   models,
   hasPublishRight,
+  hasCreateRight,
+  hasUpdateRight,
+  hasDeleteRight,
   updateLoading,
   apiUrl,
   onAPIKeyEdit,
+  onAPIKeyDelete,
   onPublicUpdate,
   onSettingsPageOpen,
 }) => {
@@ -50,18 +58,23 @@ const Accessibility: React.FC<Props> = ({
       flexChildren
       subtitle={t("Control the visibility scope of the Content API")}>
       <AccessAPIComponent
+        apiUrl={apiUrl}
         initialValues={initialValues}
         isPublic={isProjectPublic}
-        models={models}
         hasPublishRight={hasPublishRight}
+        models={models}
         updateLoading={updateLoading}
-        apiUrl={apiUrl}
+        onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
       />
       <APIKeyComponent
         keys={keys}
         isPublic={isProjectPublic}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         onAPIKeyEdit={onAPIKeyEdit}
+        onAPIKeyDelete={onAPIKeyDelete}
         onSettingsPageOpen={onSettingsPageOpen}
       />
     </InnerContent>

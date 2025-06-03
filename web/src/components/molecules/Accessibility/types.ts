@@ -42,4 +42,5 @@ export type ModelDataType = {
 export type APIKeyModelType = {
   name: string;
   key: string;
+  id: string;
 };

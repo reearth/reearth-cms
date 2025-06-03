@@ -159,6 +159,8 @@ export default () => {
     },
     [regenerateAPIKeyMutation, currentProject?.id, t],
   );
+  const hasCreateRight = useMemo(() => !!userRights?.apiKey.create, [userRights?.apiKey.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.apiKey.update, [userRights?.apiKey.update]);
   const hasPublishRight = useMemo(
     () => !!userRights?.project.publish,
     [userRights?.project.publish],
@@ -176,6 +178,8 @@ export default () => {
     currentKey,
     createLoading,
     hasPublishRight,
+    hasCreateRight,
+    hasUpdateRight,
     initialValues,
     keyModels,
     updateLoading,

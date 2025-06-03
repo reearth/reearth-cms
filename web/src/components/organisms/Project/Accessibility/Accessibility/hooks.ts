@@ -25,6 +25,9 @@ export default () => {
     () => !!userRights?.project.publish,
     [userRights?.project.publish],
   );
+  const hasCreateRight = useMemo(() => !!userRights?.apiKey.create, [userRights?.apiKey.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.apiKey.update, [userRights?.apiKey.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.apiKey.delete, [userRights?.apiKey.delete]);
   const [updateLoading, setUpdateLoading] = useState(false);
 
   const isProjectPublic = useMemo(
@@ -141,8 +144,8 @@ export default () => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
   };
 
-  const handleAPIKeyEdit = (keyId: string) => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/${keyId}`);
+  const handleAPIKeyEdit = (keyId?: string) => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/${keyId ?? "new"}`);
   };
 
   return {
@@ -150,6 +153,9 @@ export default () => {
     initialValues,
     models,
     hasPublishRight,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
     updateLoading,
     apiUrl,
     alias,
