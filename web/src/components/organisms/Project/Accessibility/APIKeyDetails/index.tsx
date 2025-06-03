@@ -3,11 +3,39 @@ import APIKeyDetailsMolecule from "@reearth-cms/components/molecules/Accessibili
 import useHooks from "./hooks";
 
 const APIKeyDetails: React.FC = () => {
-    const {
+  const {
+    apiUrl,
     keyId,
-    } = useHooks();
+    currentProject,
+    currentKey,
+    createLoading,
+    hasPublishRight,
+    initialValues,
+    keyModels,
+    updateLoading,
+    regenerateLoading,
+    handleAPIKeyCreate,
+    handleAPIKeyUpdate,
+    handleAPIKeyRegenerate,
+  } = useHooks();
 
-  return <APIKeyDetailsMolecule keyId={keyId} />;
+  return (
+    <APIKeyDetailsMolecule
+      apiUrl={apiUrl}
+      hasPublishRight={hasPublishRight}
+      currentProject={currentProject}
+      currentKey={currentKey}
+      initialValues={initialValues}
+      keyModels={keyModels}
+      keyId={keyId}
+      createLoading={createLoading}
+      updateLoading={updateLoading}
+      regenerateLoading={regenerateLoading}
+      onAPIKeyCreate={handleAPIKeyCreate}
+      onAPIKeyUpdate={handleAPIKeyUpdate}
+      onAPIKeyRegenerate={handleAPIKeyRegenerate}
+    />
+  );
 };
 
 export default APIKeyDetails;

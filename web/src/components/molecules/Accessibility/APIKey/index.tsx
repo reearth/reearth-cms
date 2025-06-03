@@ -10,7 +10,7 @@ import { APIKey } from "../types";
 import APIKeyTable from "./APIKeyTable";
 
 type Props = {
-  isPublic: boolean;
+  isPublic?: boolean;
   keys: APIKey[];
   onAPIKeyEdit: (keyId: string) => void;
   onSettingsPageOpen: () => void;

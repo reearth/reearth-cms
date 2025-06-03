@@ -4,6 +4,7 @@ import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
   const {
+    isProjectPublic,
     initialValues,
     models,
     hasPublishRight,
@@ -17,6 +18,7 @@ const Accessibility: React.FC = () => {
 
   return (
     <AccessibilityMolecule
+      isProjectPublic={isProjectPublic}
       initialValues={initialValues}
       models={models}
       hasPublishRight={hasPublishRight}

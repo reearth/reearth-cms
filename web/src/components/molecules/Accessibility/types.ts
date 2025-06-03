@@ -20,8 +20,14 @@ export type ProjectAccessibility = {
 };
 
 export type FormType = {
-  scope: ProjectVisibility;
-  alias: string;
+  assetPublic: boolean;
+  models: Record<string, boolean>;
+};
+
+export type KeyFormType = {
+  name: string;
+  description: string;
+  key: string;
   assetPublic: boolean;
   models: Record<string, boolean>;
 };

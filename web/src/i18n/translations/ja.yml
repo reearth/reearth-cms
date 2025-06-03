@@ -10,8 +10,8 @@ Enable: 有効
 Model: モデル
 End point: エンドポイント
 Assets: アセット
-Access API:  アクセスAPI
-Anyone with the API endpoint can access project data via the API: エンドポイントを知っている人は誰でもプロジェクトデータにアクセスできます
+Access API: アクセスAPI
+Once Access API is enabled, anyone with the endpoint can access it. If a model is exposed via Access API, it cannot be restricted through API Key settings.: ''
 Save changes: 変更を保存
 Name: 名前
 Key: キー
@@ -20,6 +20,12 @@ Please transfer your project to private to use the API key: キーを使用す�
 Customize your API key to control the visibility of your models: モデルの公開範囲を制御するには、API キーをカスタマイズしてください
 Change project visibility: プロジェクトの公開範囲を変更
 Accessibility: 公開設定
+Description: 説明
+You can write some here to describe this record.: ''
+API Key: ''
+This is your secret token, please use as your env value.: これは秘密のトークンです。環境変数の値として使用してください。
+Re-generate: 再生成
+Permissions: ''
 Control the visibility scope of the Content API: コンテンツAPIの公開範囲を制御
 Are you sure you want to delete your account?: 本当にアカウントを削除してよろしいですか？
 Cancel: キャンセル
@@ -167,7 +173,6 @@ Reviewers: レビュワー
 New Item: 新規アイテム
 We found some referenced items that not been published yet. Please select to publish the items.: まだ公開されていない参照アイテムが見つかりました。公開するアイテムを選択してください。
 Please input the title of your request!: リクエストのタイトルを入力してください。
-Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
 We found some referenced items that not published yet. Please select to add the items to the same request.: まだ公開されていない参照アイテムが見つかりました。同じリクエストに追加する場合は選択してください。
@@ -267,8 +272,6 @@ Re-generate The Integration Token?: インテグレーショントークンを�
 If you re-generate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?: インテグレーショントークンを再生成すると、以前のトークンは無効になり、この操作は元に戻せません。本当に続行しますか？
 Reset: リセット
 Integration Token: インテグレーショントークン
-This is your secret token, please use as your env value.: これは秘密のトークンです。環境変数の値として使用してください。
-Re-generate: 再生成
 Code Example: コード例
 your model id here: モデルIDをここに入力してください
 your Integration Token here: インテグレーショントークンをここに入力してください
@@ -482,12 +485,12 @@ Failed to delete comment.: コメントの削除に失敗しました。
 Successfully deleted comment!: コメントの削除に成功しました。
 Successfully updated publication settings!: 公開設定の更新に成功しました。
 Failed to update publication settings.: 公開設定の更新に失敗しました。
+API Key deleted successfully.: APIキーの削除に成功しました。
+Failed to delete API Key.: APIキーの削除に失敗しました。
 API Key created successfully.: APIキーの作成に成功しました。
 Failed to create API Key.: APIキーの作成に失敗しました。
 API Key updated successfully.: APIキーの更新に成功しました。
 Failed to update API Key.: APIキーの更新に失敗しました。
-API Key deleted successfully.: APIキーの削除に成功しました。
-Failed to delete API Key.: APIキーの削除に失敗しました。
 API Key re-generated successfully.: APIキーの再生成に成功しました。
 Failed to re-generate API Key.: APIキーの再生成に失敗しました。
 Failed to update asset.: アセットの更新に失敗しました。

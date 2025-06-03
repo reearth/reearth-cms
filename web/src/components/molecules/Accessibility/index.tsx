@@ -7,6 +7,7 @@ import AccessAPIComponent from "./AccessAPI";
 import APIKeyComponent from "./APIKey";
 
 type Props = {
+  isProjectPublic?: boolean;
   initialValues: FormType;
   models: Pick<Model, "id" | "name" | "key">[];
   hasPublishRight: boolean;
@@ -22,6 +23,7 @@ type Props = {
 };
 
 const Accessibility: React.FC<Props> = ({
+  isProjectPublic,
   initialValues,
   models,
   hasPublishRight,
@@ -32,7 +34,6 @@ const Accessibility: React.FC<Props> = ({
   onSettingsPageOpen,
 }) => {
   const t = useT();
-  const isPublic = initialValues.scope === "PUBLIC";
   const keys: APIKey[] = [
     {
       id: "01g4eg4ay017hpw58fkh9nd89c",
@@ -50,7 +51,7 @@ const Accessibility: React.FC<Props> = ({
       subtitle={t("Control the visibility scope of the Content API")}>
       <AccessAPIComponent
         initialValues={initialValues}
-        isPublic={isPublic}
+        isPublic={isProjectPublic}
         models={models}
         hasPublishRight={hasPublishRight}
         updateLoading={updateLoading}
@@ -59,7 +60,7 @@ const Accessibility: React.FC<Props> = ({
       />
       <APIKeyComponent
         keys={keys}
-        isPublic={isPublic}
+        isPublic={isProjectPublic}
         onAPIKeyEdit={onAPIKeyEdit}
         onSettingsPageOpen={onSettingsPageOpen}
       />

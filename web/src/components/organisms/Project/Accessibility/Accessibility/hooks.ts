@@ -2,7 +2,7 @@ import { useCallback, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { FormType, ProjectVisibility } from "@reearth-cms/components/molecules/Accessibility/types";
+import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import {
@@ -11,7 +11,6 @@ import {
   useUpdateProjectMutation,
   useDeleteApiKeyMutation,
   Model as GQLModel,
-  ProjectVisibility as GQLProjectVisibility,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
@@ -27,6 +26,11 @@ export default () => {
     [userRights?.project.publish],
   );
   const [updateLoading, setUpdateLoading] = useState(false);
+
+  const isProjectPublic = useMemo(
+    () => currentProject?.accessibility?.publication?.publicAssets ?? false,
+    [currentProject?.accessibility?.publication?.publicAssets],
+  );
 
   const { data: modelsData } = useGetModelsQuery({
     variables: {
@@ -51,29 +55,13 @@ export default () => {
     models?.forEach(model => {
       modelsObj[model.id] = !!model.public;
     });
-
-    const visibility = currentProject?.accessibility?.visibility ?? "PRIVATE";
     const publication = currentProject?.accessibility?.publication;
 
     return {
-      scope: visibility,
-      alias,
-      token: "",
       assetPublic: publication?.publicAssets ?? false,
       models: modelsObj,
     };
-  }, [
-    alias,
-    currentProject?.accessibility?.visibility,
-    currentProject?.accessibility?.publication,
-    models,
-  ]);
-
-  const scopeConvert = useCallback(
-    (scope?: ProjectVisibility) =>
-      scope === "PUBLIC" ? GQLProjectVisibility.Public : GQLProjectVisibility.Private,
-    [],
-  );
+  }, [currentProject?.accessibility?.publication, models]);
 
   const [updateProjectMutation] = useUpdateProjectMutation();
   const [publishModelsMutation] = usePublishModelsMutation({
@@ -83,19 +71,17 @@ export default () => {
   const [deleteAPIKeyMutation] = useDeleteApiKeyMutation({ refetchQueries: ["GetProject"] });
 
   const handlePublicUpdate = useCallback(
-    async ({ scope, assetPublic }: FormType, models: { modelId: string; status: boolean }[]) => {
+    async ({ assetPublic }: FormType, models: { modelId: string; status: boolean }[]) => {
       if (!currentProject?.id) return;
       setUpdateLoading(true);
       try {
-        const accessibilityChanged =
-          initialValues.scope !== scope || initialValues.assetPublic !== assetPublic;
+        const accessibilityChanged = initialValues.assetPublic !== assetPublic;
 
         if (accessibilityChanged) {
           const projRes = await updateProjectMutation({
             variables: {
               projectId: currentProject.id,
               accessibility: {
-                visibility: scopeConvert(scope),
                 publication: {
                   publicModels: models.map(m => m.modelId),
                   publicAssets: assetPublic,
@@ -121,10 +107,8 @@ export default () => {
     },
     [
       currentProject?.id,
-      initialValues.scope,
       initialValues.assetPublic,
       publishModelsMutation,
-      scopeConvert,
       t,
       updateProjectMutation,
     ],
@@ -162,6 +146,7 @@ export default () => {
   };
 
   return {
+    isProjectPublic,
     initialValues,
     models,
     hasPublishRight,
