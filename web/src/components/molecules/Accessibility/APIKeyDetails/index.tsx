@@ -128,7 +128,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
             name="description"
             label={t("Description")}
             extra={t("You can write some here to describe this record.")}>
-            <TextArea />
+            <StyledTextArea />
           </Form.Item>
           {keyId && (
             <TokenFormItem
@@ -179,10 +179,14 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
 
 export default APIKeyDetailsMolecule;
 
-const maxWidth = "316px";
+const maxWidth = "500px";
 
 const StyledInput = styled(Input)`
   max-width: ${maxWidth};
+`;
+
+const StyledTextArea = styled(TextArea)`
+  width: ${maxWidth};
 `;
 
 const TokenFormItem = styled(Form.Item)`

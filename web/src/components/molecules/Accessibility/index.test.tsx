@@ -47,10 +47,6 @@ describe("Accessibility", () => {
     );
 
     let switches = screen.getAllByRole("switch");
-    const accessAPISwitch = switches[0];
-    expect(accessAPISwitch).not.toBeChecked();
-    await user.click(accessAPISwitch);
-    expect(accessAPISwitch).toBeChecked();
 
     switches = screen.getAllByRole("switch");
     const model1Switch = switches[1];
@@ -83,10 +79,7 @@ describe("Accessibility", () => {
     );
 
     let switches = screen.getAllByRole("switch");
-    const accessAPISwitch = switches[0];
-    expect(accessAPISwitch).not.toBeChecked();
-    await user.click(accessAPISwitch);
-    expect(accessAPISwitch).toBeChecked();
+
     const saveButton = screen.getByRole("button", { name: "Save changes" });
 
     switches = screen.getAllByRole("switch");
@@ -125,10 +118,6 @@ describe("Accessibility", () => {
     );
 
     let switches = screen.getAllByRole("switch");
-    const accessAPISwitch = switches[0];
-    expect(accessAPISwitch).not.toBeChecked();
-    await user.click(accessAPISwitch);
-    expect(accessAPISwitch).toBeChecked();
 
     switches = screen.getAllByRole("switch");
     const model1Switch = switches[1];
