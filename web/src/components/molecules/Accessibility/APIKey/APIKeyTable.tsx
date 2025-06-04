@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
@@ -28,6 +29,22 @@ const APIKeyTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
+  const handleDelete = useCallback(
+    async (id: string) => {
+      Modal.confirm({
+        title: t("Are you sure you want to delete this API key?"),
+        content: t("This action is not reversible."),
+        icon: <Icon icon="exclamationCircle" />,
+        okText: t("Delete"),
+        cancelText: t("Cancel"),
+        async onOk() {
+          await onAPIKeyDelete(id);
+        },
+      });
+    },
+    [onAPIKeyDelete, t],
+  );
+
   const dropdownRender = useCallback(
     (keyObj: APIKeyModelType) => {
       return (
@@ -46,7 +63,7 @@ const APIKeyTable: React.FC<Props> = ({
                 label: "Delete",
                 icon: <Icon icon="trash" />,
                 danger: true,
-                onClick: () => onAPIKeyDelete(keyObj.id),
+                onClick: () => handleDelete(keyObj.id),
                 disabled: !hasDeleteRight,
               },
             ],
@@ -57,7 +74,7 @@ const APIKeyTable: React.FC<Props> = ({
         </Dropdown>
       );
     },
-    [hasDeleteRight, hasUpdateRight, onAPIKeyDelete, onAPIKeyEdit],
+    [handleDelete, hasDeleteRight, hasUpdateRight, onAPIKeyEdit],
   );
 
   const columns: TableColumnsType<APIKeyModelType> = useMemo(
