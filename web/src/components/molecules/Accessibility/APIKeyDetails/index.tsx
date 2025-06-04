@@ -48,6 +48,7 @@ type Props = {
     },
   ) => Promise<void>;
   onAPIKeyRegenerate: (id?: string) => Promise<void>;
+  onBack?: () => void;
 };
 
 const APIKeyDetailsMolecule: React.FC<Props> = ({
@@ -66,6 +67,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
   onAPIKeyCreate,
   onAPIKeyUpdate,
   onAPIKeyRegenerate,
+  onBack,
 }) => {
   const t = useT();
   const [visible, setVisible] = useState(false);
@@ -140,6 +142,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
       title={t(
         `Accessibility / ${!isNewKey && currentKey?.name ? currentKey?.name : "New API Key"}`,
       )}
+      onBack={onBack}
       flexChildren>
       <ContentSection>
         <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
