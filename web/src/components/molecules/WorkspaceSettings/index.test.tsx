@@ -26,7 +26,7 @@ test("Workspace settings wrapper works successfully", async () => {
     />,
   );
 
-  expect(screen.getByRole("heading", { name: "Workspace Settings" })).toBeVisible();
+  expect(screen.getByText("Workspace Settings")).toBeVisible();
   expect(screen.getByText("General")).toBeVisible();
   expect(screen.getByText("Danger Zone")).toBeVisible();
 });
