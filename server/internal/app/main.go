@@ -32,6 +32,11 @@ func Start(debug bool, version string) {
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
+	// Perform startup health checks
+	if err := PerformStartupHealthChecks(ctx, conf, gateways); err != nil {
+		log.Fatalf("startup health check failed: %v", err)
+	}
+
 	// Start web server
 	NewServer(ctx, &ApplicationContext{
 		Config:     conf,
