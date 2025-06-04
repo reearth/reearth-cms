@@ -39,7 +39,7 @@ func (hc *HealthChecker) Handler() echo.HandlerFunc {
 	}
 }
 
-func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthChecker {
+func NewHealthChecker(conf *Config, ver string, gateways *gateway.Container) *HealthChecker {
 	checks := []health.Config{
 		{
 			Name:      "db",
@@ -58,12 +58,51 @@ func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthCh
 		})
 	}
 
-	if fileRepo != nil {
+	if gateways != nil && gateways.File != nil {
 		checks = append(checks, health.Config{
 			Name:      "storage",
 			Timeout:   time.Second * 30,
 			SkipOnErr: false,
-			Check:     fileRepo.Check,
+			Check:     gateways.File.Check,
+		})
+	}
+
+	// Add task runner health check if configured
+	if gateways != nil && gateways.TaskRunner != nil {
+		checks = append(checks, health.Config{
+			Name:      "task_runner",
+			Timeout:   time.Second * 5,
+			SkipOnErr: false,
+			Check: func(ctx context.Context) error {
+				return gateways.TaskRunner.HealthCheck(ctx)
+			},
+		})
+	}
+
+	// Add CMS worker service health check if configured
+	if conf.Task.GCPProject != "" {
+		checks = append(checks, health.Config{
+			Name:      "worker_service",
+			Timeout:   time.Second * 5,
+			SkipOnErr: false,
+			Check: func(ctx context.Context) error {
+
+				workerURL := conf.Task.WorkerURL
+
+				client := http.Client{
+					Timeout: 2 * time.Second,
+				}
+				resp, err := client.Get(workerURL + "/health")
+				if err != nil {
+					return fmt.Errorf("worker service unreachable: %v", err)
+				}
+				defer resp.Body.Close()
+
+				if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+					return fmt.Errorf("worker service unhealthy, status: %d", resp.StatusCode)
+				}
+				return nil
+			},
 		})
 	}
 
