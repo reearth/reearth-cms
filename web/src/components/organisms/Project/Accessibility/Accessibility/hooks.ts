@@ -31,8 +31,8 @@ export default () => {
   const [updateLoading, setUpdateLoading] = useState(false);
 
   const isProjectPublic = useMemo(
-    () => currentProject?.accessibility?.publication?.publicAssets ?? false,
-    [currentProject?.accessibility?.publication?.publicAssets],
+    () => currentProject?.accessibility?.visibility === "PUBLIC",
+    [currentProject?.accessibility?.visibility],
   );
 
   const { data: modelsData } = useGetModelsQuery({
