@@ -74,7 +74,11 @@ func HealthCheck(conf *Config, ver string, gateways *gateway.Container) echo.Han
 				if err != nil {
 					return fmt.Errorf("worker service unreachable: %v", err)
 				}
-				defer resp.Body.Close()
+				defer func() {
+					if cerr := resp.Body.Close(); cerr != nil {
+						err = fmt.Errorf("failed to close response body: %v", cerr)
+					}
+				}()
 
 				if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 					return fmt.Errorf("worker service unhealthy, status: %d", resp.StatusCode)
