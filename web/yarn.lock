@@ -4444,10 +4444,10 @@
     "@types/tough-cookie" "^4.0.5"
     tough-cookie "^4.1.4"
 
-"@cesium/engine@^17.0.0":
-  version "17.0.0"
-  resolved "https://registry.yarnpkg.com/@cesium/engine/-/engine-17.0.0.tgz#a43f7dcf4018eb6c9fc29ef985f83a493c852c0d"
-  integrity sha512-bvLWmWVY4QX9rfcx/zfBzA8R1xR8KzmaCDOVL6pFkNZeYmRtt8JN//IICYR3P45lznlcb0Dklw1iCb37t4tvLA==
+"@cesium/engine@^18.0.0":
+  version "18.0.0"
+  resolved "https://registry.yarnpkg.com/@cesium/engine/-/engine-18.0.0.tgz#0b6bb0ccde1dd5cdc6fc9edb0a3c90b8a1a9dd5b"
+  integrity sha512-BmORpS2BVGT/Rd9f591a7PudFxXeCq2agdBAUX6XBhxUboieI9hU5MEC7EjT0sSLGLtwVw9i2hu4/XOXUnFXWg==
   dependencies:
     "@tweenjs/tween.js" "^25.0.0"
     "@zip.js/zip.js" "^2.7.34"
@@ -4465,16 +4465,16 @@
     meshoptimizer "^0.23.0"
     pako "^2.0.4"
     protobufjs "^7.1.0"
-    rbush "3.0.1"
+    rbush "^4.0.1"
     topojson-client "^3.1.0"
     urijs "^1.19.7"
 
-"@cesium/widgets@^12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@cesium/widgets/-/widgets-12.0.0.tgz#64c19537c8ac5ff057ddba94beb039847dadf861"
-  integrity sha512-5Re06LU8lRPEZInHrpOCGBiLoj9VNJ0JJtPrzdnw1qhIDpf3v1W75OJf59k8CCFvUYkZzuTTi8qTVbpzmcbOuw==
+"@cesium/widgets@^12.1.0":
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/@cesium/widgets/-/widgets-12.1.0.tgz#335a33b2fc894d2ace1cb78881aabd7650f6e03d"
+  integrity sha512-t93u/yyVp0x+27Bl6g4DyQtLOFfpF8hZjou+/JpekSExS2uy8akPVl5KjTbwonlx0D1AaTmjP45mLRLvcLpb3g==
   dependencies:
-    "@cesium/engine" "^17.0.0"
+    "@cesium/engine" "^18.0.0"
     nosleep.js "^0.12.0"
 
 "@chenshuai2144/sketch-color@^1.0.7", "@chenshuai2144/sketch-color@^1.0.8":
@@ -9795,13 +9795,13 @@ cesium-mvt-imagery-provider@1.4.2:
     "@mapbox/vector-tile" "1.3.1"
     pbf "3.2.1"
 
-cesium@1.129.0:
-  version "1.129.0"
-  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.129.0.tgz#82144d18e9efb43e217df6bf9d14d2a2ca627f75"
-  integrity sha512-XDEJKLnr8s5/Q/1wcdZVEJCgx+xbgfDzkVKd9OxRZzYttazip6KffusMHexRdExVMPfDcTohuqcuHNxj9CUNFA==
+cesium@1.130.0:
+  version "1.130.0"
+  resolved "https://registry.yarnpkg.com/cesium/-/cesium-1.130.0.tgz#fd539ba065e1d2d39d9a2f105757557bb5a06515"
+  integrity sha512-OgmmjStUoRhLVA2YnMt6eK3p2vwePZ2dw4ukpze8cVdkUWlxM6rtboldOgZvg1LLnpeEpcGOB5h6+sNuT6a56w==
   dependencies:
-    "@cesium/engine" "^17.0.0"
-    "@cesium/widgets" "^12.0.0"
+    "@cesium/engine" "^18.0.0"
+    "@cesium/widgets" "^12.1.0"
 
 chai@^4.3.10:
   version "4.4.1"
@@ -16175,11 +16175,6 @@ quick-temp@^0.1.8:
     rimraf "^2.5.4"
     underscore.string "~3.3.4"
 
-quickselect@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/quickselect/-/quickselect-2.0.0.tgz#f19680a486a5eefb581303e023e98faaf25dd018"
-  integrity sha512-RKJ22hX8mHe3Y6wH/N3wCM6BWtjaxIyyUIkpHOvfFnxdI4yD4tBXEBKSbriGujF6jnSVkJrffuo6vxACiSSxIw==
-
 quickselect@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/quickselect/-/quickselect-3.0.0.tgz#a37fc953867d56f095a20ac71c6d27063d2de603"
@@ -16207,14 +16202,7 @@ raw-body@2.5.2:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
-rbush@3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/rbush/-/rbush-3.0.1.tgz#5fafa8a79b3b9afdfe5008403a720cc1de882ecf"
-  integrity sha512-XRaVO0YecOpEuIvbhbpTrZgoiI6xBlz6hnlr6EHhd+0x9ase6EmeN+hdwwUaJvLcsFFQ8iWVF1GAK1yB0BWi0w==
-  dependencies:
-    quickselect "^2.0.0"
-
-rbush@^4.0.0:
+rbush@^4.0.0, rbush@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/rbush/-/rbush-4.0.1.tgz#1f55afa64a978f71bf9e9a99bc14ff84f3cb0d6d"
   integrity sha512-IP0UpfeWQujYC8Jg162rMNc01Rf0gWMMAb2Uxus/Q0qOFw4lCcq6ZnQEZwUoJqWyUGJ9th7JjwI4yIWo+uvoAQ==
