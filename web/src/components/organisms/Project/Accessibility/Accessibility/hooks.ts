@@ -1,29 +1,40 @@
 import { useCallback, useState, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { FormType, PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import {
   usePublishModelsMutation,
   useGetModelsQuery,
-  Model as GQLModel,
-  ProjectPublicationScope,
   useUpdateProjectMutation,
-  useRegeneratePublicApiTokenMutation,
+  useDeleteApiKeyMutation,
+  Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
+  const navigate = useNavigate();
+  const { workspaceId, projectId } = useParams();
   const [currentProject] = useProject();
   const [userRights] = useUserRights();
   const hasPublishRight = useMemo(
     () => !!userRights?.project.publish,
     [userRights?.project.publish],
   );
+  const hasCreateRight = useMemo(() => !!userRights?.apiKey.create, [userRights?.apiKey.create]);
+  const hasUpdateRight = useMemo(() => !!userRights?.apiKey.update, [userRights?.apiKey.update]);
+  const hasDeleteRight = useMemo(() => !!userRights?.apiKey.delete, [userRights?.apiKey.delete]);
   const [updateLoading, setUpdateLoading] = useState(false);
+
+  const isProjectPublic = useMemo(
+    () => currentProject?.accessibility?.visibility === "PUBLIC",
+    [currentProject?.accessibility?.visibility],
+  );
+
   const { data: modelsData } = useGetModelsQuery({
     variables: {
       projectId: currentProject?.id ?? "",
@@ -41,69 +52,55 @@ export default () => {
   );
 
   const alias = useMemo(() => currentProject?.alias ?? "", [currentProject?.alias]);
-  const token = useMemo(() => currentProject?.token ?? "", [currentProject?.token]);
 
   const initialValues = useMemo(() => {
     const modelsObj: Record<string, boolean> = {};
     models?.forEach(model => {
       modelsObj[model.id] = !!model.public;
     });
+    const publication = currentProject?.accessibility?.publication;
+
     return {
-      scope: currentProject?.scope ?? "PRIVATE",
-      alias,
-      token,
-      assetPublic: !!currentProject?.assetPublic,
+      assetPublic: publication?.publicAssets ?? false,
       models: modelsObj,
     };
-  }, [alias, currentProject?.assetPublic, currentProject?.scope, models, token]);
-
-  const scopeConvert = useCallback((scope?: PublicScope) => {
-    if (scope === "PUBLIC") {
-      return ProjectPublicationScope.Public;
-    } else if (scope === "LIMITED") {
-      return ProjectPublicationScope.Limited;
-    } else {
-      return ProjectPublicationScope.Private;
-    }
-  }, []);
+  }, [currentProject?.accessibility?.publication, models]);
 
   const [updateProjectMutation] = useUpdateProjectMutation();
   const [publishModelsMutation] = usePublishModelsMutation({
     refetchQueries: ["GetModels"],
   });
 
+  const [deleteAPIKeyMutation] = useDeleteApiKeyMutation({ refetchQueries: ["GetProject"] });
+
   const handlePublicUpdate = useCallback(
-    async ({ scope, assetPublic }: FormType, models: { modelId: string; status: boolean }[]) => {
+    async ({ assetPublic }: FormType, models: { modelId: string; status: boolean }[]) => {
       if (!currentProject?.id) return;
       setUpdateLoading(true);
       try {
-        if (initialValues.scope !== scope || initialValues.assetPublic !== assetPublic) {
+        const accessibilityChanged = initialValues.assetPublic !== assetPublic;
+
+        if (accessibilityChanged) {
           const projRes = await updateProjectMutation({
             variables: {
               projectId: currentProject.id,
-              publication: {
-                scope: scopeConvert(scope),
-                assetPublic,
+              accessibility: {
+                publication: {
+                  publicModels: models.map(m => m.modelId),
+                  publicAssets: assetPublic,
+                },
               },
             },
           });
-          if (projRes.errors) {
-            throw new Error();
-          }
+          if (projRes.errors) throw new Error();
         }
+
         if (models.length) {
-          const res = await publishModelsMutation({
-            variables: {
-              models,
-            },
-          });
-          if (res.errors) {
-            throw new Error();
-          }
+          const res = await publishModelsMutation({ variables: { models } });
+          if (res.errors) throw new Error();
         }
-        Notification.success({
-          message: t("Successfully updated publication settings!"),
-        });
+
+        Notification.success({ message: t("Successfully updated publication settings!") });
       } catch (e) {
         Notification.error({ message: t("Failed to update publication settings.") });
         throw e;
@@ -114,57 +111,57 @@ export default () => {
     [
       currentProject?.id,
       initialValues.assetPublic,
-      initialValues.scope,
       publishModelsMutation,
-      scopeConvert,
       t,
       updateProjectMutation,
     ],
   );
 
-  const [regeneratePublicApiToken, { loading: regenerateLoading }] =
-    useRegeneratePublicApiTokenMutation({
-      refetchQueries: ["GetProject"],
-    });
-
-  const handleRegenerateToken = useCallback(async () => {
-    if (!currentProject?.id) return;
-    try {
-      const result = await regeneratePublicApiToken({
-        variables: {
-          projectId: currentProject.id,
-        },
-      });
-      if (result.errors) {
-        throw new Error();
-      } else {
-        Notification.success({
-          message: t("Public API Token has been re-generated!"),
+  const handleAPIKeyDelete = useCallback(
+    async (id: string) => {
+      if (!currentProject?.id) return;
+      try {
+        await deleteAPIKeyMutation({
+          variables: {
+            projectId: currentProject.id,
+            id,
+          },
         });
+        Notification.success({ message: t("API Key deleted successfully.") });
+      } catch {
+        Notification.error({ message: t("Failed to delete API Key.") });
       }
-    } catch (e) {
-      console.error(e);
-      Notification.error({
-        message: t("The attempt to re-generate the Public API Token has failed."),
-      });
-    }
-  }, [currentProject?.id, regeneratePublicApiToken, t]);
+    },
+    [deleteAPIKeyMutation, currentProject?.id, t],
+  );
 
   const apiUrl = useMemo(
     () => `${window.REEARTH_CONFIG?.api}/p/${currentProject?.alias}/`,
     [currentProject?.alias],
   );
 
+  const handleSettingsPageOpen = () => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
+  };
+
+  const handleAPIKeyEdit = (keyId?: string) => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/${keyId ?? "new"}`);
+  };
+
   return {
+    isProjectPublic,
     initialValues,
     models,
     hasPublishRight,
+    hasCreateRight,
+    hasUpdateRight,
+    hasDeleteRight,
     updateLoading,
-    regenerateLoading,
     apiUrl,
     alias,
-    token,
     handlePublicUpdate,
-    handleRegenerateToken,
+    handleAPIKeyDelete,
+    handleAPIKeyEdit,
+    handleSettingsPageOpen,
   };
 };

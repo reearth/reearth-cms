@@ -11,7 +11,8 @@ import {
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
-import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility";
+import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility/Accessibility";
+import APIKeyDetails from "@reearth-cms/components/organisms/Project/Accessibility/APIKeyDetails";
 import Asset from "@reearth-cms/components/organisms/Project/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Project/Asset/AssetList";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
@@ -66,6 +67,10 @@ const router = createBrowserRouter(
         <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
         <Route path=":workspaceId/project/:projectId/schema/:modelId" element={<Schema />} />
         <Route path=":workspaceId/project/:projectId/accessibility" element={<Accessibility />} />
+        <Route
+          path=":workspaceId/project/:projectId/accessibility/:keyId"
+          element={<APIKeyDetails />}
+        />
         <Route path=":workspaceId/project/:projectId/settings" element={<ProjectSettings />} />
         <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
         <Route path=":workspaceId/project/:projectId/content/:modelId" element={<Content />} />
