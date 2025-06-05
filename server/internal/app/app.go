@@ -77,14 +77,29 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	)
 	api.POST("/signup", Signup(), usecaseMiddleware)
 
-	publicapi.Echo(api.Group("/p", publicAPIAuthMiddleware(appCtx), usecaseMiddleware))
-	integration.RegisterHandlers(api.Group(
-		"",
-		authMiddleware(appCtx),
-		AuthRequiredMiddleware(),
-		usecaseMiddleware,
-		private,
-	), integration.NewStrictHandler(integration.NewServer(), nil))
+	// Public API with its own CORS config
+	publicAPIGroup := api.Group("/p", publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
+	publicOrigins := allowedPublicOrigins(appCtx)
+	if len(publicOrigins) > 0 {
+		publicAPIGroup.Use(
+			middleware.CORSWithConfig(middleware.CORSConfig{
+				AllowOrigins: publicOrigins,
+			}),
+		)
+	}
+	publicapi.Echo(publicAPIGroup)
+
+	// Integration API with its own CORS config
+	integrationAPIGroup := api.Group("", authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
+	integrationOrigins := allowedIntegrationOrigins(appCtx)
+	if len(integrationOrigins) > 0 {
+		integrationAPIGroup.Use(
+			middleware.CORSWithConfig(middleware.CORSConfig{
+				AllowOrigins: integrationOrigins,
+			}),
+		)
+	}
+	integration.RegisterHandlers(integrationAPIGroup, integration.NewStrictHandler(integration.NewServer(), nil))
 
 	serveFiles(e, appCtx)
 	Web(e, appCtx.Config.WebConfig(), appCtx.Config.Web_Disabled, nil)
@@ -104,6 +119,28 @@ func allowedOrigins(appCtx *ApplicationContext) []string {
 	origins := append([]string{}, appCtx.Config.Origins...)
 	if appCtx.Debug {
 		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	}
+	return origins
+}
+
+func allowedIntegrationOrigins(appCtx *ApplicationContext) []string {
+	if appCtx == nil {
+		return nil
+	}
+	origins := append([]string{}, appCtx.Config.IntegrationOrigins...)
+	if appCtx.Debug && len(origins) == 0 {
+		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	}
+	return origins
+}
+
+func allowedPublicOrigins(appCtx *ApplicationContext) []string {
+	if appCtx == nil {
+		return nil
+	}
+	origins := append([]string{}, appCtx.Config.PublicOrigins...)
+	if appCtx.Debug && len(origins) == 0 {
+		origins = append(origins, "*")
 	}
 	return origins
 }
