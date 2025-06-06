@@ -109,7 +109,7 @@ func updateProject(e *httpexpect.Expect, pID, name, desc, alias, visibility stri
 	return res.Path("$.data.updateProject.project.id").Raw().(string), res
 }
 
-func regeneratePublicApiToken(e *httpexpect.Expect, pId, tId string) *httpexpect.Value {
+func RegeneratePublicApiToken(e *httpexpect.Expect, pId, tId string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
 		Query: `mutation RegeneratePublicApiToken($projectId: ID!, $id: ID!) {
     regenerateAPIKey(input: { projectId: $projectId, id: $id }) {
