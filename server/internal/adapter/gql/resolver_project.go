@@ -6,11 +6,11 @@ package gql
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
@@ -45,24 +45,20 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 	}
 
 	var pub *interfaces.UpdateProjectPublicationParam
-	if input.Publication != nil {
-		var scope *project.PublicationScope
-		if input.Publication.Scope != nil {
-			scope = lo.ToPtr(gqlmodel.FromProjectPublicationScope(*input.Publication.Scope))
-		}
+	if input.Accessibility != nil {
 		pub = &interfaces.UpdateProjectPublicationParam{
-			Scope:       scope,
-			AssetPublic: input.Publication.AssetPublic,
+			Visibility:  gqlmodel.FromProjectVisibility(input.Accessibility.Visibility),
+			Publication: gqlmodel.FromPublicationSettings(input.Accessibility.Publication),
 		}
 	}
 
 	res, err := usecases(ctx).Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:           pid,
-		Name:         input.Name,
-		Description:  input.Description,
-		Alias:        input.Alias,
-		Publication:  pub,
-		RequestRoles: lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) workspace.Role { return gqlmodel.FromRole(r) }),
+		ID:            pid,
+		Name:          input.Name,
+		Description:   input.Description,
+		Alias:         input.Alias,
+		Accessibility: pub,
+		RequestRoles:  lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) workspace.Role { return gqlmodel.FromRole(r) }),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -85,19 +81,24 @@ func (r *mutationResolver) DeleteProject(ctx context.Context, input gqlmodel.Del
 	return &gqlmodel.DeleteProjectPayload{ProjectID: input.ProjectID}, nil
 }
 
-// RegeneratePublicAPIToken is the resolver for the regeneratePublicApiToken field.
-func (r *mutationResolver) RegeneratePublicAPIToken(ctx context.Context, input gqlmodel.RegeneratePublicAPITokenInput) (*gqlmodel.ProjectPayload, error) {
-	pid, err := gqlmodel.ToID[id.Project](input.ProjectID)
-	if err != nil {
-		return nil, err
-	}
+// CreateAPIKey is the resolver for the createAPIKey field.
+func (r *mutationResolver) CreateAPIKey(ctx context.Context, input gqlmodel.CreateAPIKeyInput) (*gqlmodel.APIKeyPayload, error) {
+	panic(fmt.Errorf("not implemented: CreateAPIKey - createAPIKey"))
+}
 
-	p, err := usecases(ctx).Project.RegenerateToken(ctx, pid, getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
+// UpdateAPIKey is the resolver for the updateAPIKey field.
+func (r *mutationResolver) UpdateAPIKey(ctx context.Context, input gqlmodel.UpdateAPIKeyInput) (*gqlmodel.APIKeyPayload, error) {
+	panic(fmt.Errorf("not implemented: UpdateAPIKey - updateAPIKey"))
+}
 
-	return &gqlmodel.ProjectPayload{Project: gqlmodel.ToProject(p)}, nil
+// DeleteAPIKey is the resolver for the deleteAPIKey field.
+func (r *mutationResolver) DeleteAPIKey(ctx context.Context, input gqlmodel.DeleteAPIKeyInput) (*gqlmodel.DeleteAPIKeyPayload, error) {
+	panic(fmt.Errorf("not implemented: DeleteAPIKey - deleteAPIKey"))
+}
+
+// RegenerateAPIKey is the resolver for the regenerateAPIKey field.
+func (r *mutationResolver) RegenerateAPIKey(ctx context.Context, input gqlmodel.RegenerateAPIKeyInput) (*gqlmodel.APIKeyPayload, error) {
+	panic(fmt.Errorf("not implemented: RegenerateAPIKey - regenerateAPIKey"))
 }
 
 // Workspace is the resolver for the workspace field.

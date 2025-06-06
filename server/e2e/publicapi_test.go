@@ -250,7 +250,7 @@ func TestPublicAPI(t *testing.T) {
 	// make the project's assets private
 	ctx := context.Background()
 	prj := lo.Must(repos.Project.FindByID(ctx, publicAPIProjectID))
-	prj.Publication().SetAssetPublic(false)
+	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), nil))
 	lo.Must0(repos.Project.Save(ctx, prj))
 
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
@@ -400,7 +400,7 @@ func TestPublicAPI(t *testing.T) {
 		})
 
 	// make the project private
-	prj.Publication().SetScope(project.PublicationScopePrivate)
+	prj.Accessibility().SetVisibility(project.VisibilityPrivate)
 	lo.Must0(repos.Project.Save(ctx, prj))
 
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
@@ -420,10 +420,9 @@ func TestPublicAPI(t *testing.T) {
 		})
 
 	// make the project limited
-	prj.Publication().SetScope(project.PublicationScopeLimited)
-	prj.Publication().SetAssetPublic(true)
-	prj.Publication().GenerateToken()
-	token := prj.Publication().Token()
+	apiKey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Description("desc1").
+		Publication(project.NewPublicationSettings(nil, true)).Build()
+	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apiKey}))
 	lo.Must0(repos.Project.Save(ctx, prj))
 
 	// invalid token
@@ -441,7 +440,7 @@ func TestPublicAPI(t *testing.T) {
 	// valid token
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("Authorization", token).
+		WithHeader("Authorization", apiKey.Key()).
 		WithHeader("Content-Type", "application/json").
 		Expect().
 		Status(http.StatusOK).
@@ -502,7 +501,7 @@ func TestPublicAPI(t *testing.T) {
 	// different project in the same workspace with the same token
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias2, publicAPIModelKey2).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("Authorization", token).
+		WithHeader("Authorization", apiKey.Key()).
 		WithHeader("Content-Type", "application/json").
 		Expect().
 		Status(http.StatusBadRequest).
@@ -515,12 +514,11 @@ func TestPublicAPI(t *testing.T) {
 func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	uid := accountdomain.NewUserID()
 	wid := accountdomain.NewWorkspaceID()
-	p1 := project.New().ID(publicAPIProjectID).Workspace(wid).Alias(publicAPIProjectAlias).Publication(
-		project.NewPublication(project.PublicationScopePublic, true),
+	p1 := project.New().ID(publicAPIProjectID).Workspace(wid).Alias(publicAPIProjectAlias).Accessibility(
+		project.NewPublicAccessibility(),
 	).MustBuild()
-	p2 := project.New().ID(publicAPIProjectID2).Workspace(wid).Alias(publicAPIProjectAlias2).Publication(
-		project.NewPublicationWithToken(project.PublicationScopeLimited, true, "secret_abcdefghijklmnopqrstuvwxyz"),
-	).MustBuild()
+	p2 := project.New().ID(publicAPIProjectID2).Workspace(wid).Alias(publicAPIProjectAlias2).Accessibility(
+		project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), nil)).MustBuild()
 
 	a := asset.New().ID(publicAPIAsset1ID).Project(p1.ID()).CreatedByUser(uid).Size(1).Thread(id.NewThreadID().Ref()).
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()

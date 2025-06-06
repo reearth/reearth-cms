@@ -119,11 +119,11 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 	res := e.PATCH(endpoint, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
-			"name":         "Updated Project Name",
-			"description":  "Updated Description",
-			"alias":        "updated-alias",
-			"publication":  map[string]any{"scope": "PUBLIC", "assetPublic": true},
-			"requestRoles": []string{"OWNER", "READER"},
+			"name":          "Updated Project Name",
+			"description":   "Updated Description",
+			"alias":         "updated-alias",
+			"accessibility": map[string]any{"visibility": "PUBLIC", "publication": nil},
+			"requestRoles":  []string{"OWNER", "READER"},
 		}).
 		Expect().
 		Status(http.StatusOK).
@@ -133,7 +133,7 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 	res.HasValue("name", "Updated Project Name").
 		HasValue("description", "Updated Description").
 		HasValue("alias", "updated-alias").
-		HasValue("publication", map[string]any{"scope": "PUBLIC", "assetPublic": true, "token": ""}).
+		HasValue("accessibility", map[string]any{"visibility": "PUBLIC", "publication": nil, "keys": nil}).
 		HasValue("requestRoles", []string{"OWNER", "READER"}).
 		HasValue("workspaceId", wId0.String()).
 		Keys().ContainsAll("id", "createdAt", "updatedAt")
@@ -142,11 +142,11 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 	res = e.PATCH(endpoint, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
-			"name":         "Updated Project Name 2",
-			"description":  "Updated Description 2",
-			"alias":        "updated-alias-2",
-			"publication":  map[string]any{"scope": "LIMITED", "assetPublic": true},
-			"requestRoles": []string{"WRITER"},
+			"name":          "Updated Project Name 2",
+			"description":   "Updated Description 2",
+			"alias":         "updated-alias-2",
+			"accessibility": map[string]any{"visibility": "PRIVATE", "publication": nil},
+			"requestRoles":  []string{"WRITER"},
 		}).
 		Expect().
 		Status(http.StatusOK).
@@ -160,9 +160,8 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 		HasValue("workspaceId", wId0.String()).
 		Keys().ContainsAll("id", "createdAt", "updatedAt")
 
-	res.Value("publication").Object().Value("scope").IsEqual("LIMITED")
-	res.Value("publication").Object().Value("assetPublic").IsEqual(true)
-	res.Value("publication").Object().Value("token").String().NotEmpty()
+	res.Value("accessibility").Object().Value("visibility").IsEqual("PRIVATE")
+	res.Value("accessibility").Object().Value("publication").IsEqual(true)
 }
 
 // DELETE /{workspaceId}/projects/{projectId}

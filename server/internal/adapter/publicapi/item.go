@@ -54,14 +54,14 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 	}
 
 	var assets asset.List
-	if pr.Publication().AssetPublic() {
+	if pr.Accessibility().Publication().PublicAssets() {
 		assets, err = c.usecases.Asset.FindByIDs(ctx, itv.AssetIDs(), nil)
 		if err != nil {
 			return Item{}, err
 		}
 	}
 
-	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, pr.Publication().AssetPublic())), nil
+	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, pr.Accessibility().Publication().PublicAssets())), nil
 }
 
 func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], *schema.Schema, error) {
@@ -89,7 +89,7 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 	}
 
 	var assets asset.List
-	if pr.Publication().AssetPublic() {
+	if pr.Accessibility().Publication().PublicAssets() {
 		assetIDs := lo.FlatMap(items.Unwrap(), func(i *item.Item, _ int) []id.AssetID {
 			return i.AssetIDs()
 		})
@@ -104,7 +104,7 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		if err != nil {
 			return Item{}, err
 		}
-		return NewItem(i, sp, assets, getReferencedItems(ctx, i, pr.Publication().AssetPublic())), nil
+		return NewItem(i, sp, assets, getReferencedItems(ctx, i, pr.Accessibility().Publication().PublicAssets())), nil
 	})
 	if err != nil {
 		return ListResult[Item]{}, nil, err
