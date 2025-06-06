@@ -134,24 +134,26 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 	}
 
 	var pub *interfaces.UpdateProjectPublicationParam
-	if request.Body.Publication != nil {
-		var scope *project.PublicationScope
-		if request.Body.Publication.Scope != nil {
-			scope = fromProjectPublicationScope(*request.Body.Publication.Scope)
-		}
-		pub = &interfaces.UpdateProjectPublicationParam{
-			Scope:       scope,
-			AssetPublic: request.Body.Publication.AssetPublic,
-		}
-	}
+	// TODO: Uncomment and implement publication settings
+	//if request.Body.Publication != nil {
+	//	var visibility *project.Visibility
+	//	if request.Body.Publication.Scope != nil {
+	//		visibility = fromProjectPublicationScope(*request.Body.Publication.Scope)
+	//	}
+	//	pub = &interfaces.UpdateProjectPublicationParam{
+	//		Visibility:  visibility,
+	//		Publication:
+	//		AssetPublic: request.Body.Publication.AssetPublic,
+	//	}
+	//}
 
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:           request.ProjectId,
-		Name:         request.Body.Name,
-		Description:  request.Body.Description,
-		Alias:        request.Body.Alias,
-		Publication:  pub,
-		RequestRoles: roles,
+		ID:            request.ProjectId,
+		Name:          request.Body.Name,
+		Description:   request.Body.Description,
+		Alias:         request.Body.Alias,
+		Accessibility: pub,
+		RequestRoles:  roles,
 	}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {

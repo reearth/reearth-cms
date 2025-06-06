@@ -35,11 +35,7 @@ func (c *Controller) checkProject(ctx context.Context, prj string) (*project.Pro
 		return nil, ErrInvalidProject
 	}
 
-	if p := pr.Publication(); p == nil || p.Scope() == project.PublicationScopePrivate {
-		return nil, rerror.ErrNotFound
-	}
-
-	if pr.Publication().Scope() == project.PublicationScopeLimited {
+	if pr.Accessibility().Visibility() == project.VisibilityPrivate {
 		if op := adapter.Operator(ctx); op == nil || !op.IsReadableProject(pr.ID()) {
 			return nil, ErrInvalidProject
 		}

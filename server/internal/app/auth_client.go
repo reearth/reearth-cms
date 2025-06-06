@@ -132,24 +132,23 @@ func publicAPIAuthMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
 			ctx := req.Context()
-			if token := getToken(req); token != "" {
-				p, err := appCtx.Repos.Project.FindByPublicAPIToken(ctx, token)
-				if err != nil {
-					if errors.Is(err, rerror.ErrNotFound) {
-						return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
-					}
-					return err
-				}
-
-				if p.Publication() == nil || p.Publication().Scope() == project.PublicationScopePrivate {
-					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid project"})
-				}
-
-				defaultLang := req.Header.Get("Accept-Language")
-				op := generatePublicApiOperator(p, defaultLang)
-				ctx = adapter.AttachOperator(ctx, op)
-				c.SetRequest(req.WithContext(ctx))
+			token := getToken(req)
+			if token == "" {
+				return next(c)
 			}
+
+			p, err := appCtx.Repos.Project.FindByPublicAPIKey(ctx, token)
+			if err != nil {
+				if errors.Is(err, rerror.ErrNotFound) {
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
+				}
+				return err
+			}
+
+			defaultLang := req.Header.Get("Accept-Language")
+			op := generatePublicApiOperator(p, defaultLang)
+			ctx = adapter.AttachOperator(ctx, op)
+			c.SetRequest(req.WithContext(ctx))
 
 			return next(c)
 		}
@@ -297,7 +296,7 @@ func generatePublicApiOperator(p *project.Project, lang string) *usecase.Operato
 	if p == nil {
 		return nil
 	}
-
+	// TODO: Handle public API key permissions properly based on the used api key.
 	return &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User:                   nil,

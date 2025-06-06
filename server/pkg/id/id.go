@@ -69,6 +69,19 @@ var ProjectIDFrom = idx.From[Project]
 var ProjectIDFromRef = idx.FromRef[Project]
 var ProjectIDListFrom = idx.ListFrom[Project]
 
+type APIKey struct{}
+
+func (APIKey) Type() string { return "api_key" }
+
+type APIKeyID = idx.ID[APIKey]
+type APIKeyIDList = idx.List[APIKey]
+
+var MustAPIKeyID = idx.Must[APIKey]
+var NewAPIKeyID = idx.New[APIKey]
+var APIKeyIDFrom = idx.From[APIKey]
+var APIKeyIDFromRef = idx.FromRef[APIKey]
+var APIKeyIDListFrom = idx.ListFrom[APIKey]
+
 type Model struct{}
 
 func (Model) Type() string { return "model" }

@@ -450,9 +450,8 @@ func TestProject_Update(t *testing.T) {
 				upp: interfaces.UpdateProjectParam{
 					ID:    p1.ID(),
 					Alias: lo.ToPtr("testAlias"),
-					Publication: &interfaces.UpdateProjectPublicationParam{
-						Scope:       lo.ToPtr(project.PublicationScopePublic),
-						AssetPublic: lo.ToPtr(true),
+					Accessibility: &interfaces.UpdateProjectPublicationParam{
+						Visibility: lo.ToPtr(project.VisibilityPublic),
 					},
 				},
 				operator: op,
@@ -466,9 +465,8 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID: p1.ID(),
-					Publication: &interfaces.UpdateProjectPublicationParam{
-						Scope:       lo.ToPtr(project.PublicationScopePublic),
-						AssetPublic: lo.ToPtr(true),
+					Accessibility: &interfaces.UpdateProjectPublicationParam{
+						Visibility: lo.ToPtr(project.VisibilityPublic),
 					},
 				},
 				operator: op,
@@ -477,7 +475,7 @@ func TestProject_Update(t *testing.T) {
 				ID(pid1).
 				Workspace(wid1).
 				UpdatedAt(mocktime).
-				Publication(project.NewPublication(project.PublicationScopePublic, true)).
+				Accessibility(project.NewPublicAccessibility()).
 				RequestRoles(r1).
 				MustBuild(),
 		},

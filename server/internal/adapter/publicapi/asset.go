@@ -45,7 +45,7 @@ func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (L
 		return ListResult[Asset]{}, err
 	}
 
-	if prj.Publication().Scope() != project.PublicationScopePublic || !prj.Publication().AssetPublic() {
+	if prj.Accessibility().Visibility() != project.VisibilityPublic || !prj.Accessibility().Publication().PublicAssets() {
 		return ListResult[Asset]{}, rerror.ErrNotFound
 	}
 

@@ -24,9 +24,8 @@ func TestEventDocument_Model(t *testing.T) {
 		Alias:       "ppp123",
 		ImageURL:    "https://huho.com/xzy",
 		Workspace:   wId.String(),
-		Publication: &ProjectPublicationDocument{
-			AssetPublic: true,
-			Scope:       "public",
+		Accessibility: &ProjectAccessibilityDocument{
+			Visibility: "public",
 		},
 	}
 	tests := []struct {
@@ -85,9 +84,8 @@ func TestNewEvent(t *testing.T) {
 		Alias:       "ppp123",
 		ImageURL:    "https://huho.com/xzy",
 		Workspace:   wId.String(),
-		Publication: &ProjectPublicationDocument{
-			AssetPublic: true,
-			Scope:       "public",
+		Accessibility: &ProjectAccessibilityDocument{
+			Visibility: "public",
 		},
 	}
 	tests := []struct {

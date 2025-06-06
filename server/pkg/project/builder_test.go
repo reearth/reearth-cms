@@ -92,12 +92,13 @@ func TestBuilder_UpdatedAt(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(res.UpdatedAt(), d))
 }
 
-func TestBuilder_Publication(t *testing.T) {
+func TestBuilder_Accessibility(t *testing.T) {
 	var tb = New().NewID()
-	p := &Publication{}
-	res := tb.Publication(p)
+	p := &Accessibility{}
+	res := tb.Accessibility(p)
 	assert.Equal(t, &Builder{
-		p: &Project{id: tb.p.id, publication: p},
+		p: &Project{id: tb.p.id},
+		a: p,
 	}, res)
 }
 
@@ -150,6 +151,11 @@ func TestBuilder_Build(t *testing.T) {
 				updatedAt:   d,
 				imageURL:    i,
 				workspaceID: tid,
+				accessibility: &Accessibility{
+					visibility:  VisibilityPublic,
+					publication: nil,
+					apiKeys:     nil,
+				},
 			},
 		},
 		{
@@ -160,6 +166,11 @@ func TestBuilder_Build(t *testing.T) {
 			expected: &Project{
 				id:        pid,
 				updatedAt: pid.Timestamp(),
+				accessibility: &Accessibility{
+					visibility:  VisibilityPublic,
+					publication: nil,
+					apiKeys:     nil,
+				},
 			},
 		},
 		{
@@ -241,6 +252,11 @@ func TestBuilder_MustBuild(t *testing.T) {
 				updatedAt:   d,
 				imageURL:    i,
 				workspaceID: tid,
+				accessibility: &Accessibility{
+					visibility:  VisibilityPublic,
+					publication: nil,
+					apiKeys:     nil,
+				},
 			},
 		},
 		{
@@ -251,6 +267,11 @@ func TestBuilder_MustBuild(t *testing.T) {
 			expected: &Project{
 				id:        pid,
 				updatedAt: pid.Timestamp(),
+				accessibility: &Accessibility{
+					visibility:  VisibilityPublic,
+					publication: nil,
+					apiKeys:     nil,
+				},
 			},
 		},
 		{

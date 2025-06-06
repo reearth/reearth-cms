@@ -19,15 +19,17 @@ var (
 )
 
 type Project struct {
-	id           ID
-	workspaceID  accountdomain.WorkspaceID
-	name         string
-	description  string
-	alias        string
-	imageURL     *url.URL
-	updatedAt    time.Time
-	publication  *Publication
-	requestRoles []workspace.Role
+	id            ID
+	workspaceID   accountdomain.WorkspaceID
+	alias         string
+	name          string
+	description   string
+	readme        string
+	license       string
+	imageURL      *url.URL
+	updatedAt     time.Time
+	accessibility *Accessibility
+	requestRoles  []workspace.Role
 }
 
 func (p *Project) ID() ID {
@@ -44,6 +46,14 @@ func (p *Project) Name() string {
 
 func (p *Project) Description() string {
 	return p.description
+}
+
+func (p *Project) ReadMe() string {
+	return p.readme
+}
+
+func (p *Project) License() string {
+	return p.license
 }
 
 func (p *Project) Alias() string {
@@ -67,8 +77,8 @@ func (p *Project) CreatedAt() time.Time {
 	return p.id.Timestamp()
 }
 
-func (p *Project) Publication() *Publication {
-	return p.publication
+func (p *Project) Accessibility() *Accessibility {
+	return p.accessibility
 }
 
 func (p *Project) RequestRoles() []workspace.Role {
@@ -89,8 +99,8 @@ func (p *Project) SetImageURL(imageURL *url.URL) {
 	}
 }
 
-func (p *Project) SetPublication(publication *Publication) {
-	p.publication = publication
+func (p *Project) SetAccessibility(accessibility Accessibility) {
+	p.accessibility = accessibility.Clone()
 }
 
 func (p *Project) UpdateName(name string) {
@@ -99,6 +109,14 @@ func (p *Project) UpdateName(name string) {
 
 func (p *Project) UpdateDescription(description string) {
 	p.description = description
+}
+
+func (p *Project) UpdateReadMe(readme string) {
+	p.readme = readme
+}
+
+func (p *Project) UpdateLicense(license string) {
+	p.license = license
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {
@@ -124,15 +142,15 @@ func (p *Project) Clone() *Project {
 	}
 
 	return &Project{
-		id:           p.id.Clone(),
-		workspaceID:  p.workspaceID.Clone(),
-		name:         p.name,
-		description:  p.description,
-		alias:        p.alias,
-		imageURL:     util.CopyURL(p.imageURL),
-		updatedAt:    p.updatedAt,
-		publication:  p.publication.Clone(),
-		requestRoles: p.requestRoles,
+		id:            p.id.Clone(),
+		workspaceID:   p.workspaceID.Clone(),
+		name:          p.name,
+		description:   p.description,
+		alias:         p.alias,
+		imageURL:      util.CopyURL(p.imageURL),
+		updatedAt:     p.updatedAt,
+		accessibility: p.accessibility.Clone(),
+		requestRoles:  p.requestRoles,
 	}
 }
 
