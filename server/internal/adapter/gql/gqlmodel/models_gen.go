@@ -527,6 +527,22 @@ type GroupsPayload struct {
 	Groups []*Group `json:"groups"`
 }
 
+type GuessSchemaField struct {
+	Key  string `json:"key"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
+
+type GuessSchemaFieldResult struct {
+	TotalCount int                 `json:"total_count"`
+	Fields     []*GuessSchemaField `json:"fields"`
+}
+
+type GuessSchemaFieldsInput struct {
+	AssetID ID `json:"assetId"`
+	ModelID ID `json:"modelId"`
+}
+
 type Integration struct {
 	ID          ID                 `json:"id"`
 	Name        string             `json:"name"`

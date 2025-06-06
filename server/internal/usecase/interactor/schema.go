@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -558,4 +559,62 @@ func (i Schema) CreateFields(ctx context.Context, sId id.SchemaID, createFieldsP
 
 			return s.Fields(), nil
 		})
+}
+
+func (i Schema) GuessSchemaFieldsByAsset(ctx context.Context, assetID id.AssetID, modelID id.ModelID, operator *usecase.Operator) (*interfaces.GuessSchemaFieldsData, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return &interfaces.GuessSchemaFieldsData{}, interfaces.ErrInvalidOperator
+	}
+
+	assetData, err := i.repos.Asset.FindByID(ctx, assetID)
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	assetFileData, err := i.repos.AssetFile.FindByID(ctx, assetID)
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	isJSON := assetFileData.ContentType() == asset.JSONContentType
+	isGeoJSON := assetFileData.ContentType() == asset.GeoJSONContentType
+	if !isJSON && !isGeoJSON {
+		return &interfaces.GuessSchemaFieldsData{}, interfaces.ErrInvalidContentTypeForSchemaConversion
+	}
+
+	// read file
+	file, _, err := i.gateways.File.ReadAsset(ctx, assetData.UUID(), assetFileData.Path(), nil)
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	m, err := i.repos.Model.FindByID(ctx, modelID)
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	predictedFields, err := s.GuessSchemaFieldFromJson(file, isGeoJSON, true)
+	if err != nil {
+		return &interfaces.GuessSchemaFieldsData{}, err
+	}
+
+	fields := make([]interfaces.GuessSchemaField, 0, len(predictedFields))
+
+	for _, f := range predictedFields {
+		fields = append(fields, interfaces.GuessSchemaField{
+			Name: f.Name,
+			Key:  f.Key,
+			Type: string(f.Type),
+		})
+	}
+
+	return &interfaces.GuessSchemaFieldsData{
+		Fields:     fields,
+		TotalCount: len(fields),
+	}, nil
 }
