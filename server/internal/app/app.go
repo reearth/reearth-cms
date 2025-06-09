@@ -128,7 +128,7 @@ func allowedIntegrationOrigins(appCtx *ApplicationContext) []string {
 		return nil
 	}
 	origins := append([]string{}, appCtx.Config.IntegrationOrigins...)
-	if appCtx.Debug && len(origins) == 0 {
+	if appCtx.Debug {
 		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
 	}
 	return origins
@@ -139,7 +139,7 @@ func allowedPublicOrigins(appCtx *ApplicationContext) []string {
 		return nil
 	}
 	origins := append([]string{}, appCtx.Config.PublicOrigins...)
-	if appCtx.Debug && len(origins) == 0 {
+	if appCtx.Debug {
 		origins = append(origins, "*")
 	}
 	return origins
