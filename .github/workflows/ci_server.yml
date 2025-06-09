@@ -16,9 +16,9 @@ jobs:
           check-latest: true
           cache-dependency-path: 'server/go.sum'
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.0.2
+          version: v2.1.0
           working-directory: server
           args: --config=../.golangci.yml
           skip-cache: true
