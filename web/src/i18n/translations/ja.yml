@@ -298,6 +298,14 @@ No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
 Edit: 編集
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
+Private: ''
+Public: ''
+Are you sure you want to set this project to public?: ''
+Are you sure you want to set this project to private?: ''
+All published content will be accessible to everyone.: ''
+Published content will no longer be visible, but you can access it using an API key.: ''
+This action is not reversible, so please continue with caution.: ''
+Visibility: ''
 Delete Project: プロジェクトを削除
 Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。
 Alias: エイリアス
@@ -577,6 +585,8 @@ Failed to update request roles.: リクエストロールの更新に失敗し�
 Successfully updated request roles!: リクエストロールの更新に成功しました。
 Failed to delete project.: プロジェクトの削除に失敗しました。
 Successfully deleted project!: プロジェクトの削除に成功しました。
+Failed to update project visibility.: ''
+Successfully updated project visibility!: ''
 Failed to update workspace.: ワークスペースの更新に失敗しました。
 Successfully updated workspace!: ワークスペースの更新に成功しました。
 Failed to connect integration.: インテグレーションの接続に失敗しました。
