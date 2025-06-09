@@ -14,6 +14,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
+import { shallowEqual } from "@reearth-cms/utils/object";
 
 export default () => {
   const t = useT();
@@ -54,15 +55,14 @@ export default () => {
   const alias = useMemo(() => currentProject?.alias ?? "", [currentProject?.alias]);
 
   const initialValues = useMemo(() => {
-    const modelsObj: Record<string, boolean> = {};
-    models?.forEach(model => {
-      modelsObj[model.id] = !!model.public;
-    });
     const publication = currentProject?.accessibility?.publication;
 
     return {
       assetPublic: publication?.publicAssets ?? false,
-      models: modelsObj,
+      models: models.reduce<Record<string, boolean>>((acc, model) => {
+        acc[model.id] = !!publication?.publicModels?.includes(model.id);
+        return acc;
+      }, {}),
     };
   }, [currentProject?.accessibility?.publication, models]);
 
@@ -74,29 +74,45 @@ export default () => {
   const [deleteAPIKeyMutation] = useDeleteApiKeyMutation({ refetchQueries: ["GetProject"] });
 
   const handlePublicUpdate = useCallback(
-    async ({ assetPublic }: FormType, models: { modelId: string; status: boolean }[]) => {
+    async ({ assetPublic, models }: FormType) => {
       if (!currentProject?.id) return;
+
       setUpdateLoading(true);
+
       try {
-        const accessibilityChanged = initialValues.assetPublic !== assetPublic;
+        const accessibilityChanged =
+          initialValues.assetPublic !== assetPublic || !shallowEqual(initialValues.models, models);
 
         if (accessibilityChanged) {
+          const publicModels = Object.entries(models)
+            .filter(([, isPublic]) => isPublic)
+            .map(([modelId]) => modelId);
+
           const projRes = await updateProjectMutation({
             variables: {
               projectId: currentProject.id,
               accessibility: {
                 publication: {
-                  publicModels: models.map(m => m.modelId),
+                  publicModels,
                   publicAssets: assetPublic,
                 },
               },
             },
           });
+
           if (projRes.errors) throw new Error();
         }
 
-        if (models.length) {
-          const res = await publishModelsMutation({ variables: { models } });
+        const modelEntries = Object.entries(models);
+        if (modelEntries.length > 0) {
+          const res = await publishModelsMutation({
+            variables: {
+              models: modelEntries.map(([modelId, isPublic]) => ({
+                modelId,
+                status: isPublic,
+              })),
+            },
+          });
           if (res.errors) throw new Error();
         }
 
@@ -111,6 +127,7 @@ export default () => {
     [
       currentProject?.id,
       initialValues.assetPublic,
+      initialValues.models,
       publishModelsMutation,
       t,
       updateProjectMutation,
@@ -144,8 +161,13 @@ export default () => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
   };
 
+  const handleAPIKeyNew = () => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/new`);
+  };
+
   const handleAPIKeyEdit = (keyId?: string) => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/${keyId ?? "new"}`);
+    if (!keyId) return;
+    navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility/${keyId}`);
   };
 
   return {
@@ -159,6 +181,7 @@ export default () => {
     updateLoading,
     apiUrl,
     alias,
+    handleAPIKeyNew,
     handlePublicUpdate,
     handleAPIKeyDelete,
     handleAPIKeyEdit,

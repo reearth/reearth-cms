@@ -17,6 +17,7 @@ type Props = {
   updateLoading: boolean;
   apiUrl: string;
   alias: string;
+  onAPIKeyNew: () => void;
   onAPIKeyEdit: (keyId?: string) => void;
   onAPIKeyDelete: (id: string) => Promise<void>;
   onPublicUpdate: (
@@ -36,6 +37,7 @@ const Accessibility: React.FC<Props> = ({
   hasDeleteRight,
   updateLoading,
   apiUrl,
+  onAPIKeyNew,
   onAPIKeyEdit,
   onAPIKeyDelete,
   onPublicUpdate,
@@ -73,6 +75,7 @@ const Accessibility: React.FC<Props> = ({
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
+        onAPIKeyNew={onAPIKeyNew}
         onAPIKeyEdit={onAPIKeyEdit}
         onAPIKeyDelete={onAPIKeyDelete}
         onSettingsPageOpen={onSettingsPageOpen}

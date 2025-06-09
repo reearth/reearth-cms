@@ -13,6 +13,7 @@ const APIKeyDetails: React.FC = () => {
     hasCreateRight,
     hasUpdateRight,
     initialValues,
+    isNewKey,
     keyModels,
     updateLoading,
     regenerateLoading,
@@ -31,6 +32,7 @@ const APIKeyDetails: React.FC = () => {
       hasUpdateRight={hasUpdateRight}
       hasPublishRight={hasPublishRight}
       initialValues={initialValues}
+      isNewKey={isNewKey}
       keyModels={keyModels}
       keyId={keyId}
       createLoading={createLoading}

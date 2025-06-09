@@ -14,6 +14,7 @@ const Accessibility: React.FC = () => {
     updateLoading,
     apiUrl,
     alias,
+    handleAPIKeyNew,
     handleAPIKeyEdit,
     handleAPIKeyDelete,
     handlePublicUpdate,
@@ -32,6 +33,7 @@ const Accessibility: React.FC = () => {
       updateLoading={updateLoading}
       apiUrl={apiUrl}
       alias={alias}
+      onAPIKeyNew={handleAPIKeyNew}
       onAPIKeyEdit={handleAPIKeyEdit}
       onAPIKeyDelete={handleAPIKeyDelete}
       onPublicUpdate={handlePublicUpdate}

@@ -27,6 +27,7 @@ export default () => {
     () => !!userRights?.project.publish,
     [userRights?.project.publish],
   );
+  const isNewKey = useMemo(() => keyId === "new", [keyId]);
 
   const [createAPIKeyMutation, { loading: createLoading }] = useCreateApiKeyMutation({
     refetchQueries: ["GetProject"],
@@ -54,50 +55,44 @@ export default () => {
     [modelsData?.models.nodes],
   );
 
-  const mockKey = useMemo(
-    () => ({
-      id: "01g4eg4ay017hpw58fkh9nd89c",
-      name: "Default API Key",
-      description: "Default key for public access",
-      key: "secret_SuV6vNbzH3WRh2CoOkaCZrGp5mUXCvLPKM36iYjNIoc",
-      publication: { publicModels: ["01hth95j5caxs73physevzw15d"], publicAssets: true },
-    }),
-    [],
+  const currentKey = useMemo(
+    () => currentProject?.accessibility?.apiKeys?.find(key => key.id === keyId),
+    [currentProject?.accessibility?.apiKeys, keyId],
   );
 
-  const currentKey = useMemo(() => {
-    if (!keyId) return mockKey;
-    return currentProject?.accessibility?.apiKeys?.find(key => key.id === keyId) || mockKey;
-  }, [currentProject?.accessibility?.apiKeys, keyId, mockKey]);
-
   const keyModels = useMemo(() => {
-    const publicModelIds = currentKey?.publication?.publicModels ?? [];
-    return models.filter(model => publicModelIds.includes(model.id));
-  }, [currentKey?.publication?.publicModels, models]);
+    if (isNewKey) return models;
+
+    const publicModelIds = new Set(currentKey?.publication?.publicModels ?? []);
+    return models.filter(model => publicModelIds.has(model.id));
+  }, [currentKey?.publication?.publicModels, isNewKey, models]);
 
   const initialValues = useMemo(() => {
-    const modelsObj: Record<string, boolean> = {};
-    models.forEach(modelId => {
-      if (currentKey?.publication?.publicModels?.includes(modelId.id)) {
-        modelsObj[modelId.id] = true;
-      } else {
-        modelsObj[modelId.id] = false;
-      }
-    });
+    const publicModelSet = new Set(
+      isNewKey
+        ? (currentProject?.accessibility?.publication?.publicModels ?? [])
+        : (currentKey?.publication?.publicModels ?? []),
+    );
+
     return {
-      name: currentKey.name ?? "",
-      description: currentKey.description ?? "",
-      key: currentKey.key ?? "",
-      assetPublic: currentKey.publication.publicAssets ?? false,
-      models: modelsObj,
+      name: currentKey?.name ?? "",
+      description: currentKey?.description ?? "",
+      key: currentKey?.key ?? "",
+      assetPublic: currentKey?.publication.publicAssets ?? false,
+      models: models.reduce<Record<string, boolean>>((acc, model) => {
+        acc[model.id] = publicModelSet.has(model.id);
+        return acc;
+      }, {}),
     };
   }, [
+    isNewKey,
+    currentKey?.name,
+    currentKey?.description,
+    currentKey?.key,
+    currentKey?.publication?.publicAssets,
+    currentKey?.publication?.publicModels,
+    currentProject?.accessibility?.publication?.publicModels,
     models,
-    currentKey.name,
-    currentKey.description,
-    currentKey.key,
-    currentKey.publication.publicAssets,
-    currentKey.publication?.publicModels,
   ]);
 
   const handleAPIKeyCreate = useCallback(
@@ -189,6 +184,7 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     initialValues,
+    isNewKey,
     keyModels,
     updateLoading,
     regenerateLoading,

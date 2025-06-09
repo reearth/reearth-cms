@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -25,6 +25,7 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   initialValues: KeyFormType;
+  isNewKey: boolean;
   keyId?: string;
   keyModels: Pick<Model, "name" | "id" | "key">[];
   createLoading?: boolean;
@@ -59,6 +60,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
   hasUpdateRight,
   hasPublishRight,
   initialValues,
+  isNewKey,
   keyId,
   keyModels,
   createLoading,
@@ -72,7 +74,6 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
   const t = useT();
   const [visible, setVisible] = useState(false);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-  const isNewKey = useMemo(() => keyId === "new", [keyId]);
   const changedModels = useRef(new Map<string, boolean>());
 
   const [form] = Form.useForm<KeyFormType>();
@@ -175,8 +176,8 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
                 }
               />
               <Button
-                onClick={() => onAPIKeyRegenerate(currentKey?.id)}
-                loading={regenerateLoading}>
+                loading={regenerateLoading}
+                onClick={() => onAPIKeyRegenerate(currentKey?.id)}>
                 {t("Re-generate")}
               </Button>
             </TokenFormItem>

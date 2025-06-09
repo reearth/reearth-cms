@@ -94,7 +94,6 @@ const DangerZone: React.FC<Props> = ({
           </Select.Option>
         ))}
       </StyledSelect>
-
       <Title>{t("Delete Project")}</Title>
       <Text>
         {t(

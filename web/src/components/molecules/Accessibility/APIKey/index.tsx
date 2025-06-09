@@ -15,8 +15,9 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
-  onAPIKeyDelete: (id: string) => Promise<void>;
+  onAPIKeyNew: () => void;
   onAPIKeyEdit: (keyId?: string) => void;
+  onAPIKeyDelete: (id: string) => Promise<void>;
   onSettingsPageOpen: () => void;
 };
 
@@ -26,6 +27,7 @@ const APIKeyComponent: React.FC<Props> = ({
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  onAPIKeyNew,
   onAPIKeyEdit,
   onAPIKeyDelete,
   onSettingsPageOpen,
@@ -35,7 +37,10 @@ const APIKeyComponent: React.FC<Props> = ({
   return (
     <ContentSection title="API Key">
       <StyledTokenInput>
-        <Button icon={<Icon icon="plus" />} disabled={isPublic || !hasCreateRight}>
+        <Button
+          icon={<Icon icon="plus" />}
+          disabled={isPublic || !hasCreateRight}
+          onClick={onAPIKeyNew}>
           {t("New Key")}
         </Button>
       </StyledTokenInput>
