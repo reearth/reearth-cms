@@ -555,7 +555,6 @@ type Model struct {
 	MetadataSchemaId *id.SchemaID  `json:"metadataSchemaId,omitempty"`
 	Name             *string       `json:"name,omitempty"`
 	ProjectId        *id.ProjectID `json:"projectId,omitempty"`
-	Public           *bool         `json:"public,omitempty"`
 	Schema           *Schema       `json:"schema,omitempty"`
 	SchemaId         *id.SchemaID  `json:"schemaId,omitempty"`
 	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`

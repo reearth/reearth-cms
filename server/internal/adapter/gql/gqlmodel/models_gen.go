@@ -708,7 +708,6 @@ type Model struct {
 	Project          *Project  `json:"project"`
 	Schema           *Schema   `json:"schema"`
 	MetadataSchema   *Schema   `json:"metadataSchema,omitempty"`
-	Public           bool      `json:"public"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
 	Order            *int      `json:"order,omitempty"`

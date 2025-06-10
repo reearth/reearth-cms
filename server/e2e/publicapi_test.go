@@ -575,10 +575,10 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 			schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(pApiP1S2F1Key).Key(id.NewKey(pApiP1S2F1Key)).MustBuild(),
 		}).MustBuild()
 
-	p1m1 := model.New().ID(pApiP1M1Id).Project(pApiP1Id).Schema(p1s1.ID()).Public(true).Key(id.NewKey(pApiP1M1Key)).MustBuild()
+	p1m1 := model.New().ID(pApiP1M1Id).Project(pApiP1Id).Schema(p1s1.ID()).Key(id.NewKey(pApiP1M1Key)).MustBuild()
 	// p1m2 is not a public model
-	p1m2 := model.New().ID(pApiP1M2Id).Project(pApiP1Id).Schema(p1s1.ID()).Name(pApiP1M2Key).Key(id.NewKey(pApiP1M2Key)).Public(false).MustBuild()
-	p1m3 := model.New().ID(pApiP1M3Id).Project(pApiP1Id).Schema(p1s2.ID()).Name(pApiP1M3Key).Key(id.NewKey(pApiP1M3Key)).Public(true).MustBuild()
+	p1m2 := model.New().ID(pApiP1M2Id).Project(pApiP1Id).Schema(p1s1.ID()).Name(pApiP1M2Key).Key(id.NewKey(pApiP1M2Key)).MustBuild()
+	p1m3 := model.New().ID(pApiP1M3Id).Project(pApiP1Id).Schema(p1s2.ID()).Name(pApiP1M3Key).Key(id.NewKey(pApiP1M3Key)).MustBuild()
 
 	p1m1i1 := item.New().
 		ID(pApiP1M1I1Id).
@@ -695,7 +695,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 		Accessibility(project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), nil)).
 		MustBuild()
 
-	p2m1 := model.New().ID(pApiP2M1Id).Project(pApiP2Id).Schema(id.NewSchemaID()).Key(id.NewKey(pApiP2M1Key)).Public(true).MustBuild()
+	p2m1 := model.New().ID(pApiP2M1Id).Project(pApiP2Id).Schema(id.NewSchemaID()).Key(id.NewKey(pApiP2M1Key)).MustBuild()
 
 	lo.Must0(r.Project.Save(ctx, p2))
 	lo.Must0(r.Model.Save(ctx, p2m1))
