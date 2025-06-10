@@ -122,13 +122,13 @@ func (t *Geometry_Coordinates) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
-	if !s.HasGeometryFields() {
+func FeatureCollectionFromItems(ver item.VersionedList, sp *schema.Package) (*FeatureCollection, error) {
+	if !sp.Schema().HasGeometryFields() {
 		return nil, noGeometryFieldError
 	}
 
 	features := lo.FilterMap(ver, func(v item.Versioned, _ int) (Feature, bool) {
-		return FeatureFromItem(v, s)
+		return FeatureFromItem(v, sp)
 	})
 
 	if len(features) == 0 {
@@ -141,8 +141,8 @@ func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*Feat
 	}, nil
 }
 
-func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
-	if s == nil {
+func FeatureFromItem(ver item.Versioned, sp *schema.Package) (Feature, bool) {
+	if sp == nil {
 		return Feature{}, false
 	}
 	itm := ver.Value()
@@ -159,17 +159,26 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         itm.ID().Ref().StringRef(),
 		Geometry:   geometry,
-		Properties: extractProperties(itm, s),
+		Properties: extractProperties(itm, sp),
 	}, true
 }
 
-func extractProperties(itm *item.Item, s *schema.Schema) *orderedmap.OrderedMap {
-	if itm == nil || s == nil {
+func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMap {
+	if itm == nil || sp == nil || sp.Schema() == nil {
 		return nil
 	}
+
 	properties := orderedmap.New()
-	for _, field := range s.Fields().Ordered() {
+
+	// 1. Collect top-level fields and group field definitions
+	var groupFields []*schema.Field
+	for _, field := range sp.Schema().Fields().Ordered() {
 		if field.Type() == value.TypeGeometryObject || field.Type() == value.TypeGeometryEditor {
+			continue
+		}
+
+		if field.Type() == value.TypeGroup {
+			groupFields = append(groupFields, field)
 			continue
 		}
 
@@ -179,6 +188,62 @@ func extractProperties(itm *item.Item, s *schema.Schema) *orderedmap.OrderedMap 
 			properties.Set(key, val)
 		}
 	}
+
+	// 2. Process each group field
+	for _, groupField := range groupFields {
+		groupKey := groupField.Name()
+		itemField := itm.Field(groupField.ID())
+		groupValues, ok := itemField.Value().ValuesGroup()
+		if !ok || len(groupValues) == 0 {
+			continue
+		}
+
+		if groupField.Multiple() {
+			var multiGroupArray []*orderedmap.OrderedMap
+
+			for _, groupVal := range groupValues {
+				groupID := groupVal.String()
+				groupProperties := orderedmap.New()
+
+				for _, f := range itm.Fields() {
+					if f.ItemGroup() != nil && f.ItemGroup().String() == groupID {
+						if val, ok := toGeoJSONProp(f); ok {
+							if sf := sp.GroupSchemas().Fields().Find(f.FieldID()); sf != nil {
+								groupProperties.Set(sf.Name(), val)
+							}
+						}
+					}
+				}
+
+				// Only add if something was collected
+				if len(groupProperties.Keys()) > 0 {
+					multiGroupArray = append(multiGroupArray, groupProperties)
+				}
+			}
+
+			properties.Set(groupKey, multiGroupArray)
+
+		} else {
+			// Single group (assume first entry)
+			groupID := groupValues[0].String()
+			groupProperties := orderedmap.New()
+
+			for _, f := range itm.Fields() {
+				if f.ItemGroup() != nil && f.ItemGroup().String() == groupID {
+					if val, ok := toGeoJSONProp(f); ok {
+						if sf := sp.GroupSchemas().Fields().Find(f.FieldID()); sf != nil {
+							groupProperties.Set(sf.Name(), val)
+						}
+					}
+				}
+			}
+
+			if len(groupProperties.Keys()) > 0 {
+				properties.Set(groupKey, groupProperties)
+			}
+		}
+	}
+
 	return properties
 }
 
@@ -264,6 +329,12 @@ func toGeoJsonSingleValue(vv *value.Value) (any, bool) {
 			return "", false
 		}
 		return v.Format(time.RFC3339), true
+	case value.TypeAsset:
+		v, ok := vv.ValueAsset()
+		if !ok {
+			return "", false
+		}
+		return v, true
 	default:
 		return "", false
 	}

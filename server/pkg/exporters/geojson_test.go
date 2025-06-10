@@ -41,7 +41,9 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	fi4 := item.NewField(sf4.ID(), value.TypeInteger.Value(30).AsMultiple(), nil)
 	fi5 := item.NewField(sf5.ID(), value.TypeBool.Value(true).AsMultiple(), nil)
 	s1 := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4, sf5}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
+	sp1 := schema.NewPackage(s1, nil, nil, nil)
 	s2 := schema.New().ID(sid).Fields([]*schema.Field{sf2}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf2.ID().Ref()).Project(pid).MustBuild()
+	sp2 := schema.NewPackage(s2, nil, nil, nil)
 	i1 := item.New().
 		ID(iid).
 		Schema(sid).
@@ -99,7 +101,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Features: &[]Feature{f},
 	}
 
-	fc1, err1 := FeatureCollectionFromItems(ver1, s1)
+	fc1, err1 := FeatureCollectionFromItems(ver1, sp1)
 	assert.Nil(t, err1)
 	assert.Equal(t, expected1, fc1)
 
@@ -107,7 +109,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	ver2 := item.VersionedList{vi2}
 	expectErr2 := noGeometryFieldError
 
-	fc, err := FeatureCollectionFromItems(ver2, s2)
+	fc, err := FeatureCollectionFromItems(ver2, sp2)
 	assert.Equal(t, expectErr2, err)
 	assert.Nil(t, fc)
 }
@@ -154,6 +156,7 @@ func TestExtractProperties(t *testing.T) {
 	fi4 := item.NewField(sf4.ID(), value.TypeInteger.Value(30).AsMultiple(), nil)
 	fi5 := item.NewField(sf5.ID(), value.TypeBool.Value(true).AsMultiple(), nil)
 	s1 := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4, sf5}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
+	sp1 := schema.NewPackage(s1, nil, nil, nil)
 	i1 := item.New().
 		ID(iid).
 		Schema(sid).
@@ -176,7 +179,7 @@ func TestExtractProperties(t *testing.T) {
 		MustBuild()
 
 	// Test with item containing geometry fields and non geometry fields
-	properties1 := extractProperties(i1, s1)
+	properties1 := extractProperties(i1, sp1)
 	expectedProperties1 := orderedmap.New()
 
 	expectedProperties1.Set("Name", []any{"a", "b", "c"})
@@ -187,13 +190,13 @@ func TestExtractProperties(t *testing.T) {
 	assert.Equal(t, expectedProperties1, properties1)
 
 	// Test with item containing only geometry fields
-	properties3 := extractProperties(i2, s1)
+	properties3 := extractProperties(i2, sp1)
 	expectedProperties3 := orderedmap.New()
 	assert.NotNil(t, properties3)
 	assert.Equal(t, expectedProperties3, properties3)
 
 	// Test with nil item
-	properties4 := extractProperties(nil, s1)
+	properties4 := extractProperties(nil, sp1)
 	assert.Nil(t, properties4)
 
 	// Test with nil schema
