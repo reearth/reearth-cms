@@ -142,7 +142,7 @@ func FeatureCollectionFromItems(ver item.VersionedList, sp *schema.Package) (*Fe
 }
 
 func FeatureFromItem(ver item.Versioned, sp *schema.Package) (Feature, bool) {
-	if sp == nil {
+	if sp == nil || sp.Schema() == nil {
 		return Feature{}, false
 	}
 	itm := ver.Value()
@@ -169,16 +169,8 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 	}
 
 	properties := orderedmap.New()
-
-	// 1. Collect top-level fields and group field definitions
-	var groupFields []*schema.Field
 	for _, field := range sp.Schema().Fields().Ordered() {
-		if field.Type() == value.TypeGeometryObject || field.Type() == value.TypeGeometryEditor {
-			continue
-		}
-
-		if field.Type() == value.TypeGroup {
-			groupFields = append(groupFields, field)
+		if field.Type() == value.TypeGeometryObject || field.Type() == value.TypeGeometryEditor || field.Type() == value.TypeGroup {
 			continue
 		}
 
@@ -189,7 +181,7 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 		}
 	}
 
-	// 2. Process each group field
+	groupFields := sp.Schema().FieldsByType(value.TypeGroup)
 	for _, groupField := range groupFields {
 		groupKey := groupField.Name()
 		itemField := itm.Field(groupField.ID())
@@ -200,11 +192,9 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 
 		if groupField.Multiple() {
 			var multiGroupArray []*orderedmap.OrderedMap
-
 			for _, groupVal := range groupValues {
 				groupID := groupVal.String()
 				groupProperties := orderedmap.New()
-
 				for _, f := range itm.Fields() {
 					if f.ItemGroup() != nil && f.ItemGroup().String() == groupID {
 						if val, ok := toGeoJSONProp(f); ok {
@@ -214,20 +204,14 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 						}
 					}
 				}
-
-				// Only add if something was collected
 				if len(groupProperties.Keys()) > 0 {
 					multiGroupArray = append(multiGroupArray, groupProperties)
 				}
 			}
-
 			properties.Set(groupKey, multiGroupArray)
-
 		} else {
-			// Single group (assume first entry)
 			groupID := groupValues[0].String()
 			groupProperties := orderedmap.New()
-
 			for _, f := range itm.Fields() {
 				if f.ItemGroup() != nil && f.ItemGroup().String() == groupID {
 					if val, ok := toGeoJSONProp(f); ok {
@@ -237,7 +221,6 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 					}
 				}
 			}
-
 			if len(groupProperties.Keys()) > 0 {
 				properties.Set(groupKey, groupProperties)
 			}
