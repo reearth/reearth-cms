@@ -317,6 +317,8 @@ func TestPublicAPI(t *testing.T) {
 							"bbb",
 							"ccc",
 						},
+						"asset":  publicAPIAsset2ID,
+						"asset2": publicAPIAsset1ID,
 					},
 				},
 			},
