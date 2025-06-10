@@ -133,9 +133,8 @@ paths:
                   type: string
                 alias:
                   type: string
-                #                TODO: Support for accessibility and api keys Management
-                #                accessibility:
-                #                  $ref: '#/components/schemas/accessibility'
+                accessibility:
+                  $ref: '#/components/schemas/accessibility'
                 requestRoles:
                   type: array
                   items:

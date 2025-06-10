@@ -6,7 +6,6 @@ package gql
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -44,9 +43,9 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		return nil, err
 	}
 
-	var pub *interfaces.UpdateProjectPublicationParam
+	var pub *interfaces.UpdateProjectAccessibilityParam
 	if input.Accessibility != nil {
-		pub = &interfaces.UpdateProjectPublicationParam{
+		pub = &interfaces.UpdateProjectAccessibilityParam{
 			Visibility:  gqlmodel.FromProjectVisibility(input.Accessibility.Visibility),
 			Publication: gqlmodel.FromPublicationSettings(input.Accessibility.Publication),
 		}
@@ -83,22 +82,101 @@ func (r *mutationResolver) DeleteProject(ctx context.Context, input gqlmodel.Del
 
 // CreateAPIKey is the resolver for the createAPIKey field.
 func (r *mutationResolver) CreateAPIKey(ctx context.Context, input gqlmodel.CreateAPIKeyInput) (*gqlmodel.APIKeyPayload, error) {
-	panic(fmt.Errorf("not implemented: CreateAPIKey - createAPIKey"))
+	pId, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	pub := gqlmodel.FromPublicationSettings(input.Publication)
+	if pub == nil {
+		pub = &interfaces.PublicationSettingsParam{
+			PublicModels: nil,
+			PublicAssets: false,
+		}
+	}
+
+	p, keyId, err := usecases(ctx).Project.CreateAPIKey(ctx, interfaces.CreateAPITokenParam{
+		ProjectID:   pId,
+		Name:        input.Name,
+		Description: input.Description,
+		Publication: *pub,
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.ToAPIKeyPayload(p, *keyId), nil
 }
 
 // UpdateAPIKey is the resolver for the updateAPIKey field.
 func (r *mutationResolver) UpdateAPIKey(ctx context.Context, input gqlmodel.UpdateAPIKeyInput) (*gqlmodel.APIKeyPayload, error) {
-	panic(fmt.Errorf("not implemented: UpdateAPIKey - updateAPIKey"))
+	pId, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	kId, err := gqlmodel.ToID[id.APIKey](input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := usecases(ctx).Project.UpdateAPIKey(ctx, interfaces.UpdateAPITokenParam{
+		ProjectID:   pId,
+		TokenId:     kId,
+		Name:        input.Name,
+		Description: input.Description,
+		Publication: gqlmodel.FromPublicationSettings(input.Publication),
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.ToAPIKeyPayload(p, kId), nil
 }
 
 // DeleteAPIKey is the resolver for the deleteAPIKey field.
 func (r *mutationResolver) DeleteAPIKey(ctx context.Context, input gqlmodel.DeleteAPIKeyInput) (*gqlmodel.DeleteAPIKeyPayload, error) {
-	panic(fmt.Errorf("not implemented: DeleteAPIKey - deleteAPIKey"))
+	kId, err := gqlmodel.ToID[id.APIKey](input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	pId, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = usecases(ctx).Project.DeleteAPIKey(ctx, pId, kId, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.DeleteAPIKeyPayload{
+		APIKeyID: input.ID,
+	}, nil
 }
 
 // RegenerateAPIKey is the resolver for the regenerateAPIKey field.
 func (r *mutationResolver) RegenerateAPIKey(ctx context.Context, input gqlmodel.RegenerateAPIKeyInput) (*gqlmodel.APIKeyPayload, error) {
-	panic(fmt.Errorf("not implemented: RegenerateAPIKey - regenerateAPIKey"))
+	kId, err := gqlmodel.ToID[id.APIKey](input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	pId, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := usecases(ctx).Project.RegenerateAPIKeyKey(ctx, interfaces.RegenerateKeyParam{
+		ProjectId: pId,
+		KeyId:     kId,
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return gqlmodel.ToAPIKeyPayload(p, kId), nil
 }
 
 // Workspace is the resolver for the workspace field.

@@ -450,7 +450,7 @@ func TestProject_Update(t *testing.T) {
 				upp: interfaces.UpdateProjectParam{
 					ID:    p1.ID(),
 					Alias: lo.ToPtr("testAlias"),
-					Accessibility: &interfaces.UpdateProjectPublicationParam{
+					Accessibility: &interfaces.UpdateProjectAccessibilityParam{
 						Visibility: lo.ToPtr(project.VisibilityPublic),
 					},
 				},
@@ -465,7 +465,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID: p1.ID(),
-					Accessibility: &interfaces.UpdateProjectPublicationParam{
+					Accessibility: &interfaces.UpdateProjectAccessibilityParam{
 						Visibility: lo.ToPtr(project.VisibilityPublic),
 					},
 				},

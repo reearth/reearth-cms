@@ -27,10 +27,10 @@ type UpdateProjectParam struct {
 	Description   *string
 	Alias         *string
 	RequestRoles  []workspace.Role
-	Accessibility *UpdateProjectPublicationParam
+	Accessibility *UpdateProjectAccessibilityParam
 }
 
-type UpdateProjectPublicationParam struct {
+type UpdateProjectAccessibilityParam struct {
 	Visibility  *project.Visibility
 	Publication *PublicationSettingsParam
 }
@@ -43,6 +43,21 @@ type PublicationSettingsParam struct {
 type RegenerateKeyParam struct {
 	ProjectId id.ProjectID
 	KeyId     id.APIKeyID
+}
+
+type CreateAPITokenParam struct {
+	ProjectID   id.ProjectID
+	Name        string
+	Description string
+	Publication PublicationSettingsParam
+}
+
+type UpdateAPITokenParam struct {
+	ProjectID   id.ProjectID
+	TokenId     id.APIKeyID
+	Name        *string
+	Description *string
+	Publication *PublicationSettingsParam
 }
 
 var (
@@ -58,5 +73,8 @@ type Project interface {
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
 	CheckAlias(context.Context, string) (bool, error)
 	Delete(context.Context, id.ProjectID, *usecase.Operator) error
+	CreateAPIKey(context.Context, CreateAPITokenParam, *usecase.Operator) (*project.Project, *project.APIKeyID, error)
+	UpdateAPIKey(context.Context, UpdateAPITokenParam, *usecase.Operator) (*project.Project, error)
+	DeleteAPIKey(context.Context, id.ProjectID, id.APIKeyID, *usecase.Operator) (*project.Project, error)
 	RegenerateAPIKeyKey(context.Context, RegenerateKeyParam, *usecase.Operator) (*project.Project, error)
 }

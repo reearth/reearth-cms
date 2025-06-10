@@ -68,8 +68,8 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	APIKeyPayload struct {
-		AccessToken func(childComplexity int) int
-		Public      func(childComplexity int) int
+		APIKey func(childComplexity int) int
+		Public func(childComplexity int) int
 	}
 
 	AddUsersToWorkspacePayload struct {
@@ -191,7 +191,7 @@ type ComplexityRoot struct {
 	}
 
 	DeleteAPIKeyPayload struct {
-		AccessTokenID func(childComplexity int) int
+		APIKeyID func(childComplexity int) int
 	}
 
 	DeleteAssetPayload struct {
@@ -1149,12 +1149,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
-	case "APIKeyPayload.accessToken":
-		if e.complexity.APIKeyPayload.AccessToken == nil {
+	case "APIKeyPayload.apiKey":
+		if e.complexity.APIKeyPayload.APIKey == nil {
 			break
 		}
 
-		return e.complexity.APIKeyPayload.AccessToken(childComplexity), true
+		return e.complexity.APIKeyPayload.APIKey(childComplexity), true
 
 	case "APIKeyPayload.public":
 		if e.complexity.APIKeyPayload.Public == nil {
@@ -1632,12 +1632,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.DecompressAssetPayload.Asset(childComplexity), true
 
-	case "DeleteAPIKeyPayload.accessTokenId":
-		if e.complexity.DeleteAPIKeyPayload.AccessTokenID == nil {
+	case "DeleteAPIKeyPayload.apiKeyId":
+		if e.complexity.DeleteAPIKeyPayload.APIKeyID == nil {
 			break
 		}
 
-		return e.complexity.DeleteAPIKeyPayload.AccessTokenID(childComplexity), true
+		return e.complexity.DeleteAPIKeyPayload.APIKeyID(childComplexity), true
 
 	case "DeleteAssetPayload.assetId":
 		if e.complexity.DeleteAssetPayload.AssetID == nil {
@@ -6876,12 +6876,12 @@ type DeleteProjectPayload {
 }
 
 type APIKeyPayload {
-  accessToken: ProjectAPIKey!
+  apiKey: ProjectAPIKey!
   public: PublicationSettings!
 }
 
 type DeleteAPIKeyPayload {
-  accessTokenId: ID!
+  apiKeyId: ID!
 }
 
 type ProjectConnection {
@@ -10288,8 +10288,8 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _APIKeyPayload_accessToken(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.APIKeyPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_APIKeyPayload_accessToken(ctx, field)
+func (ec *executionContext) _APIKeyPayload_apiKey(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.APIKeyPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_APIKeyPayload_apiKey(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10302,7 +10302,7 @@ func (ec *executionContext) _APIKeyPayload_accessToken(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AccessToken, nil
+		return obj.APIKey, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10319,7 +10319,7 @@ func (ec *executionContext) _APIKeyPayload_accessToken(ctx context.Context, fiel
 	return ec.marshalNProjectAPIKey2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKey(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_APIKeyPayload_accessToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_APIKeyPayload_apiKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "APIKeyPayload",
 		Field:      field,
@@ -13577,8 +13577,8 @@ func (ec *executionContext) fieldContext_DecompressAssetPayload_asset(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteAPIKeyPayload_accessTokenId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteAPIKeyPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteAPIKeyPayload_accessTokenId(ctx, field)
+func (ec *executionContext) _DeleteAPIKeyPayload_apiKeyId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteAPIKeyPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteAPIKeyPayload_apiKeyId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -13591,7 +13591,7 @@ func (ec *executionContext) _DeleteAPIKeyPayload_accessTokenId(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AccessTokenID, nil
+		return obj.APIKeyID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13608,7 +13608,7 @@ func (ec *executionContext) _DeleteAPIKeyPayload_accessTokenId(ctx context.Conte
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_DeleteAPIKeyPayload_accessTokenId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_DeleteAPIKeyPayload_apiKeyId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteAPIKeyPayload",
 		Field:      field,
@@ -22639,8 +22639,8 @@ func (ec *executionContext) fieldContext_Mutation_createAPIKey(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "accessToken":
-				return ec.fieldContext_APIKeyPayload_accessToken(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_APIKeyPayload_apiKey(ctx, field)
 			case "public":
 				return ec.fieldContext_APIKeyPayload_public(ctx, field)
 			}
@@ -22697,8 +22697,8 @@ func (ec *executionContext) fieldContext_Mutation_updateAPIKey(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "accessToken":
-				return ec.fieldContext_APIKeyPayload_accessToken(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_APIKeyPayload_apiKey(ctx, field)
 			case "public":
 				return ec.fieldContext_APIKeyPayload_public(ctx, field)
 			}
@@ -22755,8 +22755,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteAPIKey(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "accessTokenId":
-				return ec.fieldContext_DeleteAPIKeyPayload_accessTokenId(ctx, field)
+			case "apiKeyId":
+				return ec.fieldContext_DeleteAPIKeyPayload_apiKeyId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DeleteAPIKeyPayload", field.Name)
 		},
@@ -22811,8 +22811,8 @@ func (ec *executionContext) fieldContext_Mutation_regenerateAPIKey(ctx context.C
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "accessToken":
-				return ec.fieldContext_APIKeyPayload_accessToken(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_APIKeyPayload_apiKey(ctx, field)
 			case "public":
 				return ec.fieldContext_APIKeyPayload_public(ctx, field)
 			}
@@ -43899,8 +43899,8 @@ func (ec *executionContext) _APIKeyPayload(ctx context.Context, sel ast.Selectio
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("APIKeyPayload")
-		case "accessToken":
-			out.Values[i] = ec._APIKeyPayload_accessToken(ctx, field, obj)
+		case "apiKey":
+			out.Values[i] = ec._APIKeyPayload_apiKey(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -44966,8 +44966,8 @@ func (ec *executionContext) _DeleteAPIKeyPayload(ctx context.Context, sel ast.Se
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeleteAPIKeyPayload")
-		case "accessTokenId":
-			out.Values[i] = ec._DeleteAPIKeyPayload_accessTokenId(ctx, field, obj)
+		case "apiKeyId":
+			out.Values[i] = ec._DeleteAPIKeyPayload_apiKeyId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

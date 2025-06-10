@@ -133,26 +133,27 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		}
 	}
 
-	var pub *interfaces.UpdateProjectPublicationParam
-	// TODO: Uncomment and implement publication settings
-	//if request.Body.Publication != nil {
-	//	var visibility *project.Visibility
-	//	if request.Body.Publication.Scope != nil {
-	//		visibility = fromProjectPublicationScope(*request.Body.Publication.Scope)
-	//	}
-	//	pub = &interfaces.UpdateProjectPublicationParam{
-	//		Visibility:  visibility,
-	//		Publication:
-	//		AssetPublic: request.Body.Publication.AssetPublic,
-	//	}
-	//}
+	var acc *interfaces.UpdateProjectAccessibilityParam
+	if request.Body.Accessibility != nil {
+		var pub *interfaces.PublicationSettingsParam
+		if request.Body.Accessibility.Publication != nil {
+			pub = &interfaces.PublicationSettingsParam{
+				PublicModels: request.Body.Accessibility.Publication.PublicModels,
+				PublicAssets: request.Body.Accessibility.Publication.PublicAssets,
+			}
+		}
+		acc = &interfaces.UpdateProjectAccessibilityParam{
+			Visibility:  fromProjectVisibility(request.Body.Accessibility.Visibility),
+			Publication: pub,
+		}
+	}
 
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
 		ID:            request.ProjectId,
 		Name:          request.Body.Name,
 		Description:   request.Body.Description,
 		Alias:         request.Body.Alias,
-		Accessibility: pub,
+		Accessibility: acc,
 		RequestRoles:  roles,
 	}, op)
 	if err != nil {

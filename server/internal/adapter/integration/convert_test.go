@@ -163,17 +163,17 @@ func TestToGroupSort(t *testing.T) {
 func Test_fromProjectPublicationScope(t *testing.T) {
 	// public
 	expected := lo.ToPtr(project.VisibilityPublic)
-	actual := fromProjectPublicationScope(integrationapi.PUBLIC)
+	actual := fromProjectVisibility(integrationapi.PUBLIC)
 	assert.Equal(t, expected, actual)
 
 	// private
 	expected = lo.ToPtr(project.VisibilityPrivate)
-	actual = fromProjectPublicationScope(integrationapi.PRIVATE)
+	actual = fromProjectVisibility(integrationapi.PRIVATE)
 	assert.Equal(t, expected, actual)
 
 	// unknown
 	expected = nil
-	actual = fromProjectPublicationScope(integrationapi.AccessibilityVisibility("unknown"))
+	actual = fromProjectVisibility(integrationapi.AccessibilityVisibility("unknown"))
 	assert.Equal(t, expected, actual)
 }
 

@@ -38,6 +38,25 @@ func ToPublication(p *project.PublicationSettings) *PublicationSettings {
 	}
 }
 
+func ToAPIKeyPayload(p *project.Project, id project.APIKeyID) *APIKeyPayload {
+	if p == nil {
+		return nil
+	}
+
+	key := p.Accessibility().APIKeyById(id)
+	if key == nil {
+		return &APIKeyPayload{
+			APIKey: nil,
+			Public: ToPublication(p.Accessibility().Publication()),
+		}
+	}
+
+	return &APIKeyPayload{
+		APIKey: ToAPIKey(key),
+		Public: ToPublication(p.Accessibility().Publication()),
+	}
+}
+
 func ToAPIKey(p *project.APIKey) *ProjectAPIKey {
 	if p == nil {
 		return nil

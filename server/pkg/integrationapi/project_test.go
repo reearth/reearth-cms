@@ -30,7 +30,7 @@ func Test_NewProject(t *testing.T) {
 				Description:   p1.Description(),
 				CreatedAt:     p1.CreatedAt(),
 				UpdatedAt:     p1.UpdatedAt(),
-				Accessibility: Accessibility{Visibility: PUBLIC, ApiKeys: []ApiKey{}},
+				Accessibility: Accessibility{Visibility: PUBLIC, ApiKeys: nil},
 				RequestRoles:  nil,
 			},
 		},

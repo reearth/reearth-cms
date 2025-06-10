@@ -41,8 +41,8 @@ type WorkspaceMember interface {
 }
 
 type APIKeyPayload struct {
-	AccessToken *ProjectAPIKey       `json:"accessToken"`
-	Public      *PublicationSettings `json:"public"`
+	APIKey *ProjectAPIKey       `json:"apiKey"`
+	Public *PublicationSettings `json:"public"`
 }
 
 type AddCommentInput struct {
@@ -376,7 +376,7 @@ type DeleteAPIKeyInput struct {
 }
 
 type DeleteAPIKeyPayload struct {
-	AccessTokenID ID `json:"accessTokenId"`
+	APIKeyID ID `json:"apiKeyId"`
 }
 
 type DeleteAssetInput struct {

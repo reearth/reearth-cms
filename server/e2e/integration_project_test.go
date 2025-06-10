@@ -133,7 +133,7 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 	res.HasValue("name", "Updated Project Name").
 		HasValue("description", "Updated Description").
 		HasValue("alias", "updated-alias").
-		HasValue("accessibility", map[string]any{"visibility": "PUBLIC", "publication": nil, "keys": nil}).
+		HasValue("accessibility", map[string]any{"visibility": "PUBLIC", "apiKeys": nil}).
 		HasValue("requestRoles", []string{"OWNER", "READER"}).
 		HasValue("workspaceId", wId0.String()).
 		Keys().ContainsAll("id", "createdAt", "updatedAt")
@@ -158,10 +158,8 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 		HasValue("alias", "updated-alias-2").
 		HasValue("requestRoles", []string{"WRITER"}).
 		HasValue("workspaceId", wId0.String()).
+		HasValue("accessibility", map[string]any{"visibility": "PRIVATE", "apiKeys": []any{}}).
 		Keys().ContainsAll("id", "createdAt", "updatedAt")
-
-	res.Value("accessibility").Object().Value("visibility").IsEqual("PRIVATE")
-	res.Value("accessibility").Object().Value("publication").IsEqual(true)
 }
 
 // DELETE /{workspaceId}/projects/{projectId}

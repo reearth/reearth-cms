@@ -11,7 +11,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -90,7 +89,7 @@ func attachUserOperator(ctx context.Context, req *http.Request, appCtx *Applicat
 
 func attachIntegrationOperator(ctx context.Context, req *http.Request, appCtx *ApplicationContext) (context.Context, error) {
 	var i *integration.Integration
-	if token := getToken(req); token != "" {
+	if token := getKey(req); token != "" {
 		var err error
 		i, err = appCtx.Repos.Integration.FindByToken(ctx, token)
 		if err != nil {
@@ -132,22 +131,20 @@ func publicAPIAuthMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
 			ctx := req.Context()
-			token := getToken(req)
-			if token == "" {
+			key := getKey(req)
+			if key == "" {
 				return next(c)
 			}
 
-			p, err := appCtx.Repos.Project.FindByPublicAPIKey(ctx, token)
+			p, err := appCtx.Repos.Project.FindByPublicAPIKey(ctx, key)
 			if err != nil {
 				if errors.Is(err, rerror.ErrNotFound) {
-					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid key"})
 				}
 				return err
 			}
 
-			defaultLang := req.Header.Get("Accept-Language")
-			op := generatePublicApiOperator(p, defaultLang)
-			ctx = adapter.AttachOperator(ctx, op)
+			ctx = adapter.AttachAPIKeyId(ctx, p.Accessibility().APIKeyByKey(key).ID().Ref())
 			c.SetRequest(req.WithContext(ctx))
 
 			return next(c)
@@ -155,7 +152,7 @@ func publicAPIAuthMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 	}
 }
 
-func getToken(req *http.Request) string {
+func getKey(req *http.Request) string {
 	token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer ")
 	if strings.HasPrefix(token, "secret_") {
 		return token
@@ -290,28 +287,6 @@ func generateIntegrationOperator(ctx context.Context, appCtx *ApplicationContext
 		MaintainableProjects: mp,
 		OwningProjects:       op,
 	}, nil
-}
-
-func generatePublicApiOperator(p *project.Project, lang string) *usecase.Operator {
-	if p == nil {
-		return nil
-	}
-	// TODO: Handle public API key permissions properly based on the used api key.
-	return &usecase.Operator{
-		AcOperator: &accountusecase.Operator{
-			User:                   nil,
-			ReadableWorkspaces:     id.WorkspaceIDList{p.Workspace()},
-			WritableWorkspaces:     nil,
-			MaintainableWorkspaces: nil,
-			OwningWorkspaces:       nil,
-		},
-		Integration:          nil,
-		Lang:                 lang,
-		ReadableProjects:     id.ProjectIDList{p.ID()},
-		WritableProjects:     nil,
-		MaintainableProjects: nil,
-		OwningProjects:       nil,
-	}
 }
 
 func AuthRequiredMiddleware() echo.MiddlewareFunc {

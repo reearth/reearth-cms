@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -154,11 +155,119 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, operator *
 		})
 }
 
-func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.RegenerateKeyParam, operator *usecase.Operator) (*project.Project, error) {
-	if operator.AcOperator.User == nil {
+func (i *Project) CreateAPIKey(ctx context.Context, param interfaces.CreateAPITokenParam, op *usecase.Operator) (*project.Project, *project.APIKeyID, error) {
+	p, err := i.repos.Project.FindByID(ctx, param.ProjectID)
+	if err != nil {
+		return nil, nil, err
+	}
+	return Run2(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
+		func(ctx context.Context) (*project.Project, *project.APIKeyID, error) {
+			if !op.IsMaintainingProject(p.ID()) {
+				return nil, nil, interfaces.ErrOperationDenied
+			}
+
+			a := p.Accessibility()
+			if a == nil || a.Visibility() != project.VisibilityPrivate {
+				return nil, nil, interfaces.ErrInvalidProject
+			}
+
+			key := project.NewAPIKeyBuilder().
+				NewID().
+				Name(param.Name).
+				Description(param.Description).
+				Publication(project.NewPublicationSettings(param.Publication.PublicModels, param.Publication.PublicAssets)).
+				GenerateKey().
+				Build()
+
+			a.AddAPIKey(*key)
+			p.SetAccessibility(*a)
+
+			if err := i.repos.Project.Save(ctx, p); err != nil {
+				return nil, nil, err
+			}
+
+			return p, key.ID().Ref(), nil
+		})
+}
+
+func (i *Project) UpdateAPIKey(ctx context.Context, param interfaces.UpdateAPITokenParam, op *usecase.Operator) (*project.Project, error) {
+	p, err := i.repos.Project.FindByID(ctx, param.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
+		func(ctx context.Context) (*project.Project, error) {
+			if !op.IsMaintainingProject(p.ID()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			a := p.Accessibility()
+			if a == nil || a.Visibility() != project.VisibilityPrivate {
+				return nil, interfaces.ErrInvalidProject
+			}
+
+			key := a.APIKeyById(param.TokenId)
+			if key == nil {
+				return nil, rerror.ErrNotFound
+			}
+
+			if param.Name != nil {
+				key.SetName(*param.Name)
+			}
+			if param.Description != nil {
+				key.SetDescription(*param.Description)
+			}
+			if param.Publication != nil {
+				key.SetPublication(*project.NewPublicationSettings(param.Publication.PublicModels, param.Publication.PublicAssets))
+			}
+
+			a.UpdateAPIKey(*key)
+			p.SetAccessibility(*a)
+
+			if err := i.repos.Project.Save(ctx, p); err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		})
+}
+
+func (i *Project) DeleteAPIKey(ctx context.Context, pId id.ProjectID, kId id.APIKeyID, op *usecase.Operator) (*project.Project, error) {
+	p, err := i.repos.Project.FindByID(ctx, pId)
+	if err != nil {
+		return nil, err
+	}
+	return Run1(context.Background(), nil, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (*project.Project, error) {
+			if !op.IsMaintainingProject(p.ID()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			a := p.Accessibility()
+			if a == nil || a.Visibility() != project.VisibilityPrivate {
+				return nil, interfaces.ErrInvalidProject
+			}
+
+			if a.APIKeyById(kId) == nil {
+				return nil, rerror.ErrNotFound
+			}
+
+			a.RemoveAPIKey(kId)
+			p.SetAccessibility(*a)
+
+			if err := i.repos.Project.Save(ctx, p); err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		})
+}
+
+func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.RegenerateKeyParam, op *usecase.Operator) (*project.Project, error) {
+	if op.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+	return Run1(ctx, op, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*project.Project, error) {
 			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
 			if err != nil {
@@ -166,7 +275,7 @@ func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.Rege
 			}
 
 			// check if the user is the owner of the project
-			if !operator.IsOwningProject(p.ID()) {
+			if !op.IsOwningProject(p.ID()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 

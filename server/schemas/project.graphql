@@ -107,12 +107,12 @@ type DeleteProjectPayload {
 }
 
 type APIKeyPayload {
-  accessToken: ProjectAPIKey!
+  apiKey: ProjectAPIKey!
   public: PublicationSettings!
 }
 
 type DeleteAPIKeyPayload {
-  accessTokenId: ID!
+  apiKeyId: ID!
 }
 
 type ProjectConnection {

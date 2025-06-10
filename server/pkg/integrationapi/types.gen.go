@@ -1162,10 +1162,11 @@ type ProjectCreateParams struct {
 
 // ProjectUpdateJSONBody defines parameters for ProjectUpdate.
 type ProjectUpdateJSONBody struct {
-	Alias        *string               `json:"alias,omitempty"`
-	Description  *string               `json:"description,omitempty"`
-	Name         *string               `json:"name,omitempty"`
-	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
+	Accessibility *Accessibility        `json:"accessibility,omitempty"`
+	Alias         *string               `json:"alias,omitempty"`
+	Description   *string               `json:"description,omitempty"`
+	Name          *string               `json:"name,omitempty"`
+	RequestRoles  *[]ProjectRequestRole `json:"requestRoles,omitempty"`
 }
 
 // AssetBatchDeleteJSONRequestBody defines body for AssetBatchDelete for application/json ContentType.

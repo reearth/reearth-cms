@@ -7,15 +7,18 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
 
 func (c *Controller) GetAsset(ctx context.Context, prj, i string) (Asset, error) {
-	_, err := c.checkProject(ctx, prj)
+	_, _, aPublic, err := c.accessibilityCheck(ctx, prj, "")
 	if err != nil {
 		return Asset{}, err
+	}
+
+	if !aPublic {
+		return Asset{}, rerror.ErrNotFound
 	}
 
 	iid, err := id.AssetIDFrom(i)
@@ -40,12 +43,12 @@ func (c *Controller) GetAsset(ctx context.Context, prj, i string) (Asset, error)
 }
 
 func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (ListResult[Asset], error) {
-	prj, err := c.checkProject(ctx, pKey)
+	prj, _, aPublic, err := c.accessibilityCheck(ctx, pKey, "")
 	if err != nil {
 		return ListResult[Asset]{}, err
 	}
 
-	if prj.Accessibility().Visibility() != project.VisibilityPublic || !prj.Accessibility().Publication().PublicAssets() {
+	if !aPublic {
 		return ListResult[Asset]{}, rerror.ErrNotFound
 	}
 
