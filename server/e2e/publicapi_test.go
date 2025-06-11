@@ -553,14 +553,14 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 
 	gfid1 := id.NewFieldID()
 	gs1 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(gfid1).Name("text").Key(id.NewKey("text-key")).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(gfid1).Name("text").Key(id.NewKey("text")).MustBuild(),
 	}).MustBuild()
-	g1 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(gs1.ID()).Name("group1").Key(id.NewKey("test-group-1")).MustBuild()
+	g1 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(gs1.ID()).Name("group1").Key(id.NewKey("group1")).MustBuild()
 	gfid2 := id.NewFieldID()
 	gs2 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(gfid2).Name("text2").Key(id.NewKey("text-key2")).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(gfid2).Name("text2").Key(id.NewKey("text2")).MustBuild(),
 	}).MustBuild()
-	g2 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(gs2.ID()).Name("group2").Key(id.NewKey("test-group-2")).MustBuild()
+	g2 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(gs2.ID()).Name("group2").Key(id.NewKey("group2")).MustBuild()
 	s3 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
 		schema.NewField(schema.NewGroup(g1.ID()).TypeProperty()).NewID().Name(publicAPIField7Key).Key(id.NewKey(publicAPIField7Key)).MustBuild(),
 		schema.NewField(schema.NewGroup(g2.ID()).TypeProperty()).NewID().Name(publicAPIField8Key).Key(id.NewKey(publicAPIField8Key)).Multiple(true).MustBuild(),
