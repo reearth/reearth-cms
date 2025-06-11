@@ -84,6 +84,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geo1").Key(id.RandomKey()).MustBuild()
 
 	s1 := schema.New().ID(sid).Fields([]*schema.Field{sf1}).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
+	sp1 := schema.NewPackage(s1, nil, nil, nil)
 	str := "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}"
 	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value(str).AsMultiple(), nil)
 
@@ -103,14 +104,14 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	tests := []struct {
 		name        string
 		inputVer    item.VersionedList
-		inputSchema *schema.Schema
+		inputSchema *schema.Package
 		expected    *FeatureCollection
 		expectError bool
 	}{
 		{
 			name:        "Valid input",
 			inputVer:    ver1,
-			inputSchema: s1,
+			inputSchema: sp1,
 			expected: &FeatureCollection{
 				Features: &[]Feature{
 					{
@@ -138,7 +139,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		{
 			name:        "Invalid input - empty VersionedList",
 			inputVer:    item.VersionedList{},
-			inputSchema: &schema.Schema{},
+			inputSchema: &schema.Package{},
 			expectError: true,
 		},
 	}
