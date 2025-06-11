@@ -97,8 +97,8 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   build-web-pr:
-    needs: [build-prepare, ci-web, prepare]
-    if: ${{ needs.prepare.outputs.changed_web == 'true' && github.event_name == 'pull_request' && github.base_ref == 'main' && (github.event.action == 'opened' || github.event.action == 'synchronize') }}
+    needs: [build-prepare, ci-web]
+    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && (github.event.action == 'opened' || github.event.action == 'synchronize') }}
     uses: ./.github/workflows/build_web.yml
     with:
       name: ${{ needs.build-prepare.outputs.sha_short }}
