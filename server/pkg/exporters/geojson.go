@@ -181,6 +181,12 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 		}
 	}
 
+	extractGroupProperties(properties, itm, sp)
+
+	return properties
+}
+
+func extractGroupProperties(properties *orderedmap.OrderedMap, itm *item.Item, sp *schema.Package) {
 	groupFields := sp.Schema().FieldsByType(value.TypeGroup)
 	for _, groupField := range groupFields {
 		groupKey := groupField.Name()
@@ -193,41 +199,33 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 		if groupField.Multiple() {
 			var multiGroupArray []*orderedmap.OrderedMap
 			for _, groupVal := range groupValues {
-				groupID := groupVal.String()
-				groupProperties := orderedmap.New()
-				for _, f := range itm.Fields() {
-					if f.ItemGroup() != nil && f.ItemGroup().String() == groupID {
-						if val, ok := toGeoJSONProp(f); ok {
-							if sf := sp.GroupSchemas().Fields().Find(f.FieldID()); sf != nil {
-								groupProperties.Set(sf.Name(), val)
-							}
-						}
-					}
-				}
+				groupProperties := extractSingleGroupProperties(groupVal.String(), itm, sp)
 				if len(groupProperties.Keys()) > 0 {
 					multiGroupArray = append(multiGroupArray, groupProperties)
 				}
 			}
 			properties.Set(groupKey, multiGroupArray)
 		} else {
-			groupID := groupValues[0].String()
-			groupProperties := orderedmap.New()
-			for _, f := range itm.Fields() {
-				if f.ItemGroup() != nil && f.ItemGroup().String() == groupID {
-					if val, ok := toGeoJSONProp(f); ok {
-						if sf := sp.GroupSchemas().Fields().Find(f.FieldID()); sf != nil {
-							groupProperties.Set(sf.Name(), val)
-						}
-					}
-				}
-			}
+			groupProperties := extractSingleGroupProperties(groupValues[0].String(), itm, sp)
 			if len(groupProperties.Keys()) > 0 {
 				properties.Set(groupKey, groupProperties)
 			}
 		}
 	}
+}
 
-	return properties
+func extractSingleGroupProperties(groupID string, itm *item.Item, sp *schema.Package) *orderedmap.OrderedMap {
+	groupProperties := orderedmap.New()
+	for _, f := range itm.Fields() {
+		if f.ItemGroup() != nil && f.ItemGroup().String() == groupID {
+			if val, ok := toGeoJSONProp(f); ok {
+				if sf := sp.GroupSchemas().Fields().Find(f.FieldID()); sf != nil {
+					groupProperties.Set(sf.Name(), val)
+				}
+			}
+		}
+	}
+	return groupProperties
 }
 
 func extractGeometry(field *item.Field) (*Geometry, bool) {
