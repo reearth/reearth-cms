@@ -197,7 +197,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId0).
 		Name("m0").
 		Description("m0 desc").
-		Public(true).
 		Key(ikey0).
 		Project(p.ID()).
 		Schema(s0.ID()).
@@ -212,7 +211,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId1).
 		Name("m1").
 		Description("m1 desc").
-		Public(true).
 		Key(ikey1).
 		Project(p.ID()).
 		Schema(s1.ID()).
@@ -228,7 +226,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId2).
 		Name("m2").
 		Description("m2 desc").
-		Public(true).
 		Key(ikey2).
 		Project(p.ID()).
 		Schema(s2.ID()).
@@ -259,7 +256,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId3).
 		Name("m3").
 		Description("m3 desc").
-		Public(true).
 		Key(ikey3).
 		Project(p.ID()).
 		Schema(s5.ID()).
@@ -282,7 +278,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId4).
 		Name("m4").
 		Description("m4 desc").
-		Public(true).
 		Key(ikey4).
 		Project(p.ID()).
 		Schema(s7.ID()).
@@ -305,7 +300,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId5).
 		Name("m5").
 		Description("m5 desc").
-		Public(true).
 		Key(ikey5).
 		Project(p.ID()).
 		Schema(s8.ID()).
@@ -532,7 +526,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(dvmId).
 		Name("dvm").
 		Description("dvm desc").
-		Public(true).
 		Key(id.RandomKey()).
 		Project(pid).
 		Schema(dvs1.ID()).

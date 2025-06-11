@@ -48,6 +48,12 @@ const (
 	GeometryCollectionTypeGeometryCollection GeometryCollectionType = "GeometryCollection"
 )
 
+// Defines values for AccessibilityVisibility.
+const (
+	PRIVATE AccessibilityVisibility = "PRIVATE"
+	PUBLIC  AccessibilityVisibility = "PUBLIC"
+)
+
 // Defines values for AssetArchiveExtractionStatus.
 const (
 	Done       AssetArchiveExtractionStatus = "done"
@@ -146,13 +152,6 @@ const (
 	FieldSelectorTypeModificationDate FieldSelectorType = "modificationDate"
 	FieldSelectorTypeModificationUser FieldSelectorType = "modificationUser"
 	FieldSelectorTypeStatus           FieldSelectorType = "status"
-)
-
-// Defines values for ProjectPublicationScope.
-const (
-	LIMITED ProjectPublicationScope = "LIMITED"
-	PRIVATE ProjectPublicationScope = "PRIVATE"
-	PUBLIC  ProjectPublicationScope = "PUBLIC"
 )
 
 // Defines values for ProjectRequestRole.
@@ -377,6 +376,25 @@ type Point = []float64
 // Polygon defines model for Polygon.
 type Polygon = [][]Point
 
+// Accessibility defines model for accessibility.
+type Accessibility struct {
+	ApiKeys     []ApiKey                `json:"apiKeys"`
+	Publication *PublicationSettings    `json:"publication,omitempty"`
+	Visibility  AccessibilityVisibility `json:"visibility"`
+}
+
+// AccessibilityVisibility defines model for Accessibility.Visibility.
+type AccessibilityVisibility string
+
+// ApiKey defines model for apiKey.
+type ApiKey struct {
+	Description *string             `json:"description,omitempty"`
+	Id          id.APIKeyID         `json:"id"`
+	Key         string              `json:"key"`
+	Name        string              `json:"name"`
+	Publication PublicationSettings `json:"publication"`
+}
+
 // Asset defines model for asset.
 type Asset struct {
 	ArchiveExtractionStatus *AssetArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
@@ -537,7 +555,6 @@ type Model struct {
 	MetadataSchemaId *id.SchemaID  `json:"metadataSchemaId,omitempty"`
 	Name             *string       `json:"name,omitempty"`
 	ProjectId        *id.ProjectID `json:"projectId,omitempty"`
-	Public           *bool         `json:"public,omitempty"`
 	Schema           *Schema       `json:"schema,omitempty"`
 	SchemaId         *id.SchemaID  `json:"schemaId,omitempty"`
 	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`
@@ -545,29 +562,25 @@ type Model struct {
 
 // Project defines model for project.
 type Project struct {
-	Alias        string                    `json:"alias"`
-	CreatedAt    time.Time                 `json:"createdAt"`
-	Description  string                    `json:"description"`
-	Id           id.ProjectID              `json:"id"`
-	Name         string                    `json:"name"`
-	Publication  *ProjectPublication       `json:"publication,omitempty"`
-	RequestRoles *[]ProjectRequestRole     `json:"requestRoles,omitempty"`
-	UpdatedAt    time.Time                 `json:"updatedAt"`
-	WorkspaceId  accountdomain.WorkspaceID `json:"workspaceId"`
+	Accessibility Accessibility             `json:"accessibility"`
+	Alias         string                    `json:"alias"`
+	CreatedAt     time.Time                 `json:"createdAt"`
+	Description   string                    `json:"description"`
+	Id            id.ProjectID              `json:"id"`
+	Name          string                    `json:"name"`
+	RequestRoles  *[]ProjectRequestRole     `json:"requestRoles,omitempty"`
+	UpdatedAt     time.Time                 `json:"updatedAt"`
+	WorkspaceId   accountdomain.WorkspaceID `json:"workspaceId"`
 }
-
-// ProjectPublication defines model for projectPublication.
-type ProjectPublication struct {
-	AssetPublic *bool                    `json:"assetPublic,omitempty"`
-	Scope       *ProjectPublicationScope `json:"scope,omitempty"`
-	Token       *string                  `json:"token,omitempty"`
-}
-
-// ProjectPublicationScope defines model for ProjectPublication.Scope.
-type ProjectPublicationScope string
 
 // ProjectRequestRole defines model for projectRequestRole.
 type ProjectRequestRole string
+
+// PublicationSettings defines model for publicationSettings.
+type PublicationSettings struct {
+	PublicAssets bool         `json:"publicAssets"`
+	PublicModels []id.ModelID `json:"publicModels"`
+}
 
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
@@ -1148,11 +1161,11 @@ type ProjectCreateParams struct {
 
 // ProjectUpdateJSONBody defines parameters for ProjectUpdate.
 type ProjectUpdateJSONBody struct {
-	Alias        *string               `json:"alias,omitempty"`
-	Description  *string               `json:"description,omitempty"`
-	Name         *string               `json:"name,omitempty"`
-	Publication  *ProjectPublication   `json:"publication,omitempty"`
-	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
+	Accessibility *Accessibility        `json:"accessibility,omitempty"`
+	Alias         *string               `json:"alias,omitempty"`
+	Description   *string               `json:"description,omitempty"`
+	Name          *string               `json:"name,omitempty"`
+	RequestRoles  *[]ProjectRequestRole `json:"requestRoles,omitempty"`
 }
 
 // AssetBatchDeleteJSONRequestBody defines body for AssetBatchDelete for application/json ContentType.

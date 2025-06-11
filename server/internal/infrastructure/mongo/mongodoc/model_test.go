@@ -27,7 +27,6 @@ func TestModelDocument_Model(t *testing.T) {
 				Name:        "abc",
 				Description: "xyz",
 				Key:         "mmm123",
-				Public:      true,
 				Metadata:    smId.StringRef(),
 				Project:     pId.String(),
 				Schema:      sId.String(),
@@ -37,7 +36,6 @@ func TestModelDocument_Model(t *testing.T) {
 				Name("abc").
 				Description("xyz").
 				Key(id.NewKey("mmm123")).
-				Public(true).
 				Project(pId).
 				Metadata(smId.Ref()).
 				Schema(sId).
@@ -52,7 +50,6 @@ func TestModelDocument_Model(t *testing.T) {
 				Name:        "abc",
 				Description: "xyz",
 				Key:         "mmm123",
-				Public:      true,
 				Project:     pId.String(),
 				Schema:      sId.String(),
 				UpdatedAt:   now,
@@ -67,7 +64,6 @@ func TestModelDocument_Model(t *testing.T) {
 				Name:        "abc",
 				Description: "xyz",
 				Key:         "mmm123",
-				Public:      true,
 				Project:     "abc",
 				Schema:      sId.String(),
 				UpdatedAt:   now,
@@ -82,7 +78,6 @@ func TestModelDocument_Model(t *testing.T) {
 				Name:        "abc",
 				Description: "xyz",
 				Key:         "mmm123",
-				Public:      true,
 				Project:     pId.String(),
 				Schema:      "abc",
 				UpdatedAt:   now,
@@ -121,7 +116,6 @@ func TestNewModel(t *testing.T) {
 				Name("abc").
 				Description("xyz").
 				Key(id.NewKey("mmm123")).
-				Public(true).
 				Project(pId).
 				Schema(sId).
 				UpdatedAt(now).
@@ -131,7 +125,6 @@ func TestNewModel(t *testing.T) {
 				Name:        "abc",
 				Description: "xyz",
 				Key:         "mmm123",
-				Public:      true,
 				Project:     pId.String(),
 				Schema:      sId.String(),
 				UpdatedAt:   now,

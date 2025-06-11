@@ -34,10 +34,10 @@ func (r *ProjectRepo) Init() error {
 	idx := mongox.IndexFromKeys(projectIndexes, false)
 	idx = append(idx, mongox.IndexFromKeys(projectUniqueIndexes, true)...)
 	idx = append(idx, mongox.Index{
-		Name:   "re_publication_token",
-		Key:    bson.D{{Key: "publication.token", Value: 1}},
+		Name:   "re_accessibility_keys_key",
+		Key:    bson.D{{Key: "accessibility.keys.key", Value: 1}},
 		Unique: true,
-		Filter: bson.M{"publication.token": bson.M{"$type": "string"}},
+		Filter: bson.M{"accessibility.keys.key": bson.M{"$type": "string"}},
 	})
 	idx = append(idx, mongox.Index{
 		Name:   "re_alias",
@@ -116,12 +116,12 @@ func (r *ProjectRepo) IsAliasAvailable(ctx context.Context, name string) (bool, 
 	return c == 0 && err == nil, err
 }
 
-func (r *ProjectRepo) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
-	if token == "" {
+func (r *ProjectRepo) FindByPublicAPIKey(ctx context.Context, key string) (*project.Project, error) {
+	if key == "" {
 		return nil, rerror.ErrNotFound
 	}
 	return r.findOne(ctx, bson.M{
-		"publication.token": token,
+		"accessibility.keys.key": key,
 	})
 }
 

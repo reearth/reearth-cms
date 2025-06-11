@@ -67,6 +67,11 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	APIKeyPayload struct {
+		APIKey func(childComplexity int) int
+		Public func(childComplexity int) int
+	}
+
 	AddUsersToWorkspacePayload struct {
 		Workspace func(childComplexity int) int
 	}
@@ -183,6 +188,10 @@ type ComplexityRoot struct {
 
 	DecompressAssetPayload struct {
 		Asset func(childComplexity int) int
+	}
+
+	DeleteAPIKeyPayload struct {
+		APIKeyID func(childComplexity int) int
 	}
 
 	DeleteAssetPayload struct {
@@ -403,7 +412,6 @@ type ComplexityRoot struct {
 		Order            func(childComplexity int) int
 		Project          func(childComplexity int) int
 		ProjectID        func(childComplexity int) int
-		Public           func(childComplexity int) int
 		Schema           func(childComplexity int) int
 		SchemaID         func(childComplexity int) int
 		UpdatedAt        func(childComplexity int) int
@@ -440,6 +448,7 @@ type ComplexityRoot struct {
 		AddIntegrationToWorkspace          func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
 		AddUsersToWorkspace                func(childComplexity int, input gqlmodel.AddUsersToWorkspaceInput) int
 		ApproveRequest                     func(childComplexity int, input gqlmodel.ApproveRequestInput) int
+		CreateAPIKey                       func(childComplexity int, input gqlmodel.CreateAPIKeyInput) int
 		CreateAsset                        func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateAssetUpload                  func(childComplexity int, input gqlmodel.CreateAssetUploadInput) int
 		CreateField                        func(childComplexity int, input gqlmodel.CreateFieldInput) int
@@ -455,6 +464,7 @@ type ComplexityRoot struct {
 		CreateWebhook                      func(childComplexity int, input gqlmodel.CreateWebhookInput) int
 		CreateWorkspace                    func(childComplexity int, input gqlmodel.CreateWorkspaceInput) int
 		DecompressAsset                    func(childComplexity int, input gqlmodel.DecompressAssetInput) int
+		DeleteAPIKey                       func(childComplexity int, input gqlmodel.DeleteAPIKeyInput) int
 		DeleteAsset                        func(childComplexity int, input gqlmodel.DeleteAssetInput) int
 		DeleteAssets                       func(childComplexity int, input gqlmodel.DeleteAssetsInput) int
 		DeleteComment                      func(childComplexity int, input gqlmodel.DeleteCommentInput) int
@@ -471,15 +481,14 @@ type ComplexityRoot struct {
 		DeleteWebhook                      func(childComplexity int, input gqlmodel.DeleteWebhookInput) int
 		DeleteWorkspace                    func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
 		PublishItem                        func(childComplexity int, input gqlmodel.PublishItemInput) int
-		PublishModel                       func(childComplexity int, input gqlmodel.PublishModelInput) int
-		PublishModels                      func(childComplexity int, input gqlmodel.PublishModelsInput) int
+		RegenerateAPIKey                   func(childComplexity int, input gqlmodel.RegenerateAPIKeyInput) int
 		RegenerateIntegrationToken         func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
-		RegeneratePublicAPIToken           func(childComplexity int, input gqlmodel.RegeneratePublicAPITokenInput) int
 		RemoveIntegrationFromWorkspace     func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
 		RemoveIntegrationsFromWorkspace    func(childComplexity int, input gqlmodel.RemoveIntegrationsFromWorkspaceInput) int
 		RemoveMultipleMembersFromWorkspace func(childComplexity int, input gqlmodel.RemoveMultipleMembersFromWorkspaceInput) int
 		RemoveMyAuth                       func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		UnpublishItem                      func(childComplexity int, input gqlmodel.UnpublishItemInput) int
+		UpdateAPIKey                       func(childComplexity int, input gqlmodel.UpdateAPIKeyInput) int
 		UpdateAsset                        func(childComplexity int, input gqlmodel.UpdateAssetInput) int
 		UpdateComment                      func(childComplexity int, input gqlmodel.UpdateCommentInput) int
 		UpdateField                        func(childComplexity int, input gqlmodel.UpdateFieldInput) int
@@ -525,16 +534,30 @@ type ComplexityRoot struct {
 	}
 
 	Project struct {
-		Alias        func(childComplexity int) int
-		CreatedAt    func(childComplexity int) int
-		Description  func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Name         func(childComplexity int) int
-		Publication  func(childComplexity int) int
-		RequestRoles func(childComplexity int) int
-		UpdatedAt    func(childComplexity int) int
-		Workspace    func(childComplexity int) int
-		WorkspaceID  func(childComplexity int) int
+		Accessibility func(childComplexity int) int
+		Alias         func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		Description   func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Name          func(childComplexity int) int
+		RequestRoles  func(childComplexity int) int
+		UpdatedAt     func(childComplexity int) int
+		Workspace     func(childComplexity int) int
+		WorkspaceID   func(childComplexity int) int
+	}
+
+	ProjectAPIKey struct {
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Key         func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Publication func(childComplexity int) int
+	}
+
+	ProjectAccessibility struct {
+		APIKeys     func(childComplexity int) int
+		Publication func(childComplexity int) int
+		Visibility  func(childComplexity int) int
 	}
 
 	ProjectAliasAvailability struct {
@@ -558,10 +581,9 @@ type ComplexityRoot struct {
 		Project func(childComplexity int) int
 	}
 
-	ProjectPublication struct {
-		AssetPublic func(childComplexity int) int
-		Scope       func(childComplexity int) int
-		Token       func(childComplexity int) int
+	PublicationSettings struct {
+		PublicAssets func(childComplexity int) int
+		PublicModels func(childComplexity int) int
 	}
 
 	PublishItemPayload struct {
@@ -1015,12 +1037,13 @@ type MutationResolver interface {
 	UpdateModel(ctx context.Context, input gqlmodel.UpdateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModelsOrder(ctx context.Context, input gqlmodel.UpdateModelsOrderInput) (*gqlmodel.ModelsPayload, error)
 	DeleteModel(ctx context.Context, input gqlmodel.DeleteModelInput) (*gqlmodel.DeleteModelPayload, error)
-	PublishModel(ctx context.Context, input gqlmodel.PublishModelInput) (*gqlmodel.PublishModelPayload, error)
-	PublishModels(ctx context.Context, input gqlmodel.PublishModelsInput) (*gqlmodel.PublishModelsPayload, error)
 	CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error)
 	UpdateProject(ctx context.Context, input gqlmodel.UpdateProjectInput) (*gqlmodel.ProjectPayload, error)
 	DeleteProject(ctx context.Context, input gqlmodel.DeleteProjectInput) (*gqlmodel.DeleteProjectPayload, error)
-	RegeneratePublicAPIToken(ctx context.Context, input gqlmodel.RegeneratePublicAPITokenInput) (*gqlmodel.ProjectPayload, error)
+	CreateAPIKey(ctx context.Context, input gqlmodel.CreateAPIKeyInput) (*gqlmodel.APIKeyPayload, error)
+	UpdateAPIKey(ctx context.Context, input gqlmodel.UpdateAPIKeyInput) (*gqlmodel.APIKeyPayload, error)
+	DeleteAPIKey(ctx context.Context, input gqlmodel.DeleteAPIKeyInput) (*gqlmodel.DeleteAPIKeyPayload, error)
+	RegenerateAPIKey(ctx context.Context, input gqlmodel.RegenerateAPIKeyInput) (*gqlmodel.APIKeyPayload, error)
 	CreateRequest(ctx context.Context, input gqlmodel.CreateRequestInput) (*gqlmodel.RequestPayload, error)
 	UpdateRequest(ctx context.Context, input gqlmodel.UpdateRequestInput) (*gqlmodel.RequestPayload, error)
 	ApproveRequest(ctx context.Context, input gqlmodel.ApproveRequestInput) (*gqlmodel.RequestPayload, error)
@@ -1120,6 +1143,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "APIKeyPayload.apiKey":
+		if e.complexity.APIKeyPayload.APIKey == nil {
+			break
+		}
+
+		return e.complexity.APIKeyPayload.APIKey(childComplexity), true
+
+	case "APIKeyPayload.public":
+		if e.complexity.APIKeyPayload.Public == nil {
+			break
+		}
+
+		return e.complexity.APIKeyPayload.Public(childComplexity), true
 
 	case "AddUsersToWorkspacePayload.workspace":
 		if e.complexity.AddUsersToWorkspacePayload.Workspace == nil {
@@ -1589,6 +1626,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DecompressAssetPayload.Asset(childComplexity), true
+
+	case "DeleteAPIKeyPayload.apiKeyId":
+		if e.complexity.DeleteAPIKeyPayload.APIKeyID == nil {
+			break
+		}
+
+		return e.complexity.DeleteAPIKeyPayload.APIKeyID(childComplexity), true
 
 	case "DeleteAssetPayload.assetId":
 		if e.complexity.DeleteAssetPayload.AssetID == nil {
@@ -2395,13 +2439,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Model.ProjectID(childComplexity), true
 
-	case "Model.public":
-		if e.complexity.Model.Public == nil {
-			break
-		}
-
-		return e.complexity.Model.Public(childComplexity), true
-
 	case "Model.schema":
 		if e.complexity.Model.Schema == nil {
 			break
@@ -2547,6 +2584,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.ApproveRequest(childComplexity, args["input"].(gqlmodel.ApproveRequestInput)), true
+
+	case "Mutation.createAPIKey":
+		if e.complexity.Mutation.CreateAPIKey == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createAPIKey_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateAPIKey(childComplexity, args["input"].(gqlmodel.CreateAPIKeyInput)), true
 
 	case "Mutation.createAsset":
 		if e.complexity.Mutation.CreateAsset == nil {
@@ -2727,6 +2776,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DecompressAsset(childComplexity, args["input"].(gqlmodel.DecompressAssetInput)), true
+
+	case "Mutation.deleteAPIKey":
+		if e.complexity.Mutation.DeleteAPIKey == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteAPIKey_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteAPIKey(childComplexity, args["input"].(gqlmodel.DeleteAPIKeyInput)), true
 
 	case "Mutation.deleteAsset":
 		if e.complexity.Mutation.DeleteAsset == nil {
@@ -2920,29 +2981,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.PublishItem(childComplexity, args["input"].(gqlmodel.PublishItemInput)), true
 
-	case "Mutation.publishModel":
-		if e.complexity.Mutation.PublishModel == nil {
+	case "Mutation.regenerateAPIKey":
+		if e.complexity.Mutation.RegenerateAPIKey == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_publishModel_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_regenerateAPIKey_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.PublishModel(childComplexity, args["input"].(gqlmodel.PublishModelInput)), true
-
-	case "Mutation.publishModels":
-		if e.complexity.Mutation.PublishModels == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_publishModels_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.PublishModels(childComplexity, args["input"].(gqlmodel.PublishModelsInput)), true
+		return e.complexity.Mutation.RegenerateAPIKey(childComplexity, args["input"].(gqlmodel.RegenerateAPIKeyInput)), true
 
 	case "Mutation.regenerateIntegrationToken":
 		if e.complexity.Mutation.RegenerateIntegrationToken == nil {
@@ -2955,18 +3004,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RegenerateIntegrationToken(childComplexity, args["input"].(gqlmodel.RegenerateIntegrationTokenInput)), true
-
-	case "Mutation.regeneratePublicApiToken":
-		if e.complexity.Mutation.RegeneratePublicAPIToken == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_regeneratePublicApiToken_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RegeneratePublicAPIToken(childComplexity, args["input"].(gqlmodel.RegeneratePublicAPITokenInput)), true
 
 	case "Mutation.removeIntegrationFromWorkspace":
 		if e.complexity.Mutation.RemoveIntegrationFromWorkspace == nil {
@@ -3027,6 +3064,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.UnpublishItem(childComplexity, args["input"].(gqlmodel.UnpublishItemInput)), true
+
+	case "Mutation.updateAPIKey":
+		if e.complexity.Mutation.UpdateAPIKey == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateAPIKey_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateAPIKey(childComplexity, args["input"].(gqlmodel.UpdateAPIKeyInput)), true
 
 	case "Mutation.updateAsset":
 		if e.complexity.Mutation.UpdateAsset == nil {
@@ -3338,6 +3387,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PageInfo.StartCursor(childComplexity), true
 
+	case "Project.accessibility":
+		if e.complexity.Project.Accessibility == nil {
+			break
+		}
+
+		return e.complexity.Project.Accessibility(childComplexity), true
+
 	case "Project.alias":
 		if e.complexity.Project.Alias == nil {
 			break
@@ -3373,13 +3429,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Project.Name(childComplexity), true
 
-	case "Project.publication":
-		if e.complexity.Project.Publication == nil {
-			break
-		}
-
-		return e.complexity.Project.Publication(childComplexity), true
-
 	case "Project.requestRoles":
 		if e.complexity.Project.RequestRoles == nil {
 			break
@@ -3407,6 +3456,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Project.WorkspaceID(childComplexity), true
+
+	case "ProjectAPIKey.description":
+		if e.complexity.ProjectAPIKey.Description == nil {
+			break
+		}
+
+		return e.complexity.ProjectAPIKey.Description(childComplexity), true
+
+	case "ProjectAPIKey.id":
+		if e.complexity.ProjectAPIKey.ID == nil {
+			break
+		}
+
+		return e.complexity.ProjectAPIKey.ID(childComplexity), true
+
+	case "ProjectAPIKey.key":
+		if e.complexity.ProjectAPIKey.Key == nil {
+			break
+		}
+
+		return e.complexity.ProjectAPIKey.Key(childComplexity), true
+
+	case "ProjectAPIKey.name":
+		if e.complexity.ProjectAPIKey.Name == nil {
+			break
+		}
+
+		return e.complexity.ProjectAPIKey.Name(childComplexity), true
+
+	case "ProjectAPIKey.publication":
+		if e.complexity.ProjectAPIKey.Publication == nil {
+			break
+		}
+
+		return e.complexity.ProjectAPIKey.Publication(childComplexity), true
+
+	case "ProjectAccessibility.apiKeys":
+		if e.complexity.ProjectAccessibility.APIKeys == nil {
+			break
+		}
+
+		return e.complexity.ProjectAccessibility.APIKeys(childComplexity), true
+
+	case "ProjectAccessibility.publication":
+		if e.complexity.ProjectAccessibility.Publication == nil {
+			break
+		}
+
+		return e.complexity.ProjectAccessibility.Publication(childComplexity), true
+
+	case "ProjectAccessibility.visibility":
+		if e.complexity.ProjectAccessibility.Visibility == nil {
+			break
+		}
+
+		return e.complexity.ProjectAccessibility.Visibility(childComplexity), true
 
 	case "ProjectAliasAvailability.alias":
 		if e.complexity.ProjectAliasAvailability.Alias == nil {
@@ -3471,26 +3576,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.ProjectPayload.Project(childComplexity), true
 
-	case "ProjectPublication.assetPublic":
-		if e.complexity.ProjectPublication.AssetPublic == nil {
+	case "PublicationSettings.publicAssets":
+		if e.complexity.PublicationSettings.PublicAssets == nil {
 			break
 		}
 
-		return e.complexity.ProjectPublication.AssetPublic(childComplexity), true
+		return e.complexity.PublicationSettings.PublicAssets(childComplexity), true
 
-	case "ProjectPublication.scope":
-		if e.complexity.ProjectPublication.Scope == nil {
+	case "PublicationSettings.publicModels":
+		if e.complexity.PublicationSettings.PublicModels == nil {
 			break
 		}
 
-		return e.complexity.ProjectPublication.Scope(childComplexity), true
-
-	case "ProjectPublication.token":
-		if e.complexity.ProjectPublication.Token == nil {
-			break
-		}
-
-		return e.complexity.ProjectPublication.Token(childComplexity), true
+		return e.complexity.PublicationSettings.PublicModels(childComplexity), true
 
 	case "PublishItemPayload.items":
 		if e.complexity.PublishItemPayload.Items == nil {
@@ -4980,6 +5078,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputColumnSelectionInput,
 		ec.unmarshalInputConditionInput,
 		ec.unmarshalInputCorrespondingFieldInput,
+		ec.unmarshalInputCreateAPIKeyInput,
 		ec.unmarshalInputCreateAssetInput,
 		ec.unmarshalInputCreateAssetUploadInput,
 		ec.unmarshalInputCreateFieldInput,
@@ -4994,6 +5093,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateWebhookInput,
 		ec.unmarshalInputCreateWorkspaceInput,
 		ec.unmarshalInputDecompressAssetInput,
+		ec.unmarshalInputDeleteAPIKeyInput,
 		ec.unmarshalInputDeleteAssetInput,
 		ec.unmarshalInputDeleteAssetsInput,
 		ec.unmarshalInputDeleteCommentInput,
@@ -5024,8 +5124,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPublishItemInput,
 		ec.unmarshalInputPublishModelInput,
 		ec.unmarshalInputPublishModelsInput,
+		ec.unmarshalInputRegenerateAPIKeyInput,
 		ec.unmarshalInputRegenerateIntegrationTokenInput,
-		ec.unmarshalInputRegeneratePublicApiTokenInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
 		ec.unmarshalInputRemoveIntegrationsFromWorkspaceInput,
 		ec.unmarshalInputRemoveMultipleMembersFromWorkspaceInput,
@@ -5061,6 +5161,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTileResourceInput,
 		ec.unmarshalInputTimeFieldConditionInput,
 		ec.unmarshalInputUnpublishItemInput,
+		ec.unmarshalInputUpdateAPIKeyInput,
 		ec.unmarshalInputUpdateAssetInput,
 		ec.unmarshalInputUpdateCommentInput,
 		ec.unmarshalInputUpdateFieldInput,
@@ -5072,8 +5173,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateMeInput,
 		ec.unmarshalInputUpdateModelInput,
 		ec.unmarshalInputUpdateModelsOrderInput,
+		ec.unmarshalInputUpdateProjectAccessibilityInput,
 		ec.unmarshalInputUpdateProjectInput,
-		ec.unmarshalInputUpdateProjectPublicationInput,
+		ec.unmarshalInputUpdatePublicationSettingsInput,
 		ec.unmarshalInputUpdateRequestInput,
 		ec.unmarshalInputUpdateUserOfWorkspaceInput,
 		ec.unmarshalInputUpdateViewInput,
@@ -6542,7 +6644,6 @@ extend type Mutation {
   project: Project!
   schema: Schema!
   metadataSchema: Schema
-  public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
   order: Int
@@ -6625,8 +6726,6 @@ extend type Mutation {
   updateModel(input: UpdateModelInput!): ModelPayload
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
-  publishModel(input: PublishModelInput!): PublishModelPayload
-  publishModels(input: PublishModelsInput!): PublishModelsPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/project.graphql", Input: `type ProjectAliasAvailability {
@@ -6634,16 +6733,28 @@ extend type Mutation {
   available: Boolean!
 }
 
-enum ProjectPublicationScope {
+enum ProjectVisibility {
   PUBLIC
-  LIMITED
   PRIVATE
 }
 
-type ProjectPublication {
-  scope: ProjectPublicationScope!
-  assetPublic: Boolean!
-  token: String
+type PublicationSettings {
+  publicModels: [ID!]!
+  publicAssets: Boolean!
+}
+
+type ProjectAPIKey {
+  id: ID!
+  name: String!
+  description: String!
+  key: String!
+  publication: PublicationSettings!
+}
+
+type ProjectAccessibility {
+  visibility: ProjectVisibility!
+  publication: PublicationSettings
+  apiKeys: [ProjectAPIKey!]
 }
 
 type Project implements Node {
@@ -6655,7 +6766,7 @@ type Project implements Node {
   workspace: Workspace
   createdAt: DateTime!
   updatedAt: DateTime!
-  publication: ProjectPublication
+  accessibility: ProjectAccessibility!
   requestRoles: [Role!]
 }
 
@@ -6668,9 +6779,14 @@ input CreateProjectInput {
   requestRoles: [Role!]
 }
 
-input UpdateProjectPublicationInput {
-  scope: ProjectPublicationScope
-  assetPublic: Boolean
+input UpdatePublicationSettingsInput{
+  publicModels: [ID!]!
+  publicAssets: Boolean!
+}
+
+input UpdateProjectAccessibilityInput {
+  visibility: ProjectVisibility
+  publication: UpdatePublicationSettingsInput
 }
 
 input UpdateProjectInput {
@@ -6678,7 +6794,7 @@ input UpdateProjectInput {
   name: String
   description: String
   alias: String
-  publication: UpdateProjectPublicationInput
+  accessibility: UpdateProjectAccessibilityInput
   requestRoles: [Role!]
 }
 
@@ -6686,8 +6802,29 @@ input DeleteProjectInput {
   projectId: ID!
 }
 
-input RegeneratePublicApiTokenInput {
+input CreateAPIKeyInput {
   projectId: ID!
+  name: String!
+  description: String!
+  publication: UpdatePublicationSettingsInput!
+}
+
+input UpdateAPIKeyInput {
+  id: ID!
+  projectId: ID!
+  name: String
+  description: String
+  publication: UpdatePublicationSettingsInput
+}
+
+input DeleteAPIKeyInput {
+  projectId: ID!
+  id: ID!
+}
+
+input RegenerateAPIKeyInput {
+  projectId: ID!
+  id: ID!
 }
 
 # Payload
@@ -6697,6 +6834,15 @@ type ProjectPayload {
 
 type DeleteProjectPayload {
   projectId: ID!
+}
+
+type APIKeyPayload {
+  apiKey: ProjectAPIKey!
+  public: PublicationSettings!
+}
+
+type DeleteAPIKeyPayload {
+  apiKeyId: ID!
 }
 
 type ProjectConnection {
@@ -6720,7 +6866,10 @@ extend type Mutation {
   createProject(input: CreateProjectInput!): ProjectPayload
   updateProject(input: UpdateProjectInput!): ProjectPayload
   deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
-  regeneratePublicApiToken(input: RegeneratePublicApiTokenInput!): ProjectPayload
+  createAPIKey(input: CreateAPIKeyInput!): APIKeyPayload
+  updateAPIKey(input: UpdateAPIKeyInput!): APIKeyPayload
+  deleteAPIKey(input: DeleteAPIKeyInput!): DeleteAPIKeyPayload
+  regenerateAPIKey(input: RegenerateAPIKeyInput!): APIKeyPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/request.graphql", Input: `type Request implements Node {
@@ -7334,6 +7483,34 @@ func (ec *executionContext) field_Mutation_approveRequest_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_createAPIKey_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createAPIKey_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createAPIKey_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.CreateAPIKeyInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.CreateAPIKeyInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAPIKeyInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.CreateAPIKeyInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_createAssetUpload_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -7751,6 +7928,34 @@ func (ec *executionContext) field_Mutation_decompressAsset_argsInput(
 	}
 
 	var zeroVal gqlmodel.DecompressAssetInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteAPIKey_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_deleteAPIKey_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteAPIKey_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.DeleteAPIKeyInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.DeleteAPIKeyInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDeleteAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAPIKeyInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.DeleteAPIKeyInput
 	return zeroVal, nil
 }
 
@@ -8202,59 +8407,31 @@ func (ec *executionContext) field_Mutation_publishItem_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_publishModel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_regenerateAPIKey_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Mutation_publishModel_argsInput(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_regenerateAPIKey_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_publishModel_argsInput(
+func (ec *executionContext) field_Mutation_regenerateAPIKey_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (gqlmodel.PublishModelInput, error) {
+) (gqlmodel.RegenerateAPIKeyInput, error) {
 	if _, ok := rawArgs["input"]; !ok {
-		var zeroVal gqlmodel.PublishModelInput
+		var zeroVal gqlmodel.RegenerateAPIKeyInput
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx, tmp)
+		return ec.unmarshalNRegenerateAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateAPIKeyInput(ctx, tmp)
 	}
 
-	var zeroVal gqlmodel.PublishModelInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_publishModels_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := ec.field_Mutation_publishModels_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_publishModels_argsInput(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (gqlmodel.PublishModelsInput, error) {
-	if _, ok := rawArgs["input"]; !ok {
-		var zeroVal gqlmodel.PublishModelsInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNPublishModelsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelsInput(ctx, tmp)
-	}
-
-	var zeroVal gqlmodel.PublishModelsInput
+	var zeroVal gqlmodel.RegenerateAPIKeyInput
 	return zeroVal, nil
 }
 
@@ -8283,34 +8460,6 @@ func (ec *executionContext) field_Mutation_regenerateIntegrationToken_argsInput(
 	}
 
 	var zeroVal gqlmodel.RegenerateIntegrationTokenInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_regeneratePublicApiToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := ec.field_Mutation_regeneratePublicApiToken_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_regeneratePublicApiToken_argsInput(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (gqlmodel.RegeneratePublicAPITokenInput, error) {
-	if _, ok := rawArgs["input"]; !ok {
-		var zeroVal gqlmodel.RegeneratePublicAPITokenInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNRegeneratePublicApiTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegeneratePublicAPITokenInput(ctx, tmp)
-	}
-
-	var zeroVal gqlmodel.RegeneratePublicAPITokenInput
 	return zeroVal, nil
 }
 
@@ -8451,6 +8600,34 @@ func (ec *executionContext) field_Mutation_unpublishItem_argsInput(
 	}
 
 	var zeroVal gqlmodel.UnpublishItemInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateAPIKey_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateAPIKey_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateAPIKey_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.UpdateAPIKeyInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.UpdateAPIKeyInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateAPIKeyInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.UpdateAPIKeyInput
 	return zeroVal, nil
 }
 
@@ -10016,6 +10193,112 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _APIKeyPayload_apiKey(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.APIKeyPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_APIKeyPayload_apiKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIKey, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ProjectAPIKey)
+	fc.Result = res
+	return ec.marshalNProjectAPIKey2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_APIKeyPayload_apiKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "APIKeyPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProjectAPIKey_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ProjectAPIKey_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ProjectAPIKey_description(ctx, field)
+			case "key":
+				return ec.fieldContext_ProjectAPIKey_key(ctx, field)
+			case "publication":
+				return ec.fieldContext_ProjectAPIKey_publication(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProjectAPIKey", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _APIKeyPayload_public(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.APIKeyPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_APIKeyPayload_public(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Public, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.PublicationSettings)
+	fc.Result = res
+	return ec.marshalNPublicationSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublicationSettings(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_APIKeyPayload_public(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "APIKeyPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "publicModels":
+				return ec.fieldContext_PublicationSettings_publicModels(ctx, field)
+			case "publicAssets":
+				return ec.fieldContext_PublicationSettings_publicAssets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PublicationSettings", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AddUsersToWorkspacePayload_workspace(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AddUsersToWorkspacePayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AddUsersToWorkspacePayload_workspace(ctx, field)
 	if err != nil {
@@ -10213,8 +10496,8 @@ func (ec *executionContext) fieldContext_Asset_project(_ context.Context, field 
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -13199,6 +13482,50 @@ func (ec *executionContext) fieldContext_DecompressAssetPayload_asset(_ context.
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteAPIKeyPayload_apiKeyId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteAPIKeyPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteAPIKeyPayload_apiKeyId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIKeyID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteAPIKeyPayload_apiKeyId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteAPIKeyPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeleteAssetPayload_assetId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteAssetPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeleteAssetPayload_assetId(ctx, field)
 	if err != nil {
@@ -14529,8 +14856,8 @@ func (ec *executionContext) fieldContext_Group_project(_ context.Context, field 
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -16311,8 +16638,6 @@ func (ec *executionContext) fieldContext_Item_model(_ context.Context, field gra
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "metadataSchema":
 				return ec.fieldContext_Model_metadataSchema(ctx, field)
-			case "public":
-				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -16425,8 +16750,8 @@ func (ec *executionContext) fieldContext_Item_project(_ context.Context, field g
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -18953,8 +19278,8 @@ func (ec *executionContext) fieldContext_Model_project(_ context.Context, field 
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -19072,50 +19397,6 @@ func (ec *executionContext) fieldContext_Model_metadataSchema(_ context.Context,
 				return ec.fieldContext_Schema_project(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Schema", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Model_public(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Model_public(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Public, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Model_public(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Model",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -19359,8 +19640,6 @@ func (ec *executionContext) fieldContext_ModelConnection_nodes(_ context.Context
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "metadataSchema":
 				return ec.fieldContext_Model_metadataSchema(ctx, field)
-			case "public":
-				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -19572,8 +19851,6 @@ func (ec *executionContext) fieldContext_ModelEdge_node(_ context.Context, field
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "metadataSchema":
 				return ec.fieldContext_Model_metadataSchema(ctx, field)
-			case "public":
-				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -19646,8 +19923,6 @@ func (ec *executionContext) fieldContext_ModelPayload_model(_ context.Context, f
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "metadataSchema":
 				return ec.fieldContext_Model_metadataSchema(ctx, field)
-			case "public":
-				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -19720,8 +19995,6 @@ func (ec *executionContext) fieldContext_ModelsPayload_models(_ context.Context,
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "metadataSchema":
 				return ec.fieldContext_Model_metadataSchema(ctx, field)
-			case "public":
-				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -21899,120 +22172,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteModel(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_publishModel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_publishModel(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PublishModel(rctx, fc.Args["input"].(gqlmodel.PublishModelInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.PublishModelPayload)
-	fc.Result = res
-	return ec.marshalOPublishModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_publishModel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "modelId":
-				return ec.fieldContext_PublishModelPayload_modelId(ctx, field)
-			case "status":
-				return ec.fieldContext_PublishModelPayload_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PublishModelPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_publishModel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_publishModels(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_publishModels(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PublishModels(rctx, fc.Args["input"].(gqlmodel.PublishModelsInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.PublishModelsPayload)
-	fc.Result = res
-	return ec.marshalOPublishModelsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelsPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_publishModels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "models":
-				return ec.fieldContext_PublishModelsPayload_models(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PublishModelsPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_publishModels_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_createProject(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createProject(ctx, field)
 	if err != nil {
@@ -22181,8 +22340,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteProject(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_regeneratePublicApiToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_regeneratePublicApiToken(ctx, field)
+func (ec *executionContext) _Mutation_createAPIKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createAPIKey(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -22195,7 +22354,7 @@ func (ec *executionContext) _Mutation_regeneratePublicApiToken(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RegeneratePublicAPIToken(rctx, fc.Args["input"].(gqlmodel.RegeneratePublicAPITokenInput))
+		return ec.resolvers.Mutation().CreateAPIKey(rctx, fc.Args["input"].(gqlmodel.CreateAPIKeyInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22204,12 +22363,12 @@ func (ec *executionContext) _Mutation_regeneratePublicApiToken(ctx context.Conte
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ProjectPayload)
+	res := resTmp.(*gqlmodel.APIKeyPayload)
 	fc.Result = res
-	return ec.marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPayload(ctx, field.Selections, res)
+	return ec.marshalOAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAPIKeyPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_regeneratePublicApiToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createAPIKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -22217,10 +22376,12 @@ func (ec *executionContext) fieldContext_Mutation_regeneratePublicApiToken(ctx c
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "project":
-				return ec.fieldContext_ProjectPayload_project(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_APIKeyPayload_apiKey(ctx, field)
+			case "public":
+				return ec.fieldContext_APIKeyPayload_public(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ProjectPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type APIKeyPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -22230,7 +22391,179 @@ func (ec *executionContext) fieldContext_Mutation_regeneratePublicApiToken(ctx c
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_regeneratePublicApiToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createAPIKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateAPIKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateAPIKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateAPIKey(rctx, fc.Args["input"].(gqlmodel.UpdateAPIKeyInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.APIKeyPayload)
+	fc.Result = res
+	return ec.marshalOAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAPIKeyPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateAPIKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "apiKey":
+				return ec.fieldContext_APIKeyPayload_apiKey(ctx, field)
+			case "public":
+				return ec.fieldContext_APIKeyPayload_public(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type APIKeyPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateAPIKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteAPIKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteAPIKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteAPIKey(rctx, fc.Args["input"].(gqlmodel.DeleteAPIKeyInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.DeleteAPIKeyPayload)
+	fc.Result = res
+	return ec.marshalODeleteAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAPIKeyPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteAPIKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "apiKeyId":
+				return ec.fieldContext_DeleteAPIKeyPayload_apiKeyId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteAPIKeyPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteAPIKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_regenerateAPIKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_regenerateAPIKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RegenerateAPIKey(rctx, fc.Args["input"].(gqlmodel.RegenerateAPIKeyInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.APIKeyPayload)
+	fc.Result = res
+	return ec.marshalOAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAPIKeyPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_regenerateAPIKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "apiKey":
+				return ec.fieldContext_APIKeyPayload_apiKey(ctx, field)
+			case "public":
+				return ec.fieldContext_APIKeyPayload_public(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type APIKeyPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_regenerateAPIKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -24282,8 +24615,8 @@ func (ec *executionContext) fieldContext_Project_updatedAt(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Project_publication(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Project_publication(ctx, field)
+func (ec *executionContext) _Project_accessibility(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Project_accessibility(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24296,21 +24629,24 @@ func (ec *executionContext) _Project_publication(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Publication, nil
+		return obj.Accessibility, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ProjectPublication)
+	res := resTmp.(*gqlmodel.ProjectAccessibility)
 	fc.Result = res
-	return ec.marshalOProjectPublication2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublication(ctx, field.Selections, res)
+	return ec.marshalNProjectAccessibility2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAccessibility(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Project_publication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Project_accessibility(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Project",
 		Field:      field,
@@ -24318,14 +24654,14 @@ func (ec *executionContext) fieldContext_Project_publication(_ context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "scope":
-				return ec.fieldContext_ProjectPublication_scope(ctx, field)
-			case "assetPublic":
-				return ec.fieldContext_ProjectPublication_assetPublic(ctx, field)
-			case "token":
-				return ec.fieldContext_ProjectPublication_token(ctx, field)
+			case "visibility":
+				return ec.fieldContext_ProjectAccessibility_visibility(ctx, field)
+			case "publication":
+				return ec.fieldContext_ProjectAccessibility_publication(ctx, field)
+			case "apiKeys":
+				return ec.fieldContext_ProjectAccessibility_apiKeys(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ProjectPublication", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ProjectAccessibility", field.Name)
 		},
 	}
 	return fc, nil
@@ -24367,6 +24703,376 @@ func (ec *executionContext) fieldContext_Project_requestRoles(_ context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Role does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAPIKey_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAPIKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectAPIKey_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectAPIKey_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAPIKey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAPIKey_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAPIKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectAPIKey_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectAPIKey_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAPIKey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAPIKey_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAPIKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectAPIKey_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectAPIKey_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAPIKey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAPIKey_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAPIKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectAPIKey_key(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectAPIKey_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAPIKey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAPIKey_publication(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAPIKey) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectAPIKey_publication(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Publication, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.PublicationSettings)
+	fc.Result = res
+	return ec.marshalNPublicationSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublicationSettings(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectAPIKey_publication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAPIKey",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "publicModels":
+				return ec.fieldContext_PublicationSettings_publicModels(ctx, field)
+			case "publicAssets":
+				return ec.fieldContext_PublicationSettings_publicAssets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PublicationSettings", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAccessibility_visibility(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAccessibility) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectAccessibility_visibility(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Visibility, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ProjectVisibility)
+	fc.Result = res
+	return ec.marshalNProjectVisibility2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectVisibility(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectAccessibility_visibility(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAccessibility",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ProjectVisibility does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAccessibility_publication(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAccessibility) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectAccessibility_publication(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Publication, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.PublicationSettings)
+	fc.Result = res
+	return ec.marshalOPublicationSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublicationSettings(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectAccessibility_publication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAccessibility",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "publicModels":
+				return ec.fieldContext_PublicationSettings_publicModels(ctx, field)
+			case "publicAssets":
+				return ec.fieldContext_PublicationSettings_publicAssets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PublicationSettings", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProjectAccessibility_apiKeys(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAccessibility) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProjectAccessibility_apiKeys(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIKeys, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.ProjectAPIKey)
+	fc.Result = res
+	return ec.marshalOProjectAPIKey2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKeyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProjectAccessibility_apiKeys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProjectAccessibility",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProjectAPIKey_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ProjectAPIKey_name(ctx, field)
+			case "description":
+				return ec.fieldContext_ProjectAPIKey_description(ctx, field)
+			case "key":
+				return ec.fieldContext_ProjectAPIKey_key(ctx, field)
+			case "publication":
+				return ec.fieldContext_ProjectAPIKey_publication(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProjectAPIKey", field.Name)
 		},
 	}
 	return fc, nil
@@ -24565,8 +25271,8 @@ func (ec *executionContext) fieldContext_ProjectConnection_nodes(_ context.Conte
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -24770,8 +25476,8 @@ func (ec *executionContext) fieldContext_ProjectEdge_node(_ context.Context, fie
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -24836,8 +25542,8 @@ func (ec *executionContext) fieldContext_ProjectPayload_project(_ context.Contex
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -24847,8 +25553,8 @@ func (ec *executionContext) fieldContext_ProjectPayload_project(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPublication_scope(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectPublication) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPublication_scope(ctx, field)
+func (ec *executionContext) _PublicationSettings_publicModels(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PublicationSettings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PublicationSettings_publicModels(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24861,7 +25567,7 @@ func (ec *executionContext) _ProjectPublication_scope(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Scope, nil
+		return obj.PublicModels, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24873,26 +25579,26 @@ func (ec *executionContext) _ProjectPublication_scope(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ProjectPublicationScope)
+	res := resTmp.([]gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalNProjectPublicationScope2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPublication_scope(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PublicationSettings_publicModels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ProjectPublication",
+		Object:     "PublicationSettings",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ProjectPublicationScope does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ProjectPublication_assetPublic(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectPublication) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPublication_assetPublic(ctx, field)
+func (ec *executionContext) _PublicationSettings_publicAssets(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PublicationSettings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PublicationSettings_publicAssets(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24905,7 +25611,7 @@ func (ec *executionContext) _ProjectPublication_assetPublic(ctx context.Context,
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AssetPublic, nil
+		return obj.PublicAssets, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24922,55 +25628,14 @@ func (ec *executionContext) _ProjectPublication_assetPublic(ctx context.Context,
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProjectPublication_assetPublic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PublicationSettings_publicAssets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ProjectPublication",
+		Object:     "PublicationSettings",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ProjectPublication_token(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectPublication) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProjectPublication_token(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Token, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ProjectPublication_token(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ProjectPublication",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25656,8 +26321,6 @@ func (ec *executionContext) fieldContext_Query_modelsByGroup(ctx context.Context
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "metadataSchema":
 				return ec.fieldContext_Model_metadataSchema(ctx, field)
-			case "public":
-				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -27622,8 +28285,8 @@ func (ec *executionContext) fieldContext_Request_project(_ context.Context, fiel
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -28772,8 +29435,8 @@ func (ec *executionContext) fieldContext_Schema_project(_ context.Context, field
 				return ec.fieldContext_Project_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
+			case "accessibility":
+				return ec.fieldContext_Project_accessibility(ctx, field)
 			case "requestRoles":
 				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
@@ -28965,8 +29628,6 @@ func (ec *executionContext) fieldContext_SchemaField_model(_ context.Context, fi
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "metadataSchema":
 				return ec.fieldContext_Model_metadataSchema(ctx, field)
-			case "public":
-				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -37553,6 +38214,54 @@ func (ec *executionContext) unmarshalInputCorrespondingFieldInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateAPIKeyInput(ctx context.Context, obj any) (gqlmodel.CreateAPIKeyInput, error) {
+	var it gqlmodel.CreateAPIKeyInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"projectId", "name", "description", "publication"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "projectId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "publication":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publication"))
+			data, err := ec.unmarshalNUpdatePublicationSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePublicationSettingsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Publication = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj any) (gqlmodel.CreateAssetInput, error) {
 	var it gqlmodel.CreateAssetInput
 	asMap := map[string]any{}
@@ -38348,6 +39057,40 @@ func (ec *executionContext) unmarshalInputDecompressAssetInput(ctx context.Conte
 				return it, err
 			}
 			it.AssetID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeleteAPIKeyInput(ctx context.Context, obj any) (gqlmodel.DeleteAPIKeyInput, error) {
+	var it gqlmodel.DeleteAPIKeyInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"projectId", "id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "projectId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectID = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
 		}
 	}
 
@@ -39514,6 +40257,40 @@ func (ec *executionContext) unmarshalInputPublishModelsInput(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegenerateAPIKeyInput(ctx context.Context, obj any) (gqlmodel.RegenerateAPIKeyInput, error) {
+	var it gqlmodel.RegenerateAPIKeyInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"projectId", "id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "projectId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectID = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegenerateIntegrationTokenInput(ctx context.Context, obj any) (gqlmodel.RegenerateIntegrationTokenInput, error) {
 	var it gqlmodel.RegenerateIntegrationTokenInput
 	asMap := map[string]any{}
@@ -39535,33 +40312,6 @@ func (ec *executionContext) unmarshalInputRegenerateIntegrationTokenInput(ctx co
 				return it, err
 			}
 			it.IntegrationID = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputRegeneratePublicApiTokenInput(ctx context.Context, obj any) (gqlmodel.RegeneratePublicAPITokenInput, error) {
-	var it gqlmodel.RegeneratePublicAPITokenInput
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"projectId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "projectId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ProjectID = data
 		}
 	}
 
@@ -41283,6 +42033,61 @@ func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateAPIKeyInput(ctx context.Context, obj any) (gqlmodel.UpdateAPIKeyInput, error) {
+	var it gqlmodel.UpdateAPIKeyInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "projectId", "name", "description", "publication"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "projectId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "publication":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publication"))
+			data, err := ec.unmarshalOUpdatePublicationSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePublicationSettingsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Publication = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateAssetInput(ctx context.Context, obj any) (gqlmodel.UpdateAssetInput, error) {
 	var it gqlmodel.UpdateAssetInput
 	asMap := map[string]any{}
@@ -41851,6 +42656,40 @@ func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateProjectAccessibilityInput(ctx context.Context, obj any) (gqlmodel.UpdateProjectAccessibilityInput, error) {
+	var it gqlmodel.UpdateProjectAccessibilityInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"visibility", "publication"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "visibility":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("visibility"))
+			data, err := ec.unmarshalOProjectVisibility2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectVisibility(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Visibility = data
+		case "publication":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publication"))
+			data, err := ec.unmarshalOUpdatePublicationSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePublicationSettingsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Publication = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context, obj any) (gqlmodel.UpdateProjectInput, error) {
 	var it gqlmodel.UpdateProjectInput
 	asMap := map[string]any{}
@@ -41858,7 +42697,7 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "publication", "requestRoles"}
+	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "accessibility", "requestRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -41893,13 +42732,13 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Alias = data
-		case "publication":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publication"))
-			data, err := ec.unmarshalOUpdateProjectPublicationInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectPublicationInput(ctx, v)
+		case "accessibility":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accessibility"))
+			data, err := ec.unmarshalOUpdateProjectAccessibilityInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectAccessibilityInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Publication = data
+			it.Accessibility = data
 		case "requestRoles":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestRoles"))
 			data, err := ec.unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, v)
@@ -41913,34 +42752,34 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateProjectPublicationInput(ctx context.Context, obj any) (gqlmodel.UpdateProjectPublicationInput, error) {
-	var it gqlmodel.UpdateProjectPublicationInput
+func (ec *executionContext) unmarshalInputUpdatePublicationSettingsInput(ctx context.Context, obj any) (gqlmodel.UpdatePublicationSettingsInput, error) {
+	var it gqlmodel.UpdatePublicationSettingsInput
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"scope", "assetPublic"}
+	fieldsInOrder := [...]string{"publicModels", "publicAssets"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "scope":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scope"))
-			data, err := ec.unmarshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx, v)
+		case "publicModels":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publicModels"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Scope = data
-		case "assetPublic":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetPublic"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			it.PublicModels = data
+		case "publicAssets":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publicAssets"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.AssetPublic = data
+			it.PublicAssets = data
 		}
 	}
 
@@ -42781,6 +43620,50 @@ func (ec *executionContext) _WorkspaceMember(ctx context.Context, sel ast.Select
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var aPIKeyPayloadImplementors = []string{"APIKeyPayload"}
+
+func (ec *executionContext) _APIKeyPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.APIKeyPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, aPIKeyPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("APIKeyPayload")
+		case "apiKey":
+			out.Values[i] = ec._APIKeyPayload_apiKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "public":
+			out.Values[i] = ec._APIKeyPayload_public(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var addUsersToWorkspacePayloadImplementors = []string{"AddUsersToWorkspacePayload"}
 
@@ -43779,6 +44662,45 @@ func (ec *executionContext) _DecompressAssetPayload(ctx context.Context, sel ast
 			out.Values[i] = graphql.MarshalString("DecompressAssetPayload")
 		case "asset":
 			out.Values[i] = ec._DecompressAssetPayload_asset(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var deleteAPIKeyPayloadImplementors = []string{"DeleteAPIKeyPayload"}
+
+func (ec *executionContext) _DeleteAPIKeyPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteAPIKeyPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteAPIKeyPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteAPIKeyPayload")
+		case "apiKeyId":
+			out.Values[i] = ec._DeleteAPIKeyPayload_apiKeyId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -46114,11 +47036,6 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "public":
-			out.Values[i] = ec._Model_public(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "createdAt":
 			out.Values[i] = ec._Model_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -46539,14 +47456,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteModel(ctx, field)
 			})
-		case "publishModel":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_publishModel(ctx, field)
-			})
-		case "publishModels":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_publishModels(ctx, field)
-			})
 		case "createProject":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createProject(ctx, field)
@@ -46559,9 +47468,21 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteProject(ctx, field)
 			})
-		case "regeneratePublicApiToken":
+		case "createAPIKey":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_regeneratePublicApiToken(ctx, field)
+				return ec._Mutation_createAPIKey(ctx, field)
+			})
+		case "updateAPIKey":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateAPIKey(ctx, field)
+			})
+		case "deleteAPIKey":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteAPIKey(ctx, field)
+			})
+		case "regenerateAPIKey":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_regenerateAPIKey(ctx, field)
 			})
 		case "createRequest":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -46933,10 +47854,115 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "publication":
-			out.Values[i] = ec._Project_publication(ctx, field, obj)
+		case "accessibility":
+			out.Values[i] = ec._Project_accessibility(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "requestRoles":
 			out.Values[i] = ec._Project_requestRoles(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var projectAPIKeyImplementors = []string{"ProjectAPIKey"}
+
+func (ec *executionContext) _ProjectAPIKey(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ProjectAPIKey) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, projectAPIKeyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProjectAPIKey")
+		case "id":
+			out.Values[i] = ec._ProjectAPIKey_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._ProjectAPIKey_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._ProjectAPIKey_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "key":
+			out.Values[i] = ec._ProjectAPIKey_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "publication":
+			out.Values[i] = ec._ProjectAPIKey_publication(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var projectAccessibilityImplementors = []string{"ProjectAccessibility"}
+
+func (ec *executionContext) _ProjectAccessibility(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ProjectAccessibility) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, projectAccessibilityImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProjectAccessibility")
+		case "visibility":
+			out.Values[i] = ec._ProjectAccessibility_visibility(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "publication":
+			out.Values[i] = ec._ProjectAccessibility_publication(ctx, field, obj)
+		case "apiKeys":
+			out.Values[i] = ec._ProjectAccessibility_apiKeys(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -47138,29 +48164,27 @@ func (ec *executionContext) _ProjectPayload(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var projectPublicationImplementors = []string{"ProjectPublication"}
+var publicationSettingsImplementors = []string{"PublicationSettings"}
 
-func (ec *executionContext) _ProjectPublication(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ProjectPublication) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, projectPublicationImplementors)
+func (ec *executionContext) _PublicationSettings(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PublicationSettings) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, publicationSettingsImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ProjectPublication")
-		case "scope":
-			out.Values[i] = ec._ProjectPublication_scope(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("PublicationSettings")
+		case "publicModels":
+			out.Values[i] = ec._PublicationSettings_publicModels(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "assetPublic":
-			out.Values[i] = ec._ProjectPublication_assetPublic(ctx, field, obj)
+		case "publicAssets":
+			out.Values[i] = ec._PublicationSettings_publicAssets(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "token":
-			out.Values[i] = ec._ProjectPublication_token(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -51455,6 +52479,11 @@ func (ec *executionContext) marshalNContentTypesEnum2githubᚗcomᚋreearthᚋre
 	return v
 }
 
+func (ec *executionContext) unmarshalNCreateAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAPIKeyInput(ctx context.Context, v any) (gqlmodel.CreateAPIKeyInput, error) {
+	res, err := ec.unmarshalInputCreateAPIKeyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetInput(ctx context.Context, v any) (gqlmodel.CreateAssetInput, error) {
 	res, err := ec.unmarshalInputCreateAssetInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -51575,6 +52604,11 @@ func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, se
 
 func (ec *executionContext) unmarshalNDecompressAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDecompressAssetInput(ctx context.Context, v any) (gqlmodel.DecompressAssetInput, error) {
 	res, err := ec.unmarshalInputDecompressAssetInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDeleteAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAPIKeyInput(ctx context.Context, v any) (gqlmodel.DeleteAPIKeyInput, error) {
+	res, err := ec.unmarshalInputDeleteAPIKeyInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -52773,6 +53807,26 @@ func (ec *executionContext) marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearth�
 	return ec._Project(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNProjectAPIKey2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKey(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectAPIKey) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProjectAPIKey(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProjectAccessibility2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAccessibility(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectAccessibility) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProjectAccessibility(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNProjectAliasAvailability2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAliasAvailability(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ProjectAliasAvailability) graphql.Marshaler {
 	return ec._ProjectAliasAvailability(ctx, sel, &v)
 }
@@ -52855,23 +53909,28 @@ func (ec *executionContext) marshalNProjectEdge2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._ProjectEdge(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNProjectPublicationScope2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, v any) (gqlmodel.ProjectPublicationScope, error) {
-	var res gqlmodel.ProjectPublicationScope
+func (ec *executionContext) unmarshalNProjectVisibility2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectVisibility(ctx context.Context, v any) (gqlmodel.ProjectVisibility, error) {
+	var res gqlmodel.ProjectVisibility
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNProjectPublicationScope2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ProjectPublicationScope) graphql.Marshaler {
+func (ec *executionContext) marshalNProjectVisibility2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectVisibility(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ProjectVisibility) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNPublicationSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublicationSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublicationSettings) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PublicationSettings(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNPublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishItemInput(ctx context.Context, v any) (gqlmodel.PublishItemInput, error) {
 	res, err := ec.unmarshalInputPublishItemInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx context.Context, v any) (gqlmodel.PublishModelInput, error) {
-	res, err := ec.unmarshalInputPublishModelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -52949,18 +54008,13 @@ func (ec *executionContext) marshalNPublishModelPayload2ᚖgithubᚗcomᚋreeart
 	return ec._PublishModelPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNPublishModelsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelsInput(ctx context.Context, v any) (gqlmodel.PublishModelsInput, error) {
-	res, err := ec.unmarshalInputPublishModelsInput(ctx, v)
+func (ec *executionContext) unmarshalNRegenerateAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateAPIKeyInput(ctx context.Context, v any) (gqlmodel.RegenerateAPIKeyInput, error) {
+	res, err := ec.unmarshalInputRegenerateAPIKeyInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNRegenerateIntegrationTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateIntegrationTokenInput(ctx context.Context, v any) (gqlmodel.RegenerateIntegrationTokenInput, error) {
 	res, err := ec.unmarshalInputRegenerateIntegrationTokenInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNRegeneratePublicApiTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegeneratePublicAPITokenInput(ctx context.Context, v any) (gqlmodel.RegeneratePublicAPITokenInput, error) {
-	res, err := ec.unmarshalInputRegeneratePublicApiTokenInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -53582,6 +54636,11 @@ func (ec *executionContext) unmarshalNUnpublishItemInput2githubᚗcomᚋreearth�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNUpdateAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateAPIKeyInput(ctx context.Context, v any) (gqlmodel.UpdateAPIKeyInput, error) {
+	res, err := ec.unmarshalInputUpdateAPIKeyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNUpdateAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateAssetInput(ctx context.Context, v any) (gqlmodel.UpdateAssetInput, error) {
 	res, err := ec.unmarshalInputUpdateAssetInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -53660,6 +54719,11 @@ func (ec *executionContext) unmarshalNUpdateModelsOrderInput2githubᚗcomᚋreea
 func (ec *executionContext) unmarshalNUpdateProjectInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectInput(ctx context.Context, v any) (gqlmodel.UpdateProjectInput, error) {
 	res, err := ec.unmarshalInputUpdateProjectInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdatePublicationSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePublicationSettingsInput(ctx context.Context, v any) (*gqlmodel.UpdatePublicationSettingsInput, error) {
+	res, err := ec.unmarshalInputUpdatePublicationSettingsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUpdateRequestInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateRequestInput(ctx context.Context, v any) (gqlmodel.UpdateRequestInput, error) {
@@ -54303,6 +55367,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAPIKeyPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.APIKeyPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._APIKeyPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOAddUsersToWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAddUsersToWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AddUsersToWorkspacePayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -54730,6 +55801,13 @@ func (ec *executionContext) marshalODecompressAssetPayload2ᚖgithubᚗcomᚋree
 		return graphql.Null
 	}
 	return ec._DecompressAssetPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODeleteAPIKeyPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAPIKeyPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteAPIKeyPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteAPIKeyPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeleteAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteAssetPayload) graphql.Marshaler {
@@ -55214,6 +56292,53 @@ func (ec *executionContext) marshalOProject2ᚖgithubᚗcomᚋreearthᚋreearth�
 	return ec._Project(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOProjectAPIKey2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKeyᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ProjectAPIKey) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNProjectAPIKey2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAPIKey(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -55221,27 +56346,27 @@ func (ec *executionContext) marshalOProjectPayload2ᚖgithubᚗcomᚋreearthᚋr
 	return ec._ProjectPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOProjectPublication2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublication(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectPublication) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._ProjectPublication(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, v any) (*gqlmodel.ProjectPublicationScope, error) {
+func (ec *executionContext) unmarshalOProjectVisibility2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectVisibility(ctx context.Context, v any) (*gqlmodel.ProjectVisibility, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(gqlmodel.ProjectPublicationScope)
+	var res = new(gqlmodel.ProjectVisibility)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectPublicationScope) graphql.Marshaler {
+func (ec *executionContext) marshalOProjectVisibility2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectVisibility(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ProjectVisibility) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) marshalOPublicationSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublicationSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublicationSettings) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PublicationSettings(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPublishItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishItemPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublishItemPayload) graphql.Marshaler {
@@ -55249,20 +56374,6 @@ func (ec *executionContext) marshalOPublishItemPayload2ᚖgithubᚗcomᚋreearth
 		return graphql.Null
 	}
 	return ec._PublishItemPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOPublishModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublishModelPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._PublishModelPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOPublishModelsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublishModelsPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._PublishModelsPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORemoveIntegrationFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveIntegrationFromWorkspacePayload) graphql.Marshaler {
@@ -55918,11 +57029,19 @@ func (ec *executionContext) marshalOUpdateMemberOfWorkspacePayload2ᚖgithubᚗc
 	return ec._UpdateMemberOfWorkspacePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUpdateProjectPublicationInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectPublicationInput(ctx context.Context, v any) (*gqlmodel.UpdateProjectPublicationInput, error) {
+func (ec *executionContext) unmarshalOUpdateProjectAccessibilityInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectAccessibilityInput(ctx context.Context, v any) (*gqlmodel.UpdateProjectAccessibilityInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputUpdateProjectPublicationInput(ctx, v)
+	res, err := ec.unmarshalInputUpdateProjectAccessibilityInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOUpdatePublicationSettingsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdatePublicationSettingsInput(ctx context.Context, v any) (*gqlmodel.UpdatePublicationSettingsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdatePublicationSettingsInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

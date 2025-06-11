@@ -303,7 +303,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// 1- create public project
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
-	updateProject(e, pId, "test", "test", "test-1", "PUBLIC", true)
+	updateProject(e, pId, "test", "test", "test-1", "PUBLIC", false, []string{})
 
 	// 2- create public model
 	mId, _ := createModel(e, pId, "test", "test", "test-1")

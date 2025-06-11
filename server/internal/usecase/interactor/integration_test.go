@@ -627,7 +627,7 @@ func TestIntegration_FindByMe(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			for idx, in := range got {
-				// assert.Regexp(t, regexp.MustCompile("secret_[a-zA-Z0-9]{43}"), got.Token())
+				// assert.Regexp(t, regexp.MustCompile("secret_[a-zA-Z0-9]{43}"), got.Key())
 				assert.False(t, in.ID().IsEmpty())
 				assertIntegrationEq(t, tt.want[idx], in)
 			}

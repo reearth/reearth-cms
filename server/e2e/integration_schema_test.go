@@ -55,7 +55,6 @@ func TestIntegrationSchemaFilterAPI(t *testing.T) {
 			HasValue("id", mId0.String()).
 			HasValue("name", "m0").
 			HasValue("description", "m0 desc").
-			HasValue("public", true).
 			HasValue("key", ikey0.String()).
 			HasValue("projectId", pid).
 			HasValue("schemaId", sid0)
@@ -65,7 +64,6 @@ func TestIntegrationSchemaFilterAPI(t *testing.T) {
 			HasValue("id", mId1.String()).
 			HasValue("name", "m1").
 			HasValue("description", "m1 desc").
-			HasValue("public", true).
 			HasValue("key", ikey1.String()).
 			HasValue("projectId", pid).
 			HasValue("schemaId", sid1)
@@ -79,7 +77,6 @@ func TestIntegrationSchemaFilterAPI(t *testing.T) {
 			HasValue("id", mId2.String()).
 			HasValue("name", "m2").
 			HasValue("description", "m2 desc").
-			HasValue("public", true).
 			HasValue("key", ikey2.String()).
 			HasValue("projectId", pid).
 			HasValue("schemaId", sid2)
@@ -129,7 +126,6 @@ func TestIntegrationSchemaFilterAPI(t *testing.T) {
 		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -305,7 +301,6 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 		"name":        "m1",
 		"id":          mId1.String(),
 		"description": "m1 desc",
-		"public":      true,
 		"key":         ikey1.String(),
 		"projectId":   pid,
 		"schemaId":    sid1,
@@ -350,7 +345,6 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	res.HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -394,7 +388,6 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	res.HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -438,7 +431,6 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 	res.HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -541,7 +533,6 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -635,7 +626,6 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -704,7 +694,6 @@ func TestIntegrationFieldCreateWithProjectAPI(t *testing.T) {
 		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -800,7 +789,6 @@ func TestIntegrationFieldUpdateWithProjectAPI(t *testing.T) {
 		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)
@@ -908,7 +896,6 @@ func TestIntegrationFieldDeleteWithProjectAPI(t *testing.T) {
 		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
-		HasValue("public", true).
 		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
 		HasValue("schemaId", sid1)

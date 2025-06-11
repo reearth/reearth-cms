@@ -9,7 +9,6 @@ type Model implements Node {
   project: Project!
   schema: Schema!
   metadataSchema: Schema
-  public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
   order: Int
@@ -92,6 +91,4 @@ extend type Mutation {
   updateModel(input: UpdateModelInput!): ModelPayload
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
-  publishModel(input: PublishModelInput!): PublishModelPayload
-  publishModels(input: PublishModelsInput!): PublishModelsPayload
 }

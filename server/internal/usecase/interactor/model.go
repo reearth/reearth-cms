@@ -105,7 +105,6 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 		New().
 		NewID().
 		Schema(s.ID()).
-		Public(false).
 		Project(param.ProjectId)
 
 	if param.Name != nil {
@@ -113,9 +112,6 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	}
 	if param.Description != nil {
 		mb = mb.Description(*param.Description)
-	}
-	if param.Public != nil {
-		mb = mb.Public(*param.Public)
 	}
 	if param.Key != nil {
 		mb = mb.Key(id.NewKey(*param.Key))
@@ -166,9 +162,6 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 					return nil, err
 				}
 			}
-			if param.Public != nil {
-				m.SetPublic(*param.Public)
-			}
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {
 				return nil, err
@@ -213,42 +206,6 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 				return err
 			}
 			if err := i.repos.Model.SaveAll(ctx, res); err != nil {
-				return err
-			}
-			return nil
-		})
-}
-
-func (i Model) Publish(ctx context.Context, params []interfaces.PublishModelParam, operator *usecase.Operator) error {
-	if len(params) == 0 {
-		return rerror.ErrInvalidParams
-	}
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) error {
-			mIds := lo.Map(params, func(p interfaces.PublishModelParam, _ int) id.ModelID { return p.ModelID })
-			ml, err := i.repos.Model.FindByIDs(ctx, mIds)
-			if err != nil {
-				return err
-			}
-			if len(ml) != len(mIds) {
-				return rerror.ErrNotFound
-			}
-			if len(lo.UniqMap(ml, func(m *model.Model, _ int) id.ProjectID { return m.Project() })) != 1 {
-				return rerror.ErrInvalidParams
-			}
-			if !operator.IsMaintainingProject(ml[0].Project()) {
-				return interfaces.ErrOperationDenied
-			}
-
-			for _, p := range params {
-				m := ml.Model(p.ModelID)
-				if m == nil {
-					return rerror.ErrNotFound
-				}
-				m.SetPublic(p.Public)
-			}
-
-			if err := i.repos.Model.SaveAll(ctx, ml); err != nil {
 				return err
 			}
 			return nil
@@ -365,7 +322,6 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				Name:        name,
 				Description: lo.ToPtr(oldModel.Description()),
 				Key:         key,
-				Public:      lo.ToPtr(oldModel.Public()),
 			})
 			if err != nil {
 				return nil, err

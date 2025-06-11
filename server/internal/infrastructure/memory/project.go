@@ -130,13 +130,19 @@ func (r *Project) IsAliasAvailable(_ context.Context, name string) (bool, error)
 	return true, nil
 }
 
-func (r *Project) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
+func (r *Project) FindByPublicAPIKey(_ context.Context, key string) (*project.Project, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
-	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
-		return v.Publication().Token() == token && r.f.CanRead(v.Workspace())
+	p := r.data.Find(func(_ id.ProjectID, p *project.Project) bool {
+		if !r.f.CanRead(p.Workspace()) {
+			return false
+		}
+		if p.Accessibility().APIKeyByKey(key) == nil {
+			return false
+		}
+		return true
 	})
 
 	if p != nil {

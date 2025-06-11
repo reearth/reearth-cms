@@ -13,39 +13,70 @@ func ToProject(p *project.Project) *pb.Project {
 	}
 
 	return &pb.Project{
-		Id:          p.ID().String(),
-		Name:        p.Name(),
-		Alias:       p.Alias(),
-		Description: lo.ToPtr(p.Description()),
-		WorkspaceId: p.Workspace().String(),
-		Publication: ToProjectPublication(p.Publication()),
-		CreatedAt:   timestamppb.New(p.ID().Timestamp()),
-		UpdatedAt:   timestamppb.New(p.UpdatedAt()),
+		Id:            p.ID().String(),
+		Name:          p.Name(),
+		Alias:         p.Alias(),
+		Description:   lo.ToPtr(p.Description()),
+		WorkspaceId:   p.Workspace().String(),
+		Accessibility: ToProjectAccessibility(p.Accessibility()),
+		CreatedAt:     timestamppb.New(p.ID().Timestamp()),
+		UpdatedAt:     timestamppb.New(p.UpdatedAt()),
 	}
 }
 
-func ToProjectPublication(p *project.Publication) *pb.ProjectPublication {
+func ToProjectPublication(p *project.PublicationSettings) *pb.ProjectPublicationSettings {
 	if p == nil {
 		return nil
 	}
 
-	token := p.Token()
-	if p.Scope() != project.PublicationScopeLimited {
-		token = ""
-	}
-	return &pb.ProjectPublication{
-		Scope:       ToProjectPublicationScope(p.Scope()),
-		AssetPublic: p.AssetPublic(),
-		Token:       &token,
+	return &pb.ProjectPublicationSettings{
+		PublicModels: p.PublicModels().Strings(),
+		PublicAssets: p.PublicAssets(),
 	}
 }
 
-func ToProjectPublicationScope(p project.PublicationScope) pb.ProjectPublicationScope {
-	switch p {
-	case project.PublicationScopePublic:
-		return pb.ProjectPublicationScope_PUBLIC
-	case project.PublicationScopeLimited:
-		return pb.ProjectPublicationScope_LIMITED
+func ToApiKey(p *project.APIKey) *pb.APIKey {
+	if p == nil {
+		return nil
 	}
-	return pb.ProjectPublicationScope_PRIVATE
+
+	return &pb.APIKey{
+		Id:          p.ID().String(),
+		Name:        p.Name(),
+		Description: p.Description(),
+		Key:         p.Key(),
+		Publication: ToProjectPublication(p.Publication()),
+	}
+}
+
+func ToApiKeys(ps project.APIKeys) []*pb.APIKey {
+	if ps == nil {
+		return nil
+	}
+
+	return lo.Map(ps, func(p *project.APIKey, _ int) *pb.APIKey {
+		return ToApiKey(p)
+	})
+}
+
+func ToProjectAccessibility(p *project.Accessibility) *pb.ProjectAccessibility {
+	if p == nil {
+		return nil
+	}
+
+	return &pb.ProjectAccessibility{
+		Visibility:  ToProjectPublicationVisibility(p.Visibility()),
+		Publication: ToProjectPublication(p.Publication()),
+		ApiKeys:     ToApiKeys(p.ApiKeys()),
+	}
+}
+
+func ToProjectPublicationVisibility(p project.Visibility) pb.ProjectVisibility {
+	switch p {
+	case project.VisibilityPublic:
+		return pb.ProjectVisibility_PUBLIC
+	case project.VisibilityPrivate:
+		return pb.ProjectVisibility_PRIVATE
+	}
+	return pb.ProjectVisibility_PUBLIC
 }
