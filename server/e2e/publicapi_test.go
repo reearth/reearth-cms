@@ -28,14 +28,12 @@ var (
 	publicAPIProjectID2    = id.NewProjectID()
 	publicAPIModelID       = id.NewModelID()
 	publicAPIModelID2      = id.NewModelID()
-	publicAPIModelID3      = id.NewModelID()
 	publicAPIItem1ID       = id.NewItemID()
 	publicAPIItem2ID       = id.NewItemID()
 	publicAPIItem3ID       = id.NewItemID()
 	publicAPIItem4ID       = id.NewItemID()
 	publicAPIItem6ID       = id.NewItemID()
 	publicAPIItem7ID       = id.NewItemID()
-	publicAPIItem8ID       = id.NewItemID()
 	publicAPIAsset1ID      = id.NewAssetID()
 	publicAPIAsset2ID      = id.NewAssetID()
 	publicAPIAssetUUID     = uuid.NewString()
@@ -45,15 +43,17 @@ var (
 	publicAPIModelKey2     = "test-model-2"
 	publicAPIModelKey3     = "test-model-3"
 	publicAPIModelKey4     = "test-model-4"
-	publicAPIModelKey5     = "test-model-5"
 	publicAPIField1Key     = "test-field-1"
 	publicAPIField2Key     = "asset"
 	publicAPIField3Key     = "test-field-2"
 	publicAPIField4Key     = "asset2"
 	publicAPIField5Key     = "geometry-object"
 	publicAPIField6Key     = "geometry-editor"
-	publicAPIField7Key     = "group"
-	publicAPIField8Key     = "multiple-group"
+	pApiP1M4Id             = id.NewModelID()
+	pApiP1M4Key            = "test-model-5"
+	pApiP1M4I1Id           = id.NewItemID()
+	pApiP1S3F1Key          = "group"
+	pApiP1S3F2Key          = "multiple-group"
 )
 
 func TestPublicAPI(t *testing.T) {
@@ -551,20 +551,23 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(publicAPIField1Key).Key(id.NewKey(publicAPIField1Key)).MustBuild(),
 	}).MustBuild()
 
-	gfid1 := id.NewFieldID()
-	gs1 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(gfid1).Name("text").Key(id.NewKey("text")).MustBuild(),
+	p1g1f1Id := id.NewFieldID()
+	p1g1f2Id := id.NewFieldID()
+	p1g1f3Id := id.NewFieldID()
+	p1g1f4Id := id.NewFieldID()
+	p1g1f5Id := id.NewFieldID()
+	p1g1s1 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1g1f4Id).Name("text").Key(id.NewKey("text")).MustBuild(),
 	}).MustBuild()
-	g1 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(gs1.ID()).Name("group1").Key(id.NewKey("group1")).MustBuild()
-	gfid2 := id.NewFieldID()
-	gs2 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(gfid2).Name("text2").Key(id.NewKey("text2")).MustBuild(),
+	p1g1 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(p1g1s1.ID()).Name("group1").Key(id.NewKey("group1")).MustBuild()
+	p1g2s1 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1g1f5Id).Name("text2").Key(id.NewKey("text2")).MustBuild(),
 	}).MustBuild()
-	g2 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(gs2.ID()).Name("group2").Key(id.NewKey("group2")).MustBuild()
-	s3 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewGroup(g1.ID()).TypeProperty()).NewID().Name(publicAPIField7Key).Key(id.NewKey(publicAPIField7Key)).MustBuild(),
-		schema.NewField(schema.NewGroup(g2.ID()).TypeProperty()).NewID().Name(publicAPIField8Key).Key(id.NewKey(publicAPIField8Key)).Multiple(true).MustBuild(),
-		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name(publicAPIField5Key).Key(id.NewKey(publicAPIField5Key)).MustBuild(),
+	p1g2 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(p1g2s1.ID()).Name("group2").Key(id.NewKey("group2")).MustBuild()
+	p1s3 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewGroup(p1g1.ID()).TypeProperty()).ID(p1g1f1Id).Name(pApiP1S3F1Key).Key(id.NewKey(pApiP1S3F1Key)).MustBuild(),
+		schema.NewField(schema.NewGroup(p1g2.ID()).TypeProperty()).ID(p1g1f2Id).Name(pApiP1S3F2Key).Key(id.NewKey(pApiP1S3F2Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(p1g1f3Id).Name(publicAPIField5Key).Key(id.NewKey(publicAPIField5Key)).MustBuild(),
 	}).MustBuild()
 
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(id.NewKey(publicAPIModelKey)).MustBuild()
@@ -572,7 +575,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Name(publicAPIModelKey2).Key(id.NewKey(publicAPIModelKey2)).Public(false).MustBuild()
 	m3 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s2.ID()).Name(publicAPIModelKey3).Key(id.NewKey(publicAPIModelKey3)).Public(true).MustBuild()
 	m4 := model.New().ID(publicAPIModelID2).Project(p2.ID()).Schema(id.NewSchemaID()).Key(id.NewKey(publicAPIModelKey4)).Public(true).MustBuild()
-	m5 := model.New().ID(publicAPIModelID3).Project(p1.ID()).Schema(s3.ID()).Key(id.NewKey(publicAPIModelKey5)).Public(true).MustBuild()
+	p1m4 := model.New().ID(pApiP1M4Id).Project(p1.ID()).Schema(p1s3.ID()).Key(id.NewKey(pApiP1M4Key)).Public(true).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID().Ref()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
@@ -613,22 +616,22 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
 	}).MustBuild()
 
-	igid := id.NewItemGroupID()
-	igid2 := id.NewItemGroupID()
-	i8 := item.New().
-		ID(publicAPIItem8ID).
-		Model(m5.ID()).
-		Schema(s3.ID()).
+	p1m4i8ig1 := id.NewItemGroupID()
+	p1m4i8ig2 := id.NewItemGroupID()
+	p1m4i8 := item.New().
+		ID(pApiP1M4I1Id).
+		Model(p1m4.ID()).
+		Schema(p1s3.ID()).
 		Project(p1.ID()).
 		Thread(id.NewThreadID().Ref()).
 		IsMetadata(false).
 		User(uid).
 		Fields([]*item.Field{
-			item.NewField(s3.Fields()[0].ID(), value.TypeGroup.Value(igid).AsMultiple(), nil),
-			item.NewField(s3.Fields()[1].ID(), value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(igid2)}), nil),
-			item.NewField(s3.Fields()[2].ID(), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
-			item.NewField(gfid1, value.TypeText.Value("aaa").AsMultiple(), igid.Ref()),
-			item.NewField(gfid2, value.TypeText.Value("bbb").AsMultiple(), igid2.Ref()),
+			item.NewField(p1g1f1Id, value.TypeGroup.Value(p1m4i8ig1).AsMultiple(), nil),
+			item.NewField(p1g1f2Id, value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(p1m4i8ig2)}), nil),
+			item.NewField(p1g1f3Id, value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
+			item.NewField(p1g1f4Id, value.TypeText.Value("aaa").AsMultiple(), p1m4i8ig1.Ref()),
+			item.NewField(p1g1f5Id, value.TypeText.Value("bbb").AsMultiple(), p1m4i8ig2.Ref()),
 		}).
 		MustBuild()
 
@@ -637,14 +640,14 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	lo.Must0(r.Asset.Save(ctx, a))
 	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af))
 	lo.Must0(r.Schema.Save(ctx, s))
-	lo.Must0(r.Schema.Save(ctx, s3))
-	lo.Must0(r.Schema.Save(ctx, gs1))
-	lo.Must0(r.Schema.Save(ctx, gs2))
+	lo.Must0(r.Schema.Save(ctx, p1s3))
+	lo.Must0(r.Schema.Save(ctx, p1g1s1))
+	lo.Must0(r.Schema.Save(ctx, p1g2s1))
 	lo.Must0(r.Model.Save(ctx, m))
 	lo.Must0(r.Model.Save(ctx, m4))
-	lo.Must0(r.Model.Save(ctx, m5))
-	lo.Must0(r.Group.Save(ctx, g1))
-	lo.Must0(r.Group.Save(ctx, g2))
+	lo.Must0(r.Model.Save(ctx, p1m4))
+	lo.Must0(r.Group.Save(ctx, p1g1))
+	lo.Must0(r.Group.Save(ctx, p1g2))
 	lo.Must0(r.Item.Save(ctx, i1))
 	lo.Must0(r.Item.Save(ctx, i2))
 	lo.Must0(r.Item.Save(ctx, i3))
@@ -652,13 +655,13 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	lo.Must0(r.Item.Save(ctx, i5))
 	lo.Must0(r.Item.Save(ctx, i6))
 	lo.Must0(r.Item.Save(ctx, i7))
-	lo.Must0(r.Item.Save(ctx, i8))
+	lo.Must0(r.Item.Save(ctx, p1m4i8))
 	lo.Must0(r.Item.UpdateRef(ctx, i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i2.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i3.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i6.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i7.ID(), version.Public, version.Latest.OrVersion().Ref()))
-	lo.Must0(r.Item.UpdateRef(ctx, i8.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.UpdateRef(ctx, p1m4i8.ID(), version.Public, version.Latest.OrVersion().Ref()))
 
 	return nil
 }

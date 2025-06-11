@@ -12,7 +12,7 @@ func TestPublicAPI_Export(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{project}/{model}.geojson", publicAPIProjectAlias, publicAPIModelKey5).
+	e.GET("/api/p/{project}/{model}.geojson", publicAPIProjectAlias, pApiP1M4Key).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -21,7 +21,7 @@ func TestPublicAPI_Export(t *testing.T) {
 			"features": []map[string]interface{}{
 				{
 					"type": "Feature",
-					"id":   publicAPIItem8ID.String(),
+					"id":   pApiP1M4I1Id.String(),
 					"geometry": map[string]interface{}{
 						"type": "Point",
 						"coordinates": []interface{}{
@@ -30,10 +30,10 @@ func TestPublicAPI_Export(t *testing.T) {
 						},
 					},
 					"properties": map[string]interface{}{
-						publicAPIField7Key: map[string]interface{}{
+						pApiP1S3F1Key: map[string]interface{}{
 							"text": "aaa",
 						},
-						publicAPIField8Key: []interface{}{
+						pApiP1S3F2Key: []interface{}{
 							map[string]interface{}{
 								"text2": "bbb",
 							},
