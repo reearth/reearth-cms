@@ -206,15 +206,11 @@ func extractGroupProperties(itm *item.Item, sp *schema.Package, gf *schema.Field
 		return nil, false
 	}
 	if gf.Multiple() {
-		gl := make([]*orderedmap.OrderedMap, 0, len(vv))
-		for _, v := range vv {
-			gp := extractSingleGroupProperties(v, itm, s.Fields())
-			gl = append(gl, gp)
-		}
-		return gl, true
+		return lo.Map(vv, func(v value.Group, _ int) *orderedmap.OrderedMap {
+			return extractSingleGroupProperties(v, itm, s.Fields())
+		}), true
 	} else {
-		gp := extractSingleGroupProperties(vv[0], itm, s.Fields())
-		return gp, true
+		return extractSingleGroupProperties(vv[0], itm, s.Fields()), true
 	}
 }
 
