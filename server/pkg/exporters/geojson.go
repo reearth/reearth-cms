@@ -169,66 +169,64 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 	}
 	properties := orderedmap.New()
 	for _, field := range sp.Schema().Fields().Ordered() {
-		if field.Type() == value.TypeGeometryObject || field.Type() == value.TypeGeometryEditor || field.Type() == value.TypeGroup {
+		switch field.Type() {
+		case value.TypeGeometryObject, value.TypeGeometryEditor:
 			continue
-		}
-		k := field.Key().String()
-		itmField := itm.Field(field.ID())
-		if val, ok := toGeoJSONProp(itmField); ok {
-			properties.Set(k, val)
+		case value.TypeGroup:
+			gp, ok := extractGroupProperties(itm, sp, field)
+			if ok {
+				properties.Set(field.Key().String(), gp)
+			}
+			continue
+		default:
+			itmField := itm.Field(field.ID())
+			if val, ok := toGeoJSONProp(itmField); ok {
+				properties.Set(field.Key().String(), val)
+			}
 		}
 	}
-	extractGroupProperties(properties, itm, sp)
 	return properties
 }
 
-func extractGroupProperties(p *orderedmap.OrderedMap, itm *item.Item, sp *schema.Package) {
-	groupFields := sp.Schema().FieldsByType(value.TypeGroup)
-	for _, gf := range groupFields {
-		k := gf.Key().String()
-		igf := itm.Field(gf.ID())
-		if igf == nil || igf.Value() == nil {
-			continue
+func extractGroupProperties(itm *item.Item, sp *schema.Package, gf *schema.Field) (any, bool) {
+	var gId schema.GroupID
+	gf.TypeProperty().Match(schema.TypePropertyMatch{
+		Group: func(fg *schema.FieldGroup) {
+			gId = fg.Group()
+		},
+	})
+
+	s := sp.GroupSchema(gId)
+	igf := itm.Field(gf.ID())
+	if igf == nil || igf.Value() == nil {
+		return nil, false
+	}
+	vv, ok := igf.Value().ValuesGroup()
+	if !ok || len(vv) == 0 {
+		return nil, false
+	}
+	if gf.Multiple() {
+		gl := make([]*orderedmap.OrderedMap, 0, len(vv))
+		for _, v := range vv {
+			gp := extractSingleGroupProperties(v, itm, s.Fields())
+			gl = append(gl, gp)
 		}
-		vv, ok := igf.Value().ValuesGroup()
-		if !ok || len(vv) == 0 {
-			continue
-		}
-		var gid schema.GroupID
-		gf.TypeProperty().Match(schema.TypePropertyMatch{
-			Group: func(f *schema.FieldGroup) {
-				gid = f.Group()
-			},
-		})
-		s := sp.GroupSchema(gid)
-		if gf.Multiple() {
-			var a []*orderedmap.OrderedMap
-			for _, v := range vv {
-				gp := extractSingleGroupProperties(v, itm, s.Fields())
-				if len(gp.Keys()) > 0 {
-					a = append(a, gp)
-				}
-			}
-			p.Set(k, a)
-		} else {
-			gp := extractSingleGroupProperties(vv[0], itm, s.Fields())
-			if len(gp.Keys()) > 0 {
-				p.Set(k, gp)
-			}
-		}
+		return gl, true
+	} else {
+		gp := extractSingleGroupProperties(vv[0], itm, s.Fields())
+		return gp, true
 	}
 }
 
-func extractSingleGroupProperties(gid value.Group, itm *item.Item, sf schema.FieldList) *orderedmap.OrderedMap {
+func extractSingleGroupProperties(gId value.Group, itm *item.Item, gf schema.FieldList) *orderedmap.OrderedMap {
 	gp := orderedmap.New()
-	for _, f := range itm.Fields().FieldsByGroup(gid) {
-		if f.ItemGroup().String() != gid.String() {
+	for _, sf := range gf.Ordered() {
+		f := itm.FieldByItemGroupAndID(sf.ID(), gId)
+		if f == nil {
 			continue
 		}
 		if val, ok := toGeoJSONProp(f); ok {
-			if sf := sf.Find(f.FieldID()); sf != nil {
-				gp.Set(sf.Key().String(), val)
-			}
+			gp.Set(sf.Key().String(), val)
 		}
 	}
 	return gp
