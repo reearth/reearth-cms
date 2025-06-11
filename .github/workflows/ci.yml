@@ -157,8 +157,8 @@ jobs:
       - uses: reearth/actions/deploy-cloud-run-with-tag@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5 # main
         id: deploy
         with:
-          image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare-pr.outputs.sha_short }}'
-          image_internal: '${{ secrets.WEB_IMAGE_GC_BASE }}:${{ needs.build-prepare-pr.outputs.sha_short }}'
+          image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'
+          image_internal: '${{ secrets.WEB_IMAGE_GC_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'
           region: ${{ secrets.GC_REGION }}
           service: reearth-cms-web
           service_account: ${{ secrets.GC_SA_EMAIL }}
