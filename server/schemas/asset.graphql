@@ -17,6 +17,7 @@ type Asset implements Node {
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
   public: Boolean!
+  contentType: String
 }
 
 type AssetItem {
@@ -50,6 +51,16 @@ enum ArchiveExtractionStatus {
   IN_PROGRESS
   DONE
   FAILED
+}
+
+enum ContentTypesEnum {
+  JSON
+  GEOJSON
+  CSV
+  HTML
+  XML
+  PDF
+  PLAIN
 }
 
 input CreateAssetInput {
@@ -92,6 +103,18 @@ input DeleteAssetsInput {
 
 input DecompressAssetInput {
   assetId: ID!
+}
+
+input AssetQueryInput {
+  project: ID!
+  keyword: String
+  contentTypes: [ContentTypesEnum!]
+}
+
+input SearchAssetsInput {
+  query: AssetQueryInput!
+  sort: AssetSort
+  pagination: Pagination
 }
 
 type CreateAssetPayload {
@@ -157,7 +180,7 @@ input AssetSort {
 
 extend type Query {
   assetFile(assetId: ID!): AssetFile!
-  assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
+  assets(input: SearchAssetsInput!): AssetConnection!
 }
 
 extend type Mutation {

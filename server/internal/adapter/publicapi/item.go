@@ -114,7 +114,7 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 	return res, sp.Schema(), nil
 }
 
-func (c *Controller) GetVersionedItems(ctx context.Context, prj, model string, p ListParam) (item.VersionedList, *schema.Schema, error) {
+func (c *Controller) GetVersionedItems(ctx context.Context, prj, model string, p ListParam) (item.VersionedList, *schema.Package, error) {
 	pr, err := c.checkProject(ctx, prj)
 	if err != nil {
 		return item.VersionedList{}, nil, err
@@ -138,7 +138,7 @@ func (c *Controller) GetVersionedItems(ctx context.Context, prj, model string, p
 		return item.VersionedList{}, nil, err
 	}
 
-	return items, sp.Schema(), nil
+	return items, sp, nil
 }
 
 func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
