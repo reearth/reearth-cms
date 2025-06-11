@@ -172,60 +172,66 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 		if field.Type() == value.TypeGeometryObject || field.Type() == value.TypeGeometryEditor || field.Type() == value.TypeGroup {
 			continue
 		}
-		key := field.Name()
+		k := field.Key().String()
 		itmField := itm.Field(field.ID())
 		if val, ok := toGeoJSONProp(itmField); ok {
-			properties.Set(key, val)
+			properties.Set(k, val)
 		}
 	}
 	extractGroupProperties(properties, itm, sp)
 	return properties
 }
 
-func extractGroupProperties(properties *orderedmap.OrderedMap, itm *item.Item, sp *schema.Package) {
+func extractGroupProperties(p *orderedmap.OrderedMap, itm *item.Item, sp *schema.Package) {
 	groupFields := sp.Schema().FieldsByType(value.TypeGroup)
-	schemaFieldMap := make(map[schema.FieldID]*schema.Field)
-	for _, sf := range sp.GroupSchemas().Fields().Ordered() {
-		schemaFieldMap[sf.ID()] = sf
-	}
-	for _, groupField := range groupFields {
-		groupKey := groupField.Name()
-		itemField := itm.Field(groupField.ID())
-		groupValues, ok := itemField.Value().ValuesGroup()
-		if !ok || len(groupValues) == 0 {
+	for _, gf := range groupFields {
+		k := gf.Key().String()
+		igf := itm.Field(gf.ID())
+		if igf == nil || igf.Value() == nil {
 			continue
 		}
-		if groupField.Multiple() {
-			var multiGroupArray []*orderedmap.OrderedMap
-			for _, groupVal := range groupValues {
-				groupProperties := extractSingleGroupProperties(groupVal.String(), itm, schemaFieldMap)
-				if len(groupProperties.Keys()) > 0 {
-					multiGroupArray = append(multiGroupArray, groupProperties)
+		vv, ok := igf.Value().ValuesGroup()
+		if !ok || len(vv) == 0 {
+			continue
+		}
+		var gid schema.GroupID
+		gf.TypeProperty().Match(schema.TypePropertyMatch{
+			Group: func(f *schema.FieldGroup) {
+				gid = f.Group()
+			},
+		})
+		s := sp.GroupSchema(gid)
+		if gf.Multiple() {
+			var a []*orderedmap.OrderedMap
+			for _, v := range vv {
+				gp := extractSingleGroupProperties(v, itm, s.Fields())
+				if len(gp.Keys()) > 0 {
+					a = append(a, gp)
 				}
 			}
-			properties.Set(groupKey, multiGroupArray)
+			p.Set(k, a)
 		} else {
-			groupProperties := extractSingleGroupProperties(groupValues[0].String(), itm, schemaFieldMap)
-			if len(groupProperties.Keys()) > 0 {
-				properties.Set(groupKey, groupProperties)
+			gp := extractSingleGroupProperties(vv[0], itm, s.Fields())
+			if len(gp.Keys()) > 0 {
+				p.Set(k, gp)
 			}
 		}
 	}
 }
 
-func extractSingleGroupProperties(groupID string, itm *item.Item, schemaFieldMap map[schema.FieldID]*schema.Field) *orderedmap.OrderedMap {
-	groupProperties := orderedmap.New()
-	for _, f := range itm.Fields() {
-		if f.ItemGroup() == nil || f.ItemGroup().String() != groupID {
+func extractSingleGroupProperties(gid value.Group, itm *item.Item, sf schema.FieldList) *orderedmap.OrderedMap {
+	gp := orderedmap.New()
+	for _, f := range itm.Fields().FieldsByGroup(gid) {
+		if f.ItemGroup().String() != gid.String() {
 			continue
 		}
 		if val, ok := toGeoJSONProp(f); ok {
-			if sf, ok := schemaFieldMap[f.FieldID()]; ok {
-				groupProperties.Set(sf.Name(), val)
+			if sf := sf.Find(f.FieldID()); sf != nil {
+				gp.Set(sf.Key().String(), val)
 			}
 		}
 	}
-	return groupProperties
+	return gp
 }
 
 func extractGeometry(field *item.Field) (*Geometry, bool) {
