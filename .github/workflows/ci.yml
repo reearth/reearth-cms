@@ -144,7 +144,7 @@ jobs:
     secrets: inherit
 
   deploy-web-pr:
-    needs: [build-web-pr, build-prepare-pr]
+    needs: [build-web-pr, build-prepare]
     runs-on: ubuntu-latest
     outputs:
       preview_url: ${{ steps.deploy.outputs.url }}
