@@ -52,7 +52,7 @@ jobs:
           check-latest: true
           cache-dependency-path: |
             server/go.sum
-      - uses: reearth/actions/license-checker/go@ec26fbcf84f0e954a6ba3511859b18e3d2272c18
+      - uses: reearth/actions/license-checker/go@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5
         with:
           subdirectory: server
   worker-license-check:
@@ -71,7 +71,7 @@ jobs:
           check-latest: true
           cache-dependency-path: |
             worker/go.sum
-      - uses: reearth/actions/license-checker/go@ec26fbcf84f0e954a6ba3511859b18e3d2272c18
+      - uses: reearth/actions/license-checker/go@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5
         with:
           subdirectory: worker
   web-license-check:
@@ -91,6 +91,6 @@ jobs:
           cache-dependency-path: '**/yarn.lock'
       - name: Install
         run: yarn install
-      - uses: reearth/actions/license-checker/npm@e445d10332411e14f53e6abc73c966ecb49d3e57
+      - uses: reearth/actions/license-checker/npm@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5
         with:
           subdirectory: web
