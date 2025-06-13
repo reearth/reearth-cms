@@ -55,6 +55,6 @@ func (c *IntegrationLoader) FindByMe(ctx context.Context) ([]*gqlmodel.Integrati
 	for _, i := range res {
 		integrations = append(integrations, gqlmodel.ToIntegration(i, op.AcOperator.User))
 	}
-	time.Sleep(2 * time.Minute) // Add 2 minutes delay before returning
+	time.Sleep(30 * time.Second) // Add 30 seconds delay before returning
 	return integrations, nil
 }
