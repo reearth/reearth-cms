@@ -84,9 +84,9 @@ type ServerConfig struct {
 }
 
 type InternalApiConfig struct {
-	Active bool   `default:"false" pp:",omitempty"`
-	Port   string `default:"50051" pp:",omitempty"`
-	Token  string `default:"" pp:",omitempty"`
+	Active bool   `default:"false" pp:",omitempty" envconfig:"REEARTH_INTERNAL_API_ACTIVE"`
+	Port   string `default:"50051" pp:",omitempty" envconfig:"REEARTH_INTERNAL_API_PORT"`
+	Token  string `default:"" pp:",omitempty" envconfig:"REEARTH_INTERNAL_API_TOKEN"`
 }
 
 type AuthConfig struct {

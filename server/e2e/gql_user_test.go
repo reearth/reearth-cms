@@ -34,6 +34,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 	}
 	u2 := user.New().ID(uId2).
 		Name("e2e2").
+		Email("e2e2@e2e.com").
 		Workspace(wId2).
 		Lang(language.Japanese).
 		Email("e2e2@e2e.com").
