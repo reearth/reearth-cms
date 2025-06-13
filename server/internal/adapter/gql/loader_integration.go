@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -54,5 +55,6 @@ func (c *IntegrationLoader) FindByMe(ctx context.Context) ([]*gqlmodel.Integrati
 	for _, i := range res {
 		integrations = append(integrations, gqlmodel.ToIntegration(i, op.AcOperator.User))
 	}
+	time.Sleep(2 * time.Minute) // Add 2 minutes delay before returning
 	return integrations, nil
 }
