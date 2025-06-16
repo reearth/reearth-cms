@@ -144,19 +144,19 @@ export default () => {
   const handleAPIKeyRegenerate = useCallback(
     async (id?: string) => {
       if (!currentProject?.id || !id) return;
-      try {
-        await regenerateAPIKeyMutation({
-          variables: {
-            projectId: currentProject.id,
-            id,
-          },
-        });
-        Notification.success({ message: t("API Key re-generated successfully.") });
-      } catch {
+      const result = await regenerateAPIKeyMutation({
+        variables: {
+          projectId: currentProject.id,
+          id,
+        },
+      });
+      if (result.errors || !result.data?.regenerateAPIKey) {
         Notification.error({ message: t("Failed to re-generate API Key.") });
+        return;
       }
+      Notification.success({ message: t("API Key re-generated successfully.") });
     },
-    [regenerateAPIKeyMutation, currentProject?.id, t],
+    [currentProject?.id, regenerateAPIKeyMutation, t],
   );
 
   const apiUrl = useMemo(
