@@ -156,7 +156,7 @@ export const CREATE_API_KEY = gql`
         publication: $publication
       }
     ) {
-      accessToken {
+      apiKey {
         id
         name
         description
@@ -191,7 +191,7 @@ export const UPDATE_API_KEY = gql`
         publication: $publication
       }
     ) {
-      accessToken {
+      apiKey {
         id
         name
         description
@@ -212,7 +212,7 @@ export const UPDATE_API_KEY = gql`
 export const DELETE_API_KEY = gql`
   mutation DeleteAPIKey($projectId: ID!, $id: ID!) {
     deleteAPIKey(input: { projectId: $projectId, id: $id }) {
-      accessTokenId
+      apiKeyId
     }
   }
 `;
@@ -220,7 +220,7 @@ export const DELETE_API_KEY = gql`
 export const REGENERATE_API_KEY = gql`
   mutation RegenerateAPIKey($projectId: ID!, $id: ID!) {
     regenerateAPIKey(input: { projectId: $projectId, id: $id }) {
-      accessToken {
+      apiKey {
         id
         name
         description

@@ -6,7 +6,6 @@ import { FormType } from "@reearth-cms/components/molecules/Accessibility/types"
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import {
-  usePublishModelsMutation,
   useGetModelsQuery,
   useUpdateProjectMutation,
   useDeleteApiKeyMutation,
@@ -67,9 +66,6 @@ export default () => {
   }, [currentProject?.accessibility?.publication, models]);
 
   const [updateProjectMutation] = useUpdateProjectMutation();
-  const [publishModelsMutation] = usePublishModelsMutation({
-    refetchQueries: ["GetModels"],
-  });
 
   const [deleteAPIKeyMutation] = useDeleteApiKeyMutation({ refetchQueries: ["GetProject"] });
 
@@ -102,20 +98,6 @@ export default () => {
 
           if (projRes.errors) throw new Error();
         }
-
-        const modelEntries = Object.entries(models);
-        if (modelEntries.length > 0) {
-          const res = await publishModelsMutation({
-            variables: {
-              models: modelEntries.map(([modelId, isPublic]) => ({
-                modelId,
-                status: isPublic,
-              })),
-            },
-          });
-          if (res.errors) throw new Error();
-        }
-
         Notification.success({ message: t("Successfully updated publication settings!") });
       } catch (e) {
         Notification.error({ message: t("Failed to update publication settings.") });
@@ -124,14 +106,7 @@ export default () => {
         setUpdateLoading(false);
       }
     },
-    [
-      currentProject?.id,
-      initialValues.assetPublic,
-      initialValues.models,
-      publishModelsMutation,
-      t,
-      updateProjectMutation,
-    ],
+    [currentProject?.id, initialValues.assetPublic, initialValues.models, t, updateProjectMutation],
   );
 
   const handleAPIKeyDelete = useCallback(
