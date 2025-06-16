@@ -29,7 +29,7 @@ const APIKeyTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const handleDelete = useCallback(
+  const confirmDelete = useCallback(
     async (id: string) => {
       Modal.confirm({
         title: t("Are you sure you want to delete this API key?"),
@@ -45,36 +45,34 @@ const APIKeyTable: React.FC<Props> = ({
     [onAPIKeyDelete, t],
   );
 
-  const dropdownRender = useCallback(
-    (keyObj: APIKeyModelType) => {
-      return (
-        <Dropdown
-          menu={{
-            items: [
-              {
-                key: "edit",
-                label: "Edit",
-                onClick: () => onAPIKeyEdit(keyObj.id),
-                icon: <Icon icon="edit" />,
-                disabled: !hasUpdateRight,
-              },
-              {
-                key: "delete",
-                label: "Delete",
-                icon: <Icon icon="trash" />,
-                danger: true,
-                onClick: () => handleDelete(keyObj.id),
-                disabled: !hasDeleteRight,
-              },
-            ],
-          }}
-          placement="bottomLeft"
-          arrow>
-          <Button icon={<Icon icon="ellipsis" />} />
-        </Dropdown>
-      );
-    },
-    [handleDelete, hasDeleteRight, hasUpdateRight, onAPIKeyEdit],
+  const renderActions = useCallback(
+    (keyObj: APIKeyModelType) => (
+      <Dropdown
+        menu={{
+          items: [
+            {
+              key: "edit",
+              label: t("Edit"),
+              onClick: () => onAPIKeyEdit(keyObj.id),
+              icon: <Icon icon="edit" />,
+              disabled: !hasUpdateRight,
+            },
+            {
+              key: "delete",
+              label: t("Delete"),
+              onClick: () => confirmDelete(keyObj.id),
+              icon: <Icon icon="trash" />,
+              danger: true,
+              disabled: !hasDeleteRight,
+            },
+          ],
+        }}
+        placement="bottomLeft"
+        arrow>
+        <Button icon={<Icon icon="ellipsis" />} />
+      </Dropdown>
+    ),
+    [confirmDelete, hasUpdateRight, hasDeleteRight, onAPIKeyEdit, t],
   );
 
   const columns: TableColumnsType<APIKeyModelType> = useMemo(
@@ -92,26 +90,24 @@ const APIKeyTable: React.FC<Props> = ({
         render: key => <KeyCell apiKey={key} />,
       },
       {
-        key: "edit-icon",
+        key: "actions",
         title: "",
-        render: dropdownRender,
+        render: renderActions,
         width: 48,
       },
     ],
-    [dropdownRender, t],
+    [renderActions, t],
   );
 
-  const dataSource = useMemo(() => {
-    const columns: APIKeyModelType[] = [];
-    keys?.forEach(key => {
-      columns.push({
+  const dataSource = useMemo(
+    () =>
+      keys?.map(key => ({
         id: key.id,
         name: key.name,
         key: key.key,
-      });
-    });
-    return columns;
-  }, [keys]);
+      })) ?? [],
+    [keys],
+  );
 
   return (
     <TableWrapper>

@@ -28,22 +28,24 @@ const AccessAPITable: React.FC<Props> = ({
   const publicModelsSet = useMemo(() => new Set(publicModels), [publicModels]);
 
   const columns: TableColumnsType<ModelDataType> = useMemo(() => {
-    const res: TableColumnsType<ModelDataType> = [];
+    const cols: TableColumnsType<ModelDataType> = [];
     if (!isPublic) {
-      res.push({
-        key: "id",
+      cols.push({
+        key: "enable",
         title: t("Enable"),
         dataIndex: "id",
         align: "center",
         width: 90,
-        render: id => (
+        render: (id: [string, string] | string) => (
           <StyledFormItem name={id}>
-            <Switch disabled={!hasPublishRight || publicModelsSet.has(id[1])} />
+            <Switch
+              disabled={!hasPublishRight || (Array.isArray(id) && publicModelsSet.has(id[1]))}
+            />
           </StyledFormItem>
         ),
       });
     }
-    res.push(
+    cols.push(
       {
         key: "name",
         title: t("Model"),
@@ -51,9 +53,9 @@ const AccessAPITable: React.FC<Props> = ({
         width: 220,
       },
       {
+        key: "endpoint",
         title: t("End point"),
         dataIndex: "endpoint",
-        key: "endpoint",
         render: url => (
           <StyledAnchor target="_blank" href={url} rel="noreferrer">
             {url}
@@ -61,27 +63,24 @@ const AccessAPITable: React.FC<Props> = ({
         ),
       },
     );
-    return res;
+    return cols;
   }, [hasPublishRight, isPublic, publicModelsSet, t]);
 
-  const dataSource = useMemo(() => {
-    const columns: ModelDataType[] = [];
-    models.forEach(m => {
-      columns.push({
-        key: m.key,
-        name: m.name,
-        id: ["models", m.id],
-        endpoint: apiUrl + m.key,
-      });
-    });
-    columns.push({
+  const dataSource = useMemo<ModelDataType[]>(() => {
+    const modelRows = models.map(model => ({
+      key: model.key,
+      name: model.name,
+      id: ["models", model.id],
+      endpoint: `${apiUrl}${model.key}`,
+    }));
+    const assetRow: ModelDataType = {
       key: "assets",
       name: t("Assets"),
       id: "assetPublic",
-      endpoint: apiUrl + "assets",
-    });
-    return columns;
-  }, [models, t, apiUrl]);
+      endpoint: `${apiUrl}assets`,
+    };
+    return [...modelRows, assetRow];
+  }, [models, apiUrl, t]);
 
   return (
     <TableWrapper>

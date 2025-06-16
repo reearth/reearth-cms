@@ -34,18 +34,18 @@ const AccessAPIComponent: React.FC<Props> = ({
   onPublicUpdate,
 }) => {
   const t = useT();
-  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-
   const [form] = Form.useForm<FormType>();
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+  const changedModels = useRef(new Map<string, boolean>());
+
   useEffect(() => {
     form.setFieldsValue(initialValues);
   }, [form, initialValues]);
 
-  const changedModels = useRef(new Map<string, boolean>());
 
   const handleValuesChange = useCallback(
     (changedValues: Partial<FormType>, values: FormType) => {
-      if (changedValues?.models) {
+      if (changedValues.models) {
         const modelId = Object.keys(changedValues.models)[0];
         if (changedModels.current.has(modelId)) {
           changedModels.current.delete(modelId);
@@ -64,13 +64,11 @@ const AccessAPIComponent: React.FC<Props> = ({
 
   const handleSave = useCallback(async () => {
     try {
-      await onPublicUpdate(
-        form.getFieldsValue(),
-        Array.from(changedModels.current, ([modelId, status]) => ({
-          modelId,
-          status,
-        })),
-      );
+      const changedModelList = Array.from(changedModels.current, ([modelId, status]) => ({
+        modelId,
+        status,
+      }));
+      await onPublicUpdate(form.getFieldsValue(), changedModelList);
       changedModels.current.clear();
       setIsSaveDisabled(true);
     } catch (e) {
@@ -110,5 +108,5 @@ export default AccessAPIComponent;
 
 const Paragraph = styled.p`
   color: #8c8c8c;
-  padding-bottom: 162x;
+  padding-bottom: 16px;
 `;

@@ -72,22 +72,18 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
   onBack,
 }) => {
   const t = useT();
+  const [form] = Form.useForm<KeyFormType>();
   const [visible, setVisible] = useState(false);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const changedModels = useRef(new Map<string, boolean>());
 
-  const [form] = Form.useForm<KeyFormType>();
   useEffect(() => {
     form.setFieldsValue(initialValues);
   }, [form, initialValues]);
 
-  // TODO: think about this logic
   useEffect(() => {
-    if (!hasCreateRight && isNewKey) {
-      setIsSaveDisabled(true);
-    } else if (!hasUpdateRight && !isNewKey) {
-      setIsSaveDisabled(true);
-    }
+    const isDisabled = (isNewKey && !hasCreateRight) || (!isNewKey && !hasUpdateRight);
+    setIsSaveDisabled(isDisabled);
   }, [hasCreateRight, hasUpdateRight, isNewKey]);
 
   const handleSave = useCallback(async () => {
@@ -115,7 +111,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
 
   const handleValuesChange = useCallback(
     (changedValues: Partial<KeyFormType>, values: KeyFormType) => {
-      if (changedValues?.models) {
+      if (changedValues.models) {
         const modelId = Object.keys(changedValues.models)[0];
         if (changedModels.current.has(modelId)) {
           changedModels.current.delete(modelId);
@@ -140,7 +136,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
   return (
     <InnerContent
       title={t(
-        `Accessibility / ${!isNewKey && currentKey?.name ? currentKey?.name : "New API Key"}`,
+        `Accessibility / ${!isNewKey && currentKey?.name ? currentKey.name : "New API Key"}`,
       )}
       onBack={onBack}
       flexChildren>
@@ -187,7 +183,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
               hasPublishRight={hasPublishRight}
               models={keyModels}
               isPublic={currentProject?.accessibility?.visibility === "PUBLIC"}
-              publicModels={currentProject?.accessibility?.publication.publicModels || []}
+              publicModels={currentProject?.accessibility?.publication.publicModels ?? []}
             />
           </Form.Item>
           <Button

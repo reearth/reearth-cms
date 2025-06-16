@@ -17,17 +17,18 @@ Are you sure you want to delete this API key?: ''
 This action is not reversible.: ''
 Delete: 削除
 Cancel: キャンセル
+Edit: 編集
 Name: 名前
 Key: キー
 New Key: 新しいキー
 Please transfer your project to private to use the API key: キーを使用するには、プロジェクトを非公開にしてください
 Customize your API key to control the visibility of your models: モデルの公開範囲を制御するには、API キーをカスタマイズしてください
 Change project visibility: プロジェクトの公開範囲を変更
-Description: 説明
-You can write some here to describe this record.: ''
 API Key: ''
 This is your secret token, please use as your env value.: これは秘密のトークンです。環境変数の値として使用してください。
 Re-generate: 再生成
+Description: 説明
+You can write some here to describe this record.: ''
 Permissions: ''
 Accessibility: 公開設定
 Control the visibility scope of the Content API: コンテンツAPIの公開範囲を制御
@@ -296,7 +297,6 @@ Models: モデル
 New Model: 新規モデル
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
-Edit: 編集
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Private: ''
 Public: ''
@@ -497,12 +497,12 @@ Successfully updated publication settings!: 公開設定の更新に成功しま
 Failed to update publication settings.: 公開設定の更新に失敗しました。
 API Key deleted successfully.: APIキーの削除に成功しました。
 Failed to delete API Key.: APIキーの削除に失敗しました。
-API Key created successfully.: APIキーの作成に成功しました。
 Failed to create API Key.: APIキーの作成に失敗しました。
-API Key updated successfully.: APIキーの更新に成功しました。
+API Key created successfully.: APIキーの作成に成功しました。
 Failed to update API Key.: APIキーの更新に失敗しました。
-API Key re-generated successfully.: APIキーの再生成に成功しました。
+API Key updated successfully.: APIキーの更新に成功しました。
 Failed to re-generate API Key.: APIキーの再生成に失敗しました。
+API Key re-generated successfully.: APIキーの再生成に成功しました。
 Failed to update asset.: アセットの更新に失敗しました。
 Asset was successfully updated!: アセットの更新に成功しました。
 Failed to decompress asset.: アセットの解凍に失敗しました。
