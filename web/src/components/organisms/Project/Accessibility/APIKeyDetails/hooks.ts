@@ -60,13 +60,6 @@ export default () => {
     [currentProject?.accessibility?.apiKeys, keyId],
   );
 
-  const keyModels = useMemo(() => {
-    if (isNewKey) return models;
-
-    const publicModelIds = new Set(currentKey?.publication?.publicModels ?? []);
-    return models.filter(model => publicModelIds.has(model.id));
-  }, [currentKey?.publication?.publicModels, isNewKey, models]);
-
   const initialValues = useMemo(() => {
     const publicModelSet = new Set(
       isNewKey
@@ -102,21 +95,24 @@ export default () => {
       publication: { publicModels: string[]; publicAssets: boolean },
     ) => {
       if (!currentProject?.id) return;
-      try {
-        await createAPIKeyMutation({
-          variables: {
-            projectId: currentProject.id,
-            name,
-            description,
-            publication,
-          },
-        });
-        Notification.success({ message: t("API Key created successfully.") });
-      } catch {
+      const result = await createAPIKeyMutation({
+        variables: {
+          projectId: currentProject.id,
+          name,
+          description,
+          publication,
+        },
+      });
+      if (result.errors || !result.data?.createAPIKey) {
         Notification.error({ message: t("Failed to create API Key.") });
+        return;
       }
+      Notification.success({ message: t("API Key created successfully.") });
+      navigate(
+        `/workspace/${workspaceId}/project/${projectId}/accessibility/${result.data?.createAPIKey?.apiKey.id}`,
+      );
     },
-    [createAPIKeyMutation, currentProject?.id, t],
+    [createAPIKeyMutation, currentProject?.id, navigate, projectId, t, workspaceId],
   );
 
   const handleAPIKeyUpdate = useCallback(
@@ -127,20 +123,20 @@ export default () => {
       publication: { publicModels: string[]; publicAssets: boolean },
     ) => {
       if (!currentProject?.id) return;
-      try {
-        await updateAPIKeyMutation({
-          variables: {
-            id,
-            projectId: currentProject.id,
-            name,
-            description,
-            publication,
-          },
-        });
-        Notification.success({ message: t("API Key updated successfully.") });
-      } catch {
+      const result = await updateAPIKeyMutation({
+        variables: {
+          id,
+          projectId: currentProject.id,
+          name,
+          description,
+          publication,
+        },
+      });
+      if (result.errors || !result.data?.updateAPIKey) {
         Notification.error({ message: t("Failed to update API Key.") });
+        return;
       }
+      Notification.success({ message: t("API Key updated successfully.") });
     },
     [updateAPIKeyMutation, currentProject?.id, t],
   );
@@ -185,7 +181,7 @@ export default () => {
     hasUpdateRight,
     initialValues,
     isNewKey,
-    keyModels,
+    keyModels: models,
     updateLoading,
     regenerateLoading,
     handleAPIKeyCreate,

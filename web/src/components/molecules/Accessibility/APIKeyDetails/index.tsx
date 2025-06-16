@@ -93,13 +93,12 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
   const handleSave = useCallback(async () => {
     try {
       const id = keyId ?? "";
-      const name = "";
-      const description = "";
-      const publication: {
-        publicModels: string[];
-        publicAssets: boolean;
-      } = {
-        publicModels: Array.from(changedModels.current.keys()),
+      const name = form.getFieldValue("name") ?? "";
+      const description = form.getFieldValue("description") ?? "";
+      const publication = {
+        publicModels: Object.entries(form.getFieldValue("models") ?? {})
+          .filter(([, value]) => value)
+          .map(([key]) => key),
         publicAssets: form.getFieldValue("assetPublic") || false,
       };
       if (isNewKey) {
