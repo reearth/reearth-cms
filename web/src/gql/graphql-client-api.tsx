@@ -1428,26 +1428,6 @@ export type PublishItemPayload = {
   items: Array<Item>;
 };
 
-export type PublishModelInput = {
-  modelId: Scalars['ID']['input'];
-  status: Scalars['Boolean']['input'];
-};
-
-export type PublishModelPayload = {
-  __typename?: 'PublishModelPayload';
-  modelId: Scalars['ID']['output'];
-  status: Scalars['Boolean']['output'];
-};
-
-export type PublishModelsInput = {
-  models: Array<PublishModelInput>;
-};
-
-export type PublishModelsPayload = {
-  __typename?: 'PublishModelsPayload';
-  models: Array<PublishModelPayload>;
-};
-
 export type Query = {
   __typename?: 'Query';
   assetFile: AssetFile;
@@ -2868,7 +2848,7 @@ export type GetProjectsQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null } } | null> } };
+export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
 
 export type CheckProjectAliasQueryVariables = Exact<{
   alias: Scalars['String']['input'];
@@ -2886,7 +2866,7 @@ export type CreateProjectMutationVariables = Exact<{
 }>;
 
 
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null } } } | null };
+export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } } | null };
 
 export type DeleteProjectMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2905,7 +2885,7 @@ export type UpdateProjectMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null } } } | null };
+export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } } | null };
 
 export type CreateApiKeyMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -5994,6 +5974,16 @@ export const GetProjectsDocument = gql`
           publicModels
           publicAssets
         }
+        apiKeys {
+          id
+          name
+          description
+          key
+          publication {
+            publicModels
+            publicAssets
+          }
+        }
       }
       requestRoles
     }
@@ -6091,6 +6081,16 @@ export const CreateProjectDocument = gql`
           publicModels
           publicAssets
         }
+        apiKeys {
+          id
+          name
+          description
+          key
+          publication {
+            publicModels
+            publicAssets
+          }
+        }
       }
       requestRoles
     }
@@ -6175,6 +6175,16 @@ export const UpdateProjectDocument = gql`
         publication {
           publicModels
           publicAssets
+        }
+        apiKeys {
+          id
+          name
+          description
+          key
+          publication {
+            publicModels
+            publicAssets
+          }
         }
       }
       requestRoles

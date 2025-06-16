@@ -45,6 +45,16 @@ export const GET_PROJECTS = gql`
             publicModels
             publicAssets
           }
+          apiKeys {
+            id
+            name
+            description
+            key
+            publication {
+              publicModels
+              publicAssets
+            }
+          }
         }
         requestRoles
       }
@@ -88,6 +98,16 @@ export const CREATE_PROJECT = gql`
           publication {
             publicModels
             publicAssets
+          }
+          apiKeys {
+            id
+            name
+            description
+            key
+            publication {
+              publicModels
+              publicAssets
+            }
           }
         }
         requestRoles
@@ -133,6 +153,16 @@ export const UPDATE_PROJECT = gql`
           publication {
             publicModels
             publicAssets
+          }
+          apiKeys {
+            id
+            name
+            description
+            key
+            publication {
+              publicModels
+              publicAssets
+            }
           }
         }
         requestRoles
