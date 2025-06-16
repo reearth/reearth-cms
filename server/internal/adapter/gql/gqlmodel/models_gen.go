@@ -877,24 +877,6 @@ type PublishItemPayload struct {
 	Items []*Item `json:"items"`
 }
 
-type PublishModelInput struct {
-	ModelID ID   `json:"modelId"`
-	Status  bool `json:"status"`
-}
-
-type PublishModelPayload struct {
-	ModelID ID   `json:"modelId"`
-	Status  bool `json:"status"`
-}
-
-type PublishModelsInput struct {
-	Models []*PublishModelInput `json:"models"`
-}
-
-type PublishModelsPayload struct {
-	Models []*PublishModelPayload `json:"models"`
-}
-
 type Query struct {
 }
 
@@ -1458,7 +1440,6 @@ type UpdateModelInput struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
-	Public      bool    `json:"public"`
 }
 
 type UpdateModelsOrderInput struct {

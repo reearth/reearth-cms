@@ -307,7 +307,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// 2- create public model
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
-	updateModel(e, mId, lo.ToPtr("test"), lo.ToPtr("test"), lo.ToPtr("test-1"), true)
+	updateModel(e, mId, lo.ToPtr("test"), lo.ToPtr("test"), lo.ToPtr("test-1"))
 
 	fid, _ := createField(e, mId, "text", "text", "text",
 		false, false, false, false, "Text",

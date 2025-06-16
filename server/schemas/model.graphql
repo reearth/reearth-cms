@@ -27,7 +27,6 @@ input UpdateModelInput {
   name: String
   description: String
   key: String
-  public: Boolean!
 }
 
 input UpdateModelsOrderInput {
@@ -38,15 +37,6 @@ input DeleteModelInput {
   modelId: ID!
 }
 
-input PublishModelInput {
-  modelId: ID!
-  status: Boolean!
-}
-
-input PublishModelsInput {
-  models: [PublishModelInput!]!
-}
-
 # Payloads
 type ModelPayload {
   model: Model!
@@ -54,15 +44,6 @@ type ModelPayload {
 
 type DeleteModelPayload {
   modelId: ID!
-}
-
-type PublishModelPayload {
-  modelId: ID!
-  status: Boolean!
-}
-
-type PublishModelsPayload {
-  models: [PublishModelPayload!]!
 }
 
 type ModelsPayload {

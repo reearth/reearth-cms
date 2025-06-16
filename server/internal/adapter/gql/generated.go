@@ -590,15 +590,6 @@ type ComplexityRoot struct {
 		Items func(childComplexity int) int
 	}
 
-	PublishModelPayload struct {
-		ModelID func(childComplexity int) int
-		Status  func(childComplexity int) int
-	}
-
-	PublishModelsPayload struct {
-		Models func(childComplexity int) int
-	}
-
 	Query struct {
 		AssetFile                 func(childComplexity int, assetID gqlmodel.ID) int
 		Assets                    func(childComplexity int, input gqlmodel.SearchAssetsInput) int
@@ -3597,27 +3588,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PublishItemPayload.Items(childComplexity), true
 
-	case "PublishModelPayload.modelId":
-		if e.complexity.PublishModelPayload.ModelID == nil {
-			break
-		}
-
-		return e.complexity.PublishModelPayload.ModelID(childComplexity), true
-
-	case "PublishModelPayload.status":
-		if e.complexity.PublishModelPayload.Status == nil {
-			break
-		}
-
-		return e.complexity.PublishModelPayload.Status(childComplexity), true
-
-	case "PublishModelsPayload.models":
-		if e.complexity.PublishModelsPayload.Models == nil {
-			break
-		}
-
-		return e.complexity.PublishModelsPayload.Models(childComplexity), true
-
 	case "Query.assetFile":
 		if e.complexity.Query.AssetFile == nil {
 			break
@@ -5122,8 +5092,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOrConditionInput,
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputPublishItemInput,
-		ec.unmarshalInputPublishModelInput,
-		ec.unmarshalInputPublishModelsInput,
 		ec.unmarshalInputRegenerateAPIKeyInput,
 		ec.unmarshalInputRegenerateIntegrationTokenInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
@@ -6662,7 +6630,6 @@ input UpdateModelInput {
   name: String
   description: String
   key: String
-  public: Boolean!
 }
 
 input UpdateModelsOrderInput {
@@ -6673,15 +6640,6 @@ input DeleteModelInput {
   modelId: ID!
 }
 
-input PublishModelInput {
-  modelId: ID!
-  status: Boolean!
-}
-
-input PublishModelsInput {
-  models: [PublishModelInput!]!
-}
-
 # Payloads
 type ModelPayload {
   model: Model!
@@ -6689,15 +6647,6 @@ type ModelPayload {
 
 type DeleteModelPayload {
   modelId: ID!
-}
-
-type PublishModelPayload {
-  modelId: ID!
-  status: Boolean!
-}
-
-type PublishModelsPayload {
-  models: [PublishModelPayload!]!
 }
 
 type ModelsPayload {
@@ -25745,144 +25694,6 @@ func (ec *executionContext) fieldContext_PublishItemPayload_items(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _PublishModelPayload_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PublishModelPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PublishModelPayload_modelId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ModelID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PublishModelPayload_modelId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PublishModelPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PublishModelPayload_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PublishModelPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PublishModelPayload_status(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PublishModelPayload_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PublishModelPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PublishModelsPayload_models(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PublishModelsPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PublishModelsPayload_models(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Models, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*gqlmodel.PublishModelPayload)
-	fc.Result = res
-	return ec.marshalNPublishModelPayload2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayloadᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PublishModelsPayload_models(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PublishModelsPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "modelId":
-				return ec.fieldContext_PublishModelPayload_modelId(ctx, field)
-			case "status":
-				return ec.fieldContext_PublishModelPayload_status(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PublishModelPayload", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_node(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_node(ctx, field)
 	if err != nil {
@@ -40196,67 +40007,6 @@ func (ec *executionContext) unmarshalInputPublishItemInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context, obj any) (gqlmodel.PublishModelInput, error) {
-	var it gqlmodel.PublishModelInput
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"modelId", "status"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "modelId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ModelID = data
-		case "status":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Status = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputPublishModelsInput(ctx context.Context, obj any) (gqlmodel.PublishModelsInput, error) {
-	var it gqlmodel.PublishModelsInput
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"models"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "models":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("models"))
-			data, err := ec.unmarshalNPublishModelInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Models = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputRegenerateAPIKeyInput(ctx context.Context, obj any) (gqlmodel.RegenerateAPIKeyInput, error) {
 	var it gqlmodel.RegenerateAPIKeyInput
 	asMap := map[string]any{}
@@ -42581,7 +42331,7 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "name", "description", "key", "public"}
+	fieldsInOrder := [...]string{"modelId", "name", "description", "key"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -42616,13 +42366,6 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 				return it, err
 			}
 			it.Key = data
-		case "public":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("public"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Public = data
 		}
 	}
 
@@ -48221,89 +47964,6 @@ func (ec *executionContext) _PublishItemPayload(ctx context.Context, sel ast.Sel
 			out.Values[i] = graphql.MarshalString("PublishItemPayload")
 		case "items":
 			out.Values[i] = ec._PublishItemPayload_items(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var publishModelPayloadImplementors = []string{"PublishModelPayload"}
-
-func (ec *executionContext) _PublishModelPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PublishModelPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, publishModelPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PublishModelPayload")
-		case "modelId":
-			out.Values[i] = ec._PublishModelPayload_modelId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "status":
-			out.Values[i] = ec._PublishModelPayload_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var publishModelsPayloadImplementors = []string{"PublishModelsPayload"}
-
-func (ec *executionContext) _PublishModelsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PublishModelsPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, publishModelsPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PublishModelsPayload")
-		case "models":
-			out.Values[i] = ec._PublishModelsPayload_models(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -53932,80 +53592,6 @@ func (ec *executionContext) marshalNPublicationSettings2ᚖgithubᚗcomᚋreeart
 func (ec *executionContext) unmarshalNPublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishItemInput(ctx context.Context, v any) (gqlmodel.PublishItemInput, error) {
 	res, err := ec.unmarshalInputPublishItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNPublishModelInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInputᚄ(ctx context.Context, v any) ([]*gqlmodel.PublishModelInput, error) {
-	var vSlice []any
-	vSlice = graphql.CoerceList(v)
-	var err error
-	res := make([]*gqlmodel.PublishModelInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNPublishModelInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNPublishModelInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx context.Context, v any) (*gqlmodel.PublishModelInput, error) {
-	res, err := ec.unmarshalInputPublishModelInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNPublishModelPayload2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayloadᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.PublishModelPayload) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPublishModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayload(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNPublishModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublishModelPayload) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PublishModelPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRegenerateAPIKeyInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateAPIKeyInput(ctx context.Context, v any) (gqlmodel.RegenerateAPIKeyInput, error) {
