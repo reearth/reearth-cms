@@ -13,7 +13,7 @@ import { APIKey, APIKeyModelType } from "../types";
 import KeyCell from "./KeyCell";
 
 type Props = {
-  keys: APIKey[];
+  keys?: APIKey[];
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   onAPIKeyDelete: (id: string) => Promise<void>;
@@ -103,7 +103,7 @@ const APIKeyTable: React.FC<Props> = ({
 
   const dataSource = useMemo(() => {
     const columns: APIKeyModelType[] = [];
-    keys.forEach(key => {
+    keys?.forEach(key => {
       columns.push({
         id: key.id,
         name: key.name,

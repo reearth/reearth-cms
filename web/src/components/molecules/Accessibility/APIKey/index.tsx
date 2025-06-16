@@ -11,7 +11,7 @@ import APIKeyTable from "./APIKeyTable";
 
 type Props = {
   isPublic?: boolean;
-  keys: APIKey[];
+  keys?: APIKey[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;

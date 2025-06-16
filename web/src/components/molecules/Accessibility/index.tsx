@@ -7,6 +7,7 @@ import AccessAPIComponent from "./AccessAPI";
 import APIKeyComponent from "./APIKey";
 
 type Props = {
+  apiKeys?: APIKey[];
   isProjectPublic?: boolean;
   initialValues: FormType;
   models: Pick<Model, "id" | "name" | "key">[];
@@ -28,6 +29,7 @@ type Props = {
 };
 
 const Accessibility: React.FC<Props> = ({
+  apiKeys,
   isProjectPublic,
   initialValues,
   models,
@@ -44,15 +46,6 @@ const Accessibility: React.FC<Props> = ({
   onSettingsPageOpen,
 }) => {
   const t = useT();
-  const keys: APIKey[] = [
-    {
-      id: "01g4eg4ay017hpw58fkh9nd89c",
-      name: "Default API Key",
-      description: "Default key for public access",
-      key: "secret_SuV6vNbzH3WRh2CoOkaCZrGp5mUXCvLPKM36iYjNIoc",
-      publication: { publicModels: ["01hth95j5caxs73physevzw15d"], publicAssets: true },
-    },
-  ];
 
   return (
     <InnerContent
@@ -70,7 +63,7 @@ const Accessibility: React.FC<Props> = ({
         onPublicUpdate={onPublicUpdate}
       />
       <APIKeyComponent
-        keys={keys}
+        keys={apiKeys}
         isPublic={isProjectPublic}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}

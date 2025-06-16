@@ -4,6 +4,7 @@ import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
   const {
+    apiKeys,
     isProjectPublic,
     initialValues,
     models,
@@ -23,6 +24,7 @@ const Accessibility: React.FC = () => {
 
   return (
     <AccessibilityMolecule
+      apiKeys={apiKeys}
       isProjectPublic={isProjectPublic}
       initialValues={initialValues}
       models={models}

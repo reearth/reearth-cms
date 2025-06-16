@@ -35,6 +35,11 @@ export default () => {
     [currentProject?.accessibility?.visibility],
   );
 
+  const apiKeys = useMemo(
+    () => currentProject?.accessibility?.apiKeys,
+    [currentProject?.accessibility?.apiKeys],
+  );
+
   const { data: modelsData } = useGetModelsQuery({
     variables: {
       projectId: currentProject?.id ?? "",
@@ -146,6 +151,7 @@ export default () => {
   };
 
   return {
+    apiKeys,
     isProjectPublic,
     initialValues,
     models,
