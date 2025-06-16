@@ -1275,7 +1275,7 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 	// with geometry fields
 	ver1 := item.VersionedList{vi1}
 
-	fc1, _ := featureCollectionFromItems(ver1, s1)
+	fc1, _ := featureCollectionFromItems(ver1, sp1)
 
 	sid2 := id.NewSchemaID()
 	fid2 := id.NewFieldID()
@@ -1290,7 +1290,7 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
 
 	ver2 := item.VersionedList{vi2}
-	fc2, _ := featureCollectionFromItems(ver2, s2)
+	fc2, _ := featureCollectionFromItems(ver2, sp2)
 
 	fid3 := id.NewFieldID()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))

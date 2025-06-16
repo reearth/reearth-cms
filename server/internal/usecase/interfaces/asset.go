@@ -59,7 +59,6 @@ type AssetUpload struct {
 	ContentEncoding string
 	Next            string
 }
-
 type Asset interface {
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	FindByUUID(context.Context, string, *usecase.Operator) (*asset.Asset, error)
