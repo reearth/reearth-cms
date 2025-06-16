@@ -187,6 +187,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
               hasPublishRight={hasPublishRight}
               models={keyModels}
               isPublic={currentProject?.accessibility?.visibility === "PUBLIC"}
+              publicModels={currentProject?.accessibility?.publication.publicModels || []}
             />
           </Form.Item>
           <Button

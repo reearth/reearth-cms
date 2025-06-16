@@ -14,10 +14,18 @@ type Props = {
   hasPublishRight: boolean;
   models: Pick<Model, "id" | "name" | "key">[];
   isPublic?: boolean;
+  publicModels?: string[];
 };
 
-const AccessAPITable: React.FC<Props> = ({ apiUrl, hasPublishRight, models, isPublic }) => {
+const AccessAPITable: React.FC<Props> = ({
+  apiUrl,
+  models,
+  isPublic,
+  publicModels,
+  hasPublishRight,
+}) => {
   const t = useT();
+  const publicModelsSet = useMemo(() => new Set(publicModels), [publicModels]);
 
   const columns: TableColumnsType<ModelDataType> = useMemo(() => {
     const res: TableColumnsType<ModelDataType> = [];
@@ -30,7 +38,7 @@ const AccessAPITable: React.FC<Props> = ({ apiUrl, hasPublishRight, models, isPu
         width: 90,
         render: id => (
           <StyledFormItem name={id}>
-            <Switch disabled={!hasPublishRight} />
+            <Switch disabled={!hasPublishRight || publicModelsSet.has(id[1])} />
           </StyledFormItem>
         ),
       });
@@ -54,7 +62,7 @@ const AccessAPITable: React.FC<Props> = ({ apiUrl, hasPublishRight, models, isPu
       },
     );
     return res;
-  }, [hasPublishRight, isPublic, t]);
+  }, [hasPublishRight, isPublic, publicModelsSet, t]);
 
   const dataSource = useMemo(() => {
     const columns: ModelDataType[] = [];
