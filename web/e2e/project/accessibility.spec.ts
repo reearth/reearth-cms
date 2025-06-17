@@ -30,25 +30,3 @@ test("Update settings on Accesibility page has succeeded", async ({ page }) => {
   await expect(page.locator("tbody")).toContainText(`${config.api}/p/${alias}/assets`);
   await expect(page.getByRole("button", { name: "Save changes" })).toBeDisabled();
 });
-
-test("Setting public scope to Limited has succeeded", async ({ page }) => {
-  await page.getByRole("menuitem", { name: "Accessibility" }).click();
-  await expect(page.getByLabel("Project Alias")).toHaveValue(/.+/);
-  await page.getByText("Private").click();
-  await page.getByText("Limited", { exact: true }).click();
-  await expect(page.locator('input[type="password"]')).toBeHidden();
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await closeNotification(page);
-  await expect(page.locator("form")).toContainText("Limited");
-  await expect(page.locator('input[type="password"]')).toHaveValue(/^secret_/);
-  const token = await page.locator('input[type="password"]').inputValue();
-  await page.getByRole("button", { name: "Re-generate" }).click();
-  await closeNotification(page);
-  await expect(page.locator('input[type="password"]')).toHaveValue(/^secret_/);
-  await expect(page.locator('input[type="password"]')).not.toHaveValue(token);
-  await page.getByText("Limited").first().click();
-  await page.getByText("Private", { exact: true }).click();
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await closeNotification(page);
-  await expect(page.locator('input[type="password"]')).toBeHidden();
-});

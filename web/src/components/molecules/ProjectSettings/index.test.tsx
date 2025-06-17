@@ -16,8 +16,12 @@ describe("Project settings", () => {
     requestRoles: [],
     token: "",
   };
+  const hasPublishRight = true;
   const hasUpdateRight = true;
   const hasDeleteRight = true;
+  const onProjectVisibilityChange = (_: string) => {
+    return Promise.resolve();
+  };
   const onProjectDelete = () => {
     return Promise.resolve();
   };
@@ -35,12 +39,14 @@ describe("Project settings", () => {
     render(
       <ProjectSettings
         project={project}
+        hasPublishRight={hasPublishRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
         onProjectDelete={onProjectDelete}
         onProjectUpdate={onProjectUpdate}
         onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectVisibilityChange={onProjectVisibilityChange}
       />,
     );
 
@@ -51,12 +57,14 @@ describe("Project settings", () => {
     render(
       <ProjectSettings
         project={project}
+        hasPublishRight={hasPublishRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
         onProjectDelete={onProjectDelete}
         onProjectUpdate={onProjectUpdate}
         onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectVisibilityChange={onProjectVisibilityChange}
       />,
     );
 
@@ -69,12 +77,14 @@ describe("Project settings", () => {
     render(
       <ProjectSettings
         project={undefined}
+        hasPublishRight={hasPublishRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
         onProjectDelete={onProjectDelete}
         onProjectUpdate={onProjectUpdate}
         onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectVisibilityChange={onProjectVisibilityChange}
       />,
     );
 

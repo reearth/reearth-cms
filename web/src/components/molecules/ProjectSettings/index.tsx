@@ -13,20 +13,24 @@ type Props = {
   project?: Project;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasPublishRight: boolean;
   onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
   onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
   onProjectDelete: () => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onProjectVisibilityChange: (visibility: string) => Promise<void>;
 };
 
 const ProjectSettings: React.FC<Props> = ({
   project,
   hasUpdateRight,
   hasDeleteRight,
+  hasPublishRight,
   onProjectDelete,
   onProjectUpdate,
   onProjectRequestRolesUpdate,
   onProjectAliasCheck,
+  onProjectVisibilityChange,
 }) => {
   const t = useT();
 
@@ -49,7 +53,13 @@ const ProjectSettings: React.FC<Props> = ({
           onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         />
       </ContentSection>
-      <DangerZone hasDeleteRight={hasDeleteRight} onProjectDelete={onProjectDelete} />
+      <DangerZone
+        visibility={project.accessibility?.visibility}
+        hasDeleteRight={hasDeleteRight}
+        hasPublishRight={hasPublishRight}
+        onProjectDelete={onProjectDelete}
+        onProjectVisibilityChange={onProjectVisibilityChange}
+      />
     </InnerContent>
   );
 };
