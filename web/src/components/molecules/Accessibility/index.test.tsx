@@ -24,6 +24,9 @@ describe("Accessibility", () => {
     assetPublic: false,
     models: { [model1Id]: false },
   };
+  const onAPIKeyNew = () => {
+    return Promise.resolve();
+  };
   const onAPIKeyEdit = () => {
     return Promise.resolve();
   };
@@ -49,6 +52,7 @@ describe("Accessibility", () => {
         updateLoading={updateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyNew={onAPIKeyNew}
         onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
@@ -85,6 +89,7 @@ describe("Accessibility", () => {
         updateLoading={updateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyNew={onAPIKeyNew}
         onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
@@ -128,6 +133,7 @@ describe("Accessibility", () => {
         updateLoading={updateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyNew={onAPIKeyNew}
         onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
