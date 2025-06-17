@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -12,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -27,7 +27,7 @@ func NewProject(r *repo.Container, g *gateway.Container) interfaces.Project {
 	}
 }
 
-func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *usecase.Operator) (project.List, error) {
+func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, _ *usecase.Operator) (project.List, error) {
 	return i.repos.Project.FindByIDs(ctx, ids)
 }
 
@@ -35,7 +35,7 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, p)
 }
 
-func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, operator *usecase.Operator) (*project.Project, error) {
+func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
 	return i.repos.Project.FindByIDOrAlias(ctx, id)
 }
 
@@ -76,54 +76,54 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 		})
 }
 
-func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
-	proj, err := i.repos.Project.FindByID(ctx, p.ID)
+func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
+	p, err := i.repos.Project.FindByID(ctx, param.ID)
 	if err != nil {
 		return nil, err
 	}
-	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
-			if p.Name != nil {
-				proj.UpdateName(*p.Name)
+			if param.Name != nil {
+				p.UpdateName(*param.Name)
 			}
 
-			if p.Description != nil {
-				proj.UpdateDescription(*p.Description)
+			if param.Description != nil {
+				p.UpdateDescription(*param.Description)
 			}
 
-			if p.Alias != nil && *p.Alias != proj.Alias() {
-				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *p.Alias); !ok {
+			if param.Alias != nil && *param.Alias != p.Alias() {
+				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *param.Alias); !ok {
 					return nil, interfaces.ErrProjectAliasAlreadyUsed
 				}
 
-				if err := proj.UpdateAlias(*p.Alias); err != nil {
+				if err := p.UpdateAlias(*param.Alias); err != nil {
 					return nil, err
 				}
 			}
 
-			if p.Publication != nil {
-				pub := proj.Publication()
-				if pub == nil {
-					pub = project.NewPublication(project.PublicationScopePrivate, false)
+			if param.Accessibility != nil {
+				accessibility := p.Accessibility()
+				if accessibility == nil {
+					accessibility = project.NewPublicAccessibility()
 				}
-				if p.Publication.Scope != nil {
-					pub.SetScope(*p.Publication.Scope)
+				if param.Accessibility.Visibility != nil {
+					accessibility.SetVisibility(*param.Accessibility.Visibility)
 				}
-				if p.Publication.AssetPublic != nil {
-					pub.SetAssetPublic(*p.Publication.AssetPublic)
+				if param.Accessibility.Publication != nil && accessibility.Visibility() == project.VisibilityPrivate {
+					accessibility.SetPublication(project.NewPublicationSettings(param.Accessibility.Publication.PublicModels, param.Accessibility.Publication.PublicAssets))
 				}
-				proj.SetPublication(pub)
+				p.SetAccessibility(*accessibility)
 			}
 
-			if p.RequestRoles != nil {
-				proj.SetRequestRoles(p.RequestRoles)
+			if param.RequestRoles != nil {
+				p.SetRequestRoles(param.RequestRoles)
 			}
 
-			if err := i.repos.Project.Save(ctx, proj); err != nil {
+			if err := i.repos.Project.Save(ctx, p); err != nil {
 				return nil, err
 			}
 
-			return proj, nil
+			return p, nil
 		})
 }
 
@@ -155,28 +155,137 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, operator *
 		})
 }
 
-func (i *Project) RegenerateToken(ctx context.Context, pId id.ProjectID, operator *usecase.Operator) (*project.Project, error) {
-	if operator.AcOperator.User == nil {
+func (i *Project) CreateAPIKey(ctx context.Context, param interfaces.CreateAPITokenParam, op *usecase.Operator) (*project.Project, *project.APIKeyID, error) {
+	p, err := i.repos.Project.FindByID(ctx, param.ProjectID)
+	if err != nil {
+		return nil, nil, err
+	}
+	return Run2(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
+		func(ctx context.Context) (*project.Project, *project.APIKeyID, error) {
+			if !op.IsMaintainingProject(p.ID()) {
+				return nil, nil, interfaces.ErrOperationDenied
+			}
+
+			a := p.Accessibility()
+			if a == nil || a.Visibility() != project.VisibilityPrivate {
+				return nil, nil, interfaces.ErrInvalidProject
+			}
+
+			key := project.NewAPIKeyBuilder().
+				NewID().
+				Name(param.Name).
+				Description(param.Description).
+				Publication(project.NewPublicationSettings(param.Publication.PublicModels, param.Publication.PublicAssets)).
+				GenerateKey().
+				Build()
+
+			a.AddAPIKey(*key)
+			p.SetAccessibility(*a)
+
+			if err := i.repos.Project.Save(ctx, p); err != nil {
+				return nil, nil, err
+			}
+
+			return p, key.ID().Ref(), nil
+		})
+}
+
+func (i *Project) UpdateAPIKey(ctx context.Context, param interfaces.UpdateAPITokenParam, op *usecase.Operator) (*project.Project, error) {
+	p, err := i.repos.Project.FindByID(ctx, param.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
+		func(ctx context.Context) (*project.Project, error) {
+			if !op.IsMaintainingProject(p.ID()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			a := p.Accessibility()
+			if a == nil || a.Visibility() != project.VisibilityPrivate {
+				return nil, interfaces.ErrInvalidProject
+			}
+
+			key := a.APIKeyById(param.TokenId)
+			if key == nil {
+				return nil, rerror.ErrNotFound
+			}
+
+			if param.Name != nil {
+				key.SetName(*param.Name)
+			}
+			if param.Description != nil {
+				key.SetDescription(*param.Description)
+			}
+			if param.Publication != nil {
+				key.SetPublication(*project.NewPublicationSettings(param.Publication.PublicModels, param.Publication.PublicAssets))
+			}
+
+			a.UpdateAPIKey(*key)
+			p.SetAccessibility(*a)
+
+			if err := i.repos.Project.Save(ctx, p); err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		})
+}
+
+func (i *Project) DeleteAPIKey(ctx context.Context, pId id.ProjectID, kId id.APIKeyID, op *usecase.Operator) (*project.Project, error) {
+	p, err := i.repos.Project.FindByID(ctx, pId)
+	if err != nil {
+		return nil, err
+	}
+	return Run1(context.Background(), nil, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (*project.Project, error) {
+			if !op.IsMaintainingProject(p.ID()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			a := p.Accessibility()
+			if a == nil || a.Visibility() != project.VisibilityPrivate {
+				return nil, interfaces.ErrInvalidProject
+			}
+
+			if a.APIKeyById(kId) == nil {
+				return nil, rerror.ErrNotFound
+			}
+
+			a.RemoveAPIKey(kId)
+			p.SetAccessibility(*a)
+
+			if err := i.repos.Project.Save(ctx, p); err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		})
+}
+
+func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.RegenerateKeyParam, op *usecase.Operator) (*project.Project, error) {
+	if op.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+	return Run1(ctx, op, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*project.Project, error) {
-			p, err := i.repos.Project.FindByID(ctx, pId)
+			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
 			if err != nil {
 				return nil, err
 			}
 
 			// check if the user is the owner of the project
-			if !operator.IsOwningProject(p.ID()) {
+			if !op.IsOwningProject(p.ID()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			if p.Publication() == nil || p.Publication().Scope() != project.PublicationScopeLimited {
+			if p.Accessibility().Visibility() != project.VisibilityPrivate {
 				return nil, interfaces.ErrInvalidProject
 			}
 
-			p.Publication().GenerateToken()
-			p.SetUpdatedAt(time.Now())
+			key := p.Accessibility().APIKeyById(param.KeyId)
+			key.GenerateKey()
+			p.Accessibility().UpdateAPIKey(*key)
 			if err := i.repos.Project.Save(ctx, p); err != nil {
 				return nil, err
 			}

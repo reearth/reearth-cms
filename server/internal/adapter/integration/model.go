@@ -67,7 +67,6 @@ func (s *Server) ModelCreate(ctx context.Context, request ModelCreateRequestObje
 		Name:        request.Body.Name,
 		Description: request.Body.Description,
 		Key:         request.Body.Key,
-		Public:      lo.ToPtr(true),
 	}
 	m, err := uc.Model.Create(ctx, input, op)
 	if err != nil {
@@ -189,7 +188,6 @@ func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObje
 		Name:        request.Body.Name,
 		Description: request.Body.Description,
 		Key:         request.Body.Key,
-		Public:      nil,
 	}
 	m, err := uc.Model.Update(ctx, input, op)
 	if err != nil {
@@ -237,7 +235,6 @@ func (s *Server) ModelUpdateWithProject(ctx context.Context, request ModelUpdate
 		Name:        request.Body.Name,
 		Description: request.Body.Description,
 		Key:         request.Body.Key,
-		Public:      nil,
 	}
 	m, err = uc.Model.Update(ctx, input, op)
 	if err != nil {

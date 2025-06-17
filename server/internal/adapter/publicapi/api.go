@@ -2,11 +2,13 @@ package publicapi
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -31,11 +33,11 @@ func GetController(ctx context.Context) *Controller {
 }
 
 func Echo(e *echo.Group) {
-	e.GET("/:project/:model", PublicApiItemOrAssetList())
-	e.GET("/:project/:model/:item", PublicApiItemOrAsset())
+	e.GET("/:project/:model", ItemOrAssetList())
+	e.GET("/:project/:model/:item", ItemOrAsset())
 }
 
-func PublicApiItemOrAsset() echo.HandlerFunc {
+func ItemOrAsset() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())
@@ -52,6 +54,9 @@ func PublicApiItemOrAsset() echo.HandlerFunc {
 		}
 
 		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			}
 			return err
 		}
 
@@ -59,7 +64,7 @@ func PublicApiItemOrAsset() echo.HandlerFunc {
 	}
 }
 
-func PublicApiItemOrAssetList() echo.HandlerFunc {
+func ItemOrAssetList() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(ctx)
@@ -89,11 +94,17 @@ func PublicApiItemOrAssetList() echo.HandlerFunc {
 
 		res, _, err := ctrl.GetItems(ctx, pKey, mKey, p)
 		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			}
 			return err
 		}
 
 		vi, sp, err := ctrl.GetVersionedItems(ctx, pKey, mKey, p)
 		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			}
 			return err
 		}
 
@@ -107,20 +118,6 @@ func PublicApiItemOrAssetList() echo.HandlerFunc {
 		default:
 			return c.JSON(http.StatusOK, res)
 		}
-	}
-}
-
-func PublicApiAsset() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		ctx := c.Request().Context()
-		ctrl := GetController(c.Request().Context())
-
-		res, err := ctrl.GetAsset(ctx, c.Param("project"), c.Param("asset"))
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(http.StatusOK, res)
 	}
 }
 

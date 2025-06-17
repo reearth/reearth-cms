@@ -18,7 +18,6 @@ func ToModel(m *model.Model) *Model {
 		Description:      m.Description(),
 		Key:              m.Key().String(),
 		MetadataSchemaID: IDFromRef(m.Metadata()),
-		Public:           m.Public(),
 		CreatedAt:        m.ID().Timestamp(),
 		UpdatedAt:        m.UpdatedAt(),
 		Order:            lo.ToPtr(m.Order()),

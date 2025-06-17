@@ -27,22 +27,33 @@ message Project {
   string alias = 3;
   optional string description = 4;
   string workspace_id = 5;
-  ProjectPublication publication = 6;
+  ProjectAccessibility accessibility = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 }
 
-message ProjectPublication {
-  ProjectPublicationScope scope = 1;
-  bool asset_public = 2;
-  optional string token = 3;
+message ProjectPublicationSettings {
+  repeated string public_models = 1;
+  bool public_assets = 2;
 }
 
-enum ProjectPublicationScope {
-  SCOPE_UNSPECIFIED = 0;
-  PUBLIC = 1;
-  LIMITED = 2;
-  PRIVATE = 3;
+message APIKey {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string key = 4;
+  ProjectPublicationSettings publication = 5;
+}
+
+message ProjectAccessibility {
+  ProjectVisibility visibility = 1;
+  ProjectPublicationSettings publication = 2;
+  repeated APIKey api_keys = 3;
+}
+
+enum ProjectVisibility {
+  PUBLIC = 0;
+  PRIVATE = 1;
 }
 
 message Model {
@@ -62,7 +73,7 @@ message CreateProjectRequest {
   string name = 2;
   optional string description = 3;
   string alias = 4;
-  ProjectPublication publication = 5;
+  ProjectAccessibility publication = 5;
 }
 
 message ListProjectsRequest {
