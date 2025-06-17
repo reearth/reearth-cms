@@ -4,20 +4,14 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
 func (c *Controller) GetSchemaJSON(ctx context.Context, pKey, mKey string) (SchemaJSON, error) {
-	pr, err := c.checkProject(ctx, pKey)
+	_, m, _, err := c.accessibilityCheck(ctx, pKey, mKey)
 	if err != nil {
 		return SchemaJSON{}, err
-	}
-
-	m, err := c.usecases.Model.FindByIDOrKey(ctx, pr.ID(), model.IDOrKey(mKey), nil)
-	if err != nil || !m.Public() {
-		return SchemaJSON{}, rerror.ErrNotFound
 	}
 
 	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
