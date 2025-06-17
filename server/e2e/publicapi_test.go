@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -52,6 +53,12 @@ var (
 	pApiP1M2I1Id           = id.NewItemID()
 	pApiP1S2F1Key          = "test-field-1"
 	publicAPIProjectAlias2 = "test-project-2"
+	pApiP1M4Id             = id.NewModelID()
+	pApiP1M4Key            = "test-model-5"
+	pApiP1M4I1Id           = id.NewItemID()
+	pApiP1S3F1Key          = "group"
+	pApiP1S3F2Key          = "multiple-group"
+	pApiP1S3F3Key          = "geometry-object"
 )
 
 func TestPublicAPI(t *testing.T) {
@@ -331,6 +338,8 @@ func TestPublicAPI(t *testing.T) {
 							"bbb",
 							"ccc",
 						},
+						"asset":  pApiP1A2Id,
+						"asset2": pApiP1A1Id,
 					},
 				},
 			},
@@ -575,10 +584,30 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 			schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(pApiP1S2F1Key).Key(id.NewKey(pApiP1S2F1Key)).MustBuild(),
 		}).MustBuild()
 
+	p1g1f1Id := id.NewFieldID()
+	p1g1f2Id := id.NewFieldID()
+	p1g1f3Id := id.NewFieldID()
+	p1g1f4Id := id.NewFieldID()
+	p1g1f5Id := id.NewFieldID()
+	p1g1s1 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1g1f4Id).Name("text").Key(id.NewKey("text")).MustBuild(),
+	}).MustBuild()
+	p1g1 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(p1g1s1.ID()).Name("group1").Key(id.NewKey("group1")).MustBuild()
+	p1g2s1 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1g1f5Id).Name("text2").Key(id.NewKey("text2")).MustBuild(),
+	}).MustBuild()
+	p1g2 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(p1g2s1.ID()).Name("group2").Key(id.NewKey("group2")).MustBuild()
+	p1s3 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewGroup(p1g1.ID()).TypeProperty()).ID(p1g1f1Id).Name(pApiP1S3F1Key).Key(id.NewKey(pApiP1S3F1Key)).MustBuild(),
+		schema.NewField(schema.NewGroup(p1g2.ID()).TypeProperty()).ID(p1g1f2Id).Name(pApiP1S3F2Key).Key(id.NewKey(pApiP1S3F2Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(p1g1f3Id).Name(pApiP1S3F3Key).Key(id.NewKey(pApiP1S3F3Key)).MustBuild(),
+	}).MustBuild()
+
 	p1m1 := model.New().ID(pApiP1M1Id).Project(pApiP1Id).Schema(p1s1.ID()).Key(id.NewKey(pApiP1M1Key)).MustBuild()
 	// p1m2 is not a public model
 	p1m2 := model.New().ID(pApiP1M2Id).Project(pApiP1Id).Schema(p1s1.ID()).Name(pApiP1M2Key).Key(id.NewKey(pApiP1M2Key)).MustBuild()
 	p1m3 := model.New().ID(pApiP1M3Id).Project(pApiP1Id).Schema(p1s2.ID()).Name(pApiP1M3Key).Key(id.NewKey(pApiP1M3Key)).MustBuild()
+	p1m4 := model.New().ID(pApiP1M4Id).Project(p1.ID()).Schema(p1s3.ID()).Key(id.NewKey(pApiP1M4Key)).MustBuild()
 
 	p1m1i1 := item.New().
 		ID(pApiP1M1I1Id).
@@ -667,6 +696,25 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 			item.NewField(p1s1.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
 		}).MustBuild()
 
+	p1m4i8ig1 := id.NewItemGroupID()
+	p1m4i8ig2 := id.NewItemGroupID()
+	p1m4i1 := item.New().
+		ID(pApiP1M4I1Id).
+		Model(p1m4.ID()).
+		Schema(p1s3.ID()).
+		Project(p1.ID()).
+		Thread(id.NewThreadID().Ref()).
+		IsMetadata(false).
+		User(uid).
+		Fields([]*item.Field{
+			item.NewField(p1g1f1Id, value.TypeGroup.Value(p1m4i8ig1).AsMultiple(), nil),
+			item.NewField(p1g1f2Id, value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(p1m4i8ig2)}), nil),
+			item.NewField(p1g1f3Id, value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
+			item.NewField(p1g1f4Id, value.TypeText.Value("aaa").AsMultiple(), p1m4i8ig1.Ref()),
+			item.NewField(p1g1f5Id, value.TypeText.Value("bbb").AsMultiple(), p1m4i8ig2.Ref()),
+		}).
+		MustBuild()
+
 	lo.Must0(r.Project.Save(ctx, p1))
 
 	lo.Must0(r.Asset.Save(ctx, p1a1))
@@ -687,6 +735,15 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	//lo.Must0(r.Item.UpdateRef(ctx, p1m1i4.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m1i5.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m3i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
+
+	lo.Must0(r.Schema.Save(ctx, p1s3))
+	lo.Must0(r.Schema.Save(ctx, p1g1s1))
+	lo.Must0(r.Schema.Save(ctx, p1g2s1))
+	lo.Must0(r.Model.Save(ctx, p1m4))
+	lo.Must0(r.Group.Save(ctx, p1g1))
+	lo.Must0(r.Group.Save(ctx, p1g2))
+	lo.Must0(r.Item.Save(ctx, p1m4i1))
+	lo.Must0(r.Item.UpdateRef(ctx, p1m4i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
 
 	p2 := project.New().
 		ID(pApiP2Id).

@@ -903,7 +903,7 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package,
 			return interfaces.ExportItemsToGeoJSONResponse{}, err
 		}
 
-		featureCollections, err := featureCollectionFromItems(items, schemaPackage.Schema())
+		featureCollections, err := featureCollectionFromItems(items, schemaPackage)
 		if err != nil {
 			return interfaces.ExportItemsToGeoJSONResponse{}, err
 		}
