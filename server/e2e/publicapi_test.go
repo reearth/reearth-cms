@@ -58,7 +58,7 @@ var (
 	pApiP1M4I1Id           = id.NewItemID()
 	pApiP1S3F1Key          = "group"
 	pApiP1S3F2Key          = "multiple-group"
-	pApiP1S3F3Key		   = "geometry-object"
+	pApiP1S3F3Key          = "geometry-object"
 )
 
 func TestPublicAPI(t *testing.T) {
@@ -338,8 +338,8 @@ func TestPublicAPI(t *testing.T) {
 							"bbb",
 							"ccc",
 						},
-						"asset":  pApiP1A1Id,
-						"asset2": pApiP1A2Id,
+						"asset":  pApiP1A2Id,
+						"asset2": pApiP1A1Id,
 					},
 				},
 			},
