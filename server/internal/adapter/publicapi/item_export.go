@@ -14,14 +14,14 @@ import (
 )
 
 // GeoJSON
-func toGeoJSON(c echo.Context, l item.VersionedList, s *schema.Schema) error {
-	if !s.HasGeometryFields() {
+func toGeoJSON(c echo.Context, l item.VersionedList, sp *schema.Package) error {
+	if !sp.Schema().HasGeometryFields() {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": "no geometry field in this model",
 		})
 	}
 
-	fc, err := exporters.FeatureCollectionFromItems(l, s)
+	fc, err := exporters.FeatureCollectionFromItems(l, sp)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate GeoJSON").SetInternal(err)
 	}

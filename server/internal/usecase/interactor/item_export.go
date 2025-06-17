@@ -18,7 +18,7 @@ var (
 )
 
 // GeoJSON
-func featureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*integrationapi.FeatureCollection, error) {
+func featureCollectionFromItems(ver item.VersionedList, s *schema.Package) (*integrationapi.FeatureCollection, error) {
 	return integrationapi.FeatureCollectionFromItems(ver, s)
 }
 
