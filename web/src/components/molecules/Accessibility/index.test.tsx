@@ -61,9 +61,8 @@ describe("Accessibility", () => {
     );
 
     let switches = screen.getAllByRole("switch");
-
     switches = screen.getAllByRole("switch");
-    const model1Switch = switches[1];
+    const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
     const saveButton = screen.getByRole("button", { name: "Save changes" });
 
@@ -98,11 +97,9 @@ describe("Accessibility", () => {
     );
 
     let switches = screen.getAllByRole("switch");
-
     const saveButton = screen.getByRole("button", { name: "Save changes" });
-
     switches = screen.getAllByRole("switch");
-    const model1Switch = switches[1];
+    const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
 
     await user.click(model1Switch);
@@ -111,11 +108,11 @@ describe("Accessibility", () => {
 
     await user.click(model1Switch);
     await expect.poll(() => model1Switch).not.toBeChecked();
-    // await expect.poll(() => saveButton).toHaveAttribute("disabled");
+    await expect.poll(() => saveButton).toHaveAttribute("disabled");
 
     await user.click(assetSwitch);
     await expect.poll(() => assetSwitch).toBeChecked();
-    // await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
+    await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
 
     await user.click(saveButton);
     await expect.poll(() => saveButton).toHaveAttribute("disabled");
@@ -142,9 +139,8 @@ describe("Accessibility", () => {
     );
 
     let switches = screen.getAllByRole("switch");
-
     switches = screen.getAllByRole("switch");
-    const model1Switch = switches[1];
+    const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
 
     expect(model1Switch).toBeDisabled();
