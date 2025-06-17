@@ -17,6 +17,8 @@ func ToProject(p *project.Project) *pb.Project {
 		Name:          p.Name(),
 		Alias:         p.Alias(),
 		Description:   lo.ToPtr(p.Description()),
+		License:       lo.ToPtr(p.License()),
+		Readme:        lo.ToPtr(p.Readme()),
 		WorkspaceId:   p.Workspace().String(),
 		Accessibility: ToProjectAccessibility(p.Accessibility()),
 		CreatedAt:     timestamppb.New(p.ID().Timestamp()),

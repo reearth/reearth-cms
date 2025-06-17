@@ -103,6 +103,8 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 		WorkspaceID:  request.WorkspaceId,
 		Name:         request.Body.Name,
 		Description:  request.Body.Description,
+		License:      request.Body.License,
+		Readme:       request.Body.Readme,
 		Alias:        request.Body.Alias,
 		RequestRoles: roles,
 	}, op)
@@ -152,6 +154,8 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		ID:            request.ProjectId,
 		Name:          request.Body.Name,
 		Description:   request.Body.Description,
+		License:       request.Body.License,
+		Readme:        request.Body.Readme,
 		Alias:         request.Body.Alias,
 		Accessibility: acc,
 		RequestRoles:  roles,

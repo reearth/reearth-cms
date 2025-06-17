@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ReEarthCMS_CreateProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/CreateProject"
+	ReEarthCMS_UpdateProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/UpdateProject"
+	ReEarthCMS_DeleteProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/DeleteProject"
 	ReEarthCMS_ListProjects_FullMethodName             = "/reearth.cms.v1.ReEarthCMS/ListProjects"
 	ReEarthCMS_ListModels_FullMethodName               = "/reearth.cms.v1.ReEarthCMS/ListModels"
 	ReEarthCMS_GetModelGeoJSONExportURL_FullMethodName = "/reearth.cms.v1.ReEarthCMS/GetModelGeoJSONExportURL"
@@ -30,7 +32,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReEarthCMSClient interface {
 	// Main operations
-	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*CreateProjectResponse, error)
+	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*ProjectResponse, error)
+	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*ProjectResponse, error)
+	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*DeleteProjectResponse, error)
 	ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error)
 	ListModels(ctx context.Context, in *ListModelsRequest, opts ...grpc.CallOption) (*ListModelsResponse, error)
 	GetModelGeoJSONExportURL(ctx context.Context, in *ExportRequest, opts ...grpc.CallOption) (*ExportURLResponse, error)
@@ -44,10 +48,30 @@ func NewReEarthCMSClient(cc grpc.ClientConnInterface) ReEarthCMSClient {
 	return &reEarthCMSClient{cc}
 }
 
-func (c *reEarthCMSClient) CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*CreateProjectResponse, error) {
+func (c *reEarthCMSClient) CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*ProjectResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateProjectResponse)
+	out := new(ProjectResponse)
 	err := c.cc.Invoke(ctx, ReEarthCMS_CreateProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reEarthCMSClient) UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*ProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProjectResponse)
+	err := c.cc.Invoke(ctx, ReEarthCMS_UpdateProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reEarthCMSClient) DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*DeleteProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteProjectResponse)
+	err := c.cc.Invoke(ctx, ReEarthCMS_DeleteProject_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +113,9 @@ func (c *reEarthCMSClient) GetModelGeoJSONExportURL(ctx context.Context, in *Exp
 // for forward compatibility.
 type ReEarthCMSServer interface {
 	// Main operations
-	CreateProject(context.Context, *CreateProjectRequest) (*CreateProjectResponse, error)
+	CreateProject(context.Context, *CreateProjectRequest) (*ProjectResponse, error)
+	UpdateProject(context.Context, *UpdateProjectRequest) (*ProjectResponse, error)
+	DeleteProject(context.Context, *DeleteProjectRequest) (*DeleteProjectResponse, error)
 	ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error)
 	ListModels(context.Context, *ListModelsRequest) (*ListModelsResponse, error)
 	GetModelGeoJSONExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error)
@@ -103,8 +129,14 @@ type ReEarthCMSServer interface {
 // pointer dereference when methods are called.
 type UnimplementedReEarthCMSServer struct{}
 
-func (UnimplementedReEarthCMSServer) CreateProject(context.Context, *CreateProjectRequest) (*CreateProjectResponse, error) {
+func (UnimplementedReEarthCMSServer) CreateProject(context.Context, *CreateProjectRequest) (*ProjectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateProject not implemented")
+}
+func (UnimplementedReEarthCMSServer) UpdateProject(context.Context, *UpdateProjectRequest) (*ProjectResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProject not implemented")
+}
+func (UnimplementedReEarthCMSServer) DeleteProject(context.Context, *DeleteProjectRequest) (*DeleteProjectResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteProject not implemented")
 }
 func (UnimplementedReEarthCMSServer) ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProjects not implemented")
@@ -150,6 +182,42 @@ func _ReEarthCMS_CreateProject_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ReEarthCMSServer).CreateProject(ctx, req.(*CreateProjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReEarthCMS_UpdateProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReEarthCMSServer).UpdateProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReEarthCMS_UpdateProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReEarthCMSServer).UpdateProject(ctx, req.(*UpdateProjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReEarthCMS_DeleteProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteProjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReEarthCMSServer).DeleteProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReEarthCMS_DeleteProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReEarthCMSServer).DeleteProject(ctx, req.(*DeleteProjectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -218,6 +286,14 @@ var ReEarthCMS_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateProject",
 			Handler:    _ReEarthCMS_CreateProject_Handler,
+		},
+		{
+			MethodName: "UpdateProject",
+			Handler:    _ReEarthCMS_UpdateProject_Handler,
+		},
+		{
+			MethodName: "DeleteProject",
+			Handler:    _ReEarthCMS_DeleteProject_Handler,
 		},
 		{
 			MethodName: "ListProjects",

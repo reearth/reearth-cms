@@ -48,7 +48,7 @@ func (p *Project) Description() string {
 	return p.description
 }
 
-func (p *Project) ReadMe() string {
+func (p *Project) Readme() string {
 	return p.readme
 }
 

@@ -8,7 +8,9 @@ option go_package = "proto/v1";
 
 service ReEarthCMS {
   // Main operations
-  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {}
+  rpc CreateProject(CreateProjectRequest) returns (ProjectResponse) {}
+  rpc UpdateProject(UpdateProjectRequest) returns (ProjectResponse) {}
+  rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse) {}
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {}
   rpc ListModels(ListModelsRequest) returns (ListModelsResponse) {}
   rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {}
@@ -26,10 +28,12 @@ message Project {
   string name = 2;
   string alias = 3;
   optional string description = 4;
-  string workspace_id = 5;
-  ProjectAccessibility accessibility = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  optional string license = 5;
+  optional string readme = 6;
+  string workspace_id = 7;
+  ProjectAccessibility accessibility = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
 }
 
 message ProjectPublicationSettings {
@@ -62,9 +66,22 @@ message Model {
   string name = 3;
   string description = 4;
   string key = 5;
-  bool public = 6;
+  Schema schema = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
+}
+
+message Schema {
+  string schema_id = 1;
+  repeated Field fields = 2;
+}
+
+message Field {
+  string field_id = 1;
+  string name = 2;
+  string type = 3;
+  string key = 4;
+  optional string description = 5;
 }
 
 // Request messages
@@ -72,8 +89,24 @@ message CreateProjectRequest {
   string workspace_id = 1;
   string name = 2;
   optional string description = 3;
-  string alias = 4;
-  ProjectAccessibility publication = 5;
+  optional string license = 4;
+  optional string readme = 5;
+  string alias = 6;
+  ProjectAccessibility accessibility = 7;
+}
+
+message UpdateProjectRequest {
+  string project_id = 1;
+  string name = 2;
+  optional string description = 3;
+  optional string license = 4;
+  optional string readme = 5;
+  string alias = 6;
+  ProjectAccessibility accessibility = 7;
+}
+
+message DeleteProjectRequest {
+  string project_id = 1;
 }
 
 message ListProjectsRequest {
@@ -90,8 +123,12 @@ message ExportRequest {
 }
 
 // Response messages
-message CreateProjectResponse {
+message ProjectResponse {
   Project project = 1;
+}
+
+message DeleteProjectResponse {
+  string project_id = 1;
 }
 
 message ListProjectsResponse {

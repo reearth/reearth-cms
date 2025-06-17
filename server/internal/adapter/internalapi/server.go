@@ -32,25 +32,73 @@ func NewServer() pb.ReEarthCMSServer {
 	return &server{}
 }
 
-func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest) (*pb.CreateProjectResponse, error) {
+func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest) (*pb.ProjectResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
 	wId, err := accountdomain.WorkspaceIDFrom(req.WorkspaceId)
 	if err != nil {
 		return nil, err
 	}
+
+	// todo accessibility
 	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
 		WorkspaceID:  wId,
 		Name:         &req.Name,
 		Description:  req.Description,
+		License:      req.License,
+		Readme:       req.Readme,
 		Alias:        &req.Alias,
 		RequestRoles: []workspace.Role{},
 	}, op)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.CreateProjectResponse{
+	return &pb.ProjectResponse{
 		Project: internalapimodel.ToProject(p),
+	}, nil
+}
+
+func (s server) UpdateProject(ctx context.Context, req *pb.UpdateProjectRequest) (*pb.ProjectResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	pId, err := project.IDFrom(req.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+
+	// todo accessibility
+	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
+		ID:           pId,
+		Name:         &req.Name,
+		Description:  req.Description,
+		License:      req.License,
+		Readme:       req.Readme,
+		Alias:        &req.Alias,
+		RequestRoles: []workspace.Role{},
+	}, op)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.ProjectResponse{
+		Project: internalapimodel.ToProject(p),
+	}, nil
+}
+
+func (s server) DeleteProject(ctx context.Context, req *pb.DeleteProjectRequest) (*pb.DeleteProjectResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	pId, err := project.IDFrom(req.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = uc.Project.Delete(ctx, pId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.DeleteProjectResponse{
+		ProjectId: req.ProjectId,
 	}, nil
 }
 

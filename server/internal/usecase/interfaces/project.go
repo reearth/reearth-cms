@@ -17,6 +17,8 @@ type CreateProjectParam struct {
 	WorkspaceID  accountdomain.WorkspaceID
 	Name         *string
 	Description  *string
+	License      *string
+	Readme       *string
 	Alias        *string
 	RequestRoles []workspace.Role
 }
@@ -25,6 +27,8 @@ type UpdateProjectParam struct {
 	ID            id.ProjectID
 	Name          *string
 	Description   *string
+	License       *string
+	Readme        *string
 	Alias         *string
 	RequestRoles  []workspace.Role
 	Accessibility *UpdateProjectAccessibilityParam

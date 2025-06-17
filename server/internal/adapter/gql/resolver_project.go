@@ -26,6 +26,8 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.Cre
 		WorkspaceID:  wid,
 		Name:         input.Name,
 		Description:  input.Description,
+		License:      input.License,
+		Readme:       input.Readme,
 		Alias:        input.Alias,
 		RequestRoles: lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) workspace.Role { return workspace.Role(r) }),
 	}, getOperator(ctx))
@@ -55,6 +57,8 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		ID:            pid,
 		Name:          input.Name,
 		Description:   input.Description,
+		License:       input.License,
+		Readme:        input.Readme,
 		Alias:         input.Alias,
 		Accessibility: pub,
 		RequestRoles:  lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) workspace.Role { return gqlmodel.FromRole(r) }),

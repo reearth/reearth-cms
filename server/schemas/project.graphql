@@ -31,6 +31,8 @@ type Project implements Node {
   id: ID!
   name: String!
   description: String!
+  license: String!
+  readme: String!
   alias: String!
   workspaceId: ID!
   workspace: Workspace
@@ -45,6 +47,8 @@ input CreateProjectInput {
   workspaceId: ID!
   name: String
   description: String
+  license: String
+  readme: String
   alias: String
   requestRoles: [Role!]
 }
@@ -63,6 +67,8 @@ input UpdateProjectInput {
   projectId: ID!
   name: String
   description: String
+  license: String
+  readme: String
   alias: String
   accessibility: UpdateProjectAccessibilityInput
   requestRoles: [Role!]

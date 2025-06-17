@@ -51,6 +51,12 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 			if p.Description != nil {
 				pb = pb.Description(*p.Description)
 			}
+			if p.License != nil {
+				pb = pb.License(*p.License)
+			}
+			if p.Readme != nil {
+				pb = pb.Readme(*p.Readme)
+			}
 			if p.Alias != nil {
 				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *p.Alias); !ok {
 					return nil, interfaces.ErrProjectAliasAlreadyUsed
@@ -89,6 +95,14 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 
 			if param.Description != nil {
 				p.UpdateDescription(*param.Description)
+			}
+
+			if param.License != nil {
+				p.UpdateLicense(*param.License)
+			}
+
+			if param.Readme != nil {
+				p.UpdateReadMe(*param.Readme)
 			}
 
 			if param.Alias != nil && *param.Alias != p.Alias() {
