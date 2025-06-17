@@ -8,7 +8,6 @@ export const GET_MODELS = gql`
         name
         description
         key
-        public
         order
         schema {
           id
@@ -26,7 +25,6 @@ export const GET_MODEL_NODE = gql`
         name
         description
         key
-        public
         order
         metadataSchema {
           id
@@ -180,36 +178,11 @@ export const DELETE_MODEL = gql`
 `;
 
 export const UPDATE_MODEL = gql`
-  mutation UpdateModel(
-    $modelId: ID!
-    $name: String
-    $description: String
-    $key: String
-    $public: Boolean!
-  ) {
-    updateModel(
-      input: {
-        modelId: $modelId
-        name: $name
-        description: $description
-        key: $key
-        public: $public
-      }
-    ) {
+  mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String) {
+    updateModel(input: { modelId: $modelId, name: $name, description: $description, key: $key }) {
       model {
         id
         name
-      }
-    }
-  }
-`;
-
-export const PUBLISH_MODELS = gql`
-  mutation PublishModels($models: [PublishModelInput!]!) {
-    publishModels(input: { models: $models }) {
-      models {
-        modelId
-        status
       }
     }
   }
