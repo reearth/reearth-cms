@@ -8,5 +8,6 @@ export type Model = {
   schemaId: string;
   schema: Schema;
   metadataSchema: MetaDataSchema;
+  public: boolean;
   order?: number;
 };

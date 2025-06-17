@@ -24,12 +24,6 @@ export type Scalars = {
   Upload: { input: any; output: any; }
 };
 
-export type ApiKeyPayload = {
-  __typename?: 'APIKeyPayload';
-  apiKey: ProjectApiKey;
-  public: PublicationSettings;
-};
-
 export type AddCommentInput = {
   content: Scalars['String']['input'];
   threadId: Scalars['ID']['input'];
@@ -256,13 +250,6 @@ export type CorrespondingFieldInput = {
   title: Scalars['String']['input'];
 };
 
-export type CreateApiKeyInput = {
-  description: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-  projectId: Scalars['ID']['input'];
-  publication: UpdatePublicationSettingsInput;
-};
-
 export type CreateAssetInput = {
   contentEncoding?: InputMaybe<Scalars['String']['input']>;
   file?: InputMaybe<Scalars['Upload']['input']>;
@@ -397,16 +384,6 @@ export type DecompressAssetInput = {
 export type DecompressAssetPayload = {
   __typename?: 'DecompressAssetPayload';
   asset: Asset;
-};
-
-export type DeleteApiKeyInput = {
-  id: Scalars['ID']['input'];
-  projectId: Scalars['ID']['input'];
-};
-
-export type DeleteApiKeyPayload = {
-  __typename?: 'DeleteAPIKeyPayload';
-  apiKeyId: Scalars['ID']['output'];
 };
 
 export type DeleteAssetInput = {
@@ -624,24 +601,6 @@ export type GroupsPayload = {
   groups: Array<Group>;
 };
 
-export type GuessSchemaField = {
-  __typename?: 'GuessSchemaField';
-  key: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  type: Scalars['String']['output'];
-};
-
-export type GuessSchemaFieldResult = {
-  __typename?: 'GuessSchemaFieldResult';
-  fields: Array<GuessSchemaField>;
-  total_count: Scalars['Int']['output'];
-};
-
-export type GuessSchemaFieldsInput = {
-  assetId: Scalars['ID']['input'];
-  modelId: Scalars['ID']['input'];
-};
-
 export type Integration = Node & {
   __typename?: 'Integration';
   config?: Maybe<IntegrationConfig>;
@@ -803,6 +762,7 @@ export type Model = Node & {
   order?: Maybe<Scalars['Int']['output']>;
   project: Project;
   projectId: Scalars['ID']['output'];
+  public: Scalars['Boolean']['output'];
   schema: Schema;
   schemaId: Scalars['ID']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -858,7 +818,6 @@ export type Mutation = {
   addIntegrationToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
   addUsersToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
   approveRequest?: Maybe<RequestPayload>;
-  createAPIKey?: Maybe<ApiKeyPayload>;
   createAsset?: Maybe<CreateAssetPayload>;
   createAssetUpload?: Maybe<CreateAssetUploadPayload>;
   createField?: Maybe<FieldPayload>;
@@ -874,7 +833,6 @@ export type Mutation = {
   createWebhook?: Maybe<WebhookPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
   decompressAsset?: Maybe<DecompressAssetPayload>;
-  deleteAPIKey?: Maybe<DeleteApiKeyPayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
   deleteAssets?: Maybe<DeleteAssetsPayload>;
   deleteComment?: Maybe<DeleteCommentPayload>;
@@ -891,14 +849,15 @@ export type Mutation = {
   deleteWebhook?: Maybe<DeleteWebhookPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishItem?: Maybe<PublishItemPayload>;
-  regenerateAPIKey?: Maybe<ApiKeyPayload>;
+  publishModel?: Maybe<PublishModelPayload>;
+  publishModels?: Maybe<PublishModelsPayload>;
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
+  regeneratePublicApiToken?: Maybe<ProjectPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveIntegrationFromWorkspacePayload>;
   removeIntegrationsFromWorkspace?: Maybe<RemoveIntegrationsFromWorkspacePayload>;
   removeMultipleMembersFromWorkspace?: Maybe<RemoveMultipleMembersFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   unpublishItem?: Maybe<UnpublishItemPayload>;
-  updateAPIKey?: Maybe<ApiKeyPayload>;
   updateAsset?: Maybe<UpdateAssetPayload>;
   updateComment?: Maybe<CommentPayload>;
   updateField?: Maybe<FieldPayload>;
@@ -939,11 +898,6 @@ export type MutationAddUsersToWorkspaceArgs = {
 
 export type MutationApproveRequestArgs = {
   input: ApproveRequestInput;
-};
-
-
-export type MutationCreateApiKeyArgs = {
-  input: CreateApiKeyInput;
 };
 
 
@@ -1019,11 +973,6 @@ export type MutationCreateWorkspaceArgs = {
 
 export type MutationDecompressAssetArgs = {
   input: DecompressAssetInput;
-};
-
-
-export type MutationDeleteApiKeyArgs = {
-  input: DeleteApiKeyInput;
 };
 
 
@@ -1107,13 +1056,23 @@ export type MutationPublishItemArgs = {
 };
 
 
-export type MutationRegenerateApiKeyArgs = {
-  input: RegenerateApiKeyInput;
+export type MutationPublishModelArgs = {
+  input: PublishModelInput;
+};
+
+
+export type MutationPublishModelsArgs = {
+  input: PublishModelsInput;
 };
 
 
 export type MutationRegenerateIntegrationTokenArgs = {
   input: RegenerateIntegrationTokenInput;
+};
+
+
+export type MutationRegeneratePublicApiTokenArgs = {
+  input: RegeneratePublicApiTokenInput;
 };
 
 
@@ -1139,11 +1098,6 @@ export type MutationRemoveMyAuthArgs = {
 
 export type MutationUnpublishItemArgs = {
   input: UnpublishItemInput;
-};
-
-
-export type MutationUpdateApiKeyArgs = {
-  input: UpdateApiKeyInput;
 };
 
 
@@ -1355,32 +1309,16 @@ export enum PreviewType {
 
 export type Project = Node & {
   __typename?: 'Project';
-  accessibility: ProjectAccessibility;
   alias: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  publication?: Maybe<ProjectPublication>;
   requestRoles?: Maybe<Array<Role>>;
   updatedAt: Scalars['DateTime']['output'];
   workspace?: Maybe<Workspace>;
   workspaceId: Scalars['ID']['output'];
-};
-
-export type ProjectApiKey = {
-  __typename?: 'ProjectAPIKey';
-  description: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  key: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  publication: PublicationSettings;
-};
-
-export type ProjectAccessibility = {
-  __typename?: 'ProjectAccessibility';
-  apiKeys?: Maybe<Array<ProjectApiKey>>;
-  publication?: Maybe<PublicationSettings>;
-  visibility: ProjectVisibility;
 };
 
 export type ProjectAliasAvailability = {
@@ -1408,16 +1346,18 @@ export type ProjectPayload = {
   project: Project;
 };
 
-export enum ProjectVisibility {
+export type ProjectPublication = {
+  __typename?: 'ProjectPublication';
+  assetPublic: Scalars['Boolean']['output'];
+  scope: ProjectPublicationScope;
+  token?: Maybe<Scalars['String']['output']>;
+};
+
+export enum ProjectPublicationScope {
+  Limited = 'LIMITED',
   Private = 'PRIVATE',
   Public = 'PUBLIC'
 }
-
-export type PublicationSettings = {
-  __typename?: 'PublicationSettings';
-  publicAssets: Scalars['Boolean']['output'];
-  publicModels: Array<Scalars['ID']['output']>;
-};
 
 export type PublishItemInput = {
   itemIds: Array<Scalars['ID']['input']>;
@@ -1428,6 +1368,26 @@ export type PublishItemPayload = {
   items: Array<Item>;
 };
 
+export type PublishModelInput = {
+  modelId: Scalars['ID']['input'];
+  status: Scalars['Boolean']['input'];
+};
+
+export type PublishModelPayload = {
+  __typename?: 'PublishModelPayload';
+  modelId: Scalars['ID']['output'];
+  status: Scalars['Boolean']['output'];
+};
+
+export type PublishModelsInput = {
+  models: Array<PublishModelInput>;
+};
+
+export type PublishModelsPayload = {
+  __typename?: 'PublishModelsPayload';
+  models: Array<PublishModelPayload>;
+};
+
 export type Query = {
   __typename?: 'Query';
   assetFile: AssetFile;
@@ -1436,7 +1396,6 @@ export type Query = {
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
   groups: Array<Maybe<Group>>;
-  guessSchemaFields: GuessSchemaFieldResult;
   isItemReferenced: Scalars['Boolean']['output'];
   me?: Maybe<Me>;
   models: ModelConnection;
@@ -1483,11 +1442,6 @@ export type QueryCheckProjectAliasArgs = {
 export type QueryGroupsArgs = {
   modelID?: InputMaybe<Scalars['ID']['input']>;
   projectId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-
-export type QueryGuessSchemaFieldsArgs = {
-  input: GuessSchemaFieldsInput;
 };
 
 
@@ -1561,13 +1515,12 @@ export type QueryViewArgs = {
   modelId: Scalars['ID']['input'];
 };
 
-export type RegenerateApiKeyInput = {
-  id: Scalars['ID']['input'];
-  projectId: Scalars['ID']['input'];
-};
-
 export type RegenerateIntegrationTokenInput = {
   integrationId: Scalars['ID']['input'];
+};
+
+export type RegeneratePublicApiTokenInput = {
+  projectId: Scalars['ID']['input'];
 };
 
 export type RemoveIntegrationFromWorkspaceInput = {
@@ -2120,14 +2073,6 @@ export type UnpublishItemPayload = {
   items: Array<Item>;
 };
 
-export type UpdateApiKeyInput = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['ID']['input'];
-  name?: InputMaybe<Scalars['String']['input']>;
-  projectId: Scalars['ID']['input'];
-  publication?: InputMaybe<UpdatePublicationSettingsInput>;
-};
-
 export type UpdateAssetInput = {
   id: Scalars['ID']['input'];
   previewType?: InputMaybe<PreviewType>;
@@ -2216,29 +2161,25 @@ export type UpdateModelInput = {
   key?: InputMaybe<Scalars['String']['input']>;
   modelId: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  public: Scalars['Boolean']['input'];
 };
 
 export type UpdateModelsOrderInput = {
   modelIds: Array<Scalars['ID']['input']>;
 };
 
-export type UpdateProjectAccessibilityInput = {
-  publication?: InputMaybe<UpdatePublicationSettingsInput>;
-  visibility?: InputMaybe<ProjectVisibility>;
-};
-
 export type UpdateProjectInput = {
-  accessibility?: InputMaybe<UpdateProjectAccessibilityInput>;
   alias?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['ID']['input'];
+  publication?: InputMaybe<UpdateProjectPublicationInput>;
   requestRoles?: InputMaybe<Array<Role>>;
 };
 
-export type UpdatePublicationSettingsInput = {
-  publicAssets: Scalars['Boolean']['input'];
-  publicModels: Array<Scalars['ID']['input']>;
+export type UpdateProjectPublicationInput = {
+  assetPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  scope?: InputMaybe<ProjectPublicationScope>;
 };
 
 export type UpdateRequestInput = {
@@ -2784,14 +2725,14 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, order?: number | null, schema: { __typename?: 'Schema', id: string } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, order?: number | null, schema: { __typename?: 'Schema', id: string } } | null> } };
 
 export type GetModelQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetModelQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model', id: string, name: string, description: string, key: string, order?: number | null, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset' } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger' } | { __typename?: 'SchemaFieldMarkdown' } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect' } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea' } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGeometryEditor', defaultValue?: any | null, editorSupportedTypes: Array<GeometryEditorSupportedType> } | { __typename?: 'SchemaFieldGeometryObject', defaultValue?: any | null, objectSupportedTypes: Array<GeometryObjectSupportedType> } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber', defaultValue?: any | null, numberMin?: number | null, numberMax?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, schema: { __typename?: 'Schema', id: string, titleFieldId?: string | null }, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
+export type GetModelQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, order?: number | null, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset' } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGeometryEditor' } | { __typename?: 'SchemaFieldGeometryObject' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger' } | { __typename?: 'SchemaFieldMarkdown' } | { __typename?: 'SchemaFieldNumber' } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect' } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea' } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGeometryEditor', defaultValue?: any | null, editorSupportedTypes: Array<GeometryEditorSupportedType> } | { __typename?: 'SchemaFieldGeometryObject', defaultValue?: any | null, objectSupportedTypes: Array<GeometryObjectSupportedType> } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldNumber', defaultValue?: any | null, numberMin?: number | null, numberMax?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, schema: { __typename?: 'Schema', id: string, titleFieldId?: string | null }, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2815,10 +2756,18 @@ export type UpdateModelMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   key?: InputMaybe<Scalars['String']['input']>;
+  public: Scalars['Boolean']['input'];
 }>;
 
 
 export type UpdateModelMutation = { __typename?: 'Mutation', updateModel?: { __typename?: 'ModelPayload', model: { __typename?: 'Model', id: string, name: string } } | null };
+
+export type PublishModelsMutationVariables = Exact<{
+  models: Array<PublishModelInput> | PublishModelInput;
+}>;
+
+
+export type PublishModelsMutation = { __typename?: 'Mutation', publishModels?: { __typename?: 'PublishModelsPayload', models: Array<{ __typename?: 'PublishModelPayload', modelId: string, status: boolean }> } | null };
 
 export type CheckModelKeyAvailabilityQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2840,7 +2789,7 @@ export type GetProjectQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean, token?: string | null } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID']['input'];
@@ -2848,7 +2797,7 @@ export type GetProjectsQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
+export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | null> } };
 
 export type CheckProjectAliasQueryVariables = Exact<{
   alias: Scalars['String']['input'];
@@ -2862,11 +2811,10 @@ export type CreateProjectMutationVariables = Exact<{
   name: Scalars['String']['input'];
   description: Scalars['String']['input'];
   alias: Scalars['String']['input'];
-  requestRoles?: InputMaybe<Array<Role> | Role>;
 }>;
 
 
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } } | null };
+export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
 
 export type DeleteProjectMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2880,49 +2828,19 @@ export type UpdateProjectMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   alias?: InputMaybe<Scalars['String']['input']>;
-  accessibility?: InputMaybe<UpdateProjectAccessibilityInput>;
+  publication?: InputMaybe<UpdateProjectPublicationInput>;
   requestRoles?: InputMaybe<Array<Role> | Role>;
 }>;
 
 
-export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } } | null };
+export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
 
-export type CreateApiKeyMutationVariables = Exact<{
+export type RegeneratePublicApiTokenMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
-  name: Scalars['String']['input'];
-  description: Scalars['String']['input'];
-  publication: UpdatePublicationSettingsInput;
 }>;
 
 
-export type CreateApiKeyMutation = { __typename?: 'Mutation', createAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }, public: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } | null };
-
-export type UpdateApiKeyMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  projectId: Scalars['ID']['input'];
-  name?: InputMaybe<Scalars['String']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  publication?: InputMaybe<UpdatePublicationSettingsInput>;
-}>;
-
-
-export type UpdateApiKeyMutation = { __typename?: 'Mutation', updateAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }, public: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } | null };
-
-export type DeleteApiKeyMutationVariables = Exact<{
-  projectId: Scalars['ID']['input'];
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type DeleteApiKeyMutation = { __typename?: 'Mutation', deleteAPIKey?: { __typename?: 'DeleteAPIKeyPayload', apiKeyId: string } | null };
-
-export type RegenerateApiKeyMutationVariables = Exact<{
-  projectId: Scalars['ID']['input'];
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type RegenerateApiKeyMutation = { __typename?: 'Mutation', regenerateAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }, public: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } | null };
+export type RegeneratePublicApiTokenMutation = { __typename?: 'Mutation', regeneratePublicApiToken?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string } } | null };
 
 export type GetRequestsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -5490,6 +5408,7 @@ export const GetModelsDocument = gql`
       name
       description
       key
+      public
       order
       schema {
         id
@@ -5540,6 +5459,7 @@ export const GetModelDocument = gql`
       name
       description
       key
+      public
       order
       metadataSchema {
         id
@@ -5778,9 +5698,9 @@ export type DeleteModelMutationHookResult = ReturnType<typeof useDeleteModelMuta
 export type DeleteModelMutationResult = Apollo.MutationResult<DeleteModelMutation>;
 export type DeleteModelMutationOptions = Apollo.BaseMutationOptions<DeleteModelMutation, DeleteModelMutationVariables>;
 export const UpdateModelDocument = gql`
-    mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String) {
+    mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String, $public: Boolean!) {
   updateModel(
-    input: {modelId: $modelId, name: $name, description: $description, key: $key}
+    input: {modelId: $modelId, name: $name, description: $description, key: $key, public: $public}
   ) {
     model {
       id
@@ -5808,6 +5728,7 @@ export type UpdateModelMutationFn = Apollo.MutationFunction<UpdateModelMutation,
  *      name: // value for 'name'
  *      description: // value for 'description'
  *      key: // value for 'key'
+ *      public: // value for 'public'
  *   },
  * });
  */
@@ -5818,6 +5739,42 @@ export function useUpdateModelMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UpdateModelMutationHookResult = ReturnType<typeof useUpdateModelMutation>;
 export type UpdateModelMutationResult = Apollo.MutationResult<UpdateModelMutation>;
 export type UpdateModelMutationOptions = Apollo.BaseMutationOptions<UpdateModelMutation, UpdateModelMutationVariables>;
+export const PublishModelsDocument = gql`
+    mutation PublishModels($models: [PublishModelInput!]!) {
+  publishModels(input: {models: $models}) {
+    models {
+      modelId
+      status
+    }
+  }
+}
+    `;
+export type PublishModelsMutationFn = Apollo.MutationFunction<PublishModelsMutation, PublishModelsMutationVariables>;
+
+/**
+ * __usePublishModelsMutation__
+ *
+ * To run a mutation, you first call `usePublishModelsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishModelsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishModelsMutation, { data, loading, error }] = usePublishModelsMutation({
+ *   variables: {
+ *      models: // value for 'models'
+ *   },
+ * });
+ */
+export function usePublishModelsMutation(baseOptions?: Apollo.MutationHookOptions<PublishModelsMutation, PublishModelsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishModelsMutation, PublishModelsMutationVariables>(PublishModelsDocument, options);
+      }
+export type PublishModelsMutationHookResult = ReturnType<typeof usePublishModelsMutation>;
+export type PublishModelsMutationResult = Apollo.MutationResult<PublishModelsMutation>;
+export type PublishModelsMutationOptions = Apollo.BaseMutationOptions<PublishModelsMutation, PublishModelsMutationVariables>;
 export const CheckModelKeyAvailabilityDocument = gql`
     query CheckModelKeyAvailability($projectId: ID!, $key: String!) {
   checkModelKeyAvailability(projectId: $projectId, key: $key) {
@@ -5905,22 +5862,10 @@ export const GetProjectDocument = gql`
       name
       description
       alias
-      accessibility {
-        visibility
-        publication {
-          publicModels
-          publicAssets
-        }
-        apiKeys {
-          id
-          name
-          description
-          key
-          publication {
-            publicModels
-            publicAssets
-          }
-        }
+      publication {
+        scope
+        assetPublic
+        token
       }
       requestRoles
     }
@@ -5968,22 +5913,9 @@ export const GetProjectsDocument = gql`
       name
       description
       alias
-      accessibility {
-        visibility
-        publication {
-          publicModels
-          publicAssets
-        }
-        apiKeys {
-          id
-          name
-          description
-          key
-          publication {
-            publicModels
-            publicAssets
-          }
-        }
+      publication {
+        scope
+        assetPublic
       }
       requestRoles
     }
@@ -6066,33 +5998,19 @@ export type CheckProjectAliasLazyQueryHookResult = ReturnType<typeof useCheckPro
 export type CheckProjectAliasSuspenseQueryHookResult = ReturnType<typeof useCheckProjectAliasSuspenseQuery>;
 export type CheckProjectAliasQueryResult = Apollo.QueryResult<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>;
 export const CreateProjectDocument = gql`
-    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!, $alias: String!, $requestRoles: [Role!]) {
+    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!, $alias: String!) {
   createProject(
-    input: {workspaceId: $workspaceId, name: $name, description: $description, alias: $alias, requestRoles: $requestRoles}
+    input: {workspaceId: $workspaceId, name: $name, description: $description, alias: $alias}
   ) {
     project {
       id
       name
       description
       alias
-      accessibility {
-        visibility
-        publication {
-          publicModels
-          publicAssets
-        }
-        apiKeys {
-          id
-          name
-          description
-          key
-          publication {
-            publicModels
-            publicAssets
-          }
-        }
+      publication {
+        scope
+        assetPublic
       }
-      requestRoles
     }
   }
 }
@@ -6116,7 +6034,6 @@ export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutat
  *      name: // value for 'name'
  *      description: // value for 'description'
  *      alias: // value for 'alias'
- *      requestRoles: // value for 'requestRoles'
  *   },
  * });
  */
@@ -6161,31 +6078,18 @@ export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProject
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
 export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
 export const UpdateProjectDocument = gql`
-    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $accessibility: UpdateProjectAccessibilityInput, $requestRoles: [Role!]) {
+    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $publication: UpdateProjectPublicationInput, $requestRoles: [Role!]) {
   updateProject(
-    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, accessibility: $accessibility, requestRoles: $requestRoles}
+    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, publication: $publication, requestRoles: $requestRoles}
   ) {
     project {
       id
       name
       description
       alias
-      accessibility {
-        visibility
-        publication {
-          publicModels
-          publicAssets
-        }
-        apiKeys {
-          id
-          name
-          description
-          key
-          publication {
-            publicModels
-            publicAssets
-          }
-        }
+      publication {
+        scope
+        assetPublic
       }
       requestRoles
     }
@@ -6211,7 +6115,7 @@ export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutat
  *      name: // value for 'name'
  *      description: // value for 'description'
  *      alias: // value for 'alias'
- *      accessibility: // value for 'accessibility'
+ *      publication: // value for 'publication'
  *      requestRoles: // value for 'requestRoles'
  *   },
  * });
@@ -6223,190 +6127,41 @@ export function useUpdateProjectMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProjectMutation>;
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
 export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
-export const CreateApiKeyDocument = gql`
-    mutation CreateAPIKey($projectId: ID!, $name: String!, $description: String!, $publication: UpdatePublicationSettingsInput!) {
-  createAPIKey(
-    input: {projectId: $projectId, name: $name, description: $description, publication: $publication}
-  ) {
-    apiKey {
+export const RegeneratePublicApiTokenDocument = gql`
+    mutation RegeneratePublicApiToken($projectId: ID!) {
+  regeneratePublicApiToken(input: {projectId: $projectId}) {
+    project {
       id
-      name
-      description
-      key
-      publication {
-        publicModels
-        publicAssets
-      }
-    }
-    public {
-      publicModels
-      publicAssets
     }
   }
 }
     `;
-export type CreateApiKeyMutationFn = Apollo.MutationFunction<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
+export type RegeneratePublicApiTokenMutationFn = Apollo.MutationFunction<RegeneratePublicApiTokenMutation, RegeneratePublicApiTokenMutationVariables>;
 
 /**
- * __useCreateApiKeyMutation__
+ * __useRegeneratePublicApiTokenMutation__
  *
- * To run a mutation, you first call `useCreateApiKeyMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateApiKeyMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRegeneratePublicApiTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegeneratePublicApiTokenMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createApiKeyMutation, { data, loading, error }] = useCreateApiKeyMutation({
+ * const [regeneratePublicApiTokenMutation, { data, loading, error }] = useRegeneratePublicApiTokenMutation({
  *   variables: {
  *      projectId: // value for 'projectId'
- *      name: // value for 'name'
- *      description: // value for 'description'
- *      publication: // value for 'publication'
  *   },
  * });
  */
-export function useCreateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>) {
+export function useRegeneratePublicApiTokenMutation(baseOptions?: Apollo.MutationHookOptions<RegeneratePublicApiTokenMutation, RegeneratePublicApiTokenMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateApiKeyMutation, CreateApiKeyMutationVariables>(CreateApiKeyDocument, options);
+        return Apollo.useMutation<RegeneratePublicApiTokenMutation, RegeneratePublicApiTokenMutationVariables>(RegeneratePublicApiTokenDocument, options);
       }
-export type CreateApiKeyMutationHookResult = ReturnType<typeof useCreateApiKeyMutation>;
-export type CreateApiKeyMutationResult = Apollo.MutationResult<CreateApiKeyMutation>;
-export type CreateApiKeyMutationOptions = Apollo.BaseMutationOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
-export const UpdateApiKeyDocument = gql`
-    mutation UpdateAPIKey($id: ID!, $projectId: ID!, $name: String, $description: String, $publication: UpdatePublicationSettingsInput) {
-  updateAPIKey(
-    input: {id: $id, projectId: $projectId, name: $name, description: $description, publication: $publication}
-  ) {
-    apiKey {
-      id
-      name
-      description
-      key
-      publication {
-        publicModels
-        publicAssets
-      }
-    }
-    public {
-      publicModels
-      publicAssets
-    }
-  }
-}
-    `;
-export type UpdateApiKeyMutationFn = Apollo.MutationFunction<UpdateApiKeyMutation, UpdateApiKeyMutationVariables>;
-
-/**
- * __useUpdateApiKeyMutation__
- *
- * To run a mutation, you first call `useUpdateApiKeyMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateApiKeyMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateApiKeyMutation, { data, loading, error }] = useUpdateApiKeyMutation({
- *   variables: {
- *      id: // value for 'id'
- *      projectId: // value for 'projectId'
- *      name: // value for 'name'
- *      description: // value for 'description'
- *      publication: // value for 'publication'
- *   },
- * });
- */
-export function useUpdateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<UpdateApiKeyMutation, UpdateApiKeyMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateApiKeyMutation, UpdateApiKeyMutationVariables>(UpdateApiKeyDocument, options);
-      }
-export type UpdateApiKeyMutationHookResult = ReturnType<typeof useUpdateApiKeyMutation>;
-export type UpdateApiKeyMutationResult = Apollo.MutationResult<UpdateApiKeyMutation>;
-export type UpdateApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateApiKeyMutation, UpdateApiKeyMutationVariables>;
-export const DeleteApiKeyDocument = gql`
-    mutation DeleteAPIKey($projectId: ID!, $id: ID!) {
-  deleteAPIKey(input: {projectId: $projectId, id: $id}) {
-    apiKeyId
-  }
-}
-    `;
-export type DeleteApiKeyMutationFn = Apollo.MutationFunction<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>;
-
-/**
- * __useDeleteApiKeyMutation__
- *
- * To run a mutation, you first call `useDeleteApiKeyMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteApiKeyMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteApiKeyMutation, { data, loading, error }] = useDeleteApiKeyMutation({
- *   variables: {
- *      projectId: // value for 'projectId'
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>(DeleteApiKeyDocument, options);
-      }
-export type DeleteApiKeyMutationHookResult = ReturnType<typeof useDeleteApiKeyMutation>;
-export type DeleteApiKeyMutationResult = Apollo.MutationResult<DeleteApiKeyMutation>;
-export type DeleteApiKeyMutationOptions = Apollo.BaseMutationOptions<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>;
-export const RegenerateApiKeyDocument = gql`
-    mutation RegenerateAPIKey($projectId: ID!, $id: ID!) {
-  regenerateAPIKey(input: {projectId: $projectId, id: $id}) {
-    apiKey {
-      id
-      name
-      description
-      key
-      publication {
-        publicModels
-        publicAssets
-      }
-    }
-    public {
-      publicModels
-      publicAssets
-    }
-  }
-}
-    `;
-export type RegenerateApiKeyMutationFn = Apollo.MutationFunction<RegenerateApiKeyMutation, RegenerateApiKeyMutationVariables>;
-
-/**
- * __useRegenerateApiKeyMutation__
- *
- * To run a mutation, you first call `useRegenerateApiKeyMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRegenerateApiKeyMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [regenerateApiKeyMutation, { data, loading, error }] = useRegenerateApiKeyMutation({
- *   variables: {
- *      projectId: // value for 'projectId'
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useRegenerateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<RegenerateApiKeyMutation, RegenerateApiKeyMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RegenerateApiKeyMutation, RegenerateApiKeyMutationVariables>(RegenerateApiKeyDocument, options);
-      }
-export type RegenerateApiKeyMutationHookResult = ReturnType<typeof useRegenerateApiKeyMutation>;
-export type RegenerateApiKeyMutationResult = Apollo.MutationResult<RegenerateApiKeyMutation>;
-export type RegenerateApiKeyMutationOptions = Apollo.BaseMutationOptions<RegenerateApiKeyMutation, RegenerateApiKeyMutationVariables>;
+export type RegeneratePublicApiTokenMutationHookResult = ReturnType<typeof useRegeneratePublicApiTokenMutation>;
+export type RegeneratePublicApiTokenMutationResult = Apollo.MutationResult<RegeneratePublicApiTokenMutation>;
+export type RegeneratePublicApiTokenMutationOptions = Apollo.BaseMutationOptions<RegeneratePublicApiTokenMutation, RegeneratePublicApiTokenMutationVariables>;
 export const GetRequestsDocument = gql`
     query GetRequests($projectId: ID!, $key: String, $state: [RequestState!], $pagination: Pagination, $createdBy: ID, $reviewer: ID, $sort: Sort) {
   requests(

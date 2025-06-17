@@ -1,30 +1,18 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
-import { ProjectVisibility } from "../Accessibility/types";
-
 type Props = {
-  visibility?: ProjectVisibility;
   hasDeleteRight: boolean;
-  hasPublishRight: boolean;
   onProjectDelete: () => Promise<void>;
-  onProjectVisibilityChange: (visibility: string) => Promise<void>;
 };
 
-const DangerZone: React.FC<Props> = ({
-  visibility,
-  hasDeleteRight,
-  hasPublishRight,
-  onProjectDelete,
-  onProjectVisibilityChange,
-}) => {
+const DangerZone: React.FC<Props> = ({ hasDeleteRight, onProjectDelete }) => {
   const t = useT();
   const { confirm } = Modal;
 
@@ -39,61 +27,8 @@ const DangerZone: React.FC<Props> = ({
     });
   }, [confirm, onProjectDelete, t]);
 
-  const publicScopeList = useMemo(
-    () => [
-      { name: t("Private"), value: "PRIVATE" },
-      { name: t("Public"), value: "PUBLIC" },
-    ],
-    [t],
-  );
-
-  const handleVisibilityChange = useCallback(
-    (value: unknown) => {
-      const visibility = value as string;
-      const isPublic = visibility === "PUBLIC";
-      const messages = {
-        title: isPublic
-          ? t("Are you sure you want to set this project to public?")
-          : t("Are you sure you want to set this project to private?"),
-        content1: isPublic
-          ? t("All published content will be accessible to everyone.")
-          : t(
-              "Published content will no longer be visible, but you can access it using an API key.",
-            ),
-        content2: t("This action is not reversible, so please continue with caution."),
-      };
-
-      Modal.confirm({
-        title: messages.title,
-        content: (
-          <>
-            <p>{messages.content1}</p>
-            <p>{messages.content2}</p>
-          </>
-        ),
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
-        async onOk() {
-          await onProjectVisibilityChange?.(visibility);
-        },
-      });
-    },
-    [onProjectVisibilityChange, t],
-  );
-
   return (
     <ContentSection title={t("Danger Zone")} danger>
-      <Title>{t("Visibility")}</Title>
-      <StyledSelect
-        disabled={!hasPublishRight}
-        value={visibility}
-        onChange={handleVisibilityChange}>
-        {publicScopeList.map(({ value, name }) => (
-          <Select.Option key={value} value={value}>
-            {name}
-          </Select.Option>
-        ))}
-      </StyledSelect>
       <Title>{t("Delete Project")}</Title>
       <Text>
         {t(
@@ -112,12 +47,6 @@ const DangerZone: React.FC<Props> = ({
 };
 
 export default DangerZone;
-
-const maxWidth = "316px";
-
-const StyledSelect = styled(Select)`
-  width: ${maxWidth};
-`;
 
 const Title = styled.h1`
   font-weight: 500;

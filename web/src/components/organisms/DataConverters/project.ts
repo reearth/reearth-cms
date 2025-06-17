@@ -5,26 +5,9 @@ export const fromGraphQLProject = (project: GQLProject): Project => ({
   id: project.id,
   name: project.name,
   description: project.description,
+  scope: project.publication?.scope ?? "PRIVATE",
   alias: project.alias,
+  assetPublic: project.publication?.assetPublic ?? false,
   requestRoles: project.requestRoles ?? [],
-  accessibility: project.accessibility
-    ? {
-        visibility: project.accessibility.visibility ?? "PRIVATE",
-        publication: {
-          publicModels: project.accessibility.publication?.publicModels ?? [],
-          publicAssets: project.accessibility.publication?.publicAssets ?? false,
-        },
-        apiKeys:
-          project.accessibility.apiKeys?.map(apiKey => ({
-            id: apiKey.id,
-            name: apiKey.name,
-            description: apiKey.description,
-            key: apiKey.key,
-            publication: {
-              publicModels: apiKey.publication?.publicModels ?? [],
-              publicAssets: apiKey.publication?.publicAssets ?? false,
-            },
-          })) ?? [],
-      }
-    : undefined,
+  token: project.publication?.token ?? "",
 });

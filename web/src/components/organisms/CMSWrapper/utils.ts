@@ -75,12 +75,6 @@ export const userRightsGet = (role: Role): UserRights => {
           update: true,
           delete: true,
         },
-        apiKey: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-        },
       };
     case "MAINTAINER":
       return {
@@ -150,12 +144,6 @@ export const userRightsGet = (role: Role): UserRights => {
           approve: true,
         },
         comment: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-        },
-        apiKey: {
           create: true,
           read: true,
           update: true,
@@ -235,12 +223,6 @@ export const userRightsGet = (role: Role): UserRights => {
           update: null,
           delete: null,
         },
-        apiKey: {
-          create: true,
-          read: true,
-          update: false,
-          delete: false,
-        },
       };
     case "READER":
     default:
@@ -311,12 +293,6 @@ export const userRightsGet = (role: Role): UserRights => {
           approve: false,
         },
         comment: {
-          create: false,
-          read: true,
-          update: false,
-          delete: false,
-        },
-        apiKey: {
           create: false,
           read: true,
           update: false,

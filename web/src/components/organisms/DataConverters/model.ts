@@ -10,6 +10,7 @@ export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
     description: model.description,
     name: model.name,
     key: model.key,
+    public: model.public,
     order: model.order ?? undefined,
     schemaId: model.schemaId,
     schema: {

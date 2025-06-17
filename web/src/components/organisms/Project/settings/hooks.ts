@@ -9,7 +9,6 @@ import {
   useDeleteProjectMutation,
   Role as GQLRole,
   useCheckProjectAliasLazyQuery,
-  ProjectVisibility,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights, useProject } from "@reearth-cms/state";
@@ -26,10 +25,6 @@ export default () => {
   const [userRights] = useUserRights();
   const hasUpdateRight = useMemo(() => !!userRights?.project.update, [userRights?.project.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.project.delete, [userRights?.project.delete]);
-  const hasPublishRight = useMemo(
-    () => !!userRights?.project.publish,
-    [userRights?.project.publish],
-  );
 
   const [updateProjectMutation] = useUpdateProjectMutation({
     refetchQueries: ["GetProject"],
@@ -101,36 +96,13 @@ export default () => {
     [CheckProjectAlias],
   );
 
-  const handleProjectVisibilityChange = useCallback(
-    async (visibility: string) => {
-      if (!projectId || !visibility) return;
-      const result = await updateProjectMutation({
-        variables: {
-          projectId,
-          accessibility: {
-            visibility:
-              visibility === "PUBLIC" ? ProjectVisibility.Public : ProjectVisibility.Private,
-          },
-        },
-      });
-      if (result.errors || !result.data?.updateProject) {
-        Notification.error({ message: t("Failed to update project visibility.") });
-        return;
-      }
-      Notification.success({ message: t("Successfully updated project visibility!") });
-    },
-    [projectId, t, updateProjectMutation],
-  );
-
   return {
     project: currentProject,
     hasUpdateRight,
     hasDeleteRight,
-    hasPublishRight,
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
     handleProjectDelete,
     handleProjectAliasCheck,
-    handleProjectVisibilityChange,
   };
 };

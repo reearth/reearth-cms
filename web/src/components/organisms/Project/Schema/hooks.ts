@@ -508,6 +508,7 @@ export default () => {
           name: data.name,
           description: data.description,
           key: data.key,
+          public: false,
         },
       });
       if (model.errors || !model.data?.updateModel) {
