@@ -38,11 +38,15 @@ var (
 )
 
 func baseSeederWorkspace(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
+	metadata := user.NewMetadata()
+	metadata.SetTheme(user.ThemeDark)
+	metadata.SetLang(language.English)
+
 	u := user.New().ID(uId1).
 		Name("e2e").
 		Email("e2e@e2e.com").
 		Workspace(wId).
-		Lang(language.English).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
 		return err
@@ -51,6 +55,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container, _ *gateway.Cont
 		Name("e2e2").
 		Email("e2e2@e2e.com").
 		Workspace(wId2).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u2); err != nil {
 		return err
@@ -59,6 +64,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container, _ *gateway.Cont
 		Name("e2e3").
 		Email("e2e3@e2e.com").
 		Workspace(wId2).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u3); err != nil {
 		return err
@@ -72,6 +78,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container, _ *gateway.Cont
 		InvitedBy: uId1,
 	}
 
+	wMetadata := workspace.NewMetadata()
 	w := workspace.New().ID(wId).
 		Name("e2e").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
@@ -81,6 +88,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container, _ *gateway.Cont
 			iId1: roleOwner,
 			iId3: roleReader,
 		}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
 		return err
@@ -95,6 +103,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container, _ *gateway.Cont
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
 			iId1: roleOwner,
 		}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w2); err != nil {
 		return err

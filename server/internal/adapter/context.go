@@ -99,7 +99,7 @@ func Lang(ctx context.Context, lang *language.Tag) string {
 		return "en" // default language
 	}
 
-	l := u.Lang()
+	l := u.Metadata().Lang()
 	if l.IsRoot() {
 		return "en" // default language
 	}
