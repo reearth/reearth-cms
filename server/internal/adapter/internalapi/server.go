@@ -1,11 +1,10 @@
 package internalapi
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
+	"net/url"
 	"path"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -13,8 +12,10 @@ import (
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/file"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
@@ -26,10 +27,15 @@ import (
 
 type server struct {
 	pb.UnimplementedReEarthCMSServer
+	webBaseUrl  *url.URL
+	pApiBaseUrl *url.URL
 }
 
-func NewServer() pb.ReEarthCMSServer {
-	return &server{}
+func NewServer(webHost, serverHost string) pb.ReEarthCMSServer {
+	return &server{
+		webBaseUrl:  lo.Must(url.Parse(webHost)),
+		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("p"),
+	}
 }
 
 func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest) (*pb.ProjectResponse, error) {
@@ -40,15 +46,15 @@ func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest)
 		return nil, err
 	}
 
-	// todo accessibility
 	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
-		WorkspaceID:  wId,
-		Name:         &req.Name,
-		Description:  req.Description,
-		License:      req.License,
-		Readme:       req.Readme,
-		Alias:        &req.Alias,
-		RequestRoles: []workspace.Role{},
+		WorkspaceID:   wId,
+		Name:          &req.Name,
+		Description:   req.Description,
+		License:       req.License,
+		Readme:        req.Readme,
+		Alias:         &req.Alias,
+		RequestRoles:  []workspace.Role{},
+		Accessibility: internalapimodel.ProjectAccessibilityFromPB(req.Visibility),
 	}, op)
 	if err != nil {
 		return nil, err
@@ -68,13 +74,14 @@ func (s server) UpdateProject(ctx context.Context, req *pb.UpdateProjectRequest)
 
 	// todo accessibility
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:           pId,
-		Name:         &req.Name,
-		Description:  req.Description,
-		License:      req.License,
-		Readme:       req.Readme,
-		Alias:        &req.Alias,
-		RequestRoles: []workspace.Role{},
+		ID:            pId,
+		Name:          &req.Name,
+		Description:   req.Description,
+		License:       req.License,
+		Readme:        req.Readme,
+		Alias:         &req.Alias,
+		RequestRoles:  []workspace.Role{},
+		Accessibility: internalapimodel.ProjectAccessibilityFromPB(req.Visibility),
 	}, op)
 	if err != nil {
 		return nil, err
@@ -102,14 +109,53 @@ func (s server) DeleteProject(ctx context.Context, req *pb.DeleteProjectRequest)
 	}, nil
 }
 
+func (s server) CheckAliasAvailability(ctx context.Context, req *pb.AliasAvailabilityRequest) (*pb.AliasAvailabilityResponse, error) {
+	uc := adapter.Usecases(ctx)
+
+	if req.Alias == "" {
+		return nil, status.Error(codes.InvalidArgument, "alias is required")
+	}
+
+	ok, err := uc.Project.CheckAlias(ctx, req.Alias)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.AliasAvailabilityResponse{
+		Available: ok,
+	}, nil
+}
+
+func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.ProjectResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), op)
+	if err != nil {
+		return nil, err
+	}
+	if p == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return &pb.ProjectResponse{
+		Project: internalapimodel.ToProject(p),
+	}, nil
+}
+
 func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (*pb.ListProjectsResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
+	var f *interfaces.ProjectFilter
+	if req.PublicOnly {
+		f = &interfaces.ProjectFilter{
+			Visibility: lo.ToPtr(project.VisibilityPublic),
+		}
+	}
 	wId, err := accountdomain.WorkspaceIDFrom(req.WorkspaceId)
 	if err != nil {
 		return nil, err
 	}
-	p, _, err := uc.Project.FindByWorkspace(ctx, wId, usecasex.CursorPagination{
+	p, _, err := uc.Project.FindByWorkspace(ctx, wId, f, usecasex.CursorPagination{
 		After: nil,
 		First: lo.ToPtr(int64(100)),
 	}.Wrap(), op)
@@ -136,8 +182,12 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 	if err != nil {
 		return nil, err
 	}
+	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(pId.String()), op)
+	if err != nil {
+		return nil, err
+	}
 
-	p, _, err := uc.Model.FindByProject(ctx, pId, usecasex.CursorPagination{
+	ml, _, err := uc.Model.FindByProject(ctx, pId, usecasex.CursorPagination{
 		After: nil,
 		First: lo.ToPtr(int64(100)),
 	}.Wrap(), op)
@@ -145,11 +195,55 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 		return nil, err
 	}
 
-	res := lo.Map(p, func(p *model.Model, _ int) *pb.Model {
-		return internalapimodel.ToModel(p)
+	webProjectUrl := s.webBaseUrl.JoinPath("workspace", p.Workspace().String(), "project", pId.String())
+	pApiProjectUrl := s.pApiBaseUrl.JoinPath(p.Alias())
+
+	res := lo.FilterMap(ml, func(m *model.Model, _ int) (*pb.Model, bool) {
+		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+		if err != nil {
+			return nil, false // If schema not found, skip this model
+		}
+		return internalapimodel.ToModel(m, sp, webProjectUrl, pApiProjectUrl), true
 	})
 	return &pb.ListModelsResponse{
 		Models:     res,
+		TotalCount: int32(len(res)),
+	}, nil
+}
+
+func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.ListItemsResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	if req.ModelId == "" {
+		return nil, status.Error(codes.InvalidArgument, "model_id is required")
+	}
+
+	mId, err := model.IDFrom(req.ModelId)
+	if err != nil {
+		return nil, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, mId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), "", nil)
+
+	items, _, err := uc.Item.Search(ctx, *sp, q, usecasex.CursorPagination{
+		After: nil,
+		First: lo.ToPtr(int64(50)),
+	}.Wrap(), op)
+	if err != nil {
+		return nil, err
+	}
+
+	res := lo.Map(items, func(i item.Versioned, _ int) *pb.Item {
+		return internalapimodel.ToItem(i.Value(), sp)
+	})
+
+	return &pb.ListItemsResponse{
+		Items:      res,
 		TotalCount: int32(len(res)),
 	}, nil
 }
@@ -181,7 +275,7 @@ func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequ
 
 	//var rc io.ReadWriteCloser
 
-	rc := NewBufferRW(nil)
+	rc := utils.NewBufferRW(nil)
 
 	// Write the beginning of the FeatureCollection
 	if _, err := rc.Write([]byte(`{"type":"FeatureCollection","features":[`)); err != nil {
@@ -258,85 +352,4 @@ func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequ
 	return &pb.ExportURLResponse{
 		Url: path.Join(g.File.GetBaseURL(), m.ID().String()+".geojson"),
 	}, nil
-}
-
-// BufferRW implements io.Reader, io.Writer, io.Seeker, io.Closer
-type BufferRW struct {
-	buffer *bytes.Buffer
-	pos    int64
-	closed bool
-}
-
-// NewBufferRW creates a new BufferRW
-func NewBufferRW(data []byte) *BufferRW {
-	return &BufferRW{
-		buffer: bytes.NewBuffer(data),
-		pos:    0,
-		closed: false,
-	}
-}
-
-// Read implements io.Reader
-func (brw *BufferRW) Read(p []byte) (n int, err error) {
-	if brw.closed {
-		return 0, errors.New("read from closed buffer")
-	}
-	data := brw.buffer.Bytes()
-	if brw.pos >= int64(len(data)) {
-		return 0, io.EOF
-	}
-	n = copy(p, data[brw.pos:])
-	brw.pos += int64(n)
-	return n, nil
-}
-
-// Write implements io.Writer
-func (brw *BufferRW) Write(p []byte) (n int, err error) {
-	if brw.closed {
-		return 0, errors.New("write to closed buffer")
-	}
-	buf := brw.buffer.Bytes()
-	if int(brw.pos) > len(buf) {
-		padding := make([]byte, int(brw.pos)-len(buf))
-		brw.buffer.Write(padding)
-		buf = brw.buffer.Bytes()
-	}
-
-	if int(brw.pos)+len(p) > len(buf) {
-		buf = append(buf[:brw.pos], p...)
-	} else {
-		copy(buf[brw.pos:], p)
-	}
-	brw.buffer = bytes.NewBuffer(buf)
-	brw.pos += int64(len(p))
-	return len(p), nil
-}
-
-// Seek implements io.Seeker
-func (brw *BufferRW) Seek(offset int64, whence int) (int64, error) {
-	var newPos int64
-
-	switch whence {
-	case io.SeekStart:
-		newPos = offset
-	case io.SeekCurrent:
-		newPos = brw.pos + offset
-	case io.SeekEnd:
-		newPos = int64(len(brw.buffer.Bytes())) + offset
-	default:
-		return 0, errors.New("invalid seek whence")
-	}
-
-	if newPos < 0 {
-		return 0, errors.New("negative position")
-	}
-
-	brw.pos = newPos
-	return newPos, nil
-}
-
-// Close implements io.Closer
-func (brw *BufferRW) Close() error {
-	brw.closed = true
-	return nil
 }

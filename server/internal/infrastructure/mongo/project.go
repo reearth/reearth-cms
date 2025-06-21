@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
@@ -78,12 +79,18 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
-	return r.paginate(ctx, bson.M{
+func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+	filter := bson.M{
 		"workspace": bson.M{
 			"$in": ids.Strings(),
 		},
-	}, pagination)
+	}
+	if f != nil {
+		if f.Visibility != nil {
+			filter["accessibility.visibility"] = f.Visibility.String()
+		}
+	}
+	return r.paginate(ctx, filter, pagination)
 }
 
 func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias) (*project.Project, error) {

@@ -26,7 +26,7 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, p, op)
+	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectFilter404Response{}, err
@@ -135,7 +135,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		}
 	}
 
-	var acc *interfaces.UpdateProjectAccessibilityParam
+	var acc *interfaces.AccessibilityParam
 	if request.Body.Accessibility != nil {
 		var pub *interfaces.PublicationSettingsParam
 		if request.Body.Accessibility.Publication != nil {
@@ -144,7 +144,7 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 				PublicAssets: request.Body.Accessibility.Publication.PublicAssets,
 			}
 		}
-		acc = &interfaces.UpdateProjectAccessibilityParam{
+		acc = &interfaces.AccessibilityParam{
 			Visibility:  fromProjectVisibility(request.Body.Accessibility.Visibility),
 			Publication: pub,
 		}

@@ -3,6 +3,7 @@ syntax = "proto3";
 package reearth.cms.v1;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
 
 option go_package = "proto/v1";
 
@@ -11,8 +12,11 @@ service ReEarthCMS {
   rpc CreateProject(CreateProjectRequest) returns (ProjectResponse) {}
   rpc UpdateProject(UpdateProjectRequest) returns (ProjectResponse) {}
   rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse) {}
+  rpc CheckAliasAvailability(AliasAvailabilityRequest) returns (AliasAvailabilityResponse) {}
+  rpc GetProject(ProjectRequest) returns (ProjectResponse) {}
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {}
   rpc ListModels(ListModelsRequest) returns (ListModelsResponse) {}
+  rpc ListItems(ListItemsRequest) returns (ListItemsResponse) {}
   rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {}
 }
 
@@ -31,31 +35,12 @@ message Project {
   optional string license = 5;
   optional string readme = 6;
   string workspace_id = 7;
-  ProjectAccessibility accessibility = 8;
+  Visibility visibility = 8;
   google.protobuf.Timestamp created_at = 9;
   google.protobuf.Timestamp updated_at = 10;
 }
 
-message ProjectPublicationSettings {
-  repeated string public_models = 1;
-  bool public_assets = 2;
-}
-
-message APIKey {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-  string key = 4;
-  ProjectPublicationSettings publication = 5;
-}
-
-message ProjectAccessibility {
-  ProjectVisibility visibility = 1;
-  ProjectPublicationSettings publication = 2;
-  repeated APIKey api_keys = 3;
-}
-
-enum ProjectVisibility {
+enum Visibility {
   PUBLIC = 0;
   PRIVATE = 1;
 }
@@ -67,24 +52,61 @@ message Model {
   string description = 4;
   string key = 5;
   Schema schema = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  string public_api_ep = 7;
+  string editor_url = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message Item {
+  string id = 1;
+  map<string, google.protobuf.Any> fields = 2;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+enum SchemaFieldType {
+  Text = 0;
+  TextArea = 1;
+  RichText = 2;
+  MarkdownText = 3;
+  Asset = 4;
+  Date = 5;
+  Bool = 6;
+  Select = 7;
+  Tag = 8;
+  Integer = 9;
+  Number = 10;
+  Reference = 11;
+  Checkbox = 12;
+  URL = 13;
+  Group = 14;
+  GeometryObject = 15;
+  GeometryEditor = 16;
 }
 
 message Schema {
   string schema_id = 1;
-  repeated Field fields = 2;
+  repeated SchemaField fields = 2;
 }
 
-message Field {
+message SchemaField {
   string field_id = 1;
   string name = 2;
-  string type = 3;
+  SchemaFieldType type = 3;
   string key = 4;
   optional string description = 5;
 }
 
 // Request messages
+message ProjectRequest {
+  string project_id_or_alias = 1;
+}
+
+message AliasAvailabilityRequest {
+  string alias = 1;
+}
+
 message CreateProjectRequest {
   string workspace_id = 1;
   string name = 2;
@@ -92,7 +114,7 @@ message CreateProjectRequest {
   optional string license = 4;
   optional string readme = 5;
   string alias = 6;
-  ProjectAccessibility accessibility = 7;
+  Visibility visibility = 7;
 }
 
 message UpdateProjectRequest {
@@ -102,7 +124,7 @@ message UpdateProjectRequest {
   optional string license = 4;
   optional string readme = 5;
   string alias = 6;
-  ProjectAccessibility accessibility = 7;
+  Visibility visibility = 7;
 }
 
 message DeleteProjectRequest {
@@ -111,10 +133,18 @@ message DeleteProjectRequest {
 
 message ListProjectsRequest {
   string workspace_id = 1;
+  bool public_only = 2;
 }
 
 message ListModelsRequest {
   string project_id = 1;
+}
+
+message ListItemsRequest {
+  string model_id = 1;
+  string project_id = 2;
+  optional int32 page = 3;
+  optional int32 page_size = 4;
 }
 
 message ExportRequest {
@@ -125,6 +155,10 @@ message ExportRequest {
 // Response messages
 message ProjectResponse {
   Project project = 1;
+}
+
+message AliasAvailabilityResponse {
+  bool available = 1;
 }
 
 message DeleteProjectResponse {
@@ -138,6 +172,11 @@ message ListProjectsResponse {
 
 message ListModelsResponse {
   repeated Model models = 1;
+  int32 total_count = 2;
+}
+
+message ListItemsResponse {
+  repeated Item items = 1;
   int32 total_count = 2;
 }
 

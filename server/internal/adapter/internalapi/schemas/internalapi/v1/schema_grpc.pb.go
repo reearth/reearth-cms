@@ -22,8 +22,11 @@ const (
 	ReEarthCMS_CreateProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/CreateProject"
 	ReEarthCMS_UpdateProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/UpdateProject"
 	ReEarthCMS_DeleteProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/DeleteProject"
+	ReEarthCMS_CheckAliasAvailability_FullMethodName   = "/reearth.cms.v1.ReEarthCMS/CheckAliasAvailability"
+	ReEarthCMS_GetProject_FullMethodName               = "/reearth.cms.v1.ReEarthCMS/GetProject"
 	ReEarthCMS_ListProjects_FullMethodName             = "/reearth.cms.v1.ReEarthCMS/ListProjects"
 	ReEarthCMS_ListModels_FullMethodName               = "/reearth.cms.v1.ReEarthCMS/ListModels"
+	ReEarthCMS_ListItems_FullMethodName                = "/reearth.cms.v1.ReEarthCMS/ListItems"
 	ReEarthCMS_GetModelGeoJSONExportURL_FullMethodName = "/reearth.cms.v1.ReEarthCMS/GetModelGeoJSONExportURL"
 )
 
@@ -35,8 +38,11 @@ type ReEarthCMSClient interface {
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*ProjectResponse, error)
 	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*ProjectResponse, error)
 	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*DeleteProjectResponse, error)
+	CheckAliasAvailability(ctx context.Context, in *AliasAvailabilityRequest, opts ...grpc.CallOption) (*AliasAvailabilityResponse, error)
+	GetProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*ProjectResponse, error)
 	ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error)
 	ListModels(ctx context.Context, in *ListModelsRequest, opts ...grpc.CallOption) (*ListModelsResponse, error)
+	ListItems(ctx context.Context, in *ListItemsRequest, opts ...grpc.CallOption) (*ListItemsResponse, error)
 	GetModelGeoJSONExportURL(ctx context.Context, in *ExportRequest, opts ...grpc.CallOption) (*ExportURLResponse, error)
 }
 
@@ -78,6 +84,26 @@ func (c *reEarthCMSClient) DeleteProject(ctx context.Context, in *DeleteProjectR
 	return out, nil
 }
 
+func (c *reEarthCMSClient) CheckAliasAvailability(ctx context.Context, in *AliasAvailabilityRequest, opts ...grpc.CallOption) (*AliasAvailabilityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AliasAvailabilityResponse)
+	err := c.cc.Invoke(ctx, ReEarthCMS_CheckAliasAvailability_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reEarthCMSClient) GetProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*ProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProjectResponse)
+	err := c.cc.Invoke(ctx, ReEarthCMS_GetProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *reEarthCMSClient) ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListProjectsResponse)
@@ -92,6 +118,16 @@ func (c *reEarthCMSClient) ListModels(ctx context.Context, in *ListModelsRequest
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListModelsResponse)
 	err := c.cc.Invoke(ctx, ReEarthCMS_ListModels_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reEarthCMSClient) ListItems(ctx context.Context, in *ListItemsRequest, opts ...grpc.CallOption) (*ListItemsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListItemsResponse)
+	err := c.cc.Invoke(ctx, ReEarthCMS_ListItems_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +152,11 @@ type ReEarthCMSServer interface {
 	CreateProject(context.Context, *CreateProjectRequest) (*ProjectResponse, error)
 	UpdateProject(context.Context, *UpdateProjectRequest) (*ProjectResponse, error)
 	DeleteProject(context.Context, *DeleteProjectRequest) (*DeleteProjectResponse, error)
+	CheckAliasAvailability(context.Context, *AliasAvailabilityRequest) (*AliasAvailabilityResponse, error)
+	GetProject(context.Context, *ProjectRequest) (*ProjectResponse, error)
 	ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error)
 	ListModels(context.Context, *ListModelsRequest) (*ListModelsResponse, error)
+	ListItems(context.Context, *ListItemsRequest) (*ListItemsResponse, error)
 	GetModelGeoJSONExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error)
 	mustEmbedUnimplementedReEarthCMSServer()
 }
@@ -138,11 +177,20 @@ func (UnimplementedReEarthCMSServer) UpdateProject(context.Context, *UpdateProje
 func (UnimplementedReEarthCMSServer) DeleteProject(context.Context, *DeleteProjectRequest) (*DeleteProjectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteProject not implemented")
 }
+func (UnimplementedReEarthCMSServer) CheckAliasAvailability(context.Context, *AliasAvailabilityRequest) (*AliasAvailabilityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAliasAvailability not implemented")
+}
+func (UnimplementedReEarthCMSServer) GetProject(context.Context, *ProjectRequest) (*ProjectResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProject not implemented")
+}
 func (UnimplementedReEarthCMSServer) ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProjects not implemented")
 }
 func (UnimplementedReEarthCMSServer) ListModels(context.Context, *ListModelsRequest) (*ListModelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListModels not implemented")
+}
+func (UnimplementedReEarthCMSServer) ListItems(context.Context, *ListItemsRequest) (*ListItemsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListItems not implemented")
 }
 func (UnimplementedReEarthCMSServer) GetModelGeoJSONExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetModelGeoJSONExportURL not implemented")
@@ -222,6 +270,42 @@ func _ReEarthCMS_DeleteProject_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReEarthCMS_CheckAliasAvailability_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AliasAvailabilityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReEarthCMSServer).CheckAliasAvailability(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReEarthCMS_CheckAliasAvailability_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReEarthCMSServer).CheckAliasAvailability(ctx, req.(*AliasAvailabilityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReEarthCMS_GetProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReEarthCMSServer).GetProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReEarthCMS_GetProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReEarthCMSServer).GetProject(ctx, req.(*ProjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ReEarthCMS_ListProjects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListProjectsRequest)
 	if err := dec(in); err != nil {
@@ -254,6 +338,24 @@ func _ReEarthCMS_ListModels_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ReEarthCMSServer).ListModels(ctx, req.(*ListModelsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReEarthCMS_ListItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListItemsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReEarthCMSServer).ListItems(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReEarthCMS_ListItems_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReEarthCMSServer).ListItems(ctx, req.(*ListItemsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -296,12 +398,24 @@ var ReEarthCMS_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ReEarthCMS_DeleteProject_Handler,
 		},
 		{
+			MethodName: "CheckAliasAvailability",
+			Handler:    _ReEarthCMS_CheckAliasAvailability_Handler,
+		},
+		{
+			MethodName: "GetProject",
+			Handler:    _ReEarthCMS_GetProject_Handler,
+		},
+		{
 			MethodName: "ListProjects",
 			Handler:    _ReEarthCMS_ListProjects_Handler,
 		},
 		{
 			MethodName: "ListModels",
 			Handler:    _ReEarthCMS_ListModels_Handler,
+		},
+		{
+			MethodName: "ListItems",
+			Handler:    _ReEarthCMS_ListItems_Handler,
 		},
 		{
 			MethodName: "GetModelGeoJSONExportURL",

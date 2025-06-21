@@ -45,9 +45,9 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		return nil, err
 	}
 
-	var pub *interfaces.UpdateProjectAccessibilityParam
+	var pub *interfaces.AccessibilityParam
 	if input.Accessibility != nil {
-		pub = &interfaces.UpdateProjectAccessibilityParam{
+		pub = &interfaces.AccessibilityParam{
 			Visibility:  gqlmodel.FromProjectVisibility(input.Accessibility.Visibility),
 			Publication: gqlmodel.FromPublicationSettings(input.Accessibility.Publication),
 		}
