@@ -71,7 +71,7 @@ func (b *Builder) Description(description string) *Builder {
 	return b
 }
 
-func (b *Builder) ReadMe(readme string) *Builder {
+func (b *Builder) Readme(readme string) *Builder {
 	b.p.readme = readme
 	return b
 }

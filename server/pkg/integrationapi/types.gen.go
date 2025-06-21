@@ -567,7 +567,9 @@ type Project struct {
 	CreatedAt     time.Time                 `json:"createdAt"`
 	Description   string                    `json:"description"`
 	Id            id.ProjectID              `json:"id"`
+	License       string                    `json:"license"`
 	Name          string                    `json:"name"`
+	Readme        string                    `json:"readme"`
 	RequestRoles  *[]ProjectRequestRole     `json:"requestRoles,omitempty"`
 	UpdatedAt     time.Time                 `json:"updatedAt"`
 	WorkspaceId   accountdomain.WorkspaceID `json:"workspaceId"`
@@ -1146,7 +1148,9 @@ type ProjectFilterParams struct {
 type ProjectCreateJSONBody struct {
 	Alias        *string               `json:"alias,omitempty"`
 	Description  *string               `json:"description,omitempty"`
+	License      *string               `json:"license,omitempty"`
 	Name         *string               `json:"name,omitempty"`
+	Readme       *string               `json:"readme,omitempty"`
 	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
 }
 
@@ -1164,7 +1168,9 @@ type ProjectUpdateJSONBody struct {
 	Accessibility *Accessibility        `json:"accessibility,omitempty"`
 	Alias         *string               `json:"alias,omitempty"`
 	Description   *string               `json:"description,omitempty"`
+	License       *string               `json:"license,omitempty"`
 	Name          *string               `json:"name,omitempty"`
+	Readme        *string               `json:"readme,omitempty"`
 	RequestRoles  *[]ProjectRequestRole `json:"requestRoles,omitempty"`
 }
 

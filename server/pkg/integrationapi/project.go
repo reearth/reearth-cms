@@ -26,6 +26,8 @@ func NewProject(p *project.Project) Project {
 		WorkspaceId:   p.Workspace(),
 		Name:          p.Name(),
 		Description:   p.Description(),
+		License:       p.License(),
+		Readme:        p.Readme(),
 		Alias:         p.Alias(),
 		Accessibility: accessibility,
 		RequestRoles:  requestRoles,

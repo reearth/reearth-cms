@@ -21,6 +21,8 @@ func ToProject(p *project.Project) *Project {
 		Alias:         p.Alias(),
 		Name:          p.Name(),
 		Description:   p.Description(),
+		License:       p.License(),
+		Readme:        p.Readme(),
 		UpdatedAt:     p.UpdatedAt(),
 		Accessibility: ToProjectAccessibility(p.Accessibility()),
 		RequestRoles:  lo.Map(p.RequestRoles(), func(r workspace.Role, _ int) Role { return ToRole(r) }),

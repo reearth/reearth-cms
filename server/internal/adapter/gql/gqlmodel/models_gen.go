@@ -316,6 +316,8 @@ type CreateProjectInput struct {
 	WorkspaceID  ID      `json:"workspaceId"`
 	Name         *string `json:"name,omitempty"`
 	Description  *string `json:"description,omitempty"`
+	License      *string `json:"license,omitempty"`
+	Readme       *string `json:"readme,omitempty"`
 	Alias        *string `json:"alias,omitempty"`
 	RequestRoles []Role  `json:"requestRoles,omitempty"`
 }
@@ -817,6 +819,8 @@ type Project struct {
 	ID            ID                    `json:"id"`
 	Name          string                `json:"name"`
 	Description   string                `json:"description"`
+	License       string                `json:"license"`
+	Readme        string                `json:"readme"`
 	Alias         string                `json:"alias"`
 	WorkspaceID   ID                    `json:"workspaceId"`
 	Workspace     *Workspace            `json:"workspace,omitempty"`
@@ -1455,6 +1459,8 @@ type UpdateProjectInput struct {
 	ProjectID     ID                               `json:"projectId"`
 	Name          *string                          `json:"name,omitempty"`
 	Description   *string                          `json:"description,omitempty"`
+	License       *string                          `json:"license,omitempty"`
+	Readme        *string                          `json:"readme,omitempty"`
 	Alias         *string                          `json:"alias,omitempty"`
 	Accessibility *UpdateProjectAccessibilityInput `json:"accessibility,omitempty"`
 	RequestRoles  []Role                           `json:"requestRoles,omitempty"`

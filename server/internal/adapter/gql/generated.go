@@ -539,7 +539,9 @@ type ComplexityRoot struct {
 		CreatedAt     func(childComplexity int) int
 		Description   func(childComplexity int) int
 		ID            func(childComplexity int) int
+		License       func(childComplexity int) int
 		Name          func(childComplexity int) int
+		Readme        func(childComplexity int) int
 		RequestRoles  func(childComplexity int) int
 		UpdatedAt     func(childComplexity int) int
 		Workspace     func(childComplexity int) int
@@ -3413,12 +3415,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Project.ID(childComplexity), true
 
+	case "Project.license":
+		if e.complexity.Project.License == nil {
+			break
+		}
+
+		return e.complexity.Project.License(childComplexity), true
+
 	case "Project.name":
 		if e.complexity.Project.Name == nil {
 			break
 		}
 
 		return e.complexity.Project.Name(childComplexity), true
+
+	case "Project.readme":
+		if e.complexity.Project.Readme == nil {
+			break
+		}
+
+		return e.complexity.Project.Readme(childComplexity), true
 
 	case "Project.requestRoles":
 		if e.complexity.Project.RequestRoles == nil {
@@ -6710,6 +6726,8 @@ type Project implements Node {
   id: ID!
   name: String!
   description: String!
+  license: String!
+  readme: String!
   alias: String!
   workspaceId: ID!
   workspace: Workspace
@@ -6724,6 +6742,8 @@ input CreateProjectInput {
   workspaceId: ID!
   name: String
   description: String
+  license: String
+  readme: String
   alias: String
   requestRoles: [Role!]
 }
@@ -6742,6 +6762,8 @@ input UpdateProjectInput {
   projectId: ID!
   name: String
   description: String
+  license: String
+  readme: String
   alias: String
   accessibility: UpdateProjectAccessibilityInput
   requestRoles: [Role!]
@@ -10435,6 +10457,10 @@ func (ec *executionContext) fieldContext_Asset_project(_ context.Context, field 
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -14795,6 +14821,10 @@ func (ec *executionContext) fieldContext_Group_project(_ context.Context, field 
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -16689,6 +16719,10 @@ func (ec *executionContext) fieldContext_Item_project(_ context.Context, field g
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -19217,6 +19251,10 @@ func (ec *executionContext) fieldContext_Model_project(_ context.Context, field 
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -24337,6 +24375,94 @@ func (ec *executionContext) fieldContext_Project_description(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Project_license(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Project_license(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.License, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Project_license(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Project",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Project_readme(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Project_readme(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Readme, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Project_readme(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Project",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Project_alias(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Project_alias(ctx, field)
 	if err != nil {
@@ -25210,6 +25336,10 @@ func (ec *executionContext) fieldContext_ProjectConnection_nodes(_ context.Conte
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -25415,6 +25545,10 @@ func (ec *executionContext) fieldContext_ProjectEdge_node(_ context.Context, fie
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -25481,6 +25615,10 @@ func (ec *executionContext) fieldContext_ProjectPayload_project(_ context.Contex
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -28086,6 +28224,10 @@ func (ec *executionContext) fieldContext_Request_project(_ context.Context, fiel
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -29236,6 +29378,10 @@ func (ec *executionContext) fieldContext_Schema_project(_ context.Context, field
 				return ec.fieldContext_Project_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Project_description(ctx, field)
+			case "license":
+				return ec.fieldContext_Project_license(ctx, field)
+			case "readme":
+				return ec.fieldContext_Project_readme(ctx, field)
 			case "alias":
 				return ec.fieldContext_Project_alias(ctx, field)
 			case "workspaceId":
@@ -38519,7 +38665,7 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name", "description", "alias", "requestRoles"}
+	fieldsInOrder := [...]string{"workspaceId", "name", "description", "license", "readme", "alias", "requestRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -38547,6 +38693,20 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Description = data
+		case "license":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("license"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.License = data
+		case "readme":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("readme"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Readme = data
 		case "alias":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alias"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -42440,7 +42600,7 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "accessibility", "requestRoles"}
+	fieldsInOrder := [...]string{"projectId", "name", "description", "license", "readme", "alias", "accessibility", "requestRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -42468,6 +42628,20 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Description = data
+		case "license":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("license"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.License = data
+		case "readme":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("readme"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Readme = data
 		case "alias":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alias"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -47541,6 +47715,16 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "description":
 			out.Values[i] = ec._Project_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "license":
+			out.Values[i] = ec._Project_license(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "readme":
+			out.Values[i] = ec._Project_readme(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

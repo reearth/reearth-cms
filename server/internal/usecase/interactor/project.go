@@ -31,36 +31,47 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, _ *usecase.Oper
 	return i.repos.Project.FindByIDs(ctx, ids)
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, p)
+func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, p *usecasex.Pagination, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, f, p)
 }
 
 func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
 	return i.repos.Project.FindByIDOrAlias(ctx, id)
 }
 
-func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
-	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.WorkspaceID).Transaction(),
+func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
+	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			pb := project.New().
 				NewID().
-				Workspace(p.WorkspaceID)
-			if p.Name != nil {
-				pb = pb.Name(*p.Name)
+				Workspace(param.WorkspaceID)
+			if param.Name != nil {
+				pb = pb.Name(*param.Name)
 			}
-			if p.Description != nil {
-				pb = pb.Description(*p.Description)
+			if param.Description != nil {
+				pb = pb.Description(*param.Description)
 			}
-			if p.Alias != nil {
-				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *p.Alias); !ok {
+			if param.License != nil {
+				pb = pb.License(*param.License)
+			}
+			if param.Readme != nil {
+				pb = pb.Readme(*param.Readme)
+			}
+			if param.Alias != nil {
+				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *param.Alias); !ok {
 					return nil, interfaces.ErrProjectAliasAlreadyUsed
 				}
-				pb = pb.Alias(*p.Alias)
+				pb = pb.Alias(*param.Alias)
 			}
-			if len(p.RequestRoles) > 0 {
-				pb = pb.RequestRoles(p.RequestRoles)
+			if len(param.RequestRoles) > 0 {
+				pb = pb.RequestRoles(param.RequestRoles)
 			} else {
 				pb = pb.RequestRoles([]workspace.Role{})
+			}
+
+			if param.Accessibility != nil && param.Accessibility.Visibility != nil {
+				accessibility := project.NewAccessibility(*param.Accessibility.Visibility, nil, nil)
+				pb = pb.Accessibility(accessibility)
 			}
 
 			proj, err := pb.Build()
@@ -89,6 +100,14 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 
 			if param.Description != nil {
 				p.UpdateDescription(*param.Description)
+			}
+
+			if param.License != nil {
+				p.UpdateLicense(*param.License)
+			}
+
+			if param.Readme != nil {
+				p.UpdateReadMe(*param.Readme)
 			}
 
 			if param.Alias != nil && *param.Alias != p.Alias() {
