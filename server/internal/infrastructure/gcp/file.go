@@ -373,6 +373,13 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 	writer := object.NewWriter(ctx)
 	writer.CacheControl = f.cacheControl
 
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		if writer.ObjectAttrs.Metadata == nil {
+			writer.ObjectAttrs.Metadata = make(map[string]string)
+		}
+		writer.ObjectAttrs.Metadata["X-Reearth-Workspace-Alias"] = workspace
+	}
+
 	if file.ContentType == "" {
 		writer.ContentType = getContentType(file.Name)
 	} else {
@@ -623,4 +630,13 @@ func hasAcceptEncoding(accept, encoding string) bool {
 		}
 	}
 	return false
+}
+
+func getWorkspaceFromContext(ctx context.Context) string {
+	if v := ctx.Value("workspace"); v != nil {
+		if ws, ok := v.(string); ok {
+			return ws
+		}
+	}
+	return ""
 }
