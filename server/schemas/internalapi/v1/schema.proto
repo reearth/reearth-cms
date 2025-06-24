@@ -119,12 +119,12 @@ message CreateProjectRequest {
 
 message UpdateProjectRequest {
   string project_id = 1;
-  string name = 2;
+  optional string name = 2;
   optional string description = 3;
   optional string license = 4;
   optional string readme = 5;
-  string alias = 6;
-  Visibility visibility = 7;
+  optional string alias = 6;
+  optional Visibility visibility = 7;
 }
 
 message DeleteProjectRequest {

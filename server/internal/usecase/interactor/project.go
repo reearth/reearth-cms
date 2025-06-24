@@ -39,8 +39,11 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *
 	return i.repos.Project.FindByIDOrAlias(ctx, id)
 }
 
-func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
-	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
+func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
+	if !op.IsUserOrIntegration() {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			pb := project.New().
 				NewID().
@@ -87,12 +90,15 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 		})
 }
 
-func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectParam, operator *usecase.Operator) (_ *project.Project, err error) {
+func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
+	if !op.IsUserOrIntegration() {
+		return nil, interfaces.ErrInvalidOperator
+	}
 	p, err := i.repos.Project.FindByID(ctx, param.ID)
 	if err != nil {
 		return nil, err
 	}
-	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			if param.Name != nil {
 				p.UpdateName(*param.Name)
@@ -157,14 +163,17 @@ func (i *Project) CheckAlias(ctx context.Context, alias string) (bool, error) {
 		})
 }
 
-func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, operator *usecase.Operator) (err error) {
+func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecase.Operator) (err error) {
+	if !op.IsUserOrIntegration() {
+		return interfaces.ErrInvalidOperator
+	}
 	proj, err := i.repos.Project.FindByID(ctx, projectID)
 	if err != nil {
 		return err
 	}
-	return Run0(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
+	return Run0(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
 		func(ctx context.Context) error {
-			if !operator.IsOwningWorkspace(proj.Workspace()) {
+			if !op.IsOwningWorkspace(proj.Workspace()) {
 				return interfaces.ErrOperationDenied
 			}
 			if err := i.repos.Project.Remove(ctx, projectID); err != nil {

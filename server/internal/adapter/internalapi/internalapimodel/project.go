@@ -37,9 +37,12 @@ func ToProjectVisibility(p project.Visibility) pb.Visibility {
 	return pb.Visibility_PUBLIC
 }
 
-func ProjectAccessibilityFromPB(v pb.Visibility) *interfaces.AccessibilityParam {
+func ProjectAccessibilityFromPB(v *pb.Visibility) *interfaces.AccessibilityParam {
+	if v == nil {
+		return nil
+	}
 	return &interfaces.AccessibilityParam{
-		Visibility:  lo.ToPtr(ProjectPublicationVisibilityFromPB(v)),
+		Visibility:  lo.ToPtr(ProjectPublicationVisibilityFromPB(*v)),
 		Publication: nil,
 	}
 }

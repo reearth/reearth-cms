@@ -54,7 +54,7 @@ func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest)
 		Readme:        req.Readme,
 		Alias:         &req.Alias,
 		RequestRoles:  []workspace.Role{},
-		Accessibility: internalapimodel.ProjectAccessibilityFromPB(req.Visibility),
+		Accessibility: internalapimodel.ProjectAccessibilityFromPB(&req.Visibility),
 	}, op)
 	if err != nil {
 		return nil, err
@@ -75,11 +75,11 @@ func (s server) UpdateProject(ctx context.Context, req *pb.UpdateProjectRequest)
 	// todo accessibility
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
 		ID:            pId,
-		Name:          &req.Name,
+		Name:          req.Name,
 		Description:   req.Description,
 		License:       req.License,
 		Readme:        req.Readme,
-		Alias:         &req.Alias,
+		Alias:         req.Alias,
 		RequestRoles:  []workspace.Role{},
 		Accessibility: internalapimodel.ProjectAccessibilityFromPB(req.Visibility),
 	}, op)

@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
+	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/text/language"
@@ -93,23 +94,15 @@ func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServer
 			log.Errorf("unaryAttachOperatorInterceptor: no metadata found")
 			return nil, errors.New("unauthorized")
 		}
-		if len(md["user-id"]) < 1 {
-			log.Errorf("unaryAttachOperatorInterceptor: no user id found")
-			return nil, errors.New("unauthorized")
-		}
 
-		userID, err := accountdomain.UserIDFrom(md["user-id"][0])
-		if err != nil {
-			log.Errorf("unaryAttachOperatorInterceptor: invalid user id")
-			return nil, errors.New("unauthorized")
-		}
-		u, err := appCtx.AcRepos.User.FindByID(ctx, userID)
-		if err != nil {
-			log.Errorf("unaryAttachOperatorInterceptor: %v", err)
-			return nil, rerror.ErrInternalBy(err)
-		}
+		userID := userIdFromGrpcMetadata(md)
+		if !userID.IsEmpty() {
+			u, err := appCtx.AcRepos.User.FindByID(ctx, userID)
+			if err != nil {
+				log.Errorf("unaryAttachOperatorInterceptor: %v", err)
+				return nil, rerror.ErrInternalBy(err)
+			}
 
-		if u != nil {
 			op, err := generateUserOperator(ctx, appCtx, u, language.English.String())
 			if err != nil {
 				return nil, err
@@ -162,4 +155,17 @@ func tokenFromGrpcMetadata(md metadata.MD) string {
 		return ""
 	}
 	return token
+}
+
+func userIdFromGrpcMetadata(md metadata.MD) idx.ID[accountdomain.User] {
+	if len(md["user-id"]) < 1 {
+		return idx.ID[accountdomain.User]{}
+	}
+
+	userID, err := accountdomain.UserIDFrom(md["user-id"][0])
+	if err != nil {
+		log.Errorf("unaryAttachOperatorInterceptor: invalid user id")
+		return idx.ID[accountdomain.User]{}
+	}
+	return userID
 }
