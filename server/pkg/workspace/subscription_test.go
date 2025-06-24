@@ -507,7 +507,6 @@ func TestIsLimitsEnabled(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt // capture range variable
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			SetSubscriptionConfig(tt.config)
 			result := IsLimitsEnabled()
 			assert.Equal(t, tt.expected, result)
@@ -664,7 +663,6 @@ func TestGetWorkspacePlan(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt // capture range variable
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			SetDashboardConfig(tt.dashboardConfig)
 			SetDashboardAPI(tt.dashboardAPI)
 
