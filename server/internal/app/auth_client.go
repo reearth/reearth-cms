@@ -182,7 +182,7 @@ func generateUserOperator(ctx context.Context, appCtx *ApplicationContext, u *us
 		return nil, err
 	}
 
-	lang := u.Lang().String()
+	lang := u.Metadata().Lang().String()
 	if lang == "" || lang == "und" {
 		lang = defaultLang
 	}
