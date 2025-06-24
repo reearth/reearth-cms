@@ -29,6 +29,10 @@ const (
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
+type contextKey string
+
+const workspaceContextKey contextKey = "workspace"
+
 type fileRepo struct {
 	bucketName   string
 	publicBase   *url.URL
@@ -374,10 +378,10 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 	writer.CacheControl = f.cacheControl
 
 	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
-		if writer.ObjectAttrs.Metadata == nil {
-			writer.ObjectAttrs.Metadata = make(map[string]string)
+		if writer.Metadata == nil {
+			writer.Metadata = make(map[string]string)
 		}
-		writer.ObjectAttrs.Metadata["X-Reearth-Workspace-Alias"] = workspace
+		writer.Metadata["X-Reearth-Workspace-Alias"] = workspace
 	}
 
 	if file.ContentType == "" {
@@ -633,7 +637,7 @@ func hasAcceptEncoding(accept, encoding string) bool {
 }
 
 func getWorkspaceFromContext(ctx context.Context) string {
-	if v := ctx.Value("workspace"); v != nil {
+	if v := ctx.Value(workspaceContextKey); v != nil {
 		if ws, ok := v.(string); ok {
 			return ws
 		}

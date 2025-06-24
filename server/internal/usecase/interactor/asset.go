@@ -25,6 +25,8 @@ import (
 	"github.com/samber/lo"
 )
 
+type contextKey string
+
 type Asset struct {
 	repos       *repo.Container
 	gateways    *gateway.Container
@@ -163,7 +165,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			return nil, nil, err
 		}
 
-		ctxWithWorkspace := context.WithValue(ctx, "workspace", workspace.Name())
+		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.Name())
 		uuid, size, err = i.gateways.File.UploadAsset(ctxWithWorkspace, inp.File)
 		if err != nil {
 			return nil, nil, err

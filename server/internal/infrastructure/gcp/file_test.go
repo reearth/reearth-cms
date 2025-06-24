@@ -82,7 +82,7 @@ func TestGetWorkspaceFromContext(t *testing.T) {
 		},
 		{
 			name:     "workspace alias in context",
-			ctx:      context.WithValue(context.Background(), "workspace", "test-workspace-alias"),
+			ctx:      context.WithValue(context.Background(), workspaceContextKey, "test-workspace-alias"),
 			expected: "test-workspace-alias",
 		},
 	}
