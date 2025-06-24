@@ -73,11 +73,38 @@ type Config struct {
 
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
+
+	// Subscription Limits Configuration
+	SubscriptionLimits SubscriptionLimitConfig `pp:",omitempty"`
+
+	// Dashboard API Configuration
+	Dashboard DashboardConfig `pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
 	Username string `pp:",omitempty"`
 	Password string `pp:",omitempty"`
+}
+
+type SubscriptionLimitConfig struct {
+	Enabled    bool            `default:"false" pp:",omitempty"`
+	Free       PlanLimitConfig `pp:",omitempty"`
+	Starter    PlanLimitConfig `pp:",omitempty"`
+	Business   PlanLimitConfig `pp:",omitempty"`
+	Advanced   PlanLimitConfig `pp:",omitempty"`
+	Enterprise PlanLimitConfig `pp:",omitempty"`
+}
+
+type DashboardConfig struct {
+	URL     string `default:"https://api.dashboard.dev.reearth.io" pp:",omitempty"`
+	Enabled bool   `default:"false" pp:",omitempty"`
+}
+
+type PlanLimitConfig struct {
+	ProjectLimit         int `default:"-1" pp:",omitempty"`
+	ModelPerProjectLimit int `default:"-1" pp:",omitempty"`
+	ItemPerModelLimit    int `default:"-1" pp:",omitempty"`
+	IntegrationLimit     int `default:"-1" pp:",omitempty"`
 }
 
 type ServerConfig struct {
@@ -413,6 +440,47 @@ func (c *Config) WebConfig() map[string]any {
 	}
 
 	return config
+}
+
+// DefaultSubscriptionLimits returns the default subscription limits configuration
+func (c *Config) DefaultSubscriptionLimits() SubscriptionLimitConfig {
+	if c.SubscriptionLimits == (SubscriptionLimitConfig{}) {
+		// Return hardcoded defaults if not configured (disabled by default)
+		return SubscriptionLimitConfig{
+			Enabled: false, // Disabled by default
+			Free: PlanLimitConfig{
+				ProjectLimit:         1,
+				ModelPerProjectLimit: 3,
+				ItemPerModelLimit:    100,
+				IntegrationLimit:     1,
+			},
+			Starter: PlanLimitConfig{
+				ProjectLimit:         3,
+				ModelPerProjectLimit: 10,
+				ItemPerModelLimit:    1000,
+				IntegrationLimit:     3,
+			},
+			Business: PlanLimitConfig{
+				ProjectLimit:         10,
+				ModelPerProjectLimit: 50,
+				ItemPerModelLimit:    10000,
+				IntegrationLimit:     10,
+			},
+			Advanced: PlanLimitConfig{
+				ProjectLimit:         50,
+				ModelPerProjectLimit: 200,
+				ItemPerModelLimit:    100000,
+				IntegrationLimit:     50,
+			},
+			Enterprise: PlanLimitConfig{
+				ProjectLimit:         -1,
+				ModelPerProjectLimit: -1,
+				ItemPerModelLimit:    -1,
+				IntegrationLimit:     -1,
+			},
+		}
+	}
+	return c.SubscriptionLimits
 }
 
 type JSON struct {

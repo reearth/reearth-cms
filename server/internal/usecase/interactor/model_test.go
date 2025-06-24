@@ -17,6 +17,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	workspacepkg "github.com/reearth/reearth-cms/server/pkg/workspace"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
@@ -24,6 +25,44 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	// Initialize subscription config for tests with limits disabled to avoid test failures
+	testConfig := workspacepkg.SubscriptionLimitConfig{
+		Enabled: false, // Disable limits for tests to avoid interference
+		Free: workspacepkg.PlanLimitConfig{
+			ProjectLimit:         1000,
+			ModelPerProjectLimit: 1000,
+			ItemPerModelLimit:    100000,
+			IntegrationLimit:     1000,
+		},
+		Starter: workspacepkg.PlanLimitConfig{
+			ProjectLimit:         1000,
+			ModelPerProjectLimit: 1000,
+			ItemPerModelLimit:    100000,
+			IntegrationLimit:     1000,
+		},
+		Business: workspacepkg.PlanLimitConfig{
+			ProjectLimit:         1000,
+			ModelPerProjectLimit: 1000,
+			ItemPerModelLimit:    100000,
+			IntegrationLimit:     1000,
+		},
+		Advanced: workspacepkg.PlanLimitConfig{
+			ProjectLimit:         1000,
+			ModelPerProjectLimit: 1000,
+			ItemPerModelLimit:    100000,
+			IntegrationLimit:     1000,
+		},
+		Enterprise: workspacepkg.PlanLimitConfig{
+			ProjectLimit:         -1,
+			ModelPerProjectLimit: -1,
+			ItemPerModelLimit:    -1,
+			IntegrationLimit:     -1,
+		},
+	}
+	workspacepkg.SetSubscriptionConfig(testConfig)
+}
 
 func TestModel_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()

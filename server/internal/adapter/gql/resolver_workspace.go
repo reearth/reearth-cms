@@ -10,8 +10,10 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	workspacepkg "github.com/reearth/reearth-cms/server/pkg/workspace"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
@@ -93,6 +95,28 @@ func (r *mutationResolver) AddUsersToWorkspace(ctx context.Context, input gqlmod
 func (r *mutationResolver) AddIntegrationToWorkspace(ctx context.Context, input gqlmodel.AddIntegrationToWorkspaceInput) (*gqlmodel.AddUsersToWorkspacePayload, error) {
 	wId, iId, err := gqlmodel.ToID2[accountdomain.Workspace, accountdomain.Integration](input.WorkspaceID, input.IntegrationID)
 	if err != nil {
+		return nil, err
+	}
+
+	// Check subscription limits for integration addition
+	// TODO: Extract JWT token from request context for dashboard API calls
+	plan := workspacepkg.GetWorkspacePlan(ctx, wId, "")
+
+	// Fetch current workspace to count integrations
+	workspaces, err := usecases(ctx).Workspace.Fetch(ctx, []accountdomain.WorkspaceID{wId}, getAcOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	if len(workspaces) == 0 {
+		return nil, rerror.ErrNotFound
+	}
+
+	// Count current integrations and validate against limit
+	currentIntegrations := len(workspaces[0].Members().Integrations())
+	if err := workspacepkg.ValidateIntegrationLimit(plan, currentIntegrations); err != nil {
+		if errors.Is(err, workspacepkg.ErrLimitExceeded) {
+			return nil, rerror.NewE(i18n.T("integration limit exceeded for current subscription plan"))
+		}
 		return nil, err
 	}
 

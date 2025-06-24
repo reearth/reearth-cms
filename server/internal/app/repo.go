@@ -8,9 +8,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/http"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/workspace"
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
@@ -78,6 +80,28 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	acRepos := initAccountDB(client, txAvailable, ctx, conf)
 	cmsRepos := initCMSDB(client, txAvailable, acRepos, ctx, conf)
 
+	// Initialize subscription limits configuration
+	subscriptionConfig := convertToWorkspaceConfig(conf.DefaultSubscriptionLimits())
+	workspace.SetSubscriptionConfig(subscriptionConfig)
+	if subscriptionConfig.Enabled {
+		log.Infof("subscription limits: enabled and configuration loaded")
+	} else {
+		log.Infof("subscription limits: disabled")
+	}
+
+	// Initialize dashboard API configuration
+	dashboardConfig := convertToDashboardConfig(conf.Dashboard)
+	workspace.SetDashboardConfig(dashboardConfig)
+	if dashboardConfig.Enabled {
+		log.Infof("dashboard API: enabled, URL=%s", dashboardConfig.URL)
+		dashboardAPI := http.NewDashboard(dashboardConfig.URL)
+		// Use gateway directly without unnecessary adapter
+		workspace.SetDashboardAPI(dashboardAPI)
+		gateways.Dashboard = dashboardAPI
+	} else {
+		log.Infof("dashboard API: disabled")
+	}
+
 	// File
 	var fileRepo gateway.File
 	privateBase := conf.Host
@@ -143,6 +167,51 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	}
 
 	return cmsRepos, gateways, acRepos, acGateways
+}
+
+// convertToWorkspaceConfig converts app config to workspace subscription config
+func convertToWorkspaceConfig(appConfig SubscriptionLimitConfig) workspace.SubscriptionLimitConfig {
+	return workspace.SubscriptionLimitConfig{
+		Enabled: appConfig.Enabled,
+		Free: workspace.PlanLimitConfig{
+			ProjectLimit:         appConfig.Free.ProjectLimit,
+			ModelPerProjectLimit: appConfig.Free.ModelPerProjectLimit,
+			ItemPerModelLimit:    appConfig.Free.ItemPerModelLimit,
+			IntegrationLimit:     appConfig.Free.IntegrationLimit,
+		},
+		Starter: workspace.PlanLimitConfig{
+			ProjectLimit:         appConfig.Starter.ProjectLimit,
+			ModelPerProjectLimit: appConfig.Starter.ModelPerProjectLimit,
+			ItemPerModelLimit:    appConfig.Starter.ItemPerModelLimit,
+			IntegrationLimit:     appConfig.Starter.IntegrationLimit,
+		},
+		Business: workspace.PlanLimitConfig{
+			ProjectLimit:         appConfig.Business.ProjectLimit,
+			ModelPerProjectLimit: appConfig.Business.ModelPerProjectLimit,
+			ItemPerModelLimit:    appConfig.Business.ItemPerModelLimit,
+			IntegrationLimit:     appConfig.Business.IntegrationLimit,
+		},
+		Advanced: workspace.PlanLimitConfig{
+			ProjectLimit:         appConfig.Advanced.ProjectLimit,
+			ModelPerProjectLimit: appConfig.Advanced.ModelPerProjectLimit,
+			ItemPerModelLimit:    appConfig.Advanced.ItemPerModelLimit,
+			IntegrationLimit:     appConfig.Advanced.IntegrationLimit,
+		},
+		Enterprise: workspace.PlanLimitConfig{
+			ProjectLimit:         appConfig.Enterprise.ProjectLimit,
+			ModelPerProjectLimit: appConfig.Enterprise.ModelPerProjectLimit,
+			ItemPerModelLimit:    appConfig.Enterprise.ItemPerModelLimit,
+			IntegrationLimit:     appConfig.Enterprise.IntegrationLimit,
+		},
+	}
+}
+
+// convertToDashboardConfig converts app config to workspace dashboard config
+func convertToDashboardConfig(appConfig DashboardConfig) workspace.DashboardConfig {
+	return workspace.DashboardConfig{
+		URL:     appConfig.URL,
+		Enabled: appConfig.Enabled,
+	}
 }
 
 func NewLogMonitor() *event.CommandMonitor {

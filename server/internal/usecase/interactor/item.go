@@ -18,6 +18,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearth-cms/server/pkg/workspace"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -198,6 +200,29 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		if !operator.IsWritableWorkspace(s.Workspace()) {
 			return nil, interfaces.ErrOperationDenied
+		}
+
+		// Check subscription limits for item creation
+		p, err := i.repos.Project.FindByID(ctx, m.Project())
+		if err != nil {
+			return nil, err
+		}
+		
+		// TODO: Extract JWT token from request context for dashboard API calls
+		plan := workspace.GetWorkspacePlan(ctx, p.Workspace(), "")
+		
+		// Count current items in the model
+		items, _, err := i.repos.Item.FindByModel(ctx, param.ModelID, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+		if err != nil {
+			return nil, err
+		}
+		
+		// Validate against item per model limit
+		if err := workspace.ValidateItemLimit(plan, len(items)); err != nil {
+			if errors.Is(err, workspace.ErrLimitExceeded) {
+				return nil, rerror.NewE(i18n.T("item limit exceeded for current subscription plan"))
+			}
+			return nil, err
 		}
 
 		modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
@@ -385,6 +410,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				}
 			}
 		}
+
 
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
