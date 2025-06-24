@@ -338,6 +338,7 @@ func TestValidateItemLimit(t *testing.T) {
 }
 
 func TestValidateIntegrationLimit(t *testing.T) {
+
 	SetSubscriptionConfig(setupTestConfig())
 
 	tests := []struct {
