@@ -516,7 +516,6 @@ func TestIsLimitsEnabled(t *testing.T) {
 }
 
 func TestValidateWithLimitsDisabled(t *testing.T) {
-	t.Parallel()
 
 	disabledConfig := SubscriptionLimitConfig{
 		Enabled: false,

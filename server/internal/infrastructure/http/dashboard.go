@@ -46,7 +46,11 @@ func (d *dashboardClient) GetWorkspaceSubscription(ctx context.Context, workspac
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request to dashboard API: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			log.Warnf("dashboard: failed to close response body: %v", closeErr)
+		}
+	}()
 	
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("dashboard API returned non-200 status: %d", resp.StatusCode)
