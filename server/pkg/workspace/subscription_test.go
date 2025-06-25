@@ -264,7 +264,6 @@ func TestValidateModelLimit(t *testing.T) {
 }
 
 func TestValidateItemLimit(t *testing.T) {
-
 	SetSubscriptionConfig(setupTestConfig())
 
 	tests := []struct {
