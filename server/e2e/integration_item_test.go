@@ -115,11 +115,14 @@ var (
 func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) error {
 	defer util.MockNow(now)()
 
+	metadata := user.NewMetadata()
+
 	// region user & integration & workspace & project
 	u := user.New().ID(uId).
 		Name("e2e").
 		Email("e2e@e2e.com").
 		Workspace(wId0).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
 		return err
@@ -142,12 +145,14 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 
+	wMetadata := workspace.NewMetadata()
 	w := workspace.New().
 		ID(wId0).
 		Name("e2e").
 		Personal(false).
 		Members(map[accountdomain.UserID]workspace.Member{uId: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
 		Integrations(map[workspace.IntegrationID]workspace.Member{iid: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
 		return err
