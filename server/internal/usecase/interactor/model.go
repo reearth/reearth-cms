@@ -86,17 +86,16 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Check subscription limits for model creation
-	// TODO: Extract JWT token from request context for dashboard API calls
 	plan := workspace.GetWorkspacePlan(ctx, p.Workspace(), "")
-	
+
 	// Count current models in the project
 	models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Validate against model per project limit
 	if err := workspace.ValidateModelLimit(plan, len(models)); err != nil {
 		if errors.Is(err, workspace.ErrLimitExceeded) {
@@ -104,7 +103,7 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 		}
 		return nil, err
 	}
-	
+
 	m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err

@@ -207,16 +207,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-		
-		// TODO: Extract JWT token from request context for dashboard API calls
+
 		plan := workspace.GetWorkspacePlan(ctx, p.Workspace(), "")
-		
+
 		// Count current items in the model
 		items, _, err := i.repos.Item.FindByModel(ctx, param.ModelID, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 		if err != nil {
 			return nil, err
 		}
-		
+
 		// Validate against item per model limit
 		if err := workspace.ValidateItemLimit(plan, len(items)); err != nil {
 			if errors.Is(err, workspace.ErrLimitExceeded) {
@@ -410,7 +409,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				}
 			}
 		}
-
 
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err

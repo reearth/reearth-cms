@@ -99,7 +99,6 @@ func (r *mutationResolver) AddIntegrationToWorkspace(ctx context.Context, input 
 	}
 
 	// Check subscription limits for integration addition
-	// TODO: Extract JWT token from request context for dashboard API calls
 	plan := workspacepkg.GetWorkspacePlan(ctx, wId, "")
 
 	// Fetch current workspace to count integrations

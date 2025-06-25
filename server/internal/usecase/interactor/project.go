@@ -46,15 +46,14 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 	return Run1(ctx, operator, i.repos, Usecase().WithMaintainableWorkspaces(p.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			// Check subscription limits for project creation
-			// TODO: Extract JWT token from request context for dashboard API calls
 			plan := workspacepkg.GetWorkspacePlan(ctx, p.WorkspaceID, "")
-			
+
 			// Count current projects in the workspace
 			projects, _, err := i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{p.WorkspaceID}, nil)
 			if err != nil {
 				return nil, err
 			}
-			
+
 			// Validate against project limit
 			if err := workspacepkg.ValidateProjectLimit(plan, len(projects)); err != nil {
 				if errors.Is(err, workspacepkg.ErrLimitExceeded) {
