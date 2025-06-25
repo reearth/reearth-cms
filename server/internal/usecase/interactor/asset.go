@@ -165,7 +165,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			return nil, nil, err
 		}
 
-		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.Name())
+		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())
 		uuid, size, err = i.gateways.File.UploadAsset(ctxWithWorkspace, inp.File)
 		if err != nil {
 			return nil, nil, err

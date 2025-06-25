@@ -381,7 +381,7 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		if writer.Metadata == nil {
 			writer.Metadata = make(map[string]string)
 		}
-		writer.Metadata["X-Reearth-Workspace-Alias"] = workspace
+		writer.Metadata["X-Reearth-Workspace-ID"] = workspace
 	}
 
 	if file.ContentType == "" {
