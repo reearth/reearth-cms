@@ -32,7 +32,7 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "close-circle" }).click();
   await expect(projectCard).toBeVisible();
   await projectCard.click();
-  await expect(page.getByText(projectName)).toBeVisible();
+  await expect(page.getByText(projectName).first()).toBeVisible();
   await expect(page.getByText(projectDescription)).toBeVisible();
 
   await page.getByText("Settings").click();
@@ -52,6 +52,6 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Overview").click();
-  await expect(page.getByText(newProjectName)).toBeVisible();
+  await expect(page.getByText(newProjectName).first()).toBeVisible();
   await expect(page.getByText(newProjectDescription)).toBeVisible();
 });
