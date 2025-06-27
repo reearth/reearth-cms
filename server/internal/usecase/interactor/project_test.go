@@ -450,7 +450,7 @@ func TestProject_Update(t *testing.T) {
 				upp: interfaces.UpdateProjectParam{
 					ID:    p1.ID(),
 					Alias: lo.ToPtr("testAlias"),
-					Accessibility: &interfaces.UpdateProjectAccessibilityParam{
+					Accessibility: &interfaces.AccessibilityParam{
 						Visibility: lo.ToPtr(project.VisibilityPublic),
 					},
 				},
@@ -465,7 +465,7 @@ func TestProject_Update(t *testing.T) {
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID: p1.ID(),
-					Accessibility: &interfaces.UpdateProjectAccessibilityParam{
+					Accessibility: &interfaces.AccessibilityParam{
 						Visibility: lo.ToPtr(project.VisibilityPublic),
 					},
 				},
@@ -498,7 +498,14 @@ func TestProject_Update(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:           "mock error",
+			name: "mock error",
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:           p1.ID(),
+					RequestRoles: r2,
+				},
+				operator: op,
+			},
 			wantErr:        errors.New("test"),
 			mockProjectErr: true,
 		},
@@ -691,7 +698,11 @@ func TestProject_Delete(t *testing.T) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:           "mock error",
+			name: "mock error",
+			args: args{
+				id:       pid1,
+				operator: op,
+			},
 			wantErr:        errors.New("test"),
 			mockProjectErr: true,
 		},

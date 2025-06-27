@@ -686,7 +686,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, tc.args.pInfo)
+			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, nil, tc.args.pInfo)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
