@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -9,8 +10,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	workspacepkg "github.com/reearth/reearth-cms/server/pkg/workspace"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -45,6 +48,22 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 	}
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
+			// Check subscription limits for project creation
+			plan := workspacepkg.GetWorkspacePlan(ctx, p.WorkspaceID, "")
+
+			// Count current projects in the workspace
+			projects, _, err := i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{p.WorkspaceID}, nil)
+			if err != nil {
+				return nil, err
+			}
+
+			// Validate against project limit
+			if err := workspacepkg.ValidateProjectLimit(plan, len(projects)); err != nil {
+				if errors.Is(err, workspacepkg.ErrLimitExceeded) {
+					return nil, rerror.NewE(i18n.T("project limit exceeded for current subscription plan"))
+				}
+				return nil, err
+			}
 			pb := project.New().
 				NewID().
 				Workspace(param.WorkspaceID)
