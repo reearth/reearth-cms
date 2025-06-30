@@ -614,3 +614,92 @@ func TestItem_Copy(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, changes, lo.ToPtr(string(wantChanges)))
 }
+
+func TestItem_CountByModel(t *testing.T) {
+	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
+
+	mid1 := id.NewModelID()
+	mid2 := id.NewModelID()
+	pid1 := id.NewProjectID()
+	pid2 := id.NewProjectID()
+	sid := id.NewSchemaID()
+	sfid := schema.NewFieldID()
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
+
+	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
+	i4 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	tests := []struct {
+		Name        string
+		ModelID     id.ModelID
+		Seeds       item.List
+		Filter      repo.ProjectFilter
+		Expected    int
+		ExpectedErr error
+	}{
+		{
+			Name:    "count items for model with 2 items",
+			ModelID: mid1,
+			Seeds:   item.List{i1, i2, i3},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			Expected: 2,
+		},
+		{
+			Name:    "count items for model with 1 item",
+			ModelID: mid2,
+			Seeds:   item.List{i1, i2, i3},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			Expected: 1,
+		},
+		{
+			Name:    "count items for model with no items",
+			ModelID: id.NewModelID(),
+			Seeds:   item.List{i1, i2, i3},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			Expected: 0,
+		},
+		{
+			Name:    "count items with permission filter (no access)",
+			ModelID: mid1,
+			Seeds:   item.List{i1, i2, i4},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			Expected: 2, // only items from pid1, i4 from pid2 is filtered out
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(t))
+			repo := NewItem(client).Filtered(tc.Filter)
+
+			ctx := context.Background()
+			for _, i := range tc.Seeds {
+				err := repo.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			got, err := repo.CountByModel(ctx, tc.ModelID)
+			assert.Equal(tt, tc.ExpectedErr, err)
+			assert.Equal(tt, tc.Expected, got)
+		})
+	}
+}

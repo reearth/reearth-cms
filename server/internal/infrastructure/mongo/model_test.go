@@ -742,3 +742,88 @@ func TestSortModels(t *testing.T) {
 		})
 	}
 }
+
+func TestModel_CountByProject(t *testing.T) {
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
+	pid1 := id.NewProjectID()
+	pid2 := id.NewProjectID()
+	sid1 := id.NewSchemaID()
+	sid2 := id.NewSchemaID()
+	k := id.NewKey("T123456")
+
+	m1 := model.New().NewID().Project(pid1).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
+	m2 := model.New().NewID().Project(pid1).Schema(sid2).Key(k).UpdatedAt(mocknow).MustBuild()
+	m3 := model.New().NewID().Project(pid2).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
+
+	tests := []struct {
+		name        string
+		projectID   id.ProjectID
+		seeds       model.List
+		filter      repo.ProjectFilter
+		expected    int
+		expectedErr error
+	}{
+		{
+			name:      "count models for project with 2 models",
+			projectID: pid1,
+			seeds:     model.List{m1, m2, m3},
+			filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1},
+				Writable: []id.ProjectID{pid1},
+			},
+			expected: 2,
+		},
+		{
+			name:      "count models for project with 1 model",
+			projectID: pid2,
+			seeds:     model.List{m1, m2, m3},
+			filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1, pid2},
+				Writable: []id.ProjectID{pid1, pid2},
+			},
+			expected: 1,
+		},
+		{
+			name:      "count models for project with no models",
+			projectID: id.NewProjectID(),
+			seeds:     model.List{m1, m2, m3},
+			filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{pid1, pid2},
+				Writable: []id.ProjectID{pid1, pid2},
+			},
+			expected: 0,
+		},
+		{
+			name:      "count models with permission filter (no access)",
+			projectID: pid1,
+			seeds:     model.List{m1, m2, m3},
+			filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{},
+				Writable: []id.ProjectID{},
+			},
+			expected: 0,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+			repo := NewModel(client).Filtered(tc.filter)
+
+			ctx := context.Background()
+			for _, m := range tc.seeds {
+				err := repo.Save(ctx, m.Clone())
+				assert.NoError(t, err)
+			}
+
+			got, err := repo.CountByProject(ctx, tc.projectID)
+			assert.Equal(t, tc.expectedErr, err)
+			assert.Equal(t, tc.expected, got)
+		})
+	}
+}
