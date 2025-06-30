@@ -159,7 +159,6 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		var size int64
 		file = inp.File
 
-		// TODO : Use workspace alias instead of name @pyshx
 		workspace, err := i.repos.Workspace.FindByID(ctx, prj.Workspace())
 		if err != nil {
 			return nil, nil, err
