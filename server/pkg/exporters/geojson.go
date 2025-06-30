@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/iancoleman/orderedmap"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -122,13 +123,13 @@ func (t *Geometry_Coordinates) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func FeatureCollectionFromItems(l item.List, sp *schema.Package) (*FeatureCollection, error) {
+func FeatureCollectionFromItems(l item.List, sp *schema.Package, assets asset.List) (*FeatureCollection, error) {
 	if !sp.Schema().HasGeometryFields() {
 		return nil, noGeometryFieldError
 	}
 
 	features := lo.FilterMap(l, func(i *item.Item, _ int) (Feature, bool) {
-		return featureFromItem(i, sp)
+		return featureFromItem(i, sp, assets)
 	})
 
 	if len(features) == 0 {
@@ -141,7 +142,7 @@ func FeatureCollectionFromItems(l item.List, sp *schema.Package) (*FeatureCollec
 	}, nil
 }
 
-func featureFromItem(itm *item.Item, sp *schema.Package) (Feature, bool) {
+func featureFromItem(itm *item.Item, sp *schema.Package, assets asset.List) (Feature, bool) {
 	if sp == nil || sp.Schema() == nil {
 		return Feature{}, false
 	}
@@ -158,11 +159,11 @@ func featureFromItem(itm *item.Item, sp *schema.Package) (Feature, bool) {
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         itm.ID().Ref().StringRef(),
 		Geometry:   geometry,
-		Properties: extractProperties(itm, sp),
+		Properties: extractProperties(itm, sp, assets),
 	}, true
 }
 
-func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMap {
+func extractProperties(itm *item.Item, sp *schema.Package, assets asset.List) *orderedmap.OrderedMap {
 	if itm == nil || sp == nil || sp.Schema() == nil {
 		return nil
 	}
@@ -178,7 +179,7 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 			}
 			continue
 		case value.TypeAsset:
-			gp, ok := extractAssetProperties(itm, field)
+			gp, ok := extractAssetProperties(itm, field, assets)
 			if ok {
 				properties.Set(field.Key().String(), gp)
 			}
@@ -193,7 +194,7 @@ func extractProperties(itm *item.Item, sp *schema.Package) *orderedmap.OrderedMa
 	return properties
 }
 
-func extractAssetProperties(itm *item.Item, gf *schema.Field) (any, bool) {
+func extractAssetProperties(itm *item.Item, gf *schema.Field, assets asset.List) (any, bool) {
 	type asset struct {
 		ID   string `json:"id"`
 		URL  string `json:"url"`
@@ -209,6 +210,14 @@ func extractAssetProperties(itm *item.Item, gf *schema.Field) (any, bool) {
 	}
 	if gf.Multiple() {
 		return lo.Map(vv, func(v value.Asset, _ int) asset {
+			a := assets.FindByID(v)
+			if a != nil {
+				return asset{
+					ID:   v.String(),
+					URL:  a.AccessInfo().Url,
+					Type: v.Type(),
+				}
+			}
 			return asset{
 				ID:   v.String(),
 				URL:  "",
@@ -216,6 +225,14 @@ func extractAssetProperties(itm *item.Item, gf *schema.Field) (any, bool) {
 			}
 		}), true
 	} else {
+		a := assets.FindByID(vv[0])
+		if a != nil {
+			return asset{
+				ID:   vv[0].String(),
+				URL:  a.AccessInfo().Url,
+				Type: vv[0].Type(),
+			}, true
+		}
 		return asset{
 			ID:   vv[0].String(),
 			URL:  "",

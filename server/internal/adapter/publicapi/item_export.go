@@ -24,7 +24,7 @@ func toGeoJSON(c echo.Context, l item.List, sp *schema.Package, assets asset.Lis
 		})
 	}
 
-	fc, err := exporters.FeatureCollectionFromItems(l, sp)
+	fc, err := exporters.FeatureCollectionFromItems(l, sp, assets)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate GeoJSON").SetInternal(err)
 	}
