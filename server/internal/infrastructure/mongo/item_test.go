@@ -689,7 +689,8 @@ func TestItem_CountByModel(t *testing.T) {
 			tt.Parallel()
 
 			client := mongox.NewClientWithDatabase(init(t))
-			repo := NewItem(client).Filtered(tc.Filter)
+			// First save items without filter restrictions
+			repo := NewItem(client)
 
 			ctx := context.Background()
 			for _, i := range tc.Seeds {
@@ -697,7 +698,9 @@ func TestItem_CountByModel(t *testing.T) {
 				assert.NoError(tt, err)
 			}
 
-			got, err := repo.CountByModel(ctx, tc.ModelID)
+			// Then apply the filter for counting
+			filteredRepo := repo.Filtered(tc.Filter)
+			got, err := filteredRepo.CountByModel(ctx, tc.ModelID)
 			assert.Equal(tt, tc.ExpectedErr, err)
 			assert.Equal(tt, tc.Expected, got)
 		})

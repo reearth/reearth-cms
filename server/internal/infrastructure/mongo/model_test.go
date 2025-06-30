@@ -813,7 +813,8 @@ func TestModel_CountByProject(t *testing.T) {
 			t.Parallel()
 
 			client := mongox.NewClientWithDatabase(initDB(t))
-			repo := NewModel(client).Filtered(tc.filter)
+
+			repo := NewModel(client)
 
 			ctx := context.Background()
 			for _, m := range tc.seeds {
@@ -821,7 +822,8 @@ func TestModel_CountByProject(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			got, err := repo.CountByProject(ctx, tc.projectID)
+			filteredRepo := repo.Filtered(tc.filter)
+			got, err := filteredRepo.CountByProject(ctx, tc.projectID)
 			assert.Equal(t, tc.expectedErr, err)
 			assert.Equal(t, tc.expected, got)
 		})
