@@ -747,13 +747,16 @@ func TestModel_CountByProject(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	pid1 := id.NewProjectID()
 	pid2 := id.NewProjectID()
+	pid3 := id.NewProjectID
 	sid1 := id.NewSchemaID()
 	sid2 := id.NewSchemaID()
+	sid3 := id.NewSchemaID()
 	k := id.NewKey("T123456")
 
 	m1 := model.New().NewID().Project(pid1).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
 	m2 := model.New().NewID().Project(pid1).Schema(sid2).Key(k).UpdatedAt(mocknow).MustBuild()
 	m3 := model.New().NewID().Project(pid2).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
+	m4 := model.New().NewID().Project(pid3()).Schema(sid3).Key(k).UpdatedAt(mocknow).MustBuild()
 
 	tests := []struct {
 		name        string
@@ -796,7 +799,7 @@ func TestModel_CountByProject(t *testing.T) {
 		{
 			name:      "count models with permission filter (no access)",
 			projectID: pid1,
-			seeds:     model.List{m1, m2, m3},
+			seeds:     model.List{m4},
 			filter: repo.ProjectFilter{
 				Readable: []id.ProjectID{},
 				Writable: []id.ProjectID{},
