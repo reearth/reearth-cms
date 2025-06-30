@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"context"
 	"path"
 	"testing"
 
@@ -66,4 +67,30 @@ func TestFile_IsValidUUID(t *testing.T) {
 
 	u1 := "xxxxxx"
 	assert.Equal(t, false, IsValidUUID(u1))
+}
+
+func TestGetWorkspaceFromContext(t *testing.T) {
+	tests := []struct {
+		name     string
+		ctx      context.Context
+		expected string
+	}{
+		{
+			name:     "no workspace in context",
+			ctx:      context.Background(),
+			expected: "",
+		},
+		{
+			name:     "workspace alias in context",
+			ctx:      context.WithValue(context.Background(), workspaceContextKey, "test-workspace-alias"),
+			expected: "test-workspace-alias",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := getWorkspaceFromContext(tt.ctx)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }

@@ -144,7 +144,7 @@ func TestBuilder_Build(t *testing.T) {
 				size:          size,
 				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
 				thread:        thid.Ref(),
-				public:                  true,
+				public:        true,
 			},
 			err: ErrNoUUID,
 		},
@@ -219,7 +219,7 @@ func TestBuilder_Build(t *testing.T) {
 				Thread(tt.input.thread.Ref()).
 				ArchiveExtractionStatus(tt.input.archiveExtractionStatus).
 				FlatFiles(tt.input.flatFiles).
-			Public(tt.input.public)
+				Public(tt.input.public)
 			if !tt.input.createdByUser.IsNil() {
 				ab.CreatedByUser(tt.input.createdByUser)
 			}
@@ -258,7 +258,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				previewType:   PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid.Ref(),
-				public:                  true,
+				public:        true,
 			},
 			want: &Asset{
 				id:          aid,
@@ -270,7 +270,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				previewType: PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid.Ref(),
-				public:                  true,
+				public:      true,
 			},
 		},
 		{
@@ -285,7 +285,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				previewType:   PreviewTypeFromRef(lo.ToPtr("image")),
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid.Ref(),
-				public:                  true,
+				public:        true,
 			},
 			err: ErrInvalidID,
 		},

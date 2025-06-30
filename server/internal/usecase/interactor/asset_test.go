@@ -932,8 +932,11 @@ func TestAsset_Create(t *testing.T) {
 			err := db.User.Save(ctx, u)
 			assert.NoError(t, err)
 
-			err2 := db.Project.Save(ctx, p1.Clone())
+			err2 := db.Workspace.Save(ctx, ws)
 			assert.Nil(t, err2)
+
+			err3 := db.Project.Save(ctx, p1.Clone())
+			assert.Nil(t, err3)
 
 			for _, a := range tc.seeds {
 				err := db.Asset.Save(ctx, a.Clone())
