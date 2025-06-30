@@ -10,7 +10,7 @@ import (
 
 // GeoJSON
 func FeatureCollectionFromItems(ver item.VersionedList, sp *schema.Package) (*FeatureCollection, error) {
-	fc, err := exporters.FeatureCollectionFromItems(ver, sp)
+	fc, err := exporters.FeatureCollectionFromItems(ver.Unwrap(), sp)
 	if err != nil {
 		return nil, err
 	}

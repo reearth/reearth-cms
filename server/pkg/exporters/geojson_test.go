@@ -74,7 +74,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
 
 	// with geometry fields
-	ver1 := item.VersionedList{vi1}
+	ver1 := item.List{vi1.Value()}
 	lineString := [][]float64{
 		{139.65439725962517, 36.34793305387103},
 		{139.61688622815393, 35.910803456352724},
@@ -110,7 +110,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	assert.Equal(t, expected1, fc1)
 
 	// no geometry fields
-	ver2 := item.VersionedList{vi2}
+	ver2 := item.List{vi2.Value()}
 	expectErr2 := noGeometryFieldError
 
 	fc, err := FeatureCollectionFromItems(ver2, sp2)
