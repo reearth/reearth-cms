@@ -9,6 +9,10 @@ const (
 	WorkspacePlanAdvanced PlanType = "ADVANCED"
 )
 
+func (p PlanType) String() string {
+	return string(p)
+}
+
 type Limits struct {
 	ProjectCount int
 }
