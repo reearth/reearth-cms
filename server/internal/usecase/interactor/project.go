@@ -43,6 +43,9 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator
 	}
+	if err := i.validateProjectCreationPolicy(ctx, param); err != nil {
+		return nil, err
+	}
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			pb := project.New().
@@ -88,6 +91,27 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 			}
 			return proj, nil
 		})
+}
+
+func (i *Project) validateProjectCreationPolicy(ctx context.Context, param interfaces.CreateProjectParam) error {
+	if i.gateways.Dashboard == nil {
+		return nil
+	}
+	if param.Accessibility == nil || param.Accessibility.Visibility == nil {
+		return nil
+	}
+	if *param.Accessibility.Visibility != project.VisibilityPrivate {
+		return nil
+	}
+
+	plan, err := i.gateways.Dashboard.GetWorkspacePlan(ctx, param.WorkspaceID.String())
+	if err != nil {
+		return err
+	}
+	if plan == nil || !plan.CanCreatePrivateProject() {
+		return interfaces.ErrProjectCreationNotAllowed
+	}
+	return nil
 }
 
 func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {

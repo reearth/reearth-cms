@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/dashboard"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
@@ -77,6 +78,14 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 
 	acRepos := initAccountDB(client, txAvailable, ctx, conf)
 	cmsRepos := initCMSDB(client, txAvailable, acRepos, ctx, conf)
+
+	// Initialize Dashboard API client
+	if conf.Dashboard.URL != "" {
+		log.Infof("Dashboard API: enabled, URL=%s", conf.Dashboard.URL)
+		gateways.Dashboard = dashboard.New(conf.Dashboard.URL, "")
+	} else {
+		log.Infof("Dashboard API: disabled")
+	}
 
 	// File
 	var fileRepo gateway.File

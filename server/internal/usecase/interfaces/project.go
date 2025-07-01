@@ -69,8 +69,9 @@ type UpdateAPITokenParam struct {
 }
 
 var (
-	ErrProjectAliasAlreadyUsed error = rerror.NewE(i18n.T("project alias is already used by another project"))
-	ErrInvalidProject                = rerror.NewE(i18n.T("invalid project"))
+	ErrProjectAliasAlreadyUsed   = rerror.NewE(i18n.T("project alias is already used by another project"))
+	ErrInvalidProject            = rerror.NewE(i18n.T("invalid project"))
+	ErrProjectCreationNotAllowed = rerror.NewE(i18n.T("project creation not allowed"))
 )
 
 type Project interface {

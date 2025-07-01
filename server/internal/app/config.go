@@ -73,11 +73,18 @@ type Config struct {
 
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
+
+	// Dashboard API Configuration
+	Dashboard DashboardConfig `pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
 	Username string `pp:",omitempty"`
 	Password string `pp:",omitempty"`
+}
+
+type DashboardConfig struct {
+	URL string `pp:",omitempty"`
 }
 
 type ServerConfig struct {
