@@ -159,10 +159,7 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 }
 
 func (i *Project) validateProjectCreationPolicy(ctx context.Context, a *interfaces.AccessibilityParam, wid accountdomain.WorkspaceID) error {
-	if i.gateways.Dashboard == nil {
-		return nil
-	}
-	if !isPrivateVisibility(a) {
+	if i.gateways.Dashboard == nil || !isPrivateVisibility(a) {
 		return nil
 	}
 	plan, err := i.gateways.Dashboard.GetWorkspacePlan(ctx, wid)
@@ -183,10 +180,7 @@ func (i *Project) validateProjectCreationPolicy(ctx context.Context, a *interfac
 }
 
 func (i *Project) validateProjectUpdatingPolicy(ctx context.Context, a *interfaces.AccessibilityParam, wid accountdomain.WorkspaceID) error {
-	if i.gateways.Dashboard == nil {
-		return nil
-	}
-	if !isPrivateVisibility(a) {
+	if i.gateways.Dashboard == nil || !isPrivateVisibility(a) {
 		return nil
 	}
 	plan, err := i.gateways.Dashboard.GetWorkspacePlan(ctx, wid)
