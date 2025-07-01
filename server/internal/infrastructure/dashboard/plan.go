@@ -34,3 +34,12 @@ func FromPlanType(p PlanType) workspaceplan.PlanType {
 		return workspaceplan.WorkspacePlanFree
 	}
 }
+
+func FromPlan(p Plan) workspaceplan.Plan {
+	return workspaceplan.Plan{
+		Type: FromPlanType(p.Type),
+		Limits: workspaceplan.Limits{
+			ProjectCount: p.Limits.ProjectCount,
+		},
+	}
+}

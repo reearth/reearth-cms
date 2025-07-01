@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/workspaceplan"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/samber/lo"
 )
 
 type Client struct {
@@ -52,7 +53,5 @@ func (c *Client) GetWorkspacePlan(ctx context.Context, workspaceID accountdomain
 		return nil, err
 	}
 
-	return &workspaceplan.Plan{
-		Type: FromPlanType(res.Type),
-	}, nil
+	return lo.ToPtr(FromPlan(res)), nil
 }
