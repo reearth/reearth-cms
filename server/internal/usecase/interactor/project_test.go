@@ -11,6 +11,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -345,7 +346,7 @@ func TestProject_Create(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
+			projectUC := NewProject(db, &gateway.Container{})
 
 			got, err := projectUC.Create(ctx, tc.args.cpp, tc.args.operator)
 			if tc.wantErr != nil {

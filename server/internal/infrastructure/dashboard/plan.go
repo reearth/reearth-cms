@@ -15,21 +15,6 @@ type Plan struct {
 	Type PlanType `json:"type"`
 }
 
-func ToPlanType(p workspaceplan.PlanType) PlanType {
-	switch p {
-	case workspaceplan.WorkspacePlanFree:
-		return PlanFree
-	case workspaceplan.WorkspacePlanStarter:
-		return PlanStarter
-	case workspaceplan.WorkspacePlanBusiness:
-		return PlanBusiness
-	case workspaceplan.WorkspacePlanAdvanced:
-		return PlanAdvanced
-	default:
-		return PlanFree
-	}
-}
-
 func FromPlanType(p PlanType) workspaceplan.PlanType {
 	switch p {
 	case PlanFree:
