@@ -11,8 +11,13 @@ const (
 	PlanAdvanced PlanType = "advanced"
 )
 
+type Limits struct {
+	ProjectCount int `json:"count"`
+}
+
 type Plan struct {
-	Type PlanType `json:"type"`
+	Type   PlanType `json:"type"`
+	Limits Limits   `json:"limits"`
 }
 
 func FromPlanType(p PlanType) workspaceplan.PlanType {

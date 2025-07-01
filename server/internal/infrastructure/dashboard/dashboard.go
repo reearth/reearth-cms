@@ -9,6 +9,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/workspaceplan"
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 type Client struct {
@@ -27,8 +28,8 @@ func New(baseURL, token string) gateway.Dashboard {
 	}
 }
 
-func (c *Client) GetWorkspacePlan(ctx context.Context, workspaceID string) (*workspaceplan.Plan, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/plan/%s", c.baseURL, workspaceID), nil)
+func (c *Client) GetWorkspacePlan(ctx context.Context, workspaceID accountdomain.WorkspaceID) (*workspaceplan.Plan, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("%s/plan/%s", c.baseURL, workspaceID.String()), nil)
 	if err != nil {
 		return nil, err
 	}

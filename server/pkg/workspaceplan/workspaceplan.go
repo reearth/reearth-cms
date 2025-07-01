@@ -9,8 +9,13 @@ const (
 	WorkspacePlanAdvanced PlanType = "ADVANCED"
 )
 
+type Limits struct {
+	ProjectCount int
+}
+
 type Plan struct {
-	Type PlanType
+	Type   PlanType
+	Limits Limits
 }
 
 func (p Plan) CanCreatePrivateProject() bool {

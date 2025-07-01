@@ -104,13 +104,22 @@ func (i *Project) validateProjectCreationPolicy(ctx context.Context, param inter
 		return nil
 	}
 
-	plan, err := i.gateways.Dashboard.GetWorkspacePlan(ctx, param.WorkspaceID.String())
+	plan, err := i.gateways.Dashboard.GetWorkspacePlan(ctx, param.WorkspaceID)
 	if err != nil {
 		return err
 	}
 	if plan == nil || !plan.CanCreatePrivateProject() {
 		return interfaces.ErrProjectCreationNotAllowed
 	}
+
+	count, err := i.repos.Project.CountByWorkspace(ctx, param.WorkspaceID)
+	if err != nil {
+		return err
+	}
+	if plan.Limits.ProjectCount > 0 && count >= plan.Limits.ProjectCount {
+		return interfaces.ErrProjectLimitsExceeded
+	}
+
 	return nil
 }
 
