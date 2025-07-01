@@ -19,7 +19,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -151,23 +150,32 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 			Visibility: lo.ToPtr(project.VisibilityPublic),
 		}
 	}
-	wId, err := accountdomain.WorkspaceIDFrom(req.WorkspaceId)
+
+	wIds := lo.FilterMap(req.WorkspaceIds, func(wid string, _ int) (accountdomain.WorkspaceID, bool) {
+		wId, err := accountdomain.WorkspaceIDFrom(wid)
+		if err != nil {
+			return accountdomain.WorkspaceID{}, false
+		}
+		return wId, true
+	})
+
+	if len(wIds) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "at least one valid workspace_id is required")
+	}
+
+	p, pi, err := uc.Project.FindByWorkspaces(ctx, wIds, f, internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
 		return nil, err
 	}
-	p, _, err := uc.Project.FindByWorkspace(ctx, wId, f, usecasex.CursorPagination{
-		After: nil,
-		First: lo.ToPtr(int64(100)),
-	}.Wrap(), op)
-	if err != nil {
-		return nil, err
-	}
+
 	res := lo.Map(p, func(p *project.Project, _ int) *pb.Project {
 		return internalapimodel.ToProject(p)
 	})
 	return &pb.ListProjectsResponse{
 		Projects:   res,
-		TotalCount: int32(len(res)),
+		TotalCount: pi.TotalCount,
+
+		PageInfo: internalapimodel.ToPageInfo(req.PageInfo),
 	}, nil
 }
 
@@ -187,10 +195,7 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 		return nil, err
 	}
 
-	ml, _, err := uc.Model.FindByProject(ctx, pId, usecasex.CursorPagination{
-		After: nil,
-		First: lo.ToPtr(int64(100)),
-	}.Wrap(), op)
+	ml, pi, err := uc.Model.FindByProject(ctx, pId, internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +212,9 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 	})
 	return &pb.ListModelsResponse{
 		Models:     res,
-		TotalCount: int32(len(res)),
+		TotalCount: pi.TotalCount,
+
+		PageInfo: internalapimodel.ToPageInfo(req.PageInfo),
 	}, nil
 }
 
@@ -230,10 +237,7 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 
 	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), "", nil)
 
-	items, _, err := uc.Item.Search(ctx, *sp, q, usecasex.CursorPagination{
-		After: nil,
-		First: lo.ToPtr(int64(50)),
-	}.Wrap(), op)
+	items, pi, err := uc.Item.Search(ctx, *sp, q, internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
 		return nil, err
 	}
@@ -244,7 +248,9 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 
 	return &pb.ListItemsResponse{
 		Items:      res,
-		TotalCount: int32(len(res)),
+		TotalCount: pi.TotalCount,
+
+		PageInfo: internalapimodel.ToPageInfo(req.PageInfo),
 	}, nil
 }
 
