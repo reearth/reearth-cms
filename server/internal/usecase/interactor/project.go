@@ -43,7 +43,7 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	if err := i.validateProjectCreationPolicy(ctx, param); err != nil {
+	if err := i.validateProjectCreationPolicy(ctx, param.Accessibility, param.WorkspaceID); err != nil {
 		return nil, err
 	}
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
@@ -93,42 +93,15 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 		})
 }
 
-func (i *Project) validateProjectCreationPolicy(ctx context.Context, param interfaces.CreateProjectParam) error {
-	if i.gateways.Dashboard == nil {
-		return nil
-	}
-	if param.Accessibility == nil || param.Accessibility.Visibility == nil {
-		return nil
-	}
-	if *param.Accessibility.Visibility != project.VisibilityPrivate {
-		return nil
-	}
-
-	plan, err := i.gateways.Dashboard.GetWorkspacePlan(ctx, param.WorkspaceID)
-	if err != nil {
-		return err
-	}
-	if plan == nil || !plan.CanCreatePrivateProject() {
-		return interfaces.ErrProjectCreationNotAllowed
-	}
-
-	count, err := i.repos.Project.CountByWorkspace(ctx, param.WorkspaceID)
-	if err != nil {
-		return err
-	}
-	if plan.Limits.ProjectCount > 0 && count >= plan.Limits.ProjectCount {
-		return interfaces.ErrProjectLimitsExceeded
-	}
-
-	return nil
-}
-
 func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	p, err := i.repos.Project.FindByID(ctx, param.ID)
 	if err != nil {
+		return nil, err
+	}
+	if err := i.validateProjectUpdatingPolicy(ctx, param.Accessibility, p.Workspace()); err != nil {
 		return nil, err
 	}
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
@@ -183,6 +156,51 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 
 			return p, nil
 		})
+}
+
+func (i *Project) validateProjectCreationPolicy(ctx context.Context, a *interfaces.AccessibilityParam, wid accountdomain.WorkspaceID) error {
+	if i.gateways.Dashboard == nil {
+		return nil
+	}
+	if !isPrivateVisibility(a) {
+		return nil
+	}
+	plan, err := i.gateways.Dashboard.GetWorkspacePlan(ctx, wid)
+	if err != nil {
+		return err
+	}
+	if !plan.CanUsePrivateProject() {
+		return interfaces.ErrPrivateProjectUseNotAllowed
+	}
+	count, err := i.repos.Project.CountByWorkspace(ctx, wid)
+	if err != nil {
+		return err
+	}
+	if plan.Limits.ProjectCount > 0 && count >= plan.Limits.ProjectCount {
+		return interfaces.ErrProjectLimitsExceeded
+	}
+	return nil
+}
+
+func (i *Project) validateProjectUpdatingPolicy(ctx context.Context, a *interfaces.AccessibilityParam, wid accountdomain.WorkspaceID) error {
+	if i.gateways.Dashboard == nil {
+		return nil
+	}
+	if !isPrivateVisibility(a) {
+		return nil
+	}
+	plan, err := i.gateways.Dashboard.GetWorkspacePlan(ctx, wid)
+	if err != nil {
+		return err
+	}
+	if !plan.CanUsePrivateProject() {
+		return interfaces.ErrPrivateProjectUseNotAllowed
+	}
+	return nil
+}
+
+func isPrivateVisibility(a *interfaces.AccessibilityParam) bool {
+	return a != nil && a.Visibility != nil && *a.Visibility == project.VisibilityPrivate
 }
 
 func (i *Project) CheckAlias(ctx context.Context, alias string) (bool, error) {

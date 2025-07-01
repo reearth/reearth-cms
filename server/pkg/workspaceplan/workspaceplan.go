@@ -18,6 +18,6 @@ type Plan struct {
 	Limits Limits
 }
 
-func (p Plan) CanCreatePrivateProject() bool {
+func (p Plan) CanUsePrivateProject() bool {
 	return p.Type != WorkspacePlanFree
 }
