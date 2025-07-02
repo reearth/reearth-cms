@@ -703,10 +703,8 @@ func TestItem_CountByModel(t *testing.T) {
 			repo := NewItem(client)
 
 			ctx := context.Background()
-			for _, i := range tc.Seeds {
-				err := repo.Save(ctx, i)
-				assert.NoError(tt, err)
-			}
+			err := repo.SaveAll(ctx, tc.Seeds)
+			assert.NoError(tt, err)
 
 			// Then apply the filter for counting
 			filteredRepo := repo.Filtered(tc.Filter)

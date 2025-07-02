@@ -363,3 +363,85 @@ func TestGetFirstGeometryField(t *testing.T) {
 	assert.False(t, ok4)
 	assert.Nil(t, geometry4)
 }
+
+func TestItem_Clone(t *testing.T) {
+	now := time.Now()
+	itemID := NewID()
+	schemaID := id.NewSchemaID()
+	modelID := id.NewModelID()
+	projectID := id.NewProjectID()
+	threadID := id.NewThreadID()
+	userID := id.NewUserID()
+	integrationID := id.NewIntegrationID()
+	metadataItemID := id.NewItemID()
+	originalItemID := id.NewItemID()
+
+	field1 := &Field{
+		field: NewFieldID(),
+		value: nil,
+	}
+	field2 := &Field{
+		field: NewFieldID(),
+		value: nil,
+	}
+
+	tests := []struct {
+		name string
+		item *Item
+	}{
+		{
+			name: "nil item",
+			item: nil,
+		},
+		{
+			name: "item with fields",
+			item: &Item{
+				id:                   itemID,
+				schema:               schemaID,
+				model:                modelID,
+				project:              projectID,
+				fields:               []*Field{field1, field2},
+				timestamp:            now,
+				thread:               &threadID,
+				isMetadata:           true,
+				user:                 (*UserID)(&userID),
+				updatedByUser:        (*UserID)(&userID),
+				updatedByIntegration: &integrationID,
+				integration:          &integrationID,
+				metadataItem:         &metadataItemID,
+				originalItem:         &originalItemID,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cloned := tt.item.Clone()
+			if tt.item == nil {
+				assert.Nil(t, cloned)
+				return
+			}
+			assert.NotNil(t, cloned)
+			assert.Equal(t, tt.item.id, cloned.id)
+			assert.Equal(t, tt.item.schema, cloned.schema)
+			assert.Equal(t, tt.item.model, cloned.model)
+			assert.Equal(t, tt.item.project, cloned.project)
+			assert.Equal(t, tt.item.timestamp, cloned.timestamp)
+			assert.Equal(t, tt.item.thread, cloned.thread)
+			assert.Equal(t, tt.item.isMetadata, cloned.isMetadata)
+			assert.Equal(t, tt.item.user, cloned.user)
+			assert.Equal(t, tt.item.updatedByUser, cloned.updatedByUser)
+			assert.Equal(t, tt.item.updatedByIntegration, cloned.updatedByIntegration)
+			assert.Equal(t, tt.item.integration, cloned.integration)
+			assert.Equal(t, tt.item.metadataItem, cloned.metadataItem)
+			assert.Equal(t, tt.item.originalItem, cloned.originalItem)
+			assert.Len(t, cloned.fields, len(tt.item.fields))
+			// Ensure fields are deep cloned
+			for i := range tt.item.fields {
+				if tt.item.fields[i] != nil {
+					assert.NotSame(t, tt.item.fields[i], cloned.fields[i])
+				}
+			}
+		})
+	}
+}
