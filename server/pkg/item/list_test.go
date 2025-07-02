@@ -205,3 +205,50 @@ func TestToMap(t *testing.T) {
 	assert.Equal(t, vi2, m[iId2])
 	assert.Nil(t, m[id.NewItemID()])
 }
+
+func TestList_Clone(t *testing.T) {
+	fid1 := id.NewFieldID()
+	fid2 := id.NewFieldID()
+	f1 := &Field{field: fid1}
+	f2 := &Field{field: fid2}
+	i1 := &Item{
+		id:     id.NewItemID(),
+		fields: []*Field{f1},
+	}
+	i2 := &Item{
+		id:     id.NewItemID(),
+		fields: []*Field{f2},
+	}
+	tests := []struct {
+		name string
+		l    List
+	}{
+		{
+			name: "empty list",
+			l:    List{},
+		},
+		{
+			name: "single item",
+			l:    List{i1},
+		},
+		{
+			name: "multiple items",
+			l:    List{i1, i2},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			cloned := tt.l.Clone()
+			assert.Equal(t, tt.l, cloned)
+
+			// Ensure it's a deep copy (not the same pointers)
+			for i := range tt.l {
+				assert.NotSame(t, tt.l[i], cloned[i])
+			}
+
+		})
+	}
+}
