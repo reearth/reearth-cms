@@ -629,7 +629,7 @@ func TestItem_CountByModel(t *testing.T) {
 	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
 	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
 	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid1).Thread(id.NewThreadID().Ref()).MustBuild()
-	i4 := item.New().NewID().Fields(fs).Schema(sid).Model(mid1).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
+	i5 := item.New().NewID().Fields(fs).Schema(sid).Model(mid2).Project(pid2).Thread(id.NewThreadID().Ref()).MustBuild()
 
 	tests := []struct {
 		Name        string
@@ -670,14 +670,24 @@ func TestItem_CountByModel(t *testing.T) {
 			Expected: 0,
 		},
 		{
-			Name:    "count items with permission filter (no access)",
+			Name:    "count items with cross-project permission filtering",
 			ModelID: mid1,
-			Seeds:   item.List{i1, i2, i4},
+			Seeds:   item.List{i1, i2, i5},
 			Filter: repo.ProjectFilter{
 				Readable: []id.ProjectID{pid1},
 				Writable: []id.ProjectID{pid1},
 			},
-			Expected: 2, // only items from pid1, i4 from pid2 is filtered out
+			Expected: 2,
+		},
+		{
+			Name:    "count items with no accessible projects",
+			ModelID: mid1,
+			Seeds:   item.List{i1, i2},
+			Filter: repo.ProjectFilter{
+				Readable: []id.ProjectID{},
+				Writable: []id.ProjectID{},
+			},
+			Expected: 0, // no items should be counted due to permission restrictions
 		},
 	}
 

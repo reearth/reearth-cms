@@ -747,7 +747,7 @@ func TestModel_CountByProject(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	pid1 := id.NewProjectID()
 	pid2 := id.NewProjectID()
-	pid3 := id.NewProjectID
+	pid3 := id.NewProjectID()
 	sid1 := id.NewSchemaID()
 	sid2 := id.NewSchemaID()
 	sid3 := id.NewSchemaID()
@@ -756,7 +756,7 @@ func TestModel_CountByProject(t *testing.T) {
 	m1 := model.New().NewID().Project(pid1).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
 	m2 := model.New().NewID().Project(pid1).Schema(sid2).Key(k).UpdatedAt(mocknow).MustBuild()
 	m3 := model.New().NewID().Project(pid2).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild()
-	m4 := model.New().NewID().Project(pid3()).Schema(sid3).Key(k).UpdatedAt(mocknow).MustBuild()
+	m4 := model.New().NewID().Project(pid3).Schema(sid3).Key(k).UpdatedAt(mocknow).MustBuild()
 
 	tests := []struct {
 		name        string
@@ -820,10 +820,13 @@ func TestModel_CountByProject(t *testing.T) {
 			repo := NewModel(client)
 
 			ctx := context.Background()
-			for _, m := range tc.seeds {
-				err := repo.Save(ctx, m.Clone())
-				assert.NoError(t, err)
+			// Clone all models to avoid mutations
+			seedModels := make(model.List, len(tc.seeds))
+			for i, m := range tc.seeds {
+				seedModels[i] = m.Clone()
 			}
+			err := repo.SaveAll(ctx, seedModels)
+			assert.NoError(t, err)
 
 			filteredRepo := repo.Filtered(tc.filter)
 			got, err := filteredRepo.CountByProject(ctx, tc.projectID)

@@ -451,10 +451,13 @@ func TestModel_CountByProject(t *testing.T) {
 			defer MockModelNow(r, mocknow)()
 
 			ctx := context.Background()
-			for _, m := range tc.seeds {
-				err := r.Save(ctx, m.Clone())
-				assert.NoError(t, err)
+			// Clone all models to avoid mutations
+			seedModels := make(model.List, len(tc.seeds))
+			for i, m := range tc.seeds {
+				seedModels[i] = m.Clone()
 			}
+			err := r.SaveAll(ctx, seedModels)
+			assert.NoError(t, err)
 
 			// Apply filter for counting
 			filteredRepo := r.Filtered(tc.filter)
