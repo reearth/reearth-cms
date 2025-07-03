@@ -26,7 +26,7 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, p, op)
+	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectFilter404Response{}, err
@@ -103,6 +103,8 @@ func (s *Server) ProjectCreate(ctx context.Context, request ProjectCreateRequest
 		WorkspaceID:  request.WorkspaceId,
 		Name:         request.Body.Name,
 		Description:  request.Body.Description,
+		License:      request.Body.License,
+		Readme:       request.Body.Readme,
 		Alias:        request.Body.Alias,
 		RequestRoles: roles,
 	}, op)
@@ -133,25 +135,30 @@ func (s *Server) ProjectUpdate(ctx context.Context, request ProjectUpdateRequest
 		}
 	}
 
-	var pub *interfaces.UpdateProjectPublicationParam
-	if request.Body.Publication != nil {
-		var scope *project.PublicationScope
-		if request.Body.Publication.Scope != nil {
-			scope = fromProjectPublicationScope(*request.Body.Publication.Scope)
+	var acc *interfaces.AccessibilityParam
+	if request.Body.Accessibility != nil {
+		var pub *interfaces.PublicationSettingsParam
+		if request.Body.Accessibility.Publication != nil {
+			pub = &interfaces.PublicationSettingsParam{
+				PublicModels: request.Body.Accessibility.Publication.PublicModels,
+				PublicAssets: request.Body.Accessibility.Publication.PublicAssets,
+			}
 		}
-		pub = &interfaces.UpdateProjectPublicationParam{
-			Scope:       scope,
-			AssetPublic: request.Body.Publication.AssetPublic,
+		acc = &interfaces.AccessibilityParam{
+			Visibility:  fromProjectVisibility(request.Body.Accessibility.Visibility),
+			Publication: pub,
 		}
 	}
 
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:           request.ProjectId,
-		Name:         request.Body.Name,
-		Description:  request.Body.Description,
-		Alias:        request.Body.Alias,
-		Publication:  pub,
-		RequestRoles: roles,
+		ID:            request.ProjectId,
+		Name:          request.Body.Name,
+		Description:   request.Body.Description,
+		License:       request.Body.License,
+		Readme:        request.Body.Readme,
+		Alias:         request.Body.Alias,
+		Accessibility: acc,
+		RequestRoles:  roles,
 	}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {

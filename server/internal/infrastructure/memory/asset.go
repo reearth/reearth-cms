@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"strings"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -62,7 +63,7 @@ func (r *Asset) FindByIDs(_ context.Context, ids id.AssetIDList) (asset.List, er
 	return res, nil
 }
 
-func (r *Asset) FindByProject(_ context.Context, id id.ProjectID, filter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
+func (r *Asset) Search(_ context.Context, id id.ProjectID, filter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
 	if !r.f.CanRead(id) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
@@ -72,7 +73,20 @@ func (r *Asset) FindByProject(_ context.Context, id id.ProjectID, filter repo.As
 	}
 
 	result := asset.List(r.data.FindAll(func(_ asset.ID, v *asset.Asset) bool {
-		return v.Project() == id
+		// Base filter: project ID match
+		if v.Project() != id {
+			return false
+		}
+
+		// Keyword filter
+		if filter.Keyword != nil && *filter.Keyword != "" {
+			if !strings.Contains(strings.ToLower(v.FileName()), strings.ToLower(*filter.Keyword)) {
+				return false
+			}
+		}
+		// Content type filter can't be performed as it's not stored in memory
+
+		return true
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
@@ -88,7 +102,6 @@ func (r *Asset) FindByProject(_ context.Context, id id.ProjectID, filter repo.As
 		true,
 		true,
 	), nil
-
 }
 
 func (r *Asset) Save(_ context.Context, a *asset.Asset) error {
@@ -115,14 +128,14 @@ func (r *Asset) Delete(_ context.Context, id id.AssetID) error {
 	return nil
 }
 
-func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
+func (r *Asset) BatchDelete(_ context.Context, ids id.AssetIDList) error {
 	if r.err != nil {
 		return r.err
 	}
 
-	for _, id := range ids {
-		if a, ok := r.data.Load(id); ok && r.f.CanWrite(a.Project()) {
-			r.data.Delete(id)
+	for _, aId := range ids {
+		if a, ok := r.data.Load(aId); ok && r.f.CanWrite(a.Project()) {
+			r.data.Delete(aId)
 		}
 	}
 	return nil

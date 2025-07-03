@@ -462,7 +462,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 	}
 }
 
-func TestAsset_FindByProject(t *testing.T) {
+func TestAsset_Search(t *testing.T) {
 	g := gateway.Container{
 		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
 	}
@@ -476,6 +476,11 @@ func TestAsset_FindByProject(t *testing.T) {
 	uid2 := accountdomain.NewUserID()
 	a2 := asset.New().ID(aid2).Project(pid).NewUUID().
 		CreatedByUser(uid2).Size(1000).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	aid3 := id.NewAssetID()
+	uid3 := accountdomain.NewUserID()
+	a3 := asset.New().ID(aid3).Project(pid).NewUUID().
+		CreatedByUser(uid3).Size(1000).Thread(id.NewThreadID().Ref()).FileName("a.txt").MustBuild()
 
 	op := &usecase.Operator{}
 
@@ -568,6 +573,40 @@ func TestAsset_FindByProject(t *testing.T) {
 			want:    asset.List{a1, a2},
 			wantErr: nil,
 		},
+		{
+			name: "success content type filter",
+			seeds: asset.List{
+				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).
+					Thread(id.NewThreadID().Ref()).MustBuild(),
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+					ContentTypes: []string{"image/jpeg", "image/png"},
+				},
+				operator: op,
+			},
+			want:    nil, // empty as asset file data is not set in Asset object
+			wantErr: nil,
+		},
+		{
+			name: "success keyword filter",
+			seeds: asset.List{
+				a3,
+			},
+			args: args{
+				pid: pid,
+				f: interfaces.AssetFilter{
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap(),
+					Keyword:    lo.ToPtr("a"),
+				},
+				operator: op,
+			},
+			want:    asset.List{a3}, // empty as asset file data is not set in Asset object
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range tests {
@@ -584,13 +623,12 @@ func TestAsset_FindByProject(t *testing.T) {
 			}
 			assetUC := NewAsset(db, &g)
 
-			got, _, err := assetUC.FindByProject(ctx, tc.args.pid, tc.args.f, tc.args.operator)
+			got, _, err := assetUC.Search(ctx, tc.args.pid, tc.args.f, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
 			}
 			assert.NoError(t, err)
-			// assert always fails on comparing functions
 			got.SetAccessInfoResolver(nil)
 			assert.Equal(t, tc.want, got)
 		})
@@ -894,8 +932,11 @@ func TestAsset_Create(t *testing.T) {
 			err := db.User.Save(ctx, u)
 			assert.NoError(t, err)
 
-			err2 := db.Project.Save(ctx, p1.Clone())
+			err2 := db.Workspace.Save(ctx, ws)
 			assert.Nil(t, err2)
+
+			err3 := db.Project.Save(ctx, p1.Clone())
+			assert.Nil(t, err3)
 
 			for _, a := range tc.seeds {
 				err := db.Asset.Save(ctx, a.Clone())

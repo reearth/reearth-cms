@@ -114,6 +114,7 @@ export default (isItemsRequired: boolean) => {
           }
         : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
       keyword: searchTerm,
+      contentTypes: [], // TODO: implement this
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,

@@ -56,7 +56,6 @@ func NewModel(m *model.Model, sp *schema.Package, lastModified time.Time) Model 
 		Key:              util.ToPtrIfNotEmpty(m.Key().String()),
 		Name:             util.ToPtrIfNotEmpty(m.Name()),
 		Description:      util.ToPtrIfNotEmpty(m.Description()),
-		Public:           util.ToPtrIfNotEmpty(m.Public()),
 		ProjectId:        m.Project().Ref(),
 		SchemaId:         m.Schema().Ref(),
 		Schema:           util.ToPtrIfNotEmpty(NewSchema(sp.Schema())),

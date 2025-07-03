@@ -47,15 +47,28 @@ type ModelData struct {
 	SchemaID  id.SchemaID
 	ProjectID id.ProjectID
 }
+type GuessSchemaFieldsData struct {
+	Fields     []GuessSchemaField
+	TotalCount int
+}
+
+type GuessSchemaField struct {
+	Name string
+	Type string
+	Key  string
+}
 
 var (
-	ErrInvalidTypeProperty       = rerror.NewE(i18n.T("invalid type property"))
-	ErrReferencedFiledKeyExists  = rerror.NewE(i18n.T("referenced field key exists"))
-	ErrReferenceDirectionChanged = rerror.NewE(i18n.T("reference field direction can not be changed"))
-	ErrReferenceModelChanged     = rerror.NewE(i18n.T("reference field model can not be changed"))
-	ErrFieldNotFound             = rerror.NewE(i18n.T("field not found"))
-	ErrInvalidValue              = rerror.NewE(i18n.T("invalid value"))
-	ErrEitherModelOrGroup        = rerror.NewE(i18n.T("either model or group should be provided"))
+	ErrInvalidTypeProperty                         = rerror.NewE(i18n.T("invalid type property"))
+	ErrReferencedFiledKeyExists                    = rerror.NewE(i18n.T("referenced field key exists"))
+	ErrReferenceDirectionChanged                   = rerror.NewE(i18n.T("reference field direction can not be changed"))
+	ErrReferenceModelChanged                       = rerror.NewE(i18n.T("reference field model can not be changed"))
+	ErrFieldNotFound                               = rerror.NewE(i18n.T("field not found"))
+	ErrInvalidValue                                = rerror.NewE(i18n.T("invalid value"))
+	ErrEitherModelOrGroup                          = rerror.NewE(i18n.T("either model or group should be provided"))
+	ErrInvalidContentType                    error = rerror.NewE(i18n.T("invalid content type"))
+	ErrInvalidJSONSchema                     error = rerror.NewE(i18n.T("invalid json schema"))
+	ErrInvalidContentTypeForSchemaConversion error = rerror.NewE(i18n.T("invalid content type for schema conversion"))
 )
 
 type Schema interface {
@@ -70,4 +83,5 @@ type Schema interface {
 	UpdateFields(context.Context, id.SchemaID, []UpdateFieldParam, *usecase.Operator) (schema.FieldList, error)
 	DeleteField(context.Context, id.SchemaID, id.FieldID, *usecase.Operator) error
 	GetSchemasAndGroupSchemasByIDs(context.Context, id.SchemaIDList, *usecase.Operator) (schema.List, schema.List, error)
+	GuessSchemaFieldsByAsset(context.Context, id.AssetID, id.ModelID, *usecase.Operator) (*GuessSchemaFieldsData, error)
 }

@@ -163,6 +163,36 @@ func updateField(e *httpexpect.Expect, mID, fID, title, desc, key string, multip
 	return res.Path("$.data.updateField.field.id").Raw().(string), res
 }
 
+func guessSchemaFields(e *httpexpect.Expect, assetId, modelId string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `query GuessSchemaFields($input: GuessSchemaFieldsInput!) {
+            guessSchemaFields(input: $input) {
+                total_count
+                fields {
+                    name
+                    key
+                    type
+                }
+            }
+        }`,
+		Variables: map[string]any{
+			"input": map[string]any{
+				"assetId": assetId,
+				"modelId": modelId,
+			},
+		},
+	}
+
+	return e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+}
+
 type fIds struct {
 	textFId           string
 	textAreaFId       string
@@ -626,4 +656,175 @@ func TestClearFieldDefaultValue(t *testing.T) {
 	dv = res.Path("$.data.node.schema.fields[:].typeProperty.defaultValue").Raw().([]any)
 
 	assert.Equal(t, []any{nil, nil, nil}, dv)
+}
+
+func TestGuessSchemaFields(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-schema-guess")
+	mId, _ := createModel(e, pId, "test", "test", "test-schema-guess")
+
+	// region Json input
+	jsonContent := `[{"name": "Item 1", "count": 42, "active": true, "tags": ["tag1", "tag2"]}]`
+	assetId := uploadAsset(e, pId, "./sample.json", jsonContent).Object().Value("id").String().Raw()
+
+	res := guessSchemaFields(e, assetId, mId)
+
+	res.Path("$.data.guessSchemaFields.total_count").Number().IsEqual(4)
+
+	res.Path("$.data.guessSchemaFields.fields").
+		Array().
+		IsEqual([]map[string]any{
+			{
+				"key":  "name",
+				"type": "text",
+				"name": "name",
+			},
+			{
+				"key":  "count",
+				"type": "integer",
+				"name": "count",
+			},
+			{
+				"key":  "active",
+				"type": "bool",
+				"name": "active",
+			},
+			{
+				"key":  "tags",
+				"type": "text",
+				"name": "tags",
+			},
+		})
+	// endregion
+
+	// region GeoJson input
+	geojsonContent := `{
+		"type": "FeatureCollection",
+		"features": [
+			{
+				"type": "Feature",
+				"properties": {
+					"name": "Point Example",
+					"category": "landmark",
+					"elevation": 100.5,
+					"length": 15.2
+				},
+				"geometry": {
+					"type": "Point",
+					"coordinates": [125.6, 10.1]
+				}
+			},
+			{
+				"type": "Feature",
+				"properties": {
+					"name": "Line Example",
+					"category": "route"
+				},
+				"geometry": {
+					"type": "LineString",
+					"coordinates": [
+						[102.0, 0.0],
+						[103.0, 1.0],
+						[104.0, 0.0],
+						[105.0, 1.0]
+					]
+				}
+			}
+		]
+	}`
+
+	geoJsonAssetId := uploadAsset(e, pId, "./sample.geojson", geojsonContent).Object().Value("id").String().Raw()
+
+	res = guessSchemaFields(e, geoJsonAssetId, mId)
+
+	res.Path("$.data.guessSchemaFields.total_count").Number().IsEqual(5)
+
+	res.Path("$.data.guessSchemaFields.fields").
+		Array().
+		IsEqual([]map[string]any{
+			{
+				"key":  "geometry",
+				"type": "geometryObject",
+				"name": "geometry",
+			},
+			{
+				"key":  "name",
+				"type": "text",
+				"name": "name",
+			},
+			{
+				"key":  "category",
+				"type": "text",
+				"name": "category",
+			},
+			{
+				"key":  "elevation",
+				"type": "number",
+				"name": "elevation",
+			},
+			{
+				"key":  "length",
+				"type": "number",
+				"name": "length",
+			},
+		})
+	// endregion
+
+	// Test with existing schema
+	// Create a new model with predefined fields
+	existingModelId, _ := createModel(e, pId, "existing", "existing model", "existing-model")
+
+	// Create some fields in the model
+	createField(e, existingModelId, "name", "name field", "name",
+		false, false, true, true, "Text",
+		map[string]any{
+			"text": map[string]any{},
+		})
+
+	createField(e, existingModelId, "category", "category field", "category",
+		false, false, false, false, "Select",
+		map[string]any{
+			"select": map[string]any{
+				"defaultValue": nil,
+				"values":       []any{"landmark", "route", "area"},
+			},
+		})
+
+	// Upload JSON with both existing and new fields
+	mixedContent := `[
+		{
+			"name": "Test Item",
+			"category": "landmark",
+			"rating": 4.5,
+			"tags": ["new", "test"],
+			"active": true
+		}
+	]`
+
+	mixedAssetId := uploadAsset(e, pId, "./mixed.json", mixedContent).Object().Value("id").String().Raw()
+
+	// Call GuessSchemaFields query for the mixed content
+	res = guessSchemaFields(e, mixedAssetId, existingModelId)
+
+	res.Path("$.data.guessSchemaFields.total_count").Number().IsEqual(3)
+	res.Path("$.data.guessSchemaFields.fields").
+		Array().
+		IsEqual([]map[string]any{
+			{
+				"key":  "rating",
+				"type": "number",
+				"name": "rating",
+			},
+			{
+				"key":  "tags",
+				"type": "text",
+				"name": "tags",
+			},
+			{
+				"key":  "active",
+				"type": "bool",
+				"name": "active",
+			},
+		})
+
 }

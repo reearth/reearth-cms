@@ -1,3 +1,8 @@
-*        @rot1024
+*        @pyshx
+
 /server/ @yk-eukarya
+/worker/ @yk-eukarya
 /web/    @nourbalaha
+
+go.work     @yk-eukarya
+go.work.sum @yk-eukarya

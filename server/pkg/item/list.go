@@ -31,6 +31,15 @@ func (l List) IDs() IDList {
 	})
 }
 
+func (l List) Clone() List {
+	if l == nil {
+		return nil
+	}
+	return lo.Map(l, func(i *Item, _ int) *Item {
+		return i.Clone()
+	})
+}
+
 type VersionedList []Versioned
 
 func (l VersionedList) FilterFields(fields FieldIDList) VersionedList {

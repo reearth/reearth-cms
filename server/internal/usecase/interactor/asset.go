@@ -25,6 +25,8 @@ import (
 	"github.com/samber/lo"
 )
 
+type contextKey string
+
 type Asset struct {
 	repos       *repo.Container
 	gateways    *gateway.Container
@@ -71,11 +73,12 @@ func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.O
 	return al, nil
 }
 
-func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
-	al, pi, err := i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
-		Sort:       filter.Sort,
-		Keyword:    filter.Keyword,
-		Pagination: filter.Pagination,
+func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+	al, pi, err := i.repos.Asset.Search(ctx, projectID, repo.AssetFilter{
+		Sort:         filter.Sort,
+		Keyword:      filter.Keyword,
+		Pagination:   filter.Pagination,
+		ContentTypes: filter.ContentTypes,
 	})
 	if err != nil {
 		return nil, nil, err
@@ -155,7 +158,14 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 
 		var size int64
 		file = inp.File
-		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
+
+		workspace, err := i.repos.Workspace.FindByID(ctx, prj.Workspace())
+		if err != nil {
+			return nil, nil, err
+		}
+
+		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())
+		uuid, size, err = i.gateways.File.UploadAsset(ctxWithWorkspace, inp.File)
 		if err != nil {
 			return nil, nil, err
 		}
