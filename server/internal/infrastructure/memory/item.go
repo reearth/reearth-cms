@@ -318,6 +318,23 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 	return res, nil
 }
 
+func (r *Item) CountByModel(_ context.Context, modelID id.ModelID) (int, error) {
+	if r.err != nil {
+		return 0, r.err
+	}
+
+	count := 0
+	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(version.Latest.OrVersion())
+		it := itv.Value()
+		if it.Model() == modelID && r.f.CanRead(it.Project()) {
+			count++
+		}
+		return true
+	})
+	return count, nil
+}
+
 func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *string, error) {
 	filter, err := json.Marshal(map[string]any{"schema": params.OldSchema.String()})
 	if err != nil {

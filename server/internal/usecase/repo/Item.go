@@ -39,6 +39,7 @@ type Item interface {
 	FindAllVersionsByID(context.Context, id.ItemID) (item.VersionedList, error)
 	FindAllVersionsByIDs(context.Context, id.ItemIDList) (item.VersionedList, error)
 	FindByModelAndValue(context.Context, id.ModelID, []FieldAndValue, *version.Ref) (item.VersionedList, error)
+	CountByModel(context.Context, id.ModelID) (int, error)
 	IsArchived(context.Context, id.ItemID) (bool, error)
 	Save(context.Context, *item.Item) error
 	SaveAll(context.Context, item.List) error
