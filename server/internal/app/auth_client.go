@@ -219,7 +219,7 @@ func operatorProjects(ctx context.Context, appCtx *ApplicationContext, w workspa
 	}
 	var cur *usecasex.Cursor
 	for {
-		projects, pi, err := appCtx.Repos.Project.FindByWorkspaces(ctx, w.IDs(), usecasex.CursorPagination{
+		projects, pi, err := appCtx.Repos.Project.FindByWorkspaces(ctx, w.IDs(), nil, usecasex.CursorPagination{
 			After: cur,
 			First: lo.ToPtr(int64(100)),
 		}.Wrap())

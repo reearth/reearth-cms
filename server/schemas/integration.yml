@@ -64,6 +64,10 @@ paths:
                   type: string
                 description:
                   type: string
+                license:
+                  type: string
+                readme:
+                  type: string
                 alias:
                   type: string
                 requestRoles:
@@ -130,6 +134,10 @@ paths:
                 name:
                   type: string
                 description:
+                  type: string
+                license:
+                  type: string
+                readme:
                   type: string
                 alias:
                   type: string
@@ -2342,6 +2350,8 @@ components:
         - id
         - name
         - description
+        - license
+        - readme
         - workspaceId
         - alias
         - accessibility
@@ -2357,6 +2367,10 @@ components:
         name:
           type: string
         description:
+          type: string
+        license:
+          type: string
+        readme:
           type: string
         alias:
           type: string

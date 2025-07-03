@@ -125,7 +125,7 @@ describe("Comments panel", () => {
     expect(textarea).toHaveValue(headingContent);
 
     await user.click(screen.getByRole("button", { name: "check" }));
-    expect(screen.getByText(content)).toBeVisible();
+    expect(screen.getByRole("heading", { name: content })).toBeVisible();
     expect(textarea).not.toBeVisible();
   });
 
