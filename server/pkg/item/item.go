@@ -271,3 +271,30 @@ func (i *Item) GetFirstGeometryField() (*Field, bool) {
 	}
 	return nil, false
 }
+
+func (i *Item) Clone() *Item {
+	if i == nil {
+		return nil
+	}
+
+	fields := lo.Map(i.fields, func(f *Field, _ int) *Field {
+		return f.Clone()
+	})
+
+	return &Item{
+		id:                   i.id,
+		schema:               i.schema,
+		model:                i.model,
+		project:              i.project,
+		fields:               fields,
+		timestamp:            i.timestamp,
+		thread:               i.thread,
+		isMetadata:           i.isMetadata,
+		user:                 i.user,
+		updatedByUser:        i.updatedByUser,
+		updatedByIntegration: i.updatedByIntegration,
+		integration:          i.integration,
+		metadataItem:         i.metadataItem,
+		originalItem:         i.originalItem,
+	}
+}
