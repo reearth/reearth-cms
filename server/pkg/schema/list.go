@@ -39,6 +39,16 @@ func (l List) Schema(sID *id.SchemaID) *Schema {
 	return s
 }
 
+func (l List) IDs() IDList {
+	ids := make(IDList, 0, len(l))
+	for _, s := range l {
+		if s != nil {
+			ids = ids.AddUniq(s.ID())
+		}
+	}
+	return ids
+}
+
 type FieldList []*Field
 
 func (l FieldList) Find(fid FieldID) *Field {
