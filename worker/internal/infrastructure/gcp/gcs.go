@@ -19,6 +19,10 @@ const (
 	gcsAssetBasePath string = "assets"
 )
 
+type contextKey string
+
+const workspaceContextKey contextKey = "workspace"
+
 type fileRepo struct {
 	bucketName   string
 	cacheControl string
@@ -60,6 +64,14 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 	object := bucket.Retryer(storage.WithPolicy(storage.RetryAlways)).Object(name)
 	writer := object.NewWriter(ctx)
 	writer.CacheControl = f.cacheControl
+
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		if writer.Metadata == nil {
+			writer.Metadata = make(map[string]string)
+		}
+		writer.Metadata["X-Reearth-Workspace-ID"] = workspace
+	}
+
 	return writer, nil
 }
 
@@ -145,4 +157,13 @@ func (b *buffer) Close() error {
 
 func (b *buffer) ReadAt(b2 []byte, off int64) (n int, err error) {
 	return b.b.ReadAt(b2, off)
+}
+
+func getWorkspaceFromContext(ctx context.Context) string {
+	if v := ctx.Value(workspaceContextKey); v != nil {
+		if ws, ok := v.(string); ok {
+			return ws
+		}
+	}
+	return ""
 }
