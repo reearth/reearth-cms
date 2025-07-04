@@ -35,10 +35,16 @@ func TestInternalListProjectsAPI(t *testing.T) {
 	})
 	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
-	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceId: wId0.String()})
+	// List projects without any parameters should return an error
+	_, err = client.ListProjects(mdCtx, &pb.ListProjectsRequest{})
+	assert.Error(t, err)
+	assert.Equal(t, err.Error(), "rpc error: code = InvalidArgument desc = at least one valid workspace_id is required")
+
+	// List projects for the workspace
+	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 	assert.NoError(t, err)
 
-	assert.Equal(t, int32(1), l.TotalCount)
+	assert.Equal(t, int64(1), l.TotalCount)
 	assert.Equal(t, 1, len(l.Projects))
 
 	p1 := l.Projects[0]
@@ -146,9 +152,9 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify the project was created
-	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceId: wId0.String()})
+	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 	assert.NoError(t, err)
-	assert.Equal(t, int32(2), l.TotalCount)
+	assert.Equal(t, int64(2), l.TotalCount)
 	for _, p := range l.Projects {
 		if p.Alias == "new_project" {
 			assert.Equal(t, "New Project", p.Name)
@@ -223,9 +229,9 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify the project was deleted
-	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceId: wId0.String()})
+	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 	assert.NoError(t, err)
-	assert.Equal(t, int32(0), l.TotalCount)
+	assert.Equal(t, int64(0), l.TotalCount)
 }
 
 // GRPC List Models in Project
@@ -252,7 +258,7 @@ func TestInternalListModelsInProjectAPI(t *testing.T) {
 
 	l, err := client.ListModels(mdCtx, &pb.ListModelsRequest{ProjectId: pid.String()})
 	assert.NoError(t, err)
-	assert.Equal(t, int32(7), l.TotalCount)
+	assert.Equal(t, int64(7), l.TotalCount)
 
 	// Verify that no models are returned for the project
 
@@ -283,7 +289,7 @@ func TestInternalListItemsInModelAPI(t *testing.T) {
 	l, err := client.ListItems(mdCtx, &pb.ListItemsRequest{ProjectId: pid.String(), ModelId: mId1.String()})
 	assert.NoError(t, err)
 
-	assert.Equal(t, int32(1), l.TotalCount)
+	assert.Equal(t, int64(1), l.TotalCount)
 	assert.Equal(t, 1, len(l.Items))
 	item := l.Items[0]
 	assert.Equal(t, itmId1.String(), item.Id)

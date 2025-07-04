@@ -99,6 +99,11 @@ message SchemaField {
 }
 
 // Request messages
+message PageInfo {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
 message ProjectRequest {
   string project_id_or_alias = 1;
 }
@@ -132,19 +137,23 @@ message DeleteProjectRequest {
 }
 
 message ListProjectsRequest {
-  string workspace_id = 1;
-  bool public_only = 2;
+  repeated string workspace_ids = 1;
+  bool public_only = 3;
+
+  optional PageInfo page_info = 100;
 }
 
 message ListModelsRequest {
   string project_id = 1;
+
+  optional PageInfo page_info = 2;
 }
 
 message ListItemsRequest {
   string model_id = 1;
   string project_id = 2;
-  optional int32 page = 3;
-  optional int32 page_size = 4;
+
+  optional PageInfo page_info = 3;
 }
 
 message ExportRequest {
@@ -167,17 +176,23 @@ message DeleteProjectResponse {
 
 message ListProjectsResponse {
   repeated Project projects = 1;
-  int32 total_count = 2;
+  int64 total_count = 2;
+
+  PageInfo page_info = 100;
 }
 
 message ListModelsResponse {
   repeated Model models = 1;
-  int32 total_count = 2;
+  int64 total_count = 2;
+
+  PageInfo page_info = 100;
 }
 
 message ListItemsResponse {
   repeated Item items = 1;
-  int32 total_count = 2;
+  int64 total_count = 2;
+
+  PageInfo page_info = 100;
 }
 
 message ExportURLResponse {

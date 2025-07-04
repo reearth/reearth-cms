@@ -35,6 +35,10 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, f, p)
 }
 
+func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, p *usecasex.Pagination, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	return i.repos.Project.FindByWorkspaces(ctx, wIds, f, p)
+}
+
 func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
 	return i.repos.Project.FindByIDOrAlias(ctx, id)
 }
