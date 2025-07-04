@@ -61,12 +61,11 @@ var (
 	pApiP1S3F3Key          = "geometry-object"
 )
 
-func TestPublicAPI(t *testing.T) {
-	e, repos, _ := StartServerWithRepos(t, &app.Config{
+func TestPublicAPI_NotFound(t *testing.T) {
+	e, _, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	// not found
 	e.GET("/api/p/{project}/{model}", "invalid-alias", pApiP1M1Key).
 		Expect().
 		Status(http.StatusNotFound).
@@ -90,6 +89,119 @@ func TestPublicAPI(t *testing.T) {
 		Status(http.StatusNotFound).
 		JSON().
 		IsEqual(map[string]any{"error": "not found"})
+}
+
+func TestPublicAPI_Item(t *testing.T) {
+	e, r, _ := StartServerWithRepos(t, &app.Config{
+		AssetBaseURL: "https://example.com",
+	}, true, publicAPISeeder)
+
+	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"id":          pApiP1M1I1Id.String(),
+			pApiP1S1F1Key: "aaa",
+			pApiP1S1F2Key: map[string]any{
+				"type": "asset",
+				"id":   pApiP1A1Id.String(),
+				"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+			},
+		})
+
+	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, "___", pApiP1M1I1Id).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{
+			"error": "not found",
+		})
+
+	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I4Id).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{
+			"error": "not found",
+		})
+
+	// make the project's assets private
+	ctx := context.Background()
+	prj := lo.Must(r.Project.FindByID(ctx, pApiP1Id))
+	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, false), nil))
+	lo.Must0(r.Project.Save(ctx, prj))
+	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"id":          pApiP1M1I1Id.String(),
+			pApiP1S1F1Key: "aaa",
+			// pApiP1S1F2Key should be removed
+		})
+
+	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
+	lo.Must0(r.Project.Save(ctx, prj))
+
+	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{
+			"error": "not found",
+		})
+}
+
+func TestPublicAPI_Assets(t *testing.T) {
+	e, _, _ := StartServerWithRepos(t, &app.Config{
+		AssetBaseURL: "https://example.com",
+	}, true, publicAPISeeder)
+
+	e.GET("/api/p/{project}/assets", pApiP1Alias).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"hasMore": false,
+			"limit":   50,
+			"offset":  0,
+			"page":    1,
+			"results": []map[string]any{
+				{
+					"id":          pApiP1A1Id.String(),
+					"type":        "asset",
+					"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+					"contentType": "application/zip",
+					"files": []string{
+						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+					},
+				},
+			},
+			"totalCount": 1,
+		})
+
+	e.GET("/api/p/{project}/assets/{assetid}", pApiP1Alias, pApiP1A1Id).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"type":        "asset",
+			"id":          pApiP1A1Id.String(),
+			"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+			"contentType": "application/zip",
+			"files": []string{
+				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+			},
+		})
+}
+
+func TestPublicAPI_Model(t *testing.T) {
+	e, r, _ := StartServerWithRepos(t, &app.Config{
+		AssetBaseURL: "https://example.com",
+	}, true, publicAPISeeder)
 
 	// ok
 	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
@@ -190,80 +302,11 @@ func TestPublicAPI(t *testing.T) {
 			"nextCursor": pApiP1M1I2Id.String(),
 		})
 
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"id":          pApiP1M1I1Id.String(),
-			pApiP1S1F1Key: "aaa",
-			pApiP1S1F2Key: map[string]any{
-				"type": "asset",
-				"id":   pApiP1A1Id.String(),
-				"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-			},
-		})
-
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, "___", pApiP1M1I1Id).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{
-			"error": "not found",
-		})
-
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I4Id).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{
-			"error": "not found",
-		})
-
-	e.GET("/api/p/{project}/assets", pApiP1Alias).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"hasMore": false,
-			"limit":   50,
-			"offset":  0,
-			"page":    1,
-			"results": []map[string]any{
-				{
-					"id":          pApiP1A1Id.String(),
-					"type":        "asset",
-					"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-					"contentType": "application/zip",
-					"files": []string{
-						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
-						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
-					},
-				},
-			},
-			"totalCount": 1,
-		})
-
-	e.GET("/api/p/{project}/assets/{assetid}", pApiP1Alias, pApiP1A1Id).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"type":        "asset",
-			"id":          pApiP1A1Id.String(),
-			"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-			"contentType": "application/zip",
-			"files": []string{
-				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
-				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
-			},
-		})
-
 	// make the project's assets private
 	ctx := context.Background()
-	prj := lo.Must(repos.Project.FindByID(ctx, pApiP1Id))
+	prj := lo.Must(r.Project.FindByID(ctx, pApiP1Id))
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, false), nil))
-	lo.Must0(repos.Project.Save(ctx, prj))
+	lo.Must0(r.Project.Save(ctx, prj))
 
 	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
 		Expect().
@@ -314,127 +357,11 @@ func TestPublicAPI(t *testing.T) {
 			"page":       1,
 		})
 
-	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]interface{}{
-			"type": "FeatureCollection",
-			"features": []map[string]interface{}{
-				{
-					"type": "Feature",
-					"id":   pApiP1M1I5Id.String(),
-					"geometry": map[string]interface{}{
-						"type": "Point",
-						"coordinates": []interface{}{
-							102,
-							0.5,
-						},
-					},
-					"properties": map[string]interface{}{
-						"test-field-1": "eee",
-						"test-field-2": []interface{}{
-							"aaa",
-							"bbb",
-							"ccc",
-						},
-						"asset":  pApiP1A2Id,
-						"asset2": pApiP1A1Id,
-					},
-				},
-			},
-		})
-
-	// no geometry field
-	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M3Key).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]interface{}{
-			"error": "not found",
-		})
-
-	e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusOK).
-		Body().
-		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,0.5,102,eee,,aaa,\n", pApiP1M1I5Id.String()))
-
-	// no geometry field
-	e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M3Key).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]interface{}{
-			"error": "not found",
-		})
-
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"id":          pApiP1M1I1Id.String(),
-			pApiP1S1F1Key: "aaa",
-			// pApiP1S1F2Key should be removed
-		})
-
-	// schema export json
-	e.GET("/api/p/{project}/{model}/schema.json", pApiP1Alias, id.RandomKey()).
-		Expect().
-		Status(http.StatusNotFound)
-
-	e.GET("/api/p/{project}/{model}/schema.json", pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"$id": pApiP1M1Id,
-			"properties": map[string]any{
-				"asset": map[string]any{
-					"title":  "asset",
-					"type":   "string",
-					"format": "binary",
-				},
-				"asset2": map[string]any{
-					"title":  "asset2",
-					"type":   "string",
-					"format": "binary",
-				},
-				"geometry-editor": map[string]any{
-					"title": "geometry-editor",
-					"type":  "object",
-				},
-				"geometry-object": map[string]any{
-					"title": "geometry-object",
-					"type":  "object",
-				},
-				"test-field-1": map[string]any{
-					"title": "test-field-1",
-					"type":  "string",
-				},
-				"test-field-2": map[string]any{
-					"title": "test-field-2",
-					"type":  "string",
-				},
-			},
-			"$schema": "https://json-schema.org/draft/2020-12/schema",
-			"type":    "object",
-		})
-
 	// make the project private
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
-	lo.Must0(repos.Project.Save(ctx, prj))
+	lo.Must0(r.Project.Save(ctx, prj))
 
 	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{
-			"error": "not found",
-		})
-
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
@@ -446,7 +373,7 @@ func TestPublicAPI(t *testing.T) {
 	apiKey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Description("desc1").
 		Publication(project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, true)).Build()
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apiKey}))
-	lo.Must0(repos.Project.Save(ctx, prj))
+	lo.Must0(r.Project.Save(ctx, prj))
 
 	// invalid token
 	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
@@ -456,7 +383,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized).
 		JSON().
-		IsEqual(map[string]interface{}{
+		IsEqual(map[string]any{
 			"error": "invalid key",
 		})
 
@@ -532,6 +459,132 @@ func TestPublicAPI(t *testing.T) {
 		JSON().
 		IsEqual(map[string]any{
 			"error": "not found",
+		})
+}
+
+func TestPublicAPI_Model_GeoJson(t *testing.T) {
+	e, _, _ := StartServerWithRepos(t, &app.Config{
+		AssetBaseURL: "https://example.com",
+	}, true, publicAPISeeder)
+
+	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M1Key).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"type": "FeatureCollection",
+			"features": []map[string]any{
+				{
+					"type": "Feature",
+					"id":   pApiP1M1I5Id.String(),
+					"geometry": map[string]any{
+						"type": "Point",
+						"coordinates": []any{
+							102,
+							0.5,
+						},
+					},
+					"properties": map[string]any{
+						"test-field-1": "eee",
+						"test-field-2": []any{
+							"aaa",
+							"bbb",
+							"ccc",
+						},
+						pApiP1S1F2Key: map[string]any{
+							"id":   pApiP1A2Id,
+							"type": "asset",
+							"url":  "", // asset does not exist in db
+						},
+						pApiP1S1F4Key: []map[string]any{
+							{
+								"id":   pApiP1A1Id,
+								"type": "asset",
+								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+							},
+						},
+					},
+				},
+			},
+		})
+
+	// no geometry field
+	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M3Key).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{
+			"error": "not found",
+		})
+}
+
+func TestPublicAPI_Model_CSV(t *testing.T) {
+	e, _, _ := StartServerWithRepos(t, &app.Config{
+		AssetBaseURL: "https://example.com",
+	}, true, publicAPISeeder)
+
+	e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M1Key).
+		Expect().
+		Status(http.StatusOK).
+		Body().
+		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,0.5,102,eee,,aaa,\n", pApiP1M1I5Id.String()))
+
+	// no geometry field
+	e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M3Key).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{
+			"error": "not found",
+		})
+}
+
+func TestPublicAPI_Model_Json(t *testing.T) {
+	e, _, _ := StartServerWithRepos(t, &app.Config{
+		AssetBaseURL: "https://example.com",
+	}, true, publicAPISeeder)
+
+	// schema export json
+	e.GET("/api/p/{project}/{model}/schema.json", pApiP1Alias, id.RandomKey()).
+		Expect().
+		Status(http.StatusNotFound)
+
+	e.GET("/api/p/{project}/{model}/schema.json", pApiP1Alias, pApiP1M1Key).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"$id": pApiP1M1Id,
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"title":  "asset",
+					"type":   "string",
+					"format": "binary",
+				},
+				"asset2": map[string]any{
+					"title":  "asset2",
+					"type":   "string",
+					"format": "binary",
+				},
+				"geometry-editor": map[string]any{
+					"title": "geometry-editor",
+					"type":  "object",
+				},
+				"geometry-object": map[string]any{
+					"title": "geometry-object",
+					"type":  "object",
+				},
+				"test-field-1": map[string]any{
+					"title": "test-field-1",
+					"type":  "string",
+				},
+				"test-field-2": map[string]any{
+					"title": "test-field-2",
+					"type":  "string",
+				},
+			},
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"type":    "object",
 		})
 }
 

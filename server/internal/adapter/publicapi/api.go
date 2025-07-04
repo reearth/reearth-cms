@@ -92,15 +92,7 @@ func ItemOrAssetList() echo.HandlerFunc {
 			resType = "json"
 		}
 
-		res, _, err := ctrl.GetItems(ctx, pKey, mKey, p)
-		if err != nil {
-			if errors.Is(err, rerror.ErrNotFound) {
-				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
-			}
-			return err
-		}
-
-		vi, sp, err := ctrl.GetVersionedItems(ctx, pKey, mKey, p)
+		items, sp, aPublic, assets, pi, err := ctrl.GetPublicItems(ctx, pKey, mKey, p)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
@@ -110,13 +102,13 @@ func ItemOrAssetList() echo.HandlerFunc {
 
 		switch resType {
 		case "csv":
-			return toCSV(c, vi, sp.Schema())
+			return toCSV(c, items, sp.Schema())
 		case "geojson":
-			return toGeoJSON(c, vi, sp)
+			return toGeoJSON(c, items, sp, assets)
 		case "json":
-			return c.JSON(http.StatusOK, res)
+			return toJSON(c, items, sp, aPublic, assets, nil, pi, p.Pagination)
 		default:
-			return c.JSON(http.StatusOK, res)
+			return toJSON(c, items, sp, aPublic, assets, nil, pi, p.Pagination)
 		}
 	}
 }

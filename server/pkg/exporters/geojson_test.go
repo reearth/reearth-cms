@@ -74,7 +74,7 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
 
 	// with geometry fields
-	ver1 := item.VersionedList{vi1}
+	ver1 := item.List{vi1.Value()}
 	lineString := [][]float64{
 		{139.65439725962517, 36.34793305387103},
 		{139.61688622815393, 35.910803456352724},
@@ -105,15 +105,15 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 		Features: &[]Feature{f},
 	}
 
-	fc1, err1 := FeatureCollectionFromItems(ver1, sp1)
+	fc1, err1 := FeatureCollectionFromItems(ver1, sp1, nil)
 	assert.Nil(t, err1)
 	assert.Equal(t, expected1, fc1)
 
 	// no geometry fields
-	ver2 := item.VersionedList{vi2}
+	ver2 := item.List{vi2.Value()}
 	expectErr2 := noGeometryFieldError
 
-	fc, err := FeatureCollectionFromItems(ver2, sp2)
+	fc, err := FeatureCollectionFromItems(ver2, sp2, nil)
 	assert.Equal(t, expectErr2, err)
 	assert.Nil(t, fc)
 }
@@ -186,7 +186,7 @@ func TestExtractProperties(t *testing.T) {
 		MustBuild()
 
 	// Test with item containing geometry fields and non geometry fields
-	properties1 := extractProperties(i1, sp1)
+	properties1 := extractProperties(i1, sp1, nil)
 	expectedProperties1 := orderedmap.New()
 
 	expectedProperties1.Set(key2.String(), []any{"a", "b", "c"})
@@ -197,17 +197,17 @@ func TestExtractProperties(t *testing.T) {
 	assert.Equal(t, expectedProperties1, properties1)
 
 	// Test with item containing only geometry fields
-	properties3 := extractProperties(i2, sp1)
+	properties3 := extractProperties(i2, sp1, nil)
 	expectedProperties3 := orderedmap.New()
 	assert.NotNil(t, properties3)
 	assert.Equal(t, expectedProperties3, properties3)
 
 	// Test with nil item
-	properties4 := extractProperties(nil, sp1)
+	properties4 := extractProperties(nil, sp1, nil)
 	assert.Nil(t, properties4)
 
 	// Test with nil schema
-	properties5 := extractProperties(i1, nil)
+	properties5 := extractProperties(i1, nil, nil)
 	assert.Nil(t, properties5)
 }
 
