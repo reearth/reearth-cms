@@ -1,34 +1,34 @@
 module github.com/reearth/reearth-cms/worker
 
-go 1.24.2
+go 1.24.4
 
 require (
-	cloud.google.com/go/pubsub v1.48.1
-	cloud.google.com/go/storage v1.51.0
-	github.com/aws/aws-sdk-go-v2 v1.36.3
-	github.com/aws/aws-sdk-go-v2/config v1.29.13
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.71
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.1
-	github.com/aws/aws-sdk-go-v2/service/sns v1.34.3
-	github.com/bodgit/sevenzip v1.6.0
+	cloud.google.com/go/pubsub v1.49.0
+	cloud.google.com/go/storage v1.55.0
+	github.com/aws/aws-sdk-go-v2 v1.36.5
+	github.com/aws/aws-sdk-go-v2/config v1.29.17
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.83
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.83.0
+	github.com/aws/aws-sdk-go-v2/service/sns v1.34.7
+	github.com/bodgit/sevenzip v1.6.1
 	github.com/google/uuid v1.6.0
 	github.com/hellofresh/health-go/v5 v5.5.4
-	github.com/jarcoal/httpmock v1.3.1
+	github.com/jarcoal/httpmock v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/labstack/echo/v4 v4.13.3
-	github.com/oklog/ulid v1.3.1
+	github.com/labstack/echo/v4 v4.13.4
+	github.com/oklog/ulid/v2 v2.1.1
 	github.com/reearth/reearth-cms/server v0.0.0-20250313075740-97da4ea2fef9
 	github.com/reearth/reearthx v0.0.0-20250311150653-f0f124027139
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
-	github.com/samber/lo v1.49.1
+	github.com/samber/lo v1.51.0
 	github.com/spf13/afero v1.14.0
 	github.com/stretchr/testify v1.10.0
-	go.mongodb.org/mongo-driver v1.17.3
-	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.60.0
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.60.0
-	golang.org/x/net v0.38.0
+	go.mongodb.org/mongo-driver/v2 v2.2.2
+	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.62.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.62.0
+	golang.org/x/net v0.41.0
 )
 
 require (
