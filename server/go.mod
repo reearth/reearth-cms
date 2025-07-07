@@ -30,7 +30,7 @@ require (
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.18.0
-	github.com/reearth/reearthx v0.0.0-20250702125651-a4fea80b2ac0
+	github.com/reearth/reearthx v0.0.0-20250703105835-4e45508507d6
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.51.0
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
