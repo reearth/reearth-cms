@@ -47,15 +47,26 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 				Skipper: func(c echo.Context) bool {
 					// Skip CORS for Integration and Public API paths
 					path := c.Request().URL.Path
-					shouldSkip := strings.HasPrefix(path, "/api/models/") ||
-						strings.HasPrefix(path, "/api/p/") ||
-						strings.HasPrefix(path, "/api/assets/") ||
-						strings.HasPrefix(path, "/api/groups/") ||
-						strings.HasPrefix(path, "/api/items/") ||
-						strings.HasPrefix(path, "/api/projects/") ||
-						strings.HasPrefix(path, "/api/schemata/") ||
-						// Handle workspace-based routes like /api/{workspaceId}/projects
-						(len(strings.Split(path, "/")) >= 4 && strings.Contains(path, "/projects"))
+					pathPrefixes := []string{
+						"/api/models/",
+						"/api/p/",
+						"/api/assets/",
+						"/api/groups/",
+						"/api/items/",
+						"/api/projects/",
+						"/api/schemata/",
+					}
+					shouldSkip := false
+					for _, prefix := range pathPrefixes {
+						if strings.HasPrefix(path, prefix) {
+							shouldSkip = true
+							break
+						}
+					}
+					// Handle workspace-based routes like /api/{workspaceId}/projects
+					if !shouldSkip && (strings.Count(path, "/") >= 3 && strings.Contains(path, "/projects")) {
+						shouldSkip = true
+					}
 
 					return shouldSkip
 				},
