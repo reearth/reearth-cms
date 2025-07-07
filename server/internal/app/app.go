@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
@@ -43,6 +44,32 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 		e.Use(
 			middleware.CORSWithConfig(middleware.CORSConfig{
 				AllowOrigins: origins,
+				Skipper: func(c echo.Context) bool {
+					// Skip CORS for Integration and Public API paths
+					path := c.Request().URL.Path
+					pathPrefixes := []string{
+						"/api/models/",
+						"/api/p/",
+						"/api/assets/",
+						"/api/groups/",
+						"/api/items/",
+						"/api/projects/",
+						"/api/schemata/",
+					}
+					shouldSkip := false
+					for _, prefix := range pathPrefixes {
+						if strings.HasPrefix(path, prefix) {
+							shouldSkip = true
+							break
+						}
+					}
+					// Handle workspace-based routes like /api/{workspaceId}/projects
+					if !shouldSkip && (strings.Count(path, "/") >= 3 && strings.Contains(path, "/projects")) {
+						shouldSkip = true
+					}
+
+					return shouldSkip
+				},
 			}),
 		)
 	}
@@ -78,7 +105,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	api.POST("/signup", Signup(), usecaseMiddleware)
 
 	// Public API with its own CORS config
-	publicAPIGroup := api.Group("/p", publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
+	publicAPIGroup := api.Group("/p")
 	publicOrigins := allowedPublicOrigins(appCtx)
 	if len(publicOrigins) > 0 {
 		publicAPIGroup.Use(
@@ -87,10 +114,12 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 			}),
 		)
 	}
+	// Add auth middleware AFTER CORS
+	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
 	publicapi.Echo(publicAPIGroup)
 
 	// Integration API with its own CORS config
-	integrationAPIGroup := api.Group("", authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
+	integrationAPIGroup := api.Group("")
 	integrationOrigins := allowedIntegrationOrigins(appCtx)
 	if len(integrationOrigins) > 0 {
 		integrationAPIGroup.Use(
@@ -99,6 +128,8 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 			}),
 		)
 	}
+	// Add auth middleware AFTER CORS
+	integrationAPIGroup.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
 	integration.RegisterHandlers(integrationAPIGroup, integration.NewStrictHandler(integration.NewServer(), nil))
 
 	serveFiles(e, appCtx)

@@ -569,3 +569,98 @@ func TestIntegrationModelDeleteWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 }
+
+// Test CORS headers for Integration API endpoints
+func TestIntegrationModelCORS(t *testing.T) {
+	// Test with Integration API origins configured
+	config := &app.Config{
+		Integration_Origins: []string{"https://visualizer.reearth.io", "https://example.com"},
+	}
+	e := StartServer(t, config, true, baseSeeder)
+
+	// Test OPTIONS preflight request for models endpoint
+	resp1 := e.OPTIONS("/api/models/{modelId}", mId1).
+		WithHeader("Origin", "https://visualizer.reearth.io").
+		WithHeader("Access-Control-Request-Method", "GET").
+		WithHeader("Access-Control-Request-Headers", "authorization").
+		Expect().
+		Status(http.StatusNoContent)
+
+	resp1.Header("Access-Control-Allow-Origin").IsEqual("https://visualizer.reearth.io")
+	resp1.Header("Access-Control-Allow-Methods").Contains("GET")
+	resp1.Header("Access-Control-Allow-Headers").NotEmpty()
+
+	// Test OPTIONS preflight request for project-based models endpoint
+	resp2 := e.OPTIONS("/api/projects/{projectId}/models", pid).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("Access-Control-Request-Method", "POST").
+		WithHeader("Access-Control-Request-Headers", "authorization,content-type").
+		Expect().
+		Status(http.StatusNoContent)
+
+	resp2.Header("Access-Control-Allow-Origin").IsEqual("https://example.com")
+	resp2.Header("Access-Control-Allow-Methods").Contains("POST")
+	resp2.Header("Access-Control-Allow-Headers").NotEmpty()
+
+	// Test workspace-based routes CORS
+	resp3 := e.OPTIONS("/api/{workspaceId}/projects", wId).
+		WithHeader("Origin", "https://visualizer.reearth.io").
+		WithHeader("Access-Control-Request-Method", "GET").
+		Expect().
+		Status(http.StatusNoContent)
+
+	resp3.Header("Access-Control-Allow-Origin").IsEqual("https://visualizer.reearth.io")
+
+	// Test actual GET request to verify CORS headers are present
+	resp4 := e.GET("/api/models/{modelId}", mId1).
+		WithHeader("Origin", "https://visualizer.reearth.io").
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+
+	resp4.Header("Access-Control-Allow-Origin").IsEqual("https://visualizer.reearth.io")
+}
+
+// Test CORS with wildcard origin (for development)
+func TestIntegrationModelCORSWildcard(t *testing.T) {
+	config := &app.Config{
+		Integration_Origins: []string{"*"},
+	}
+	e := StartServer(t, config, true, baseSeeder)
+
+	// Test OPTIONS preflight request with wildcard origin
+	resp1 := e.OPTIONS("/api/models/{modelId}", mId1).
+		WithHeader("Origin", "https://any-origin.com").
+		WithHeader("Access-Control-Request-Method", "GET").
+		WithHeader("Access-Control-Request-Headers", "authorization").
+		Expect().
+		Status(http.StatusNoContent)
+
+	resp1.Header("Access-Control-Allow-Origin").IsEqual("*")
+
+	// Test actual request with wildcard
+	resp2 := e.GET("/api/models/{modelId}", mId1).
+		WithHeader("Origin", "https://any-origin.com").
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK)
+
+	resp2.Header("Access-Control-Allow-Origin").IsEqual("*")
+}
+
+// Test CORS rejection for non-allowed origins
+func TestIntegrationModelCORSRejection(t *testing.T) {
+	config := &app.Config{
+		Integration_Origins: []string{"https://allowed-origin.com"},
+	}
+	e := StartServer(t, config, true, baseSeeder)
+
+	// Test OPTIONS preflight request with non-allowed origin
+	resp := e.OPTIONS("/api/models/{modelId}", mId1).
+		WithHeader("Origin", "https://blocked-origin.com").
+		WithHeader("Access-Control-Request-Method", "GET").
+		Expect().
+		Status(http.StatusNoContent)
+
+	resp.Header("Access-Control-Allow-Origin").IsEmpty()
+}
