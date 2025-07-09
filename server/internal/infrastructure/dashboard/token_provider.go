@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 // TokenProvider provides authentication tokens for the dashboard API
@@ -69,19 +72,19 @@ func (t *TokenProvider) refreshToken() (string, error) {
 
 	jsonBody, err := json.Marshal(requestBody)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal token request: %w", err)
+		return "", rerror.NewE(i18n.T("failed to marshal auth request body"))
 	}
 
 	req, err := http.NewRequest(http.MethodPost, t.tokenURL, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		return "", fmt.Errorf("failed to create token request: %w", err)
+		return "", rerror.NewE(i18n.T("failed to create auth request"))
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := t.httpClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to execute token request: %w", err)
+		return "", rerror.NewE(i18n.T("failed to auth request"))
 	}
 	defer func() {
 		_ = resp.Body.Close()
@@ -90,7 +93,7 @@ func (t *TokenProvider) refreshToken() (string, error) {
 	if resp.StatusCode != http.StatusOK {
 		// Read the error response body for better debugging
 		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("token request failed with status %d: %s", resp.StatusCode, string(body))
+		return "", rerror.NewE(i18n.T(fmt.Sprintf("failed to auth status %d: %s", resp.StatusCode, string(body))))
 	}
 
 	var tokenResponse struct {
@@ -100,11 +103,11 @@ func (t *TokenProvider) refreshToken() (string, error) {
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
-		return "", fmt.Errorf("failed to decode token response: %w", err)
+		return "", rerror.NewE(i18n.T("failed to decode auth response"))
 	}
 
 	if tokenResponse.AccessToken == "" {
-		return "", fmt.Errorf("empty access token received")
+		return "", rerror.NewE(i18n.T("failed to auth: empty access token received"))
 	}
 
 	t.token = tokenResponse.AccessToken

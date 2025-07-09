@@ -232,7 +232,7 @@ func TestCheckPlanConstraints_InvalidJSON(t *testing.T) {
 
 	assert.Nil(t, resp)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to decode response")
+	assert.Contains(t, err.Error(), "error decoding response")
 }
 
 type contextKey string
@@ -333,7 +333,11 @@ func TestCheckPlanConstraints_NetworkError(t *testing.T) {
 
 	assert.Nil(t, resp)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to execute request")
+	// Could be either a network error or HTTP status error depending on DNS resolution
+	assert.True(t, 
+		strings.Contains(err.Error(), "error making API request") || 
+		strings.Contains(err.Error(), "API request failed with status"), 
+		"Expected network or HTTP error, got: %v", err.Error())
 }
 
 func TestCheckPlanConstraints_URLEncoding(t *testing.T) {
