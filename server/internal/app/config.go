@@ -73,11 +73,18 @@ type Config struct {
 
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
+
+	// Dashboard API Configuration
+	DashboardAPI DashboardAPIConfig `pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
 	Username string `pp:",omitempty"`
 	Password string `pp:",omitempty"`
+}
+
+type DashboardAPIConfig struct {
+	BaseURL string `default:"https://api.dashboard.dev.reearth.io" pp:",omitempty"`
 }
 
 type ServerConfig struct {
