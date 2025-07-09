@@ -48,7 +48,7 @@ func TestCheckPlanConstraints_Success(t *testing.T) {
 				Message:      "Within limits",
 				Value:        1024,
 			},
-			expectedURL: fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", testBaseURL, testWorkspaceID),
+			expectedURL: fmt.Sprintf("%s"+CheckConstraintsPath, testBaseURL, testWorkspaceID),
 		},
 		{
 			name:      "CMS model count per project not allowed",
@@ -61,7 +61,7 @@ func TestCheckPlanConstraints_Success(t *testing.T) {
 				Message:      "Exceeded model count limit",
 				Value:        100,
 			},
-			expectedURL: fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", testBaseURL, testWorkspaceID),
+			expectedURL: fmt.Sprintf("%s"+CheckConstraintsPath, testBaseURL, testWorkspaceID),
 		},
 		{
 			name:      "General public project creation",
@@ -74,7 +74,7 @@ func TestCheckPlanConstraints_Success(t *testing.T) {
 				Message:      "Public project creation allowed",
 				Value:        1,
 			},
-			expectedURL: fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", testBaseURL, testWorkspaceID),
+			expectedURL: fmt.Sprintf("%s"+CheckConstraintsPath, testBaseURL, testWorkspaceID),
 		},
 	}
 
@@ -121,7 +121,7 @@ func TestCheckPlanConstraints_AllCheckTypes(t *testing.T) {
 			}
 
 			client := NewClient(testBaseURL)
-			client.httpClient = createMockHTTPClient(t, fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", testBaseURL, testWorkspaceID), checkType, 500, expectedResp)
+			client.httpClient = createMockHTTPClient(t, fmt.Sprintf("%s"+CheckConstraintsPath, testBaseURL, testWorkspaceID), checkType, 500, expectedResp)
 
 			req := CheckPlanConstraintsRequest{
 				CheckType: checkType,
@@ -265,7 +265,7 @@ func TestCheckPlanConstraints_RequestValidation(t *testing.T) {
 			assert.Equal(t, "application/json", req.Header.Get("Content-Type"))
 
 			// Verify URL
-			expectedURL := fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", testBaseURL, testWorkspaceID)
+			expectedURL := fmt.Sprintf("%s"+CheckConstraintsPath, testBaseURL, testWorkspaceID)
 			assert.Equal(t, expectedURL, req.URL.String())
 
 			// Verify request body
@@ -314,6 +314,76 @@ func TestCheckPlanConstraints_NetworkError(t *testing.T) {
 	assert.Nil(t, resp)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to execute request")
+}
+
+func TestCheckPlanConstraints_URLEncoding(t *testing.T) {
+	tests := []struct {
+		name               string
+		workspaceID        string
+		expectedEncodedID  string
+	}{
+		{
+			name:              "Normal workspace ID",
+			workspaceID:       "01jyg9hfsatv599emg1knc0rgb",
+			expectedEncodedID: "01jyg9hfsatv599emg1knc0rgb",
+		},
+		{
+			name:              "Workspace ID with spaces",
+			workspaceID:       "workspace with spaces",
+			expectedEncodedID: "workspace%20with%20spaces",
+		},
+		{
+			name:              "Workspace ID with special characters",
+			workspaceID:       "workspace/with&special=chars?and#hash",
+			expectedEncodedID: "workspace%2Fwith&special=chars%3Fand%23hash",
+		},
+		{
+			name:              "Workspace ID with plus sign",
+			workspaceID:       "workspace+with+plus",
+			expectedEncodedID: "workspace+with+plus",
+		},
+		{
+			name:              "Workspace ID with percent encoding",
+			workspaceID:       "workspace%already%encoded",
+			expectedEncodedID: "workspace%25already%25encoded",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := NewClient(testBaseURL)
+			client.httpClient = &http.Client{
+				Transport: RoundTripFunc(func(req *http.Request) *http.Response {
+					// Verify that the URL string contains the properly encoded workspace ID
+					expectedURL := fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", testBaseURL, tt.expectedEncodedID)
+					assert.Equal(t, expectedURL, req.URL.String())
+					
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body: io.NopCloser(strings.NewReader(`{
+							"allowed": true,
+							"check_type": "cms_private_data_transfer_upload_size",
+							"current_limit": "10GB",
+							"message": "OK",
+							"value": 1024
+						}`)),
+						Header: make(http.Header),
+					}
+				}),
+			}
+
+			req := CheckPlanConstraintsRequest{
+				CheckType: CheckTypeCMSPrivateDataTransferUploadSize,
+				Value:     1024,
+			}
+
+			resp, err := client.CheckPlanConstraints(context.Background(), tt.workspaceID, req)
+
+			assert.NoError(t, err)
+			assert.NotNil(t, resp)
+			assert.True(t, resp.Allowed)
+		})
+	}
 }
 
 func TestCheckPlanConstraints_EdgeCases(t *testing.T) {
@@ -373,7 +443,7 @@ func TestCheckPlanConstraints_EdgeCases(t *testing.T) {
 			}
 
 			client := NewClient(testBaseURL)
-			client.httpClient = createMockHTTPClient(t, fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", testBaseURL, tt.workspaceID), tt.request.CheckType, tt.request.Value, expectedResp)
+			client.httpClient = createMockHTTPClient(t, fmt.Sprintf("%s"+CheckConstraintsPath, testBaseURL, tt.workspaceID), tt.request.CheckType, tt.request.Value, expectedResp)
 
 			resp, err := client.CheckPlanConstraints(context.Background(), tt.workspaceID, tt.request)
 

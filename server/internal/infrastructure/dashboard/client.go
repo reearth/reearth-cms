@@ -6,7 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
+)
+
+const (
+	CheckConstraintsPath = "/api/workspaces/%s/check-plan-constraints"
 )
 
 type CheckType string
@@ -50,14 +55,15 @@ func NewClient(baseURL string) *Client {
 }
 
 func (c *Client) CheckPlanConstraints(ctx context.Context, workspaceID string, req CheckPlanConstraintsRequest) (*CheckPlanConstraintsResponse, error) {
-	url := fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", c.baseURL, workspaceID)
+	encodedWorkspaceID := url.PathEscape(workspaceID)
+	requestURL := fmt.Sprintf("%s"+CheckConstraintsPath, c.baseURL, encodedWorkspaceID)
 
 	requestBody, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(requestBody))
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
