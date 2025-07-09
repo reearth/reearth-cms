@@ -18,13 +18,32 @@ import (
 const (
 	testBaseURL     = "https://api.dashboard.example.com"
 	testWorkspaceID = "01jyg9hfsatv599emg1knc0rgb"
+	testToken       = "test-bearer-token"
 )
 
+// MockAuthenticator is a mock implementation of the Authenticator interface for testing
+type MockAuthenticator struct {
+	token string
+	err   error
+}
+
+func (m *MockAuthenticator) GetToken() (string, error) {
+	return m.token, m.err
+}
+
+// Helper function to create a test client with mock auth
+func newTestClient() *Client {
+	auth := &MockAuthenticator{token: testToken}
+	return NewClient(testBaseURL, auth)
+}
+
 func TestNewClient(t *testing.T) {
-	client := NewClient(testBaseURL)
+	auth := &MockAuthenticator{token: testToken}
+	client := NewClient(testBaseURL, auth)
 
 	assert.NotNil(t, client)
 	assert.Equal(t, testBaseURL, client.baseURL)
+	assert.Equal(t, auth, client.authenticator)
 	assert.NotNil(t, client.httpClient)
 	assert.Equal(t, 30*time.Second, client.httpClient.Timeout)
 }
@@ -81,7 +100,7 @@ func TestCheckPlanConstraints_Success(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			client := NewClient(testBaseURL)
+			client := newTestClient()
 			client.httpClient = createMockHTTPClient(t, tt.expectedURL, tt.checkType, tt.value, tt.expectedResp)
 
 			req := CheckPlanConstraintsRequest{
@@ -120,7 +139,7 @@ func TestCheckPlanConstraints_AllCheckTypes(t *testing.T) {
 				Value:        500,
 			}
 
-			client := NewClient(testBaseURL)
+			client := newTestClient()
 			client.httpClient = createMockHTTPClient(t, fmt.Sprintf("%s"+CheckConstraintsPath, testBaseURL, testWorkspaceID), checkType, 500, expectedResp)
 
 			req := CheckPlanConstraintsRequest{
@@ -167,7 +186,7 @@ func TestCheckPlanConstraints_HTTPErrors(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			client := NewClient(testBaseURL)
+			client := newTestClient()
 			client.httpClient = &http.Client{
 				Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 					return &http.Response{
@@ -193,7 +212,7 @@ func TestCheckPlanConstraints_HTTPErrors(t *testing.T) {
 }
 
 func TestCheckPlanConstraints_InvalidJSON(t *testing.T) {
-	client := NewClient(testBaseURL)
+	client := newTestClient()
 	client.httpClient = &http.Client{
 		Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 			return &http.Response{
@@ -219,7 +238,7 @@ func TestCheckPlanConstraints_InvalidJSON(t *testing.T) {
 type contextKey string
 
 func TestCheckPlanConstraints_ContextHandling(t *testing.T) {
-	client := NewClient(testBaseURL)
+	client := newTestClient()
 	client.httpClient = &http.Client{
 		Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 			// Verify that the context is properly passed to the request
@@ -255,7 +274,7 @@ func TestCheckPlanConstraints_ContextHandling(t *testing.T) {
 }
 
 func TestCheckPlanConstraints_RequestValidation(t *testing.T) {
-	client := NewClient(testBaseURL)
+	client := newTestClient()
 	client.httpClient = &http.Client{
 		Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 			// Verify request method
@@ -302,7 +321,8 @@ func TestCheckPlanConstraints_RequestValidation(t *testing.T) {
 }
 
 func TestCheckPlanConstraints_NetworkError(t *testing.T) {
-	client := NewClient("http://invalid-url-that-does-not-exist.com")
+	auth := &MockAuthenticator{token: testToken}
+	client := NewClient("http://invalid-url-that-does-not-exist.com", auth)
 
 	req := CheckPlanConstraintsRequest{
 		CheckType: CheckTypeCMSPrivateDataTransferUploadSize,
@@ -318,9 +338,9 @@ func TestCheckPlanConstraints_NetworkError(t *testing.T) {
 
 func TestCheckPlanConstraints_URLEncoding(t *testing.T) {
 	tests := []struct {
-		name               string
-		workspaceID        string
-		expectedEncodedID  string
+		name              string
+		workspaceID       string
+		expectedEncodedID string
 	}{
 		{
 			name:              "Normal workspace ID",
@@ -351,13 +371,13 @@ func TestCheckPlanConstraints_URLEncoding(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := NewClient(testBaseURL)
+			client := newTestClient()
 			client.httpClient = &http.Client{
 				Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 					// Verify that the URL string contains the properly encoded workspace ID
 					expectedURL := fmt.Sprintf("%s/api/workspaces/%s/check-plan-constraints", testBaseURL, tt.expectedEncodedID)
 					assert.Equal(t, expectedURL, req.URL.String())
-					
+
 					return &http.Response{
 						StatusCode: http.StatusOK,
 						Body: io.NopCloser(strings.NewReader(`{
@@ -442,7 +462,7 @@ func TestCheckPlanConstraints_EdgeCases(t *testing.T) {
 				Value:        tt.request.Value,
 			}
 
-			client := NewClient(testBaseURL)
+			client := newTestClient()
 			client.httpClient = createMockHTTPClient(t, fmt.Sprintf("%s"+CheckConstraintsPath, testBaseURL, tt.workspaceID), tt.request.CheckType, tt.request.Value, expectedResp)
 
 			resp, err := client.CheckPlanConstraints(context.Background(), tt.workspaceID, tt.request)
