@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
 
 const (
@@ -66,12 +69,12 @@ func (c *Client) CheckPlanConstraints(ctx context.Context, workspaceID string, r
 
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return nil, rerror.NewE(i18n.T("error marshalling request body for Dashboard API"))
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL, bytes.NewBuffer(requestBody))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, rerror.NewE(i18n.T("error creating API request"))
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
@@ -80,7 +83,7 @@ func (c *Client) CheckPlanConstraints(ctx context.Context, workspaceID string, r
 	if c.authenticator != nil {
 		token, err := c.authenticator.GetToken()
 		if err != nil {
-			return nil, fmt.Errorf("failed to get authentication token: %w", err)
+			return nil, err // Already wrapped by token provider
 		}
 		if token != "" {
 			httpReq.Header.Set("Authorization", "Bearer "+token)
@@ -89,19 +92,19 @@ func (c *Client) CheckPlanConstraints(ctx context.Context, workspaceID string, r
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute request: %w", err)
+		return nil, rerror.NewE(i18n.T("error making API request"))
 	}
 	defer func() {
 		_ = resp.Body.Close()
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
+		return nil, rerror.NewE(i18n.T(fmt.Sprintf("API request failed with status %d", resp.StatusCode)))
 	}
 
 	var response CheckPlanConstraintsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, rerror.NewE(i18n.T("error decoding response"))
 	}
 
 	return &response, nil

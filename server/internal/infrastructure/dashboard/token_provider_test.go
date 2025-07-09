@@ -144,25 +144,25 @@ func TestTokenProvider_GetToken_HTTPErrors(t *testing.T) {
 			name:           "401 Unauthorized",
 			httpStatusCode: http.StatusUnauthorized,
 			responseBody:   `{"error": "invalid_client", "error_description": "Invalid client credentials"}`,
-			expectedError:  "token request failed with status 401",
+			expectedError:  "failed to auth status 401",
 		},
 		{
 			name:           "400 Bad Request",
 			httpStatusCode: http.StatusBadRequest,
 			responseBody:   `{"error": "invalid_request", "error_description": "Missing required parameter"}`,
-			expectedError:  "token request failed with status 400",
+			expectedError:  "failed to auth status 400",
 		},
 		{
 			name:           "500 Internal Server Error",
 			httpStatusCode: http.StatusInternalServerError,
 			responseBody:   `{"error": "server_error", "error_description": "Internal server error"}`,
-			expectedError:  "token request failed with status 500",
+			expectedError:  "failed to auth status 500",
 		},
 		{
 			name:           "403 Forbidden",
 			httpStatusCode: http.StatusForbidden,
 			responseBody:   `{"error": "access_denied", "error_description": "Access denied"}`,
-			expectedError:  "token request failed with status 403",
+			expectedError:  "failed to auth status 403",
 		},
 	}
 
@@ -198,7 +198,7 @@ func TestTokenProvider_GetToken_NetworkError(t *testing.T) {
 
 	assert.Empty(t, token)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to execute token request")
+	assert.Contains(t, err.Error(), "failed to auth status")
 }
 
 func TestTokenProvider_GetToken_InvalidJSON(t *testing.T) {
@@ -218,7 +218,7 @@ func TestTokenProvider_GetToken_InvalidJSON(t *testing.T) {
 
 	assert.Empty(t, token)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to decode token response")
+	assert.Contains(t, err.Error(), "failed to decode auth response")
 }
 
 func TestTokenProvider_GetToken_EmptyAccessToken(t *testing.T) {
