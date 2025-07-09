@@ -38,14 +38,6 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 		middleware.Recover(),
 		otelecho.Middleware("reearth-cms"),
 	)
-	origins := allowedOrigins(appCtx)
-	if len(origins) > 0 {
-		e.Use(
-			middleware.CORSWithConfig(middleware.CORSConfig{
-				AllowOrigins: origins,
-			}),
-		)
-	}
 
 	// GraphQL Playground without auth
 	if appCtx.Debug || appCtx.Config.Dev {
@@ -62,6 +54,10 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 
 	// apis
 	api := e.Group("/api", private)
+	origins := allowedOrigins(appCtx)
+	if len(origins) > 0 {
+		api.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: origins}))
+	}
 	api.GET("/ping", Ping())
 	api.GET("/health", HealthCheck(appCtx.Config, appCtx.Version))
 	api.POST(
@@ -78,7 +74,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	api.POST("/signup", Signup(), usecaseMiddleware)
 
 	// Public API with its own CORS config
-	publicAPIGroup := api.Group("/p", publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
+	publicAPIGroup := e.Group("/api/p", publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
 	publicOrigins := allowedPublicOrigins(appCtx)
 	if len(publicOrigins) > 0 {
 		publicAPIGroup.Use(
@@ -101,7 +97,12 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	}
 	integration.RegisterHandlers(integrationAPIGroup, integration.NewStrictHandler(integration.NewServer(), nil))
 
-	serveFiles(e, appCtx)
+	fileServeGroup := e.Group("/assets")
+	if len(origins) > 0 {
+		fileServeGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: origins}))
+	}
+	serveFiles(fileServeGroup, appCtx)
+
 	Web(e, appCtx.Config.WebConfig(), appCtx.Config.Web_Disabled, nil)
 	return e
 }
