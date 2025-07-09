@@ -39,6 +39,14 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 		otelecho.Middleware("reearth-cms"),
 	)
 
+	usecaseMiddleware := UsecaseMiddleware(appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{
+		SignupSecret:    appCtx.Config.SignupSecret,
+		AuthSrvUIDomain: appCtx.Config.Host_Web,
+	})
+
+	// apis
+	initApi(appCtx, e.Group("/api"), usecaseMiddleware)
+
 	// GraphQL Playground without auth
 	if appCtx.Debug || appCtx.Config.Dev {
 		e.GET("/graphql", echo.WrapHandler(
@@ -47,21 +55,28 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 		log.Infof("gql: GraphQL Playground is available")
 	}
 
-	usecaseMiddleware := UsecaseMiddleware(appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{
-		SignupSecret:    appCtx.Config.SignupSecret,
-		AuthSrvUIDomain: appCtx.Config.Host_Web,
-	})
+	// Public API
+	initPublicApi(appCtx, e.Group("/api/p"), usecaseMiddleware)
 
-	// apis
-	api := e.Group("/api", private)
-	origins := allowedOrigins(appCtx)
-	if len(origins) > 0 {
-		api.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: origins}))
-	}
+	// Integration API
+	initIntegrationApi(appCtx, e.Group("/api"), usecaseMiddleware)
+
+	// Assets API
+	initAssetsApi(appCtx, e.Group("/assets"))
+
+	// Web app delivery
+	Web(e, appCtx.Config.WebConfig(), appCtx.Config.Web_Disabled, nil)
+
+	return e
+}
+
+func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+	api.Use(private)
 	api.GET("/ping", Ping())
 	api.GET("/health", HealthCheck(appCtx.Config, appCtx.Version))
 	api.POST(
 		"/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev),
+		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}),
 		jwtParseMiddleware(appCtx),
 		authMiddleware(appCtx),
 		usecaseMiddleware,
@@ -72,39 +87,32 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 		usecaseMiddleware,
 	)
 	api.POST("/signup", Signup(), usecaseMiddleware)
+}
 
-	// Public API with its own CORS config
-	publicAPIGroup := e.Group("/api/p", publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
+func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
 	publicOrigins := allowedPublicOrigins(appCtx)
 	if len(publicOrigins) > 0 {
-		publicAPIGroup.Use(
-			middleware.CORSWithConfig(middleware.CORSConfig{
-				AllowOrigins: publicOrigins,
-			}),
-		)
+		publicAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: publicOrigins}))
 	}
+	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
 	publicapi.Echo(publicAPIGroup)
+}
 
-	// Integration API with its own CORS config
-	integrationAPIGroup := api.Group("", authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
+func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
 	integrationOrigins := allowedIntegrationOrigins(appCtx)
 	if len(integrationOrigins) > 0 {
-		integrationAPIGroup.Use(
-			middleware.CORSWithConfig(middleware.CORSConfig{
-				AllowOrigins: integrationOrigins,
-			}),
-		)
+		integrationAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: integrationOrigins}))
 	}
+	integrationAPIGroup.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
 	integration.RegisterHandlers(integrationAPIGroup, integration.NewStrictHandler(integration.NewServer(), nil))
+}
 
-	fileServeGroup := e.Group("/assets")
+func initAssetsApi(appCtx *ApplicationContext, fileServeGroup *echo.Group) {
+	origins := allowedOrigins(appCtx)
 	if len(origins) > 0 {
 		fileServeGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: origins}))
 	}
 	serveFiles(fileServeGroup, appCtx)
-
-	Web(e, appCtx.Config.WebConfig(), appCtx.Config.Web_Disabled, nil)
-	return e
 }
 
 func jwtParseMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
