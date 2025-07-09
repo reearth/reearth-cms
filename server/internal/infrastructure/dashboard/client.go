@@ -41,13 +41,19 @@ type CheckPlanConstraintsResponse struct {
 }
 
 type Client struct {
-	baseURL    string
-	httpClient *http.Client
+	baseURL       string
+	authenticator Authenticator
+	httpClient    *http.Client
 }
 
-func NewClient(baseURL string) *Client {
+type Authenticator interface {
+	GetToken() (string, error)
+}
+
+func NewClient(baseURL string, authenticator Authenticator) *Client {
 	return &Client{
-		baseURL: baseURL,
+		baseURL:       baseURL,
+		authenticator: authenticator,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
@@ -69,6 +75,17 @@ func (c *Client) CheckPlanConstraints(ctx context.Context, workspaceID string, r
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
+
+	// Get token from authenticator
+	if c.authenticator != nil {
+		token, err := c.authenticator.GetToken()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get authentication token: %w", err)
+		}
+		if token != "" {
+			httpReq.Header.Set("Authorization", "Bearer "+token)
+		}
+	}
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {

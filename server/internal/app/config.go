@@ -76,7 +76,7 @@ type Config struct {
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
 
 	// Dashboard API Configuration
-	DashboardAPI DashboardAPIConfig `pp:",omitempty"`
+	DashboardAPI_BaseURL string `default:"https://api.dashboard.dev.reearth.io" pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
@@ -84,9 +84,7 @@ type HealthCheckConfig struct {
 	Password string `pp:",omitempty"`
 }
 
-type DashboardAPIConfig struct {
-	BaseURL string `default:"https://api.dashboard.dev.reearth.io" pp:",omitempty"`
-}
+
 
 type ServerConfig struct {
 	// TODO: move all server config to this struct
