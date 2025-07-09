@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/dashboard"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
@@ -141,6 +142,11 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	} else {
 		log.Infof("task runner: not used")
 	}
+
+	// Dashboard API
+	dashboardClient := dashboard.NewClient(conf.DashboardAPI.BaseURL)
+	gateways.Dashboard = dashboardClient
+	log.Infof("dashboard: API client initialized with base URL: %s", conf.DashboardAPI.BaseURL)
 
 	return cmsRepos, gateways, acRepos, acGateways
 }
