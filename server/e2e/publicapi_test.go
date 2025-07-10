@@ -91,7 +91,7 @@ func TestPublicAPI_NotFound(t *testing.T) {
 		IsEqual(map[string]any{"error": "not found"})
 }
 
-func TestPublicAPI_COES(t *testing.T) {
+func TestPublicAPI_CORS(t *testing.T) {
 	e, _, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL:   "https://example.com",
 		Public_Origins: []string{"https://example.com"},
