@@ -66,6 +66,10 @@ func unaryLogInterceptor(appCtx *ApplicationContext) grpc.UnaryServerInterceptor
 
 func unaryAuthInterceptor(appCtx *ApplicationContext) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+		if isReadOnlyMethod(info.FullMethod) {
+			return handler(ctx, req)
+		}
+
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			log.Errorf("unaryAuthInterceptor: no metadata found")
@@ -91,6 +95,10 @@ func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServer
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
+			if isReadOnlyMethod(info.FullMethod) {
+				return handler(ctx, req)
+			}
+
 			log.Errorf("unaryAttachOperatorInterceptor: no metadata found")
 			return nil, errors.New("unauthorized")
 		}
@@ -109,6 +117,12 @@ func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServer
 			}
 			ctx = adapter.AttachUser(ctx, u)
 			ctx = adapter.AttachOperator(ctx, op)
+		} else {
+			// No user ID provided - only allow for read-only methods
+			if !isReadOnlyMethod(info.FullMethod) {
+				log.Errorf("unaryAttachOperatorInterceptor: no user found for write method")
+				return nil, errors.New("unauthorized")
+			}
 		}
 
 		return handler(ctx, req)
@@ -138,6 +152,22 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 
 		return handler(ctx, req)
 	}
+}
+
+func isReadOnlyMethod(method string) bool {
+	readOnlyMethods := []string{
+		"v1.ReEarthCMS/GetProject",
+		"v1.ReEarthCMS/ListProjects",
+		"v1.ReEarthCMS/ListModels",
+		"v1.ReEarthCMS/ListItems",
+	}
+
+	for _, readOnlyMethod := range readOnlyMethods {
+		if strings.Contains(method, readOnlyMethod) {
+			return true
+		}
+	}
+	return false
 }
 
 func tokenFromGrpcMetadata(md metadata.MD) string {

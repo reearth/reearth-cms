@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"context"
 	"testing"
 
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
@@ -33,7 +34,7 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		"Authorization": "Bearer TestToken",
 		"User-Id":       uId.String(),
 	})
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
 
 	// List projects without any parameters should return an error
 	_, err = client.ListProjects(mdCtx, &pb.ListProjectsRequest{})
@@ -76,7 +77,7 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 		"Authorization": "Bearer TestToken",
 		"User-Id":       uId.String(),
 	})
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
 
 	p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias})
 	assert.NoError(t, err)
@@ -87,6 +88,63 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	assert.Equal(t, palias, p1.Alias)
 	assert.Equal(t, wId0.String(), p1.WorkspaceId)
 	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+}
+
+// GRPC Get Project - Permission Tests  
+func TestInternalGetProjectAPI_Permissions(t *testing.T) {
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
+	assert.NoError(t, err)
+
+	client := pb.NewReEarthCMSClient(clientConn)
+
+	// First, create a private project for testing unauthenticated access
+	mdWithAuth := metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId.String(),
+	})
+	mdCtxAuth := metadata.NewOutgoingContext(context.Background(), mdWithAuth)
+
+	_, err = client.CreateProject(mdCtxAuth, &pb.CreateProjectRequest{
+		Name:        "Private Project",
+		Alias:       "private_project",
+		Description: lo.ToPtr("This is a private project"),
+		WorkspaceId: wId0.String(),
+		Visibility:  pb.Visibility_PRIVATE,
+	})
+	assert.NoError(t, err)
+
+	// Test 1: Access private project without user authentication (should work)
+	mdWithoutUser := metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+	})
+	mdCtxNoUser := metadata.NewOutgoingContext(context.Background(), mdWithoutUser)
+
+	p, err := client.GetProject(mdCtxNoUser, &pb.ProjectRequest{ProjectIdOrAlias: "private_project"})
+	assert.NoError(t, err)
+	assert.NotNil(t, p.Project)
+	assert.Equal(t, "Private Project", p.Project.Name)
+
+	// Test 2: Access public project (default baseSeeder project) without user authentication (should be denied)
+	_, err = client.GetProject(mdCtxNoUser, &pb.ProjectRequest{ProjectIdOrAlias: palias})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "permission denied")
+
+	// Test 3: Access public project with user authentication (should work)
+	p, err = client.GetProject(mdCtxAuth, &pb.ProjectRequest{ProjectIdOrAlias: palias})
+	assert.NoError(t, err)
+	assert.NotNil(t, p.Project)
+	assert.Equal(t, "p1", p.Project.Name)
+	assert.Equal(t, palias, p.Project.Alias)
 }
 
 // GRPC Check Alias
@@ -110,13 +168,64 @@ func TestInternalCheckAliasAPI(t *testing.T) {
 		"Authorization": "Bearer TestToken",
 		"User-Id":       uId.String(),
 	})
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
 
+	// Test existing alias should not be available
 	p, err := client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: palias})
 	assert.NoError(t, err)
 	assert.False(t, p.Available)
 
+	// Test new alias should be available
 	p, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: "new_alias"})
+	assert.NoError(t, err)
+	assert.True(t, p.Available)
+}
+
+// GRPC Check Alias - Additional edge cases
+func TestInternalCheckAliasAPI_EdgeCases(t *testing.T) {
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
+	assert.NoError(t, err)
+
+	client := pb.NewReEarthCMSClient(clientConn)
+
+	md := metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId.String(),
+	})
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
+
+	// Test empty alias should return error
+	_, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: ""})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "alias is required")
+
+	// Test alias with valid characters
+	p, err := client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: "valid-alias_123"})
+	assert.NoError(t, err)
+	assert.True(t, p.Available)
+
+	// Test alias with minimum length
+	p, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: "a1b2c"})
+	assert.NoError(t, err)
+	assert.True(t, p.Available)
+
+	// Test alias with maximum length (32 characters)
+	p, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: "abcdefghijklmnopqrstuvwxyz123456"})
+	assert.NoError(t, err)
+	assert.True(t, p.Available)
+
+	// Test case sensitivity - should be case-sensitive
+	p, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: palias + "_UPPER"})
 	assert.NoError(t, err)
 	assert.True(t, p.Available)
 }
@@ -142,7 +251,7 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 		"User-Id":       uId.String(),
 	})
 
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
 	_, err = client.CreateProject(mdCtx, &pb.CreateProjectRequest{
 		Name:        "New Project",
 		Alias:       "new_project",
@@ -184,7 +293,7 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 		"Authorization": "Bearer TestToken",
 		"User-Id":       uId.String(),
 	})
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
 
 	_, err = client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
 		ProjectId:   pid.String(),
@@ -223,7 +332,7 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 		"Authorization": "Bearer TestToken",
 		"User-Id":       uId.String(),
 	})
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
 
 	_, err = client.DeleteProject(mdCtx, &pb.DeleteProjectRequest{ProjectId: pid.String()})
 	assert.NoError(t, err)
@@ -254,7 +363,7 @@ func TestInternalListModelsInProjectAPI(t *testing.T) {
 		"Authorization": "Bearer TestToken",
 		"User-Id":       uId.String(),
 	})
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
 
 	l, err := client.ListModels(mdCtx, &pb.ListModelsRequest{ProjectId: pid.String()})
 	assert.NoError(t, err)
@@ -284,7 +393,7 @@ func TestInternalListItemsInModelAPI(t *testing.T) {
 		"Authorization": "Bearer TestToken",
 		"User-Id":       uId.String(),
 	})
-	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
 
 	l, err := client.ListItems(mdCtx, &pb.ListItemsRequest{ProjectId: pid.String(), ModelId: mId1.String()})
 	assert.NoError(t, err)

@@ -136,6 +136,10 @@ func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.Pro
 		return nil, rerror.ErrNotFound
 	}
 
+	if op == nil && p.Accessibility().Visibility() != project.VisibilityPrivate {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
+
 	return &pb.ProjectResponse{
 		Project: internalapimodel.ToProject(p),
 	}, nil
