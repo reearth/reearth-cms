@@ -11,7 +11,7 @@ export type Project = {
   accessibility?: ProjectAccessibility;
 };
 
-export type ProjectListItem = Pick<Project, "id" | "name" | "description">;
+export type ProjectListItem = Pick<Project, "id" | "name" | "description" | "accessibility">;
 
 export type UserMember = {
   userId: string;
