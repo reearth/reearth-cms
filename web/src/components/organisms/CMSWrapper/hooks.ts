@@ -158,7 +158,7 @@ export default () => {
     (info: MenuInfo) => {
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
-      } else if (info.key === "overview") {
+      } else if (info.key === "models") {
         navigate(`/workspace/${workspaceId}/project/${projectId}`);
       } else {
         navigate(`/workspace/${workspaceId}/project/${projectId}/${info.key}`);
