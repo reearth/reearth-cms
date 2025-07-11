@@ -24,6 +24,7 @@ const WorkspaceHeader: React.FC<Props> = ({
   onProjectAliasCheck,
 }) => {
   const t = useT();
+  const oss = false;
 
   return (
     <ActionHeader>
@@ -34,7 +35,7 @@ const WorkspaceHeader: React.FC<Props> = ({
         type="text"
       />
       <ButtonWrapper>
-        <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />
+        {oss && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
         <CreateProjectButton
           hasCreateRight={hasCreateRight}
           onProjectCreate={onProjectCreate}

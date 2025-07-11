@@ -1,22 +1,29 @@
 import styled from "@emotion/styled";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
-import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { useT, Trans } from "@reearth-cms/i18n";
+import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
-import ModelCard from "./ModelCard";
+import LicenseTab from "./LicenseTab";
+import ModelsTab from "./ModelsTab";
+import ReadmeTab from "./ReadmeTab";
 
 type Props = {
   projectName?: string;
   projectDescription?: string;
+  projectVisibility?: string;
   models?: Model[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   onModelModalOpen: () => void;
+  onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
@@ -26,23 +33,57 @@ type Props = {
 const ProjectOverview: React.FC<Props> = ({
   projectName,
   projectDescription,
+  projectVisibility,
   models,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
   onModelModalOpen,
+  onHomeNavigation,
   onSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
 }) => {
   const t = useT();
+  const [activeKey, setActiveKey] = useState<string>("models");
 
-  return (
-    <InnerContent title={projectName} subtitle={projectDescription} flexChildren>
-      <ContentSection
-        title={t("Models")}
-        headerActions={
+  const initialReadmeMarkdown = `# Digital City Project Introduction\n\nWelcome to the project!!\n\n### Models\nDescription...\n\n### Relationships\nDescription...\n\n### Schema Overview\nDescription...\n\n### Use Cases\n- [Case 1](#)\n- [Case 2](#)\n\n### Contact\nDescription...`;
+  const [activeReadmeTab, setActiveReadmeTab] = useState("edit");
+  const [readmeEditMode, setReadmeEditMode] = useState(false);
+  const [readmeMarkdown, setReadmeMarkdown] = useState(initialReadmeMarkdown);
+  const [tempReadmeValue, setReadmeTempValue] = useState(readmeMarkdown);
+
+  const initialLicenseMarkdown = `# Digital City Project Introduction\n\nWelcome to the project!!\n\n### Models\nDescription...\n\n### Relationships\nDescription...\n\n### Schema Overview\nDescription...\n\n### Use Cases\n- [Case 1](#)\n- [Case 2](#)\n\n### Contact\nDescription...`;
+  const [activeLicenseTab, setActiveLicenseTab] = useState("edit");
+  const [licenseEditMode, setLicenseEditMode] = useState(false);
+  const [licenseMarkdown, setLicenseMarkdown] = useState(initialLicenseMarkdown);
+  const [tempLicenseValue, setLicenseTempValue] = useState(licenseMarkdown);
+
+  const handleReadmeSave = useCallback(() => {
+    setReadmeMarkdown(tempReadmeValue);
+    setActiveReadmeTab("edit");
+    setReadmeEditMode(false);
+  }, [tempReadmeValue]);
+
+  const handleReadmeEdit = useCallback(() => {
+    setReadmeEditMode(true);
+  }, []);
+
+  const handleLicenseSave = useCallback(() => {
+    setLicenseMarkdown(tempLicenseValue);
+    setActiveLicenseTab("edit");
+    setLicenseEditMode(false);
+  }, [tempLicenseValue]);
+
+  const handleLicenseEdit = useCallback(() => {
+    setLicenseEditMode(true);
+  }, []);
+
+  const tabBarExtraContent = useMemo(
+    () => (
+      <div>
+        {activeKey === "models" && (
           <Button
             type="primary"
             icon={<Icon icon="plus" />}
@@ -50,79 +91,141 @@ const ProjectOverview: React.FC<Props> = ({
             disabled={!hasCreateRight}>
             {t("New Model")}
           </Button>
-        }>
-        {models?.length ? (
-          <GridArea>
-            {models.map(m => (
-              <ModelCard
-                key={m.id}
-                model={m}
-                hasUpdateRight={hasUpdateRight}
-                hasDeleteRight={hasDeleteRight}
-                onSchemaNavigate={onSchemaNavigate}
-                onContentNavigate={onContentNavigate}
-                onModelDeletionModalOpen={onModelDeletionModalOpen}
-                onModelUpdateModalOpen={onModelUpdateModalOpen}
-              />
-            ))}
-          </GridArea>
-        ) : (
-          <Placeholder>
-            <Heading>{t("No Models yet")}</Heading>
-            <Content>
-              <Actions>
-                {t("Create a new model")}
-                <Button
-                  type="primary"
-                  icon={<Icon icon="plus" />}
-                  onClick={onModelModalOpen}
-                  disabled={!hasCreateRight}>
-                  {t("New Model")}
-                </Button>
-              </Actions>
-              <span>
-                <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
-              </span>
-            </Content>
-          </Placeholder>
         )}
-      </ContentSection>
+        {activeKey === "readme" ? (
+          readmeEditMode ? (
+            <Button
+              type="primary"
+              icon={<Icon icon="save" />}
+              onClick={handleReadmeSave}
+              disabled={!hasUpdateRight}>
+              {t("Save Changes")}
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              icon={<Icon icon="edit" />}
+              onClick={handleReadmeEdit}
+              disabled={!hasUpdateRight}>
+              {t("Edit")}
+            </Button>
+          )
+        ) : undefined}
+        {activeKey === "license" ? (
+          licenseEditMode ? (
+            <Button
+              type="primary"
+              icon={<Icon icon="save" />}
+              onClick={handleLicenseSave}
+              disabled={!hasUpdateRight}>
+              {t("Save Changes")}
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              icon={<Icon icon="edit" />}
+              onClick={handleLicenseEdit}
+              disabled={!hasUpdateRight}>
+              {t("Edit")}
+            </Button>
+          )
+        ) : undefined}
+      </div>
+    ),
+    [
+      activeKey,
+      handleLicenseEdit,
+      handleLicenseSave,
+      handleReadmeEdit,
+      handleReadmeSave,
+      hasCreateRight,
+      hasUpdateRight,
+      licenseEditMode,
+      onModelModalOpen,
+      readmeEditMode,
+      t,
+    ],
+  );
+
+  return (
+    <InnerContent
+      title={
+        <Title>
+          <div>
+            <Button
+              type="text"
+              onClick={onHomeNavigation}
+              style={{ color: "rgba(0, 0, 0, 0.45", fontSize: 20, fontWeight: "bold" }}>
+              Home
+            </Button>
+            /<span style={{ padding: "0px 15px" }}>{projectName}</span>
+          </div>
+          <Tag bordered color={projectVisibility === ProjectVisibility.Public ? "blue" : "default"}>
+            {projectVisibility === ProjectVisibility.Public ? t("Public") : t("Private")}
+          </Tag>
+        </Title>
+      }
+      subtitle={projectDescription}
+      flexChildren>
+      <StyledTabs
+        activeKey={activeKey}
+        tabBarExtraContent={tabBarExtraContent}
+        onTabClick={key => setActiveKey(key)}>
+        <Tabs.TabPane tab={t("Models")} key="models">
+          <ModelsTab
+            models={models}
+            hasCreateRight={hasCreateRight}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
+            onModelModalOpen={onModelModalOpen}
+            onSchemaNavigate={onSchemaNavigate}
+            onContentNavigate={onContentNavigate}
+            onModelDeletionModalOpen={onModelDeletionModalOpen}
+            onModelUpdateModalOpen={onModelUpdateModalOpen}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={t("Readme")} key="readme">
+          <ReadmeTab
+            activeTab={activeReadmeTab}
+            editMode={readmeEditMode}
+            setActiveTab={setActiveReadmeTab}
+            markdown={readmeMarkdown}
+            tempValue={tempReadmeValue}
+            setTempValue={setReadmeTempValue}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={t("License")} key="license">
+          <LicenseTab
+            activeTab={activeLicenseTab}
+            editMode={licenseEditMode}
+            setActiveTab={setActiveLicenseTab}
+            markdown={licenseMarkdown}
+            tempValue={tempLicenseValue}
+            setTempValue={setLicenseTempValue}
+          />
+        </Tabs.TabPane>
+      </StyledTabs>
     </InnerContent>
   );
 };
 
 export default ProjectOverview;
 
-const GridArea = styled.div`
-  display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  justify-content: space-between;
-`;
-
-const Placeholder = styled.div`
-  padding: 64px 0;
+const Title = styled.div`
   display: flex;
-  flex-direction: column;
+  gap: 8px;
   align-items: center;
-  gap: 24px;
 `;
 
-const Heading = styled.span`
-  font-size: 16px;
-  font-weight: 500;
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: rgba(0, 0, 0, 0.45);
-`;
-
-const Actions = styled.div`
-  display: flex;
-  gap: 16px;
-  align-items: center;
+const StyledTabs = styled(Tabs)`
+  background-color: #fafafa;
+  border-left: 1px solid #f0f0f0;
+  .ant-tabs-nav {
+    margin-bottom: 0;
+    padding: 20px;
+    background-color: #fff;
+  }
+  .ant-tabs-content-holder {
+    overflow-y: auto;
+  }
 `;
