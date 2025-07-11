@@ -31,3 +31,14 @@ func ToPageInfo(p *v1.PageInfo) *v1.PageInfo {
 		PageSize: p.PageSize,
 	}
 }
+
+func SortFromPB(s *v1.SortInfo) *usecasex.Sort {
+	if s == nil {
+		return nil
+	}
+
+	return &usecasex.Sort{
+		Key:      s.Key,
+		Reverted: s.Reverted,
+	}
+}

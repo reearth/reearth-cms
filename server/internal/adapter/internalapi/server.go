@@ -163,7 +163,7 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		return nil, status.Error(codes.InvalidArgument, "at least one valid workspace_id is required")
 	}
 
-	p, pi, err := uc.Project.FindByWorkspaces(ctx, wIds, f, internalapimodel.PaginationFromPB(req.PageInfo), op)
+	p, pi, err := uc.Project.FindByWorkspaces(ctx, wIds, f, internalapimodel.SortFromPB(req.SortInfo), internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
 		return nil, err
 	}

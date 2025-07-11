@@ -104,6 +104,11 @@ message PageInfo {
   int32 page_size = 2;
 }
 
+message SortInfo {
+  string key = 1;
+  bool reverted = 2;
+}
+
 message ProjectRequest {
   string project_id_or_alias = 1;
 }
@@ -141,6 +146,7 @@ message ListProjectsRequest {
   bool public_only = 3;
 
   optional PageInfo page_info = 100;
+  optional SortInfo sort_info = 101;
 }
 
 message ListModelsRequest {
