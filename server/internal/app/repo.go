@@ -2,10 +2,12 @@ package app
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/dashboard"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
@@ -141,6 +143,34 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	} else {
 		log.Infof("task runner: not used")
 	}
+
+	// Dashboard API
+	var dashboardAuth dashboard.Authenticator
+	if conf.Auth0.ClientID != "" && conf.Auth0.ClientSecret != "" {
+		// Create token URL from Auth0 domain
+		tokenURL := conf.Auth0.Domain
+		if !strings.HasPrefix(tokenURL, "https://") && !strings.HasPrefix(tokenURL, "http://") {
+			tokenURL = "https://" + tokenURL
+		}
+		if !strings.HasSuffix(tokenURL, "/") {
+			tokenURL = tokenURL + "/"
+		}
+		tokenURL = tokenURL + "oauth/token"
+
+		dashboardAuth = dashboard.NewTokenProvider(
+			conf.Auth0.ClientID,
+			conf.Auth0.ClientSecret,
+			conf.Auth0.Audience,
+			tokenURL,
+		)
+		log.Infof("dashboard: Auth0 token provider initialized")
+	} else {
+		log.Infof("dashboard: No authentication configured")
+	}
+
+	dashboardClient := dashboard.NewClient(conf.DashboardAPI_BaseURL, dashboardAuth)
+	gateways.Dashboard = dashboardClient
+	log.Infof("dashboard: API client initialized with base URL: %s", conf.DashboardAPI_BaseURL)
 
 	return cmsRepos, gateways, acRepos, acGateways
 }

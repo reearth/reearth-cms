@@ -5,4 +5,5 @@ type Container struct {
 	File          File
 	Mailer        Mailer
 	TaskRunner    TaskRunner
+	Dashboard     Dashboard
 }
