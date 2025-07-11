@@ -1,55 +1,28 @@
-import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 
-import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { useT } from "@reearth-cms/i18n";
 
 import MarkdownComponent from "./MarkdownComponent";
 
-const ReadmeTab = () => {
-  const t = useT();
-  const hasUpdateRight = true;
-  const [editMode, setEditMode] = useState(false);
-  const initialMarkdown = `# Digital City Project Introduction\n\nWelcome to the project!!\n\n### Models\nDescription...\n\n### Relationships\nDescription...\n\n### Schema Overview\nDescription...\n\n### Use Cases\n- [Case 1](#)\n- [Case 2](#)\n\n### Contact\nDescription...`;
+type Props = {
+  activeTab?: string;
+  editMode: boolean;
+  setActiveTab?: (key: string) => void;
+  markdown?: string;
+  tempValue?: string;
+  setTempValue?: (value: string) => void;
+};
 
-  const [activeTab, setActiveTab] = useState("edit");
-  const [markdown, setMarkdown] = useState(initialMarkdown);
-  const [tempValue, setTempValue] = useState(markdown);
-
-  const handleEdit = () => {
-    setEditMode(true);
-  };
-
-  const handleSave = () => {
-    setMarkdown(tempValue);
-    setActiveTab("edit");
-    setEditMode(false);
-  };
-
+const ReadmeTab: React.FC<Props> = ({
+  activeTab,
+  editMode,
+  setActiveTab,
+  markdown,
+  tempValue,
+  setTempValue,
+}) => {
   return (
-    <ContentSection
-      title={t("Readme")}
-      headerActions={
-        editMode ? (
-          <Button
-            type="primary"
-            icon={<Icon icon="save" />}
-            onClick={handleSave}
-            disabled={!hasUpdateRight}>
-            {t("Save Changes")}
-          </Button>
-        ) : (
-          <Button
-            type="primary"
-            icon={<Icon icon="edit" />}
-            onClick={handleEdit}
-            disabled={!hasUpdateRight}>
-            {t("Edit")}
-          </Button>
-        )
-      }>
+    <ContentSection>
       {editMode ? (
         <MarkdownComponent
           activeTab={activeTab}

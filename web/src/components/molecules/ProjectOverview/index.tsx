@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import Tag from "@reearth-cms/components/atoms/Tag";
@@ -47,6 +48,105 @@ const ProjectOverview: React.FC<Props> = ({
   const t = useT();
   const [activeKey, setActiveKey] = useState<string>("models");
 
+  const initialReadmeMarkdown = `# Digital City Project Introduction\n\nWelcome to the project!!\n\n### Models\nDescription...\n\n### Relationships\nDescription...\n\n### Schema Overview\nDescription...\n\n### Use Cases\n- [Case 1](#)\n- [Case 2](#)\n\n### Contact\nDescription...`;
+  const [activeReadmeTab, setActiveReadmeTab] = useState("edit");
+  const [readmeEditMode, setReadmeEditMode] = useState(false);
+  const [readmeMarkdown, setReadmeMarkdown] = useState(initialReadmeMarkdown);
+  const [tempReadmeValue, setReadmeTempValue] = useState(readmeMarkdown);
+
+  const initialLicenseMarkdown = `# Digital City Project Introduction\n\nWelcome to the project!!\n\n### Models\nDescription...\n\n### Relationships\nDescription...\n\n### Schema Overview\nDescription...\n\n### Use Cases\n- [Case 1](#)\n- [Case 2](#)\n\n### Contact\nDescription...`;
+  const [activeLicenseTab, setActiveLicenseTab] = useState("edit");
+  const [licenseEditMode, setLicenseEditMode] = useState(false);
+  const [licenseMarkdown, setLicenseMarkdown] = useState(initialLicenseMarkdown);
+  const [tempLicenseValue, setLicenseTempValue] = useState(licenseMarkdown);
+
+  const handleReadmeSave = useCallback(() => {
+    setReadmeMarkdown(tempReadmeValue);
+    setActiveReadmeTab("edit");
+    setReadmeEditMode(false);
+  }, [tempReadmeValue]);
+
+  const handleReadmeEdit = useCallback(() => {
+    setReadmeEditMode(true);
+  }, []);
+
+  const handleLicenseSave = useCallback(() => {
+    setLicenseMarkdown(tempLicenseValue);
+    setActiveLicenseTab("edit");
+    setLicenseEditMode(false);
+  }, [tempLicenseValue]);
+
+  const handleLicenseEdit = useCallback(() => {
+    setLicenseEditMode(true);
+  }, []);
+
+  const tabBarExtraContent = useMemo(
+    () => (
+      <div>
+        {activeKey === "models" && (
+          <Button
+            type="primary"
+            icon={<Icon icon="plus" />}
+            onClick={onModelModalOpen}
+            disabled={!hasCreateRight}>
+            {t("New Model")}
+          </Button>
+        )}
+        {activeKey === "readme" ? (
+          readmeEditMode ? (
+            <Button
+              type="primary"
+              icon={<Icon icon="save" />}
+              onClick={handleReadmeSave}
+              disabled={!hasUpdateRight}>
+              {t("Save Changes")}
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              icon={<Icon icon="edit" />}
+              onClick={handleReadmeEdit}
+              disabled={!hasUpdateRight}>
+              {t("Edit")}
+            </Button>
+          )
+        ) : undefined}
+        {activeKey === "license" ? (
+          licenseEditMode ? (
+            <Button
+              type="primary"
+              icon={<Icon icon="save" />}
+              onClick={handleLicenseSave}
+              disabled={!hasUpdateRight}>
+              {t("Save Changes")}
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              icon={<Icon icon="edit" />}
+              onClick={handleLicenseEdit}
+              disabled={!hasUpdateRight}>
+              {t("Edit")}
+            </Button>
+          )
+        ) : undefined}
+      </div>
+    ),
+    [
+      activeKey,
+      handleLicenseEdit,
+      handleLicenseSave,
+      handleReadmeEdit,
+      handleReadmeSave,
+      hasCreateRight,
+      hasUpdateRight,
+      licenseEditMode,
+      onModelModalOpen,
+      readmeEditMode,
+      t,
+    ],
+  );
+
   return (
     <InnerContent
       title={
@@ -67,14 +167,10 @@ const ProjectOverview: React.FC<Props> = ({
       }
       subtitle={projectDescription}
       flexChildren>
-      <StyledTabs activeKey={activeKey} tabBarExtraContent={
-        <div>
-          {activeKey=== "models" && <Button>Add Model</Button>}
-          {activeKey=== "readme" && <Button>Edit</Button>}
-          {activeKey=== "license" && <Button>Edit</Button>}
-
-        </div>
-        } onTabClick={key => setActiveKey(key)}>
+      <StyledTabs
+        activeKey={activeKey}
+        tabBarExtraContent={tabBarExtraContent}
+        onTabClick={key => setActiveKey(key)}>
         <Tabs.TabPane tab={t("Models")} key="models">
           <ModelsTab
             models={models}
@@ -89,10 +185,24 @@ const ProjectOverview: React.FC<Props> = ({
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab={t("Readme")} key="readme">
-          <ReadmeTab />
+          <ReadmeTab
+            activeTab={activeReadmeTab}
+            editMode={readmeEditMode}
+            setActiveTab={setActiveReadmeTab}
+            markdown={readmeMarkdown}
+            tempValue={tempReadmeValue}
+            setTempValue={setReadmeTempValue}
+          />
         </Tabs.TabPane>
         <Tabs.TabPane tab={t("License")} key="license">
-          <LicenseTab />
+          <LicenseTab
+            activeTab={activeLicenseTab}
+            editMode={licenseEditMode}
+            setActiveTab={setActiveLicenseTab}
+            markdown={licenseMarkdown}
+            tempValue={tempLicenseValue}
+            setTempValue={setLicenseTempValue}
+          />
         </Tabs.TabPane>
       </StyledTabs>
     </InnerContent>
