@@ -1,9 +1,12 @@
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import styled from "@emotion/styled";
+import React, { useCallback, useState, useEffect, useRef, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Radio from "@reearth-cms/components/atoms/Radio";
+import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
@@ -12,7 +15,9 @@ import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 export type FormValues = {
   name: string;
   alias: string;
+  visibility: "public" | "private";
   description: string;
+  license: string;
 };
 
 type Props = {
@@ -25,7 +30,9 @@ type Props = {
 const initialValues: FormValues = {
   name: "",
   alias: "",
+  visibility: "public",
   description: "",
+  license: "",
 };
 
 const ProjectCreationModal: React.FC<Props> = ({
@@ -115,6 +122,10 @@ const ProjectCreationModal: React.FC<Props> = ({
     [onProjectAliasCheck],
   );
 
+  const isFreePlan = true;
+  // TODO: add license items later
+  const licenseItems = useMemo(() => [{ key: "test", label: t("Test") }], [t]);
+
   return (
     <Modal
       open={open}
@@ -143,7 +154,7 @@ const ProjectCreationModal: React.FC<Props> = ({
           name="alias"
           label={t("Project alias")}
           extra={t(
-            "Project alias must be unique and at least 5 characters long. It can only contain letters, numbers, underscores, and dashes.",
+            "Used to create the project URL. Must be unique and at least 5 characters long, only lowercase letters, numbers, and hyphens are allowed.",
           )}
           rules={[
             {
@@ -156,8 +167,28 @@ const ProjectCreationModal: React.FC<Props> = ({
           ]}>
           <Input onChange={handleAliasChange} showCount maxLength={MAX_KEY_LENGTH} />
         </Form.Item>
+        <Form.Item
+          name="visibility"
+          label={t("Project visibility")}
+          rules={[
+            { required: true, message: t("Please choose the visibility settings of the project!") },
+          ]}>
+          <StyledRadioGroup defaultValue="public" disabled={isFreePlan}>
+            <Radio value="public">{t("Public")}</Radio>
+            <Radio value="private">{t("Private")}</Radio>
+          </StyledRadioGroup>
+        </Form.Item>
         <Form.Item name="description" label={t("Project description")}>
           <TextArea rows={4} />
+        </Form.Item>
+        <Form.Item name="license" label={t("Project license")}>
+          <Select>
+            {licenseItems?.map(item => (
+              <Select.Option key={item.key} value={item.key}>
+                {item.label}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>
@@ -165,3 +196,9 @@ const ProjectCreationModal: React.FC<Props> = ({
 };
 
 export default ProjectCreationModal;
+
+const StyledRadioGroup = styled(Radio.Group)`
+  display: flex;
+  flex-direction: column;
+  gap: 8;
+`;

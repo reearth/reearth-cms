@@ -1,11 +1,16 @@
 import styled from "@emotion/styled";
 
+import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import ProjectList from "@reearth-cms/components/molecules/ProjectList/ProjectList";
+import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
+import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
-import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/WorkspaceHeader";
+
+import WorkspaceHeader from "./WorkspaceHeader";
 
 type Props = {
   coverImageUrl?: string;
@@ -30,17 +35,24 @@ const WorkspaceWrapper: React.FC<Props> = ({
   onProjectCreate,
   onProjectAliasCheck,
 }) => {
+  const oss = false;
+
   return (
-    <Wrapper>
+    <InnerContent>
       <Greeting coverImageUrl={coverImageUrl} />
-      <Content>
-        <WorkspaceHeader
-          hasCreateRight={hasCreateRight}
-          onWorkspaceCreate={onWorkspaceCreate}
-          onProjectSearch={onProjectSearch}
-          onProjectCreate={onProjectCreate}
-          onProjectAliasCheck={onProjectAliasCheck}
-        />
+      <ContentSection
+        title="Projects"
+        headerActions={
+          <ButtonWrapper>
+            {oss && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
+            <CreateProjectButton
+              hasCreateRight={hasCreateRight}
+              onProjectCreate={onProjectCreate}
+              onProjectAliasCheck={onProjectAliasCheck}
+            />
+          </ButtonWrapper>
+        }>
+        <WorkspaceHeader onProjectSearch={onProjectSearch} />
         <ProjectList
           hasCreateRight={hasCreateRight}
           projects={projects}
@@ -49,19 +61,15 @@ const WorkspaceWrapper: React.FC<Props> = ({
           onProjectCreate={onProjectCreate}
           onProjectAliasCheck={onProjectAliasCheck}
         />
-      </Content>
-    </Wrapper>
+      </ContentSection>
+    </InnerContent>
   );
 };
 
-const Wrapper = styled.div`
-  background-color: #fff;
-  margin: 16px;
-  min-height: 100%;
-`;
-
-const Content = styled.div`
-  padding: 32px;
+const ButtonWrapper = styled.div`
+  Button + Button {
+    margin-left: 8px;
+  }
 `;
 
 export default WorkspaceWrapper;

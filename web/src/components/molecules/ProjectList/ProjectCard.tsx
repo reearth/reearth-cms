@@ -2,7 +2,10 @@ import styled from "@emotion/styled";
 import React from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
+import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   project: ProjectListItem;
@@ -10,14 +13,31 @@ type Props = {
 };
 
 const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
+  const t = useT();
   const { Meta } = Card;
 
   return (
     <CardWrapper key={project.id}>
-      <ProjectStyledCard
-        onClick={() => onProjectNavigation(project.id)}
-        cover={<Cover>{project.name.charAt(0)}</Cover>}>
-        <Meta title={project.name} description={project.description} />
+      <ProjectStyledCard onClick={() => onProjectNavigation(project.id)}>
+        <Meta
+          title={
+            <div style={{ width: "100%", display: "flex", gap: "8px", alignItems: "center" }}>
+              <span>{project.name}</span>
+              <Tag
+                bordered
+                color={
+                  project.accessibility?.visibility === ProjectVisibility.Public
+                    ? "blue"
+                    : "default"
+                }>
+                {project.accessibility?.visibility === ProjectVisibility.Public
+                  ? t("Public")
+                  : t("Private")}
+              </Tag>
+            </div>
+          }
+          description={project.description}
+        />
       </ProjectStyledCard>
     </CardWrapper>
   );
@@ -33,21 +53,6 @@ const CardWrapper = styled.div`
       0px 6px 16px rgba(0, 0, 0, 0.08),
       0px 9px 28px 8px rgba(0, 0, 0, 0.05);
   }
-`;
-
-const Cover = styled.div`
-  && {
-    display: flex;
-  }
-  justify-content: center;
-  align-items: center;
-  font-weight: 500;
-  font-size: 38px;
-  line-height: 46px;
-  height: 150px;
-  background-color: #eeeeee;
-  color: #fff;
-  user-select: none;
 `;
 
 const ProjectStyledCard = styled(Card)`

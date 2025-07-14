@@ -15,6 +15,8 @@ const onProjectAliasCheck = () => {
   return Promise.resolve(true);
 };
 
+const oss = false;
+
 test("Workspace header works successfully", () => {
   render(
     <WorkspaceHeader
@@ -27,6 +29,8 @@ test("Workspace header works successfully", () => {
   );
 
   expect(screen.getByRole("searchbox")).toBeVisible();
-  expect(screen.getByRole("button", { name: "Create a Workspace" })).toBeVisible();
+  if (oss) {
+    expect(screen.getByRole("button", { name: "Create a Workspace" })).toBeVisible();
+  }
   expect(screen.getByRole("button", { name: "plus New Project" })).toBeVisible();
 });

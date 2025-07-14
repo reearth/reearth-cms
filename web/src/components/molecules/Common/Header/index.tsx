@@ -51,8 +51,9 @@ const HeaderMolecule: React.FC<Props> = ({
     [currentWorkspace?.id, personalWorkspace?.id],
   );
 
-  const WorkspacesItems: MenuProps["items"] = useMemo(
-    () => [
+  const oss = false;
+  const WorkspacesItems: MenuProps["items"] = useMemo(() => {
+    const res: MenuProps["items"] = [
       {
         label: t("Personal Account"),
         key: "personal-account",
@@ -92,15 +93,17 @@ const HeaderMolecule: React.FC<Props> = ({
             onClick: () => onWorkspaceNavigation(workspace.id),
           })),
       },
-      {
+    ];
+    if (oss) {
+      res.push({
         label: t("Create Workspace"),
         key: "new-workspace",
         icon: <Icon icon="userGroupAdd" />,
         onClick: onWorkspaceModalOpen,
-      },
-    ],
-    [t, workspaces, onWorkspaceModalOpen, personalWorkspace?.id, onWorkspaceNavigation],
-  );
+      });
+    }
+    return res;
+  }, [t, workspaces, oss, personalWorkspace?.id, onWorkspaceNavigation, onWorkspaceModalOpen]);
 
   const AccountItems: MenuProps["items"] = useMemo(
     () => [
