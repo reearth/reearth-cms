@@ -13,6 +13,7 @@ import {
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
+import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Project/Asset/AssetList/helpers";
 import { Trans, useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "../fieldTypes";
@@ -31,6 +32,7 @@ type Props = {
   currentPage: number;
   assetList: Asset[];
   loading: boolean;
+  fieldsCreationLoading: boolean;
   totalCount: number;
   selectedAsset?: ItemAsset;
   fileList: RawUploadFile[];
@@ -46,7 +48,7 @@ type Props = {
   hasDeleteRight: boolean;
   displayUploadModal: () => void;
   toSchemaPreviewStep: () => void;
-  toImportingStep: () => void;
+  toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
   fields: CreateFieldInput[];
   hasImportSchemaFieldsError?: boolean;
   setFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
@@ -75,6 +77,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   toImportingStep,
   assetList,
   loading,
+  fieldsCreationLoading,
   totalCount,
   selectedAsset,
   fileList,
@@ -135,7 +138,13 @@ const ImportSchemaModal: React.FC<Props> = ({
 
   const handleFieldTypeChange = useCallback(
     (key: string, value: FieldType) => {
-      setFields(prev => prev.map(field => (field.key === key ? { ...field, type: value } : field)));
+      setFields(prev =>
+        prev.map(field =>
+          field.key === key
+            ? { ...field, type: value, typeProperty: defaultTypePropertyGet(value) }
+            : field,
+        ),
+      );
     },
     [setFields],
   );
@@ -227,7 +236,7 @@ const ImportSchemaModal: React.FC<Props> = ({
     },
     {
       title: "Importing",
-      content: <ImportingStep progress={progress} />,
+      content: <ImportingStep progress={progress} fieldsCreationLoading={fieldsCreationLoading} />,
     },
   ];
 
@@ -251,7 +260,10 @@ const ImportSchemaModal: React.FC<Props> = ({
             </Button>
           )}
           {currentPage === 1 && (
-            <Button type="primary" disabled={fields.length === 0} onClick={toImportingStep}>
+            <Button
+              type="primary"
+              disabled={fields.length === 0}
+              onClick={() => toImportingStep(fields)}>
               {t("Import Schema")}
             </Button>
           )}

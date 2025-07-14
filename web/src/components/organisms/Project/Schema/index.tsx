@@ -55,6 +55,7 @@ const ProjectSchema: React.FC = () => {
     selectedType,
     collapsed,
     fieldCreationLoading,
+    fieldsCreationLoading,
     fieldUpdateLoading,
     deleteModelLoading,
     deleteGroupLoading,
@@ -66,6 +67,7 @@ const ProjectSchema: React.FC = () => {
     handleFieldUpdateModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleFieldsCreate,
     handleReferencedModelGet,
     handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,
@@ -143,6 +145,8 @@ const ProjectSchema: React.FC = () => {
         onFieldCreationModalOpen={handleFieldCreationModalOpen}
         onFieldReorder={handleFieldOrder}
         onFieldDelete={handleFieldDelete}
+        onFieldsCreate={handleFieldsCreate}
+        fieldsCreationLoading={fieldsCreationLoading}
       />
       <FormModal
         data={data}

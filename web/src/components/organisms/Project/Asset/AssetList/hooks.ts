@@ -24,6 +24,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 
+import { convertFieldType, defaultTypePropertyGet } from "./helpers";
 import { uploadFiles } from "./upload";
 
 type UploadType = "local" | "url";
@@ -388,47 +389,47 @@ export default (isItemsRequired: boolean) => {
     }
   };
 
-  // import schema fields from asset
   const { data: guessSchemaFieldsData, error: guessSchemaFieldsError } = useGuessSchemaFieldsQuery({
     fetchPolicy: "cache-and-network",
     variables: {
       modelId: modelId ?? "",
       assetId: selectedAssetId ?? "",
     },
-    skip: !selectedAssetId,
+    skip: !modelId || !selectedAssetId,
   });
 
-  const initialFields = useMemo(
-    () =>
-      guessSchemaFieldsData?.guessSchemaFields.fields.map(
-        field =>
-          ({
-            title: field.name,
-            metadata: false,
-            description: "",
-            key: field.name,
-            multiple: false,
-            unique: false,
-            isTitle: false,
-            required: false,
-            type: field.type,
-            modelId: modelId,
-            groupId: "",
-          }) as CreateFieldInput,
-      ) ?? [],
-    [guessSchemaFieldsData?.guessSchemaFields.fields, modelId],
-  );
+  const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
 
-  const [importFields, setImportFields] = useState<CreateFieldInput[]>(initialFields);
-  const hasImportSchemaFieldsError = useMemo(() => {
-    return guessSchemaFieldsError !== undefined;
-  }, [guessSchemaFieldsError]);
+  useEffect(() => {
+    const fields = guessSchemaFieldsData?.guessSchemaFields?.fields;
+    if (fields && fields.length > 0) {
+      setImportFields(
+        fields.map(
+          field =>
+            ({
+              title: field.name,
+              metadata: false,
+              description: "",
+              key: field.name,
+              multiple: false,
+              unique: false,
+              isTitle: false,
+              required: false,
+              type: convertFieldType(field.type),
+              modelId: modelId,
+              groupId: "",
+              typeProperty: defaultTypePropertyGet(field.type),
+            }) as CreateFieldInput,
+        ),
+      );
+    }
+  }, [data, guessSchemaFieldsData?.guessSchemaFields?.fields, modelId]);
 
   return {
     workspaceId,
     projectId,
     importFields,
-    hasImportSchemaFieldsError,
+    hasImportSchemaFieldsError: !!guessSchemaFieldsError,
     assetList,
     selection,
     fileList,

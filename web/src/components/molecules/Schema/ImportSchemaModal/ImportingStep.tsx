@@ -1,19 +1,38 @@
 import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
 
 import Progress from "@reearth-cms/components/atoms/Progress";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   progress: number;
+  fieldsCreationLoading: boolean;
 };
 
-const ImportingStep: React.FC<Props> = ({ progress }) => {
+const ImportingStep: React.FC<Props> = ({ fieldsCreationLoading }) => {
   const t = useT();
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (fieldsCreationLoading) {
+      setProgress(0);
+      interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev < 95) return prev + 1;
+          return prev;
+        });
+      }, 50);
+    } else {
+      setProgress(100);
+    }
+    return () => clearInterval(interval);
+  }, [fieldsCreationLoading]);
 
   return (
     <Container>
       <Progress type="circle" percent={progress} />
-      <StatusText>{progress < 100 ? t("Importing...") : t("Import successful!")}</StatusText>
+      <StatusText>{fieldsCreationLoading ? t("Importing...") : t("Import successful!")}</StatusText>
     </Container>
   );
 };

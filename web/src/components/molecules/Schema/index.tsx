@@ -38,6 +38,7 @@ type Props = {
   pageSize: number;
   assetList: Asset[];
   loading: boolean;
+  fieldsCreationLoading: boolean;
   selectedAsset?: ItemAsset;
   selectedSchemaType: SelectedSchemaType;
   hasCreateRight: boolean;
@@ -71,6 +72,7 @@ type Props = {
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
+  onFieldsCreate: (fields: CreateFieldInput[]) => Promise<void>;
 };
 
 const Schema: React.FC<Props> = ({
@@ -82,6 +84,7 @@ const Schema: React.FC<Props> = ({
   pageSize,
   assetList,
   loading,
+  fieldsCreationLoading,
   selectedAsset,
   selectedSchemaType,
   hasCreateRight,
@@ -114,6 +117,7 @@ const Schema: React.FC<Props> = ({
   onFieldUpdateModalOpen,
   onFieldCreationModalOpen,
   onFieldDelete,
+  onFieldsCreate,
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
@@ -131,9 +135,13 @@ const Schema: React.FC<Props> = ({
     setCurrentImportSchemaModalPage(1);
   }, []);
 
-  const toImportingStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(2);
-  }, []);
+  const toImportingStep = useCallback(
+    async (fields: CreateFieldInput[]) => {
+      await onFieldsCreate(fields);
+      setCurrentImportSchemaModalPage(2);
+    },
+    [onFieldsCreate],
+  );
 
   const handleSelectSchemaFileModalOpen = useCallback(() => {
     setSelectFileModalVisible(true);
@@ -300,6 +308,7 @@ const Schema: React.FC<Props> = ({
             pageSize={pageSize}
             assetList={assetList}
             loading={loading}
+            fieldsCreationLoading={fieldsCreationLoading}
             visible={importSchemaModalVisible}
             selectFileModalVisible={selectFileModalVisible}
             currentPage={currentImportSchemaModalPage}

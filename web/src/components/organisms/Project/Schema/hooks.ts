@@ -12,7 +12,11 @@ import {
   Schema,
   MetaDataSchema,
 } from "@reearth-cms/components/molecules/Schema/types";
-import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import type {
+  CreateFieldInput,
+  FormValues,
+  ModelFormValues,
+} from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
@@ -36,6 +40,7 @@ import {
   useDeleteModelMutation,
   useCheckModelKeyAvailabilityLazyQuery,
   useModelsByGroupQuery,
+  useCreateFieldsMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
@@ -175,6 +180,10 @@ export default () => {
     refetchQueries: ["GetModel", "GetGroup"],
   });
 
+  const [createNewFields, { loading: fieldsCreationLoading }] = useCreateFieldsMutation({
+    refetchQueries: ["GetModel", "GetGroup"],
+  });
+
   const [updateField, { loading: fieldUpdateLoading }] = useUpdateFieldMutation({
     refetchQueries: ["GetModel", "GetGroup"],
   });
@@ -265,7 +274,6 @@ export default () => {
   const handleFieldCreate = useCallback(
     async (data: FormValues) => {
       if (!schemaId) return;
-      // here
       const options = {
         variables: {
           title: data.title,
@@ -292,6 +300,40 @@ export default () => {
       setFieldModalShown(false);
     },
     [schemaId, selectedSchemaType, createNewField, t],
+  );
+
+  const handleFieldsCreate = useCallback(
+    async (fields: CreateFieldInput[]) => {
+      if (!schemaId || fields.length === 0) return;
+      const response = await createNewFields({
+        variables: {
+          inputs: fields.map(field => ({
+            title: field.title,
+            metadata: field.metadata,
+            description: field.description,
+            key: field.key,
+            multiple: field.multiple,
+            unique: field.unique,
+            isTitle: field.isTitle,
+            required: field.required,
+            type: field.type as SchemaFieldType,
+            typeProperty: field.typeProperty as SchemaFieldTypePropertyInput,
+            modelId: schemaId,
+            groupId: undefined,
+          })),
+        },
+      });
+
+      if (response.errors || !response.data?.createFields) {
+        Notification.error({ message: t("Failed to create fields.") });
+        // setFieldModalShown(false);
+        return;
+      }
+
+      Notification.success({ message: t("Successfully created fields!") });
+      // setFieldModalShown(false);
+    },
+    [schemaId, createNewFields, t],
   );
 
   const handleFieldModalClose = useCallback(() => {
@@ -583,6 +625,7 @@ export default () => {
     selectedType,
     collapsed,
     fieldCreationLoading,
+    fieldsCreationLoading,
     fieldUpdateLoading,
     deleteModelLoading,
     deleteGroupLoading,
@@ -594,6 +637,7 @@ export default () => {
     handleFieldUpdateModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleFieldsCreate,
     handleReferencedModelGet,
     handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,
