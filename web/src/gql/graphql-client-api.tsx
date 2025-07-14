@@ -2581,6 +2581,13 @@ export type CreateFieldMutationVariables = Exact<{
 
 export type CreateFieldMutation = { __typename?: 'Mutation', createField?: { __typename?: 'FieldPayload', field: { __typename?: 'SchemaField', id: string } } | null };
 
+export type CreateFieldsMutationVariables = Exact<{
+  inputs: Array<CreateFieldInput> | CreateFieldInput;
+}>;
+
+
+export type CreateFieldsMutation = { __typename?: 'Mutation', createFields?: { __typename?: 'FieldsPayload', fields: Array<{ __typename?: 'SchemaField', id: string }> } | null };
+
 export type UpdateFieldMutationVariables = Exact<{
   modelId?: InputMaybe<Scalars['ID']['input']>;
   groupId?: InputMaybe<Scalars['ID']['input']>;
@@ -4170,6 +4177,41 @@ export function useCreateFieldMutation(baseOptions?: Apollo.MutationHookOptions<
 export type CreateFieldMutationHookResult = ReturnType<typeof useCreateFieldMutation>;
 export type CreateFieldMutationResult = Apollo.MutationResult<CreateFieldMutation>;
 export type CreateFieldMutationOptions = Apollo.BaseMutationOptions<CreateFieldMutation, CreateFieldMutationVariables>;
+export const CreateFieldsDocument = gql`
+    mutation CreateFields($inputs: [CreateFieldInput!]!) {
+  createFields(input: $inputs) {
+    fields {
+      id
+    }
+  }
+}
+    `;
+export type CreateFieldsMutationFn = Apollo.MutationFunction<CreateFieldsMutation, CreateFieldsMutationVariables>;
+
+/**
+ * __useCreateFieldsMutation__
+ *
+ * To run a mutation, you first call `useCreateFieldsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateFieldsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createFieldsMutation, { data, loading, error }] = useCreateFieldsMutation({
+ *   variables: {
+ *      inputs: // value for 'inputs'
+ *   },
+ * });
+ */
+export function useCreateFieldsMutation(baseOptions?: Apollo.MutationHookOptions<CreateFieldsMutation, CreateFieldsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateFieldsMutation, CreateFieldsMutationVariables>(CreateFieldsDocument, options);
+      }
+export type CreateFieldsMutationHookResult = ReturnType<typeof useCreateFieldsMutation>;
+export type CreateFieldsMutationResult = Apollo.MutationResult<CreateFieldsMutation>;
+export type CreateFieldsMutationOptions = Apollo.BaseMutationOptions<CreateFieldsMutation, CreateFieldsMutationVariables>;
 export const UpdateFieldDocument = gql`
     mutation UpdateField($modelId: ID, $groupId: ID, $fieldId: ID!, $title: String!, $metadata: Boolean, $description: String, $order: Int, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
   updateField(
