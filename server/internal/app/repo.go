@@ -80,22 +80,35 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 
 	// File
 	var fileRepo gateway.File
+	privateBase := conf.Host
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
-		fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
+		if conf.Asset_Public {
+			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
+		} else {
+			fileRepo, err = gcp.NewFileWithACL(conf.GCS.BucketName, conf.AssetBaseURL, privateBase, conf.GCS.PublicationCacheControl)
+		}
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}
 	} else if conf.S3.BucketName != "" {
 		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
-		fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl)
+		if conf.Asset_Public {
+			fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl)
+		} else {
+			fileRepo, err = aws.NewFileWithACL(ctx, conf.S3.BucketName, conf.AssetBaseURL, privateBase, conf.S3.PublicationCacheControl)
+		}
 		if err != nil {
 			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
 		}
 	} else {
 		log.Infof("file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
-		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
+		if conf.Asset_Public {
+			fileRepo, err = fs.NewFile(datafs, conf.Host)
+		} else {
+			fileRepo, err = fs.NewFileWithACL(datafs, conf.AssetBaseURL, privateBase)
+		}
 	}
 	if err != nil {
 		log.Fatalf("file: init error: %+v", err)

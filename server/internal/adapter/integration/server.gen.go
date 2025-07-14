@@ -27,6 +27,9 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// delete assets in batch
+	// (DELETE /assets)
+	AssetBatchDelete(ctx echo.Context) error
 	// delete asset
 	// (DELETE /assets/{assetId})
 	AssetDelete(ctx echo.Context, assetId AssetIdParam) error
@@ -45,6 +48,15 @@ type ServerInterface interface {
 	// Update AssetComment
 	// (PATCH /assets/{assetId}/comments/{commentId})
 	AssetCommentUpdate(ctx echo.Context, assetId AssetIdParam, commentId CommentIdParam) error
+	// publish asset
+	// (POST /assets/{assetId}/publish)
+	AssetPublish(ctx echo.Context, assetId AssetIdParam) error
+	// publish asset
+	// (POST /assets/{assetId}/unpublish)
+	AssetUnpublish(ctx echo.Context, assetId AssetIdParam) error
+	// get asset content
+	// (GET /assets/{uuid1}/{uuid2}/{filename})
+	AssetContentGet(ctx echo.Context, uuid1 string, uuid2 string, filename string) error
 	// delete an item
 	// (DELETE /items/{itemId})
 	ItemDelete(ctx echo.Context, itemId ItemIdParam) error
@@ -171,11 +183,34 @@ type ServerInterface interface {
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error
+	// Create a project
+	// (POST /{workspaceId}/projects)
+	ProjectCreate(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectCreateParams) error
+	// Delete a project
+	// (DELETE /{workspaceId}/projects/{projectId})
+	ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
+	// Returns a project.
+	// (GET /{workspaceId}/projects/{projectId})
+	ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
+	// Update a project.
+	// (PATCH /{workspaceId}/projects/{projectId})
+	ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// AssetBatchDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetBatchDelete(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetBatchDelete(ctx)
+	return err
 }
 
 // AssetDelete converts echo context to params.
@@ -295,6 +330,74 @@ func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.AssetCommentUpdate(ctx, assetId, commentId)
+	return err
+}
+
+// AssetPublish converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetPublish(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetId" -------------
+	var assetId AssetIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetPublish(ctx, assetId)
+	return err
+}
+
+// AssetUnpublish converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetUnpublish(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "assetId" -------------
+	var assetId AssetIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "assetId", ctx.Param("assetId"), &assetId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter assetId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetUnpublish(ctx, assetId)
+	return err
+}
+
+// AssetContentGet converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetContentGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "uuid1" -------------
+	var uuid1 string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "uuid1", ctx.Param("uuid1"), &uuid1, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter uuid1: %s", err))
+	}
+
+	// ------------- Path parameter "uuid2" -------------
+	var uuid2 string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "uuid2", ctx.Param("uuid2"), &uuid2, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter uuid2: %s", err))
+	}
+
+	// ------------- Path parameter "filename" -------------
+	var filename string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "filename", ctx.Param("filename"), &filename, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter filename: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetContentGet(ctx, uuid1, uuid2, filename)
 	return err
 }
 
@@ -1531,6 +1634,118 @@ func (w *ServerInterfaceWrapper) ProjectFilter(ctx echo.Context) error {
 	return err
 }
 
+// ProjectCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ProjectCreateParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectCreate(ctx, workspaceId, params)
+	return err
+}
+
+// ProjectDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectDelete(ctx, workspaceId, projectId)
+	return err
+}
+
+// ProjectGet converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectGet(ctx, workspaceId, projectId)
+	return err
+}
+
+// ProjectUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceId" -------------
+	var workspaceId WorkspaceIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
+	}
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectUpdate(ctx, workspaceId, projectId)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -1559,12 +1774,16 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.DELETE(baseURL+"/assets", wrapper.AssetBatchDelete)
 	router.DELETE(baseURL+"/assets/:assetId", wrapper.AssetDelete)
 	router.GET(baseURL+"/assets/:assetId", wrapper.AssetGet)
 	router.GET(baseURL+"/assets/:assetId/comments", wrapper.AssetCommentList)
 	router.POST(baseURL+"/assets/:assetId/comments", wrapper.AssetCommentCreate)
 	router.DELETE(baseURL+"/assets/:assetId/comments/:commentId", wrapper.AssetCommentDelete)
 	router.PATCH(baseURL+"/assets/:assetId/comments/:commentId", wrapper.AssetCommentUpdate)
+	router.POST(baseURL+"/assets/:assetId/publish", wrapper.AssetPublish)
+	router.POST(baseURL+"/assets/:assetId/unpublish", wrapper.AssetUnpublish)
+	router.GET(baseURL+"/assets/:uuid1/:uuid2/:filename", wrapper.AssetContentGet)
 	router.DELETE(baseURL+"/items/:itemId", wrapper.ItemDelete)
 	router.GET(baseURL+"/items/:itemId", wrapper.ItemGet)
 	router.PATCH(baseURL+"/items/:itemId", wrapper.ItemUpdate)
@@ -1607,6 +1826,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PATCH(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
 	router.GET(baseURL+"/schemata/:schemaId/schema.json", wrapper.SchemaByIDAsJSON)
 	router.GET(baseURL+"/:workspaceId/projects", wrapper.ProjectFilter)
+	router.POST(baseURL+"/:workspaceId/projects", wrapper.ProjectCreate)
+	router.DELETE(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectDelete)
+	router.GET(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectGet)
+	router.PATCH(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectUpdate)
 
 }
 
@@ -1614,6 +1837,48 @@ type NotFoundErrorResponse struct {
 }
 
 type UnauthorizedErrorResponse struct {
+}
+
+type AssetBatchDeleteRequestObject struct {
+	Body *AssetBatchDeleteJSONRequestBody
+}
+
+type AssetBatchDeleteResponseObject interface {
+	VisitAssetBatchDeleteResponse(w http.ResponseWriter) error
+}
+
+type AssetBatchDelete200JSONResponse struct {
+	Ids *[]id.AssetID `json:"ids,omitempty"`
+}
+
+func (response AssetBatchDelete200JSONResponse) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetBatchDelete400Response struct {
+}
+
+func (response AssetBatchDelete400Response) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetBatchDelete401Response = UnauthorizedErrorResponse
+
+func (response AssetBatchDelete401Response) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetBatchDelete404Response struct {
+}
+
+func (response AssetBatchDelete404Response) VisitAssetBatchDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type AssetDeleteRequestObject struct {
@@ -1862,6 +2127,138 @@ type AssetCommentUpdate404Response struct {
 }
 
 func (response AssetCommentUpdate404Response) VisitAssetCommentUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type AssetPublishRequestObject struct {
+	AssetId AssetIdParam `json:"assetId"`
+}
+
+type AssetPublishResponseObject interface {
+	VisitAssetPublishResponse(w http.ResponseWriter) error
+}
+
+type AssetPublish200JSONResponse Asset
+
+func (response AssetPublish200JSONResponse) VisitAssetPublishResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetPublish400Response struct {
+}
+
+func (response AssetPublish400Response) VisitAssetPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetPublish401Response = UnauthorizedErrorResponse
+
+func (response AssetPublish401Response) VisitAssetPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetPublish404Response struct {
+}
+
+func (response AssetPublish404Response) VisitAssetPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type AssetUnpublishRequestObject struct {
+	AssetId AssetIdParam `json:"assetId"`
+}
+
+type AssetUnpublishResponseObject interface {
+	VisitAssetUnpublishResponse(w http.ResponseWriter) error
+}
+
+type AssetUnpublish200JSONResponse Asset
+
+func (response AssetUnpublish200JSONResponse) VisitAssetUnpublishResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetUnpublish400Response struct {
+}
+
+func (response AssetUnpublish400Response) VisitAssetUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetUnpublish401Response = UnauthorizedErrorResponse
+
+func (response AssetUnpublish401Response) VisitAssetUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetUnpublish404Response struct {
+}
+
+func (response AssetUnpublish404Response) VisitAssetUnpublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type AssetContentGetRequestObject struct {
+	Uuid1    string `json:"uuid1"`
+	Uuid2    string `json:"uuid2"`
+	Filename string `json:"filename"`
+}
+
+type AssetContentGetResponseObject interface {
+	VisitAssetContentGetResponse(w http.ResponseWriter) error
+}
+
+type AssetContentGet200ApplicationoctetStreamResponse struct {
+	Body          io.Reader
+	ContentLength int64
+}
+
+func (response AssetContentGet200ApplicationoctetStreamResponse) VisitAssetContentGetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/octet-stream")
+	if response.ContentLength != 0 {
+		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
+	}
+	w.WriteHeader(200)
+
+	if closer, ok := response.Body.(io.ReadCloser); ok {
+		defer closer.Close()
+	}
+	_, err := io.Copy(w, response.Body)
+	return err
+}
+
+type AssetContentGet400Response struct {
+}
+
+func (response AssetContentGet400Response) VisitAssetContentGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetContentGet401Response = UnauthorizedErrorResponse
+
+func (response AssetContentGet401Response) VisitAssetContentGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetContentGet404Response struct {
+}
+
+func (response AssetContentGet404Response) VisitAssetContentGetResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
@@ -3776,8 +4173,211 @@ func (response ProjectFilter500Response) VisitProjectFilterResponse(w http.Respo
 	return nil
 }
 
+type ProjectCreateRequestObject struct {
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	Params      ProjectCreateParams
+	Body        *ProjectCreateJSONRequestBody
+}
+
+type ProjectCreateResponseObject interface {
+	VisitProjectCreateResponse(w http.ResponseWriter) error
+}
+
+type ProjectCreate201JSONResponse Project
+
+func (response ProjectCreate201JSONResponse) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectCreate400Response struct {
+}
+
+func (response ProjectCreate400Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectCreate401Response = UnauthorizedErrorResponse
+
+func (response ProjectCreate401Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectCreate404Response struct {
+}
+
+func (response ProjectCreate404Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectCreate500Response struct {
+}
+
+func (response ProjectCreate500Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ProjectDeleteRequestObject struct {
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	ProjectId   ProjectIdParam   `json:"projectId"`
+}
+
+type ProjectDeleteResponseObject interface {
+	VisitProjectDeleteResponse(w http.ResponseWriter) error
+}
+
+type ProjectDelete200JSONResponse struct {
+	Id *id.ProjectID `json:"id,omitempty"`
+}
+
+func (response ProjectDelete200JSONResponse) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectDelete400Response struct {
+}
+
+func (response ProjectDelete400Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectDelete401Response = UnauthorizedErrorResponse
+
+func (response ProjectDelete401Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectDelete404Response struct {
+}
+
+func (response ProjectDelete404Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectDelete500Response struct {
+}
+
+func (response ProjectDelete500Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ProjectGetRequestObject struct {
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	ProjectId   ProjectIdParam   `json:"projectId"`
+}
+
+type ProjectGetResponseObject interface {
+	VisitProjectGetResponse(w http.ResponseWriter) error
+}
+
+type ProjectGet200JSONResponse Project
+
+func (response ProjectGet200JSONResponse) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectGet400Response struct {
+}
+
+func (response ProjectGet400Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectGet401Response = UnauthorizedErrorResponse
+
+func (response ProjectGet401Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectGet404Response struct {
+}
+
+func (response ProjectGet404Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectGet500Response struct {
+}
+
+func (response ProjectGet500Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ProjectUpdateRequestObject struct {
+	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
+	ProjectId   ProjectIdParam   `json:"projectId"`
+	Body        *ProjectUpdateJSONRequestBody
+}
+
+type ProjectUpdateResponseObject interface {
+	VisitProjectUpdateResponse(w http.ResponseWriter) error
+}
+
+type ProjectUpdate200JSONResponse Project
+
+func (response ProjectUpdate200JSONResponse) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectUpdate400Response struct {
+}
+
+func (response ProjectUpdate400Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectUpdate401Response = UnauthorizedErrorResponse
+
+func (response ProjectUpdate401Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectUpdate404Response struct {
+}
+
+func (response ProjectUpdate404Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectUpdate500Response struct {
+}
+
+func (response ProjectUpdate500Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// delete assets in batch
+	// (DELETE /assets)
+	AssetBatchDelete(ctx context.Context, request AssetBatchDeleteRequestObject) (AssetBatchDeleteResponseObject, error)
 	// delete asset
 	// (DELETE /assets/{assetId})
 	AssetDelete(ctx context.Context, request AssetDeleteRequestObject) (AssetDeleteResponseObject, error)
@@ -3796,6 +4396,15 @@ type StrictServerInterface interface {
 	// Update AssetComment
 	// (PATCH /assets/{assetId}/comments/{commentId})
 	AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error)
+	// publish asset
+	// (POST /assets/{assetId}/publish)
+	AssetPublish(ctx context.Context, request AssetPublishRequestObject) (AssetPublishResponseObject, error)
+	// publish asset
+	// (POST /assets/{assetId}/unpublish)
+	AssetUnpublish(ctx context.Context, request AssetUnpublishRequestObject) (AssetUnpublishResponseObject, error)
+	// get asset content
+	// (GET /assets/{uuid1}/{uuid2}/{filename})
+	AssetContentGet(ctx context.Context, request AssetContentGetRequestObject) (AssetContentGetResponseObject, error)
 	// delete an item
 	// (DELETE /items/{itemId})
 	ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error)
@@ -3922,6 +4531,18 @@ type StrictServerInterface interface {
 	// Returns a list of projects.
 	// (GET /{workspaceId}/projects)
 	ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error)
+	// Create a project
+	// (POST /{workspaceId}/projects)
+	ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error)
+	// Delete a project
+	// (DELETE /{workspaceId}/projects/{projectId})
+	ProjectDelete(ctx context.Context, request ProjectDeleteRequestObject) (ProjectDeleteResponseObject, error)
+	// Returns a project.
+	// (GET /{workspaceId}/projects/{projectId})
+	ProjectGet(ctx context.Context, request ProjectGetRequestObject) (ProjectGetResponseObject, error)
+	// Update a project.
+	// (PATCH /{workspaceId}/projects/{projectId})
+	ProjectUpdate(ctx context.Context, request ProjectUpdateRequestObject) (ProjectUpdateResponseObject, error)
 }
 
 type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
@@ -3934,6 +4555,35 @@ func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareF
 type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
+}
+
+// AssetBatchDelete operation middleware
+func (sh *strictHandler) AssetBatchDelete(ctx echo.Context) error {
+	var request AssetBatchDeleteRequestObject
+
+	var body AssetBatchDeleteJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetBatchDelete(ctx.Request().Context(), request.(AssetBatchDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetBatchDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetBatchDeleteResponseObject); ok {
+		return validResponse.VisitAssetBatchDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
 }
 
 // AssetDelete operation middleware
@@ -4094,6 +4744,83 @@ func (sh *strictHandler) AssetCommentUpdate(ctx echo.Context, assetId AssetIdPar
 		return err
 	} else if validResponse, ok := response.(AssetCommentUpdateResponseObject); ok {
 		return validResponse.VisitAssetCommentUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetPublish operation middleware
+func (sh *strictHandler) AssetPublish(ctx echo.Context, assetId AssetIdParam) error {
+	var request AssetPublishRequestObject
+
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetPublish(ctx.Request().Context(), request.(AssetPublishRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetPublish")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetPublishResponseObject); ok {
+		return validResponse.VisitAssetPublishResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetUnpublish operation middleware
+func (sh *strictHandler) AssetUnpublish(ctx echo.Context, assetId AssetIdParam) error {
+	var request AssetUnpublishRequestObject
+
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetUnpublish(ctx.Request().Context(), request.(AssetUnpublishRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetUnpublish")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetUnpublishResponseObject); ok {
+		return validResponse.VisitAssetUnpublishResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetContentGet operation middleware
+func (sh *strictHandler) AssetContentGet(ctx echo.Context, uuid1 string, uuid2 string, filename string) error {
+	var request AssetContentGetRequestObject
+
+	request.Uuid1 = uuid1
+	request.Uuid2 = uuid2
+	request.Filename = filename
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetContentGet(ctx.Request().Context(), request.(AssetContentGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetContentGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetContentGetResponseObject); ok {
+		return validResponse.VisitAssetContentGetResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}
@@ -5299,83 +6026,207 @@ func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceId
 	return nil
 }
 
+// ProjectCreate operation middleware
+func (sh *strictHandler) ProjectCreate(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectCreateParams) error {
+	var request ProjectCreateRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.Params = params
+
+	var body ProjectCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectCreate(ctx.Request().Context(), request.(ProjectCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectCreateResponseObject); ok {
+		return validResponse.VisitProjectCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectDelete operation middleware
+func (sh *strictHandler) ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
+	var request ProjectDeleteRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.ProjectId = projectId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectDelete(ctx.Request().Context(), request.(ProjectDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectDeleteResponseObject); ok {
+		return validResponse.VisitProjectDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectGet operation middleware
+func (sh *strictHandler) ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
+	var request ProjectGetRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.ProjectId = projectId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectGet(ctx.Request().Context(), request.(ProjectGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectGetResponseObject); ok {
+		return validResponse.VisitProjectGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectUpdate operation middleware
+func (sh *strictHandler) ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
+	var request ProjectUpdateRequestObject
+
+	request.WorkspaceId = workspaceId
+	request.ProjectId = projectId
+
+	var body ProjectUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectUpdate(ctx.Request().Context(), request.(ProjectUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectUpdateResponseObject); ok {
+		return validResponse.VisitProjectUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

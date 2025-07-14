@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -21,7 +20,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Model struct {
@@ -221,23 +219,39 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 		})
 }
 
-func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator *usecase.Operator) (bool, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) (_ bool, err error) {
-			m, err := i.repos.Model.FindByID(ctx, modelID)
+func (i Model) Publish(ctx context.Context, params []interfaces.PublishModelParam, operator *usecase.Operator) error {
+	if len(params) == 0 {
+		return rerror.ErrInvalidParams
+	}
+	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) error {
+			mIds := lo.Map(params, func(p interfaces.PublishModelParam, _ int) id.ModelID { return p.ModelID })
+			ml, err := i.repos.Model.FindByIDs(ctx, mIds)
 			if err != nil {
-				return false, err
+				return err
 			}
-			if !operator.IsMaintainingProject(m.Project()) {
-				return m.Public(), interfaces.ErrOperationDenied
+			if len(ml) != len(mIds) {
+				return rerror.ErrNotFound
+			}
+			if len(lo.UniqMap(ml, func(m *model.Model, _ int) id.ProjectID { return m.Project() })) != 1 {
+				return rerror.ErrInvalidParams
+			}
+			if !operator.IsMaintainingProject(ml[0].Project()) {
+				return interfaces.ErrOperationDenied
 			}
 
-			m.SetPublic(b)
-
-			if err := i.repos.Model.Save(ctx, m); err != nil {
-				return false, err
+			for _, p := range params {
+				m := ml.Model(p.ModelID)
+				if m == nil {
+					return rerror.ErrNotFound
+				}
+				m.SetPublic(p.Public)
 			}
-			return b, nil
+
+			if err := i.repos.Model.SaveAll(ctx, ml); err != nil {
+				return err
+			}
+			return nil
 		})
 }
 
@@ -418,77 +432,18 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 
 func (i Model) copyItems(ctx context.Context, oldSchemaID, newSchemaID id.SchemaID, newModelID id.ModelID, timestamp time.Time, operator *usecase.Operator) error {
 	collection := "item"
-	filter, err := json.Marshal(bson.M{"schema": oldSchemaID.String(), "__r": bson.M{"$in": []string{"latest"}}})
+	filter, changes, err := i.repos.Item.Copy(ctx, repo.CopyParams{
+		OldSchema:   oldSchemaID,
+		NewSchema:   newSchemaID,
+		NewModel:    newModelID,
+		Timestamp:   timestamp,
+		User:        operator.AcOperator.User.StringRef(),
+		Integration: operator.Integration.StringRef(),
+	})
 	if err != nil {
 		return err
 	}
-	c := task.Changes{
-		"id": {
-			Type:  task.ChangeTypeULID,
-			Value: timestamp.UnixMilli(),
-		},
-		"schema": {
-			Type:  task.ChangeTypeSet,
-			Value: newSchemaID.String(),
-		},
-		"modelid": {
-			Type:  task.ChangeTypeSet,
-			Value: newModelID.String(),
-		},
-		"timestamp": {
-			Type:  task.ChangeTypeSet,
-			Value: timestamp.UTC().Format("2006-01-02T15:04:05.000+00:00"), //TODO: should use a better way to format
-		},
-		"updatedbyuser": {
-			Type:  task.ChangeTypeSet,
-			Value: nil,
-		},
-		"updatedbyintegration": {
-			Type:  task.ChangeTypeSet,
-			Value: nil,
-		},
-		"originalitem": {
-			Type:  task.ChangeTypeULID,
-			Value: timestamp.UnixMilli(),
-		},
-		"metadataitem": {
-			Type:  task.ChangeTypeULID,
-			Value: timestamp.UnixMilli(),
-		},
-		"thread": {
-			Type:  task.ChangeTypeSet,
-			Value: nil,
-		},
-		"__r": { // tag
-			Type:  task.ChangeTypeSet,
-			Value: []string{"latest"},
-		},
-		"__w": { // parent
-			Type:  task.ChangeTypeSet,
-			Value: nil,
-		},
-		"__v": { // version
-			Type:  task.ChangeTypeNew,
-			Value: "version",
-		},
-	}
-	if operator.AcOperator.User != nil {
-		c["user"] = task.Change{
-			Type:  task.ChangeTypeSet,
-			Value: operator.AcOperator.User.String(),
-		}
-	}
-	if operator.Integration != nil {
-		c["integration"] = task.Change{
-			Type:  task.ChangeTypeSet,
-			Value: operator.Integration.String(),
-		}
-	}
-	changes, err := json.Marshal(c)
-	if err != nil {
-		return err
-	}
-	return i.triggerCopyEvent(ctx, collection, string(filter), string(changes))
+	return i.triggerCopyEvent(ctx, collection, string(*filter), string(*changes))
 }
 
 func (i Model) triggerCopyEvent(ctx context.Context, collection, filter, changes string) error {

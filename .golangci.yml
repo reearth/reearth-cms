@@ -1,4 +1,5 @@
+version: "2"
 linters:
-  enable-all: false
+  default: standard
 run:
   timeout: 5m

@@ -6,28 +6,23 @@ import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
   webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
-  onWebhookUpdate: (data: {
-    webhookId: string;
-    name: string;
-    url: string;
-    active: boolean;
-    trigger: WebhookTrigger;
-  }) => Promise<void>;
-  onWebhookSettings: (webhookId: string) => void;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
+  onWebhookSelect: (webhookId: string) => void;
 };
 
 const WebhookCard: React.FC<Props> = ({
   webhook,
   onWebhookDelete,
   onWebhookUpdate,
-  onWebhookSettings,
+  onWebhookSelect,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
 
   const handleWebhookDelete = useCallback(async () => {
     setIsLoading(true);
@@ -39,8 +34,13 @@ const WebhookCard: React.FC<Props> = ({
   }, [onWebhookDelete, webhook.id]);
 
   const handleWebhookUpdate = useCallback(
-    (active: boolean) => {
-      onWebhookUpdate({ ...webhook, active, webhookId: webhook.id });
+    async (active: boolean) => {
+      setIsUpdateLoading(true);
+      try {
+        await onWebhookUpdate({ ...webhook, active });
+      } finally {
+        setIsUpdateLoading(false);
+      }
     },
     [onWebhookUpdate, webhook],
   );
@@ -55,7 +55,8 @@ const WebhookCard: React.FC<Props> = ({
               checkedChildren="ON"
               unCheckedChildren="OFF"
               checked={webhook.active}
-              onChange={handleWebhookUpdate}
+              onClick={handleWebhookUpdate}
+              loading={isUpdateLoading}
             />
           </SwitchWrapper>
         </TitleWrapper>
@@ -66,7 +67,7 @@ const WebhookCard: React.FC<Props> = ({
             type="text"
             shape="circle"
             size="small"
-            onClick={() => onWebhookSettings(webhook.id)}
+            onClick={() => onWebhookSelect(webhook.id)}
             icon={<Icon icon="settings" size={16} />}
           />
           <Button

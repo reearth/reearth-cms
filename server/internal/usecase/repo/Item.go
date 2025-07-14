@@ -17,6 +17,15 @@ type FieldAndValue struct {
 	Value *value.Multiple
 }
 
+type CopyParams struct {
+	OldSchema   id.SchemaID
+	NewSchema   id.SchemaID
+	NewModel    id.ModelID
+	Timestamp   time.Time
+	User        *string
+	Integration *string
+}
+
 type Item interface {
 	Filtered(ProjectFilter) Item
 	FindByID(context.Context, id.ItemID, *version.Ref) (item.Versioned, error)
@@ -36,4 +45,5 @@ type Item interface {
 	UpdateRef(context.Context, id.ItemID, version.Ref, *version.VersionOrRef) error
 	Remove(context.Context, id.ItemID) error
 	Archive(context.Context, id.ItemID, id.ProjectID, bool) error
+	Copy(context.Context, CopyParams) (*string, *string, error)
 }

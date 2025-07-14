@@ -25,7 +25,7 @@ var (
 		"project,size,id",
 		"!createdat,!id",
 	}
-	assetUniqueIndexes = []string{"id"}
+	assetUniqueIndexes = []string{"id", "uuid"}
 )
 
 type Asset struct {
@@ -61,6 +61,12 @@ func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, erro
 	})
 }
 
+func (r *Asset) FindByUUID(ctx context.Context, uuid string) (*asset.Asset, error) {
+	return r.findOne(ctx, bson.M{
+		"uuid": uuid,
+	})
+}
+
 func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Asset, error) {
 	if len(ids) == 0 {
 		return nil, nil
@@ -72,6 +78,9 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	res, err := r.find(ctx, filter)
 	if err != nil {
 		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, nil
 	}
 	return filterAssets(ids, res), nil
 }
@@ -130,6 +139,14 @@ func (r *Asset) Delete(ctx context.Context, id id.AssetID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{
 		"id": id.String(),
 	}))
+}
+
+// BatchDelete deletes assets in batch based on multiple asset IDs
+func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
+	filter := bson.M{
+		"id": bson.M{"$in": ids.Strings()},
+	}
+	return r.client.RemoveAll(ctx, r.writeFilter(filter))
 }
 
 func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {

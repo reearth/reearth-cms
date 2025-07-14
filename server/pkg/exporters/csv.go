@@ -32,7 +32,7 @@ func RowFromItem(itm *item.Item, nonGeoFields []*schema.Field) ([]string, bool) 
 	}
 
 	id := itm.ID().String()
-	lat, lng := float64ToString(geoField[0]), float64ToString(geoField[1])
+	lat, lng := float64ToString(geoField[1]), float64ToString(geoField[0])
 	row := []string{id, lat, lng}
 
 	for _, sf := range nonGeoFields {

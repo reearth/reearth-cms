@@ -18,9 +18,12 @@ type Asset interface {
 	Filtered(ProjectFilter) Asset
 	FindByProject(context.Context, id.ProjectID, AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error)
 	FindByID(context.Context, id.AssetID) (*asset.Asset, error)
+	FindByUUID(context.Context, string) (*asset.Asset, error)
 	FindByIDs(context.Context, id.AssetIDList) ([]*asset.Asset, error)
 	Save(context.Context, *asset.Asset) error
 	Delete(context.Context, id.AssetID) error
+	// BatchDelete deletes assets in batch based on multiple asset IDs
+	BatchDelete(context.Context, id.AssetIDList) error
 }
 
 type AssetFile interface {

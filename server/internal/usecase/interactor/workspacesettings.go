@@ -3,7 +3,6 @@ package interactor
 import (
 	"context"
 	"errors"
-	"github.com/reearth/reearthx/rerror"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -11,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/rerror"
 )
 
 type WorkspaceSettings struct {
