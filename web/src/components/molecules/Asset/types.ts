@@ -57,7 +57,3 @@ export type SortType = {
   type: AssetSortType;
   direction: SortDirection;
 };
-
-export type UploadFile = File & {
-  skipDecompression?: boolean;
-};
