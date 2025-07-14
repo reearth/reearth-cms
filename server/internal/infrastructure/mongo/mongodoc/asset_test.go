@@ -68,7 +68,7 @@ func TestNewAsset(t *testing.T) {
 	}{
 		{
 			name: "new",
-			a:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId.Ref()).UUID(uuId.String()).Size(123).MustBuild(),
+			a:    asset.New().ID(aId).Project(pId).CreatedByUser(uId).CreatedAt(now).Thread(tId.Ref()).UUID(uuId.String()).Size(123).Public(true).MustBuild(),
 			want: &AssetDocument{
 				ID:                      aId.String(),
 				Project:                 pId.String(),
@@ -81,6 +81,7 @@ func TestNewAsset(t *testing.T) {
 				UUID:                    uuId.String(),
 				Thread:                  tId.StringRef(),
 				ArchiveExtractionStatus: "",
+				Public:                  true,
 			},
 			aDocId: aId.String(),
 		},

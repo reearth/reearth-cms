@@ -19,13 +19,13 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho" // nolint:staticcheck
 )
 
-func initEcho(cfg *ServerConfig) *echo.Echo {
-	if cfg.Config == nil {
-		log.Fatalf("ServerConfig.Config is nil")
+func initEcho(appCtx *ApplicationContext) *echo.Echo {
+	if appCtx.Config == nil {
+		log.Fatalf("AppContext.Config is nil")
 	}
 
 	e := echo.New()
-	e.Debug = cfg.Debug
+	e.Debug = appCtx.Debug
 	e.HideBanner = true
 	e.HidePort = true
 	e.HTTPErrorHandler = errorHandler(e.DefaultHTTPErrorHandler)
@@ -38,71 +38,118 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 		middleware.Recover(),
 		otelecho.Middleware("reearth-cms"),
 	)
-	origins := allowedOrigins(cfg)
-	if len(origins) > 0 {
-		e.Use(
-			middleware.CORSWithConfig(middleware.CORSConfig{
-				AllowOrigins: origins,
-			}),
-		)
-	}
+
+	usecaseMiddleware := UsecaseMiddleware(appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{
+		SignupSecret:    appCtx.Config.SignupSecret,
+		AuthSrvUIDomain: appCtx.Config.Host_Web,
+	})
+
+	// apis
+	initApi(appCtx, e.Group("/api"), usecaseMiddleware)
 
 	// GraphQL Playground without auth
-	if cfg.Debug || cfg.Config.Dev {
+	if appCtx.Debug || appCtx.Config.Dev {
 		e.GET("/graphql", echo.WrapHandler(
 			playground.Handler("reearth-cms", "/api/graphql"),
 		))
 		log.Infof("gql: GraphQL Playground is available")
 	}
 
-	usecaseMiddleware := UsecaseMiddleware(cfg.Repos, cfg.Gateways, cfg.AcRepos, cfg.AcGateways, interactor.ContainerConfig{
-		SignupSecret:    cfg.Config.SignupSecret,
-		AuthSrvUIDomain: cfg.Config.Host_Web,
-	})
+	// Public API
+	initPublicApi(appCtx, e.Group("/api/p"), usecaseMiddleware)
 
-	// apis
-	api := e.Group("/api", private)
+	// Integration API
+	initIntegrationApi(appCtx, e.Group("/api"), usecaseMiddleware)
+
+	// Assets API
+	initAssetsApi(appCtx, e.Group("/assets"))
+
+	// Web app delivery
+	Web(e, appCtx.Config.WebConfig(), appCtx.Config.Web_Disabled, nil)
+
+	return e
+}
+
+func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+	api.Use(private)
 	api.GET("/ping", Ping())
+	api.GET("/health", HealthCheck(appCtx.Config, appCtx.Version))
 	api.POST(
-		"/graphql", GraphqlAPI(cfg.Config.GraphQL, cfg.Config.Dev),
-		jwtParseMiddleware(cfg),
-		authMiddleware(cfg),
+		"/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev),
+		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}),
+		jwtParseMiddleware(appCtx),
+		authMiddleware(appCtx),
 		usecaseMiddleware,
 	)
 	api.POST(
 		"/notify", NotifyHandler(),
-		M2MAuthMiddleware(cfg.Config),
+		M2MAuthMiddleware(appCtx.Config),
 		usecaseMiddleware,
 	)
 	api.POST("/signup", Signup(), usecaseMiddleware)
-
-	publicapi.Echo(api.Group("/p", publicAPIAuthMiddleware(cfg), usecaseMiddleware))
-	integration.RegisterHandlers(api.Group(
-		"",
-		authMiddleware(cfg),
-		AuthRequiredMiddleware(),
-		usecaseMiddleware,
-		private,
-	), integration.NewStrictHandler(integration.NewServer(), nil))
-
-	serveFiles(e, cfg)
-	Web(e, cfg.Config.WebConfig(), cfg.Config.Web_Disabled, nil)
-	return e
 }
 
-func jwtParseMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
+func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+	publicOrigins := allowedPublicOrigins(appCtx)
+	if len(publicOrigins) > 0 {
+		publicAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: publicOrigins}))
+	}
+	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
+	publicapi.Echo(publicAPIGroup)
+}
+
+func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+	integrationOrigins := allowedIntegrationOrigins(appCtx)
+	if len(integrationOrigins) > 0 {
+		integrationAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: integrationOrigins}))
+	}
+	integrationAPIGroup.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
+	integration.RegisterHandlers(integrationAPIGroup, integration.NewStrictHandler(integration.NewServer(), nil))
+}
+
+func initAssetsApi(appCtx *ApplicationContext, fileServeGroup *echo.Group) {
+	origins := allowedOrigins(appCtx)
+	if len(origins) > 0 {
+		fileServeGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: origins}))
+	}
+	serveFiles(fileServeGroup, appCtx)
+}
+
+func jwtParseMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 	return echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true),
+		appx.AuthMiddleware(appCtx.Config.JWTProviders(), adapter.ContextAuthInfo, true),
 	))
 }
 
-func allowedOrigins(cfg *ServerConfig) []string {
-	if cfg == nil {
+func allowedOrigins(appCtx *ApplicationContext) []string {
+	if appCtx == nil {
 		return nil
 	}
-	origins := append([]string{}, cfg.Config.Origins...)
-	if cfg.Debug {
+	origins := append([]string{}, appCtx.Config.Origins...)
+	if appCtx.Debug {
 		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	}
+	return origins
+}
+
+func allowedIntegrationOrigins(appCtx *ApplicationContext) []string {
+	if appCtx == nil {
+		return nil
+	}
+	origins := append([]string{}, appCtx.Config.Integration_Origins...)
+	if appCtx.Debug {
+		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	}
+	return origins
+}
+
+func allowedPublicOrigins(appCtx *ApplicationContext) []string {
+	if appCtx == nil {
+		return nil
+	}
+	origins := append([]string{}, appCtx.Config.Public_Origins...)
+	if appCtx.Debug {
+		origins = append(origins, "*")
 	}
 	return origins
 }

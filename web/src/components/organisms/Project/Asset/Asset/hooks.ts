@@ -1,7 +1,9 @@
 import { NetworkStatus } from "@apollo/client";
 import { Ion, Viewer as CesiumViewer } from "cesium";
+import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
@@ -23,6 +25,7 @@ import {
 } from "@reearth-cms/components/molecules/Common/Asset";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { config } from "@reearth-cms/config";
+import { useAuthHeader } from "@reearth-cms/gql";
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
@@ -42,11 +45,15 @@ export default (assetId?: string) => {
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
   const location = useLocation();
-  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
+  const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>();
   const [decompressing, setDecompressing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+
+  useEffect(() => {
+    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
+  }, []);
 
   const { data: rawAsset, networkStatus } = useGetAssetItemQuery({
     variables: {
@@ -125,7 +132,7 @@ export default (assetId?: string) => {
           Notification.success({ message: t("Asset is being decompressed!") });
         }
       })(),
-    [t, decompressAssetMutation, setDecompressing],
+    [t, decompressAssetMutation],
   );
 
   useEffect(() => {
@@ -142,52 +149,41 @@ export default (assetId?: string) => {
     [convertedAsset?.previewType],
   );
 
-  const [viewerType, setViewerType] = useState<ViewerType>("unknown");
   const assetFileExt = getExtension(convertedAsset?.fileName);
 
-  useEffect(() => {
+  const viewerType = useMemo((): ViewerType | undefined => {
+    if (!selectedPreviewType || !assetFileExt) return;
+
     switch (true) {
       case selectedPreviewType === "GEO" &&
         (geoFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo");
-        break;
+        return "geo";
       case selectedPreviewType === "GEO_3D_TILES" &&
         (geo3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo_3d_tiles");
-        break;
+        return "geo_3d_tiles";
       case selectedPreviewType === "GEO_MVT" &&
         (geoMvtFormat.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("geo_mvt");
-        break;
+        return "geo_mvt";
       case selectedPreviewType === "MODEL_3D" &&
         (model3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
-        setViewerType("model_3d");
-        break;
+        return "model_3d";
       case selectedPreviewType === "CSV" && csvFormats.includes(assetFileExt):
-        setViewerType("csv");
-        break;
+        return "csv";
       case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
-        setViewerType("image");
-        break;
+        return "image";
       case selectedPreviewType === "IMAGE_SVG" && imageSVGFormat.includes(assetFileExt):
-        setViewerType("image_svg");
-        break;
+        return "image_svg";
       default:
-        setViewerType("unknown");
-        break;
+        return "unknown";
     }
-  }, [convertedAsset?.previewType, assetFileExt, selectedPreviewType]);
+  }, [assetFileExt, selectedPreviewType]);
 
   const displayUnzipFileList = useMemo(
     () => compressedFileFormats.includes(assetFileExt),
     [assetFileExt],
   );
 
-  const viewerRef = useRef<CesiumViewer>();
-
-  const handleGetViewer = (viewer?: CesiumViewer) => {
-    viewerRef.current = viewer;
-  };
+  const viewerRef = useRef<CesiumComponentRef<CesiumViewer>>(null);
 
   const handleFullScreen = useCallback(() => {
     if (viewerType === "unknown") {
@@ -195,7 +191,7 @@ export default (assetId?: string) => {
     } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
     } else {
-      viewerRef.current?.canvas.requestFullscreen();
+      viewerRef.current?.cesiumElement?.canvas.requestFullscreen();
     }
   }, [viewerType]);
 
@@ -219,10 +215,6 @@ export default (assetId?: string) => {
     [setCollapsed],
   );
 
-  useEffect(() => {
-    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
-  }, []);
-
   const handleSave = useCallback(async () => {
     if (assetId) {
       setIsSaveDisabled(true);
@@ -238,6 +230,34 @@ export default (assetId?: string) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`, { state: location.state });
   }, [location.state, navigate, projectId, workspaceId]);
 
+  const { getHeader } = useAuthHeader();
+  const handleSingleAssetDownload = async (asset: Asset) => {
+    try {
+      const headers = await getHeader();
+      const response = await fetch(asset.url, {
+        method: "GET",
+        ...(asset.public ? {} : { headers }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to download ${asset.fileName}: HTTP ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      fileDownload(blob, asset.fileName);
+      Notification.success({
+        message: t("Download successful"),
+        description: asset.fileName,
+      });
+    } catch (err) {
+      console.error("Download error:", err);
+      Notification.error({
+        message: t("Download failed"),
+        description: asset.fileName,
+      });
+    }
+  };
+
   return {
     asset,
     assetFileExt,
@@ -246,6 +266,7 @@ export default (assetId?: string) => {
     isModalVisible,
     collapsed,
     viewerType,
+    viewerRef,
     displayUnzipFileList,
     decompressing,
     isSaveDisabled,
@@ -253,12 +274,12 @@ export default (assetId?: string) => {
     hasUpdateRight,
     handleAssetItemSelect,
     handleAssetDecompress,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,
     handleFullScreen,
     handleSave,
     handleBack,
-    handleGetViewer,
   };
 };

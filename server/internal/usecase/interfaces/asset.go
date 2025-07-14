@@ -45,9 +45,10 @@ var (
 )
 
 type AssetFilter struct {
-	Sort       *usecasex.Sort
-	Keyword    *string
-	Pagination *usecasex.Pagination
+	Sort         *usecasex.Sort
+	Keyword      *string
+	Pagination   *usecasex.Pagination
+	ContentTypes []string
 }
 
 type AssetUpload struct {
@@ -58,16 +59,14 @@ type AssetUpload struct {
 	ContentEncoding string
 	Next            string
 }
-
 type Asset interface {
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	FindByUUID(context.Context, string, *usecase.Operator) (*asset.Asset, error)
 	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
-	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
+	Search(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
 	FindFileByID(context.Context, id.AssetID, *usecase.Operator) (*asset.File, error)
 	FindFilesByIDs(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]*asset.File, error)
 	DownloadByID(context.Context, id.AssetID, map[string]string, *usecase.Operator) (io.ReadCloser, map[string]string, error)
-	GetURL(*asset.Asset) string
 	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, *asset.File, error)
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)

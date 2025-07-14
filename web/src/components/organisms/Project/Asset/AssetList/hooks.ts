@@ -1,3 +1,4 @@
+import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -7,6 +8,7 @@ import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Uploa
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
+import { useAuthHeader } from "@reearth-cms/gql";
 import {
   useGetAssetsLazyQuery,
   useCreateAssetMutation,
@@ -17,7 +19,7 @@ import {
   useGetAssetsItemsLazyQuery,
   useCreateAssetUploadMutation,
   useGetAssetLazyQuery,
-  useImportSchemaFieldsQuery,
+  useGuessSchemaFieldsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
@@ -114,6 +116,7 @@ export default (isItemsRequired: boolean) => {
           }
         : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
       keyword: searchTerm,
+      contentTypes: [], // TODO: implement this
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
@@ -341,40 +344,85 @@ export default (isItemsRequired: boolean) => {
     setColumns(cols);
   }, []);
 
+  const { getHeader } = useAuthHeader();
+  const handleMultipleAssetDownload = async (selected: Asset[]) => {
+    if (!selected?.length) return;
+
+    const headers = await getHeader();
+    const failedAssets: string[] = [];
+    await Promise.allSettled(
+      selected.map(async (s: Asset) => {
+        try {
+          const response = await fetch(s.url, {
+            method: "GET",
+            ...(s.public ? {} : { headers }),
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to download ${s.fileName}: HTTP ${response.status}`);
+          }
+          const blob = await response.blob();
+          fileDownload(blob, s.fileName);
+        } catch (err) {
+          console.error("Download error:", err);
+          failedAssets.push(s.fileName);
+        }
+      }),
+    );
+
+    if (failedAssets.length === selected.length) {
+      Notification.error({
+        message: t("All downloads failed"),
+        description: failedAssets.join(", "),
+      });
+    } else if (failedAssets.length > 0) {
+      Notification.warning({
+        message: t("Some downloads failed"),
+        description: t(
+          `Success: ${selected.length - failedAssets.length}, Failed: ${failedAssets.join(", ")}`,
+        ),
+      });
+    } else {
+      Notification.success({
+        message: t("All downloads completed successfully"),
+      });
+    }
+  };
+
   // import schema fields from asset
-  const { data: importSchemaFieldsData, error: importSchemaFieldsError } = useImportSchemaFieldsQuery({
+  const { data: guessSchemaFieldsData, error: guessSchemaFieldsError } = useGuessSchemaFieldsQuery({
     fetchPolicy: "cache-and-network",
     variables: {
+      modelId: modelId ?? "",
       assetId: selectedAssetId ?? "",
     },
     skip: !selectedAssetId,
   });
-  
+
   const initialFields = useMemo(
     () =>
-      importSchemaFieldsData?.assetSchemaFields.fields.map(
+      guessSchemaFieldsData?.guessSchemaFields.fields.map(
         field =>
           ({
-            title: field.field_name,
+            title: field.name,
             metadata: false,
             description: "",
-            key: field.field_name,
+            key: field.name,
             multiple: false,
             unique: false,
             isTitle: false,
             required: false,
-            type: field.field_type,
+            type: field.type,
             modelId: modelId,
             groupId: "",
           }) as CreateFieldInput,
       ) ?? [],
-    [importSchemaFieldsData?.assetSchemaFields.fields, modelId],
+    [guessSchemaFieldsData?.guessSchemaFields.fields, modelId],
   );
 
   const [importFields, setImportFields] = useState<CreateFieldInput[]>(initialFields);
   const hasImportSchemaFieldsError = useMemo(() => {
-    return importSchemaFieldsError !== undefined;
-  }, [importSchemaFieldsError]);
+    return guessSchemaFieldsError !== undefined;
+  }, [guessSchemaFieldsError]);
 
   return {
     workspaceId,
@@ -415,6 +463,7 @@ export default (isItemsRequired: boolean) => {
     handleAssetCreateFromUrl,
     handleAssetTableChange,
     handleAssetDelete,
+    handleMultipleAssetDownload,
     handleSearchTerm,
     handleAssetsGet,
     handleAssetsReload,

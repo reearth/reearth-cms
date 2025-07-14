@@ -101,13 +101,13 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase
 	return res, nil
 }
 
-func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	m, err := i.repos.Model.FindByID(ctx, modelID)
+func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, p)
 	if err != nil {
 		return nil, nil, err
 	}
-	// TODO: check operation for projects that publication type is limited
-	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), nil, p)
+
+	return items.Unwrap(), pi, nil
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -903,7 +903,7 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package,
 			return interfaces.ExportItemsToGeoJSONResponse{}, err
 		}
 
-		featureCollections, err := featureCollectionFromItems(items, schemaPackage.Schema())
+		featureCollections, err := featureCollectionFromItems(items, schemaPackage)
 		if err != nil {
 			return interfaces.ExportItemsToGeoJSONResponse{}, err
 		}

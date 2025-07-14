@@ -47,7 +47,7 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("date1").press("Enter");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
+  await expect(page.getByText( "Item Information")).toBeVisible();
   await expect(page.getByLabel("date1")).toHaveValue("2024-01-01");
 
   await page.getByRole("button", { name: "Back" }).click();

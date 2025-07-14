@@ -2,6 +2,7 @@ package internalapimodel
 
 import (
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -17,35 +18,42 @@ func ToProject(p *project.Project) *pb.Project {
 		Name:        p.Name(),
 		Alias:       p.Alias(),
 		Description: lo.ToPtr(p.Description()),
+		License:     lo.ToPtr(p.License()),
+		Readme:      lo.ToPtr(p.Readme()),
 		WorkspaceId: p.Workspace().String(),
-		Publication: ToProjectPublication(p.Publication()),
+		Visibility:  ToProjectVisibility(p.Accessibility().Visibility()),
 		CreatedAt:   timestamppb.New(p.ID().Timestamp()),
 		UpdatedAt:   timestamppb.New(p.UpdatedAt()),
 	}
 }
 
-func ToProjectPublication(p *project.Publication) *pb.ProjectPublication {
-	if p == nil {
+func ToProjectVisibility(p project.Visibility) pb.Visibility {
+	switch p {
+	case project.VisibilityPublic:
+		return pb.Visibility_PUBLIC
+	case project.VisibilityPrivate:
+		return pb.Visibility_PRIVATE
+	}
+	return pb.Visibility_PUBLIC
+}
+
+func ProjectAccessibilityFromPB(v *pb.Visibility) *interfaces.AccessibilityParam {
+	if v == nil {
 		return nil
 	}
-
-	token := p.Token()
-	if p.Scope() != project.PublicationScopeLimited {
-		token = ""
-	}
-	return &pb.ProjectPublication{
-		Scope:       ToProjectPublicationScope(p.Scope()),
-		AssetPublic: p.AssetPublic(),
-		Token:       &token,
+	return &interfaces.AccessibilityParam{
+		Visibility:  lo.ToPtr(ProjectPublicationVisibilityFromPB(*v)),
+		Publication: nil,
 	}
 }
 
-func ToProjectPublicationScope(p project.PublicationScope) pb.ProjectPublicationScope {
-	switch p {
-	case project.PublicationScopePublic:
-		return pb.ProjectPublicationScope_PUBLIC
-	case project.PublicationScopeLimited:
-		return pb.ProjectPublicationScope_LIMITED
+func ProjectPublicationVisibilityFromPB(v pb.Visibility) project.Visibility {
+	switch v {
+	case pb.Visibility_PUBLIC:
+		return project.VisibilityPublic
+	case pb.Visibility_PRIVATE:
+		return project.VisibilityPrivate
+	default:
+		return project.VisibilityPublic
 	}
-	return pb.ProjectPublicationScope_PRIVATE
 }

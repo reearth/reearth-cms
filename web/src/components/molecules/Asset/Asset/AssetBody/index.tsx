@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
+import { RefObject } from "react";
+import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
@@ -14,9 +16,10 @@ type Props = {
   commentsPanel: JSX.Element;
   asset: Asset;
   assetFileExt?: string;
-  selectedPreviewType: PreviewType;
+  selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
-  viewerType: ViewerType;
+  viewerType?: ViewerType;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   isSaveDisabled: boolean;
@@ -24,12 +27,12 @@ type Props = {
   hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onTypeChange: (value: PreviewType) => void;
   onModalCancel: () => void;
   onChangeToFullScreen: () => void;
   onBack: () => void;
   onSave: () => void;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -39,6 +42,7 @@ const AssetWrapper: React.FC<Props> = ({
   selectedPreviewType,
   isModalVisible,
   viewerType,
+  viewerRef,
   displayUnzipFileList,
   decompressing,
   commentsPanel,
@@ -47,12 +51,12 @@ const AssetWrapper: React.FC<Props> = ({
   hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
+  onAssetDownload,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
   onBack,
   onSave,
-  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -76,15 +80,16 @@ const AssetWrapper: React.FC<Props> = ({
             selectedPreviewType={selectedPreviewType}
             isModalVisible={isModalVisible}
             viewerType={viewerType}
+            viewerRef={viewerRef}
             displayUnzipFileList={displayUnzipFileList}
             decompressing={decompressing}
             hasUpdateRight={hasUpdateRight}
             onAssetDecompress={onAssetDecompress}
             onAssetItemSelect={onAssetItemSelect}
+            onAssetDownload={onAssetDownload}
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}
             onChangeToFullScreen={onChangeToFullScreen}
-            onGetViewer={onGetViewer}
             workspaceSettings={workspaceSettings}
           />
         </Wrapper>

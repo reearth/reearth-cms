@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState } from "react";
+import { useMemo, useState, RefObject } from "react";
+import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -35,18 +36,19 @@ import useHooks from "./hooks";
 type Props = {
   asset: Asset;
   assetFileExt?: string;
-  selectedPreviewType: PreviewType;
+  selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
-  viewerType: ViewerType;
+  viewerType?: ViewerType;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
+  onAssetDownload: (asset: Asset) => Promise<void>;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-  onGetViewer: (viewer?: CesiumViewer) => void;
   workspaceSettings: WorkspaceSettings;
 };
 
@@ -56,15 +58,16 @@ const AssetMolecule: React.FC<Props> = ({
   selectedPreviewType,
   isModalVisible,
   viewerType,
+  viewerRef,
   displayUnzipFileList,
   decompressing,
   hasUpdateRight,
   onAssetItemSelect,
   onAssetDecompress,
+  onAssetDownload,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
-  onGetViewer,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -72,51 +75,56 @@ const AssetMolecule: React.FC<Props> = ({
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
 
-  const renderPreview = useCallback(() => {
+  const viewerComponent = useMemo(() => {
     switch (viewerType) {
       case "geo":
         return (
           <GeoViewer
-            url={assetUrl}
             assetFileExt={assetFileExt}
-            onGetViewer={onGetViewer}
+            isAssetPublic={asset.public}
+            url={assetUrl}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
       case "geo_3d_tiles":
         return (
           <Geo3dViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            onGetViewer={onGetViewer}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
       case "geo_mvt":
         return (
           <MvtViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
-            onGetViewer={onGetViewer}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
       case "image":
-        return <ImageViewer url={assetUrl} />;
+        return <ImageViewer isAssetPublic={asset.public} url={assetUrl} />;
       case "image_svg":
-        return <SvgViewer url={assetUrl} svgRender={svgRender} />;
+        return <SvgViewer isAssetPublic={asset.public} svgRender={svgRender} url={assetUrl} />;
       case "model_3d":
         return (
           <GltfViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
-            onGetViewer={onGetViewer}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
       case "csv":
         return (
           <CsvViewer
+            isAssetPublic={asset.public}
             url={assetUrl}
-            onGetViewer={onGetViewer}
+            viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -124,7 +132,7 @@ const AssetMolecule: React.FC<Props> = ({
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, onGetViewer, svgRender, viewerType, workspaceSettings]);
+  }, [asset.public, assetFileExt, assetUrl, viewerRef, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
@@ -138,7 +146,11 @@ const AssetMolecule: React.FC<Props> = ({
                   copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
                   size={16}
                 />
-                <DownloadButton selected={[asset]} onlyIcon />
+                <DownloadButton
+                  disabled={!asset}
+                  onlyIcon
+                  onDownload={() => onAssetDownload(asset)}
+                />
               </Buttons>
             </>
           }
@@ -147,13 +159,13 @@ const AssetMolecule: React.FC<Props> = ({
               url={assetUrl}
               isModalVisible={isModalVisible}
               viewerType={viewerType}
-              handleCodeSourceClick={handleCodeSourceClick}
-              handleRenderClick={handleRenderClick}
-              handleFullScreen={onChangeToFullScreen}
-              handleModalCancel={onModalCancel}
+              onCodeSourceClick={handleCodeSourceClick}
+              onRenderClick={handleRenderClick}
+              onFullScreen={onChangeToFullScreen}
+              onModalCancel={onModalCancel}
             />
           }>
-          {renderPreview()}
+          {viewerComponent}
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
@@ -163,9 +175,7 @@ const AssetMolecule: React.FC<Props> = ({
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
                 {asset.archiveExtractionStatus === "SKIPPED" && (
                   <UnzipButton
-                    onClick={() => {
-                      onAssetDecompress(asset.id);
-                    }}
+                    onClick={() => onAssetDecompress(asset.id)}
                     loading={decompressing}
                     icon={<Icon icon="unzip" />}>
                     {t("Unzip")}
@@ -181,7 +191,11 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton selected={[asset]} displayDefaultIcon />
+        <DownloadButton
+          disabled={!asset}
+          displayDefaultIcon
+          onDownload={() => onAssetDownload(asset)}
+        />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>

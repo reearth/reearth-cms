@@ -31,7 +31,7 @@ func (c *AssetLoader) FindByID(ctx context.Context, assetId gqlmodel.ID) (*gqlmo
 		return nil, err
 	}
 
-	return gqlmodel.ToAsset(a, c.usecase.GetURL), nil
+	return gqlmodel.ToAsset(a), nil
 }
 
 func (c *AssetLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
@@ -52,23 +52,29 @@ func (c *AssetLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlm
 		if !ok {
 			return nil
 		}
-		return gqlmodel.ToAsset(a, c.usecase.GetURL)
+		return gqlmodel.ToAsset(a)
 	}), nil
 }
 
-func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, p *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
-	pid, err := gqlmodel.ToID[id.Project](projectId)
+func (c *AssetLoader) Search(ctx context.Context, query gqlmodel.AssetQueryInput, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
+	pID, err := gqlmodel.ToID[id.Project](query.Project)
 	if err != nil {
 		return nil, err
 	}
 
-	f := interfaces.AssetFilter{
-		Keyword:    keyword,
-		Sort:       sort.Into(),
-		Pagination: p.Into(),
+	ct := lo.FilterMap(query.ContentTypes, func(ct gqlmodel.ContentTypesEnum, _ int) (string, bool) {
+		ctStr := gqlmodel.FromContentType(ct)
+		return ctStr, ctStr != ""
+	})
+
+	filter := interfaces.AssetFilter{
+		Keyword:      query.Keyword,
+		Sort:         sort.Into(),
+		Pagination:   pagination.Into(),
+		ContentTypes: ct,
 	}
 
-	assets, pi, err := c.usecase.FindByProject(ctx, pid, f, getOperator(ctx))
+	assets, pi, err := c.usecase.Search(ctx, pID, filter, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +82,7 @@ func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 	edges := make([]*gqlmodel.AssetEdge, 0, len(assets))
 	nodes := make([]*gqlmodel.Asset, 0, len(assets))
 	for _, a := range assets {
-		asset := gqlmodel.ToAsset(a, c.usecase.GetURL)
+		asset := gqlmodel.ToAsset(a)
 		edges = append(edges, &gqlmodel.AssetEdge{
 			Node:   asset,
 			Cursor: usecasex.Cursor(asset.ID),
@@ -84,10 +90,17 @@ func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 		nodes = append(nodes, asset)
 	}
 
+	totalCount := 0
+	if pi != nil {
+		totalCount = int(pi.TotalCount)
+	} else {
+		totalCount = len(assets)
+	}
+
 	return &gqlmodel.AssetConnection{
 		Edges:      edges,
 		Nodes:      nodes,
 		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: int(pi.TotalCount),
+		TotalCount: totalCount,
 	}, nil
 }

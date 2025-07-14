@@ -686,7 +686,7 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, tc.args.pInfo)
+			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, nil, nil, tc.args.pInfo)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -897,8 +897,9 @@ func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	now := time.Now().Truncate(time.Millisecond).UTC()
-	pub := project.NewPublication(project.PublicationScopeLimited, false)
-	p1 := project.New().ID(id1).Workspace(tid1).Publication(pub).UpdatedAt(now).MustBuild()
+	apiKey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Build()
+	pub := project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apiKey})
+	p1 := project.New().ID(id1).Workspace(tid1).Accessibility(pub).UpdatedAt(now).MustBuild()
 	tests := []struct {
 		name    string
 		seeds   project.List
@@ -909,7 +910,7 @@ func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
 		{
 			name:    "Not found in empty db",
 			seeds:   project.List{},
-			arg:     pub.Token(),
+			arg:     apiKey.Key(),
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
@@ -927,7 +928,7 @@ func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
 			seeds: project.List{
 				p1,
 			},
-			arg:     pub.Token(),
+			arg:     apiKey.Key(),
 			want:    p1,
 			wantErr: nil,
 		},
@@ -958,7 +959,7 @@ func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			got, err := r.FindByPublicAPIToken(ctx, tc.arg)
+			got, err := r.FindByPublicAPIKey(ctx, tc.arg)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

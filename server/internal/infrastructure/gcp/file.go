@@ -29,6 +29,10 @@ const (
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
+type contextKey string
+
+const workspaceContextKey contextKey = "workspace"
+
 type fileRepo struct {
 	bucketName   string
 	publicBase   *url.URL
@@ -194,12 +198,25 @@ func (f *fileRepo) UnpublishAsset(ctx context.Context, u string, fn string) erro
 	return f.publish(ctx, p, false)
 }
 
-func (f *fileRepo) GetURL(a *asset.Asset) string {
-	base := f.publicBase
-	if !f.public && !a.Public() {
-		base = f.privateBase
+func (f *fileRepo) GetAccessInfoResolver() asset.AccessInfoResolver {
+	return func(a *asset.Asset) *asset.AccessInfo {
+		base := f.privateBase
+		publiclyAccessible := f.public || a.Public()
+		if publiclyAccessible {
+			base = f.publicBase
+		}
+		return &asset.AccessInfo{
+			Url:    getURL(base, a.UUID(), url.PathEscape(a.FileName())),
+			Public: publiclyAccessible,
+		}
 	}
-	return getURL(base, a.UUID(), a.FileName())
+}
+
+func (f *fileRepo) GetAccessInfo(a *asset.Asset) *asset.AccessInfo {
+	if a == nil {
+		return nil
+	}
+	return f.GetAccessInfoResolver()(a)
 }
 
 func (f *fileRepo) GetBaseURL() string {
@@ -225,8 +242,18 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 	}
+	
+	var headers []string
 	if param.ContentEncoding != "" {
-		opt.Headers = []string{"Content-Encoding: " + param.ContentEncoding}
+		headers = append(headers, "Content-Encoding: "+param.ContentEncoding)
+	}
+	
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		headers = append(headers, "x-goog-meta-X-Reearth-Workspace-ID: "+workspace)
+	}
+	
+	if len(headers) > 0 {
+		opt.Headers = headers
 	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {
@@ -359,6 +386,13 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 
 	writer := object.NewWriter(ctx)
 	writer.CacheControl = f.cacheControl
+
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		if writer.Metadata == nil {
+			writer.Metadata = make(map[string]string)
+		}
+		writer.Metadata["X-Reearth-Workspace-ID"] = workspace
+	}
 
 	if file.ContentType == "" {
 		writer.ContentType = getContentType(file.Name)
@@ -610,4 +644,13 @@ func hasAcceptEncoding(accept, encoding string) bool {
 		}
 	}
 	return false
+}
+
+func getWorkspaceFromContext(ctx context.Context) string {
+	if v := ctx.Value(workspaceContextKey); v != nil {
+		if ws, ok := v.(string); ok {
+			return ws
+		}
+	}
+	return ""
 }

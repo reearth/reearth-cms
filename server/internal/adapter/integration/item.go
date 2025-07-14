@@ -485,12 +485,9 @@ func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, f
 }
 
 func assetContext(ctx context.Context, m asset.Map, asset *integrationapi.AssetEmbedding) *integrationapi.AssetContext {
-	uc := adapter.Usecases(ctx)
-
 	return &integrationapi.AssetContext{
-		Map:     m,
-		BaseURL: uc.Asset.GetURL,
-		All:     asset != nil && *asset == integrationapi.AssetEmbedding("all"),
+		Map: m,
+		All: asset != nil && *asset == integrationapi.AssetEmbedding("all"),
 	}
 }
 

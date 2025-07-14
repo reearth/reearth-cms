@@ -144,6 +144,13 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
+func (r *Item) CountByModel(ctx context.Context, modelID id.ModelID) (int, error) {
+	count, err := r.client.Count(ctx, r.readFilter(bson.M{
+		"modelid": modelID.String(),
+	}), version.Eq(version.Latest.OrVersion()))
+	return int(count), err
+}
+
 func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
 	if al.Len() == 0 {
 		return nil, nil

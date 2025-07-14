@@ -32,6 +32,10 @@ const (
 	expires                = time.Minute * 15
 )
 
+type contextKey string
+
+const workspaceContextKey contextKey = "workspace"
+
 type fileRepo struct {
 	bucketName   string
 	publicBase   *url.URL
@@ -166,12 +170,25 @@ func (f *fileRepo) UnpublishAsset(ctx context.Context, u string, fn string) erro
 	return f.publish(ctx, getS3ObjectPath(u, fn), false)
 }
 
-func (f *fileRepo) GetURL(a *asset.Asset) string {
-	base := f.publicBase
-	if !f.public && !a.Public() {
-		base = f.privateBase
+func (f *fileRepo) GetAccessInfoResolver() asset.AccessInfoResolver {
+	return func(a *asset.Asset) *asset.AccessInfo {
+		base := f.privateBase
+		publiclyAccessible := f.public || a.Public()
+		if publiclyAccessible {
+			base = f.publicBase
+		}
+		return &asset.AccessInfo{
+			Url:    getURL(base, a.UUID(), a.FileName()),
+			Public: publiclyAccessible,
+		}
 	}
-	return getURL(base, a.UUID(), a.FileName())
+}
+
+func (f *fileRepo) GetAccessInfo(a *asset.Asset) *asset.AccessInfo {
+	if a == nil {
+		return nil
+	}
+	return f.GetAccessInfoResolver()(a)
 }
 
 func (f *fileRepo) GetBaseURL() string {
@@ -413,14 +430,22 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, filename string)
 	}
 	body := bytes.NewReader(ba)
 
-	_, err = f.s3Client.PutObject(ctx, &s3.PutObjectInput{
+	input := &s3.PutObjectInput{
 		Bucket:          aws.String(f.bucketName),
 		CacheControl:    aws.String(f.cacheControl),
 		ContentEncoding: lo.EmptyableToPtr(file.ContentEncoding),
 		ContentType:     aws.String(file.ContentType),
 		Key:             aws.String(filename),
 		Body:            body,
-	})
+	}
+
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		input.Metadata = map[string]string{
+			"X-Reearth-Workspace-ID": workspace,
+		}
+	}
+
+	_, err = f.s3Client.PutObject(ctx, input)
 	if err != nil {
 		return 0, gateway.ErrFailedToUploadFile
 	}
@@ -596,4 +621,13 @@ func parseUploadCursor(c string) (*uploadCursor, error) {
 		UploadID: uploadID,
 		Part:     part,
 	}, nil
+}
+
+func getWorkspaceFromContext(ctx context.Context) string {
+	if v := ctx.Value(workspaceContextKey); v != nil {
+		if ws, ok := v.(string); ok {
+			return ws
+		}
+	}
+	return ""
 }

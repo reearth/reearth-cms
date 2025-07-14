@@ -80,17 +80,12 @@ func TestNewEventWith(t *testing.T) {
 
 	ev := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).Project(&prj).MustBuild()
 	ev1 := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.Type("test")).Operator(operator.OperatorFromUser(u.ID())).Object("test").Project(&prj).MustBuild()
-	d1, _ := New(ev, "test", func(a *asset.Asset) string {
-		return "test.com"
-	})
-	d2, _ := New(ev.Object(), "test", func(a *asset.Asset) string {
-		return "test.com"
-	})
+	d1, _ := New(ev, "test")
+	d2, _ := New(ev.Object(), "test")
 	type args struct {
-		event       *event.Event[any]
-		override    any
-		v           string
-		urlResolver asset.URLResolver
+		event    *event.Event[any]
+		override any
+		v        string
 	}
 	tests := []struct {
 		name    string
@@ -104,9 +99,6 @@ func TestNewEventWith(t *testing.T) {
 				event:    ev,
 				override: ev,
 				v:        "test",
-				urlResolver: func(a *asset.Asset) string {
-					return "test.com"
-				},
 			},
 			want: Event{
 				ID:        ev.ID().String(),
@@ -127,9 +119,6 @@ func TestNewEventWith(t *testing.T) {
 				event:    ev,
 				override: nil,
 				v:        "test",
-				urlResolver: func(a *asset.Asset) string {
-					return "test.com"
-				},
 			},
 			want: Event{
 				ID:        ev.ID().String(),
@@ -147,10 +136,9 @@ func TestNewEventWith(t *testing.T) {
 		{
 			name: "error new returns error",
 			args: args{
-				event:       ev,
-				override:    ev1,
-				v:           "",
-				urlResolver: nil,
+				event:    ev,
+				override: ev1,
+				v:        "",
 			},
 			want:    Event{},
 			wantErr: ErrUnsupportedEntity,
@@ -160,7 +148,7 @@ func TestNewEventWith(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			result, err := NewEventWith(test.args.event, test.args.override, test.args.v, test.args.urlResolver)
+			result, err := NewEventWith(test.args.event, test.args.override, test.args.v)
 			assert.Equal(t, result, test.want)
 			assert.Equal(t, err, test.wantErr)
 		})

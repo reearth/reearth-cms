@@ -182,3 +182,10 @@ func (o *Operator) RoleByProject(pid id.ProjectID) workspace.Role {
 	}
 	return ""
 }
+
+func (o *Operator) IsUserOrIntegration() bool {
+	if o == nil {
+		return false
+	}
+	return (o.AcOperator != nil && o.AcOperator.User != nil) || o.Integration != nil
+}

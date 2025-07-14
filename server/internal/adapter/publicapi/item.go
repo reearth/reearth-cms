@@ -11,12 +11,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/util"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
 func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, error) {
-	pr, err := c.checkProject(ctx, prj)
+	_, m, aPublic, err := c.accessibilityCheck(ctx, prj, mkey)
 	if err != nil {
 		return Item{}, err
 	}
@@ -39,14 +39,6 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 	}
 
 	itv := it.Value()
-	m, err := c.usecases.Model.FindByID(ctx, itv.Model(), nil)
-	if err != nil {
-		return Item{}, err
-	}
-
-	if m.Key().String() != mkey || !m.Public() {
-		return Item{}, rerror.ErrNotFound
-	}
 
 	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 	if err != nil {
@@ -54,94 +46,49 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 	}
 
 	var assets asset.List
-	if pr.Publication().AssetPublic() {
+	if aPublic {
 		assets, err = c.usecases.Asset.FindByIDs(ctx, itv.AssetIDs(), nil)
 		if err != nil {
 			return Item{}, err
 		}
 	}
 
-	return NewItem(itv, sp, assets, c.assetUrlResolver, getReferencedItems(ctx, itv, pr.Publication().AssetPublic(), c.assetUrlResolver)), nil
+	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, aPublic)), nil
 }
 
-func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], *schema.Schema, error) {
-	pr, err := c.checkProject(ctx, prj)
+func (c *Controller) GetPublicItems(ctx context.Context, prj, model string, p ListParam) (item.List, *schema.Package, bool, asset.List, *usecasex.PageInfo, error) {
+	_, m, aPublic, err := c.accessibilityCheck(ctx, prj, model)
 	if err != nil {
-		return ListResult[Item]{}, nil, err
-	}
-
-	m, err := c.usecases.Model.FindByKey(ctx, pr.ID(), model, nil)
-	if err != nil {
-		return ListResult[Item]{}, nil, err
-	}
-	if !m.Public() {
-		return ListResult[Item]{}, nil, rerror.ErrNotFound
+		return nil, nil, false, nil, nil, err
 	}
 
 	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 	if err != nil {
-		return ListResult[Item]{}, nil, err
+		return nil, nil, false, nil, nil, err
 	}
 
 	items, pi, err := c.usecases.Item.FindPublicByModel(ctx, m.ID(), p.Pagination, nil)
 	if err != nil {
-		return ListResult[Item]{}, nil, err
+		return nil, nil, false, nil, nil, err
 	}
 
-	var assets asset.List
-	if pr.Publication().AssetPublic() {
-		assetIDs := lo.FlatMap(items.Unwrap(), func(i *item.Item, _ int) []id.AssetID {
+	var refAssets asset.List
+	if aPublic {
+		assetIDs := lo.FlatMap(items, func(i *item.Item, _ int) []id.AssetID {
 			return i.AssetIDs()
 		})
-		assets, err = c.usecases.Asset.FindByIDs(ctx, assetIDs, nil)
+		refAssets, err = c.usecases.Asset.FindByIDs(ctx, assetIDs, nil)
 		if err != nil {
-			return ListResult[Item]{}, nil, err
+			return nil, nil, false, nil, nil, err
 		}
 	}
 
-	itms, err := util.TryMap(items.Unwrap(), func(i *item.Item) (Item, error) {
+	// TODO: prefetch referenced items to avoid N+1 queries
 
-		if err != nil {
-			return Item{}, err
-		}
-		return NewItem(i, sp, assets, c.assetUrlResolver, getReferencedItems(ctx, i, pr.Publication().AssetPublic(), c.assetUrlResolver)), nil
-	})
-	if err != nil {
-		return ListResult[Item]{}, nil, err
-	}
-
-	res := NewListResult(itms, pi, p.Pagination)
-	return res, sp.Schema(), nil
+	return items, sp, aPublic, refAssets, pi, nil
 }
 
-func (c *Controller) GetVersionedItems(ctx context.Context, prj, model string, p ListParam) (item.VersionedList, *schema.Schema, error) {
-	pr, err := c.checkProject(ctx, prj)
-	if err != nil {
-		return item.VersionedList{}, nil, err
-	}
-
-	m, err := c.usecases.Model.FindByKey(ctx, pr.ID(), model, nil)
-	if err != nil {
-		return item.VersionedList{}, nil, err
-	}
-	if !m.Public() {
-		return item.VersionedList{}, nil, rerror.ErrNotFound
-	}
-
-	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
-	if err != nil {
-		return item.VersionedList{}, nil, err
-	}
-
-	items, _, err := c.usecases.Item.FindPublicByModel(ctx, m.ID(), p.Pagination, nil)
-	if err != nil {
-		return item.VersionedList{}, nil, err
-	}
-
-	return items, sp.Schema(), nil
-}
-
-func getReferencedItems(ctx context.Context, i *item.Item, prp bool, urlResolver asset.URLResolver) []Item {
+func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -174,7 +121,7 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool, urlResolver
 					continue
 				}
 			}
-			vi = append(vi, NewItem(ii.Value(), sp, assets, urlResolver, nil))
+			vi = append(vi, NewItem(ii.Value(), sp, assets, nil))
 		}
 	}
 

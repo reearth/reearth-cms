@@ -7,7 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -16,37 +16,49 @@ import (
 var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
 
 type Controller struct {
-	project          repo.Project
-	usecases         *interfaces.Container
-	assetUrlResolver asset.URLResolver
+	project  repo.Project
+	usecases *interfaces.Container
 }
 
-func NewController(project repo.Project, usecases *interfaces.Container, aur asset.URLResolver) *Controller {
+func NewController(project repo.Project, usecases *interfaces.Container) *Controller {
 	return &Controller{
-		project:          project,
-		usecases:         usecases,
-		assetUrlResolver: aur,
+		project:  project,
+		usecases: usecases,
 	}
 }
 
-func (c *Controller) checkProject(ctx context.Context, prj string) (*project.Project, error) {
-	pr, err := c.project.FindByIDOrAlias(ctx, project.IDOrAlias(prj))
+func (c *Controller) accessibilityCheck(ctx context.Context, pKey, mKey string) (p *project.Project, m *model.Model, a bool, err error) {
+	keyId := adapter.APIKeyId(ctx)
+	p, err = c.project.FindByIDOrAlias(ctx, project.IDOrAlias(pKey))
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, rerror.ErrNotFound
+			return nil, nil, false, rerror.ErrNotFound
 		}
-		return nil, ErrInvalidProject
+		return nil, nil, false, ErrInvalidProject
 	}
+	a11y := p.Accessibility()
 
-	if p := pr.Publication(); p == nil || p.Scope() == project.PublicationScopePrivate {
-		return nil, rerror.ErrNotFound
-	}
-
-	if pr.Publication().Scope() == project.PublicationScopeLimited {
-		if op := adapter.Operator(ctx); op == nil || !op.IsReadableProject(pr.ID()) {
-			return nil, ErrInvalidProject
+	if mKey != "" {
+		m, err = c.usecases.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(mKey), nil)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return nil, nil, false, rerror.ErrNotFound
+			}
+			return nil, nil, false, ErrInvalidProject
+		}
+		if a11y != nil &&
+			a11y.Visibility() == project.VisibilityPrivate &&
+			!a11y.Publication().PublicModels().Has(m.ID()) &&
+			(keyId == nil || !a11y.APIKeyById(*keyId).Publication().PublicModels().Has(m.ID())) {
+			return nil, nil, false, rerror.ErrNotFound
 		}
 	}
 
-	return pr, nil
+	if a11y == nil ||
+		a11y.Visibility() == project.VisibilityPublic ||
+		a11y.Publication().PublicAssets() ||
+		(keyId != nil && a11y.APIKeyById(*keyId).Publication().PublicAssets()) {
+		a = true
+	}
+	return p, m, a, nil
 }

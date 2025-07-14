@@ -54,6 +54,7 @@ type Props = {
   onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
+  onAssetDownload: (selected: Asset[]) => Promise<void>;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
 };
 
@@ -78,6 +79,7 @@ const AssetListTable: React.FC<Props> = ({
   onSelect,
   onAssetsReload,
   onAssetDelete,
+  onAssetDownload,
   onAssetTableChange,
 }) => {
   const t = useT();
@@ -279,13 +281,16 @@ const AssetListTable: React.FC<Props> = ({
   const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
+      const selected = props.selectedRows as Asset[];
+      const disabled = !selected || selected.length <= 0;
       return (
         <Space size={4}>
           <DownloadButton
             displayDefaultIcon
             size="small"
             type="link"
-            selected={props.selectedRows}
+            disabled={disabled}
+            onDownload={() => onAssetDownload(selected)}
           />
           <Button
             type="link"
@@ -300,7 +305,7 @@ const AssetListTable: React.FC<Props> = ({
         </Space>
       );
     },
-    [deleteLoading, hasDeleteRight, onAssetDelete, t],
+    [deleteLoading, hasDeleteRight, onAssetDelete, onAssetDownload, t],
   );
 
   const handleChange = useCallback(

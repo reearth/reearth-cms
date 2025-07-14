@@ -10,6 +10,7 @@ import (
 	"github.com/iancoleman/orderedmap"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -45,6 +46,12 @@ const (
 // Defines values for GeometryCollectionType.
 const (
 	GeometryCollectionTypeGeometryCollection GeometryCollectionType = "GeometryCollection"
+)
+
+// Defines values for AccessibilityVisibility.
+const (
+	PRIVATE AccessibilityVisibility = "PRIVATE"
+	PUBLIC  AccessibilityVisibility = "PUBLIC"
 )
 
 // Defines values for AssetArchiveExtractionStatus.
@@ -145,13 +152,6 @@ const (
 	FieldSelectorTypeModificationDate FieldSelectorType = "modificationDate"
 	FieldSelectorTypeModificationUser FieldSelectorType = "modificationUser"
 	FieldSelectorTypeStatus           FieldSelectorType = "status"
-)
-
-// Defines values for ProjectPublicationScope.
-const (
-	LIMITED ProjectPublicationScope = "LIMITED"
-	PRIVATE ProjectPublicationScope = "PRIVATE"
-	PUBLIC  ProjectPublicationScope = "PUBLIC"
 )
 
 // Defines values for ProjectRequestRole.
@@ -376,6 +376,25 @@ type Point = []float64
 // Polygon defines model for Polygon.
 type Polygon = [][]Point
 
+// Accessibility defines model for accessibility.
+type Accessibility struct {
+	ApiKeys     []ApiKey                `json:"apiKeys"`
+	Publication *PublicationSettings    `json:"publication,omitempty"`
+	Visibility  AccessibilityVisibility `json:"visibility"`
+}
+
+// AccessibilityVisibility defines model for Accessibility.Visibility.
+type AccessibilityVisibility string
+
+// ApiKey defines model for apiKey.
+type ApiKey struct {
+	Description *string             `json:"description,omitempty"`
+	Id          id.APIKeyID         `json:"id"`
+	Key         string              `json:"key"`
+	Name        string              `json:"name"`
+	Publication PublicationSettings `json:"publication"`
+}
+
 // Asset defines model for asset.
 type Asset struct {
 	ArchiveExtractionStatus *AssetArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
@@ -501,6 +520,18 @@ type File struct {
 	Size        *float32 `json:"size,omitempty"`
 }
 
+// Group defines model for group.
+type Group struct {
+	Description string        `json:"description"`
+	Fields      []SchemaField `json:"fields"`
+	Id          id.GroupID    `json:"id"`
+	Key         string        `json:"key"`
+	Name        string        `json:"name"`
+	ProjectId   id.ProjectID  `json:"projectId"`
+	Schema      Schema        `json:"schema"`
+	SchemaId    id.SchemaID   `json:"schemaId"`
+}
+
 // Item defines model for item.
 type Item struct {
 	CreatedAt      *time.Time `json:"createdAt,omitempty"`
@@ -524,7 +555,6 @@ type Model struct {
 	MetadataSchemaId *id.SchemaID  `json:"metadataSchemaId,omitempty"`
 	Name             *string       `json:"name,omitempty"`
 	ProjectId        *id.ProjectID `json:"projectId,omitempty"`
-	Public           *bool         `json:"public,omitempty"`
 	Schema           *Schema       `json:"schema,omitempty"`
 	SchemaId         *id.SchemaID  `json:"schemaId,omitempty"`
 	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`
@@ -532,29 +562,27 @@ type Model struct {
 
 // Project defines model for project.
 type Project struct {
-	Alias        string                    `json:"alias"`
-	CreatedAt    time.Time                 `json:"createdAt"`
-	Description  string                    `json:"description"`
-	Id           id.ProjectID              `json:"id"`
-	Name         string                    `json:"name"`
-	Publication  *ProjectPublication       `json:"publication,omitempty"`
-	RequestRoles *[]ProjectRequestRole     `json:"requestRoles,omitempty"`
-	UpdatedAt    time.Time                 `json:"updatedAt"`
-	WorkspaceId  accountdomain.WorkspaceID `json:"workspaceId"`
+	Accessibility Accessibility             `json:"accessibility"`
+	Alias         string                    `json:"alias"`
+	CreatedAt     time.Time                 `json:"createdAt"`
+	Description   string                    `json:"description"`
+	Id            id.ProjectID              `json:"id"`
+	License       string                    `json:"license"`
+	Name          string                    `json:"name"`
+	Readme        string                    `json:"readme"`
+	RequestRoles  *[]ProjectRequestRole     `json:"requestRoles,omitempty"`
+	UpdatedAt     time.Time                 `json:"updatedAt"`
+	WorkspaceId   accountdomain.WorkspaceID `json:"workspaceId"`
 }
-
-// ProjectPublication defines model for projectPublication.
-type ProjectPublication struct {
-	AssetPublic *bool                    `json:"assetPublic,omitempty"`
-	Scope       *ProjectPublicationScope `json:"scope,omitempty"`
-	Token       *string                  `json:"token,omitempty"`
-}
-
-// ProjectPublicationScope defines model for ProjectPublication.Scope.
-type ProjectPublicationScope string
 
 // ProjectRequestRole defines model for projectRequestRole.
 type ProjectRequestRole string
+
+// PublicationSettings defines model for publicationSettings.
+type PublicationSettings struct {
+	PublicAssets bool         `json:"publicAssets"`
+	PublicModels []id.ModelID `json:"publicModels"`
+}
 
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
@@ -652,6 +680,12 @@ type FieldIdOrKeyParam = schema.FieldIDOrKey
 // FieldIdParam defines model for fieldIdParam.
 type FieldIdParam = id.FieldID
 
+// GroupIdOrKeyParam defines model for groupIdOrKeyParam.
+type GroupIdOrKeyParam = group.IDOrKey
+
+// GroupIdParam defines model for groupIdParam.
+type GroupIdParam = id.GroupID
+
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
 
@@ -704,6 +738,13 @@ type AssetCommentCreateJSONBody struct {
 // AssetCommentUpdateJSONBody defines parameters for AssetCommentUpdate.
 type AssetCommentUpdateJSONBody struct {
 	Content *string `json:"content,omitempty"`
+}
+
+// GroupUpdateJSONBody defines parameters for GroupUpdate.
+type GroupUpdateJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
 }
 
 // ItemGetParams defines parameters for ItemGet.
@@ -852,6 +893,50 @@ type ItemsAsGeoJSONParams struct {
 
 // ItemsAsGeoJSONParamsRef defines parameters for ItemsAsGeoJSON.
 type ItemsAsGeoJSONParamsRef string
+
+// GroupFilterParams defines parameters for GroupFilter.
+type GroupFilterParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+}
+
+// GroupCreateJSONBody defines parameters for GroupCreate.
+type GroupCreateJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         string  `json:"key"`
+	Name        string  `json:"name"`
+}
+
+// GroupCreateParams defines parameters for GroupCreate.
+type GroupCreateParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+}
+
+// GroupUpdateWithProjectJSONBody defines parameters for GroupUpdateWithProject.
+type GroupUpdateWithProjectJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
 
 // ModelFilterParams defines parameters for ModelFilter.
 type ModelFilterParams struct {
@@ -1063,7 +1148,9 @@ type ProjectFilterParams struct {
 type ProjectCreateJSONBody struct {
 	Alias        *string               `json:"alias,omitempty"`
 	Description  *string               `json:"description,omitempty"`
+	License      *string               `json:"license,omitempty"`
 	Name         *string               `json:"name,omitempty"`
+	Readme       *string               `json:"readme,omitempty"`
 	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
 }
 
@@ -1078,11 +1165,13 @@ type ProjectCreateParams struct {
 
 // ProjectUpdateJSONBody defines parameters for ProjectUpdate.
 type ProjectUpdateJSONBody struct {
-	Alias        *string               `json:"alias,omitempty"`
-	Description  *string               `json:"description,omitempty"`
-	Name         *string               `json:"name,omitempty"`
-	Publication  *ProjectPublication   `json:"publication,omitempty"`
-	RequestRoles *[]ProjectRequestRole `json:"requestRoles,omitempty"`
+	Accessibility *Accessibility        `json:"accessibility,omitempty"`
+	Alias         *string               `json:"alias,omitempty"`
+	Description   *string               `json:"description,omitempty"`
+	License       *string               `json:"license,omitempty"`
+	Name          *string               `json:"name,omitempty"`
+	Readme        *string               `json:"readme,omitempty"`
+	RequestRoles  *[]ProjectRequestRole `json:"requestRoles,omitempty"`
 }
 
 // AssetBatchDeleteJSONRequestBody defines body for AssetBatchDelete for application/json ContentType.
@@ -1093,6 +1182,9 @@ type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
 
 // AssetCommentUpdateJSONRequestBody defines body for AssetCommentUpdate for application/json ContentType.
 type AssetCommentUpdateJSONRequestBody AssetCommentUpdateJSONBody
+
+// GroupUpdateJSONRequestBody defines body for GroupUpdate for application/json ContentType.
+type GroupUpdateJSONRequestBody GroupUpdateJSONBody
 
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.
 type ItemUpdateJSONRequestBody ItemUpdateJSONBody
@@ -1120,6 +1212,12 @@ type ItemFilterJSONRequestBody ItemFilterJSONBody
 
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
+
+// GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
+type GroupCreateJSONRequestBody GroupCreateJSONBody
+
+// GroupUpdateWithProjectJSONRequestBody defines body for GroupUpdateWithProject for application/json ContentType.
+type GroupUpdateWithProjectJSONRequestBody GroupUpdateWithProjectJSONBody
 
 // ModelCreateJSONRequestBody defines body for ModelCreate for application/json ContentType.
 type ModelCreateJSONRequestBody ModelCreateJSONBody

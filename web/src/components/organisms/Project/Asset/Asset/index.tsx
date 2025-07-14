@@ -18,6 +18,7 @@ const Asset: React.FC = () => {
     isModalVisible,
     collapsed,
     viewerType,
+    viewerRef,
     displayUnzipFileList,
     decompressing,
     isSaveDisabled,
@@ -25,20 +26,26 @@ const Asset: React.FC = () => {
     hasUpdateRight,
     handleAssetDecompress,
     handleAssetItemSelect,
+    handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
     handleModalCancel,
     handleFullScreen,
     handleBack,
     handleSave,
-    handleGetViewer,
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
 
-  return isLoading ? (
-    <Loading spinnerSize="large" minHeight="100vh" />
-  ) : asset ? (
+  if (isLoading) {
+    return <Loading spinnerSize="large" minHeight="100vh" />;
+  }
+
+  if (!asset) {
+    return <NotFound />;
+  }
+
+  return (
     <AssetWrapper
       commentsPanel={
         <CommentsPanel
@@ -56,6 +63,7 @@ const Asset: React.FC = () => {
       selectedPreviewType={selectedPreviewType}
       isModalVisible={isModalVisible}
       viewerType={viewerType}
+      viewerRef={viewerRef}
       displayUnzipFileList={displayUnzipFileList}
       decompressing={decompressing}
       isSaveDisabled={isSaveDisabled}
@@ -63,16 +71,14 @@ const Asset: React.FC = () => {
       hasUpdateRight={hasUpdateRight}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
+      onAssetDownload={handleSingleAssetDownload}
       onTypeChange={handleTypeChange}
       onModalCancel={handleModalCancel}
       onChangeToFullScreen={handleFullScreen}
       onBack={handleBack}
       onSave={handleSave}
-      onGetViewer={handleGetViewer}
       workspaceSettings={workspaceSettings}
     />
-  ) : (
-    <NotFound />
   );
 };
 

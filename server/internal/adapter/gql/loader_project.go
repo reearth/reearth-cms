@@ -50,7 +50,7 @@ func (c *ProjectLoader) FindByWorkspace(ctx context.Context, workspaceId gqlmode
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindByWorkspace(ctx, wid, p.Into(), getOperator(ctx))
+	res, pi, err := c.usecase.FindByWorkspace(ctx, wid, nil, p.Into(), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
