@@ -1,62 +1,54 @@
 import styled from "@emotion/styled";
 
-import Content from "@reearth-cms/components/atoms/Content";
 import Search from "@reearth-cms/components/atoms/Search";
-import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
-import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
-import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
-import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
+import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  hasCreateRight: boolean;
-  onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;
   onProjectSearch: (value: string) => void;
-  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
-  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
-const WorkspaceHeader: React.FC<Props> = ({
-  hasCreateRight,
-  onWorkspaceCreate,
-  onProjectSearch,
-  onProjectCreate,
-  onProjectAliasCheck,
-}) => {
+const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch }) => {
   const t = useT();
-  const oss = false;
 
   return (
-    <ActionHeader>
+    <Container>
       <StyledSearch
         onSearch={onProjectSearch}
         placeholder={t("search projects")}
         allowClear
         type="text"
       />
-      <ButtonWrapper>
-        {oss && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
-        <CreateProjectButton
-          hasCreateRight={hasCreateRight}
-          onProjectCreate={onProjectCreate}
-          onProjectAliasCheck={onProjectAliasCheck}
-        />
-      </ButtonWrapper>
-    </ActionHeader>
+      <Wrapper>
+        <Label>{t("Sort by")}</Label>
+        <StyledSelect defaultValue="Last Modified">
+          <Select.Option key="updatedAt" value="Last Modified">
+            Last Modified
+          </Select.Option>
+        </StyledSelect>
+      </Wrapper>
+    </Container>
   );
 };
 
-const ActionHeader = styled(Content)`
+const Container = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: auto;
-  padding-bottom: 16px;
+  align-items: center;
 `;
 
-const ButtonWrapper = styled.div`
-  Button + Button {
-    margin-left: 8px;
-  }
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const Label = styled.span`
+  color: rgba(0, 0, 0, 0.45);
+`;
+
+const StyledSelect = styled(Select)`
+  width: 160px;
 `;
 
 const StyledSearch = styled(Search)`
