@@ -15,6 +15,7 @@ service ReEarthCMS {
   rpc CheckAliasAvailability(AliasAvailabilityRequest) returns (AliasAvailabilityResponse) {}
   rpc GetProject(ProjectRequest) returns (ProjectResponse) {}
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {}
+  rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse) {}
   rpc ListModels(ListModelsRequest) returns (ListModelsResponse) {}
   rpc ListItems(ListItemsRequest) returns (ListItemsResponse) {}
   rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {}
@@ -45,6 +46,19 @@ enum Visibility {
   PRIVATE = 1;
 }
 
+message Asset {
+  string id = 1;
+  string uuid = 2;
+  string project_id = 3;
+  string filename = 4;
+  uint64 size = 5;
+  optional string preview_type = 6;
+  string url = 7;
+  optional string archive_extraction_status = 8;
+  bool public = 9;
+  google.protobuf.Timestamp created_at = 10;
+}
+
 message Model {
   string id = 1;
   string project_id = 2;
@@ -65,25 +79,7 @@ message Item {
   google.protobuf.Timestamp updated_at = 6;
 }
 
-enum SchemaFieldType {
-  Text = 0;
-  TextArea = 1;
-  RichText = 2;
-  MarkdownText = 3;
-  Asset = 4;
-  Date = 5;
-  Bool = 6;
-  Select = 7;
-  Tag = 8;
-  Integer = 9;
-  Number = 10;
-  Reference = 11;
-  Checkbox = 12;
-  URL = 13;
-  Group = 14;
-  GeometryObject = 15;
-  GeometryEditor = 16;
-}
+
 
 message Schema {
   string schema_id = 1;
@@ -91,9 +87,29 @@ message Schema {
 }
 
 message SchemaField {
+  enum Type {
+    Text = 0;
+    TextArea = 1;
+    RichText = 2;
+    MarkdownText = 3;
+    Asset = 4;
+    Date = 5;
+    Bool = 6;
+    Select = 7;
+    Tag = 8;
+    Integer = 9;
+    Number = 10;
+    Reference = 11;
+    Checkbox = 12;
+    URL = 13;
+    Group = 14;
+    GeometryObject = 15;
+    GeometryEditor = 16;
+  }
+
   string field_id = 1;
   string name = 2;
-  SchemaFieldType type = 3;
+  Type type = 3;
   string key = 4;
   optional string description = 5;
 }
@@ -149,10 +165,18 @@ message ListProjectsRequest {
   optional SortInfo sort_info = 101;
 }
 
+message ListAssetsRequest {
+  string project_id = 1;
+
+  optional PageInfo page_info = 100;
+  optional SortInfo sort_info = 101;
+}
+
 message ListModelsRequest {
   string project_id = 1;
 
-  optional PageInfo page_info = 2;
+  optional PageInfo page_info = 100;
+  optional SortInfo sort_info = 101;
 }
 
 message ListItemsRequest {
@@ -160,6 +184,7 @@ message ListItemsRequest {
   string project_id = 2;
 
   optional PageInfo page_info = 3;
+  optional SortInfo sort_info = 4;
 }
 
 message ExportRequest {
@@ -182,6 +207,13 @@ message DeleteProjectResponse {
 
 message ListProjectsResponse {
   repeated Project projects = 1;
+  int64 total_count = 2;
+
+  PageInfo page_info = 100;
+}
+
+message ListAssetsResponse {
+  repeated Asset assets = 1;
   int64 total_count = 2;
 
   PageInfo page_info = 100;
