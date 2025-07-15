@@ -169,11 +169,11 @@ func TestAsset_Create_WithPermissivePolicyChecker(t *testing.T) {
 	assert.NoError(t, err, "Permissive policy checker should allow file uploads")
 }
 
-func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
-	// Create test webhook server
-	webhookCalled := false
+func TestAsset_Create_WithHTTPPolicyChecker(t *testing.T) {
+	// Create test HTTP server
+	httpCalled := false
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		webhookCalled = true
+		httpCalled = true
 
 		var req gateway.PolicyCheckRequest
 		json.NewDecoder(r.Body).Decode(&req)
@@ -185,7 +185,7 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 			Allowed:      allowed,
 			CheckType:    req.CheckType,
 			CurrentLimit: "1MB",
-			Message:      "Test webhook policy",
+			Message:      "Test HTTP policy",
 			Value:        req.Value,
 		}
 
@@ -214,10 +214,10 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 	err = db.Workspace.Save(ctx, ws)
 	assert.NoError(t, err)
 
-	// Use webhook policy checker
+	// Use HTTP policy checker
 	g := gateway.Container{
 		File:          lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
-		PolicyChecker: policy.NewWebhookPolicyChecker(server.URL, "", 5),
+		PolicyChecker: policy.NewHTTPPolicyChecker(server.URL, "", 5),
 	}
 
 	assetUC := NewAsset(db, &g)
@@ -234,10 +234,10 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 	}, op)
 
 	assert.NoError(t, err)
-	assert.True(t, webhookCalled, "Webhook should have been called")
+	assert.True(t, httpCalled, "HTTP endpoint should have been called")
 
 	// Test with large file - should be denied
-	webhookCalled = false
+	httpCalled = false
 	largeContent := bytes.NewBuffer(make([]byte, 2*1024*1024)) // 2MB
 	_, _, err = assetUC.Create(ctx, interfaces.CreateAssetParam{
 		ProjectID: pid,
@@ -249,5 +249,5 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 	}, op)
 
 	assert.ErrorIs(t, err, interfaces.ErrAssetUploadSizeLimitExceeded)
-	assert.True(t, webhookCalled, "Webhook should have been called")
+	assert.True(t, httpCalled, "HTTP endpoint should have been called")
 }

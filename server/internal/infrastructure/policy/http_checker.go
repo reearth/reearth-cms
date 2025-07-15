@@ -12,14 +12,14 @@ import (
 	"github.com/reearth/reearthx/rerror"
 )
 
-type WebhookPolicyChecker struct {
+type HTTPPolicyChecker struct {
 	endpoint string
 	token    string
 	client   *http.Client
 }
 
-func NewWebhookPolicyChecker(endpoint, token string, timeoutSeconds int) *WebhookPolicyChecker {
-	return &WebhookPolicyChecker{
+func NewHTTPPolicyChecker(endpoint, token string, timeoutSeconds int) *HTTPPolicyChecker {
+	return &HTTPPolicyChecker{
 		endpoint: endpoint,
 		token:    token,
 		client: &http.Client{
@@ -28,23 +28,23 @@ func NewWebhookPolicyChecker(endpoint, token string, timeoutSeconds int) *Webhoo
 	}
 }
 
-func (w *WebhookPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
+func (h *HTTPPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(fmt.Errorf("failed to marshal policy request: %w", err))
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, w.endpoint, bytes.NewBuffer(body))
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, h.endpoint, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, rerror.ErrInternalBy(fmt.Errorf("failed to create policy check request: %w", err))
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	if w.token != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+w.token)
+	if h.token != "" {
+		httpReq.Header.Set("Authorization", "Bearer "+h.token)
 	}
 
-	resp, err := w.client.Do(httpReq)
+	resp, err := h.client.Do(httpReq)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(fmt.Errorf("policy check request failed: %w", err))
 	}

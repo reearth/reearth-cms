@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWebhookPolicyChecker_CheckPolicy(t *testing.T) {
+func TestHTTPPolicyChecker_CheckPolicy(t *testing.T) {
 	tests := []struct {
 		name           string
 		serverResponse *gateway.PolicyCheckResponse
@@ -98,7 +98,7 @@ func TestWebhookPolicyChecker_CheckPolicy(t *testing.T) {
 			defer server.Close()
 
 			// Create checker
-			checker := NewWebhookPolicyChecker(server.URL, tt.clientToken, 5)
+			checker := NewHTTPPolicyChecker(server.URL, tt.clientToken, 5)
 
 			// Make request
 			req := gateway.PolicyCheckRequest{
@@ -119,7 +119,7 @@ func TestWebhookPolicyChecker_CheckPolicy(t *testing.T) {
 	}
 }
 
-func TestWebhookPolicyChecker_Timeout(t *testing.T) {
+func TestHTTPPolicyChecker_Timeout(t *testing.T) {
 	// Create slow server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Sleep longer than timeout
@@ -128,7 +128,7 @@ func TestWebhookPolicyChecker_Timeout(t *testing.T) {
 	defer server.Close()
 
 	// Create checker with 1 second timeout
-	checker := NewWebhookPolicyChecker(server.URL, "", 1)
+	checker := NewHTTPPolicyChecker(server.URL, "", 1)
 
 	req := gateway.PolicyCheckRequest{
 		WorkspaceID: "workspace01",

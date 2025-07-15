@@ -22,19 +22,10 @@ duplicated key: キーが重複しています。
 duplicated value: 値が重複しています。
 either model or group should be provided: モデルまたはグループのどちらかを指定してください。
 empty ids list: IDリストが空です。
-error creating API request: ""
-error decoding response: ""
-error making API request: ""
-error marshalling request body for Dashboard API: ""
 failed to auth: 認証に失敗しました。
-failed to auth request: ""
-"failed to auth: empty access token received": ""
 failed to create asset: アセットの作成に失敗しました。
-failed to create auth request: ""
-failed to decode auth response: ""
 failed to delete file: ファイルの削除に失敗しました。
 failed to lock: ロックに失敗しました。
-failed to marshal auth request body: ""
 failed to update user: ユーザー情報の更新に失敗しました。
 failed to upload file: ファイルのアップロードに失敗しました。
 field not found: フィールドが見つかりませんでした。
