@@ -135,7 +135,7 @@ const AlignLeftCol = styled(Col)`
 `;
 
 const FieldTypeSelect = styled(Select)`
-  width: 176px;
+  width: 200px;
 `;
 
 const FieldStyledList = styled(List)`
