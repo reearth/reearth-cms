@@ -2,15 +2,14 @@ package app
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/dashboard"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/policy"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
@@ -144,33 +143,27 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Infof("task runner: not used")
 	}
 
-	// Dashboard API
-	var dashboardAuth dashboard.Authenticator
-	if conf.Auth0.ClientID != "" && conf.Auth0.ClientSecret != "" {
-		// Create token URL from Auth0 domain
-		tokenURL := conf.Auth0.Domain
-		if !strings.HasPrefix(tokenURL, "https://") && !strings.HasPrefix(tokenURL, "http://") {
-			tokenURL = "https://" + tokenURL
-		}
-		if !strings.HasSuffix(tokenURL, "/") {
-			tokenURL = tokenURL + "/"
-		}
-		tokenURL = tokenURL + "oauth/token"
 
-		dashboardAuth = dashboard.NewTokenProvider(
-			conf.Auth0.ClientID,
-			conf.Auth0.ClientSecret,
-			conf.Auth0.Audience,
-			tokenURL,
+	// Policy Checker - configurable via environment
+	var policyChecker gateway.PolicyChecker
+	switch conf.PolicyChecker.Type {
+	case "webhook":
+		if conf.PolicyChecker.Endpoint == "" {
+			log.Fatalf("policy checker webhook endpoint is required")
+		}
+		policyChecker = policy.NewWebhookPolicyChecker(
+			conf.PolicyChecker.Endpoint,
+			conf.PolicyChecker.Token,
+			conf.PolicyChecker.Timeout,
 		)
-		log.Infof("dashboard: Auth0 token provider initialized")
-	} else {
-		log.Infof("dashboard: No authentication configured")
+		log.Infof("policy checker: using webhook checker with endpoint: %s", conf.PolicyChecker.Endpoint)
+	case "permissive":
+		fallthrough
+	default:
+		policyChecker = policy.NewPermissiveChecker()
+		log.Infof("policy checker: using permissive checker (OSS mode)")
 	}
-
-	dashboardClient := dashboard.NewClient(conf.DashboardAPI_BaseURL, dashboardAuth)
-	gateways.Dashboard = dashboardClient
-	log.Infof("dashboard: API client initialized with base URL: %s", conf.DashboardAPI_BaseURL)
+	gateways.PolicyChecker = policyChecker
 
 	return cmsRepos, gateways, acRepos, acGateways
 }

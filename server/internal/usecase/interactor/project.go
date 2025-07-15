@@ -47,6 +47,33 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator
 	}
+
+	visibility := project.VisibilityPrivate
+	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
+		visibility = *param.Accessibility.Visibility
+	}
+
+	var checkType gateway.PolicyCheckType
+	if visibility == project.VisibilityPublic {
+		checkType = gateway.PolicyCheckGeneralPublicProjectCreation
+	} else {
+		checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
+	}
+
+	policyReq := gateway.PolicyCheckRequest{
+		WorkspaceID: param.WorkspaceID.String(),
+		CheckType:   checkType,
+		Value:       1, // Creating 1 project
+	}
+
+	policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+	if err != nil {
+		return nil, err
+	}
+	if !policyResp.Allowed {
+		return nil, interfaces.ErrProjectCreationLimitExceeded
+	}
+
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			pb := project.New().

@@ -40,8 +40,9 @@ type CreateAssetUploadParam struct {
 }
 
 var (
-	ErrCreateAssetFailed error = rerror.NewE(i18n.T("failed to create asset"))
-	ErrFileNotIncluded   error = rerror.NewE(i18n.T("file not included"))
+	ErrCreateAssetFailed         error = rerror.NewE(i18n.T("failed to create asset"))
+	ErrFileNotIncluded           error = rerror.NewE(i18n.T("file not included"))
+	ErrAssetUploadSizeLimitExceeded error = rerror.NewE(i18n.T("asset upload size limit exceeded"))
 )
 
 type AssetFilter struct {
