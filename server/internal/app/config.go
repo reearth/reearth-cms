@@ -90,8 +90,6 @@ type PolicyCheckerConfig struct {
 	Timeout  int    `default:"30" envconfig:"REEARTH_CMS_POLICY_CHECKER_TIMEOUT"`
 }
 
-
-
 type ServerConfig struct {
 	// TODO: move all server config to this struct
 	Active bool `default:"true" pp:",omitempty"`

@@ -48,7 +48,7 @@ func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 	pid := id.NewProjectID()
 	p := project.New().ID(pid).Workspace(ws.ID()).MustBuild()
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
-	
+
 	acop := &accountusecase.Operator{
 		User:               lo.ToPtr(u.ID()),
 		WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
@@ -84,7 +84,7 @@ func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
-			
+
 			// Save project and workspace
 			err := db.Project.Save(ctx, p)
 			assert.NoError(t, err)
@@ -129,7 +129,7 @@ func TestAsset_Create_WithPermissivePolicyChecker(t *testing.T) {
 	pid := id.NewProjectID()
 	p := project.New().ID(pid).Workspace(ws.ID()).MustBuild()
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
-	
+
 	acop := &accountusecase.Operator{
 		User:               lo.ToPtr(u.ID()),
 		WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
@@ -156,7 +156,7 @@ func TestAsset_Create_WithPermissivePolicyChecker(t *testing.T) {
 	// Note: The file gateway still has its own hard limit of 10GB
 	fileSize := int64(100 * 1024 * 1024) // 100MB
 	content := bytes.NewBufferString("test content")
-	
+
 	_, _, err = assetUC.Create(ctx, interfaces.CreateAssetParam{
 		ProjectID: pid,
 		File: &file.File{
@@ -174,13 +174,13 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 	webhookCalled := false
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		webhookCalled = true
-		
+
 		var req gateway.PolicyCheckRequest
 		json.NewDecoder(r.Body).Decode(&req)
-		
+
 		// Deny large files
 		allowed := req.Value < 1024*1024 // 1MB limit
-		
+
 		resp := gateway.PolicyCheckResponse{
 			Allowed:      allowed,
 			CheckType:    req.CheckType,
@@ -188,18 +188,18 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 			Message:      "Test webhook policy",
 			Value:        req.Value,
 		}
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
 	}))
 	defer server.Close()
-	
+
 	ctx := context.Background()
 	ws := workspace.New().NewID().MustBuild()
 	pid := id.NewProjectID()
 	p := project.New().ID(pid).Workspace(ws.ID()).MustBuild()
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
-	
+
 	acop := &accountusecase.Operator{
 		User:               lo.ToPtr(u.ID()),
 		WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
@@ -207,21 +207,21 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 	op := &usecase.Operator{
 		AcOperator: acop,
 	}
-	
+
 	db := memory.New()
 	err := db.Project.Save(ctx, p)
 	assert.NoError(t, err)
 	err = db.Workspace.Save(ctx, ws)
 	assert.NoError(t, err)
-	
+
 	// Use webhook policy checker
 	g := gateway.Container{
 		File:          lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
 		PolicyChecker: policy.NewWebhookPolicyChecker(server.URL, "", 5),
 	}
-	
+
 	assetUC := NewAsset(db, &g)
-	
+
 	// Test with small file - should be allowed
 	content := bytes.NewBufferString("small file")
 	_, _, err = assetUC.Create(ctx, interfaces.CreateAssetParam{
@@ -232,10 +232,10 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 			Size:    int64(content.Len()),
 		},
 	}, op)
-	
+
 	assert.NoError(t, err)
 	assert.True(t, webhookCalled, "Webhook should have been called")
-	
+
 	// Test with large file - should be denied
 	webhookCalled = false
 	largeContent := bytes.NewBuffer(make([]byte, 2*1024*1024)) // 2MB
@@ -247,7 +247,7 @@ func TestAsset_Create_WithWebhookPolicyChecker(t *testing.T) {
 			Size:    int64(largeContent.Len()),
 		},
 	}, op)
-	
+
 	assert.ErrorIs(t, err, interfaces.ErrAssetUploadSizeLimitExceeded)
 	assert.True(t, webhookCalled, "Webhook should have been called")
 }

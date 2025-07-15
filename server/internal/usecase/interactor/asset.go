@@ -164,17 +164,19 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			return nil, nil, err
 		}
 
-		policyReq := gateway.PolicyCheckRequest{
-			WorkspaceID: workspace.ID().String(),
-			CheckType:   gateway.PolicyCheckCMSUploadAssetsSize,
-			Value:       file.Size,
-		}
-		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
-		if err != nil {
-			return nil, nil, err
-		}
-		if !policyResp.Allowed {
-			return nil, nil, interfaces.ErrAssetUploadSizeLimitExceeded
+		if i.gateways != nil && i.gateways.PolicyChecker != nil {
+			policyReq := gateway.PolicyCheckRequest{
+				WorkspaceID: workspace.ID().String(),
+				CheckType:   gateway.PolicyCheckCMSUploadAssetsSize,
+				Value:       file.Size,
+			}
+			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			if err != nil {
+				return nil, nil, err
+			}
+			if !policyResp.Allowed {
+				return nil, nil, interfaces.ErrAssetUploadSizeLimitExceeded
+			}
 		}
 
 		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())

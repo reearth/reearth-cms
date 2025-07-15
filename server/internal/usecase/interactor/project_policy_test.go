@@ -41,10 +41,10 @@ func (t *trackingPolicyChecker) CheckPolicy(ctx context.Context, req gateway.Pol
 func TestProject_Create_WithPolicyCheck(t *testing.T) {
 	ws := workspace.New().NewID().MustBuild()
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
-	
+
 	acop := &accountusecase.Operator{
-		User:                 lo.ToPtr(u.ID()),
-		WritableWorkspaces:   []accountdomain.WorkspaceID{ws.ID()},
+		User:                   lo.ToPtr(u.ID()),
+		WritableWorkspaces:     []accountdomain.WorkspaceID{ws.ID()},
 		MaintainableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
@@ -92,7 +92,7 @@ func TestProject_Create_WithPolicyCheck(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
-			
+
 			// Save workspace
 			err := db.Workspace.Save(ctx, ws)
 			assert.NoError(t, err)
@@ -128,10 +128,10 @@ func TestProject_Create_WithPermissivePolicyChecker(t *testing.T) {
 	ctx := context.Background()
 	ws := workspace.New().NewID().MustBuild()
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
-	
+
 	acop := &accountusecase.Operator{
-		User:                 lo.ToPtr(u.ID()),
-		WritableWorkspaces:   []accountdomain.WorkspaceID{ws.ID()},
+		User:                   lo.ToPtr(u.ID()),
+		WritableWorkspaces:     []accountdomain.WorkspaceID{ws.ID()},
 		MaintainableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
@@ -186,10 +186,10 @@ func TestProject_Create_DefaultVisibility(t *testing.T) {
 	ctx := context.Background()
 	ws := workspace.New().NewID().MustBuild()
 	u := user.New().NewID().Name("test").Email("test@example.com").Workspace(ws.ID()).MustBuild()
-	
+
 	acop := &accountusecase.Operator{
-		User:                 lo.ToPtr(u.ID()),
-		WritableWorkspaces:   []accountdomain.WorkspaceID{ws.ID()},
+		User:                   lo.ToPtr(u.ID()),
+		WritableWorkspaces:     []accountdomain.WorkspaceID{ws.ID()},
 		MaintainableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
 	op := &usecase.Operator{
@@ -203,8 +203,8 @@ func TestProject_Create_DefaultVisibility(t *testing.T) {
 	// Create a policy checker that tracks which check type was used
 	var usedCheckType gateway.PolicyCheckType
 	policyChecker := &trackingPolicyChecker{
-		allowed: true,
-		message: "allowed",
+		allowed:        true,
+		message:        "allowed",
 		trackCheckType: &usedCheckType,
 	}
 
@@ -222,6 +222,6 @@ func TestProject_Create_DefaultVisibility(t *testing.T) {
 	}, op)
 
 	assert.NoError(t, err)
-	assert.Equal(t, gateway.PolicyCheckGeneralPrivateProjectCreation, usedCheckType, 
+	assert.Equal(t, gateway.PolicyCheckGeneralPrivateProjectCreation, usedCheckType,
 		"Should check private project creation policy when visibility is not specified")
 }

@@ -143,7 +143,6 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Infof("task runner: not used")
 	}
 
-
 	// Policy Checker - configurable via environment
 	var policyChecker gateway.PolicyChecker
 	switch conf.PolicyChecker.Type {

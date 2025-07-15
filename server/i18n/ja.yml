@@ -6,6 +6,7 @@ Options could not be empty!: 選択フィールドは空にできません
 already locked: 既にロック済みです。
 already published: 既に公開済みです。
 archived: アーカイブ済み
+asset upload size limit exceeded: アセットのアップロードサイズ制限を超えています。
 auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
@@ -92,6 +93,7 @@ operation denied: 操作が拒否されました。
 partial not found: 部分が見つかりませんでした。
 point type is not supported in any geometry field in this model: このモデルのどのジオメトリフィールドでも、ポイントタイプはサポートされていません。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
+project creation limit exceeded: プロジェクト作成数の上限に達しました。
 projectID is required: プロジェクトIDは必須です。
 reference field direction can not be changed: 参照フィールドの方向は変更できません
 reference field model can not be changed: 参照フィールドのモデルは変更できません

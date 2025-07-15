@@ -116,7 +116,7 @@ func TestPermissiveChecker_AlwaysAllows(t *testing.T) {
 	req := gateway.PolicyCheckRequest{
 		WorkspaceID: "workspace01",
 		CheckType:   gateway.PolicyCheckCMSUploadAssetsSize,
-		Value:       int64(1<<62), // Extremely large value
+		Value:       int64(1 << 62), // Extremely large value
 	}
 
 	resp, err := checker.CheckPolicy(ctx, req)
