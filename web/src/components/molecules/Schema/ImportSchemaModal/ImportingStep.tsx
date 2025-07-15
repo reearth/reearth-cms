@@ -5,7 +5,6 @@ import Progress from "@reearth-cms/components/atoms/Progress";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  progress: number;
   fieldsCreationLoading: boolean;
 };
 

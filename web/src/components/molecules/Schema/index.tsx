@@ -38,6 +38,7 @@ type Props = {
   pageSize: number;
   assetList: Asset[];
   loading: boolean;
+  guessSchemaFieldsLoading: boolean;
   fieldsCreationLoading: boolean;
   selectedAsset?: ItemAsset;
   selectedSchemaType: SelectedSchemaType;
@@ -84,6 +85,7 @@ const Schema: React.FC<Props> = ({
   pageSize,
   assetList,
   loading,
+  guessSchemaFieldsLoading,
   fieldsCreationLoading,
   selectedAsset,
   selectedSchemaType,
@@ -121,7 +123,6 @@ const Schema: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
-  const [progress, _setProgress] = useState(0);
   const [importSchemaModalVisible, setImportSchemaModalVisible] = useState(false);
   const [selectFileModalVisible, setSelectFileModalVisible] = useState(false);
   const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
@@ -129,6 +130,10 @@ const Schema: React.FC<Props> = ({
 
   const displayUploadModal = useCallback(() => {
     setUploadModalVisibility(true);
+  }, []);
+
+  const hideUploadModal = useCallback(() => {
+    setUploadModalVisibility(false);
   }, []);
 
   const toSchemaPreviewStep = useCallback(() => {
@@ -308,6 +313,7 @@ const Schema: React.FC<Props> = ({
             pageSize={pageSize}
             assetList={assetList}
             loading={loading}
+            guessSchemaFieldsLoading={guessSchemaFieldsLoading}
             fieldsCreationLoading={fieldsCreationLoading}
             visible={importSchemaModalVisible}
             selectFileModalVisible={selectFileModalVisible}
@@ -317,13 +323,13 @@ const Schema: React.FC<Props> = ({
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
             displayUploadModal={displayUploadModal}
+            hideUploadModal={hideUploadModal}
             fileList={fileList}
             totalCount={totalCount}
             selectedAsset={selectedAsset}
             uploadType={uploadType}
             uploadUrl={uploadUrl}
             uploading={uploading}
-            progress={progress}
             fields={importFields}
             hasImportSchemaFieldsError={hasImportSchemaFieldsError}
             setFields={setImportFields}

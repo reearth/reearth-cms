@@ -326,12 +326,10 @@ export default () => {
 
       if (response.errors || !response.data?.createFields) {
         Notification.error({ message: t("Failed to create fields.") });
-        // setFieldModalShown(false);
         return;
       }
 
       Notification.success({ message: t("Successfully created fields!") });
-      // setFieldModalShown(false);
     },
     [schemaId, createNewFields, t],
   );

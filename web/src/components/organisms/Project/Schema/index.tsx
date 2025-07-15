@@ -3,10 +3,10 @@ import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModa
 import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
-import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
+import useAssetHooks from "./asset-hooks";
 import useHooks from "./hooks";
 
 const ProjectSchema: React.FC = () => {
@@ -15,11 +15,12 @@ const ProjectSchema: React.FC = () => {
   const {
     workspaceId,
     projectId,
-    assetList,
-    fileList,
     importFields,
     hasImportSchemaFieldsError,
+    assetList,
+    fileList,
     loading,
+    guessSchemaFieldsLoading,
     uploading,
     uploadModalVisibility,
     uploadUrl,
@@ -42,7 +43,7 @@ const ProjectSchema: React.FC = () => {
     pageSize,
     handleAssetTableChange,
     handleGetAsset,
-  } = useAssetHooks(true);
+  } = useAssetHooks();
 
   const {
     data,
@@ -103,6 +104,7 @@ const ProjectSchema: React.FC = () => {
         pageSize={pageSize}
         assetList={assetList}
         loading={loading}
+        guessSchemaFieldsLoading={guessSchemaFieldsLoading}
         selectedAsset={selectedAsset}
         fileList={fileList}
         uploadType={uploadType}

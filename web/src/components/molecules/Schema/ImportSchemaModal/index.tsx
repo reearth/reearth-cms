@@ -13,7 +13,7 @@ import {
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Project/Asset/AssetList/helpers";
+import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { Trans, useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "../fieldTypes";
@@ -32,11 +32,11 @@ type Props = {
   currentPage: number;
   assetList: Asset[];
   loading: boolean;
+  guessSchemaFieldsLoading: boolean;
   fieldsCreationLoading: boolean;
   totalCount: number;
   selectedAsset?: ItemAsset;
   fileList: RawUploadFile[];
-  progress: number;
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
@@ -47,6 +47,7 @@ type Props = {
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   displayUploadModal: () => void;
+  hideUploadModal: () => void;
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
   fields: CreateFieldInput[];
@@ -77,11 +78,11 @@ const ImportSchemaModal: React.FC<Props> = ({
   toImportingStep,
   assetList,
   loading,
+  guessSchemaFieldsLoading,
   fieldsCreationLoading,
   totalCount,
   selectedAsset,
   fileList,
-  progress,
   uploadType,
   uploadUrl,
   uploading,
@@ -94,6 +95,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   hasCreateRight,
   uploadModalVisibility,
   displayUploadModal,
+  hideUploadModal,
   page,
   pageSize,
   onSearchTerm,
@@ -182,7 +184,7 @@ const ImportSchemaModal: React.FC<Props> = ({
     maxCount: 1,
     directory: false,
     showUploadList: true,
-    accept: "*",
+    accept: ".geojson,.json",
     listType: "picture",
     onRemove: () => {
       setFileList([]);
@@ -206,7 +208,8 @@ const ImportSchemaModal: React.FC<Props> = ({
   const handleUploadAndLink = useCallback(async () => {
     const asset = await handleAssetUpload();
     if (asset) onAssetSelect(asset.id);
-  }, [handleAssetUpload, onAssetSelect]);
+    hideUploadModal();
+  }, [handleAssetUpload, hideUploadModal, onAssetSelect]);
 
   const stepComponents = [
     {
@@ -236,7 +239,7 @@ const ImportSchemaModal: React.FC<Props> = ({
     },
     {
       title: "Importing",
-      content: <ImportingStep progress={progress} fieldsCreationLoading={fieldsCreationLoading} />,
+      content: <ImportingStep fieldsCreationLoading={fieldsCreationLoading} />,
     },
   ];
 
@@ -262,7 +265,7 @@ const ImportSchemaModal: React.FC<Props> = ({
           {currentPage === 1 && (
             <Button
               type="primary"
-              disabled={fields.length === 0}
+              loading={guessSchemaFieldsLoading}
               onClick={() => toImportingStep(fields)}>
               {t("Import Schema")}
             </Button>
