@@ -13,10 +13,9 @@ import {
   SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
   useCreateAssetUploadMutation,
-  useGetAssetLazyQuery,
   useGuessSchemaFieldsQuery,
   ContentTypesEnum,
-  useGetAssetsItemsLazyQuery,
+  useGetAssetsItemsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -60,22 +59,7 @@ export default () => {
   const [createAssetMutation] = useCreateAssetMutation();
   const [createAssetUploadMutation] = useCreateAssetUploadMutation();
 
-  const [getAsset] = useGetAssetLazyQuery();
-
-  const handleGetAsset = useCallback(
-    async (assetId: string) => {
-      const { data } = await getAsset({
-        variables: {
-          assetId,
-        },
-      });
-      if (!data?.node || data.node.__typename !== "Asset") return;
-      return data.node.fileName;
-    },
-    [getAsset],
-  );
-
-  const params = {
+  const { data, refetch, loading } = useGetAssetsItemsQuery({
     fetchPolicy: "cache-and-network" as const,
     variables: {
       projectId: projectId ?? "",
@@ -91,16 +75,7 @@ export default () => {
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
-  };
-
-  const [getAssets, { data, refetch, loading }] = useGetAssetsItemsLazyQuery(params)
-
-  useEffect(() => {
-    if (!data?.assets) {
-      console.log(data?.assets)
-      getAssets();
-    }
-  }, [data?.assets, getAssets]);
+  });
 
   const assetList = useMemo(
     () =>
@@ -110,7 +85,11 @@ export default () => {
     [data?.assets.nodes],
   );
 
-    const { data: guessSchemaFieldsData,loading: guessSchemaFieldsLoading, error: guessSchemaFieldsError } = useGuessSchemaFieldsQuery({
+  const {
+    data: guessSchemaFieldsData,
+    loading: guessSchemaFieldsLoading,
+    error: guessSchemaFieldsError,
+  } = useGuessSchemaFieldsQuery({
     fetchPolicy: "cache-and-network",
     variables: {
       modelId: modelId ?? "",
@@ -271,10 +250,6 @@ export default () => {
     setPage(1);
   }, []);
 
-  const handleAssetsGet = useCallback(() => {
-    getAssets();
-  }, [getAssets]);
-
   const handleAssetsReload = useCallback(() => {
     refetch();
   }, [refetch]);
@@ -323,13 +298,10 @@ export default () => {
     setUploadType,
     setImportFields,
     setFileList,
-    setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleAssetTableChange,
     handleSearchTerm,
-    handleAssetsGet,
     handleAssetsReload,
-    handleGetAsset,
   };
 };

@@ -13,19 +13,12 @@ const ImportingStep: React.FC<Props> = ({ fieldsCreationLoading }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    // TODO: Implement a more sophisticated progress tracking mechanism
     if (fieldsCreationLoading) {
       setProgress(0);
-      interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev < 95) return prev + 1;
-          return prev;
-        });
-      }, 50);
     } else {
       setProgress(100);
     }
-    return () => clearInterval(interval);
   }, [fieldsCreationLoading]);
 
   return (

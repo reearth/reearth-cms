@@ -6,7 +6,6 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
@@ -19,12 +18,9 @@ import {
   useGetAssetsItemsLazyQuery,
   useCreateAssetUploadMutation,
   useGetAssetLazyQuery,
-  useGuessSchemaFieldsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
-
-import { convertFieldType, defaultTypePropertyGet } from "../../Schema/helpers";
 
 import { uploadFiles } from "./upload";
 
@@ -42,7 +38,7 @@ export default (isItemsRequired: boolean) => {
   const [hasDeleteRight, setHasDeleteRight] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
 
-  const { workspaceId, projectId, modelId } = useParams();
+  const { workspaceId, projectId } = useParams();
   const navigate = useNavigate();
   const location: {
     state?: {
@@ -303,7 +299,7 @@ export default (isItemsRequired: boolean) => {
   );
 
   const handleAssetSelect = useCallback(
-    (id?: string) => {
+    (id: string) => {
       setSelectedAssetId(id);
       setCollapsed(false);
     },
@@ -390,51 +386,7 @@ export default (isItemsRequired: boolean) => {
     }
   };
 
-  const {
-    data: guessSchemaFieldsData,
-    loading: guessSchemaFieldsLoading,
-    error: guessSchemaFieldsError,
-  } = useGuessSchemaFieldsQuery({
-    fetchPolicy: "cache-and-network",
-    variables: {
-      modelId: modelId ?? "",
-      assetId: selectedAssetId ?? "",
-    },
-    skip: !modelId || !selectedAssetId,
-  });
-
-  const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
-
-  useEffect(() => {
-    const fields = guessSchemaFieldsData?.guessSchemaFields?.fields;
-    if (fields && fields.length > 0) {
-      setImportFields(
-        fields.map(
-          field =>
-            ({
-              title: field.name,
-              metadata: false,
-              description: "",
-              key: field.name,
-              multiple: false,
-              unique: false,
-              isTitle: false,
-              required: false,
-              type: convertFieldType(field.type),
-              modelId: modelId,
-              groupId: "",
-              typeProperty: defaultTypePropertyGet(field.type),
-            }) as CreateFieldInput,
-        ),
-      );
-    }
-  }, [data, guessSchemaFieldsData?.guessSchemaFields?.fields, modelId]);
-
   return {
-    workspaceId,
-    projectId,
-    importFields,
-    hasImportSchemaFieldsError: !!guessSchemaFieldsError,
     assetList,
     selection,
     fileList,
@@ -442,7 +394,6 @@ export default (isItemsRequired: boolean) => {
     uploadModalVisibility,
     loading,
     deleteLoading,
-    guessSchemaFieldsLoading,
     uploadUrl,
     uploadType,
     selectedAsset,
@@ -463,7 +414,6 @@ export default (isItemsRequired: boolean) => {
     setUploadUrl,
     setUploadType,
     handleSelect,
-    setImportFields,
     setFileList,
     setUploadModalVisibility,
     handleAssetsCreate,
