@@ -55,7 +55,16 @@ const FileSelectionStep: React.FC<Props> = ({
         <Trans
           i18nKey="importSchemaNotes"
           components={{
-            l: <TemplateFileLink type="link">template file</TemplateFileLink>,
+            l1: (
+              <TemplateFileLink type="link" href="/templates/template.json" download>
+                JSON
+              </TemplateFileLink>
+            ),
+            l2: (
+              <TemplateFileLink type="link" href="/templates/template.geojson" download>
+                GeoJSON
+              </TemplateFileLink>
+            ),
           }}
         />
       </Section>
