@@ -54,10 +54,10 @@ const SchemaPreviewStep: React.FC<Props> = ({
             <HeaderRow>
               <Col span={1} />
               <HeaderCol span={11}>
-                <span>Field Name</span>
+                <span>{t("Field Name")}</span>
               </HeaderCol>
               <HeaderCol span={11}>
-                <span>Field Type</span>
+                <span>{t("Field Type")}</span>
               </HeaderCol>
               <Col span={1} />
             </HeaderRow>
