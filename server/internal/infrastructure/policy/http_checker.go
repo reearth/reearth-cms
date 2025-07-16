@@ -48,7 +48,9 @@ func (h *HTTPPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyC
 	if err != nil {
 		return nil, rerror.ErrInternalBy(fmt.Errorf("policy check request failed: %w", err))
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, rerror.ErrInternalBy(fmt.Errorf("policy check returned status %d", resp.StatusCode))

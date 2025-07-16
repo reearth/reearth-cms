@@ -176,7 +176,7 @@ func TestAsset_Create_WithHTTPPolicyChecker(t *testing.T) {
 		httpCalled = true
 
 		var req gateway.PolicyCheckRequest
-		json.NewDecoder(r.Body).Decode(&req)
+		_ = json.NewDecoder(r.Body).Decode(&req)
 
 		// Deny large files
 		allowed := req.Value < 1024*1024 // 1MB limit
@@ -190,7 +190,7 @@ func TestAsset_Create_WithHTTPPolicyChecker(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	}))
 	defer server.Close()
 

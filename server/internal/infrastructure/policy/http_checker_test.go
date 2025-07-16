@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/stretchr/testify/assert"
@@ -92,7 +93,7 @@ func TestHTTPPolicyChecker_CheckPolicy(t *testing.T) {
 				// Send response
 				w.WriteHeader(tt.serverStatus)
 				if tt.serverResponse != nil {
-					json.NewEncoder(w).Encode(tt.serverResponse)
+					_ = json.NewEncoder(w).Encode(tt.serverResponse)
 				}
 			}))
 			defer server.Close()
@@ -122,8 +123,14 @@ func TestHTTPPolicyChecker_CheckPolicy(t *testing.T) {
 func TestHTTPPolicyChecker_Timeout(t *testing.T) {
 	// Create slow server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Sleep longer than timeout
-		<-r.Context().Done()
+		// Sleep for 2 seconds, longer than the 1 second timeout
+		select {
+		case <-time.After(2 * time.Second):
+			w.WriteHeader(http.StatusOK)
+		case <-r.Context().Done():
+			// Request was cancelled
+			return
+		}
 	}))
 	defer server.Close()
 
