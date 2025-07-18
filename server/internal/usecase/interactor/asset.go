@@ -164,6 +164,21 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			return nil, nil, err
 		}
 
+		if i.gateways != nil && i.gateways.PolicyChecker != nil {
+			policyReq := gateway.PolicyCheckRequest{
+				WorkspaceID: workspace.ID().String(),
+				CheckType:   gateway.PolicyCheckCMSUploadAssetsSize,
+				Value:       file.Size,
+			}
+			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			if err != nil {
+				return nil, nil, err
+			}
+			if !policyResp.Allowed {
+				return nil, nil, interfaces.ErrAssetUploadSizeLimitExceeded
+			}
+		}
+
 		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())
 		uuid, size, err = i.gateways.File.UploadAsset(ctxWithWorkspace, inp.File)
 		if err != nil {
@@ -465,7 +480,13 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, interfaces.ErrOperationDenied
 	}
 
-	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctx, *param)
+	workspace, err := i.repos.Workspace.FindByID(ctx, prj.Workspace())
+	if err != nil {
+		return nil, err
+	}
+
+	ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())
+	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctxWithWorkspace, *param)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
 		return nil, rerror.ErrNotFound
 	}
