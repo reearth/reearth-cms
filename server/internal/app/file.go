@@ -12,12 +12,12 @@ import (
 	"github.com/reearth/reearthx/rerror"
 )
 
-func serveFiles(e *echo.Echo, appCtx *ApplicationContext) {
+func serveFiles(e *echo.Group, appCtx *ApplicationContext) {
 	if appCtx.Gateways.File == nil {
 		return
 	}
-	e.GET("/assets/:uuid1/:uuid2/:filename", handleAssetByUUID(appCtx), privateAssetsMiddleware(appCtx))
-	e.GET("/assets/:filename", handleAssetByFileName(appCtx))
+	e.GET("/:uuid1/:uuid2/:filename", handleAssetByUUID(appCtx), privateAssetsMiddleware(appCtx))
+	e.GET("/:filename", handleAssetByFileName(appCtx))
 }
 
 func privateAssetsMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
