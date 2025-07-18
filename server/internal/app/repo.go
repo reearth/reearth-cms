@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/policy"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
@@ -141,6 +142,27 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	} else {
 		log.Infof("task runner: not used")
 	}
+
+	// Policy Checker - configurable via environment
+	var policyChecker gateway.PolicyChecker
+	switch conf.PolicyChecker.Type {
+	case "http":
+		if conf.PolicyChecker.Endpoint == "" {
+			log.Fatalf("policy checker HTTP endpoint is required")
+		}
+		policyChecker = policy.NewHTTPPolicyChecker(
+			conf.PolicyChecker.Endpoint,
+			conf.PolicyChecker.Token,
+			conf.PolicyChecker.Timeout,
+		)
+		log.Infof("policy checker: using HTTP checker with endpoint: %s", conf.PolicyChecker.Endpoint)
+	case "permissive":
+		fallthrough
+	default:
+		policyChecker = policy.NewPermissiveChecker()
+		log.Infof("policy checker: using permissive checker (OSS mode)")
+	}
+	gateways.PolicyChecker = policyChecker
 
 	return cmsRepos, gateways, acRepos, acGateways
 }

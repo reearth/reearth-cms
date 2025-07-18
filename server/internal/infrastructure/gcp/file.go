@@ -242,16 +242,16 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 	}
-	
+
 	var headers []string
 	if param.ContentEncoding != "" {
 		headers = append(headers, "Content-Encoding: "+param.ContentEncoding)
 	}
-	
+
 	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
 		headers = append(headers, "x-goog-meta-X-Reearth-Workspace-ID: "+workspace)
 	}
-	
+
 	if len(headers) > 0 {
 		opt.Headers = headers
 	}
