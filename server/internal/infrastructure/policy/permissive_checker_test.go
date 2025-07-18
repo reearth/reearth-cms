@@ -101,6 +101,7 @@ func TestPermissiveChecker_CheckPolicy(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := checker.CheckPolicy(ctx, tt.req)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, got)
