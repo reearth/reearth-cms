@@ -91,6 +91,34 @@ func TestPublicAPI_NotFound(t *testing.T) {
 		IsEqual(map[string]any{"error": "not found"})
 }
 
+func TestPublicAPI_CORS(t *testing.T) {
+	e, _, _ := StartServerWithRepos(t, &app.Config{
+		AssetBaseURL:   "https://example.com",
+		Public_Origins: []string{"https://example.com"},
+	}, true, publicAPISeeder)
+
+	res := e.OPTIONS("/api/p/{project}/{model}/{item}/", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("Access-Control-Request-Method", "POST").
+		Expect().
+		Status(http.StatusNoContent)
+	res.Header("Access-Control-Allow-Origin").IsEqual("https://example.com")
+	res.Header("Access-Control-Allow-Methods").Contains("POST")
+
+	e, _, _ = StartServerWithRepos(t, &app.Config{
+		AssetBaseURL:   "https://example.com",
+		Public_Origins: []string{"*"},
+	}, true, publicAPISeeder)
+
+	res = e.OPTIONS("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+		WithHeader("Origin", "https://example.com").
+		WithHeader("Access-Control-Request-Method", "POST").
+		Expect().
+		Status(http.StatusNoContent)
+	res.Header("Access-Control-Allow-Origin").IsEqual("*")
+	res.Header("Access-Control-Allow-Methods").Contains("POST")
+}
+
 func TestPublicAPI_Item(t *testing.T) {
 	e, r, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
