@@ -75,8 +75,8 @@ type Config struct {
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
 
-	// Dashboard API Configuration
-	DashboardAPI_BaseURL string `default:"https://api.dashboard.dev.reearth.io" pp:",omitempty"`
+	// Policy Checker Configuration
+	PolicyChecker PolicyCheckerConfig `pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
@@ -84,7 +84,12 @@ type HealthCheckConfig struct {
 	Password string `pp:",omitempty"`
 }
 
-
+type PolicyCheckerConfig struct {
+	Type     string `default:"permissive" envconfig:"REEARTH_CMS_POLICY_CHECKER_TYPE"`
+	Endpoint string `envconfig:"REEARTH_CMS_POLICY_CHECKER_ENDPOINT"`
+	Token    string `envconfig:"REEARTH_CMS_POLICY_CHECKER_TOKEN"`
+	Timeout  int    `default:"30" envconfig:"REEARTH_CMS_POLICY_CHECKER_TIMEOUT"`
+}
 
 type ServerConfig struct {
 	// TODO: move all server config to this struct
