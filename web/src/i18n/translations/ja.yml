@@ -436,6 +436,7 @@ Notes: メモ
 importSchemaNotes: >-
   対応ファイル形式はJSONまたはGeoJSONのみです。テンプレートは <l1>JSON</l1> | <l2>GeoJSON</l2>
   からダウンロードできます。
+Import not successful.: インポートに失敗しました。
 Importing...: インポート中...
 Import successful!: インポートに成功しました！
 Are you sure you want to delete this field?: 本当に<strong>{{name}}</strong>を削除してもよろしいですか？
@@ -584,8 +585,6 @@ Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
-Failed to create fields.: フィールドの作成に失敗しました。
-Successfully created fields!: フィールドの作成に成功しました。
 Group cannot be deleted: グループを削除できません。
 is used in: は {{modelNames}} にて使用されています。
 If you want to delete it, please delete the field that uses it first.: 削除したい場合は、このグループを使用しているフィールドを先に削除してください。
@@ -596,6 +595,8 @@ Successfully updated group!: グループの更新に成功しました！
 No available Group: グループなし
 Please create a Group first to use the field: フィールドを使用するには、まずグループを作成してください。
 Create Group: グループを作成
+Failed to create fields.: フィールドの作成に失敗しました。
+Successfully created fields!: フィールドの作成に成功しました。
 Failed to update project.: プロジェクトの更新に失敗しました。
 Successfully updated project!: プロジェクトの更新に成功しました。
 Failed to update request roles.: リクエストロールの更新に失敗しました。
