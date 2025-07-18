@@ -36,7 +36,8 @@ const ProjectSchema: React.FC = () => {
         uploadUrl={importHooks.uploadUrl}
         uploading={importHooks.uploading}
         importFields={importHooks.importFields}
-        hasImportSchemaFieldsError={importHooks.hasImportSchemaFieldsError}
+        guessSchemaFieldsError={importHooks.guessSchemaFieldsError}
+        fieldsCreationError={importHooks.fieldsCreationError}
         setImportFields={importHooks.setImportFields}
         setUploadUrl={importHooks.setUploadUrl}
         setUploadType={importHooks.setUploadType}
@@ -52,9 +53,19 @@ const ProjectSchema: React.FC = () => {
         onAssetSelect={importHooks.handleAssetSelect}
         onAssetsCreate={importHooks.handleAssetsCreate}
         onAssetCreateFromUrl={importHooks.handleAssetCreateFromUrl}
-        onUploadModalCancel={importHooks.handleUploadModalCancel}
         onModalOpen={schemaHooks.handleModalOpen}
         onDeletionModalOpen={schemaHooks.handleDeletionModalOpen}
+        importSchemaModalVisibility={importHooks.importSchemaModalVisibility}
+        selectFileModalVisibility={importHooks.selectFileModalVisibility}
+        onSchemaImportModalOpen={importHooks.handleSchemaImportModalOpen}
+        onSchemaImportModalCancel={importHooks.handleSchemaImportModalCancel}
+        onSelectFileModalOpen={importHooks.handleSelectFileModalOpen}
+        onSelectFileModalCancel={importHooks.handleSelectFileModalCancel}
+        onUploadModalOpen={importHooks.handleUploadModalOpen}
+        onUploadModalCancel={importHooks.handleUploadModalCancel}
+        currentImportSchemaModalPage={importHooks.currentImportSchemaModalPage}
+        toSchemaPreviewStep={importHooks.toSchemaPreviewStep}
+        toImportingStep={importHooks.toImportingStep}
         modelsMenu={
           <ModelsMenu
             title={t("Schema")}
@@ -72,8 +83,7 @@ const ProjectSchema: React.FC = () => {
         onFieldUpdateModalOpen={schemaHooks.handleFieldUpdateModalOpen}
         onFieldReorder={schemaHooks.handleFieldOrder}
         onFieldDelete={schemaHooks.handleFieldDelete}
-        onFieldsCreate={schemaHooks.handleFieldsCreate}
-        fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
+        fieldsCreationLoading={importHooks.fieldsCreationLoading}
       />
       <FormModal
         data={schemaHooks.data}
@@ -107,7 +117,7 @@ const ProjectSchema: React.FC = () => {
           onUpdate={schemaHooks.handleFieldUpdate}
         />
       )}
-        {schemaHooks.selectedType && schemaHooks.selectedType !== "Reference" && (
+      {schemaHooks.selectedType && schemaHooks.selectedType !== "Reference" && (
         <FieldModal
           groups={schemaHooks.groups}
           selectedType={schemaHooks.selectedType}

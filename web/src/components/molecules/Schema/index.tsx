@@ -50,12 +50,12 @@ type Props = {
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
   importFields: CreateFieldInput[];
-  hasImportSchemaFieldsError?: boolean;
+  guessSchemaFieldsError?: boolean;
+  fieldsCreationError?: boolean;
   setImportFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  uploadModalVisibility: boolean;
   totalCount: number;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
@@ -63,7 +63,6 @@ type Props = {
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onAssetSelect: (id?: string) => void;
-  onUploadModalCancel: () => void;
   onModalOpen: () => void;
   onDeletionModalOpen: () => void;
   modelsMenu: JSX.Element;
@@ -73,7 +72,18 @@ type Props = {
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
-  onFieldsCreate: (fields: CreateFieldInput[]) => Promise<void>;
+  importSchemaModalVisibility: boolean;
+  selectFileModalVisibility: boolean;
+  uploadModalVisibility: boolean;
+  onSchemaImportModalOpen: () => void;
+  onSchemaImportModalCancel: () => void;
+  onSelectFileModalOpen: () => void;
+  onSelectFileModalCancel: () => void;
+  onUploadModalOpen: () => void;
+  onUploadModalCancel: () => void;
+  currentImportSchemaModalPage: number;
+  toSchemaPreviewStep: () => void;
+  toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
 };
 
 const Schema: React.FC<Props> = ({
@@ -97,7 +107,8 @@ const Schema: React.FC<Props> = ({
   uploadUrl,
   uploading,
   importFields,
-  hasImportSchemaFieldsError,
+  guessSchemaFieldsError,
+  fieldsCreationError,
   setImportFields,
   setUploadUrl,
   setUploadType,
@@ -109,7 +120,6 @@ const Schema: React.FC<Props> = ({
   onAssetSelect,
   onAssetsCreate,
   onAssetCreateFromUrl,
-  onUploadModalCancel,
   onModalOpen,
   onDeletionModalOpen,
   modelsMenu,
@@ -119,52 +129,21 @@ const Schema: React.FC<Props> = ({
   onFieldUpdateModalOpen,
   onFieldCreationModalOpen,
   onFieldDelete,
-  onFieldsCreate,
+  uploadModalVisibility,
+  importSchemaModalVisibility,
+  selectFileModalVisibility,
+  onSchemaImportModalOpen,
+  onSchemaImportModalCancel,
+  onSelectFileModalOpen,
+  onSelectFileModalCancel,
+  onUploadModalOpen,
+  onUploadModalCancel,
+  currentImportSchemaModalPage,
+  toSchemaPreviewStep,
+  toImportingStep,
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
-  const [importSchemaModalVisible, setImportSchemaModalVisible] = useState(false);
-  const [selectFileModalVisible, setSelectFileModalVisible] = useState(false);
-  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
-  const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
-
-  const displayUploadModal = useCallback(() => {
-    setUploadModalVisibility(true);
-  }, []);
-
-  const hideUploadModal = useCallback(() => {
-    setUploadModalVisibility(false);
-  }, []);
-
-  const toSchemaPreviewStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(1);
-  }, []);
-
-  const toImportingStep = useCallback(
-    async (fields: CreateFieldInput[]) => {
-      await onFieldsCreate(fields);
-      setCurrentImportSchemaModalPage(2);
-    },
-    [onFieldsCreate],
-  );
-
-  const handleSelectSchemaFileModalOpen = useCallback(() => {
-    setSelectFileModalVisible(true);
-  }, []);
-
-  const handleSelectSchemaFileModalClose = useCallback(() => {
-    setSelectFileModalVisible(false);
-  }, []);
-
-  const handleSchemaImportModalOpen = useCallback(async () => {
-    setImportSchemaModalVisible(true);
-  }, []);
-
-  const handleSchemaImportModalClose = useCallback(async () => {
-    setImportSchemaModalVisible(false);
-    setCurrentImportSchemaModalPage(0);
-    onAssetSelect(undefined);
-  }, [onAssetSelect]);
 
   const handleSchemaImport = useCallback(() => {
     if (data?.schema.fields && data.schema.fields.length > 0) {
@@ -176,14 +155,12 @@ const Schema: React.FC<Props> = ({
         icon: <Icon icon="exclamationCircle" />,
         cancelText: t("Cancel"),
         okText: t("Continue"),
-        async onOk() {
-          await handleSchemaImportModalOpen();
+        onOk() {
+          onSchemaImportModalOpen();
         },
       });
-    } else {
-      handleSchemaImportModalOpen();
     }
-  }, [data?.schema.fields, handleSchemaImportModalOpen, t]);
+  }, [data?.schema.fields, onSchemaImportModalOpen, t]);
 
   const dropdownItems = useMemo(
     () => [
@@ -315,15 +292,15 @@ const Schema: React.FC<Props> = ({
             loading={loading}
             guessSchemaFieldsLoading={guessSchemaFieldsLoading}
             fieldsCreationLoading={fieldsCreationLoading}
-            visible={importSchemaModalVisible}
-            selectFileModalVisible={selectFileModalVisible}
+            visible={importSchemaModalVisibility}
+            selectFileModalVisibility={selectFileModalVisibility}
             currentPage={currentImportSchemaModalPage}
             toSchemaPreviewStep={toSchemaPreviewStep}
             toImportingStep={toImportingStep}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
-            displayUploadModal={displayUploadModal}
-            hideUploadModal={hideUploadModal}
+            onUploadModalOpen={onUploadModalOpen}
+            onUploadModalCancel={onUploadModalCancel}
             fileList={fileList}
             totalCount={totalCount}
             selectedAsset={selectedAsset}
@@ -331,7 +308,8 @@ const Schema: React.FC<Props> = ({
             uploadUrl={uploadUrl}
             uploading={uploading}
             fields={importFields}
-            hasImportSchemaFieldsError={hasImportSchemaFieldsError}
+            guessSchemaFieldsError={guessSchemaFieldsError}
+            fieldsCreationError={fieldsCreationError}
             setFields={setImportFields}
             setUploadUrl={setUploadUrl}
             setUploadType={setUploadType}
@@ -344,10 +322,9 @@ const Schema: React.FC<Props> = ({
             onAssetSelect={onAssetSelect}
             onAssetsCreate={onAssetsCreate}
             onAssetCreateFromUrl={onAssetCreateFromUrl}
-            onUploadModalCancel={onUploadModalCancel}
-            onSelectFile={handleSelectSchemaFileModalOpen}
-            onSelectSchemaFileModalClose={handleSelectSchemaFileModalClose}
-            onModalClose={handleSchemaImportModalClose}
+            onSelectFile={onSelectFileModalOpen}
+            onSelectFileModalCancel={onSelectFileModalCancel}
+            onModalClose={onSchemaImportModalCancel}
           />
         </Content>
       }

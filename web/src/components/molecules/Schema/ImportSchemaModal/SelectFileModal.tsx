@@ -44,7 +44,7 @@ type Props = {
   onAssetSelect: (id: string) => void;
   onAssetsReload?: () => void;
   onSearchTerm?: (term?: string) => void;
-  displayUploadModal: () => void;
+  onUploadModalOpen: () => void;
   onUploadModalCancel?: () => void;
   onUploadAndLink: () => void;
 };
@@ -71,7 +71,7 @@ const SelectFileModal: React.FC<Props> = ({
   onAssetSelect,
   onAssetsReload,
   onSearchTerm,
-  displayUploadModal,
+  onUploadModalOpen,
   onUploadModalCancel,
   onUploadAndLink,
 }) => {
@@ -90,9 +90,9 @@ const SelectFileModal: React.FC<Props> = ({
   );
 
   const handleModalAfterClose = useCallback(() => {
-    onSearchTerm?.();
+    onModalClose();
     resetFlag.current = !resetFlag.current;
-  }, [onSearchTerm]);
+  }, [onModalClose]);
 
   const handleTableChange = useCallback(
     (
@@ -240,7 +240,7 @@ const SelectFileModal: React.FC<Props> = ({
           hasCreateRight={hasCreateRight}
           setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
-          displayUploadModal={displayUploadModal}
+          displayUploadModal={onUploadModalOpen}
           onUploadModalCancel={onUploadModalCancel}
           onUpload={onUploadAndLink}
           onUploadModalClose={onModalClose}

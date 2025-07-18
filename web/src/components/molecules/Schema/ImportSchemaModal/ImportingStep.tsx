@@ -1,30 +1,36 @@
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Progress from "@reearth-cms/components/atoms/Progress";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   fieldsCreationLoading: boolean;
+  fieldsCreationError?: boolean;
 };
 
-const ImportingStep: React.FC<Props> = ({ fieldsCreationLoading }) => {
+const ImportingStep: React.FC<Props> = ({ fieldsCreationLoading, fieldsCreationError }) => {
   const t = useT();
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // TODO: Implement a more sophisticated progress tracking mechanism
-    if (fieldsCreationLoading) {
-      setProgress(0);
-    } else {
-      setProgress(100);
+    setProgress(fieldsCreationLoading || fieldsCreationError ? 0 : 100); // TODO: implement a better mechanism
+  }, [fieldsCreationLoading, fieldsCreationError]);
+
+  const statusMessage = useMemo(() => {
+    if (fieldsCreationError) {
+      return t("Import not successful.");
     }
-  }, [fieldsCreationLoading]);
+    if (fieldsCreationLoading) {
+      return t("Importing...");
+    }
+    return t("Import successful!");
+  }, [fieldsCreationError, fieldsCreationLoading, t]);
 
   return (
     <Container>
       <Progress type="circle" percent={progress} />
-      <StatusText>{fieldsCreationLoading ? t("Importing...") : t("Import successful!")}</StatusText>
+      <StatusText>{statusMessage}</StatusText>
     </Container>
   );
 };

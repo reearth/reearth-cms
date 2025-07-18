@@ -16,6 +16,9 @@ import {
   useGuessSchemaFieldsQuery,
   ContentTypesEnum,
   useGetAssetsItemsQuery,
+  useCreateFieldsMutation,
+  SchemaFieldType,
+  SchemaFieldTypePropertyInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -32,6 +35,9 @@ type UploadFile = File & {
 export default () => {
   const t = useT();
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
+  const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(false);
+  const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
 
   const { workspaceId, projectId, modelId } = useParams();
   const location: {
@@ -125,17 +131,97 @@ export default () => {
     }
   }, [data, guessSchemaFieldsData?.guessSchemaFields?.fields, modelId]);
 
+  const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
+    useCreateFieldsMutation({
+      refetchQueries: ["GetModel", "GetGroup"],
+    });
+
+  const handleFieldsCreate = useCallback(
+    async (fields: CreateFieldInput[]) => {
+      if (!modelId || fields.length === 0) return;
+      const response = await createNewFields({
+        variables: {
+          inputs: fields.map(field => ({
+            title: field.title,
+            metadata: field.metadata,
+            description: field.description,
+            key: field.key,
+            multiple: field.multiple,
+            unique: field.unique,
+            isTitle: field.isTitle,
+            required: field.required,
+            type: field.type as SchemaFieldType,
+            typeProperty: field.typeProperty as SchemaFieldTypePropertyInput,
+            modelId: modelId,
+            groupId: undefined,
+          })),
+        },
+      });
+
+      if (response.errors || !response.data?.createFields) {
+        Notification.error({ message: t("Failed to create fields.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully created fields!") });
+    },
+    [modelId, createNewFields, t],
+  );
+
+  const handleAssetSelect = useCallback(
+    (id?: string) => {
+      setSelectedAssetId(id);
+    },
+    [setSelectedAssetId],
+  );
+
+  const handleUploadModalOpen = useCallback(() => {
+    setUploadModalVisibility(true);
+  }, [setUploadModalVisibility]);
+
+  const handleSelectFileModalOpen = useCallback(() => {
+    setSelectFileModalVisibility(true);
+  }, []);
+
+  const handleSchemaImportModalOpen = useCallback(async () => {
+    setImportSchemaModalVisibility(true);
+  }, []);
+
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
     setFileList([]);
-    setImportFields([]);
-    setSelectedAssetId(undefined);
-    setSearchTerm("");
-    setSort(undefined);
-    setPage(1);
     setUploadUrl({ url: "", autoUnzip: true });
     setUploadType("local");
-  }, [setUploadModalVisibility, setFileList, setUploadUrl, setUploadType]);
+  }, []);
+
+  const handleSelectFileModalCancel = useCallback(() => {
+    setSelectFileModalVisibility(false);
+    setSearchTerm("");
+    setPage(1);
+    setSort(undefined);
+    handleUploadModalCancel();
+  }, [handleUploadModalCancel]);
+
+  const handleSchemaImportModalCancel = useCallback(() => {
+    setImportSchemaModalVisibility(false);
+    setCurrentImportSchemaModalPage(0);
+    handleAssetSelect(undefined);
+    setImportFields([]);
+    setSelectedAssetId(undefined);
+    handleUploadModalCancel();
+  }, [handleAssetSelect, handleUploadModalCancel]);
+
+  const toSchemaPreviewStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(1);
+  }, []);
+
+  const toImportingStep = useCallback(
+    async (fields: CreateFieldInput[]) => {
+      await handleFieldsCreate(fields);
+      setCurrentImportSchemaModalPage(2);
+    },
+    [handleFieldsCreate],
+  );
 
   const handleAssetsCreate = useCallback(
     async (files: RawUploadFile[]) => {
@@ -254,13 +340,6 @@ export default () => {
     refetch();
   }, [refetch]);
 
-  const handleAssetSelect = useCallback(
-    (id?: string) => {
-      setSelectedAssetId(id);
-    },
-    [setSelectedAssetId],
-  );
-
   const selectedAsset = useMemo(
     () => assetList.find(asset => asset.id === selectedAssetId),
     [assetList, selectedAssetId],
@@ -279,7 +358,20 @@ export default () => {
     workspaceId,
     projectId,
     importFields,
-    hasImportSchemaFieldsError: !!guessSchemaFieldsError,
+    guessSchemaFieldsError: !!guessSchemaFieldsError,
+    fieldsCreationError: !!fieldsCreationError,
+    importSchemaModalVisibility,
+    selectFileModalVisibility,
+    fieldsCreationLoading,
+    handleUploadModalOpen,
+    handleUploadModalCancel,
+    handleSelectFileModalOpen,
+    handleSelectFileModalCancel,
+    handleSchemaImportModalOpen,
+    handleSchemaImportModalCancel,
+    currentImportSchemaModalPage,
+    toSchemaPreviewStep,
+    toImportingStep,
     assetList,
     fileList,
     uploading,
@@ -293,7 +385,6 @@ export default () => {
     page,
     pageSize,
     handleAssetSelect,
-    handleUploadModalCancel,
     setUploadUrl,
     setUploadType,
     setImportFields,
