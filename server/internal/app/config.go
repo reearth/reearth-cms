@@ -76,7 +76,7 @@ type Config struct {
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
 
 	// Policy Checker Configuration
-	PolicyChecker PolicyCheckerConfig `pp:",omitempty"`
+	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
@@ -85,10 +85,10 @@ type HealthCheckConfig struct {
 }
 
 type PolicyCheckerConfig struct {
-	Type     string `default:"permissive" envconfig:"REEARTH_CMS_POLICY_CHECKER_TYPE"`
-	Endpoint string `envconfig:"REEARTH_CMS_POLICY_CHECKER_ENDPOINT"`
-	Token    string `envconfig:"REEARTH_CMS_POLICY_CHECKER_TOKEN"`
-	Timeout  int    `default:"30" envconfig:"REEARTH_CMS_POLICY_CHECKER_TIMEOUT"`
+	Type     string `default:"permissive"`
+	Endpoint string
+	Token    string
+	Timeout  int `default:"30"`
 }
 
 type ServerConfig struct {
