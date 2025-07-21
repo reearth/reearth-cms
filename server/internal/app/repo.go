@@ -145,17 +145,17 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 
 	// Policy Checker - configurable via environment
 	var policyChecker gateway.PolicyChecker
-	switch conf.PolicyChecker.Type {
+	switch conf.Policy_Checker.Type {
 	case "http":
-		if conf.PolicyChecker.Endpoint == "" {
+		if conf.Policy_Checker.Endpoint == "" {
 			log.Fatalf("policy checker HTTP endpoint is required")
 		}
 		policyChecker = policy.NewHTTPPolicyChecker(
-			conf.PolicyChecker.Endpoint,
-			conf.PolicyChecker.Token,
-			conf.PolicyChecker.Timeout,
+			conf.Policy_Checker.Endpoint,
+			conf.Policy_Checker.Token,
+			conf.Policy_Checker.Timeout,
 		)
-		log.Infof("policy checker: using HTTP checker with endpoint: %s", conf.PolicyChecker.Endpoint)
+		log.Infof("policy checker: using HTTP checker with endpoint: %s", conf.Policy_Checker.Endpoint)
 	case "permissive":
 		fallthrough
 	default:
