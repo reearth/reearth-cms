@@ -55,43 +55,43 @@ func ToSchemaField(f *schema.Field) *pb.SchemaField {
 	}
 }
 
-func ToSchemaFieldType(t value.Type) pb.SchemaFieldType {
+func ToSchemaFieldType(t value.Type) pb.SchemaField_Type {
 	switch t {
 	case value.TypeText:
-		return pb.SchemaFieldType_Text
+		return pb.SchemaField_Text
 	case value.TypeTextArea:
-		return pb.SchemaFieldType_TextArea
+		return pb.SchemaField_TextArea
 	case value.TypeRichText:
-		return pb.SchemaFieldType_RichText
+		return pb.SchemaField_RichText
 	case value.TypeMarkdown:
-		return pb.SchemaFieldType_MarkdownText
+		return pb.SchemaField_MarkdownText
 	case value.TypeAsset:
-		return pb.SchemaFieldType_Asset
+		return pb.SchemaField_Asset
 	case value.TypeDateTime:
-		return pb.SchemaFieldType_Date
+		return pb.SchemaField_Date
 	case value.TypeBool:
-		return pb.SchemaFieldType_Bool
+		return pb.SchemaField_Bool
 	case value.TypeSelect:
-		return pb.SchemaFieldType_Select
+		return pb.SchemaField_Select
 	case value.TypeInteger:
-		return pb.SchemaFieldType_Integer
+		return pb.SchemaField_Integer
 	case value.TypeNumber:
-		return pb.SchemaFieldType_Number
+		return pb.SchemaField_Number
 	case value.TypeReference:
-		return pb.SchemaFieldType_Reference
+		return pb.SchemaField_Reference
 	case value.TypeURL:
-		return pb.SchemaFieldType_URL
+		return pb.SchemaField_URL
 	case value.TypeGroup:
-		return pb.SchemaFieldType_Group
+		return pb.SchemaField_Group
 	case value.TypeTag:
-		return pb.SchemaFieldType_Tag
+		return pb.SchemaField_Tag
 	case value.TypeCheckbox:
-		return pb.SchemaFieldType_Checkbox
+		return pb.SchemaField_Checkbox
 	case value.TypeGeometryObject:
-		return pb.SchemaFieldType_GeometryObject
+		return pb.SchemaField_GeometryObject
 	case value.TypeGeometryEditor:
-		return pb.SchemaFieldType_GeometryEditor
+		return pb.SchemaField_GeometryEditor
 	default:
-		return pb.SchemaFieldType_Text
+		return pb.SchemaField_Text
 	}
 }
