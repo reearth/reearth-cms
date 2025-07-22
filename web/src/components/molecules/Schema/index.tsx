@@ -159,6 +159,8 @@ const Schema: React.FC<Props> = ({
           onSchemaImportModalOpen();
         },
       });
+    } else {
+      onSchemaImportModalOpen();
     }
   }, [data?.schema.fields, onSchemaImportModalOpen, t]);
 
