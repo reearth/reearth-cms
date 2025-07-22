@@ -29,7 +29,7 @@ const RequestDetails: React.FC = () => {
     handleNavigateToItemEdit,
   } = useHooks();
 
-  const { handleGetAsset } = useAssetHooks(false);
+  const { handleGetAsset } = useAssetHooks(false, false);
 
   const { workspaceUserMembers, handleGroupGet } = useContentHooks();
 

@@ -42,7 +42,7 @@ const AssetList: React.FC = () => {
     handleAssetsReload,
     handleNavigateToAsset,
     handleAssetTableChange,
-  } = useHooks(true);
+  } = useHooks(true, false);
 
   return (
     <AssetListBody
