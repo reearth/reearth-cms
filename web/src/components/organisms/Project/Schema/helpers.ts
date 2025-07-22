@@ -1,15 +1,16 @@
 import {
   EditorSupportedType,
+  FieldType,
   ObjectSupportedType,
   TypeProperty,
 } from "@reearth-cms/components/molecules/Schema/types";
 
-export function convertFieldType(s: string): string {
+export function convertFieldType(s: string): FieldType {
   switch (s) {
     case "textArea":
       return "TextArea";
-    case "richText":
-      return "RichText";
+    // case "richText":
+    //   return "RichText";
     case "markdownText":
       return "MarkdownText";
     case "asset":
@@ -55,10 +56,10 @@ export function defaultTypePropertyGet(
       return {
         textArea: { defaultValue: "", maxLength: undefined },
       };
-    case "richtext":
-      return {
-        richText: { defaultValue: "", maxLength: undefined },
-      };
+    // case "richtext":
+    //   return {
+    //     richText: { defaultValue: "", maxLength: undefined },
+    //   };
     case "markdowntext":
       return {
         markdownText: { defaultValue: "", maxLength: undefined },

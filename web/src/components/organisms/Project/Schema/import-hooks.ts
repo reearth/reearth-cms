@@ -106,30 +106,28 @@ export default () => {
 
   const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
 
-  useEffect(() => {
+  const parsedFields = useMemo(() => {
     const fields = guessSchemaFieldsData?.guessSchemaFields?.fields;
-    if (fields && fields.length > 0) {
-      setImportFields(
-        fields.map(
-          field =>
-            ({
-              title: field.name,
-              metadata: false,
-              description: "",
-              key: field.name,
-              multiple: false,
-              unique: false,
-              isTitle: false,
-              required: false,
-              type: convertFieldType(field.type),
-              modelId: modelId,
-              groupId: undefined,
-              typeProperty: defaultTypePropertyGet(field.type),
-            }) as CreateFieldInput,
-        ),
-      );
-    }
-  }, [data, guessSchemaFieldsData?.guessSchemaFields?.fields, modelId]);
+    if (!fields || fields.length === 0) return [];
+    return fields.map(field => ({
+      title: field.name,
+      metadata: false,
+      description: "",
+      key: field.name,
+      multiple: false,
+      unique: false,
+      isTitle: false,
+      required: false,
+      type: convertFieldType(field.type),
+      modelId: modelId,
+      groupId: undefined,
+      typeProperty: defaultTypePropertyGet(field.type),
+    }));
+  }, [guessSchemaFieldsData, modelId]);
+
+  useEffect(() => {
+    setImportFields(parsedFields);
+  }, [parsedFields]);
 
   const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
     useCreateFieldsMutation({
