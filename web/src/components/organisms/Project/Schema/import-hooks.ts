@@ -123,7 +123,7 @@ export default () => {
               required: false,
               type: convertFieldType(field.type),
               modelId: modelId,
-              groupId: "",
+              groupId: undefined,
               typeProperty: defaultTypePropertyGet(field.type),
             }) as CreateFieldInput,
         ),
