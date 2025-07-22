@@ -8,13 +8,12 @@ import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
-import useImportHooks from "./import-hooks";
 
 const ProjectSchema: React.FC = () => {
   const t = useT();
 
-  const assetHooks = useAssetHooks(false);
-  const importHooks = useImportHooks();
+  const assetHooks = useAssetHooks(false, false);
+  const importHooks = useAssetHooks(true, true);
   const schemaHooks = useHooks();
 
   return (
