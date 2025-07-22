@@ -79,7 +79,7 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, s *usecasex.Sort, p *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	filter := bson.M{
 		"workspace": bson.M{
 			"$in": ids.Strings(),
@@ -90,7 +90,7 @@ func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.Wo
 			filter["accessibility.visibility"] = f.Visibility.String()
 		}
 	}
-	return r.paginate(ctx, filter, pagination)
+	return r.paginate(ctx, filter, s, p)
 }
 
 func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias) (*project.Project, error) {
@@ -167,9 +167,9 @@ func (r *ProjectRepo) findOne(ctx context.Context, filter any) (*project.Project
 	return c.Result[0], nil
 }
 
-func (r *ProjectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *ProjectRepo) paginate(ctx context.Context, filter bson.M, s *usecasex.Sort, p *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewProjectConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), s, p, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

@@ -54,6 +54,7 @@ import {
   SortAscendingOutlined,
   FilterOutlined,
   CommentOutlined,
+  ImportOutlined,
   SaveOutlined,
 } from "@ant-design/icons";
 
@@ -189,6 +190,7 @@ export default {
   circle: Circle,
   rectangle: Rectangle,
   comment: CommentOutlined,
+  import: ImportOutlined,
   save: SaveOutlined,
   cube: Cube,
 };

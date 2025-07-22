@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/internalapi/internalapimodel"
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -163,7 +164,7 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		return nil, status.Error(codes.InvalidArgument, "at least one valid workspace_id is required")
 	}
 
-	p, pi, err := uc.Project.FindByWorkspaces(ctx, wIds, f, internalapimodel.PaginationFromPB(req.PageInfo), op)
+	p, pi, err := uc.Project.FindByWorkspaces(ctx, wIds, f, internalapimodel.SortFromPB(req.SortInfo), internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
 		return nil, err
 	}
@@ -173,6 +174,48 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 	})
 	return &pb.ListProjectsResponse{
 		Projects:   res,
+		TotalCount: pi.TotalCount,
+
+		PageInfo: internalapimodel.ToPageInfo(req.PageInfo),
+	}, nil
+}
+
+func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.ListAssetsResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	if req.ProjectId == "" {
+		return nil, status.Error(codes.InvalidArgument, "project_id is required")
+	}
+
+	pId, err := project.IDFrom(req.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(pId.String()), op)
+	if err != nil {
+		return nil, err
+	}
+
+	if p == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	f := interfaces.AssetFilter{
+		Sort:       internalapimodel.SortFromPB(req.SortInfo),
+		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
+	}
+	assets, pi, err := uc.Asset.Search(ctx, pId, f, op)
+	if err != nil {
+		return nil, err
+	}
+
+	res := lo.Map(assets, func(a *asset.Asset, _ int) *pb.Asset {
+		return internalapimodel.ToAsset(a)
+	})
+
+	return &pb.ListAssetsResponse{
+		Assets:     res,
 		TotalCount: pi.TotalCount,
 
 		PageInfo: internalapimodel.ToPageInfo(req.PageInfo),

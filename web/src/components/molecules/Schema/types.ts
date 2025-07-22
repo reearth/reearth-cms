@@ -26,6 +26,21 @@ export type Field = {
   typeProperty?: TypeProperty;
 };
 
+export type CreateFieldInput = {
+  modelId?: string;
+  groupId?: string;
+  type: FieldType;
+  title: string;
+  metadata?: boolean;
+  description?: string;
+  key: string;
+  multiple: boolean;
+  unique: boolean;
+  required: boolean;
+  isTitle: boolean;
+  typeProperty: TypeProperty;
+};
+
 export type GroupField = Field & { type: Exclude<FieldType, "Group"> };
 
 export type MetadataField = Field & {
