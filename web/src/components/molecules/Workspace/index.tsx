@@ -35,7 +35,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   onProjectCreate,
   onProjectAliasCheck,
 }) => {
-  const oss = false;
+  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI ?? false;
 
   return (
     <InnerContent>
@@ -44,7 +44,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
         title="Projects"
         headerActions={
           <ButtonWrapper>
-            {oss && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
+            {!disableWorkspaceUI && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
             <CreateProjectButton
               hasCreateRight={hasCreateRight}
               onProjectCreate={onProjectCreate}

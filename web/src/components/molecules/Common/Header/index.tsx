@@ -51,7 +51,7 @@ const HeaderMolecule: React.FC<Props> = ({
     [currentWorkspace?.id, personalWorkspace?.id],
   );
 
-  const oss = false;
+  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI ?? false;
   const WorkspacesItems: MenuProps["items"] = useMemo(() => {
     const res: MenuProps["items"] = [
       {
@@ -94,7 +94,7 @@ const HeaderMolecule: React.FC<Props> = ({
           })),
       },
     ];
-    if (oss) {
+    if (!disableWorkspaceUI) {
       res.push({
         label: t("Create Workspace"),
         key: "new-workspace",
@@ -103,7 +103,7 @@ const HeaderMolecule: React.FC<Props> = ({
       });
     }
     return res;
-  }, [t, workspaces, oss, personalWorkspace?.id, onWorkspaceNavigation, onWorkspaceModalOpen]);
+  }, [t, workspaces, disableWorkspaceUI, personalWorkspace?.id, onWorkspaceNavigation, onWorkspaceModalOpen]);
 
   const AccountItems: MenuProps["items"] = useMemo(
     () => [
