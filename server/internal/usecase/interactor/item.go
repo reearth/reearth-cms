@@ -887,32 +887,21 @@ func (i Item) ItemsAsCSV(ctx context.Context, schemaPackage *schema.Package, pag
 }
 
 // ItemsAsGeoJSON converts items to Geo JSON type given the schema package
-func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToGeoJSONResponse, error) {
-
-	if operator.AcOperator.User == nil && operator.Integration == nil {
-		return interfaces.ExportItemsToGeoJSONResponse{}, interfaces.ErrInvalidOperator
+func (i Item) ItemsAsGeoJSON(ctx context.Context, sp *schema.Package, page *int, perPage *int, _ *usecase.Operator) (interfaces.ExportItemsToGeoJSONResponse, error) {
+	items, pi, err := i.repos.Item.FindBySchema(ctx, sp.Schema().ID(), nil, nil, fromPagination(page, perPage))
+	if err != nil {
+		return interfaces.ExportItemsToGeoJSONResponse{}, err
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ExportItemsToGeoJSONResponse, error) {
+	featureCollections, err := featureCollectionFromItems(items, sp)
+	if err != nil {
+		return interfaces.ExportItemsToGeoJSONResponse{}, err
+	}
 
-		// fromPagination
-		paginationOffset := fromPagination(page, perPage)
-
-		items, pi, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
-		if err != nil {
-			return interfaces.ExportItemsToGeoJSONResponse{}, err
-		}
-
-		featureCollections, err := featureCollectionFromItems(items, schemaPackage)
-		if err != nil {
-			return interfaces.ExportItemsToGeoJSONResponse{}, err
-		}
-
-		return interfaces.ExportItemsToGeoJSONResponse{
-			FeatureCollections: featureCollections,
-			PageInfo:           pi,
-		}, nil
-	})
+	return interfaces.ExportItemsToGeoJSONResponse{
+		FeatureCollections: featureCollections,
+		PageInfo:           pi,
+	}, nil
 }
 
 func fromPagination(page, perPage *int) *usecasex.Pagination {
