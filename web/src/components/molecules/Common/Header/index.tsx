@@ -181,7 +181,7 @@ const Logo = styled.div`
 
 const LogoIcon = styled.img`
   width: 100px;
-  margin: 0 0 0 10px;
+  margin: 0 40px 0 20px;
   cursor: pointer;
 `;
 
