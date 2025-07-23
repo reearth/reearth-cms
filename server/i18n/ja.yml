@@ -83,6 +83,7 @@ only reviewers can approve: レビュワーのみ承認可能です。
 operation denied: 操作が拒否されました。
 partial not found: 部分が見つかりませんでした。
 point type is not supported in any geometry field in this model: このモデルのどのジオメトリフィールドでも、ポイントタイプはサポートされていません。
+policy check failed: ポリシーチェックに失敗しました。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
 project creation limit exceeded: プロジェクト作成数の上限に達しました。
 projectID is required: プロジェクトIDは必須です。
