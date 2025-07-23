@@ -66,6 +66,11 @@ func unaryLogInterceptor(appCtx *ApplicationContext) grpc.UnaryServerInterceptor
 
 func unaryAuthInterceptor(appCtx *ApplicationContext) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+		// Check if this a read-only GET method that should be allowed without auth
+		if isReadOnlyMethod(info.FullMethod) {
+			return handler(ctx, req)
+		}
+
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			log.Errorf("unaryAuthInterceptor: no metadata found")
@@ -91,25 +96,38 @@ func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServer
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
+			// For read-only methods, we can proceed without metadata
+			if isReadOnlyMethod(info.FullMethod) {
+				return handler(ctx, req)
+			}
+
 			log.Errorf("unaryAttachOperatorInterceptor: no metadata found")
 			return nil, errors.New("unauthorized")
 		}
 
 		userID := userIdFromGrpcMetadata(md)
-		if !userID.IsEmpty() {
-			u, err := appCtx.AcRepos.User.FindByID(ctx, userID)
-			if err != nil {
-				log.Errorf("unaryAttachOperatorInterceptor: %v", err)
-				return nil, rerror.ErrInternalBy(err)
+		if userID.IsEmpty() {
+			// For read-only methods, we can proceed without user ID
+			if isReadOnlyMethod(info.FullMethod) {
+				return handler(ctx, req)
 			}
 
-			op, err := generateUserOperator(ctx, appCtx, u, language.English.String())
-			if err != nil {
-				return nil, err
-			}
-			ctx = adapter.AttachUser(ctx, u)
-			ctx = adapter.AttachOperator(ctx, op)
+			log.Errorf("unaryAttachOperatorInterceptor: no user ID found")
+			return nil, errors.New("unauthorized")
 		}
+
+		u, err := appCtx.AcRepos.User.FindByID(ctx, userID)
+		if err != nil {
+			log.Errorf("unaryAttachOperatorInterceptor: %v", err)
+			return nil, rerror.ErrInternalBy(err)
+		}
+
+		op, err := generateUserOperator(ctx, appCtx, u, language.English.String())
+		if err != nil {
+			return nil, err
+		}
+		ctx = adapter.AttachUser(ctx, u)
+		ctx = adapter.AttachOperator(ctx, op)
 
 		return handler(ctx, req)
 	}
@@ -168,4 +186,21 @@ func userIdFromGrpcMetadata(md metadata.MD) idx.ID[accountdomain.User] {
 		return idx.ID[accountdomain.User]{}
 	}
 	return userID
+}
+
+func isReadOnlyMethod(method string) bool {
+	readOnlyMethods := []string{
+		"v1.ReEarthCMS/ListProjects",
+		"v1.ReEarthCMS/GetProject",
+		"v1.ReEarthCMS/GetModelGeoJSONExportURL",
+		"v1.ReEarthCMS/ListModels",
+		"v1.ReEarthCMS/ListItems",
+	}
+
+	for _, readOnlyMethod := range readOnlyMethods {
+		if strings.Contains(method, readOnlyMethod) {
+			return true
+		}
+	}
+	return false
 }

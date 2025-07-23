@@ -888,8 +888,7 @@ func (i Item) ItemsAsCSV(ctx context.Context, schemaPackage *schema.Package, pag
 
 // ItemsAsGeoJSON converts items to Geo JSON type given the schema package
 func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToGeoJSONResponse, error) {
-
-	if operator.AcOperator.User == nil && operator.Integration == nil {
+	if operator != nil && operator.AcOperator.User == nil && operator.Integration == nil {
 		return interfaces.ExportItemsToGeoJSONResponse{}, interfaces.ErrInvalidOperator
 	}
 
