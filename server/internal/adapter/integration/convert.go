@@ -231,10 +231,7 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 }
 
 func toProjectSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
-	reverted := true
-	if dir != nil && *dir == integrationapi.SortDirParamAsc {
-		reverted = false
-	}
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
 
 	column := "id"
 	if sort != nil {
@@ -253,10 +250,7 @@ func toProjectSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirPa
 }
 
 func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
-	reverted := true
-	if dir != nil && *dir == integrationapi.SortDirParamAsc {
-		reverted = false
-	}
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
 
 	column := "order"
 	if sort != nil {
