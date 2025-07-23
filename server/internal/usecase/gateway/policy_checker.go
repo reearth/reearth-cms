@@ -2,23 +2,25 @@ package gateway
 
 import (
 	"context"
+
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 type PolicyCheckType string
 
 const (
-	PolicyCheckCMSPrivateDataTransferUpload   PolicyCheckType = "cms_private_data_transfer_upload_size"
-	PolicyCheckCMSPrivateDataTransferDownload PolicyCheckType = "cms_private_data_transfer_download_size"
-	PolicyCheckCMSPublicDataTransferUpload    PolicyCheckType = "cms_public_data_transfer_upload_size"
-	PolicyCheckCMSPublicDataTransferDownload  PolicyCheckType = "cms_public_data_transfer_download_size"
-	PolicyCheckCMSUploadAssetsSize            PolicyCheckType = "cms_upload_assets_size_from_ui"
-	PolicyCheckCMSModelCountPerProject        PolicyCheckType = "cms_model_count_per_project"
-	PolicyCheckGeneralPrivateProjectCreation  PolicyCheckType = "general_private_project_creation"
-	PolicyCheckGeneralPublicProjectCreation   PolicyCheckType = "general_public_project_creation"
+	PolicyCheckPrivateDataTransferUpload     PolicyCheckType = "cms_private_data_transfer_upload_size"
+	PolicyCheckPrivateDataTransferDownload   PolicyCheckType = "cms_private_data_transfer_download_size"
+	PolicyCheckPublicDataTransferUpload      PolicyCheckType = "cms_public_data_transfer_upload_size"
+	PolicyCheckPublicDataTransferDownload    PolicyCheckType = "cms_public_data_transfer_download_size"
+	PolicyCheckUploadAssetsSize              PolicyCheckType = "cms_upload_assets_size_from_ui"
+	PolicyCheckModelCountPerProject          PolicyCheckType = "cms_model_count_per_project"
+	PolicyCheckGeneralPrivateProjectCreation PolicyCheckType = "general_private_project_creation"
+	PolicyCheckGeneralPublicProjectCreation  PolicyCheckType = "general_public_project_creation"
 )
 
 type PolicyCheckRequest struct {
-	WorkspaceID string
+	WorkspaceID accountdomain.WorkspaceID
 	CheckType   PolicyCheckType
 	Value       int64
 }

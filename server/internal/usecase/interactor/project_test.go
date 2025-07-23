@@ -498,6 +498,27 @@ func TestProject_Update(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name:  "update visibility change",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID: p1.ID(),
+					Accessibility: &interfaces.AccessibilityParam{
+						Visibility: lo.ToPtr(project.VisibilityPublic),
+					},
+				},
+				operator: op,
+			},
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				RequestRoles(r1).
+				UpdatedAt(mocktime).
+				Accessibility(project.NewPublicAccessibility()).
+				MustBuild(),
+			wantErr: nil,
+		},
+		{
 			name: "mock error",
 			args: args{
 				upp: interfaces.UpdateProjectParam{

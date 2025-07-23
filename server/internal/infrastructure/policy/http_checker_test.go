@@ -9,10 +9,12 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHTTPPolicyChecker_CheckPolicy(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
 	tests := []struct {
 		name           string
 		serverResponse *gateway.PolicyCheckResponse
@@ -25,7 +27,7 @@ func TestHTTPPolicyChecker_CheckPolicy(t *testing.T) {
 			name: "successful check - allowed",
 			serverResponse: &gateway.PolicyCheckResponse{
 				Allowed:      true,
-				CheckType:    gateway.PolicyCheckCMSUploadAssetsSize,
+				CheckType:    gateway.PolicyCheckUploadAssetsSize,
 				CurrentLimit: "10GB",
 				Message:      "Upload allowed",
 				Value:        1024,
@@ -39,7 +41,7 @@ func TestHTTPPolicyChecker_CheckPolicy(t *testing.T) {
 			name: "successful check - denied",
 			serverResponse: &gateway.PolicyCheckResponse{
 				Allowed:      false,
-				CheckType:    gateway.PolicyCheckCMSUploadAssetsSize,
+				CheckType:    gateway.PolicyCheckUploadAssetsSize,
 				CurrentLimit: "1GB",
 				Message:      "Upload size exceeded",
 				Value:        1024 * 1024 * 1024 * 2,
@@ -104,8 +106,8 @@ func TestHTTPPolicyChecker_CheckPolicy(t *testing.T) {
 
 			// Make request
 			req := gateway.PolicyCheckRequest{
-				WorkspaceID: "workspace01",
-				CheckType:   gateway.PolicyCheckCMSUploadAssetsSize,
+				WorkspaceID: wid,
+				CheckType:   gateway.PolicyCheckUploadAssetsSize,
 				Value:       1024,
 			}
 
@@ -122,6 +124,7 @@ func TestHTTPPolicyChecker_CheckPolicy(t *testing.T) {
 }
 
 func TestHTTPPolicyChecker_Timeout(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
 	// Create slow server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Sleep for 2 seconds, longer than the 1 second timeout
@@ -139,8 +142,8 @@ func TestHTTPPolicyChecker_Timeout(t *testing.T) {
 	checker := NewHTTPPolicyChecker(server.URL, "", 1)
 
 	req := gateway.PolicyCheckRequest{
-		WorkspaceID: "workspace01",
-		CheckType:   gateway.PolicyCheckCMSUploadAssetsSize,
+		WorkspaceID: wid,
+		CheckType:   gateway.PolicyCheckUploadAssetsSize,
 		Value:       1024,
 	}
 

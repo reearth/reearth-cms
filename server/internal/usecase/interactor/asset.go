@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -166,13 +167,13 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 
 		if i.gateways != nil && i.gateways.PolicyChecker != nil {
 			policyReq := gateway.PolicyCheckRequest{
-				WorkspaceID: workspace.ID().String(),
-				CheckType:   gateway.PolicyCheckCMSUploadAssetsSize,
+				WorkspaceID: workspace.ID(),
+				CheckType:   gateway.PolicyCheckUploadAssetsSize,
 				Value:       file.Size,
 			}
 			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
 			if err != nil {
-				return nil, nil, err
+				return nil, nil, rerror.NewE(i18n.T("policy check failed"))
 			}
 			if !policyResp.Allowed {
 				return nil, nil, interfaces.ErrAssetUploadSizeLimitExceeded
@@ -483,6 +484,21 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 	workspace, err := i.repos.Workspace.FindByID(ctx, prj.Workspace())
 	if err != nil {
 		return nil, err
+	}
+
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		policyReq := gateway.PolicyCheckRequest{
+			WorkspaceID: workspace.ID(),
+			CheckType:   gateway.PolicyCheckUploadAssetsSize,
+			Value:       param.ContentLength,
+		}
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, rerror.NewE(i18n.T("policy check failed"))
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrAssetUploadSizeLimitExceeded
+		}
 	}
 
 	ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())
