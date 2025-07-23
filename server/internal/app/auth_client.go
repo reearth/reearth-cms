@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -219,10 +220,12 @@ func operatorProjects(ctx context.Context, appCtx *ApplicationContext, w workspa
 	}
 	var cur *usecasex.Cursor
 	for {
-		projects, pi, err := appCtx.Repos.Project.FindByWorkspaces(ctx, w.IDs(), nil, nil, usecasex.CursorPagination{
-			After: cur,
-			First: lo.ToPtr(int64(100)),
-		}.Wrap())
+		projects, pi, err := appCtx.Repos.Project.FindByWorkspaces(ctx, w.IDs(), &interfaces.ProjectFilter{
+			Pagination: usecasex.CursorPagination{
+				After: cur,
+				First: lo.ToPtr(int64(100)),
+			}.Wrap(),
+		})
 		if err != nil {
 			return nil, nil, nil, nil, err
 		}

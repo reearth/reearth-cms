@@ -63,7 +63,7 @@ type ModelEdge {
 }
 
 extend type Query {
-  models(projectId: ID!, pagination: Pagination): ModelConnection!
+  models(projectId: ID!, keyword: String, sort: Sort, pagination: Pagination): ModelConnection!
   checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 

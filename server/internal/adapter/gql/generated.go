@@ -602,11 +602,11 @@ type ComplexityRoot struct {
 		GuessSchemaFields         func(childComplexity int, input gqlmodel.GuessSchemaFieldsInput) int
 		IsItemReferenced          func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
 		Me                        func(childComplexity int) int
-		Models                    func(childComplexity int, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) int
+		Models                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) int
 		ModelsByGroup             func(childComplexity int, groupID gqlmodel.ID) int
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
-		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) int
+		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) int
 		Requests                  func(childComplexity int, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) int
 		SearchItem                func(childComplexity int, input gqlmodel.SearchItemInput) int
 		UserByNameOrEmail         func(childComplexity int, nameOrEmail string) int
@@ -1076,9 +1076,9 @@ type QueryResolver interface {
 	SearchItem(ctx context.Context, input gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error)
 	IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error)
 	View(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.View, error)
-	Models(ctx context.Context, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
+	Models(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
-	Projects(ctx context.Context, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
+	Projects(ctx context.Context, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error)
 	Me(ctx context.Context) (*gqlmodel.Me, error)
@@ -3717,7 +3717,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Models(childComplexity, args["projectId"].(gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Models(childComplexity, args["projectId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.Sort), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.modelsByGroup":
 		if e.complexity.Query.ModelsByGroup == nil {
@@ -3765,7 +3765,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Projects(childComplexity, args["workspaceId"].(gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Projects(childComplexity, args["workspaceId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.Sort), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.requests":
 		if e.complexity.Query.Requests == nil {
@@ -6682,7 +6682,7 @@ type ModelEdge {
 }
 
 extend type Query {
-  models(projectId: ID!, pagination: Pagination): ModelConnection!
+  models(projectId: ID!, keyword: String, sort: Sort, pagination: Pagination): ModelConnection!
   checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
@@ -6829,7 +6829,7 @@ type ProjectEdge {
 }
 
 extend type Query {
-  projects(workspaceId: ID!, pagination: Pagination): ProjectConnection!
+  projects(workspaceId: ID!, keyword: String, sort: Sort, pagination: Pagination): ProjectConnection!
   checkProjectAlias(alias: String!): ProjectAliasAvailability!
 }
 
@@ -9542,11 +9542,21 @@ func (ec *executionContext) field_Query_models_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["projectId"] = arg0
-	arg1, err := ec.field_Query_models_argsPagination(ctx, rawArgs)
+	arg1, err := ec.field_Query_models_argsKeyword(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["pagination"] = arg1
+	args["keyword"] = arg1
+	arg2, err := ec.field_Query_models_argsSort(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["sort"] = arg2
+	arg3, err := ec.field_Query_models_argsPagination(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["pagination"] = arg3
 	return args, nil
 }
 func (ec *executionContext) field_Query_models_argsProjectID(
@@ -9564,6 +9574,42 @@ func (ec *executionContext) field_Query_models_argsProjectID(
 	}
 
 	var zeroVal gqlmodel.ID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_models_argsKeyword(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["keyword"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("keyword"))
+	if tmp, ok := rawArgs["keyword"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_models_argsSort(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*gqlmodel.Sort, error) {
+	if _, ok := rawArgs["sort"]; !ok {
+		var zeroVal *gqlmodel.Sort
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+	if tmp, ok := rawArgs["sort"]; ok {
+		return ec.unmarshalOSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSort(ctx, tmp)
+	}
+
+	var zeroVal *gqlmodel.Sort
 	return zeroVal, nil
 }
 
@@ -9695,11 +9741,21 @@ func (ec *executionContext) field_Query_projects_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["workspaceId"] = arg0
-	arg1, err := ec.field_Query_projects_argsPagination(ctx, rawArgs)
+	arg1, err := ec.field_Query_projects_argsKeyword(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["pagination"] = arg1
+	args["keyword"] = arg1
+	arg2, err := ec.field_Query_projects_argsSort(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["sort"] = arg2
+	arg3, err := ec.field_Query_projects_argsPagination(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["pagination"] = arg3
 	return args, nil
 }
 func (ec *executionContext) field_Query_projects_argsWorkspaceID(
@@ -9717,6 +9773,42 @@ func (ec *executionContext) field_Query_projects_argsWorkspaceID(
 	}
 
 	var zeroVal gqlmodel.ID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_projects_argsKeyword(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["keyword"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("keyword"))
+	if tmp, ok := rawArgs["keyword"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_projects_argsSort(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*gqlmodel.Sort, error) {
+	if _, ok := rawArgs["sort"]; !ok {
+		var zeroVal *gqlmodel.Sort
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+	if tmp, ok := rawArgs["sort"]; ok {
+		return ec.unmarshalOSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSort(ctx, tmp)
+	}
+
+	var zeroVal *gqlmodel.Sort
 	return zeroVal, nil
 }
 
@@ -26627,7 +26719,7 @@ func (ec *executionContext) _Query_models(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Models(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Models(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.Sort), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -26753,7 +26845,7 @@ func (ec *executionContext) _Query_projects(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Projects(rctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Projects(rctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.Sort), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

@@ -189,8 +189,8 @@ func (r *projectResolver) Workspace(ctx context.Context, obj *gqlmodel.Project) 
 }
 
 // Projects is the resolver for the projects field.
-func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error) {
-	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, pagination)
+func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error) {
+	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, keyword, sort, pagination)
 }
 
 // CheckProjectAlias is the resolver for the checkProjectAlias field.
