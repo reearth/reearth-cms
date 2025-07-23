@@ -198,7 +198,7 @@ func isReadOnlyMethod(method string) bool {
 	}
 
 	for _, readOnlyMethod := range readOnlyMethods {
-		if strings.Contains(method, readOnlyMethod) {
+		if method == readOnlyMethod {
 			return true
 		}
 	}
