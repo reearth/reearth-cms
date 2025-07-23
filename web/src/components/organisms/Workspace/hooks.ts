@@ -13,6 +13,7 @@ import {
   Workspace as GQLWorkspace,
   useCheckProjectAliasLazyQuery,
   Project as GQLProject,
+  useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -29,6 +30,9 @@ export default () => {
   const hasCreateRight = useMemo(() => !!userRights?.project.create, [userRights?.project.create]);
 
   const workspaceId = currentWorkspace?.id;
+
+  const { data: meData } = useGetMeQuery();
+  const username = useMemo(() => meData?.me?.name || "", [meData?.me?.name]);
 
   const {
     data,
@@ -132,6 +136,7 @@ export default () => {
   );
 
   return {
+    username,
     coverImageUrl,
     projects,
     loading,

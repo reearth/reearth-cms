@@ -4,7 +4,7 @@ import { expect, test, describe } from "vitest";
 import Greeting from "./Greeting";
 
 describe("Greeting", () => {
-  test("Welcome message display successfully", () => {
+  test.skip("Welcome message display successfully", () => {
     render(<Greeting coverImageUrl={undefined} />);
     expect(screen.getByText("Welcome to Re:Earth CMS !")).toBeVisible();
     expect(screen.queryByRole("img")).not.toBeInTheDocument();

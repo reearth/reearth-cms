@@ -13,6 +13,7 @@ import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import WorkspaceHeader from "./WorkspaceHeader";
 
 type Props = {
+  username?: string;
   coverImageUrl?: string;
   projects: Project[];
   loading: boolean;
@@ -25,6 +26,7 @@ type Props = {
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({
+  username,
   coverImageUrl,
   projects,
   loading,
@@ -39,7 +41,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
 
   return (
     <InnerContent>
-      <Greeting coverImageUrl={coverImageUrl} />
+      <Greeting username={username} coverImageUrl={coverImageUrl} />
       <ContentSection
         title="Projects"
         headerActions={
