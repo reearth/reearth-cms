@@ -23,12 +23,15 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.Cre
 	}
 
 	res, err := usecases(ctx).Project.Create(ctx, interfaces.CreateProjectParam{
-		WorkspaceID:  wid,
-		Name:         input.Name,
-		Description:  input.Description,
-		License:      input.License,
-		Readme:       input.Readme,
-		Alias:        input.Alias,
+		WorkspaceID: wid,
+		Name:        input.Name,
+		Description: input.Description,
+		License:     input.License,
+		Readme:      input.Readme,
+		Alias:       input.Alias,
+		Accessibility: &interfaces.AccessibilityParam{
+			Visibility: gqlmodel.FromProjectVisibility(input.Visibility),
+		},
 		RequestRoles: lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) workspace.Role { return workspace.Role(r) }),
 	}, getOperator(ctx))
 	if err != nil {
