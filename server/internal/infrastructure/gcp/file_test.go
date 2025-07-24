@@ -30,7 +30,7 @@ func TestFile_GetWorkspaceFromContext(t *testing.T) {
 	}{
 		{
 			name:     "with workspace",
-			ctx:      context.WithValue(context.Background(), workspaceContextKey, "workspace-123"),
+			ctx:      context.WithValue(context.Background(), contextKey("workspace"), "workspace-123"),
 			expected: "workspace-123",
 		},
 		{
@@ -40,7 +40,7 @@ func TestFile_GetWorkspaceFromContext(t *testing.T) {
 		},
 		{
 			name:     "with non-string value",
-			ctx:      context.WithValue(context.Background(), workspaceContextKey, 123),
+			ctx:      context.WithValue(context.Background(), contextKey("workspace"), 123),
 			expected: "",
 		},
 	}
@@ -350,7 +350,7 @@ func TestFileRepo_IssueUploadAssetLink_Headers(t *testing.T) {
 
 			ctx := context.Background()
 			if tt.workspaceID != "" {
-				ctx = context.WithValue(ctx, workspaceContextKey, tt.workspaceID)
+				ctx = context.WithValue(ctx, contextKey("workspace"), tt.workspaceID)
 			}
 
 			// Verify workspace extraction

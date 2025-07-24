@@ -29,9 +29,7 @@ const (
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
-type contextKey string
-
-const workspaceContextKey contextKey = "workspace"
+const workspaceContextKey = "workspace"
 
 type fileRepo struct {
 	bucketName   string
@@ -662,10 +660,12 @@ func hasAcceptEncoding(accept, encoding string) bool {
 }
 
 func getWorkspaceFromContext(ctx context.Context) string {
-	if v := ctx.Value(workspaceContextKey); v != nil {
+	if v := ctx.Value(contextKey(workspaceContextKey)); v != nil {
 		if ws, ok := v.(string); ok {
 			return ws
 		}
 	}
 	return ""
 }
+
+type contextKey string
