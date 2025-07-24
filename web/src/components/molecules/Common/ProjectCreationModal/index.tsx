@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useState, useEffect, useRef, useMemo } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -8,19 +8,23 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
+import { license_options, getLicenseContent } from "@reearth-cms/data/license";
+import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 
 export type FormValues = {
   name: string;
   alias: string;
-  visibility: "public" | "private";
+  visibility: ProjectVisibility;
   description: string;
   license: string;
 };
 
 type Props = {
+  isFreePlan?: boolean;
   open: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
@@ -30,12 +34,13 @@ type Props = {
 const initialValues: FormValues = {
   name: "",
   alias: "",
-  visibility: "public",
+  visibility: ProjectVisibility.Public,
   description: "",
   license: "",
 };
 
 const ProjectCreationModal: React.FC<Props> = ({
+  isFreePlan,
   open,
   onClose,
   onSubmit,
@@ -122,10 +127,6 @@ const ProjectCreationModal: React.FC<Props> = ({
     [onProjectAliasCheck],
   );
 
-  const isFreePlan = true;
-  // TODO: add license items later
-  const licenseItems = useMemo(() => [{ key: "test", label: t("Test") }], [t]);
-
   return (
     <Modal
       open={open}
@@ -174,8 +175,8 @@ const ProjectCreationModal: React.FC<Props> = ({
             { required: true, message: t("Please choose the visibility settings of the project!") },
           ]}>
           <StyledRadioGroup defaultValue="public" disabled={isFreePlan}>
-            <Radio value="public">{t("Public")}</Radio>
-            <Radio value="private">{t("Private")}</Radio>
+            <Radio value={ProjectVisibility.Public}>{t("Public")}</Radio>
+            <Radio value={ProjectVisibility.Private}>{t("Private")}</Radio>
           </StyledRadioGroup>
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>
@@ -183,9 +184,11 @@ const ProjectCreationModal: React.FC<Props> = ({
         </Form.Item>
         <Form.Item name="license" label={t("Project license")}>
           <Select>
-            {licenseItems?.map(item => (
-              <Select.Option key={item.key} value={item.key}>
-                {item.label}
+            {license_options?.map(option => (
+              <Select.Option key={option.value} value={getLicenseContent(option.value)}>
+                <Tooltip title={option.description}>
+                  <span>{option.label}</span>
+                </Tooltip>
               </Select.Option>
             ))}
           </Select>

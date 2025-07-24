@@ -81,6 +81,8 @@ export default () => {
           name: data.name,
           alias: data.alias,
           description: data.description,
+          visibility: data.visibility,
+          license: data.license,
         },
       });
       if (project.errors || !project.data?.createProject) {
@@ -135,8 +137,13 @@ export default () => {
     [CheckProjectAlias],
   );
 
+  const isFreePlan = useMemo(() => {
+    return false;
+  }, []);
+
   return {
     username,
+    isFreePlan,
     coverImageUrl,
     projects,
     loading,
