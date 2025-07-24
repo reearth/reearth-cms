@@ -50,6 +50,7 @@ input CreateProjectInput {
   license: String
   readme: String
   alias: String
+  visibility: ProjectVisibility
   requestRoles: [Role!]
 }
 
