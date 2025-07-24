@@ -260,6 +260,21 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		log.Errorf("gcs: failed to issue signed url: %v", err)
 		return nil, gateway.ErrUnsupportedOperation
 	}
+	
+	// Replace storage.googleapis.com with custom asset base URL if configured
+	if f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
+		// Parse the signed URL to preserve query parameters
+		parsedURL, err := url.Parse(uploadURL)
+		if err == nil {
+			// Replace the host with our custom asset base URL
+			parsedURL.Scheme = f.publicBase.Scheme
+			parsedURL.Host = f.publicBase.Host
+			// Update the path to match our asset URL structure
+			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
+			uploadURL = parsedURL.String()
+		}
+	}
+	
 	return &gateway.UploadAssetLink{
 		URL:             uploadURL,
 		ContentType:     contentType,
