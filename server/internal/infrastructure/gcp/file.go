@@ -32,14 +32,15 @@ const (
 const workspaceContextKey = "workspace"
 
 type fileRepo struct {
-	bucketName   string
-	publicBase   *url.URL
-	privateBase  *url.URL
-	cacheControl string
-	public       bool
+	bucketName       string
+	publicBase       *url.URL
+	privateBase      *url.URL
+	cacheControl     string
+	public           bool
+	replaceUploadURL bool
 }
 
-func NewFile(bucketName, publicBase, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, rerror.NewE(i18n.T("bucket name is empty"))
 	}
@@ -55,16 +56,17 @@ func NewFile(bucketName, publicBase, cacheControl string) (gateway.File, error) 
 	}
 
 	return &fileRepo{
-		bucketName:   bucketName,
-		publicBase:   u,
-		privateBase:  nil,
-		cacheControl: cacheControl,
-		public:       true,
+		bucketName:       bucketName,
+		publicBase:       u,
+		privateBase:      nil,
+		cacheControl:     cacheControl,
+		public:           true,
+		replaceUploadURL: replaceUploadURL,
 	}, nil
 }
 
-func NewFileWithACL(bucketName, publicBase, privateBase, cacheControl string) (gateway.File, error) {
-	f, err := NewFile(bucketName, publicBase, cacheControl)
+func NewFileWithACL(bucketName, publicBase, privateBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
+	f, err := NewFile(bucketName, publicBase, cacheControl, replaceUploadURL)
 	if err != nil {
 		return nil, err
 	}
@@ -269,15 +271,12 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 }
 
 func (f *fileRepo) toPublicUrl(uploadURL string) string {
-	// Replace storage.googleapis.com with custom asset base URL if configured
-	if f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
-		// Parse the signed URL to preserve query parameters
+	// Replace storage.googleapis.com with custom asset base URL if configured and enabled
+	if f.replaceUploadURL && f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
 		parsedURL, err := url.Parse(uploadURL)
 		if err == nil {
-			// Replace the host with our custom asset base URL
 			parsedURL.Scheme = f.publicBase.Scheme
 			parsedURL.Host = f.publicBase.Host
-			// Update the path to match our asset URL structure
 			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
 			uploadURL = parsedURL.String()
 		}

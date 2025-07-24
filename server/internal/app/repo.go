@@ -84,9 +84,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
 		if conf.Asset_Public {
-			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
+			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = gcp.NewFileWithACL(conf.GCS.BucketName, conf.AssetBaseURL, privateBase, conf.GCS.PublicationCacheControl)
+			fileRepo, err = gcp.NewFileWithACL(conf.GCS.BucketName, conf.AssetBaseURL, privateBase, conf.GCS.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		}
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
@@ -94,9 +94,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	} else if conf.S3.BucketName != "" {
 		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
 		if conf.Asset_Public {
-			fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl)
+			fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = aws.NewFileWithACL(ctx, conf.S3.BucketName, conf.AssetBaseURL, privateBase, conf.S3.PublicationCacheControl)
+			fileRepo, err = aws.NewFileWithACL(ctx, conf.S3.BucketName, conf.AssetBaseURL, privateBase, conf.S3.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		}
 		if err != nil {
 			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
@@ -105,9 +105,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Infof("file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
 		if conf.Asset_Public {
-			fileRepo, err = fs.NewFile(datafs, conf.Host)
+			fileRepo, err = fs.NewFile(datafs, conf.Host, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = fs.NewFileWithACL(datafs, conf.AssetBaseURL, privateBase)
+			fileRepo, err = fs.NewFileWithACL(datafs, conf.AssetBaseURL, privateBase, conf.AssetUploadURLReplacement)
 		}
 	}
 	if err != nil {
