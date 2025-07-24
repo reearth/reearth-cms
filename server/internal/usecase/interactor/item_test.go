@@ -1364,6 +1364,21 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 			wantError:   nil,
 		},
 		{
+			name: "success operator user is nil",
+			args: args{
+				ctx:           context.Background(),
+				schemaPackage: sp2,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            opUserNil,
+			},
+			seedsItems:  item.List{i2},
+			seedSchemas: s2,
+			seedModels:  m2,
+			want:        fc2,
+			wantError:   nil,
+		},
+		{
 			name: "error no geometry field in this model / integer",
 			args: args{
 				ctx:           context.Background(),
@@ -1377,18 +1392,6 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 			seedModels:  m3,
 			want:        nil,
 			wantError:   rerror.NewE(i18n.T("no geometry field in this model")),
-		},
-		{
-			name: "error operator user is nil",
-			args: args{
-				ctx:           context.Background(),
-				schemaPackage: sp3,
-				page:          &page1,
-				perPage:       &perPage1,
-				op:            opUserNil,
-			},
-			want:      nil,
-			wantError: interfaces.ErrInvalidOperator,
 		},
 	}
 	for _, tt := range tests {

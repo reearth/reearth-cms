@@ -35,7 +35,7 @@ import (
 
 func TestAsset_FindByID(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	pid := id.NewProjectID()
 	id1 := id.NewAssetID()
@@ -152,7 +152,7 @@ func TestAsset_FindByID(t *testing.T) {
 
 func TestAsset_DecompressByID(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	ws1 := workspace.New().NewID().MustBuild()
 	pid1 := id.NewProjectID()
@@ -349,7 +349,7 @@ func TestAsset_FindFileByID(t *testing.T) {
 
 func TestAsset_FindByIDs(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	pid1 := id.NewProjectID()
 	uid1 := accountdomain.NewUserID()
@@ -464,7 +464,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 
 func TestAsset_Search(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	pid := id.NewProjectID()
 	aid1 := id.NewAssetID()
@@ -926,7 +926,7 @@ func TestAsset_Create(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 			mfs := afero.NewMemMapFs()
-			f, _ := fs.NewFile(mfs, "")
+			f, _ := fs.NewFile(mfs, "", false)
 			runnerGw := NewMockRunner()
 
 			err := db.User.Save(ctx, u)
@@ -982,7 +982,7 @@ func TestAsset_Create(t *testing.T) {
 
 func TestAsset_Update(t *testing.T) {
 	g := gateway.Container{
-		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	uid := accountdomain.NewUserID()
 	ws := workspace.New().NewID().MustBuild()
@@ -1278,7 +1278,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 
-			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), ""))
+			fileGw := lo.Must(fs.NewFile(tc.prepareFileFunc(), "", false))
 
 			err := db.Project.Save(ctx, proj)
 			assert.NoError(t, err)
