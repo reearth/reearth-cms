@@ -8,6 +8,8 @@ export const GET_PROJECT = gql`
         name
         description
         alias
+        license
+        readme
         accessibility {
           visibility
           publication {
@@ -39,6 +41,8 @@ export const GET_PROJECTS = gql`
         name
         description
         alias
+        license
+        readme
         accessibility {
           visibility
           publication {
@@ -77,6 +81,8 @@ export const CREATE_PROJECT = gql`
     $name: String!
     $description: String!
     $alias: String!
+    $license: String
+    $visibility: ProjectVisibility
     $requestRoles: [Role!]
   ) {
     createProject(
@@ -85,6 +91,8 @@ export const CREATE_PROJECT = gql`
         name: $name
         description: $description
         alias: $alias
+        license: $license
+        visibility: $visibility
         requestRoles: $requestRoles
       }
     ) {
@@ -93,6 +101,7 @@ export const CREATE_PROJECT = gql`
         name
         description
         alias
+        license
         accessibility {
           visibility
           publication {
@@ -130,6 +139,8 @@ export const UPDATE_PROJECT = gql`
     $name: String
     $description: String
     $alias: String
+    $license: String
+    $readme: String
     $accessibility: UpdateProjectAccessibilityInput
     $requestRoles: [Role!]
   ) {
@@ -139,6 +150,8 @@ export const UPDATE_PROJECT = gql`
         name: $name
         description: $description
         alias: $alias
+        license: $license
+        readme: $readme
         accessibility: $accessibility
         requestRoles: $requestRoles
       }
@@ -148,6 +161,8 @@ export const UPDATE_PROJECT = gql`
         name
         description
         alias
+        license
+        readme
         accessibility {
           visibility
           publication {

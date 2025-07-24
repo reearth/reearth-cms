@@ -3107,6 +3107,18 @@
             "deprecationReason": null
           },
           {
+            "name": "visibility",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "ProjectVisibility",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "workspaceId",
             "description": null,
             "type": {

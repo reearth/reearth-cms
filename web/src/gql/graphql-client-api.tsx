@@ -346,6 +346,7 @@ export type CreateProjectInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   readme?: InputMaybe<Scalars['String']['input']>;
   requestRoles?: InputMaybe<Array<Role>>;
+  visibility?: InputMaybe<ProjectVisibility>;
   workspaceId: Scalars['ID']['input'];
 };
 
@@ -2861,7 +2862,7 @@ export type GetProjectQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, license: string, readme: string, requestRoles?: Array<Role> | null, id: string, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID']['input'];
@@ -2869,7 +2870,7 @@ export type GetProjectsQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
+export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, readme: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
 
 export type CheckProjectAliasQueryVariables = Exact<{
   alias: Scalars['String']['input'];
@@ -2883,11 +2884,13 @@ export type CreateProjectMutationVariables = Exact<{
   name: Scalars['String']['input'];
   description: Scalars['String']['input'];
   alias: Scalars['String']['input'];
+  license?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<ProjectVisibility>;
   requestRoles?: InputMaybe<Array<Role> | Role>;
 }>;
 
 
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } } | null };
+export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } } | null };
 
 export type DeleteProjectMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2901,12 +2904,14 @@ export type UpdateProjectMutationVariables = Exact<{
   name?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   alias?: InputMaybe<Scalars['String']['input']>;
+  license?: InputMaybe<Scalars['String']['input']>;
+  readme?: InputMaybe<Scalars['String']['input']>;
   accessibility?: InputMaybe<UpdateProjectAccessibilityInput>;
   requestRoles?: InputMaybe<Array<Role> | Role>;
 }>;
 
 
-export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } } | null };
+export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, readme: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } } | null };
 
 export type CreateApiKeyMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -6006,6 +6011,8 @@ export const GetProjectDocument = gql`
       name
       description
       alias
+      license
+      readme
       accessibility {
         visibility
         publication {
@@ -6069,6 +6076,8 @@ export const GetProjectsDocument = gql`
       name
       description
       alias
+      license
+      readme
       accessibility {
         visibility
         publication {
@@ -6167,15 +6176,16 @@ export type CheckProjectAliasLazyQueryHookResult = ReturnType<typeof useCheckPro
 export type CheckProjectAliasSuspenseQueryHookResult = ReturnType<typeof useCheckProjectAliasSuspenseQuery>;
 export type CheckProjectAliasQueryResult = Apollo.QueryResult<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>;
 export const CreateProjectDocument = gql`
-    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!, $alias: String!, $requestRoles: [Role!]) {
+    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!, $alias: String!, $license: String, $visibility: ProjectVisibility, $requestRoles: [Role!]) {
   createProject(
-    input: {workspaceId: $workspaceId, name: $name, description: $description, alias: $alias, requestRoles: $requestRoles}
+    input: {workspaceId: $workspaceId, name: $name, description: $description, alias: $alias, license: $license, visibility: $visibility, requestRoles: $requestRoles}
   ) {
     project {
       id
       name
       description
       alias
+      license
       accessibility {
         visibility
         publication {
@@ -6217,6 +6227,8 @@ export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutat
  *      name: // value for 'name'
  *      description: // value for 'description'
  *      alias: // value for 'alias'
+ *      license: // value for 'license'
+ *      visibility: // value for 'visibility'
  *      requestRoles: // value for 'requestRoles'
  *   },
  * });
@@ -6262,15 +6274,17 @@ export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProject
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
 export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
 export const UpdateProjectDocument = gql`
-    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $accessibility: UpdateProjectAccessibilityInput, $requestRoles: [Role!]) {
+    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $license: String, $readme: String, $accessibility: UpdateProjectAccessibilityInput, $requestRoles: [Role!]) {
   updateProject(
-    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, accessibility: $accessibility, requestRoles: $requestRoles}
+    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, license: $license, readme: $readme, accessibility: $accessibility, requestRoles: $requestRoles}
   ) {
     project {
       id
       name
       description
       alias
+      license
+      readme
       accessibility {
         visibility
         publication {
@@ -6312,6 +6326,8 @@ export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutat
  *      name: // value for 'name'
  *      description: // value for 'description'
  *      alias: // value for 'alias'
+ *      license: // value for 'license'
+ *      readme: // value for 'readme'
  *      accessibility: // value for 'accessibility'
  *      requestRoles: // value for 'requestRoles'
  *   },
