@@ -45,7 +45,7 @@ type fileRepo struct {
 	public       bool
 }
 
-func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string) (gateway.File, error) {
+func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
@@ -75,8 +75,8 @@ func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string) (gat
 	}, nil
 }
 
-func NewFileWithACL(ctx context.Context, bucketName, publicBase, privateBase, cacheControl string) (gateway.File, error) {
-	f, err := NewFile(ctx, bucketName, publicBase, cacheControl)
+func NewFileWithACL(ctx context.Context, bucketName, publicBase, privateBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
+	f, err := NewFile(ctx, bucketName, publicBase, cacheControl, replaceUploadURL)
 	if err != nil {
 		return nil, err
 	}

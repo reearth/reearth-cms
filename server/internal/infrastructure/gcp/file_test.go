@@ -251,10 +251,11 @@ func TestFileRepo_IssueUploadAssetLink_toPublicUrl(t *testing.T) {
 			}
 
 			f := &fileRepo{
-				bucketName:   "test-bucket",
-				publicBase:   publicBase,
-				cacheControl: "public, max-age=3600",
-				public:       true,
+				bucketName:       "test-bucket",
+				publicBase:       publicBase,
+				cacheControl:     "public, max-age=3600",
+				public:           true,
+				replaceUploadURL: tt.shouldReplace,
 			}
 
 			// Since we can't easily mock the GCS bucket.SignedURL method,
