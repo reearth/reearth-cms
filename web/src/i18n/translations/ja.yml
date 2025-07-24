@@ -305,6 +305,9 @@ Readme: ''
 License: ''
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
+search models: ''
+Sort by: ''
+Last Modified: ''
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Are you sure you want to set this project to public?: ''
 Are you sure you want to set this project to private?: ''
@@ -494,7 +497,6 @@ Create a Workspace: 新規ワークスペース
 Welcome to Re:Earth CMS, {{username}}!: Re:Earth CMSへようこそ、{{username}}さん！
 Re:Earth CMS is a robust tool for collecting, creating, storing, and managing data, specifically designed for GIS applications.: Re:Earth CMS は、GIS アプリケーション向けに特化して設計された、データの収集、作成、保存、管理を行うための強力なツールです。
 search projects: 検索
-Sort by: ''
 Are you sure you want to delete this workspace?: このワークスペースを削除します。よろしいですか？
 Remove Workspace: ワークスペースを削除
 Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: 現在のワークスペースを削除します。ワークスペースに関連するすべてのデータが削除されます。この操作を取り消すことはできません。

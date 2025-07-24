@@ -7,12 +7,14 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 import ModelCard from "./ModelCard";
+import ProjectHeader from "./ProjectHeader";
 
 type Props = {
   models?: Model[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  onModelSearch: (value: string) => void;
   onModelModalOpen: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
@@ -25,6 +27,7 @@ const ModelsTab: React.FC<Props> = ({
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  onModelSearch,
   onModelModalOpen,
   onSchemaNavigate,
   onContentNavigate,
@@ -44,6 +47,7 @@ const ModelsTab: React.FC<Props> = ({
           {t("New Model")}
         </Button>
       }>
+      <ProjectHeader onModelSearch={onModelSearch} />
       {models?.length ? (
         <GridArea>
           {models.map(m => (
@@ -86,6 +90,7 @@ const ModelsTab: React.FC<Props> = ({
 export default ModelsTab;
 
 const GridArea = styled.div`
+  margin-top: 12px;
   display: grid;
   gap: 24px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

@@ -25,6 +25,7 @@ export default () => {
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
+  const [searchedModelName, setSearchedModelName] = useState<string>("");
   const t = useT();
   const navigate = useNavigate();
 
@@ -41,11 +42,21 @@ export default () => {
     skip: !currentProject?.id,
   });
 
+  const allModels = useMemo(
+    () =>
+      data?.models.nodes
+        .map(model => (model ? fromGraphQLModel(model as GQLModel) : undefined))
+        .filter(model => !!model) ?? [],
+    [data?.models.nodes],
+  );
+
   const models = useMemo(() => {
-    return data?.models.nodes
-      ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
-      .filter((model): model is Model => !!model);
-  }, [data?.models.nodes]);
+    return searchedModelName
+      ? allModels.filter(model =>
+          model.name.toLocaleLowerCase().includes(searchedModelName.toLocaleLowerCase()),
+        )
+      : allModels;
+  }, [allModels, searchedModelName]);
 
   const handleModelUpdateModalOpen = useCallback(
     async (model: Model) => {
@@ -111,14 +122,9 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
-  const handleHomeNavigation = useCallback(
-    () => {
-      navigate(
-        `/workspace/${currentWorkspace?.id}`,
-      );
-    },
-    [currentWorkspace?.id, navigate],
-  );
+  const handleHomeNavigation = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}`);
+  }, [currentWorkspace?.id, navigate]);
 
   const handleSchemaNavigation = useCallback(
     (modelId: string) => {
@@ -143,6 +149,10 @@ export default () => {
     handleModelModalClose();
   }, [handleModelModalClose]);
 
+  const handleModelSearch = useCallback((value: string) => {
+    setSearchedModelName(value);
+  }, []);
+
   return {
     currentProject,
     models,
@@ -153,6 +163,7 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    handleModelSearch,
     handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,

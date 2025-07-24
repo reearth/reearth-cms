@@ -22,6 +22,7 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  onModelSearch: (value: string) => void;
   onModelModalOpen: () => void;
   onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
@@ -38,6 +39,7 @@ const ProjectOverview: React.FC<Props> = ({
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  onModelSearch,
   onModelModalOpen,
   onHomeNavigation,
   onSchemaNavigate,
@@ -177,6 +179,7 @@ const ProjectOverview: React.FC<Props> = ({
             hasCreateRight={hasCreateRight}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
+            onModelSearch={onModelSearch}
             onModelModalOpen={onModelModalOpen}
             onSchemaNavigate={onSchemaNavigate}
             onContentNavigate={onContentNavigate}

@@ -5,17 +5,17 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  onProjectSearch: (value: string) => void;
+  onModelSearch: (value: string) => void;
 };
 
-const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch }) => {
+const ProjectHeader: React.FC<Props> = ({ onModelSearch }) => {
   const t = useT();
 
   return (
     <Container>
       <StyledSearch
-        onSearch={onProjectSearch}
-        placeholder={t("search projects")}
+        onSearch={onModelSearch}
+        placeholder={t("search models")}
         allowClear
         type="text"
       />
@@ -55,4 +55,4 @@ const StyledSearch = styled(Search)`
   width: 264px;
 `;
 
-export default WorkspaceHeader;
+export default ProjectHeader;
