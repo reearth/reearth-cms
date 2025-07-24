@@ -32,12 +32,12 @@ const (
 const workspaceContextKey = "workspace"
 
 type fileRepo struct {
-	bucketName              string
-	publicBase              *url.URL
-	privateBase             *url.URL
-	cacheControl            string
-	public                  bool
-	replaceUploadURL        bool
+	bucketName       string
+	publicBase       *url.URL
+	privateBase      *url.URL
+	cacheControl     string
+	public           bool
+	replaceUploadURL bool
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
