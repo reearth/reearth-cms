@@ -98,7 +98,7 @@ func TestFile_NewFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f, err := NewFile(tt.bucketName, tt.publicBase, tt.cacheControl)
+			f, err := NewFile(tt.bucketName, tt.publicBase, tt.cacheControl, false)
 			if tt.wantErr {
 				assert.Error(t, err)
 				assert.Nil(t, f)
