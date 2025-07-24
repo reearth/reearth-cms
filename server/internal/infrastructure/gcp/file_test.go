@@ -204,7 +204,7 @@ func TestFile_GetURL(t *testing.T) {
 	}
 }
 
-func TestFileRepo_IssueUploadAssetLink_URLReplacement(t *testing.T) {
+func TestFileRepo_IssueUploadAssetLink_toPublicUrl(t *testing.T) {
 	tests := []struct {
 		name           string
 		publicBaseURL  string
@@ -238,7 +238,10 @@ func TestFileRepo_IssueUploadAssetLink_URLReplacement(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			// Create fileRepo with custom public base
 			var publicBase *url.URL
 			if tt.publicBaseURL != "" {
@@ -254,17 +257,6 @@ func TestFileRepo_IssueUploadAssetLink_URLReplacement(t *testing.T) {
 				public:       true,
 			}
 
-			// Test parameters - would be used in real implementation
-			// ctx := context.WithValue(context.Background(), workspaceContextKey, "test-workspace-123")
-			// param := gateway.IssueUploadAssetParam{
-			// 	UUID:            "12345678-1234-1234-1234-123456789012",
-			// 	Filename:        "test-file.json",
-			// 	ContentLength:   1024,
-			// 	ContentType:     "application/json",
-			// 	ContentEncoding: "",
-			// 	ExpiresAt:       time.Now().Add(15 * time.Minute),
-			// }
-
 			// Since we can't easily mock the GCS bucket.SignedURL method,
 			// we'll test the URL parsing and replacement logic separately
 			// by simulating what would happen after getting a signed URL
@@ -273,16 +265,7 @@ func TestFileRepo_IssueUploadAssetLink_URLReplacement(t *testing.T) {
 			signedURL := "https://storage.googleapis.com/test-bucket/assets/12/345678-1234-1234-1234-123456789012/test-file.json?Expires=1234567890&GoogleAccessId=test@test.iam.gserviceaccount.com&Signature=abc123"
 
 			// Apply the same logic as in IssueUploadAssetLink
-			finalURL := signedURL
-			if f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
-				parsedURL, err := url.Parse(signedURL)
-				if err == nil {
-					parsedURL.Scheme = f.publicBase.Scheme
-					parsedURL.Host = f.publicBase.Host
-					parsedURL.Path = strings.TrimSuffix(f.publicBase.Path, "/") + parsedURL.Path
-					finalURL = parsedURL.String()
-				}
-			}
+			finalURL := f.toPublicUrl(signedURL)
 
 			// Parse the final URL to check the domain
 			finalParsedURL, err := url.Parse(finalURL)
@@ -292,9 +275,9 @@ func TestFileRepo_IssueUploadAssetLink_URLReplacement(t *testing.T) {
 			assert.Equal(t, tt.expectedDomain, finalParsedURL.Host)
 
 			// Check that query parameters are preserved
-			assert.NotEmpty(t, finalParsedURL.Query().Get("Expires"))
-			assert.NotEmpty(t, finalParsedURL.Query().Get("GoogleAccessId"))
-			assert.NotEmpty(t, finalParsedURL.Query().Get("Signature"))
+			assert.Equal(t, "1234567890", finalParsedURL.Query().Get("Expires"))
+			assert.Equal(t, "test@test.iam.gserviceaccount.com", finalParsedURL.Query().Get("GoogleAccessId"))
+			assert.Equal(t, "abc123", finalParsedURL.Query().Get("Signature"))
 
 			// If domain was replaced, check the path handling
 			if tt.shouldReplace && f.publicBase.Path != "" {
