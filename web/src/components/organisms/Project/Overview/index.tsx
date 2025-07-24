@@ -36,6 +36,8 @@ const ProjectOverview: React.FC = () => {
         projectName={currentProject?.name}
         projectDescription={currentProject?.description}
         projectVisibility={currentProject?.accessibility?.visibility}
+        projectReadme={currentProject?.readme}
+        projectLicense={currentProject?.license}
         models={models}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}

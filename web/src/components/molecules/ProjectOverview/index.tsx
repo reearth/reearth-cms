@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -18,6 +18,8 @@ type Props = {
   projectName?: string;
   projectDescription?: string;
   projectVisibility?: string;
+  projectReadme?: string;
+  projectLicense?: string;
   models?: Model[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
@@ -35,6 +37,8 @@ const ProjectOverview: React.FC<Props> = ({
   projectName,
   projectDescription,
   projectVisibility,
+  projectReadme,
+  projectLicense,
   models,
   hasCreateRight,
   hasUpdateRight,
@@ -50,17 +54,39 @@ const ProjectOverview: React.FC<Props> = ({
   const t = useT();
   const [activeKey, setActiveKey] = useState<string>("models");
 
-  const initialReadmeMarkdown = `# Digital City Project Introduction\n\nWelcome to the project!!\n\n### Models\nDescription...\n\n### Relationships\nDescription...\n\n### Schema Overview\nDescription...\n\n### Use Cases\n- [Case 1](#)\n- [Case 2](#)\n\n### Contact\nDescription...`;
   const [activeReadmeTab, setActiveReadmeTab] = useState("edit");
   const [readmeEditMode, setReadmeEditMode] = useState(false);
-  const [readmeMarkdown, setReadmeMarkdown] = useState(initialReadmeMarkdown);
-  const [tempReadmeValue, setReadmeTempValue] = useState(readmeMarkdown);
+  const [readmeMarkdown, setReadmeMarkdown] = useState("");
+  const [tempReadmeValue, setReadmeTempValue] = useState("");
 
-  const initialLicenseMarkdown = `# Digital City Project Introduction\n\nWelcome to the project!!\n\n### Models\nDescription...\n\n### Relationships\nDescription...\n\n### Schema Overview\nDescription...\n\n### Use Cases\n- [Case 1](#)\n- [Case 2](#)\n\n### Contact\nDescription...`;
   const [activeLicenseTab, setActiveLicenseTab] = useState("edit");
   const [licenseEditMode, setLicenseEditMode] = useState(false);
-  const [licenseMarkdown, setLicenseMarkdown] = useState(initialLicenseMarkdown);
-  const [tempLicenseValue, setLicenseTempValue] = useState(licenseMarkdown);
+  const [licenseMarkdown, setLicenseMarkdown] = useState("");
+  const [tempLicenseValue, setLicenseTempValue] = useState("");
+
+  useEffect(() => {
+    if (projectReadme) {
+      setReadmeMarkdown(projectReadme);
+    }
+  }, [projectReadme]);
+
+  useEffect(() => {
+    if (readmeMarkdown) {
+      setReadmeTempValue(readmeMarkdown);
+    }
+  }, [readmeMarkdown]);
+
+  useEffect(() => {
+    if (projectLicense) {
+      setLicenseMarkdown(projectLicense);
+    }
+  }, [projectLicense]);
+
+  useEffect(() => {
+    if (licenseMarkdown) {
+      setLicenseTempValue(licenseMarkdown);
+    }
+  }, [licenseMarkdown]);
 
   const handleReadmeSave = useCallback(() => {
     setReadmeMarkdown(tempReadmeValue);
@@ -81,6 +107,24 @@ const ProjectOverview: React.FC<Props> = ({
   const handleLicenseEdit = useCallback(() => {
     setLicenseEditMode(true);
   }, []);
+
+  const handleReadmeMarkdownChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setReadmeTempValue(e.target.value);
+    setReadmeMarkdown(e.target.value);
+  };
+
+  const handleLicenseMarkdownChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setLicenseTempValue(e.target.value);
+    setLicenseMarkdown(e.target.value);
+  };
+
+  const handleChooseLicenseTemplate = useCallback(
+    (value: string) => {
+      setLicenseTempValue(value);
+      setLicenseMarkdown(value);
+    },
+    [setLicenseTempValue],
+  );
 
   const tabBarExtraContent = useMemo(
     () => (
@@ -194,7 +238,7 @@ const ProjectOverview: React.FC<Props> = ({
             setActiveTab={setActiveReadmeTab}
             markdown={readmeMarkdown}
             tempValue={tempReadmeValue}
-            setTempValue={setReadmeTempValue}
+            onMarkdownChange={handleReadmeMarkdownChange}
           />
         </Tabs.TabPane>
         <Tabs.TabPane tab={t("License")} key="license">
@@ -204,7 +248,8 @@ const ProjectOverview: React.FC<Props> = ({
             setActiveTab={setActiveLicenseTab}
             markdown={licenseMarkdown}
             tempValue={tempLicenseValue}
-            setTempValue={setLicenseTempValue}
+            onMarkdownChange={handleLicenseMarkdownChange}
+            onChooseLicenseTemplate={handleChooseLicenseTemplate}
           />
         </Tabs.TabPane>
       </StyledTabs>

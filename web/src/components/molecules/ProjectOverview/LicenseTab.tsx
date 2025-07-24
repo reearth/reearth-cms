@@ -1,3 +1,5 @@
+import styled from "@emotion/styled";
+import { ChangeEventHandler } from "react";
 import ReactMarkdown from "react-markdown";
 
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
@@ -10,7 +12,8 @@ type Props = {
   setActiveTab?: (key: string) => void;
   markdown?: string;
   tempValue?: string;
-  setTempValue?: (value: string) => void;
+  onMarkdownChange?: ChangeEventHandler<HTMLTextAreaElement>;
+  onChooseLicenseTemplate?: (value: string) => void;
 };
 
 const LicenseTab: React.FC<Props> = ({
@@ -19,25 +22,35 @@ const LicenseTab: React.FC<Props> = ({
   setActiveTab,
   markdown,
   tempValue,
-  setTempValue,
+  onMarkdownChange,
+  onChooseLicenseTemplate,
 }) => {
   return (
     <ContentSection>
       {editMode ? (
         <MarkdownComponent
+          needsTemplate
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           markdown={markdown}
           tempValue={tempValue}
-          setTempValue={setTempValue}
+          onMarkdownChange={onMarkdownChange}
+          onChooseLicenseTemplate={onChooseLicenseTemplate}
         />
       ) : (
-        <div style={{ padding: "1rem", border: "1px solid #ddd", borderRadius: "4px" }}>
+        <StyledContainer>
           <ReactMarkdown>{markdown}</ReactMarkdown>
-        </div>
+        </StyledContainer>
       )}
     </ContentSection>
   );
 };
 
 export default LicenseTab;
+
+const StyledContainer = styled.div`
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-height: 400px;
+`;

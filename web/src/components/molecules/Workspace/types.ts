@@ -7,6 +7,8 @@ export type Project = {
   name: string;
   description: string;
   alias: string;
+  readme: string;
+  license: string;
   requestRoles: Role[];
   accessibility?: ProjectAccessibility;
 };

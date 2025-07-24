@@ -120,7 +120,6 @@ Go to Editor: エディタへ移動
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
-Test: ''
 OK: ''
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
@@ -303,6 +302,7 @@ New Model: 新規モデル
 Save Changes: ''
 Readme: ''
 License: ''
+Choose a license template: ''
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
 search models: ''

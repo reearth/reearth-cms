@@ -1,25 +1,67 @@
 import styled from "@emotion/styled";
-import { Tabs, Input } from "antd";
+import {  ChangeEventHandler, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 
-const { TextArea } = Input;
+import Button from "@reearth-cms/components/atoms/Button";
+import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Tabs from "@reearth-cms/components/atoms/Tabs";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { getLicenseContent, license_options } from "@reearth-cms/data/license";
+import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  needsTemplate?: boolean;
   activeTab?: string;
   setActiveTab?: (key: string) => void;
   markdown?: string;
   tempValue?: string;
-  setTempValue?: (value: string) => void;
+  onMarkdownChange?: ChangeEventHandler<HTMLTextAreaElement>;
+  onChooseLicenseTemplate?: (value: string) => void;
 };
 
-const MarkdownComponent: React.FC<Props> = ({ activeTab, setActiveTab, markdown, tempValue, setTempValue }) => {
+const MarkdownComponent: React.FC<Props> = ({
+  needsTemplate,
+  activeTab,
+  setActiveTab,
+  markdown,
+  tempValue,
+  onMarkdownChange,
+  onChooseLicenseTemplate,
+}) => {
+  const t = useT();
+
+  const items: MenuProps["items"] = useMemo(() => {
+    return license_options.map(option => ({
+      key: option.value,
+      label: option.label,
+      onClick: () => {
+        const value = getLicenseContent(option.value) ?? "";
+        onChooseLicenseTemplate?.(value)
+      },
+    }));
+  }, [onChooseLicenseTemplate]);
+
+  const tabBarExtraContent = useMemo(() => {
+    return needsTemplate ? (
+      <Dropdown menu={{ items }} placement="bottomLeft" trigger={["click"]}>
+        <Button type="link" icon={<Icon icon="copyright" />}>
+          {t("Choose a license template")}
+        </Button>
+      </Dropdown>
+    ) : undefined;
+  }, [items, needsTemplate, t]);
+
   return (
-    <StyledTabs activeKey={activeTab} onChange={setActiveTab}>
+    <StyledTabs
+      activeKey={activeTab}
+      tabBarExtraContent={tabBarExtraContent}
+      onChange={setActiveTab}>
       <Tabs.TabPane tab="Edit" key="edit">
         <TextArea
           rows={20}
           value={tempValue}
-          onChange={e => setTempValue?.(e.target.value)}
+          onChange={onMarkdownChange}
           style={{ fontFamily: "monospace" }}
         />
       </Tabs.TabPane>
