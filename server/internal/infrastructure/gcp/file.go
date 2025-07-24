@@ -29,9 +29,7 @@ const (
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
-type contextKey string
-
-const workspaceContextKey contextKey = "workspace"
+const workspaceContextKey = "workspace"
 
 type fileRepo struct {
 	bucketName   string
@@ -242,16 +240,16 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 	}
-	
+
 	var headers []string
 	if param.ContentEncoding != "" {
 		headers = append(headers, "Content-Encoding: "+param.ContentEncoding)
 	}
-	
+
 	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
 		headers = append(headers, "x-goog-meta-X-Reearth-Workspace-ID: "+workspace)
 	}
-	
+
 	if len(headers) > 0 {
 		opt.Headers = headers
 	}
@@ -260,13 +258,31 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		log.Errorf("gcs: failed to issue signed url: %v", err)
 		return nil, gateway.ErrUnsupportedOperation
 	}
+
 	return &gateway.UploadAssetLink{
-		URL:             uploadURL,
+		URL:             f.toPublicUrl(uploadURL),
 		ContentType:     contentType,
 		ContentLength:   param.ContentLength,
 		ContentEncoding: param.ContentEncoding,
 		Next:            "",
 	}, nil
+}
+
+func (f *fileRepo) toPublicUrl(uploadURL string) string {
+	// Replace storage.googleapis.com with custom asset base URL if configured
+	if f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
+		// Parse the signed URL to preserve query parameters
+		parsedURL, err := url.Parse(uploadURL)
+		if err == nil {
+			// Replace the host with our custom asset base URL
+			parsedURL.Scheme = f.publicBase.Scheme
+			parsedURL.Host = f.publicBase.Host
+			// Update the path to match our asset URL structure
+			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
+			uploadURL = parsedURL.String()
+		}
+	}
+	return uploadURL
 }
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
@@ -647,10 +663,12 @@ func hasAcceptEncoding(accept, encoding string) bool {
 }
 
 func getWorkspaceFromContext(ctx context.Context) string {
-	if v := ctx.Value(workspaceContextKey); v != nil {
+	if v := ctx.Value(contextKey(workspaceContextKey)); v != nil {
 		if ws, ok := v.(string); ok {
 			return ws
 		}
 	}
 	return ""
 }
+
+type contextKey string
