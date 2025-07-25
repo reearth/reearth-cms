@@ -7,9 +7,14 @@ import { useT } from "@reearth-cms/i18n";
 type Props = {
   fieldsCreationLoading: boolean;
   fieldsCreationError?: boolean;
+  onModalClose: () => void;
 };
 
-const ImportingStep: React.FC<Props> = ({ fieldsCreationLoading, fieldsCreationError }) => {
+const ImportingStep: React.FC<Props> = ({
+  fieldsCreationLoading,
+  fieldsCreationError,
+  onModalClose,
+}) => {
   const t = useT();
   const [progress, setProgress] = useState(0);
 
@@ -26,6 +31,16 @@ const ImportingStep: React.FC<Props> = ({ fieldsCreationLoading, fieldsCreationE
     }
     return t("Import successful!");
   }, [fieldsCreationError, fieldsCreationLoading, t]);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (!fieldsCreationLoading) {
+      timeout = setTimeout(() => {
+        onModalClose();
+      }, 1000);
+    }
+    return () => clearTimeout(timeout);
+  }, [fieldsCreationLoading, onModalClose]);
 
   return (
     <Container>

@@ -246,6 +246,7 @@ const ImportSchemaModal: React.FC<Props> = ({
         <ImportingStep
           fieldsCreationLoading={fieldsCreationLoading}
           fieldsCreationError={fieldsCreationError}
+          onModalClose={onModalClose}
         />
       ),
     },

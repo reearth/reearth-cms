@@ -173,6 +173,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   }, [guessSchemaFieldsData, modelId]);
 
   useEffect(() => {
+    if (parsedFields.length === 0) return;
     setImportFields(parsedFields);
   }, [parsedFields]);
 
