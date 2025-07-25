@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
@@ -721,7 +722,9 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, nil, nil, tc.args.pInfo)
+			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, &interfaces.ProjectFilter{
+				Pagination: tc.args.pInfo,
+			})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
