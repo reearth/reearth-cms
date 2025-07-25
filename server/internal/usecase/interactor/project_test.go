@@ -11,6 +11,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -383,6 +384,12 @@ func TestProject_Update(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).RequestRoles(r2).Alias("testAlias").UpdatedAt(mocktime).MustBuild()
 
+	// Project with explicit private visibility for policy test
+	pid3 := id.NewProjectID()
+	p3 := project.New().ID(pid3).Workspace(wid1).RequestRoles(r1).
+		Accessibility(project.NewPrivateAccessibility(project.PublicationSettings{}, nil)).
+		UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
+
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -402,6 +409,7 @@ func TestProject_Update(t *testing.T) {
 		args           args
 		want           *project.Project
 		mockProjectErr bool
+		policyChecker  gateway.PolicyChecker
 		wantErr        error
 	}{
 		{
@@ -498,6 +506,43 @@ func TestProject_Update(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name:  "update visibility change",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID: p1.ID(),
+					Accessibility: &interfaces.AccessibilityParam{
+						Visibility: lo.ToPtr(project.VisibilityPublic),
+					},
+				},
+				operator: op,
+			},
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				RequestRoles(r1).
+				UpdatedAt(mocktime).
+				Accessibility(project.NewPublicAccessibility()).
+				MustBuild(),
+			wantErr: nil,
+		},
+		{
+			name:  "update visibility change exceeds limit",
+			seeds: project.List{p3},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID: p3.ID(),
+					Accessibility: &interfaces.AccessibilityParam{
+						Visibility: lo.ToPtr(project.VisibilityPublic),
+					},
+				},
+				operator: op,
+			},
+			policyChecker: &mockPolicyChecker{allowed: false},
+			want:          nil,
+			wantErr:       interfaces.ErrProjectCreationLimitExceeded,
+		},
+		{
 			name: "mock error",
 			args: args{
 				upp: interfaces.UpdateProjectParam{
@@ -526,7 +571,14 @@ func TestProject_Update(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
+
+			var gateways *gateway.Container
+			if tc.policyChecker != nil {
+				gateways = &gateway.Container{
+					PolicyChecker: tc.policyChecker,
+				}
+			}
+			projectUC := NewProject(db, gateways)
 
 			got, err := projectUC.Update(ctx, tc.args.upp, tc.args.operator)
 			if tc.wantErr != nil {
