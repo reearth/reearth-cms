@@ -6745,6 +6745,7 @@ input CreateProjectInput {
   license: String
   readme: String
   alias: String
+  visibility: ProjectVisibility
   requestRoles: [Role!]
 }
 
@@ -38665,7 +38666,7 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name", "description", "license", "readme", "alias", "requestRoles"}
+	fieldsInOrder := [...]string{"workspaceId", "name", "description", "license", "readme", "alias", "visibility", "requestRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -38714,6 +38715,13 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Alias = data
+		case "visibility":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("visibility"))
+			data, err := ec.unmarshalOProjectVisibility2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectVisibility(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Visibility = data
 		case "requestRoles":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestRoles"))
 			data, err := ec.unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, v)
