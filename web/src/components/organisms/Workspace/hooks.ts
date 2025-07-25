@@ -18,6 +18,8 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
+import { SortProjectBy } from "./types";
+
 export default () => {
   const t = useT();
   const navigate = useNavigate();
@@ -26,6 +28,8 @@ export default () => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
+  const [projectSort, setProjectSort] = useState<SortProjectBy>("updatedAt");
+
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.project.create, [userRights?.project.create]);
 
@@ -39,26 +43,21 @@ export default () => {
     loading,
     refetch: projectsRefetch,
   } = useGetProjectsQuery({
-    variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
+    variables: {
+      workspaceId: workspaceId ?? "",
+      keyword: searchedProjectName,
+      sort: { key: projectSort, reverted: false },
+      pagination: { first: 100 },
+    },
     skip: !workspaceId,
   });
 
-  const allProjects = useMemo(
+  const projects = useMemo(
     () =>
       data?.projects.nodes
         .map(project => (project ? fromGraphQLProject(project as GQLProject) : undefined))
         .filter(project => !!project) ?? [],
     [data?.projects.nodes],
-  );
-
-  const projects = useMemo(
-    () =>
-      searchedProjectName
-        ? allProjects.filter(project =>
-            project.name.toLocaleLowerCase().includes(searchedProjectName.toLocaleLowerCase()),
-          )
-        : allProjects,
-    [allProjects, searchedProjectName],
   );
 
   const [createNewProject] = useCreateProjectMutation({
@@ -70,6 +69,13 @@ export default () => {
       setSearchedProjectName(value);
     },
     [setSearchedProjectName],
+  );
+
+  const handleProjectSort = useCallback(
+    (sort: SortProjectBy) => {
+      setProjectSort(sort);
+    },
+    [setProjectSort],
   );
 
   const handleProjectCreate = useCallback(
@@ -149,6 +155,7 @@ export default () => {
     loading,
     hasCreateRight,
     handleProjectSearch,
+    handleProjectSort,
     handleProjectCreate,
     handleProjectNavigation,
     handleWorkspaceCreate,

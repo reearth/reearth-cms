@@ -11,6 +11,7 @@ const Workspace: React.FC = () => {
     loading,
     hasCreateRight,
     handleProjectSearch,
+    handleProjectSort,
     handleProjectCreate,
     handleProjectNavigation,
     handleWorkspaceCreate,
@@ -26,6 +27,7 @@ const Workspace: React.FC = () => {
       loading={loading}
       hasCreateRight={hasCreateRight}
       onProjectSearch={handleProjectSearch}
+      onProjectSort={handleProjectSort}
       onProjectNavigation={handleProjectNavigation}
       onProjectCreate={handleProjectCreate}
       onWorkspaceCreate={handleWorkspaceCreate}

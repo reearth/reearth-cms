@@ -7,6 +7,7 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { SortModelBy } from "@reearth-cms/components/organisms/Project/Overview/types";
 import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -25,6 +26,7 @@ type Props = {
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   onModelSearch: (value: string) => void;
+  onModelSort: (sort: SortModelBy) => void
   onModelModalOpen: () => void;
   onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
@@ -44,6 +46,7 @@ const ProjectOverview: React.FC<Props> = ({
   hasUpdateRight,
   hasDeleteRight,
   onModelSearch,
+  onModelSort,
   onModelModalOpen,
   onHomeNavigation,
   onSchemaNavigate,
@@ -224,6 +227,7 @@ const ProjectOverview: React.FC<Props> = ({
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
             onModelSearch={onModelSearch}
+            onModelSort={onModelSort}
             onModelModalOpen={onModelModalOpen}
             onSchemaNavigate={onSchemaNavigate}
             onContentNavigate={onContentNavigate}

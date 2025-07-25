@@ -1503,8 +1503,10 @@ export type QueryIsItemReferencedArgs = {
 
 
 export type QueryModelsArgs = {
+  keyword?: InputMaybe<Scalars['String']['input']>;
   pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID']['input'];
+  sort?: InputMaybe<Sort>;
 };
 
 
@@ -1526,7 +1528,9 @@ export type QueryNodesArgs = {
 
 
 export type QueryProjectsArgs = {
+  keyword?: InputMaybe<Scalars['String']['input']>;
   pagination?: InputMaybe<Pagination>;
+  sort?: InputMaybe<Sort>;
   workspaceId: Scalars['ID']['input'];
 };
 
@@ -2802,11 +2806,13 @@ export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __t
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
+  keyword?: InputMaybe<Scalars['String']['input']>;
+  sort?: InputMaybe<Sort>;
   pagination?: InputMaybe<Pagination>;
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, order?: number | null, schema: { __typename?: 'Schema', id: string } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, order?: number | null, createdAt: Date, updatedAt: Date, schema: { __typename?: 'Schema', id: string } } | null> } };
 
 export type GetModelQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2866,11 +2872,13 @@ export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Ass
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID']['input'];
+  keyword?: InputMaybe<Scalars['String']['input']>;
+  sort?: InputMaybe<Sort>;
   pagination?: InputMaybe<Pagination>;
 }>;
 
 
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, readme: string, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
+export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, readme: string, createdAt: Date, updatedAt: Date, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
 
 export type CheckProjectAliasQueryVariables = Exact<{
   alias: Scalars['String']['input'];
@@ -5589,14 +5597,21 @@ export type PublishItemMutationHookResult = ReturnType<typeof usePublishItemMuta
 export type PublishItemMutationResult = Apollo.MutationResult<PublishItemMutation>;
 export type PublishItemMutationOptions = Apollo.BaseMutationOptions<PublishItemMutation, PublishItemMutationVariables>;
 export const GetModelsDocument = gql`
-    query GetModels($projectId: ID!, $pagination: Pagination) {
-  models(projectId: $projectId, pagination: $pagination) {
+    query GetModels($projectId: ID!, $keyword: String, $sort: Sort, $pagination: Pagination) {
+  models(
+    projectId: $projectId
+    keyword: $keyword
+    sort: $sort
+    pagination: $pagination
+  ) {
     nodes {
       id
       name
       description
       key
       order
+      createdAt
+      updatedAt
       schema {
         id
       }
@@ -5618,6 +5633,8 @@ export const GetModelsDocument = gql`
  * const { data, loading, error } = useGetModelsQuery({
  *   variables: {
  *      projectId: // value for 'projectId'
+ *      keyword: // value for 'keyword'
+ *      sort: // value for 'sort'
  *      pagination: // value for 'pagination'
  *   },
  * });
@@ -6069,8 +6086,13 @@ export type GetProjectLazyQueryHookResult = ReturnType<typeof useGetProjectLazyQ
 export type GetProjectSuspenseQueryHookResult = ReturnType<typeof useGetProjectSuspenseQuery>;
 export type GetProjectQueryResult = Apollo.QueryResult<GetProjectQuery, GetProjectQueryVariables>;
 export const GetProjectsDocument = gql`
-    query GetProjects($workspaceId: ID!, $pagination: Pagination) {
-  projects(workspaceId: $workspaceId, pagination: $pagination) {
+    query GetProjects($workspaceId: ID!, $keyword: String, $sort: Sort, $pagination: Pagination) {
+  projects(
+    workspaceId: $workspaceId
+    keyword: $keyword
+    sort: $sort
+    pagination: $pagination
+  ) {
     nodes {
       id
       name
@@ -6078,6 +6100,8 @@ export const GetProjectsDocument = gql`
       alias
       license
       readme
+      createdAt
+      updatedAt
       accessibility {
         visibility
         publication {
@@ -6114,6 +6138,8 @@ export const GetProjectsDocument = gql`
  * const { data, loading, error } = useGetProjectsQuery({
  *   variables: {
  *      workspaceId: // value for 'workspaceId'
+ *      keyword: // value for 'keyword'
+ *      sort: // value for 'sort'
  *      pagination: // value for 'pagination'
  *   },
  * });

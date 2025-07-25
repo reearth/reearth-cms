@@ -9,6 +9,7 @@ import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/Cre
 import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import { SortProjectBy } from "@reearth-cms/components/organisms/Workspace/types";
 
 import WorkspaceHeader from "./WorkspaceHeader";
 
@@ -20,6 +21,7 @@ type Props = {
   loading: boolean;
   hasCreateRight: boolean;
   onProjectSearch: (value: string) => void;
+  onProjectSort: (sort: SortProjectBy) => void;
   onProjectNavigation: (projectId: string) => void;
   onProjectCreate: (values: ProjectFormValues) => Promise<void>;
   onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;
@@ -34,6 +36,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   loading,
   hasCreateRight,
   onProjectSearch,
+  onProjectSort,
   onProjectNavigation,
   onWorkspaceCreate,
   onProjectCreate,
@@ -57,7 +60,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
             />
           </ButtonWrapper>
         }>
-        <WorkspaceHeader onProjectSearch={onProjectSearch} />
+        <WorkspaceHeader onProjectSearch={onProjectSearch} onProjectSort={onProjectSort} />
         <ProjectList
           hasCreateRight={hasCreateRight}
           projects={projects}

@@ -4,6 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { SortModelBy } from "@reearth-cms/components/organisms/Project/Overview/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 import ModelCard from "./ModelCard";
@@ -15,6 +16,7 @@ type Props = {
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   onModelSearch: (value: string) => void;
+  onModelSort: (sort: SortModelBy) => void;
   onModelModalOpen: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
@@ -28,6 +30,7 @@ const ModelsTab: React.FC<Props> = ({
   hasUpdateRight,
   hasDeleteRight,
   onModelSearch,
+  onModelSort,
   onModelModalOpen,
   onSchemaNavigate,
   onContentNavigate,
@@ -47,7 +50,7 @@ const ModelsTab: React.FC<Props> = ({
           {t("New Model")}
         </Button>
       }>
-      <ProjectHeader onModelSearch={onModelSearch} />
+      <ProjectHeader onModelSearch={onModelSearch} onModelSort={onModelSort} />
       {models?.length ? (
         <GridArea>
           {models.map(m => (

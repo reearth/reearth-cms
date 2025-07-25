@@ -15,6 +15,8 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
+import { SortModelBy } from "./types";
+
 export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
@@ -26,6 +28,7 @@ export default () => {
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
   const [searchedModelName, setSearchedModelName] = useState<string>("");
+  const [modelSort, setModelSort] = useState<SortModelBy>("updatedAt");
   const t = useT();
   const navigate = useNavigate();
 
@@ -38,25 +41,22 @@ export default () => {
   } = useModelHooks({});
 
   const { data } = useGetModelsQuery({
-    variables: { projectId: currentProject?.id ?? "", pagination: { first: 100 } },
+    variables: {
+      projectId: currentProject?.id ?? "",
+      keyword: searchedModelName,
+      sort: { key: modelSort, reverted: false },
+      pagination: { first: 100 },
+    },
     skip: !currentProject?.id,
   });
 
-  const allModels = useMemo(
+  const models = useMemo(
     () =>
       data?.models.nodes
         .map(model => (model ? fromGraphQLModel(model as GQLModel) : undefined))
         .filter(model => !!model) ?? [],
     [data?.models.nodes],
   );
-
-  const models = useMemo(() => {
-    return searchedModelName
-      ? allModels.filter(model =>
-          model.name.toLocaleLowerCase().includes(searchedModelName.toLocaleLowerCase()),
-        )
-      : allModels;
-  }, [allModels, searchedModelName]);
 
   const handleModelUpdateModalOpen = useCallback(
     async (model: Model) => {
@@ -153,6 +153,10 @@ export default () => {
     setSearchedModelName(value);
   }, []);
 
+  const handleModelSort = useCallback((sort: SortModelBy) => {
+    setModelSort(sort);
+  }, []);
+
   return {
     currentProject,
     models,
@@ -164,6 +168,7 @@ export default () => {
     hasUpdateRight,
     hasDeleteRight,
     handleModelSearch,
+    handleModelSort,
     handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,

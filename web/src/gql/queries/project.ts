@@ -34,8 +34,8 @@ export const GET_PROJECT = gql`
 `;
 
 export const GET_PROJECTS = gql`
-  query GetProjects($workspaceId: ID!, $pagination: Pagination) {
-    projects(workspaceId: $workspaceId, pagination: $pagination) {
+  query GetProjects($workspaceId: ID!, $keyword: String, $sort: Sort, $pagination: Pagination) {
+    projects(workspaceId: $workspaceId, keyword: $keyword, sort: $sort, pagination: $pagination) {
       nodes {
         id
         name
@@ -43,6 +43,8 @@ export const GET_PROJECTS = gql`
         alias
         license
         readme
+        createdAt
+        updatedAt
         accessibility {
           visibility
           publication {
