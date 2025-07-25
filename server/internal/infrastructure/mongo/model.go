@@ -214,17 +214,20 @@ func normalize(ms *usecasex.Sort) *usecasex.Sort {
 	if ms == nil {
 		return &usecasex.Sort{Key: "order", Reverted: true}
 	}
-	ms.Key = strings.TrimSpace(strings.ToLower(ms.Key))
-	switch ms.Key {
+	res := &usecasex.Sort{
+		Key:      strings.TrimSpace(strings.ToLower(ms.Key)),
+		Reverted: ms.Reverted,
+	}
+	switch res.Key {
 	case "createdat", "created_at":
 		ms.Key = "id"
 	case "updated_at":
 		ms.Key = "updatedat"
 	}
-	if !lo.Contains([]string{"id", "name", "description", "key", "project", "schema", "metadata", "updatedat", "order"}, ms.Key) {
-		ms.Key = "order"
+	if !lo.Contains([]string{"id", "name", "description", "key", "project", "schema", "metadata", "updatedat", "order"}, res.Key) {
+		res.Key = "order"
 	}
-	return ms
+	return res
 }
 
 func (r *Model) readFilter(filter interface{}) interface{} {
