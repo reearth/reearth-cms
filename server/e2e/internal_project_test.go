@@ -137,7 +137,7 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
 
 	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias2})
-	assert.Error(t, rerror.ErrNotFound, err)
+	assert.ErrorIs(t, err, rerror.ErrNotFound)
 	// endregion
 }
 
