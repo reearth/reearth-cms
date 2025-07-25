@@ -37,7 +37,7 @@ type UploadFile = RcFile & {
   skipDecompression?: boolean;
 };
 
-export default (isItemsRequired: boolean, importFieldsRequired: boolean) => {
+export default (isItemsRequired: boolean, limitToGeoJsonAndJson: boolean) => {
   const t = useT();
   const [userRights] = useUserRights();
   const [userId] = useUserId();
@@ -136,18 +136,14 @@ export default (isItemsRequired: boolean, importFieldsRequired: boolean) => {
     : useGetAssetsLazyQuery(params);
 
   useEffect(() => {
-    if (isItemsRequired) {
-      setContentTypes([]);
-      getAssets();
-    }
-  }, [getAssets, isItemsRequired]);
+    setContentTypes(limitToGeoJsonAndJson ? [ContentTypesEnum.Geojson, ContentTypesEnum.Json] : []);
+  }, [limitToGeoJsonAndJson]);
 
   useEffect(() => {
-    if (importFieldsRequired) {
-      setContentTypes([ContentTypesEnum.Geojson, ContentTypesEnum.Json]);
+    if (isItemsRequired || limitToGeoJsonAndJson) {
       getAssets();
     }
-  }, [getAssets, importFieldsRequired, isItemsRequired]);
+  }, [getAssets, isItemsRequired, limitToGeoJsonAndJson]);
 
   const {
     data: guessSchemaFieldsData,
