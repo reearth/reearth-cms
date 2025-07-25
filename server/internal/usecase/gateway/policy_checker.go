@@ -20,17 +20,17 @@ const (
 )
 
 type PolicyCheckRequest struct {
-	WorkspaceID accountdomain.WorkspaceID
-	CheckType   PolicyCheckType
-	Value       int64
+	WorkspaceID accountdomain.WorkspaceID `json:"workspace_id"`
+	CheckType   PolicyCheckType           `json:"check_type"`
+	Value       int64                     `json:"value"`
 }
 
 type PolicyCheckResponse struct {
-	Allowed      bool
-	CheckType    PolicyCheckType
-	CurrentLimit string
-	Message      string
-	Value        int64
+	Allowed      bool            `json:"allowed"`
+	CheckType    PolicyCheckType `json:"check_type"`
+	CurrentLimit string          `json:"current_limit"`
+	Message      string          `json:"message"`
+	Value        int64           `json:"value"`
 }
 
 type PolicyChecker interface {
