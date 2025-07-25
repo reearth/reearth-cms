@@ -1,21 +1,36 @@
+import { useCallback, useState } from "react";
+
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModal";
 import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
+import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import { ContentTypesEnum } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
-import useImportHooks from "./import-hooks";
 
 const ProjectSchema: React.FC = () => {
   const t = useT();
-
+  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
   const assetHooks = useAssetHooks(false);
-  const importHooks = useImportHooks();
+  const importHooks = useAssetHooks(true, [ContentTypesEnum.Geojson, ContentTypesEnum.Json]);
   const schemaHooks = useHooks();
+
+  const toSchemaPreviewStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(1);
+  }, []);
+
+  const toImportingStep = useCallback(
+    async (fields: CreateFieldInput[]) => {
+      await schemaHooks.handleFieldsCreate(fields);
+      setCurrentImportSchemaModalPage(2);
+    },
+    [schemaHooks],
+  );
 
   return (
     <>
@@ -23,8 +38,8 @@ const ProjectSchema: React.FC = () => {
         data={schemaHooks.data}
         collapsed={schemaHooks.collapsed}
         selectedSchemaType={schemaHooks.selectedSchemaType}
-        workspaceId={importHooks.workspaceId}
-        projectId={importHooks.projectId}
+        workspaceId={schemaHooks.workspaceId}
+        projectId={schemaHooks.projectId}
         page={importHooks.page}
         pageSize={importHooks.pageSize}
         assetList={importHooks.assetList}
@@ -37,7 +52,7 @@ const ProjectSchema: React.FC = () => {
         uploading={importHooks.uploading}
         importFields={importHooks.importFields}
         guessSchemaFieldsError={importHooks.guessSchemaFieldsError}
-        fieldsCreationError={importHooks.fieldsCreationError}
+        fieldsCreationError={schemaHooks.fieldsCreationError}
         setImportFields={importHooks.setImportFields}
         setUploadUrl={importHooks.setUploadUrl}
         setUploadType={importHooks.setUploadType}
@@ -58,14 +73,17 @@ const ProjectSchema: React.FC = () => {
         importSchemaModalVisibility={importHooks.importSchemaModalVisibility}
         selectFileModalVisibility={importHooks.selectFileModalVisibility}
         onSchemaImportModalOpen={importHooks.handleSchemaImportModalOpen}
-        onSchemaImportModalCancel={importHooks.handleSchemaImportModalCancel}
+        onSchemaImportModalCancel={() => {
+          importHooks.handleSchemaImportModalCancel();
+          setCurrentImportSchemaModalPage(0);
+        }}
         onSelectFileModalOpen={importHooks.handleSelectFileModalOpen}
         onSelectFileModalCancel={importHooks.handleSelectFileModalCancel}
         onUploadModalOpen={importHooks.handleUploadModalOpen}
         onUploadModalCancel={importHooks.handleUploadModalCancel}
-        currentImportSchemaModalPage={importHooks.currentImportSchemaModalPage}
-        toSchemaPreviewStep={importHooks.toSchemaPreviewStep}
-        toImportingStep={importHooks.toImportingStep}
+        currentImportSchemaModalPage={currentImportSchemaModalPage}
+        toSchemaPreviewStep={toSchemaPreviewStep}
+        toImportingStep={toImportingStep}
         modelsMenu={
           <ModelsMenu
             title={t("Schema")}
@@ -83,7 +101,7 @@ const ProjectSchema: React.FC = () => {
         onFieldUpdateModalOpen={schemaHooks.handleFieldUpdateModalOpen}
         onFieldReorder={schemaHooks.handleFieldOrder}
         onFieldDelete={schemaHooks.handleFieldDelete}
-        fieldsCreationLoading={importHooks.fieldsCreationLoading}
+        fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
       />
       <FormModal
         data={schemaHooks.data}

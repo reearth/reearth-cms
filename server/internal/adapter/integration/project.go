@@ -26,7 +26,11 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, nil, p, op)
+	res, pi, err := uc.Project.FindByWorkspace(ctx, request.WorkspaceId, &interfaces.ProjectFilter{
+		Pagination: p,
+		Sort:       toProjectSort(request.Params.Sort, request.Params.Dir),
+		Keyword:    request.Params.Keyword,
+	}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ProjectFilter404Response{}, err

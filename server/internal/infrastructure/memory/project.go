@@ -37,7 +37,7 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	}
 }
 
-func (r *Project) FindByWorkspaces(_ context.Context, wids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, _ *usecasex.Sort, _ *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *Project) FindByWorkspaces(_ context.Context, wids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
