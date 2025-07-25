@@ -8,11 +8,11 @@ import (
 
 type PermissiveChecker struct{}
 
-func NewPermissiveChecker() *PermissiveChecker {
+func NewPermissiveChecker() gateway.PolicyChecker {
 	return &PermissiveChecker{}
 }
 
-func (p *PermissiveChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
+func (p *PermissiveChecker) CheckPolicy(_ context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
 	return &gateway.PolicyCheckResponse{
 		Allowed:      true,
 		CheckType:    req.CheckType,

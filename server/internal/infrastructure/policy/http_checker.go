@@ -18,7 +18,7 @@ type HTTPPolicyChecker struct {
 	client   *http.Client
 }
 
-func NewHTTPPolicyChecker(endpoint, token string, timeoutSeconds int) *HTTPPolicyChecker {
+func NewHTTPPolicyChecker(endpoint, token string, timeoutSeconds int) gateway.PolicyChecker {
 	return &HTTPPolicyChecker{
 		endpoint: endpoint,
 		token:    token,
