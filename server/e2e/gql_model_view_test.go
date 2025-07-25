@@ -57,7 +57,7 @@ func createView(e *httpexpect.Expect, pID, mID, name string, sort, filter map[st
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -116,7 +116,7 @@ func updateView(e *httpexpect.Expect, vID, name string, sort, filter map[string]
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -140,7 +140,7 @@ func deleteView(e *httpexpect.Expect, vID string) *httpexpect.Value {
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -192,7 +192,7 @@ func getViews(e *httpexpect.Expect, mID string) *httpexpect.Value {
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -334,7 +334,7 @@ func updateViewsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").

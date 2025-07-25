@@ -59,7 +59,7 @@ func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles map[string]
 
 	jsonData, _ := json.Marshal(requestBody)
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).

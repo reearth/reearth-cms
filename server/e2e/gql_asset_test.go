@@ -164,7 +164,7 @@ func searchAsset(e *httpexpect.Expect, projectId string, keyword interface{}, co
 	`
 
 	// Execute the query
-	return e.POST("/api/graphql").
+	return e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -246,7 +246,7 @@ func createAsset(
 		operations, _ := json.Marshal(requestBody)
 		mapJSON := `{ "0": ["variables.input.file"] }`
 
-		resp := e.POST("/api/graphql").
+		resp := e.POST("/gql").
 			WithHeader("Origin", "https://example.com").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithMultipart().
@@ -259,7 +259,7 @@ func createAsset(
 		res = resp.JSON()
 	} else {
 		// URL/token method (standard JSON body)
-		resp := e.POST("/api/graphql").
+		resp := e.POST("/gql").
 			WithHeader("Origin", "https://example.com").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithHeader("Content-Type", "application/json").
