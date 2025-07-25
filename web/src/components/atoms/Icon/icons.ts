@@ -50,11 +50,14 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   CopyOutlined,
+  CopyrightOutlined,
   ReloadOutlined,
   SortAscendingOutlined,
   FilterOutlined,
   CommentOutlined,
   ImportOutlined,
+  SaveOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -66,6 +69,7 @@ import CheckSquare from "./Icons/checkSquare.svg";
 import Circle from "./Icons/circle.svg";
 import ColorPalette from "./Icons/colorPalette.svg";
 import Control from "./Icons/control.svg";
+import Cube from "./Icons/cube.svg";
 import CurlyBrackets from "./Icons/curlyBrackets.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
@@ -166,6 +170,7 @@ export default {
   eye: EyeOutlined,
   eyeInvisible: EyeInvisibleOutlined,
   copy: CopyOutlined,
+  copyright: CopyrightOutlined,
   terminalWindow: TerminalWindow,
   date: Date,
   tag: Tag,
@@ -189,4 +194,7 @@ export default {
   rectangle: Rectangle,
   comment: CommentOutlined,
   import: ImportOutlined,
+  save: SaveOutlined,
+  cube: Cube,
+  lock: LockOutlined,
 };

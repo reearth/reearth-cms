@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
 import {
@@ -11,6 +12,9 @@ import {
   useGetModelsQuery,
   useUpdateModelMutation,
   Model as GQLModel,
+  Role as GQLRole,
+  ProjectAccessibility as GQLProjectAccessibility,
+  useUpdateProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -25,6 +29,8 @@ export default () => {
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
+  const [searchedModelName, setSearchedModelName] = useState<string>("");
+  const [modelSort, setModelSort] = useState<SortBy>("updatedAt");
   const t = useT();
   const navigate = useNavigate();
 
@@ -36,16 +42,51 @@ export default () => {
     handleModelKeyCheck,
   } = useModelHooks({});
 
+  const [updateProjectMutation] = useUpdateProjectMutation({
+    refetchQueries: ["GetProject"],
+  });
+
+  const handleProjectUpdate = useCallback(
+    async (data: UpdateProjectInput) => {
+      if (!data.projectId) return;
+      const Project = await updateProjectMutation({
+        variables: {
+          projectId: data.projectId,
+          name: data.name,
+          description: data.description,
+          readme: data.readme,
+          license: data.license,
+          alias: data.alias,
+          requestRoles: data.requestRoles as GQLRole[],
+          accessibility: data.accessibility as GQLProjectAccessibility,
+        },
+      });
+      if (Project.errors || !Project.data?.updateProject) {
+        Notification.error({ message: t("Failed to update Project.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated Project!") });
+    },
+    [updateProjectMutation, t],
+  );
+
   const { data } = useGetModelsQuery({
-    variables: { projectId: currentProject?.id ?? "", pagination: { first: 100 } },
+    variables: {
+      projectId: currentProject?.id ?? "",
+      keyword: searchedModelName,
+      sort: { key: modelSort, reverted: false },
+      pagination: { first: 100 },
+    },
     skip: !currentProject?.id,
   });
 
-  const models = useMemo(() => {
-    return data?.models.nodes
-      ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
-      .filter((model): model is Model => !!model);
-  }, [data?.models.nodes]);
+  const models = useMemo(
+    () =>
+      data?.models.nodes
+        .map(model => (model ? fromGraphQLModel(model as GQLModel) : undefined))
+        .filter(model => !!model) ?? [],
+    [data?.models.nodes],
+  );
 
   const handleModelUpdateModalOpen = useCallback(
     async (model: Model) => {
@@ -111,6 +152,10 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
+  const handleHomeNavigation = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}`);
+  }, [currentWorkspace?.id, navigate]);
+
   const handleSchemaNavigation = useCallback(
     (modelId: string) => {
       navigate(
@@ -134,6 +179,14 @@ export default () => {
     handleModelModalClose();
   }, [handleModelModalClose]);
 
+  const handleModelSearch = useCallback((value: string) => {
+    setSearchedModelName(value);
+  }, []);
+
+  const handleModelSort = useCallback((sort: SortBy) => {
+    setModelSort(sort);
+  }, []);
+
   return {
     currentProject,
     models,
@@ -144,6 +197,10 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    handleProjectUpdate,
+    handleModelSearch,
+    handleModelSort,
+    handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,

@@ -11,6 +11,8 @@ describe("Project settings", () => {
     name,
     description: "",
     alias: "",
+    readme: "",
+    license: "",
     scope: "PRIVATE" as const,
     assetPublic: false,
     requestRoles: [],

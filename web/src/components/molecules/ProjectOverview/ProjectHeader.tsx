@@ -5,17 +5,17 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
-import { SortBy, SortOption } from "./types";
+import { SortBy, SortOption } from "../Workspace/types";
 
 type Props = {
-  onProjectSearch: (value: string) => void;
-  onProjectSort: (sort: SortBy) => void;
+  onModelSearch: (value: string) => void;
+  onModelSort: (sort: SortBy) => void;
 };
 
-const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) => {
+const ProjectHeader: React.FC<Props> = ({ onModelSearch, onModelSort }) => {
   const t = useT();
 
-  const projectSortOptions: SortOption[] = useMemo(
+  const modelSortOptions: SortOption[] = useMemo(
     () => [
       { key: "updatedAt", label: t("Last Modified") },
       { key: "createdAt", label: t("Created At") },
@@ -27,8 +27,8 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) =>
   return (
     <Container>
       <StyledSearch
-        onSearch={onProjectSearch}
-        placeholder={t("search projects")}
+        onSearch={onModelSearch}
+        placeholder={t("search models")}
         allowClear
         type="text"
       />
@@ -37,9 +37,9 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) =>
         <StyledSelect
           defaultValue="updatedAt"
           onChange={value => {
-            onProjectSort(value as SortBy);
+            onModelSort(value as SortBy);
           }}>
-          {projectSortOptions.map(option => (
+          {modelSortOptions.map(option => (
             <Select.Option key={option.key} value={option.key}>
               {option.label}
             </Select.Option>
@@ -74,4 +74,4 @@ const StyledSearch = styled(Search)`
   width: 264px;
 `;
 
-export default WorkspaceHeader;
+export default ProjectHeader;

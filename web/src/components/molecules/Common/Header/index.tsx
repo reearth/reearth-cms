@@ -8,6 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
+import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import HeaderDropdown from "./Dropdown";
@@ -51,8 +52,9 @@ const HeaderMolecule: React.FC<Props> = ({
     [currentWorkspace?.id, personalWorkspace?.id],
   );
 
-  const WorkspacesItems: MenuProps["items"] = useMemo(
-    () => [
+  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI ?? false;
+  const WorkspacesItems: MenuProps["items"] = useMemo(() => {
+    const res: MenuProps["items"] = [
       {
         label: t("Personal Account"),
         key: "personal-account",
@@ -92,15 +94,24 @@ const HeaderMolecule: React.FC<Props> = ({
             onClick: () => onWorkspaceNavigation(workspace.id),
           })),
       },
-      {
+    ];
+    if (!disableWorkspaceUI) {
+      res.push({
         label: t("Create Workspace"),
         key: "new-workspace",
         icon: <Icon icon="userGroupAdd" />,
         onClick: onWorkspaceModalOpen,
-      },
-    ],
-    [t, workspaces, onWorkspaceModalOpen, personalWorkspace?.id, onWorkspaceNavigation],
-  );
+      });
+    }
+    return res;
+  }, [
+    t,
+    workspaces,
+    disableWorkspaceUI,
+    personalWorkspace?.id,
+    onWorkspaceNavigation,
+    onWorkspaceModalOpen,
+  ]);
 
   const AccountItems: MenuProps["items"] = useMemo(
     () => [
@@ -138,6 +149,9 @@ const HeaderMolecule: React.FC<Props> = ({
           <>
             <Break>/</Break>
             <ProjectText>{currentProject.name}</ProjectText>
+            {currentProject.accessibility?.visibility === ProjectVisibility.Private && (
+              <StyledIcon icon="lock" />
+            )}
           </>
         )}
       </CurrentProject>
@@ -180,6 +194,11 @@ const LogoIcon = styled.img`
   width: 100px;
   margin: 0 40px 0 20px;
   cursor: pointer;
+`;
+
+const StyledIcon = styled(Icon)`
+  margin-left: 4px;
+  color: #bfbfbf;
 `;
 
 const VerticalDivider = styled.div`

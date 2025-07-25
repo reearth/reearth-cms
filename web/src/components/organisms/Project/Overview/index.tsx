@@ -15,8 +15,12 @@ const ProjectOverview: React.FC = () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    handleProjectUpdate,
+    handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,
+    handleModelSearch,
+    handleModelSort,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,
@@ -31,12 +35,15 @@ const ProjectOverview: React.FC = () => {
   return (
     <>
       <ProjectOverviewMolecule
-        projectName={currentProject?.name}
-        projectDescription={currentProject?.description}
+        project={currentProject}
         models={models}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
+        onProjectUpdate={handleProjectUpdate}
+        onModelSearch={handleModelSearch}
+        onModelSort={handleModelSort}
+        onHomeNavigation={handleHomeNavigation}
         onSchemaNavigate={handleSchemaNavigation}
         onContentNavigate={handleContentNavigation}
         onModelModalOpen={handleModelModalOpen}

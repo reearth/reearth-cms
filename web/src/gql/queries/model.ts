@@ -1,14 +1,16 @@
 import { gql } from "@apollo/client";
 
 export const GET_MODELS = gql`
-  query GetModels($projectId: ID!, $pagination: Pagination) {
-    models(projectId: $projectId, pagination: $pagination) {
+  query GetModels($projectId: ID!, $keyword: String, $sort: Sort, $pagination: Pagination) {
+    models(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
       nodes {
         id
         name
         description
         key
         order
+        createdAt
+        updatedAt
         schema {
           id
         }

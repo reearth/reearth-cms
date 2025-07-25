@@ -8,12 +8,14 @@ import ProjectCreationModal, {
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  isFreePlan?: boolean;
   hasCreateRight: boolean;
   onProjectCreate: (values: FormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const CreateProjectButton: React.FC<Props> = ({
+  isFreePlan,
   hasCreateRight,
   onProjectCreate,
   onProjectAliasCheck,
@@ -49,6 +51,7 @@ const CreateProjectButton: React.FC<Props> = ({
         {t("New Project")}
       </Button>
       <ProjectCreationModal
+        isFreePlan={isFreePlan}
         open={projectModalShown}
         onClose={handleProjectModalClose}
         onSubmit={handleSubmit}

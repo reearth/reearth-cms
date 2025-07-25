@@ -16,6 +16,8 @@ describe("General form", () => {
     name,
     description,
     alias,
+    readme: "",
+    license: "",
     scope: "PRIVATE" as const,
     assetPublic: false,
     requestRoles: [],
