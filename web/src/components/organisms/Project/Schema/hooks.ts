@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
+  CreateFieldInput,
   Field,
   FieldType,
   Group,
@@ -17,8 +18,6 @@ import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverte
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
   useCreateFieldMutation,
-  SchemaFieldType,
-  SchemaFieldTypePropertyInput,
   useDeleteFieldMutation,
   useUpdateFieldMutation,
   useUpdateFieldsMutation,
@@ -36,6 +35,9 @@ import {
   useDeleteModelMutation,
   useCheckModelKeyAvailabilityLazyQuery,
   useModelsByGroupQuery,
+  useCreateFieldsMutation,
+  SchemaFieldType,
+  SchemaFieldTypePropertyInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
@@ -571,7 +573,48 @@ export default () => {
     [handleGroupDelete, handleModelDelete, isGroup],
   );
 
+  const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
+    useCreateFieldsMutation({
+      refetchQueries: ["GetModel", "GetGroup"],
+    });
+
+  const handleFieldsCreate = useCallback(
+    async (fields: CreateFieldInput[]) => {
+      if (!schemaId || fields.length === 0) return;
+      const response = await createNewFields({
+        variables: {
+          inputs: fields.map(field => ({
+            title: field.title,
+            metadata: field.metadata,
+            description: field.description,
+            key: field.key,
+            multiple: field.multiple,
+            unique: field.unique,
+            isTitle: field.isTitle,
+            required: field.required,
+            type: field.type as SchemaFieldType,
+            typeProperty: field.typeProperty as SchemaFieldTypePropertyInput,
+            modelId: schemaId,
+            groupId: undefined,
+          })),
+        },
+      });
+
+      if (response.errors || !response.data?.createFields) {
+        Notification.error({ message: t("Failed to create fields.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully created fields!") });
+    },
+    [schemaId, createNewFields, t],
+  );
+
   return {
+    workspaceId,
+    projectId,
+    fieldsCreationLoading,
+    fieldsCreationError: !!fieldsCreationError,
     data,
     models,
     groups,
@@ -593,6 +636,7 @@ export default () => {
     handleFieldUpdateModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleFieldsCreate,
     handleReferencedModelGet,
     handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,

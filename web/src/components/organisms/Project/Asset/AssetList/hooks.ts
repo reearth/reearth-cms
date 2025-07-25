@@ -25,9 +25,6 @@ import {
   useGetAssetLazyQuery,
   ContentTypesEnum,
   useGuessSchemaFieldsQuery,
-  useCreateFieldsMutation,
-  SchemaFieldType,
-  SchemaFieldTypePropertyInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
@@ -49,7 +46,6 @@ export default (isItemsRequired: boolean, importFieldsRequired: boolean) => {
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(false);
   const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
-  const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
   const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
   const [contentTypes, setContentTypes] = useState<ContentTypesEnum[]>([]);
 
@@ -189,11 +185,6 @@ export default (isItemsRequired: boolean, importFieldsRequired: boolean) => {
     setImportFields(parsedFields);
   }, [parsedFields]);
 
-  const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
-    useCreateFieldsMutation({
-      refetchQueries: ["GetModel", "GetGroup"],
-    });
-
   const assetList = useMemo(
     () =>
       (data?.assets.nodes
@@ -239,56 +230,11 @@ export default (isItemsRequired: boolean, importFieldsRequired: boolean) => {
 
   const handleSchemaImportModalCancel = useCallback(() => {
     setImportSchemaModalVisibility(false);
-    setCurrentImportSchemaModalPage(0);
     handleAssetSelect(undefined);
     setImportFields([]);
     setSelectedAssetId(undefined);
     handleUploadModalCancel();
   }, [handleAssetSelect, handleUploadModalCancel]);
-
-  const toSchemaPreviewStep = useCallback(() => {
-    setCurrentImportSchemaModalPage(1);
-  }, []);
-
-  const handleFieldsCreate = useCallback(
-    async (fields: CreateFieldInput[]) => {
-      if (!modelId || fields.length === 0) return;
-      const response = await createNewFields({
-        variables: {
-          inputs: fields.map(field => ({
-            title: field.title,
-            metadata: field.metadata,
-            description: field.description,
-            key: field.key,
-            multiple: field.multiple,
-            unique: field.unique,
-            isTitle: field.isTitle,
-            required: field.required,
-            type: field.type as SchemaFieldType,
-            typeProperty: field.typeProperty as SchemaFieldTypePropertyInput,
-            modelId: modelId,
-            groupId: undefined,
-          })),
-        },
-      });
-
-      if (response.errors || !response.data?.createFields) {
-        Notification.error({ message: t("Failed to create fields.") });
-        return;
-      }
-
-      Notification.success({ message: t("Successfully created fields!") });
-    },
-    [modelId, createNewFields, t],
-  );
-
-  const toImportingStep = useCallback(
-    async (fields: CreateFieldInput[]) => {
-      await handleFieldsCreate(fields);
-      setCurrentImportSchemaModalPage(2);
-    },
-    [handleFieldsCreate],
-  );
 
   const handleAssetsCreate = useCallback(
     async (files: RawUploadFile[]) => {
@@ -524,14 +470,10 @@ export default (isItemsRequired: boolean, importFieldsRequired: boolean) => {
   };
 
   return {
-    workspaceId,
-    projectId,
     importFields,
     guessSchemaFieldsError: !!guessSchemaFieldsError,
-    fieldsCreationError: !!fieldsCreationError,
     importSchemaModalVisibility,
     selectFileModalVisibility,
-    fieldsCreationLoading,
     assetList,
     selection,
     fileList,
@@ -552,15 +494,12 @@ export default (isItemsRequired: boolean, importFieldsRequired: boolean) => {
     columns,
     hasCreateRight,
     hasDeleteRight,
-    currentImportSchemaModalPage,
     handleUploadModalOpen,
     handleSelectFileModalOpen,
     handleSchemaImportModalOpen,
     handleUploadModalCancel,
     handleSelectFileModalCancel,
     handleSchemaImportModalCancel,
-    toSchemaPreviewStep,
-    toImportingStep,
     handleColumnsChange,
     handleToggleCommentMenu,
     handleAssetItemSelect,
