@@ -37,12 +37,7 @@ type UploadFile = RcFile & {
   skipDecompression?: boolean;
 };
 
-type Params = {
-  fetchAssetItems: boolean;
-  limitToGeoJsonAndJson: boolean;
-};
-
-export default ({ fetchAssetItems, limitToGeoJsonAndJson }: Params) => {
+export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = []) => {
   const t = useT();
   const [userRights] = useUserRights();
   const [userId] = useUserId();
@@ -52,7 +47,6 @@ export default ({ fetchAssetItems, limitToGeoJsonAndJson }: Params) => {
   const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(false);
   const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
   const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
-  const [contentTypes, setContentTypes] = useState<ContentTypesEnum[]>([]);
 
   const { workspaceId, projectId, modelId } = useParams();
   const navigate = useNavigate();
@@ -136,19 +130,15 @@ export default ({ fetchAssetItems, limitToGeoJsonAndJson }: Params) => {
     skip: !projectId,
   };
 
-  const [getAssets, { data, refetch, loading }] = fetchAssetItems
+  const [getAssets, { data, refetch, loading }] = isItemsRequired
     ? useGetAssetsItemsLazyQuery(params)
     : useGetAssetsLazyQuery(params);
 
   useEffect(() => {
-    setContentTypes(limitToGeoJsonAndJson ? [ContentTypesEnum.Geojson, ContentTypesEnum.Json] : []);
-  }, [limitToGeoJsonAndJson]);
-
-  useEffect(() => {
-    if (fetchAssetItems || limitToGeoJsonAndJson) {
+    if (isItemsRequired) {
       getAssets();
     }
-  }, [getAssets, fetchAssetItems, limitToGeoJsonAndJson]);
+  }, [getAssets, isItemsRequired]);
 
   const {
     data: guessSchemaFieldsData,

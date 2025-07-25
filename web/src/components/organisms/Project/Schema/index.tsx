@@ -8,6 +8,7 @@ import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import { ContentTypesEnum } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -15,8 +16,8 @@ import useHooks from "./hooks";
 const ProjectSchema: React.FC = () => {
   const t = useT();
   const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
-  const assetHooks = useAssetHooks({ fetchAssetItems: false, limitToGeoJsonAndJson: false });
-  const importHooks = useAssetHooks({ fetchAssetItems: true, limitToGeoJsonAndJson: true });
+  const assetHooks = useAssetHooks(false);
+  const importHooks = useAssetHooks(true, [ContentTypesEnum.Geojson, ContentTypesEnum.Json]);
   const schemaHooks = useHooks();
 
   const toSchemaPreviewStep = useCallback(() => {

@@ -94,7 +94,7 @@ const ContentDetails: React.FC = () => {
     pageSize,
     handleAssetTableChange,
     handleGetAsset,
-  } = useAssetHooks({ fetchAssetItems: false, limitToGeoJsonAndJson: false });
+  } = useAssetHooks(false);
 
   return (
     <ContentDetailsMolecule
