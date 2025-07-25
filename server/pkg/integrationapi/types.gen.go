@@ -945,6 +945,15 @@ type ModelFilterParams struct {
 
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
 }
 
 // ModelCreateJSONBody defines parameters for ModelCreate.
@@ -961,6 +970,15 @@ type ModelCreateParams struct {
 
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
 }
 
 // ModelUpdateWithProjectJSONBody defines parameters for ModelUpdateWithProject.
@@ -1142,6 +1160,15 @@ type ProjectFilterParams struct {
 
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
 }
 
 // ProjectCreateJSONBody defines parameters for ProjectCreate.
@@ -1161,6 +1188,15 @@ type ProjectCreateParams struct {
 
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Sort Used to define the order of the response list
+	Sort *SortParam `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *SortDirParam `form:"dir,omitempty" json:"dir,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
 }
 
 // ProjectUpdateJSONBody defines parameters for ProjectUpdate.

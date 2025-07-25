@@ -135,7 +135,7 @@ type ProjectEdge {
 }
 
 extend type Query {
-  projects(workspaceId: ID!, pagination: Pagination): ProjectConnection!
+  projects(workspaceId: ID!, keyword: String, sort: Sort, pagination: Pagination): ProjectConnection!
   checkProjectAlias(alias: String!): ProjectAliasAvailability!
 }
 

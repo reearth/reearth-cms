@@ -15,6 +15,9 @@ import (
 
 type ProjectFilter struct {
 	Visibility *project.Visibility
+	Keyword    *string
+	Sort       *usecasex.Sort
+	Pagination *usecasex.Pagination
 }
 type CreateProjectParam struct {
 	WorkspaceID   accountdomain.WorkspaceID
@@ -76,8 +79,8 @@ var (
 type Project interface {
 	Fetch(context.Context, []id.ProjectID, *usecase.Operator) (project.List, error)
 	FindByIDOrAlias(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
-	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *ProjectFilter, *usecasex.Pagination, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
-	FindByWorkspaces(context.Context, accountdomain.WorkspaceIDList, *ProjectFilter, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
+	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
+	FindByWorkspaces(context.Context, accountdomain.WorkspaceIDList, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateProjectParam, *usecase.Operator) (*project.Project, error)
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
 	CheckAlias(context.Context, string) (bool, error)

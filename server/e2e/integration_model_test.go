@@ -333,12 +333,16 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
+		WithQuery("sort", "id").
+		WithQuery("dir", "asc").
 		Expect())
 
 	assertRes(t, e.GET(endpoint, palias).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 10).
+		WithQuery("sort", "id").
+		WithQuery("dir", "asc").
 		Expect())
 }
 
