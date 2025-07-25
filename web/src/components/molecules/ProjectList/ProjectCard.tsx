@@ -21,9 +21,9 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
       <ProjectStyledCard onClick={() => onProjectNavigation(project.id)}>
         <Meta
           title={
-            <div style={{ width: "100%", display: "flex", gap: "8px", alignItems: "center" }}>
-              <span>{project.name}</span>
-              <Tag
+            <TitleContainer>
+              <ProjectName>{project.name}</ProjectName>
+              <StyledTag
                 bordered
                 color={
                   project.accessibility?.visibility === ProjectVisibility.Public
@@ -33,8 +33,8 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
                 {project.accessibility?.visibility === ProjectVisibility.Public
                   ? t("Public")
                   : t("Private")}
-              </Tag>
-            </div>
+              </StyledTag>
+            </TitleContainer>
           }
           description={project.description}
         />
@@ -53,6 +53,25 @@ const CardWrapper = styled.div`
       0px 6px 16px rgba(0, 0, 0, 0.08),
       0px 9px 28px 8px rgba(0, 0, 0, 0.05);
   }
+`;
+
+const TitleContainer = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ProjectName = styled.span`
+  max-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledTag = styled(Tag)`
+  margin: 0;
 `;
 
 const ProjectStyledCard = styled(Card)`
