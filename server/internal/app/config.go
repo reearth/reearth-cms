@@ -157,6 +157,7 @@ type AuthM2MConfig struct {
 	TTL     *int     `pp:",omitempty"`
 	Email   string   `pp:",omitempty"`
 	JWKSURI *string  `pp:",omitempty"`
+	Token   string   `pp:",omitempty"`
 }
 
 func (c *Config) Auths() (res AuthConfigs) {
