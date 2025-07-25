@@ -7,26 +7,24 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { SortModelBy } from "@reearth-cms/components/organisms/Project/Overview/types";
 import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+
+import { Project, SortBy, UpdateProjectInput } from "../Workspace/types";
 
 import LicenseTab from "./LicenseTab";
 import ModelsTab from "./ModelsTab";
 import ReadmeTab from "./ReadmeTab";
 
 type Props = {
-  projectName?: string;
-  projectDescription?: string;
-  projectVisibility?: string;
-  projectReadme?: string;
-  projectLicense?: string;
+  project?: Project;
   models?: Model[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
   onModelSearch: (value: string) => void;
-  onModelSort: (sort: SortModelBy) => void
+  onModelSort: (sort: SortBy) => void;
   onModelModalOpen: () => void;
   onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
@@ -35,16 +33,15 @@ type Props = {
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
 };
 
+type ActiveKey = "models" | "readme" | "license";
+
 const ProjectOverview: React.FC<Props> = ({
-  projectName,
-  projectDescription,
-  projectVisibility,
-  projectReadme,
-  projectLicense,
+  project,
   models,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  onProjectUpdate,
   onModelSearch,
   onModelSort,
   onModelModalOpen,
@@ -55,79 +52,67 @@ const ProjectOverview: React.FC<Props> = ({
   onModelUpdateModalOpen,
 }) => {
   const t = useT();
-  const [activeKey, setActiveKey] = useState<string>("models");
+  const [activeKey, setActiveKey] = useState<ActiveKey>("models");
 
   const [activeReadmeTab, setActiveReadmeTab] = useState("edit");
   const [readmeEditMode, setReadmeEditMode] = useState(false);
-  const [readmeMarkdown, setReadmeMarkdown] = useState("");
-  const [tempReadmeValue, setReadmeTempValue] = useState("");
+  const [readmeValue, setReadmeValue] = useState("");
 
   const [activeLicenseTab, setActiveLicenseTab] = useState("edit");
   const [licenseEditMode, setLicenseEditMode] = useState(false);
-  const [licenseMarkdown, setLicenseMarkdown] = useState("");
-  const [tempLicenseValue, setLicenseTempValue] = useState("");
+  const [licenseValue, setLicenseValue] = useState("");
 
   useEffect(() => {
-    if (projectReadme) {
-      setReadmeMarkdown(projectReadme);
+    if (project?.readme) {
+      setReadmeValue(project.readme);
     }
-  }, [projectReadme]);
+  }, [project?.readme]);
 
   useEffect(() => {
-    if (readmeMarkdown) {
-      setReadmeTempValue(readmeMarkdown);
+    if (project?.license) {
+      setLicenseValue(project.license);
     }
-  }, [readmeMarkdown]);
+  }, [project?.license]);
 
-  useEffect(() => {
-    if (projectLicense) {
-      setLicenseMarkdown(projectLicense);
-    }
-  }, [projectLicense]);
-
-  useEffect(() => {
-    if (licenseMarkdown) {
-      setLicenseTempValue(licenseMarkdown);
-    }
-  }, [licenseMarkdown]);
-
-  const handleReadmeSave = useCallback(() => {
-    setReadmeMarkdown(tempReadmeValue);
+  const handleReadmeSave = useCallback(async () => {
+    if (!project?.id) return;
     setActiveReadmeTab("edit");
     setReadmeEditMode(false);
-  }, [tempReadmeValue]);
+    await onProjectUpdate({
+      projectId: project.id,
+      readme: readmeValue,
+    });
+  }, [onProjectUpdate, project?.id, readmeValue]);
 
   const handleReadmeEdit = useCallback(() => {
     setReadmeEditMode(true);
   }, []);
 
-  const handleLicenseSave = useCallback(() => {
-    setLicenseMarkdown(tempLicenseValue);
+  const handleLicenseSave = useCallback(async () => {
+    if (!project?.id) return;
     setActiveLicenseTab("edit");
     setLicenseEditMode(false);
-  }, [tempLicenseValue]);
+    await onProjectUpdate({
+      projectId: project.id,
+      license: licenseValue,
+    });
+  }, [onProjectUpdate, project?.id, licenseValue]);
 
   const handleLicenseEdit = useCallback(() => {
     setLicenseEditMode(true);
   }, []);
 
-  const handleReadmeMarkdownChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setReadmeTempValue(e.target.value);
-    setReadmeMarkdown(e.target.value);
-  };
+  const handleReadmeMarkdownChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setReadmeValue(e.target.value);
+  }, []);
 
-  const handleLicenseMarkdownChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setLicenseTempValue(e.target.value);
-    setLicenseMarkdown(e.target.value);
-  };
+  const handleLicenseMarkdownChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setLicenseValue(e.target.value);
+  }, []);
 
-  const handleChooseLicenseTemplate = useCallback(
-    (value: string) => {
-      setLicenseTempValue(value);
-      setLicenseMarkdown(value);
-    },
-    [setLicenseTempValue],
-  );
+  const handleChooseLicenseTemplate = useCallback((value: string) => {
+    setLicenseValue(value);
+  }, []);
 
   const tabBarExtraContent = useMemo(
     () => (
@@ -141,8 +126,8 @@ const ProjectOverview: React.FC<Props> = ({
             {t("New Model")}
           </Button>
         )}
-        {activeKey === "readme" ? (
-          readmeEditMode ? (
+        {activeKey === "readme" &&
+          (readmeEditMode ? (
             <Button
               type="primary"
               icon={<Icon icon="save" />}
@@ -158,10 +143,9 @@ const ProjectOverview: React.FC<Props> = ({
               disabled={!hasUpdateRight}>
               {t("Edit")}
             </Button>
-          )
-        ) : undefined}
-        {activeKey === "license" ? (
-          licenseEditMode ? (
+          ))}
+        {activeKey === "license" &&
+          (licenseEditMode ? (
             <Button
               type="primary"
               icon={<Icon icon="save" />}
@@ -177,8 +161,7 @@ const ProjectOverview: React.FC<Props> = ({
               disabled={!hasUpdateRight}>
               {t("Edit")}
             </Button>
-          )
-        ) : undefined}
+          ))}
       </div>
     ),
     [
@@ -201,25 +184,28 @@ const ProjectOverview: React.FC<Props> = ({
       title={
         <Title>
           <div>
-            <Button
-              type="text"
-              onClick={onHomeNavigation}
-              style={{ color: "rgba(0, 0, 0, 0.45", fontSize: 20, fontWeight: "bold" }}>
+            <HomeButton type="text" onClick={onHomeNavigation}>
               Home
-            </Button>
-            /<span style={{ padding: "0px 15px" }}>{projectName}</span>
+            </HomeButton>
+            /<ProjectName>{project?.name}</ProjectName>
           </div>
-          <Tag bordered color={projectVisibility === ProjectVisibility.Public ? "blue" : "default"}>
-            {projectVisibility === ProjectVisibility.Public ? t("Public") : t("Private")}
+          <Tag
+            bordered
+            color={
+              project?.accessibility?.visibility === ProjectVisibility.Public ? "blue" : "default"
+            }>
+            {project?.accessibility?.visibility === ProjectVisibility.Public
+              ? t("Public")
+              : t("Private")}
           </Tag>
         </Title>
       }
-      subtitle={projectDescription}
+      subtitle={project?.description}
       flexChildren>
       <StyledTabs
         activeKey={activeKey}
         tabBarExtraContent={tabBarExtraContent}
-        onTabClick={key => setActiveKey(key)}>
+        onTabClick={key => setActiveKey(key as ActiveKey)}>
         <Tabs.TabPane tab={t("Models")} key="models">
           <ModelsTab
             models={models}
@@ -240,8 +226,8 @@ const ProjectOverview: React.FC<Props> = ({
             activeTab={activeReadmeTab}
             editMode={readmeEditMode}
             setActiveTab={setActiveReadmeTab}
-            markdown={readmeMarkdown}
-            tempValue={tempReadmeValue}
+            value={readmeValue}
+            projectReadme={project?.readme}
             onMarkdownChange={handleReadmeMarkdownChange}
           />
         </Tabs.TabPane>
@@ -250,8 +236,8 @@ const ProjectOverview: React.FC<Props> = ({
             activeTab={activeLicenseTab}
             editMode={licenseEditMode}
             setActiveTab={setActiveLicenseTab}
-            markdown={licenseMarkdown}
-            tempValue={tempLicenseValue}
+            value={licenseValue}
+            projectLicense={project?.license}
             onMarkdownChange={handleLicenseMarkdownChange}
             onChooseLicenseTemplate={handleChooseLicenseTemplate}
           />
@@ -267,6 +253,16 @@ const Title = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
+`;
+
+const HomeButton = styled(Button)`
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 20px;
+  font-weight: bold;
+`;
+
+const ProjectName = styled.span`
+  padding: 0px 15px;
 `;
 
 const StyledTabs = styled(Tabs)`

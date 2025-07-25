@@ -4,8 +4,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { SortModelBy } from "@reearth-cms/components/organisms/Project/Overview/types";
 import { useT, Trans } from "@reearth-cms/i18n";
+
+import { SortBy } from "../Workspace/types";
 
 import ModelCard from "./ModelCard";
 import ProjectHeader from "./ProjectHeader";
@@ -16,7 +17,7 @@ type Props = {
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   onModelSearch: (value: string) => void;
-  onModelSort: (sort: SortModelBy) => void;
+  onModelSort: (sort: SortBy) => void;
   onModelModalOpen: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;

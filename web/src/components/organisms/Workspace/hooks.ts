@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -18,8 +19,6 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
-import { SortProjectBy } from "./types";
-
 export default () => {
   const t = useT();
   const navigate = useNavigate();
@@ -28,7 +27,7 @@ export default () => {
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
   const [searchedProjectName, setSearchedProjectName] = useState<string>("");
-  const [projectSort, setProjectSort] = useState<SortProjectBy>("updatedAt");
+  const [projectSort, setProjectSort] = useState<SortBy>("updatedAt");
 
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.project.create, [userRights?.project.create]);
@@ -72,7 +71,7 @@ export default () => {
   );
 
   const handleProjectSort = useCallback(
-    (sort: SortProjectBy) => {
+    (sort: SortBy) => {
       setProjectSort(sort);
     },
     [setProjectSort],

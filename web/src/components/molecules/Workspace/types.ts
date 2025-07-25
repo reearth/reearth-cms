@@ -13,6 +13,17 @@ export type Project = {
   accessibility?: ProjectAccessibility;
 };
 
+export type UpdateProjectInput = {
+  projectId: string;
+  name?: string;
+  description?: string;
+  alias?: string;
+  readme?: string;
+  license?: string;
+  requestRoles?: Role[];
+  accessibility?: ProjectAccessibility;
+};
+
 export type ProjectListItem = Pick<Project, "id" | "name" | "description" | "accessibility">;
 
 export type UserMember = {
@@ -92,4 +103,11 @@ export type CesiumResourceProps = {
   image: string;
   cesiumIonAssetId: string;
   cesiumIonAccessToken: string;
+};
+
+export type SortBy = "createdAt" | "updatedAt" | "name";
+
+export type SortOption = {
+  key: SortBy;
+  label: string;
 };

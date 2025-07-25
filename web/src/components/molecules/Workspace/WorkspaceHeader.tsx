@@ -3,25 +3,23 @@ import { useMemo } from "react";
 
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
-import {
-  ProjectSortOption,
-  SortProjectBy,
-} from "@reearth-cms/components/organisms/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+
+import { SortBy, SortOption } from "./types";
 
 type Props = {
   onProjectSearch: (value: string) => void;
-  onProjectSort: (sort: SortProjectBy) => void;
+  onProjectSort: (sort: SortBy) => void;
 };
 
 const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) => {
   const t = useT();
 
-  const projectSortOptions: ProjectSortOption[] = useMemo(
+  const projectSortOptions: SortOption[] = useMemo(
     () => [
-      { key: "updatedAt", value: "updatedAt", label: t("Last Modified") },
-      { key: "createdAt", value: "createdAt", label: t("Created At") },
-      { key: "name", value: "name", label: t("Name") },
+      { key: "updatedAt", label: t("Last Modified") },
+      { key: "createdAt", label: t("Created At") },
+      { key: "name", label: t("Name") },
     ],
     [t],
   );
@@ -39,10 +37,10 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) =>
         <StyledSelect
           defaultValue="updatedAt"
           onChange={value => {
-            onProjectSort(value as SortProjectBy);
+            onProjectSort(value as SortBy);
           }}>
           {projectSortOptions.map(option => (
-            <Select.Option key={option.key} value={option.value}>
+            <Select.Option key={option.key} value={option.key}>
               {option.label}
             </Select.Option>
           ))}

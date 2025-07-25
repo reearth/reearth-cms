@@ -3,22 +3,23 @@ import { useMemo } from "react";
 
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
-import { ModelSortOption, SortModelBy } from "@reearth-cms/components/organisms/Project/Overview/types";
 import { useT } from "@reearth-cms/i18n";
+
+import { SortBy, SortOption } from "../Workspace/types";
 
 type Props = {
   onModelSearch: (value: string) => void;
-  onModelSort: (sort: SortModelBy) => void;
+  onModelSort: (sort: SortBy) => void;
 };
 
 const ProjectHeader: React.FC<Props> = ({ onModelSearch, onModelSort }) => {
   const t = useT();
 
-  const modelSortOptions: ModelSortOption[] = useMemo(
+  const modelSortOptions: SortOption[] = useMemo(
     () => [
-      { key: "updatedAt", value: "updatedAt", label: t("Last Modified") },
-      { key: "createdAt", value: "createdAt", label: t("Created At") },
-      { key: "name", value: "name", label: t("Name") },
+      { key: "updatedAt", label: t("Last Modified") },
+      { key: "createdAt", label: t("Created At") },
+      { key: "name", label: t("Name") },
     ],
     [t],
   );
@@ -36,10 +37,10 @@ const ProjectHeader: React.FC<Props> = ({ onModelSearch, onModelSort }) => {
         <StyledSelect
           defaultValue="updatedAt"
           onChange={value => {
-            onModelSort(value as SortModelBy);
+            onModelSort(value as SortBy);
           }}>
           {modelSortOptions.map(option => (
-            <Select.Option key={option.key} value={option.value}>
+            <Select.Option key={option.key} value={option.key}>
               {option.label}
             </Select.Option>
           ))}

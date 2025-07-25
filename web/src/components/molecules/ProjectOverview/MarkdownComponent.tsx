@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import {  ChangeEventHandler, useMemo } from "react";
+import { ChangeEventHandler, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -14,8 +14,7 @@ type Props = {
   needsTemplate?: boolean;
   activeTab?: string;
   setActiveTab?: (key: string) => void;
-  markdown?: string;
-  tempValue?: string;
+  value?: string;
   onMarkdownChange?: ChangeEventHandler<HTMLTextAreaElement>;
   onChooseLicenseTemplate?: (value: string) => void;
 };
@@ -24,8 +23,7 @@ const MarkdownComponent: React.FC<Props> = ({
   needsTemplate,
   activeTab,
   setActiveTab,
-  markdown,
-  tempValue,
+  value,
   onMarkdownChange,
   onChooseLicenseTemplate,
 }) => {
@@ -37,7 +35,7 @@ const MarkdownComponent: React.FC<Props> = ({
       label: option.label,
       onClick: () => {
         const value = getLicenseContent(option.value) ?? "";
-        onChooseLicenseTemplate?.(value)
+        onChooseLicenseTemplate?.(value);
       },
     }));
   }, [onChooseLicenseTemplate]);
@@ -60,15 +58,15 @@ const MarkdownComponent: React.FC<Props> = ({
       <Tabs.TabPane tab="Edit" key="edit">
         <TextArea
           rows={20}
-          value={tempValue}
+          value={value}
           onChange={onMarkdownChange}
           style={{ fontFamily: "monospace" }}
         />
       </Tabs.TabPane>
       <Tabs.TabPane tab="Preview" key="preview">
-        <div style={{ padding: "1rem", border: "1px solid #ddd", borderRadius: "4px" }}>
-          <ReactMarkdown>{markdown}</ReactMarkdown>
-        </div>
+        <StyledContainer>
+          <ReactMarkdown>{value}</ReactMarkdown>
+        </StyledContainer>
       </Tabs.TabPane>
     </StyledTabs>
   );
@@ -87,4 +85,12 @@ const StyledTabs = styled(Tabs)`
   .ant-tabs-content-holder {
     overflow-y: auto;
   }
+`;
+
+const StyledContainer = styled.div`
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  height: 500px;
+  overflow-y: auto;
 `;

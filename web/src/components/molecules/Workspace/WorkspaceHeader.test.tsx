@@ -4,9 +4,7 @@ import { expect, test, vi } from "vitest";
 import WorkspaceHeader from "./WorkspaceHeader";
 
 test("WorkspaceHeader renders with search input and sort select", () => {
-  const onProjectSearch = vi.fn();
-
-  render(<WorkspaceHeader onProjectSearch={onProjectSearch} />);
+  render(<WorkspaceHeader onProjectSearch={vi.fn()} onProjectSort={vi.fn()} />);
 
   expect(screen.getByPlaceholderText("search projects")).toBeVisible();
   expect(screen.getByText("Sort by")).toBeVisible();

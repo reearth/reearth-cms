@@ -10,8 +10,8 @@ type Props = {
   activeTab?: string;
   editMode: boolean;
   setActiveTab?: (key: string) => void;
-  markdown?: string;
-  tempValue?: string;
+  value?: string;
+  projectLicense?: string;
   onMarkdownChange?: ChangeEventHandler<HTMLTextAreaElement>;
   onChooseLicenseTemplate?: (value: string) => void;
 };
@@ -20,8 +20,8 @@ const LicenseTab: React.FC<Props> = ({
   activeTab,
   editMode,
   setActiveTab,
-  markdown,
-  tempValue,
+  value,
+  projectLicense,
   onMarkdownChange,
   onChooseLicenseTemplate,
 }) => {
@@ -32,14 +32,13 @@ const LicenseTab: React.FC<Props> = ({
           needsTemplate
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          markdown={markdown}
-          tempValue={tempValue}
+          value={value}
           onMarkdownChange={onMarkdownChange}
           onChooseLicenseTemplate={onChooseLicenseTemplate}
         />
       ) : (
         <StyledContainer>
-          <ReactMarkdown>{markdown}</ReactMarkdown>
+          <ReactMarkdown>{projectLicense}</ReactMarkdown>
         </StyledContainer>
       )}
     </ContentSection>
@@ -52,5 +51,6 @@ const StyledContainer = styled.div`
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  min-height: 400px;
+  height: 500px;
+  overflow-y: auto;
 `;

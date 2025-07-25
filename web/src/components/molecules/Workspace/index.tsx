@@ -8,8 +8,7 @@ import ProjectList from "@reearth-cms/components/molecules/ProjectList/ProjectLi
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
 import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
-import { SortProjectBy } from "@reearth-cms/components/organisms/Workspace/types";
+import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 
 import WorkspaceHeader from "./WorkspaceHeader";
 
@@ -21,7 +20,7 @@ type Props = {
   loading: boolean;
   hasCreateRight: boolean;
   onProjectSearch: (value: string) => void;
-  onProjectSort: (sort: SortProjectBy) => void;
+  onProjectSort: (sort: SortBy) => void;
   onProjectNavigation: (projectId: string) => void;
   onProjectCreate: (values: ProjectFormValues) => Promise<void>;
   onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;

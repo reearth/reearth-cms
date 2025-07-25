@@ -10,8 +10,8 @@ type Props = {
   activeTab?: string;
   editMode: boolean;
   setActiveTab?: (key: string) => void;
-  markdown?: string;
-  tempValue?: string;
+  value?: string;
+  projectReadme?: string;
   onMarkdownChange?: ChangeEventHandler<HTMLTextAreaElement>;
 };
 
@@ -19,8 +19,8 @@ const ReadmeTab: React.FC<Props> = ({
   activeTab,
   editMode,
   setActiveTab,
-  markdown,
-  tempValue,
+  value,
+  projectReadme,
   onMarkdownChange,
 }) => {
   return (
@@ -29,13 +29,12 @@ const ReadmeTab: React.FC<Props> = ({
         <MarkdownComponent
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          markdown={markdown}
-          tempValue={tempValue}
+          value={value}
           onMarkdownChange={onMarkdownChange}
         />
       ) : (
         <StyledContainer>
-          <ReactMarkdown>{markdown}</ReactMarkdown>
+          <ReactMarkdown>{projectReadme}</ReactMarkdown>
         </StyledContainer>
       )}
     </ContentSection>
@@ -48,5 +47,6 @@ const StyledContainer = styled.div`
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  min-height: 400px;
+  height: 500px;
+  overflow-y: auto;
 `;
