@@ -93,7 +93,7 @@ func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 
 			// Create gateways with mock policy checker
 			g := gateway.Container{
-				File:          lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+				File:          lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 				PolicyChecker: &mockPolicyChecker{allowed: tc.policyAllowed, message: tc.policyMessage},
 			}
 
@@ -146,7 +146,7 @@ func TestAsset_Create_WithPermissivePolicyChecker(t *testing.T) {
 
 	// Use the real permissive checker
 	g := gateway.Container{
-		File:          lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File:          lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 		PolicyChecker: policy.NewPermissiveChecker(),
 	}
 
@@ -216,7 +216,7 @@ func TestAsset_Create_WithHTTPPolicyChecker(t *testing.T) {
 
 	// Use HTTP policy checker
 	g := gateway.Container{
-		File:          lo.Must(fs.NewFile(afero.NewMemMapFs(), "")),
+		File:          lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 		PolicyChecker: policy.NewHTTPPolicyChecker(server.URL, "", 5),
 	}
 
