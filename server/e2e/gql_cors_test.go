@@ -7,7 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/app"
 )
 
-func TestGQL_COES(t *testing.T) {
+func TestGQL_CORS(t *testing.T) {
 	e, _, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 		Origins:      []string{"https://example.com"},
