@@ -17,6 +17,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=tsconfig.json,target=tsconfig.json \
     --mount=type=bind,source=vite.config.ts,target=vite.config.ts \
     --mount=type=bind,source=src,target=src \
+    --mount=type=bind,source=public,target=public \
     --mount=type=cache,target=/root/.yarn,sharing=locked \
     yarn build
 

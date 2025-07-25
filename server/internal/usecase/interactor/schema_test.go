@@ -428,7 +428,7 @@ func TestAsset_GuessSchemaFields(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()
 			db := memory.New()
-			f, _ := fs.NewFile(mockAssetFiles(), "")
+			f, _ := fs.NewFile(mockAssetFiles(), "", false)
 
 			for _, a := range tt.seeds.assets {
 				err := db.Asset.Save(ctx, a.Clone())

@@ -45,8 +45,9 @@ type Config struct {
 	Web_Config          JSON              `pp:",omitempty"`
 	Web_Disabled        bool              `pp:",omitempty"`
 	// asset
-	Asset_Public bool   `default:"true" pp:",omitempty"`
-	AssetBaseURL string `pp:",omitempty"`
+	Asset_Public              bool   `default:"true" pp:",omitempty"`
+	AssetBaseURL              string `pp:",omitempty"`
+	AssetUploadURLReplacement bool   `default:"false" pp:",omitempty"` // Replace upload URLs to go through proxy
 	// auth
 	Auth          AuthConfigs    `pp:",omitempty"`
 	Auth0         Auth0Config    `pp:",omitempty"`
