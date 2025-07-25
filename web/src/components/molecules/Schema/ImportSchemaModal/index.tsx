@@ -275,6 +275,7 @@ const ImportSchemaModal: React.FC<Props> = ({
             <Button
               type="primary"
               loading={guessSchemaFieldsLoading}
+              disabled={fields.length === 0}
               onClick={() => toImportingStep(fields)}>
               {t("Import Schema")}
             </Button>

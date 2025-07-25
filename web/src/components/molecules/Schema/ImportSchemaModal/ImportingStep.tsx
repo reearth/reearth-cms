@@ -10,6 +10,8 @@ type Props = {
   onModalClose: () => void;
 };
 
+const AUTO_CLOSE_DELAY = 1000; // milliseconds
+
 const ImportingStep: React.FC<Props> = ({
   fieldsCreationLoading,
   fieldsCreationError,
@@ -33,13 +35,17 @@ const ImportingStep: React.FC<Props> = ({
   }, [fieldsCreationError, fieldsCreationLoading, t]);
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    let timeout: NodeJS.Timeout | null = null;
     if (!fieldsCreationLoading) {
       timeout = setTimeout(() => {
         onModalClose();
-      }, 1000);
+      }, AUTO_CLOSE_DELAY);
     }
-    return () => clearTimeout(timeout);
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, [fieldsCreationLoading, onModalClose]);
 
   return (
