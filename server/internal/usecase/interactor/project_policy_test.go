@@ -214,7 +214,7 @@ func TestProject_Create_DefaultVisibility(t *testing.T) {
 
 	projectUC := NewProject(db, &g)
 
-	// Create project without specifying visibility - should default to private
+	// Create project without specifying visibility - should default to public
 	projectName := "Test Project"
 	_, err = projectUC.Create(ctx, interfaces.CreateProjectParam{
 		WorkspaceID: ws.ID(),
@@ -222,6 +222,6 @@ func TestProject_Create_DefaultVisibility(t *testing.T) {
 	}, op)
 
 	assert.NoError(t, err)
-	assert.Equal(t, gateway.PolicyCheckGeneralPrivateProjectCreation, usedCheckType,
-		"Should check private project creation policy when visibility is not specified")
+	assert.Equal(t, gateway.PolicyCheckGeneralPublicProjectCreation, usedCheckType,
+		"Should check public project creation policy when visibility is not specified")
 }

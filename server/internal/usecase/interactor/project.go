@@ -48,7 +48,7 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	visibility := project.VisibilityPrivate
+	visibility := project.VisibilityPublic
 	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
 		visibility = *param.Accessibility.Visibility
 	}
@@ -140,7 +140,7 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 	}
 	if visibility != updatedVisibility {
 		var checkType gateway.PolicyCheckType
-		if visibility == project.VisibilityPublic {
+		if updatedVisibility == project.VisibilityPublic {
 			checkType = gateway.PolicyCheckGeneralPublicProjectCreation
 		} else {
 			checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
