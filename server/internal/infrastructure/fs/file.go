@@ -28,7 +28,7 @@ type fileRepo struct {
 	public      bool
 }
 
-func NewFile(fs afero.Fs, publicBase string) (gateway.File, error) {
+func NewFile(fs afero.Fs, publicBase string, replaceUploadURL bool) (gateway.File, error) {
 	var b *url.URL
 	if publicBase == "" {
 		publicBase = defaultBase
@@ -47,8 +47,8 @@ func NewFile(fs afero.Fs, publicBase string) (gateway.File, error) {
 	}, nil
 }
 
-func NewFileWithACL(fs afero.Fs, publicBase, privateBase string) (gateway.File, error) {
-	f, err := NewFile(fs, publicBase)
+func NewFileWithACL(fs afero.Fs, publicBase, privateBase string, replaceUploadURL bool) (gateway.File, error) {
+	f, err := NewFile(fs, publicBase, replaceUploadURL)
 	if err != nil {
 		return nil, err
 	}

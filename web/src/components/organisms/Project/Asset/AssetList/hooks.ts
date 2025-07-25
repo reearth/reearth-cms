@@ -4,7 +4,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
-import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile as RawUploadFile, RcFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { useAuthHeader } from "@reearth-cms/gql";
@@ -26,7 +26,7 @@ import { uploadFiles } from "./upload";
 
 type UploadType = "local" | "url";
 
-type UploadFile = File & {
+type UploadFile = RcFile & {
   skipDecompression?: boolean;
 };
 
@@ -155,7 +155,7 @@ export default (isItemsRequired: boolean) => {
       try {
         results = (
           await uploadFiles<UploadFile, Asset | undefined>(
-            files as unknown as UploadFile[], // TODO: refactor
+            files as UploadFile[],
             async ({ contentLength, contentEncoding, cursor, filename }) => {
               const result = await createAssetUploadMutation({
                 variables: {
