@@ -42,7 +42,7 @@ const AssetList: React.FC = () => {
     handleAssetsReload,
     handleNavigateToAsset,
     handleAssetTableChange,
-  } = useHooks(true, false);
+  } = useHooks({ fetchAssetItems: true, limitToGeoJsonAndJson: false });
 
   return (
     <AssetListBody

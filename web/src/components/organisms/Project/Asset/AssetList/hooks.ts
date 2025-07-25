@@ -37,7 +37,12 @@ type UploadFile = RcFile & {
   skipDecompression?: boolean;
 };
 
-export default (isItemsRequired: boolean, limitToGeoJsonAndJson: boolean) => {
+type Params = {
+  fetchAssetItems: boolean;
+  limitToGeoJsonAndJson: boolean;
+};
+
+export default ({ fetchAssetItems, limitToGeoJsonAndJson }: Params) => {
   const t = useT();
   const [userRights] = useUserRights();
   const [userId] = useUserId();
@@ -131,7 +136,7 @@ export default (isItemsRequired: boolean, limitToGeoJsonAndJson: boolean) => {
     skip: !projectId,
   };
 
-  const [getAssets, { data, refetch, loading }] = isItemsRequired
+  const [getAssets, { data, refetch, loading }] = fetchAssetItems
     ? useGetAssetsItemsLazyQuery(params)
     : useGetAssetsLazyQuery(params);
 
@@ -140,10 +145,10 @@ export default (isItemsRequired: boolean, limitToGeoJsonAndJson: boolean) => {
   }, [limitToGeoJsonAndJson]);
 
   useEffect(() => {
-    if (isItemsRequired || limitToGeoJsonAndJson) {
+    if (fetchAssetItems || limitToGeoJsonAndJson) {
       getAssets();
     }
-  }, [getAssets, isItemsRequired, limitToGeoJsonAndJson]);
+  }, [getAssets, fetchAssetItems, limitToGeoJsonAndJson]);
 
   const {
     data: guessSchemaFieldsData,

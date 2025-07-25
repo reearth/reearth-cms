@@ -15,8 +15,8 @@ import useHooks from "./hooks";
 const ProjectSchema: React.FC = () => {
   const t = useT();
   const [currentImportSchemaModalPage, setCurrentImportSchemaModalPage] = useState(0);
-  const assetHooks = useAssetHooks(false, false);
-  const importHooks = useAssetHooks(true, true);
+  const assetHooks = useAssetHooks({ fetchAssetItems: false, limitToGeoJsonAndJson: false });
+  const importHooks = useAssetHooks({ fetchAssetItems: true, limitToGeoJsonAndJson: true });
   const schemaHooks = useHooks();
 
   const toSchemaPreviewStep = useCallback(() => {
