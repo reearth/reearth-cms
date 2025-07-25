@@ -1,6 +1,6 @@
-import { test as base, type Page } from "@playwright/test";
+import { type Page, test as base } from "@playwright/test";
 
-import { config, getAccessToken, type Config } from "./config";
+import { config, type Config, getAccessToken } from "./config";
 
 export { expect } from "@playwright/test";
 
@@ -31,7 +31,7 @@ export const test = base.extend<{
       async gql(query, variables, options) {
         if (!this.token) throw new Error("access token is not initialized");
 
-        const resp = await request.post(config.api + "/graphql", {
+        const resp = await request.post(config.api + "/gql", {
           data: {
             query,
             variables,

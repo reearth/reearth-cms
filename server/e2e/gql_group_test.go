@@ -30,7 +30,7 @@ func createGroup(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -79,7 +79,7 @@ func updateGroupsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").

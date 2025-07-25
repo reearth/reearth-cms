@@ -124,7 +124,7 @@ func TestUpdateMe(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
+	o := e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -150,7 +150,7 @@ func TestRemoveMyAuth(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	e.POST("/api/graphql").
+	e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -176,7 +176,7 @@ func TestDeleteMe(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	e.POST("/api/graphql").
+	e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -196,7 +196,7 @@ func TestMe(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
+	o := e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -208,7 +208,7 @@ func TestMe(t *testing.T) {
 	o.Value("theme").String().IsEqual("dark")
 	o.Value("myWorkspaceId").String().IsEqual(wId.String())
 
-	o = e.POST("/api/graphql").
+	o = e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId2.String()).
@@ -231,7 +231,7 @@ func TestUserByNameOrEmail(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
+	o := e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -248,7 +248,7 @@ func TestUserByNameOrEmail(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	e.POST("/api/graphql").
+	e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -266,7 +266,7 @@ func TestUserSearch(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -286,7 +286,7 @@ func TestUserSearch(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	res = e.POST("/api/graphql").
+	res = e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -306,7 +306,7 @@ func TestUserSearch(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	e.POST("/api/graphql").
+	e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -324,7 +324,7 @@ func TestNode(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
+	o := e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
@@ -342,7 +342,7 @@ func TestNodes(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
+	o := e.POST("/gql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).

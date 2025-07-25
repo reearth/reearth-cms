@@ -41,7 +41,7 @@ func createIntegration(e *httpexpect.Expect, name, desc, logoUrl, iType string) 
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -76,7 +76,7 @@ func regenerateToken(e *httpexpect.Expect, iId string) (string, *httpexpect.Valu
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").

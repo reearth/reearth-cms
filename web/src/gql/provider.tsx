@@ -1,4 +1,4 @@
-import { ApolloProvider, ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
+import { ApolloClient, ApolloLink, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
@@ -11,9 +11,7 @@ type Props = {
 };
 
 const Provider: React.FC<Props> = ({ children }) => {
-  const endpoint = window.REEARTH_CONFIG?.api
-    ? `${window.REEARTH_CONFIG.api}/graphql`
-    : "/api/graphql";
+  const endpoint = window.REEARTH_CONFIG?.api ? `${window.REEARTH_CONFIG.api}/gql` : "/gql";
   const { getAccessToken } = useAuth();
 
   const authLink = setContext(async (_, { headers }) => {

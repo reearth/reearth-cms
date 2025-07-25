@@ -45,18 +45,13 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	})
 
 	// apis
-	initApi(appCtx, e.Group("/api"), usecaseMiddleware)
+	initInternalApi(appCtx, e.Group("/internal"), usecaseMiddleware)
 
-	// GraphQL Playground without auth
-	if appCtx.Debug || appCtx.Config.Dev {
-		e.GET("/graphql", echo.WrapHandler(
-			playground.Handler("reearth-cms", "/api/graphql"),
-		))
-		log.Infof("gql: GraphQL Playground is available")
-	}
+	// GraphQL API
+	initGql(appCtx, e.Group("/gql"), usecaseMiddleware)
 
 	// Public API
-	initPublicApi(appCtx, e.Group("/api/p"), usecaseMiddleware)
+	initPublicApi(appCtx, e.Group("/p"), usecaseMiddleware)
 
 	// Integration API
 	initIntegrationApi(appCtx, e.Group("/api"), usecaseMiddleware)
@@ -70,13 +65,13 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	return e
 }
 
-func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+func initInternalApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
 	api.Use(private)
+	api.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}))
 	api.GET("/ping", Ping())
 	api.GET("/health", HealthCheck(appCtx.Config, appCtx.Version))
 	api.POST(
 		"/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev),
-		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}),
 		jwtParseMiddleware(appCtx),
 		authMiddleware(appCtx),
 		usecaseMiddleware,
@@ -87,6 +82,23 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 		usecaseMiddleware,
 	)
 	api.POST("/signup", Signup(), usecaseMiddleware)
+}
+
+func initGql(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+	api.Use(private)
+	api.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}))
+	api.POST(
+		"", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev),
+		jwtParseMiddleware(appCtx),
+		authMiddleware(appCtx),
+		usecaseMiddleware,
+	)
+
+	// GraphQL Playground without auth
+	if appCtx.Debug || appCtx.Config.Dev {
+		api.GET("", echo.WrapHandler(playground.Handler("reearth-cms", "/gql")))
+		log.Infof("gql: GraphQL Playground is available")
+	}
 }
 
 func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {

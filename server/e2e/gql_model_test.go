@@ -32,7 +32,7 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -67,7 +67,7 @@ func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string) *htt
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -99,7 +99,7 @@ func updateModelsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -124,7 +124,7 @@ func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -295,7 +295,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
