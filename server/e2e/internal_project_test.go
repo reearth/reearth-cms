@@ -6,7 +6,6 @@ import (
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
@@ -137,7 +136,9 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
 
 	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias2})
-	assert.ErrorIs(t, err, rerror.ErrNotFound)
+	assert.Error(t, err)
+	assert.Equal(t, "rpc error: code = Unknown desc = not found", err.Error())
+	assert.Nil(t, p)
 	// endregion
 }
 
