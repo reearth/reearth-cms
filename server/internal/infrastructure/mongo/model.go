@@ -220,9 +220,9 @@ func normalize(ms *usecasex.Sort) *usecasex.Sort {
 	}
 	switch res.Key {
 	case "createdat", "created_at":
-		ms.Key = "id"
+		res.Key = "id"
 	case "updated_at":
-		ms.Key = "updatedat"
+		res.Key = "updatedat"
 	}
 	if !lo.Contains([]string{"id", "name", "description", "key", "project", "schema", "metadata", "updatedat", "order"}, res.Key) {
 		res.Key = "order"
