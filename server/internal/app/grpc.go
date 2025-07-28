@@ -98,6 +98,9 @@ func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServer
 		userID := userIdFromGrpcMetadata(md)
 		if !userID.IsEmpty() {
 			u, err := appCtx.AcRepos.User.FindByID(ctx, userID)
+			if errors.Is(err, rerror.ErrNotFound) {
+				return handler(ctx, req)
+			}
 			if err != nil {
 				log.Errorf("unaryAttachOperatorInterceptor: %v", err)
 				return nil, rerror.ErrInternalBy(err)
