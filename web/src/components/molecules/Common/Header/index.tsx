@@ -136,13 +136,14 @@ const HeaderMolecule: React.FC<Props> = ({
       {logoUrl ? (
         <LogoIcon src={logoUrl} onClick={onHomeNavigation} />
       ) : (
-        <Logo onClick={onHomeNavigation}>{t("Re:Earth CMS")}</Logo>
+        <Logo src="/logo.svg" width="36" height="36" onClick={onHomeNavigation} />
       )}
-      <VerticalDivider />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
         items={WorkspacesItems}
         personal={currentIsPersonal}
+        showName={true}
+        showArrow={true}
       />
       <CurrentProject>
         {currentProject?.name && (
@@ -155,7 +156,13 @@ const HeaderMolecule: React.FC<Props> = ({
           </>
         )}
       </CurrentProject>
-      <AccountDropdown name={username} items={AccountItems} personal={true} />
+      <AccountDropdown
+        name={username}
+        items={AccountItems}
+        personal={true}
+        showName={false}
+        showArrow={false}
+      />
       {url && (
         <LinkWrapper>
           <EditorLink rel="noreferrer" href={url.href} target="_blank">
@@ -170,24 +177,25 @@ const HeaderMolecule: React.FC<Props> = ({
 const MainHeader = styled(Header)`
   display: flex;
   align-items: center;
-  height: 48px;
+  height: 56px;
   line-height: 41px;
   padding: 0;
-  background-color: #1d1d1d;
+  background-color: #ffffff;
+  box-shadow: 0 -1px 0 0 #f0f0f0 inset;
 
   .ant-space-item {
-    color: #dbdbdb;
+    color: rgba(0, 0, 0, 0.85);
   }
 `;
 
-const Logo = styled.div`
+const Logo = styled.img`
   display: inline-block;
   color: #df3013;
   font-weight: 500;
   font-size: 14px;
   line-height: 48px;
   cursor: pointer;
-  padding: 0 40px 0 20px;
+  margin: 0 24px;
 `;
 
 const LogoIcon = styled.img`
@@ -198,26 +206,16 @@ const LogoIcon = styled.img`
 
 const StyledIcon = styled(Icon)`
   margin-left: 4px;
-  color: #bfbfbf;
-`;
-
-const VerticalDivider = styled.div`
-  display: inline-block;
-  height: 32px;
-  color: #fff;
-  margin: 0;
-  vertical-align: middle;
-  border-top: 0;
-  border-left: 1px solid #303030;
+  color: rgba(0, 0, 0, 0.85);
 `;
 
 const WorkspaceDropdown = styled(HeaderDropdown)`
-  margin-left: 20px;
-  padding-left: 20px;
+  background-color: #ffffff;
 `;
 
 const AccountDropdown = styled(HeaderDropdown)`
   padding-right: 20px;
+  background-color: #ffffff;
 `;
 
 const ProjectText = styled.p`
@@ -236,7 +234,7 @@ const CurrentProject = styled.div`
   margin: 0;
   display: flex;
   align-items: center;
-  color: #dbdbdb;
+  color: rgba(0, 0, 0, 0.85);
   flex: 1;
   min-width: 0;
 `;
@@ -255,10 +253,10 @@ const LinkWrapper = styled.div`
 
 const EditorLink = styled.a`
   border: 1px solid;
-  color: #d9d9d9;
+  color: rgba(0, 0, 0, 0.85);
   padding: 5px 16px;
   :hover {
-    color: #d9d9d9;
+    color: rgba(0, 0, 0, 0.85);
   }
 `;
 

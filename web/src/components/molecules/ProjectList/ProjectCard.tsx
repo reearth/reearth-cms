@@ -18,7 +18,7 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
 
   return (
     <CardWrapper key={project.id}>
-      <ProjectStyledCard onClick={() => onProjectNavigation(project.id)}>
+      <StyledProjectCard onClick={() => onProjectNavigation(project.id)}>
         <Meta
           title={
             <TitleContainer>
@@ -38,7 +38,7 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
           }
           description={project.description}
         />
-      </ProjectStyledCard>
+      </StyledProjectCard>
     </CardWrapper>
   );
 };
@@ -64,7 +64,7 @@ const TitleContainer = styled.div`
 `;
 
 const ProjectName = styled.span`
-  max-width: 130px;
+  max-width: 200px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -74,7 +74,7 @@ const StyledTag = styled(Tag)`
   margin: 0;
 `;
 
-const ProjectStyledCard = styled(Card)`
+const StyledProjectCard = styled(Card)`
   .ant-card-body {
     height: 100px;
     padding: 24px;

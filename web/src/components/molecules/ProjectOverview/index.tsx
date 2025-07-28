@@ -183,24 +183,26 @@ const ProjectOverview: React.FC<Props> = ({
     <InnerContent
       title={
         <Title>
-          <div>
-            <HomeButton type="text" onClick={onHomeNavigation}>
-              Home
-            </HomeButton>
-            /<ProjectName>{project?.name}</ProjectName>
-          </div>
-          <Tag
-            bordered
-            color={
-              project?.accessibility?.visibility === ProjectVisibility.Public ? "blue" : "default"
-            }>
-            {project?.accessibility?.visibility === ProjectVisibility.Public
-              ? t("Public")
-              : t("Private")}
-          </Tag>
+          <TitleContainer>
+            <div>
+              <HomeButton type="text" onClick={onHomeNavigation}>
+                {t("Home")}
+              </HomeButton>
+              /<ProjectName>{project?.name}</ProjectName>
+            </div>
+            <Tag
+              bordered
+              color={
+                project?.accessibility?.visibility === ProjectVisibility.Public ? "blue" : "default"
+              }>
+              {project?.accessibility?.visibility === ProjectVisibility.Public
+                ? t("Public")
+                : t("Private")}
+            </Tag>
+          </TitleContainer>
+          <DescriptionContainer>{project?.description}</DescriptionContainer>
         </Title>
       }
-      subtitle={project?.description}
       flexChildren>
       <StyledTabs
         activeKey={activeKey}
@@ -251,8 +253,20 @@ export default ProjectOverview;
 
 const Title = styled.div`
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const TitleContainer = styled.div`
+  display: flex;
   gap: 8px;
   align-items: center;
+`;
+
+const DescriptionContainer = styled.span`
+  color: var(--character-secondary-45, rgba(0, 0, 0, 0.45));
+  font-size: 14px;
+  padding: 0 15px;
 `;
 
 const HomeButton = styled(Button)`

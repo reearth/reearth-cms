@@ -3,7 +3,7 @@ import React from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
-import cmsIcon from "./cms.svg";
+import logo from "./logo.svg";
 
 type Props = {
   username?: string;
@@ -17,7 +17,7 @@ const Greeting: React.FC<Props> = ({ username, coverImageUrl }) => {
     <CoverImage src={coverImageUrl} />
   ) : (
     <DashboardCard>
-      <img src={cmsIcon} alt="CMS Icon" />
+      <img src={logo} alt="logo" />
       <div>
         <Title>{t("Welcome to Re:Earth CMS, {{username}}!", { username })}</Title>
         <SubTitle>

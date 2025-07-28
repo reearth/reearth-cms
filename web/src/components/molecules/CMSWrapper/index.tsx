@@ -41,7 +41,7 @@ const Wrapper = styled(Layout)`
 `;
 
 const BodyWrapper = styled(Layout)`
-  margin-top: 48px;
+  margin-top: 56px;
 `;
 
 const ContentWrapper = styled(Content)`
@@ -53,6 +53,7 @@ const CMSSidebar = styled(Sider)`
   && {
     background-color: #fff;
     padding-bottom: 38px;
+    margin-top: 4px;
   }
   .ant-layout-sider-trigger {
     background-color: #fff;
