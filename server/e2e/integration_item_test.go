@@ -40,6 +40,7 @@ var (
 	secret  = "secret_1234567890"
 	wId0    = accountdomain.NewWorkspaceID()
 	uId     = accountdomain.NewUserID()
+	uId_2   = accountdomain.NewUserID()
 	iId     = id.NewIntegrationID()
 	mId0    = id.NewModelID()
 	mId1    = id.NewModelID()
@@ -127,6 +128,16 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
+		return err
+	}
+
+	u2 := user.New().ID(uId_2).
+		Name("e2e2").
+		Email("e2e2@e2e.com").
+		Workspace(wId0).
+		Metadata(metadata).
+		MustBuild()
+	if err := r.User.Save(ctx, u2); err != nil {
 		return err
 	}
 
