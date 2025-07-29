@@ -6,7 +6,7 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 
 type Props = {
   title?: ReactNode;
-  subtitle?: string;
+  subtitle?: ReactNode;
   extra?: ReactNode;
   onBack?: () => void;
   flexChildren?: boolean;
@@ -22,9 +22,15 @@ const BasicInnerContents: React.FC<Props> = ({
   children,
 }) => {
   const childrenArray = Children.toArray(children);
+
   return (
     <PaddedContent>
-      <Header title={<Title>{title}</Title>} subTitle={subtitle} extra={extra} onBack={onBack} />
+      <Header
+        title={title && <div role="heading">{title}</div>}
+        subTitle={subtitle}
+        extra={extra}
+        onBack={onBack}
+      />
       {childrenArray.map((child, idx) => (
         <Section key={idx} flex={flexChildren} lastChild={childrenArray.length - 1 === idx}>
           {child}
@@ -44,10 +50,6 @@ const Header = styled(PageHeader)`
   background-color: #fff !important;
   padding: 24px;
   margin-bottom: 16px;
-`;
-
-const Title = styled.h4`
-  margin: 0;
 `;
 
 const Section = styled.div<{ flex?: boolean; lastChild?: boolean }>`
