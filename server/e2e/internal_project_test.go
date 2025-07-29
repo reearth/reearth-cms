@@ -92,10 +92,27 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	assert.Equal(t, wId0.String(), p1.WorkspaceId)
 	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
 
-	// 2- Get project not owned by the user = should return the project
+	// 2- Get project with non-existing user = should return the project
 	md = metadata.New(map[string]string{
 		"Authorization": "Bearer TestToken",
 		"User-Id":       id.NewUserID().String(),
+	})
+	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
+
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias})
+	assert.NoError(t, err)
+
+	p1 = p.Project
+	assert.Equal(t, pid.String(), p1.Id)
+	assert.Equal(t, "p1", p1.Name)
+	assert.Equal(t, palias, p1.Alias)
+	assert.Equal(t, wId0.String(), p1.WorkspaceId)
+	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+
+	// 3- Get project not owned by the user = should return the project
+	md = metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId_2.String(),
 	})
 	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
 
