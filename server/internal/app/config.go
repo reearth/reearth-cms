@@ -23,28 +23,31 @@ func init() {
 }
 
 type Config struct {
-	Port         string            `default:"8080" envconfig:"PORT"`
-	ServerHost   string            `pp:",omitempty"`
-	Host         string            `default:"http://localhost:8080"`
-	Dev          bool              `pp:",omitempty"`
-	Host_Web     string            `pp:",omitempty"`
-	GraphQL      GraphQLConfig     `pp:",omitempty"`
-	Origins      []string          `pp:",omitempty"`
-	DB           string            `default:"mongodb://localhost"`
-	Mailer       string            `pp:",omitempty"`
-	SMTP         SMTPConfig        `pp:",omitempty"`
-	SendGrid     SendGridConfig    `pp:",omitempty"`
-	SignupSecret string            `pp:",omitempty"`
-	GCS          GCSConfig         `pp:",omitempty"`
-	S3           S3Config          `pp:",omitempty"`
-	Task         gcp.TaskConfig    `pp:",omitempty"`
-	AWSTask      aws.TaskConfig    `pp:",omitempty"`
-	Web          map[string]string `pp:",omitempty"`
-	Web_Config   JSON              `pp:",omitempty"`
-	Web_Disabled bool              `pp:",omitempty"`
+	Port                string            `default:"8080" envconfig:"PORT"`
+	ServerHost          string            `pp:",omitempty"`
+	Host                string            `default:"http://localhost:8080"`
+	Dev                 bool              `pp:",omitempty"`
+	Host_Web            string            `pp:",omitempty"`
+	GraphQL             GraphQLConfig     `pp:",omitempty"`
+	Origins             []string          `pp:",omitempty"`
+	Integration_Origins []string          `pp:",omitempty"`
+	Public_Origins      []string          `pp:",omitempty"`
+	DB                  string            `default:"mongodb://localhost"`
+	Mailer              string            `pp:",omitempty"`
+	SMTP                SMTPConfig        `pp:",omitempty"`
+	SendGrid            SendGridConfig    `pp:",omitempty"`
+	SignupSecret        string            `pp:",omitempty"`
+	GCS                 GCSConfig         `pp:",omitempty"`
+	S3                  S3Config          `pp:",omitempty"`
+	Task                gcp.TaskConfig    `pp:",omitempty"`
+	AWSTask             aws.TaskConfig    `pp:",omitempty"`
+	Web                 map[string]string `pp:",omitempty"`
+	Web_Config          JSON              `pp:",omitempty"`
+	Web_Disabled        bool              `pp:",omitempty"`
 	// asset
-	Asset_Public bool   `default:"true" pp:",omitempty"`
-	AssetBaseURL string `pp:",omitempty"`
+	Asset_Public              bool   `default:"true" pp:",omitempty"`
+	AssetBaseURL              string `pp:",omitempty"`
+	AssetUploadURLReplacement bool   `default:"false" pp:",omitempty"` // Replace upload URLs to go through proxy
 	// auth
 	Auth          AuthConfigs    `pp:",omitempty"`
 	Auth0         Auth0Config    `pp:",omitempty"`

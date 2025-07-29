@@ -124,9 +124,9 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 		cfg.Host = "https://example.com"
 	}
 
-	f := lo.Must(fs.NewFile(afero.NewMemMapFs(), cfg.AssetBaseURL))
+	f := lo.Must(fs.NewFile(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.AssetUploadURLReplacement))
 	if !cfg.Asset_Public {
-		f = lo.Must(fs.NewFileWithACL(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.Host))
+		f = lo.Must(fs.NewFileWithACL(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.Host, cfg.AssetUploadURLReplacement))
 	}
 	gateway := &gateway.Container{File: f}
 	accountGateways := &accountgateway.Container{

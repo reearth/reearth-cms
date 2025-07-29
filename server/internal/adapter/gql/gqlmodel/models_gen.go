@@ -40,6 +40,11 @@ type WorkspaceMember interface {
 	IsWorkspaceMember()
 }
 
+type APIKeyPayload struct {
+	APIKey *ProjectAPIKey       `json:"apiKey"`
+	Public *PublicationSettings `json:"public"`
+}
+
 type AddCommentInput struct {
 	ThreadID ID     `json:"threadId"`
 	Content  string `json:"content"`
@@ -226,6 +231,13 @@ type CorrespondingFieldInput struct {
 	Required    bool   `json:"required"`
 }
 
+type CreateAPIKeyInput struct {
+	ProjectID   ID                              `json:"projectId"`
+	Name        string                          `json:"name"`
+	Description string                          `json:"description"`
+	Publication *UpdatePublicationSettingsInput `json:"publication"`
+}
+
 type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file,omitempty"`
@@ -301,11 +313,14 @@ type CreateModelInput struct {
 }
 
 type CreateProjectInput struct {
-	WorkspaceID  ID      `json:"workspaceId"`
-	Name         *string `json:"name,omitempty"`
-	Description  *string `json:"description,omitempty"`
-	Alias        *string `json:"alias,omitempty"`
-	RequestRoles []Role  `json:"requestRoles,omitempty"`
+	WorkspaceID  ID                 `json:"workspaceId"`
+	Name         *string            `json:"name,omitempty"`
+	Description  *string            `json:"description,omitempty"`
+	License      *string            `json:"license,omitempty"`
+	Readme       *string            `json:"readme,omitempty"`
+	Alias        *string            `json:"alias,omitempty"`
+	Visibility   *ProjectVisibility `json:"visibility,omitempty"`
+	RequestRoles []Role             `json:"requestRoles,omitempty"`
 }
 
 type CreateRequestInput struct {
@@ -356,6 +371,15 @@ type DecompressAssetInput struct {
 
 type DecompressAssetPayload struct {
 	Asset *Asset `json:"asset"`
+}
+
+type DeleteAPIKeyInput struct {
+	ProjectID ID `json:"projectId"`
+	ID        ID `json:"id"`
+}
+
+type DeleteAPIKeyPayload struct {
+	APIKeyID ID `json:"apiKeyId"`
 }
 
 type DeleteAssetInput struct {
@@ -527,6 +551,22 @@ type GroupsPayload struct {
 	Groups []*Group `json:"groups"`
 }
 
+type GuessSchemaField struct {
+	Key  string `json:"key"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
+
+type GuessSchemaFieldResult struct {
+	TotalCount int                 `json:"total_count"`
+	Fields     []*GuessSchemaField `json:"fields"`
+}
+
+type GuessSchemaFieldsInput struct {
+	AssetID ID `json:"assetId"`
+	ModelID ID `json:"modelId"`
+}
+
 type Integration struct {
 	ID          ID                 `json:"id"`
 	Name        string             `json:"name"`
@@ -671,7 +711,6 @@ type Model struct {
 	Project          *Project  `json:"project"`
 	Schema           *Schema   `json:"schema"`
 	MetadataSchema   *Schema   `json:"metadataSchema,omitempty"`
-	Public           bool      `json:"public"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
 	Order            *int      `json:"order,omitempty"`
@@ -778,20 +817,36 @@ type Pagination struct {
 }
 
 type Project struct {
-	ID           ID                  `json:"id"`
-	Name         string              `json:"name"`
-	Description  string              `json:"description"`
-	Alias        string              `json:"alias"`
-	WorkspaceID  ID                  `json:"workspaceId"`
-	Workspace    *Workspace          `json:"workspace,omitempty"`
-	CreatedAt    time.Time           `json:"createdAt"`
-	UpdatedAt    time.Time           `json:"updatedAt"`
-	Publication  *ProjectPublication `json:"publication,omitempty"`
-	RequestRoles []Role              `json:"requestRoles,omitempty"`
+	ID            ID                    `json:"id"`
+	Name          string                `json:"name"`
+	Description   string                `json:"description"`
+	License       string                `json:"license"`
+	Readme        string                `json:"readme"`
+	Alias         string                `json:"alias"`
+	WorkspaceID   ID                    `json:"workspaceId"`
+	Workspace     *Workspace            `json:"workspace,omitempty"`
+	CreatedAt     time.Time             `json:"createdAt"`
+	UpdatedAt     time.Time             `json:"updatedAt"`
+	Accessibility *ProjectAccessibility `json:"accessibility"`
+	RequestRoles  []Role                `json:"requestRoles,omitempty"`
 }
 
 func (Project) IsNode()        {}
 func (this Project) GetID() ID { return this.ID }
+
+type ProjectAPIKey struct {
+	ID          ID                   `json:"id"`
+	Name        string               `json:"name"`
+	Description string               `json:"description"`
+	Key         string               `json:"key"`
+	Publication *PublicationSettings `json:"publication"`
+}
+
+type ProjectAccessibility struct {
+	Visibility  ProjectVisibility    `json:"visibility"`
+	Publication *PublicationSettings `json:"publication,omitempty"`
+	APIKeys     []*ProjectAPIKey     `json:"apiKeys,omitempty"`
+}
 
 type ProjectAliasAvailability struct {
 	Alias     string `json:"alias"`
@@ -814,10 +869,9 @@ type ProjectPayload struct {
 	Project *Project `json:"project"`
 }
 
-type ProjectPublication struct {
-	Scope       ProjectPublicationScope `json:"scope"`
-	AssetPublic bool                    `json:"assetPublic"`
-	Token       *string                 `json:"token,omitempty"`
+type PublicationSettings struct {
+	PublicModels []ID `json:"publicModels"`
+	PublicAssets bool `json:"publicAssets"`
 }
 
 type PublishItemInput struct {
@@ -828,33 +882,16 @@ type PublishItemPayload struct {
 	Items []*Item `json:"items"`
 }
 
-type PublishModelInput struct {
-	ModelID ID   `json:"modelId"`
-	Status  bool `json:"status"`
-}
-
-type PublishModelPayload struct {
-	ModelID ID   `json:"modelId"`
-	Status  bool `json:"status"`
-}
-
-type PublishModelsInput struct {
-	Models []*PublishModelInput `json:"models"`
-}
-
-type PublishModelsPayload struct {
-	Models []*PublishModelPayload `json:"models"`
-}
-
 type Query struct {
+}
+
+type RegenerateAPIKeyInput struct {
+	ProjectID ID `json:"projectId"`
+	ID        ID `json:"id"`
 }
 
 type RegenerateIntegrationTokenInput struct {
 	IntegrationID ID `json:"integrationId"`
-}
-
-type RegeneratePublicAPITokenInput struct {
-	ProjectID ID `json:"projectId"`
 }
 
 type RemoveIntegrationFromWorkspaceInput struct {
@@ -1315,6 +1352,14 @@ type UnpublishItemPayload struct {
 	Items []*Item `json:"items"`
 }
 
+type UpdateAPIKeyInput struct {
+	ID          ID                              `json:"id"`
+	ProjectID   ID                              `json:"projectId"`
+	Name        *string                         `json:"name,omitempty"`
+	Description *string                         `json:"description,omitempty"`
+	Publication *UpdatePublicationSettingsInput `json:"publication,omitempty"`
+}
+
 type UpdateAssetInput struct {
 	ID          ID           `json:"id"`
 	PreviewType *PreviewType `json:"previewType,omitempty"`
@@ -1400,25 +1445,31 @@ type UpdateModelInput struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
-	Public      bool    `json:"public"`
 }
 
 type UpdateModelsOrderInput struct {
 	ModelIds []ID `json:"modelIds"`
 }
 
-type UpdateProjectInput struct {
-	ProjectID    ID                             `json:"projectId"`
-	Name         *string                        `json:"name,omitempty"`
-	Description  *string                        `json:"description,omitempty"`
-	Alias        *string                        `json:"alias,omitempty"`
-	Publication  *UpdateProjectPublicationInput `json:"publication,omitempty"`
-	RequestRoles []Role                         `json:"requestRoles,omitempty"`
+type UpdateProjectAccessibilityInput struct {
+	Visibility  *ProjectVisibility              `json:"visibility,omitempty"`
+	Publication *UpdatePublicationSettingsInput `json:"publication,omitempty"`
 }
 
-type UpdateProjectPublicationInput struct {
-	Scope       *ProjectPublicationScope `json:"scope,omitempty"`
-	AssetPublic *bool                    `json:"assetPublic,omitempty"`
+type UpdateProjectInput struct {
+	ProjectID     ID                               `json:"projectId"`
+	Name          *string                          `json:"name,omitempty"`
+	Description   *string                          `json:"description,omitempty"`
+	License       *string                          `json:"license,omitempty"`
+	Readme        *string                          `json:"readme,omitempty"`
+	Alias         *string                          `json:"alias,omitempty"`
+	Accessibility *UpdateProjectAccessibilityInput `json:"accessibility,omitempty"`
+	RequestRoles  []Role                           `json:"requestRoles,omitempty"`
+}
+
+type UpdatePublicationSettingsInput struct {
+	PublicModels []ID `json:"publicModels"`
+	PublicAssets bool `json:"publicAssets"`
 }
 
 type UpdateRequestInput struct {
@@ -2576,50 +2627,48 @@ func (e PreviewType) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-type ProjectPublicationScope string
+type ProjectVisibility string
 
 const (
-	ProjectPublicationScopePublic  ProjectPublicationScope = "PUBLIC"
-	ProjectPublicationScopeLimited ProjectPublicationScope = "LIMITED"
-	ProjectPublicationScopePrivate ProjectPublicationScope = "PRIVATE"
+	ProjectVisibilityPublic  ProjectVisibility = "PUBLIC"
+	ProjectVisibilityPrivate ProjectVisibility = "PRIVATE"
 )
 
-var AllProjectPublicationScope = []ProjectPublicationScope{
-	ProjectPublicationScopePublic,
-	ProjectPublicationScopeLimited,
-	ProjectPublicationScopePrivate,
+var AllProjectVisibility = []ProjectVisibility{
+	ProjectVisibilityPublic,
+	ProjectVisibilityPrivate,
 }
 
-func (e ProjectPublicationScope) IsValid() bool {
+func (e ProjectVisibility) IsValid() bool {
 	switch e {
-	case ProjectPublicationScopePublic, ProjectPublicationScopeLimited, ProjectPublicationScopePrivate:
+	case ProjectVisibilityPublic, ProjectVisibilityPrivate:
 		return true
 	}
 	return false
 }
 
-func (e ProjectPublicationScope) String() string {
+func (e ProjectVisibility) String() string {
 	return string(e)
 }
 
-func (e *ProjectPublicationScope) UnmarshalGQL(v any) error {
+func (e *ProjectVisibility) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = ProjectPublicationScope(str)
+	*e = ProjectVisibility(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ProjectPublicationScope", str)
+		return fmt.Errorf("%s is not a valid ProjectVisibility", str)
 	}
 	return nil
 }
 
-func (e ProjectPublicationScope) MarshalGQL(w io.Writer) {
+func (e ProjectVisibility) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func (e *ProjectPublicationScope) UnmarshalJSON(b []byte) error {
+func (e *ProjectVisibility) UnmarshalJSON(b []byte) error {
 	s, err := strconv.Unquote(string(b))
 	if err != nil {
 		return err
@@ -2627,7 +2676,7 @@ func (e *ProjectPublicationScope) UnmarshalJSON(b []byte) error {
 	return e.UnmarshalGQL(s)
 }
 
-func (e ProjectPublicationScope) MarshalJSON() ([]byte, error) {
+func (e ProjectVisibility) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

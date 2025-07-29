@@ -37,77 +37,80 @@ import (
 )
 
 var (
-	secret = "secret_1234567890"
-	wId0   = accountdomain.NewWorkspaceID()
-	uId    = accountdomain.NewUserID()
-	iId    = id.NewIntegrationID()
-	mId0   = id.NewModelID()
-	mId1   = id.NewModelID()
-	mId2   = id.NewModelID()
-	mId3   = id.NewModelID()
-	mId4   = id.NewModelID()
-	mId5   = id.NewModelID()
-	gId1   = id.NewGroupID()
-	gId2   = id.NewGroupID()
-	dvmId  = id.NewModelID()
-	aid1   = id.NewAssetID()
-	aid2   = id.NewAssetID()
-	aid3   = id.NewAssetID() // no thread
-	auuid1 = uuid.NewString()
-	auuid2 = uuid.NewString()
-	auuid3 = uuid.NewString()
-	itmId1 = id.NewItemID()
-	itmId2 = id.NewItemID()
-	itmId3 = id.NewItemID()
-	itmId4 = id.NewItemID()
-	itmId5 = id.NewItemID()
-	itmId6 = id.NewItemID()
-	itmId7 = id.NewItemID() // no thread
-	fId1   = id.NewFieldID()
-	fId2   = id.NewFieldID()
-	fId3   = id.NewFieldID()
-	fId4   = id.NewFieldID()
-	fId5   = id.NewFieldID()
-	fId6   = id.NewFieldID()
-	fId7   = id.NewFieldID()
-	fId8   = id.NewFieldID()
-	fId9   = id.NewFieldID()
-	dvsfId = id.NewFieldID()
-	thId1  = id.NewThreadID()
-	thId2  = id.NewThreadID()
-	thId3  = id.NewThreadID()
-	thId4  = id.NewThreadID()
-	thId5  = id.NewThreadID()
-	thId6  = id.NewThreadID()
-	icId   = id.NewCommentID()
-	ikey0  = id.RandomKey()
-	ikey1  = id.RandomKey()
-	ikey2  = id.RandomKey()
-	ikey3  = id.RandomKey()
-	ikey4  = id.RandomKey()
-	ikey5  = id.RandomKey()
-	pid    = id.NewProjectID()
-	sid0   = id.NewSchemaID()
-	sid1   = id.NewSchemaID()
-	sid2   = id.NewSchemaID()
-	sid3   = id.NewSchemaID()
-	sid4   = id.NewSchemaID()
-	gsId   = id.NewSchemaID()
-	palias = "PROJECT_ALIAS"
-	sfKey1 = id.RandomKey()
-	sfKey2 = id.NewKey("asset")
-	sfKey3 = id.RandomKey()
-	sfKey4 = id.RandomKey()
-	sfKey5 = id.NewKey("asset-key")
-	sfKey6 = id.NewKey("group-key")
-	sfKey7 = id.NewKey("geometry-key")
-	sfKey8 = id.NewKey("geometry-editor-key")
-	sfkey9 = id.NewKey("number-key")
-	gKey1  = id.RandomKey()
-	gKey2  = id.RandomKey()
-	igId1  = id.NewItemGroupID()
-	igId2  = id.NewItemGroupID()
-	igId3  = id.NewItemGroupID()
+	secret  = "secret_1234567890"
+	wId0    = accountdomain.NewWorkspaceID()
+	uId     = accountdomain.NewUserID()
+	uId_2   = accountdomain.NewUserID()
+	iId     = id.NewIntegrationID()
+	mId0    = id.NewModelID()
+	mId1    = id.NewModelID()
+	mId2    = id.NewModelID()
+	mId3    = id.NewModelID()
+	mId4    = id.NewModelID()
+	mId5    = id.NewModelID()
+	gId1    = id.NewGroupID()
+	gId2    = id.NewGroupID()
+	dvmId   = id.NewModelID()
+	aid1    = id.NewAssetID()
+	aid2    = id.NewAssetID()
+	aid3    = id.NewAssetID() // no thread
+	auuid1  = uuid.NewString()
+	auuid2  = uuid.NewString()
+	auuid3  = uuid.NewString()
+	itmId1  = id.NewItemID()
+	itmId2  = id.NewItemID()
+	itmId3  = id.NewItemID()
+	itmId4  = id.NewItemID()
+	itmId5  = id.NewItemID()
+	itmId6  = id.NewItemID()
+	itmId7  = id.NewItemID() // no thread
+	fId1    = id.NewFieldID()
+	fId2    = id.NewFieldID()
+	fId3    = id.NewFieldID()
+	fId4    = id.NewFieldID()
+	fId5    = id.NewFieldID()
+	fId6    = id.NewFieldID()
+	fId7    = id.NewFieldID()
+	fId8    = id.NewFieldID()
+	fId9    = id.NewFieldID()
+	dvsfId  = id.NewFieldID()
+	thId1   = id.NewThreadID()
+	thId2   = id.NewThreadID()
+	thId3   = id.NewThreadID()
+	thId4   = id.NewThreadID()
+	thId5   = id.NewThreadID()
+	thId6   = id.NewThreadID()
+	icId    = id.NewCommentID()
+	ikey0   = id.RandomKey()
+	ikey1   = id.RandomKey()
+	ikey2   = id.RandomKey()
+	ikey3   = id.RandomKey()
+	ikey4   = id.RandomKey()
+	ikey5   = id.RandomKey()
+	pid     = id.NewProjectID()
+	pid2    = id.NewProjectID()
+	sid0    = id.NewSchemaID()
+	sid1    = id.NewSchemaID()
+	sid2    = id.NewSchemaID()
+	sid3    = id.NewSchemaID()
+	sid4    = id.NewSchemaID()
+	gsId    = id.NewSchemaID()
+	palias  = "PROJECT_ALIAS"
+	palias2 = "PROJECT_ALIAS_2"
+	sfKey1  = id.RandomKey()
+	sfKey2  = id.NewKey("asset")
+	sfKey3  = id.RandomKey()
+	sfKey4  = id.RandomKey()
+	sfKey5  = id.NewKey("asset-key")
+	sfKey6  = id.NewKey("group-key")
+	sfKey7  = id.NewKey("geometry-key")
+	sfKey8  = id.NewKey("geometry-editor-key")
+	sfkey9  = id.NewKey("number-key")
+	gKey1   = id.RandomKey()
+	gKey2   = id.RandomKey()
+	igId1   = id.NewItemGroupID()
+	igId2   = id.NewItemGroupID()
+	igId3   = id.NewItemGroupID()
 
 	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
@@ -115,13 +118,26 @@ var (
 func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) error {
 	defer util.MockNow(now)()
 
+	metadata := user.NewMetadata()
+
 	// region user & integration & workspace & project
 	u := user.New().ID(uId).
 		Name("e2e").
 		Email("e2e@e2e.com").
 		Workspace(wId0).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
+		return err
+	}
+
+	u2 := user.New().ID(uId_2).
+		Name("e2e2").
+		Email("e2e2@e2e.com").
+		Workspace(wId0).
+		Metadata(metadata).
+		MustBuild()
+	if err := r.User.Save(ctx, u2); err != nil {
 		return err
 	}
 
@@ -142,12 +158,14 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 
+	wMetadata := workspace.NewMetadata()
 	w := workspace.New().
 		ID(wId0).
 		Name("e2e").
 		Personal(false).
 		Members(map[accountdomain.UserID]workspace.Member{uId: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
 		Integrations(map[workspace.IntegrationID]workspace.Member{iid: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
 		return err
@@ -165,6 +183,18 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 
+	p2 := project.New().
+		ID(pid2).
+		Name("p2").
+		Description("p2 desc").
+		ImageURL(lo.Must(url.Parse("https://test.com"))).
+		Workspace(w.ID()).
+		Alias(palias2).
+		Accessibility(project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil)).
+		MustBuild()
+	if err := r.Project.Save(ctx, p2); err != nil {
+		return err
+	}
 	// endregion
 
 	// region schema & model
@@ -197,7 +227,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId0).
 		Name("m0").
 		Description("m0 desc").
-		Public(true).
 		Key(ikey0).
 		Project(p.ID()).
 		Schema(s0.ID()).
@@ -212,7 +241,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId1).
 		Name("m1").
 		Description("m1 desc").
-		Public(true).
 		Key(ikey1).
 		Project(p.ID()).
 		Schema(s1.ID()).
@@ -228,7 +256,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId2).
 		Name("m2").
 		Description("m2 desc").
-		Public(true).
 		Key(ikey2).
 		Project(p.ID()).
 		Schema(s2.ID()).
@@ -259,7 +286,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId3).
 		Name("m3").
 		Description("m3 desc").
-		Public(true).
 		Key(ikey3).
 		Project(p.ID()).
 		Schema(s5.ID()).
@@ -282,7 +308,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId4).
 		Name("m4").
 		Description("m4 desc").
-		Public(true).
 		Key(ikey4).
 		Project(p.ID()).
 		Schema(s7.ID()).
@@ -305,7 +330,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId5).
 		Name("m5").
 		Description("m5 desc").
-		Public(true).
 		Key(ikey5).
 		Project(p.ID()).
 		Schema(s8.ID()).
@@ -532,7 +556,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(dvmId).
 		Name("dvm").
 		Description("dvm desc").
-		Public(true).
 		Key(id.RandomKey()).
 		Project(pid).
 		Schema(dvs1.ID()).

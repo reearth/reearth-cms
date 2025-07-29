@@ -85,12 +85,12 @@ func TestProject_UpdateName(t *testing.T) {
 
 func TestProject_Publication(t *testing.T) {
 	p := &Project{}
-	pp := &Publication{
-		scope:       PublicationScopePublic,
-		assetPublic: true,
+	pp := Accessibility{
+		visibility: VisibilityPublic,
+		apiKeys:    nil,
 	}
-	p.SetPublication(pp)
-	assert.Equal(t, pp, p.Publication())
+	p.SetAccessibility(pp)
+	assert.Equal(t, &pp, p.Accessibility())
 }
 
 func TestProject_UpdateDescription(t *testing.T) {
@@ -148,13 +148,12 @@ func TestProject_UpdateAlias(t *testing.T) {
 }
 
 func TestProject_Clone(t *testing.T) {
-	pub := &Publication{}
+	pub := &Accessibility{}
 	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
-	p := New().NewID().Name("a").Publication(pub).RequestRoles(r).MustBuild()
+	p := New().NewID().Name("a").Accessibility(pub).RequestRoles(r).MustBuild()
 
 	got := p.Clone()
 	assert.Equal(t, p, got)
 	assert.NotSame(t, p, got)
-	assert.NotSame(t, p, got.publication)
 	assert.Nil(t, (*Project)(nil).Clone())
 }

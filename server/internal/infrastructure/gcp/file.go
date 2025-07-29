@@ -29,15 +29,18 @@ const (
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
+const workspaceContextKey = "workspace"
+
 type fileRepo struct {
-	bucketName   string
-	publicBase   *url.URL
-	privateBase  *url.URL
-	cacheControl string
-	public       bool
+	bucketName       string
+	publicBase       *url.URL
+	privateBase      *url.URL
+	cacheControl     string
+	public           bool
+	replaceUploadURL bool
 }
 
-func NewFile(bucketName, publicBase, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, rerror.NewE(i18n.T("bucket name is empty"))
 	}
@@ -53,16 +56,17 @@ func NewFile(bucketName, publicBase, cacheControl string) (gateway.File, error) 
 	}
 
 	return &fileRepo{
-		bucketName:   bucketName,
-		publicBase:   u,
-		privateBase:  nil,
-		cacheControl: cacheControl,
-		public:       true,
+		bucketName:       bucketName,
+		publicBase:       u,
+		privateBase:      nil,
+		cacheControl:     cacheControl,
+		public:           true,
+		replaceUploadURL: replaceUploadURL,
 	}, nil
 }
 
-func NewFileWithACL(bucketName, publicBase, privateBase, cacheControl string) (gateway.File, error) {
-	f, err := NewFile(bucketName, publicBase, cacheControl)
+func NewFileWithACL(bucketName, publicBase, privateBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
+	f, err := NewFile(bucketName, publicBase, cacheControl, replaceUploadURL)
 	if err != nil {
 		return nil, err
 	}
@@ -238,21 +242,46 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 	}
+
+	var headers []string
 	if param.ContentEncoding != "" {
-		opt.Headers = []string{"Content-Encoding: " + param.ContentEncoding}
+		headers = append(headers, "Content-Encoding: "+param.ContentEncoding)
+	}
+
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		headers = append(headers, "x-goog-meta-X-Reearth-Workspace-ID: "+workspace)
+	}
+
+	if len(headers) > 0 {
+		opt.Headers = headers
 	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {
 		log.Errorf("gcs: failed to issue signed url: %v", err)
 		return nil, gateway.ErrUnsupportedOperation
 	}
+
 	return &gateway.UploadAssetLink{
-		URL:             uploadURL,
+		URL:             f.toPublicUrl(uploadURL),
 		ContentType:     contentType,
 		ContentLength:   param.ContentLength,
 		ContentEncoding: param.ContentEncoding,
 		Next:            "",
 	}, nil
+}
+
+func (f *fileRepo) toPublicUrl(uploadURL string) string {
+	// Replace storage.googleapis.com with custom asset base URL if configured and enabled
+	if f.replaceUploadURL && f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
+		parsedURL, err := url.Parse(uploadURL)
+		if err == nil {
+			parsedURL.Scheme = f.publicBase.Scheme
+			parsedURL.Host = f.publicBase.Host
+			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
+			uploadURL = parsedURL.String()
+		}
+	}
+	return uploadURL
 }
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
@@ -372,6 +401,13 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 
 	writer := object.NewWriter(ctx)
 	writer.CacheControl = f.cacheControl
+
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		if writer.Metadata == nil {
+			writer.Metadata = make(map[string]string)
+		}
+		writer.Metadata["X-Reearth-Workspace-ID"] = workspace
+	}
 
 	if file.ContentType == "" {
 		writer.ContentType = getContentType(file.Name)
@@ -624,3 +660,14 @@ func hasAcceptEncoding(accept, encoding string) bool {
 	}
 	return false
 }
+
+func getWorkspaceFromContext(ctx context.Context) string {
+	if v := ctx.Value(contextKey(workspaceContextKey)); v != nil {
+		if ws, ok := v.(string); ok {
+			return ws
+		}
+	}
+	return ""
+}
+
+type contextKey string

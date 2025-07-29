@@ -15,7 +15,7 @@ comment already exist in this thread: コメントは既にこのスレッドに
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
 comment not found: コメントが見つかりませんでした。
 createdBy is required: createdByは必須です。
-data type mismatch: データ型の不一致
+data type mismatch: データ型が一致しません。
 duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
 duplicated value: 値が重複しています。
@@ -37,6 +37,8 @@ internal: 内部
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
 invalid base URL: 無効なベースURLです。
+invalid content type: 無効なコンテンツタイプです。
+invalid content type for schema conversion: スキーマ変換のための無効なコンテンツタイプです。
 invalid cursor: 無効なカーソルです。
 invalid default values: 無効なデフォルト値です。
 invalid document: 無効なドキュメントです。
@@ -44,6 +46,7 @@ invalid email address: 無効なEmailアドレスです。
 invalid field: 無効なフィールドです。
 invalid file: 無効なファイルです。
 invalid input: 無効な入力です。
+invalid json schema: 無効なJSONスキーマです。
 invalid key: 無効なキーです。
 invalid lang: 無効な言語です。
 invalid object: 無効なオブジェクトです。
@@ -80,7 +83,6 @@ operation denied: 操作が拒否されました。
 partial not found: 部分が見つかりませんでした。
 point type is not supported in any geometry field in this model: このモデルのどのジオメトリフィールドでも、ポイントタイプはサポートされていません。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
-project alias is not set: プロジェクトエイリアスが設定されていません。
 projectID is required: プロジェクトIDは必須です。
 reference field direction can not be changed: 参照フィールドの方向は変更できません
 reference field model can not be changed: 参照フィールドのモデルは変更できません

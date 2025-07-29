@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/iancoleman/orderedmap"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -122,13 +123,13 @@ func (t *Geometry_Coordinates) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
-	if !s.HasGeometryFields() {
+func FeatureCollectionFromItems(l item.List, sp *schema.Package, assets asset.List) (*FeatureCollection, error) {
+	if !sp.Schema().HasGeometryFields() {
 		return nil, noGeometryFieldError
 	}
 
-	features := lo.FilterMap(ver, func(v item.Versioned, _ int) (Feature, bool) {
-		return FeatureFromItem(v, s)
+	features := lo.FilterMap(l, func(i *item.Item, _ int) (Feature, bool) {
+		return featureFromItem(i, sp, assets)
 	})
 
 	if len(features) == 0 {
@@ -141,11 +142,10 @@ func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*Feat
 	}, nil
 }
 
-func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
-	if s == nil {
+func featureFromItem(itm *item.Item, sp *schema.Package, assets asset.List) (Feature, bool) {
+	if sp == nil || sp.Schema() == nil {
 		return Feature{}, false
 	}
-	itm := ver.Value()
 	geoField, ok := itm.GetFirstGeometryField()
 	if !ok {
 		return Feature{}, false
@@ -159,27 +159,126 @@ func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
 		Type:       lo.ToPtr(FeatureTypeFeature),
 		Id:         itm.ID().Ref().StringRef(),
 		Geometry:   geometry,
-		Properties: extractProperties(itm, s),
+		Properties: extractProperties(itm, sp, assets),
 	}, true
 }
 
-func extractProperties(itm *item.Item, s *schema.Schema) *orderedmap.OrderedMap {
-	if itm == nil || s == nil {
+func extractProperties(itm *item.Item, sp *schema.Package, assets asset.List) *orderedmap.OrderedMap {
+	if itm == nil || sp == nil || sp.Schema() == nil {
 		return nil
 	}
 	properties := orderedmap.New()
-	for _, field := range s.Fields().Ordered() {
-		if field.Type() == value.TypeGeometryObject || field.Type() == value.TypeGeometryEditor {
+	for _, field := range sp.Schema().Fields().Ordered() {
+		switch field.Type() {
+		case value.TypeGeometryObject, value.TypeGeometryEditor:
 			continue
-		}
-
-		key := field.Name()
-		itmField := itm.Field(field.ID())
-		if val, ok := toGeoJSONProp(itmField); ok {
-			properties.Set(key, val)
+		case value.TypeGroup:
+			gp, ok := extractGroupProperties(itm, sp, field)
+			if ok {
+				properties.Set(field.Key().String(), gp)
+			}
+			continue
+		case value.TypeAsset:
+			gp, ok := extractAssetProperties(itm, field, assets)
+			if ok {
+				properties.Set(field.Key().String(), gp)
+			}
+			continue
+		default:
+			itmField := itm.Field(field.ID())
+			if val, ok := toGeoJSONProp(itmField); ok {
+				properties.Set(field.Key().String(), val)
+			}
 		}
 	}
 	return properties
+}
+
+func extractAssetProperties(itm *item.Item, gf *schema.Field, assets asset.List) (any, bool) {
+	type asset struct {
+		ID   string `json:"id"`
+		URL  string `json:"url"`
+		Type string `json:"type"`
+	}
+	af := itm.Field(gf.ID())
+	if af == nil || af.Value() == nil {
+		return nil, false
+	}
+	vv, ok := af.Value().ValuesAsset()
+	if !ok || len(vv) == 0 {
+		return nil, false
+	}
+	if gf.Multiple() {
+		return lo.Map(vv, func(v value.Asset, _ int) asset {
+			a := assets.FindByID(v)
+			if a != nil {
+				return asset{
+					ID:   v.String(),
+					URL:  a.AccessInfo().Url,
+					Type: v.Type(),
+				}
+			}
+			return asset{
+				ID:   v.String(),
+				URL:  "",
+				Type: v.Type(),
+			}
+		}), true
+	} else {
+		a := assets.FindByID(vv[0])
+		if a != nil {
+			return asset{
+				ID:   vv[0].String(),
+				URL:  a.AccessInfo().Url,
+				Type: vv[0].Type(),
+			}, true
+		}
+		return asset{
+			ID:   vv[0].String(),
+			URL:  "",
+			Type: vv[0].Type(),
+		}, true
+	}
+}
+
+func extractGroupProperties(itm *item.Item, sp *schema.Package, gf *schema.Field) (any, bool) {
+	var gId schema.GroupID
+	gf.TypeProperty().Match(schema.TypePropertyMatch{
+		Group: func(fg *schema.FieldGroup) {
+			gId = fg.Group()
+		},
+	})
+
+	s := sp.GroupSchema(gId)
+	igf := itm.Field(gf.ID())
+	if igf == nil || igf.Value() == nil {
+		return nil, false
+	}
+	vv, ok := igf.Value().ValuesGroup()
+	if !ok || len(vv) == 0 {
+		return nil, false
+	}
+	if gf.Multiple() {
+		return lo.Map(vv, func(v value.Group, _ int) *orderedmap.OrderedMap {
+			return extractSingleGroupProperties(v, itm, s.Fields())
+		}), true
+	} else {
+		return extractSingleGroupProperties(vv[0], itm, s.Fields()), true
+	}
+}
+
+func extractSingleGroupProperties(gId value.Group, itm *item.Item, gf schema.FieldList) *orderedmap.OrderedMap {
+	gp := orderedmap.New()
+	for _, sf := range gf.Ordered() {
+		f := itm.FieldByItemGroupAndID(sf.ID(), gId)
+		if f == nil {
+			continue
+		}
+		if val, ok := toGeoJSONProp(f); ok {
+			gp.Set(sf.Key().String(), val)
+		}
+	}
+	return gp
 }
 
 func extractGeometry(field *item.Field) (*Geometry, bool) {
@@ -264,6 +363,12 @@ func toGeoJsonSingleValue(vv *value.Value) (any, bool) {
 			return "", false
 		}
 		return v.Format(time.RFC3339), true
+	case value.TypeAsset:
+		v, ok := vv.ValueAsset()
+		if !ok {
+			return "", false
+		}
+		return v, true
 	default:
 		return "", false
 	}

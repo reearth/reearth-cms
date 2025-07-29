@@ -8,10 +8,22 @@ export const GET_PROJECT = gql`
         name
         description
         alias
-        publication {
-          scope
-          assetPublic
-          token
+        accessibility {
+          visibility
+          publication {
+            publicModels
+            publicAssets
+          }
+          apiKeys {
+            id
+            name
+            description
+            key
+            publication {
+              publicModels
+              publicAssets
+            }
+          }
         }
         requestRoles
       }
@@ -27,9 +39,22 @@ export const GET_PROJECTS = gql`
         name
         description
         alias
-        publication {
-          scope
-          assetPublic
+        accessibility {
+          visibility
+          publication {
+            publicModels
+            publicAssets
+          }
+          apiKeys {
+            id
+            name
+            description
+            key
+            publication {
+              publicModels
+              publicAssets
+            }
+          }
         }
         requestRoles
       }
@@ -52,19 +77,40 @@ export const CREATE_PROJECT = gql`
     $name: String!
     $description: String!
     $alias: String!
+    $requestRoles: [Role!]
   ) {
     createProject(
-      input: { workspaceId: $workspaceId, name: $name, description: $description, alias: $alias }
+      input: {
+        workspaceId: $workspaceId
+        name: $name
+        description: $description
+        alias: $alias
+        requestRoles: $requestRoles
+      }
     ) {
       project {
         id
         name
         description
         alias
-        publication {
-          scope
-          assetPublic
+        accessibility {
+          visibility
+          publication {
+            publicModels
+            publicAssets
+          }
+          apiKeys {
+            id
+            name
+            description
+            key
+            publication {
+              publicModels
+              publicAssets
+            }
+          }
         }
+        requestRoles
       }
     }
   }
@@ -84,7 +130,7 @@ export const UPDATE_PROJECT = gql`
     $name: String
     $description: String
     $alias: String
-    $publication: UpdateProjectPublicationInput
+    $accessibility: UpdateProjectAccessibilityInput
     $requestRoles: [Role!]
   ) {
     updateProject(
@@ -93,7 +139,7 @@ export const UPDATE_PROJECT = gql`
         name: $name
         description: $description
         alias: $alias
-        publication: $publication
+        accessibility: $accessibility
         requestRoles: $requestRoles
       }
     ) {
@@ -102,9 +148,22 @@ export const UPDATE_PROJECT = gql`
         name
         description
         alias
-        publication {
-          scope
-          assetPublic
+        accessibility {
+          visibility
+          publication {
+            publicModels
+            publicAssets
+          }
+          apiKeys {
+            id
+            name
+            description
+            key
+            publication {
+              publicModels
+              publicAssets
+            }
+          }
         }
         requestRoles
       }
@@ -112,11 +171,98 @@ export const UPDATE_PROJECT = gql`
   }
 `;
 
-export const REGENERATE_PUBLIC_API_TOKEN = gql`
-  mutation RegeneratePublicApiToken($projectId: ID!) {
-    regeneratePublicApiToken(input: { projectId: $projectId }) {
-      project {
+export const CREATE_API_KEY = gql`
+  mutation CreateAPIKey(
+    $projectId: ID!
+    $name: String!
+    $description: String!
+    $publication: UpdatePublicationSettingsInput!
+  ) {
+    createAPIKey(
+      input: {
+        projectId: $projectId
+        name: $name
+        description: $description
+        publication: $publication
+      }
+    ) {
+      apiKey {
         id
+        name
+        description
+        key
+        publication {
+          publicModels
+          publicAssets
+        }
+      }
+      public {
+        publicModels
+        publicAssets
+      }
+    }
+  }
+`;
+
+export const UPDATE_API_KEY = gql`
+  mutation UpdateAPIKey(
+    $id: ID!
+    $projectId: ID!
+    $name: String
+    $description: String
+    $publication: UpdatePublicationSettingsInput
+  ) {
+    updateAPIKey(
+      input: {
+        id: $id
+        projectId: $projectId
+        name: $name
+        description: $description
+        publication: $publication
+      }
+    ) {
+      apiKey {
+        id
+        name
+        description
+        key
+        publication {
+          publicModels
+          publicAssets
+        }
+      }
+      public {
+        publicModels
+        publicAssets
+      }
+    }
+  }
+`;
+
+export const DELETE_API_KEY = gql`
+  mutation DeleteAPIKey($projectId: ID!, $id: ID!) {
+    deleteAPIKey(input: { projectId: $projectId, id: $id }) {
+      apiKeyId
+    }
+  }
+`;
+
+export const REGENERATE_API_KEY = gql`
+  mutation RegenerateAPIKey($projectId: ID!, $id: ID!) {
+    regenerateAPIKey(input: { projectId: $projectId, id: $id }) {
+      apiKey {
+        id
+        name
+        description
+        key
+        publication {
+          publicModels
+          publicAssets
+        }
+      }
+      public {
+        publicModels
+        publicAssets
       }
     }
   }

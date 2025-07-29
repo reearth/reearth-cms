@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"golang.org/x/text/language"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -17,7 +18,8 @@ type ContextKey string
 const (
 	contextUser     ContextKey = "user"
 	contextOperator ContextKey = "operator"
-	ContextAuthInfo ContextKey = "authinfo"
+	contextAPIKeyId ContextKey = "api-key-id"
+	ContextAuthInfo ContextKey = "auth-info"
 	contextUsecases ContextKey = "usecases"
 	contextGateways ContextKey = "gateways"
 )
@@ -74,6 +76,19 @@ func Gateways(ctx context.Context) *gateway.Container {
 	return nil
 }
 
+func AttachAPIKeyId(ctx context.Context, a *project.APIKeyID) context.Context {
+	return context.WithValue(ctx, contextAPIKeyId, a)
+}
+
+func APIKeyId(ctx context.Context) *project.APIKeyID {
+	if v := ctx.Value(contextAPIKeyId); v != nil {
+		if a, ok := v.(*project.APIKeyID); ok {
+			return a
+		}
+	}
+	return nil
+}
+
 func Lang(ctx context.Context, lang *language.Tag) string {
 	if lang != nil && !lang.IsRoot() {
 		return lang.String()
@@ -84,7 +99,7 @@ func Lang(ctx context.Context, lang *language.Tag) string {
 		return "en" // default language
 	}
 
-	l := u.Lang()
+	l := u.Metadata().Lang()
 	if l.IsRoot() {
 		return "en" // default language
 	}

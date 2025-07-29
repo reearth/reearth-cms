@@ -21,13 +21,21 @@ import (
 
 func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	auth := user.ReearthSub(uId1.String())
+
+	u1m := user.NewMetadata()
+	u1m.SetTheme(user.ThemeDark)
+	u1m.SetLang(language.English)
+
+	u2m := user.NewMetadata()
+	u2m.SetTheme(user.ThemeDefault)
+	u2m.SetLang(language.Japanese)
+
 	u := user.New().ID(uId1).
 		Name("e2e").
 		Email("e2e@e2e.com").
 		Auths([]user.Auth{*auth}).
-		Theme(user.ThemeDark).
-		Lang(language.English).
 		Workspace(wId).
+		Metadata(u1m).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
 		return err
@@ -35,8 +43,8 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 	u2 := user.New().ID(uId2).
 		Name("e2e2").
 		Workspace(wId2).
-		Lang(language.Japanese).
 		Email("e2e2@e2e.com").
+		Metadata(u2m).
 		MustBuild()
 	if err := r.User.Save(ctx, u2); err != nil {
 		return err
@@ -45,6 +53,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 		Name("e2e3").
 		Workspace(wId2).
 		Email("e2e3@e2e.com").
+		Metadata(u2m).
 		MustBuild()
 	if err := r.User.Save(ctx, u3); err != nil {
 		return err
@@ -53,6 +62,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 		Name("e2e4").
 		Workspace(wId).
 		Email("e2e4@e2e.com").
+		Metadata(u2m).
 		MustBuild()
 	if err := r.User.Save(ctx, u4); err != nil {
 		return err
@@ -70,6 +80,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 		InvitedBy: uId2,
 	}
 
+	wMetadata := workspace.NewMetadata()
 	w := workspace.New().ID(wId).
 		Name("e2e").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
@@ -79,6 +90,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
 			iId1: roleOwner,
 		}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
 		return err
@@ -93,6 +105,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
 			iId1: roleOwner,
 		}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w2); err != nil {
 		return err

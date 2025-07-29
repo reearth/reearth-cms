@@ -1275,7 +1275,7 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 	// with geometry fields
 	ver1 := item.VersionedList{vi1}
 
-	fc1, _ := featureCollectionFromItems(ver1, s1)
+	fc1, _ := featureCollectionFromItems(ver1, sp1)
 
 	sid2 := id.NewSchemaID()
 	fid2 := id.NewFieldID()
@@ -1290,7 +1290,7 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
 
 	ver2 := item.VersionedList{vi2}
-	fc2, _ := featureCollectionFromItems(ver2, s2)
+	fc2, _ := featureCollectionFromItems(ver2, sp2)
 
 	fid3 := id.NewFieldID()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
@@ -1364,6 +1364,21 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 			wantError:   nil,
 		},
 		{
+			name: "success operator user is nil",
+			args: args{
+				ctx:           context.Background(),
+				schemaPackage: sp2,
+				page:          &page1,
+				perPage:       &perPage1,
+				op:            opUserNil,
+			},
+			seedsItems:  item.List{i2},
+			seedSchemas: s2,
+			seedModels:  m2,
+			want:        fc2,
+			wantError:   nil,
+		},
+		{
 			name: "error no geometry field in this model / integer",
 			args: args{
 				ctx:           context.Background(),
@@ -1377,18 +1392,6 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 			seedModels:  m3,
 			want:        nil,
 			wantError:   rerror.NewE(i18n.T("no geometry field in this model")),
-		},
-		{
-			name: "error operator user is nil",
-			args: args{
-				ctx:           context.Background(),
-				schemaPackage: sp3,
-				page:          &page1,
-				perPage:       &perPage1,
-				op:            opUserNil,
-			},
-			want:      nil,
-			wantError: interfaces.ErrInvalidOperator,
 		},
 	}
 	for _, tt := range tests {

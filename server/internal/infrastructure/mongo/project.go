@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
@@ -34,10 +35,10 @@ func (r *ProjectRepo) Init() error {
 	idx := mongox.IndexFromKeys(projectIndexes, false)
 	idx = append(idx, mongox.IndexFromKeys(projectUniqueIndexes, true)...)
 	idx = append(idx, mongox.Index{
-		Name:   "re_publication_token",
-		Key:    bson.D{{Key: "publication.token", Value: 1}},
+		Name:   "re_accessibility_keys_key",
+		Key:    bson.D{{Key: "accessibility.keys.key", Value: 1}},
 		Unique: true,
-		Filter: bson.M{"publication.token": bson.M{"$type": "string"}},
+		Filter: bson.M{"accessibility.keys.key": bson.M{"$type": "string"}},
 	})
 	idx = append(idx, mongox.Index{
 		Name:   "re_alias",
@@ -78,12 +79,23 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
-	return r.paginate(ctx, bson.M{
+func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
+	filter := bson.M{
 		"workspace": bson.M{
 			"$in": ids.Strings(),
 		},
-	}, pagination)
+	}
+	var s *usecasex.Sort
+	var p *usecasex.Pagination
+	if f != nil {
+		s = f.Sort
+		p = f.Pagination
+
+		if f.Visibility != nil {
+			filter["accessibility.visibility"] = f.Visibility.String()
+		}
+	}
+	return r.paginate(ctx, filter, s, p)
 }
 
 func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias) (*project.Project, error) {
@@ -116,12 +128,12 @@ func (r *ProjectRepo) IsAliasAvailable(ctx context.Context, name string) (bool, 
 	return c == 0 && err == nil, err
 }
 
-func (r *ProjectRepo) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
-	if token == "" {
+func (r *ProjectRepo) FindByPublicAPIKey(ctx context.Context, key string) (*project.Project, error) {
+	if key == "" {
 		return nil, rerror.ErrNotFound
 	}
 	return r.findOne(ctx, bson.M{
-		"publication.token": token,
+		"accessibility.keys.key": key,
 	})
 }
 
@@ -160,9 +172,9 @@ func (r *ProjectRepo) findOne(ctx context.Context, filter any) (*project.Project
 	return c.Result[0], nil
 }
 
-func (r *ProjectRepo) paginate(ctx context.Context, filter bson.M, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *ProjectRepo) paginate(ctx context.Context, filter bson.M, s *usecasex.Sort, p *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	c := mongodoc.NewProjectConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), s, p, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

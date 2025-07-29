@@ -9,6 +9,9 @@ paths:
       - $ref: '#/components/parameters/workspaceIdParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+      - $ref: '#/components/parameters/keywordParam'
     get:
       operationId: ProjectFilter
       security:
@@ -63,6 +66,10 @@ paths:
                 name:
                   type: string
                 description:
+                  type: string
+                license:
+                  type: string
+                readme:
                   type: string
                 alias:
                   type: string
@@ -131,10 +138,14 @@ paths:
                   type: string
                 description:
                   type: string
+                license:
+                  type: string
+                readme:
+                  type: string
                 alias:
                   type: string
-                publication:
-                  $ref: '#/components/schemas/projectPublication'
+                accessibility:
+                  $ref: '#/components/schemas/accessibility'
                 requestRoles:
                   type: array
                   items:
@@ -185,6 +196,9 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+      - $ref: '#/components/parameters/keywordParam'
     get:
       operationId: ModelFilter
       security:
@@ -2342,8 +2356,11 @@ components:
         - id
         - name
         - description
+        - license
+        - readme
         - workspaceId
         - alias
+        - accessibility
         - createdAt
         - updatedAt
       properties:
@@ -2357,6 +2374,10 @@ components:
           type: string
         description:
           type: string
+        license:
+          type: string
+        readme:
+          type: string
         alias:
           type: string
         createdAt:
@@ -2365,22 +2386,59 @@ components:
         updatedAt:
           type: string
           format: date-time
-        publication:
-          $ref: '#/components/schemas/projectPublication'
+        accessibility:
+          $ref: '#/components/schemas/accessibility'
         requestRoles:
           type: array
           items:
             $ref: '#/components/schemas/projectRequestRole'
-    projectPublication:
+    publicationSettings:
       type: object
       properties:
-        scope:
-          type: string
-          enum: [PUBLIC, LIMITED, PRIVATE]
-        assetPublic:
+        publicModels:
+          type: array
+          items:
+            type: string
+            x-go-type: id.ModelID
+        publicAssets:
           type: boolean
-        token:
+      required:
+        - publicModels
+        - publicAssets
+    apiKey:
+      type: object
+      properties:
+        id:
           type: string
+          x-go-type: id.APIKeyID
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        publication:
+          $ref: '#/components/schemas/publicationSettings'
+      required:
+        - id
+        - name
+        - key
+        - publication
+    accessibility:
+      type: object
+      properties:
+        visibility:
+          type: string
+          enum: [ PUBLIC, PRIVATE ]
+        publication:
+          $ref: '#/components/schemas/publicationSettings'
+        apiKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/apiKey'
+      required:
+        - visibility
+        - apiKeys
     projectRequestRole:
       type: string
       enum: [READER, WRITER, MAINTAINER, OWNER]
@@ -2407,8 +2465,6 @@ components:
           type: string
         description:
           type: string
-        public:
-          type: boolean
         key:
           type: string
         createdAt:

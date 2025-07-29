@@ -1,4 +1,4 @@
-FROM node:22.15.0-slim AS builder
+FROM node:22.17.0-slim AS builder
 WORKDIR /app
 
 ARG NODE_OPTIONS="--max-old-space-size=4096"
@@ -17,10 +17,11 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=tsconfig.json,target=tsconfig.json \
     --mount=type=bind,source=vite.config.ts,target=vite.config.ts \
     --mount=type=bind,source=src,target=src \
+    --mount=type=bind,source=public,target=public \
     --mount=type=cache,target=/root/.yarn,sharing=locked \
     yarn build
 
-FROM nginx:1.28-alpine
+FROM nginx:1.29-alpine
 WORKDIR /usr/share/nginx/html
 
 # Quite the Nginx startup logs.

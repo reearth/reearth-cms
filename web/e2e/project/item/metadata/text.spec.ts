@@ -47,7 +47,7 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("text1").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
+  await expect(page.getByText( "Item Information")).toBeVisible();
   await expect(page.getByLabel("text1")).toHaveValue("text1");
 
   await page.getByRole("button", { name: "Back" }).click();

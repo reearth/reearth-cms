@@ -17,7 +17,6 @@ type CreateModelParam struct {
 	Name        *string
 	Description *string
 	Key         *string
-	Public      *bool
 }
 
 type CopyModelParam struct {
@@ -28,8 +27,8 @@ type CopyModelParam struct {
 
 type FindByProjectAndKeywordParam struct {
 	ProjectID  id.ProjectID
-	Keyword    string
-	Sort       *model.Sort
+	Keyword    *string
+	Sort       *usecasex.Sort
 	Pagination *usecasex.Pagination
 }
 
@@ -47,7 +46,6 @@ type UpdateModelParam struct {
 	Name        *string
 	Description *string
 	Key         *string
-	Public      *bool
 }
 
 type PublishModelParam struct {
@@ -73,6 +71,5 @@ type Model interface {
 	UpdateOrder(context.Context, id.ModelIDList, *usecase.Operator) (model.List, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)
 	Delete(context.Context, id.ModelID, *usecase.Operator) error
-	Publish(context.Context, []PublishModelParam, *usecase.Operator) error
 	Copy(context.Context, CopyModelParam, *usecase.Operator) (*model.Model, error)
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -231,25 +230,41 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 	return nil
 }
 
-func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *model.Sort {
-	direction := model.DirectionDesc
-	if dir != nil && *dir == integrationapi.SortDirParamAsc {
-		direction = model.DirectionAsc
-	}
+func toProjectSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
 
-	column := model.ColumnCreatedAt
+	column := "id"
 	if sort != nil {
 		switch *sort {
 		case integrationapi.SortParamCreatedAt:
-			column = model.ColumnCreatedAt
+			column = "id"
 		case integrationapi.SortParamUpdatedAt:
-			column = model.ColumnUpdatedAt
+			column = "updatedat"
 		}
 	}
 
-	return &model.Sort{
-		Column:    column,
-		Direction: direction,
+	return &usecasex.Sort{
+		Key:      column,
+		Reverted: reverted,
+	}
+}
+
+func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
+
+	column := "order"
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = "id"
+		case integrationapi.SortParamUpdatedAt:
+			column = "updatedat"
+		}
+	}
+
+	return &usecasex.Sort{
+		Key:      column,
+		Reverted: reverted,
 	}
 }
 
@@ -308,14 +323,12 @@ func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool
 	}
 }
 
-func fromProjectPublicationScope(p integrationapi.ProjectPublicationScope) *project.PublicationScope {
+func fromProjectVisibility(p integrationapi.AccessibilityVisibility) *project.Visibility {
 	switch p {
 	case integrationapi.PUBLIC:
-		return lo.ToPtr(project.PublicationScopePublic)
+		return lo.ToPtr(project.VisibilityPublic)
 	case integrationapi.PRIVATE:
-		return lo.ToPtr(project.PublicationScopePrivate)
-	case integrationapi.LIMITED:
-		return lo.ToPtr(project.PublicationScopeLimited)
+		return lo.ToPtr(project.VisibilityPrivate)
 	default:
 		return nil
 	}
