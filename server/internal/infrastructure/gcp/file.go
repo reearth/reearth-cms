@@ -233,6 +233,25 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	if p == "" {
 		return nil, gateway.ErrInvalidFile
 	}
+
+	if f.replaceUploadURL && f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
+		uploadURL := f.publicBase.ResolveReference(&url.URL{Path: p})
+		
+		if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+			query := uploadURL.Query()
+			query.Set("workspace", workspace)
+			uploadURL.RawQuery = query.Encode()
+		}
+		
+		return &gateway.UploadAssetLink{
+			URL:             uploadURL.String(),
+			ContentType:     contentType,
+			ContentLength:   param.ContentLength,
+			ContentEncoding: param.ContentEncoding,
+			Next:            "",
+		}, nil
+	}
+
 	bucket, err := f.bucket(ctx)
 	if err != nil {
 		return nil, err
@@ -262,7 +281,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	}
 
 	return &gateway.UploadAssetLink{
-		URL:             f.toPublicUrl(uploadURL),
+		URL:             uploadURL,
 		ContentType:     contentType,
 		ContentLength:   param.ContentLength,
 		ContentEncoding: param.ContentEncoding,
@@ -270,19 +289,6 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	}, nil
 }
 
-func (f *fileRepo) toPublicUrl(uploadURL string) string {
-	// Replace storage.googleapis.com with custom asset base URL if configured and enabled
-	if f.replaceUploadURL && f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
-		parsedURL, err := url.Parse(uploadURL)
-		if err == nil {
-			parsedURL.Scheme = f.publicBase.Scheme
-			parsedURL.Host = f.publicBase.Host
-			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
-			uploadURL = parsedURL.String()
-		}
-	}
-	return uploadURL
-}
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
 	p := getGCSObjectPath(u.UUID(), u.FileName())

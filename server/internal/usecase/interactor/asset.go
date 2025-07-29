@@ -465,7 +465,13 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, interfaces.ErrOperationDenied
 	}
 
-	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctx, *param)
+	workspace, err := i.repos.Workspace.FindByID(ctx, prj.Workspace())
+	if err != nil {
+		return nil, err
+	}
+
+	ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())
+	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctxWithWorkspace, *param)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
 		return nil, rerror.ErrNotFound
 	}

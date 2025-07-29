@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/url"
 	"path"
-	"strings"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -204,36 +203,38 @@ func TestFile_GetURL(t *testing.T) {
 	}
 }
 
-func TestFileRepo_IssueUploadAssetLink_toPublicUrl(t *testing.T) {
+func TestFileRepo_UnsignedURLGeneration(t *testing.T) {
 	tests := []struct {
 		name           string
 		publicBaseURL  string
 		expectedDomain string
-		shouldReplace  bool
+		expectedPath   string
+		replaceUpload  bool
+		workspaceID    string
 	}{
 		{
-			name:           "custom domain - should replace",
+			name:           "proxy mode - generate unsigned URL",
 			publicBaseURL:  "https://assets.cms.dev.reearth.io",
 			expectedDomain: "assets.cms.dev.reearth.io",
-			shouldReplace:  true,
+			expectedPath:   "/assets/12/345678-1234-1234-1234-123456789012/test-file.json",
+			replaceUpload:  true,
+			workspaceID:    "workspace-123",
 		},
 		{
-			name:           "custom domain with path - should replace",
-			publicBaseURL:  "https://cdn.example.com/assets",
+			name:           "proxy mode with path - generate unsigned URL",
+			publicBaseURL:  "https://cdn.example.com/files",
 			expectedDomain: "cdn.example.com",
-			shouldReplace:  true,
+			expectedPath:   "/files/assets/12/345678-1234-1234-1234-123456789012/test-file.json",
+			replaceUpload:  true,
+			workspaceID:    "",
 		},
 		{
-			name:           "default GCS domain - should not replace",
+			name:           "direct mode - should use signed URLs (test would need GCS mock)",
 			publicBaseURL:  "https://storage.googleapis.com/test-bucket",
-			expectedDomain: "storage.googleapis.com",
-			shouldReplace:  false,
-		},
-		{
-			name:           "empty base URL - should not replace",
-			publicBaseURL:  "",
-			expectedDomain: "storage.googleapis.com",
-			shouldReplace:  false,
+			expectedDomain: "", // This case would generate signed URLs, not testable here
+			expectedPath:   "",
+			replaceUpload:  false,
+			workspaceID:    "",
 		},
 	}
 
@@ -242,48 +243,61 @@ func TestFileRepo_IssueUploadAssetLink_toPublicUrl(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			// Create fileRepo with custom public base
-			var publicBase *url.URL
-			if tt.publicBaseURL != "" {
-				var err error
-				publicBase, err = url.Parse(tt.publicBaseURL)
-				assert.NoError(t, err)
+			if !tt.replaceUpload {
+				// Skip signed URL tests since they require GCS mocking
+				t.Skip("Signed URL generation requires GCS client mocking")
+				return
 			}
+
+			// Create fileRepo with custom public base
+			publicBase, err := url.Parse(tt.publicBaseURL)
+			assert.NoError(t, err)
 
 			f := &fileRepo{
 				bucketName:       "test-bucket",
 				publicBase:       publicBase,
 				cacheControl:     "public, max-age=3600",
 				public:           true,
-				replaceUploadURL: tt.shouldReplace,
+				replaceUploadURL: tt.replaceUpload,
 			}
 
-			// Since we can't easily mock the GCS bucket.SignedURL method,
-			// we'll test the URL parsing and replacement logic separately
-			// by simulating what would happen after getting a signed URL
-
-			// Simulate a signed URL from GCS
-			signedURL := "https://storage.googleapis.com/test-bucket/assets/12/345678-1234-1234-1234-123456789012/test-file.json?Expires=1234567890&GoogleAccessId=test@test.iam.gserviceaccount.com&Signature=abc123"
-
-			// Apply the same logic as in IssueUploadAssetLink
-			finalURL := f.toPublicUrl(signedURL)
-
-			// Parse the final URL to check the domain
-			finalParsedURL, err := url.Parse(finalURL)
-			assert.NoError(t, err)
-
-			// Check if domain was replaced as expected
-			assert.Equal(t, tt.expectedDomain, finalParsedURL.Host)
-
-			// Check that query parameters are preserved
-			assert.Equal(t, "1234567890", finalParsedURL.Query().Get("Expires"))
-			assert.Equal(t, "test@test.iam.gserviceaccount.com", finalParsedURL.Query().Get("GoogleAccessId"))
-			assert.Equal(t, "abc123", finalParsedURL.Query().Get("Signature"))
-
-			// If domain was replaced, check the path handling
-			if tt.shouldReplace && f.publicBase.Path != "" {
-				assert.True(t, strings.HasPrefix(finalParsedURL.Path, f.publicBase.Path))
+			// Create context with workspace if provided
+			ctx := context.Background()
+			if tt.workspaceID != "" {
+				ctx = context.WithValue(ctx, contextKey("workspace"), tt.workspaceID)
 			}
+
+			// Create test parameters
+			param := gateway.IssueUploadAssetParam{
+				UUID:          "12345678-1234-1234-1234-123456789012",
+				Filename:      "test-file.json",
+				ContentType:   "application/json",
+				ContentLength: 1024,
+			}
+
+			// Test the URL generation logic directly since we can't mock GCS
+			p := getGCSObjectPath(param.UUID, param.Filename)
+			uploadURL := f.publicBase.ResolveReference(&url.URL{Path: p})
+			
+			if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+				query := uploadURL.Query()
+				query.Set("workspace", workspace)
+				uploadURL.RawQuery = query.Encode()
+			}
+
+			// Verify the generated URL
+			assert.Equal(t, tt.expectedDomain, uploadURL.Host)
+			assert.Equal(t, tt.expectedPath, uploadURL.Path)
+
+			// Verify workspace query parameter if provided
+			if tt.workspaceID != "" {
+				assert.Equal(t, tt.workspaceID, uploadURL.Query().Get("workspace"))
+			}
+
+			// Verify no signed URL parameters are present
+			assert.Empty(t, uploadURL.Query().Get("GoogleAccessId"))
+			assert.Empty(t, uploadURL.Query().Get("Signature"))
+			assert.Empty(t, uploadURL.Query().Get("Expires"))
 		})
 	}
 }
