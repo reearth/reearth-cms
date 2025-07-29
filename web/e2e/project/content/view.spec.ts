@@ -28,6 +28,7 @@ async function itemAdd(page: Page, data: string) {
   await page.getByLabel("Back").click();
 }
 
+// fix this test
 test("View CRUD has succeeded", async ({ page }) => {
   test.slow();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
@@ -154,6 +155,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
 });
 
+// fix this test
 test("View reordering has succeeded", async ({ page }) => {
   await page.getByText("Content").click();
   await page.getByRole("menuitem", { name: modelName }).click();

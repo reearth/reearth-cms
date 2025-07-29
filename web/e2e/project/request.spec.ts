@@ -1,6 +1,8 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+import { config } from "../utils/config";
+
 import { crudComment } from "./utils/comment";
 import { createTitleField, itemTitle, titleFieldName } from "./utils/field";
 import { createItem, createRequest, requestTitle } from "./utils/item";
@@ -8,7 +10,12 @@ import { createModelFromOverview, modelName } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 
+const disableWorkspaceUI = config.disableWorkspaceUI === "true";
+
 test.beforeEach(async ({ reearth, page }) => {
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
   await createProject(page);
@@ -19,6 +26,9 @@ test.beforeEach(async ({ reearth, page }) => {
 });
 
 test.afterEach(async ({ page }) => {
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+
   await deleteProject(page);
   await deleteWorkspace(page);
 });

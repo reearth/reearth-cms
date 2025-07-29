@@ -24,7 +24,7 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
   await expect(page.getByTitle("model name")).toBeVisible();
   await expect(page.getByText("#model-key")).toBeVisible();
   await expect(page.getByRole("menuitem", { name: "model name" }).locator("span")).toBeVisible();
-  await page.getByText("Models").click();
+  await page.getByText("Models").first().click();
   await page.getByRole("list").locator("a").click();
   await page.getByText("Edit", { exact: true }).click();
   await page.getByLabel("Model name").fill("new model name");
