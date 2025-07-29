@@ -32,7 +32,7 @@ test("authenticate", async ({ page }) => {
     await page.getByPlaceholder("your password").fill(password as string);
     await page.getByText("LOG IN").click();
   }
-  // await page.waitForURL(baseURL);
+  await page.waitForURL(baseURL);
   await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible({
     timeout: 10 * 1000,
   });
