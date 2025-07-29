@@ -129,11 +129,15 @@ func (s server) CheckAliasAvailability(ctx context.Context, req *pb.AliasAvailab
 func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.ProjectResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), op)
+	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), nil)
 	if err != nil {
 		return nil, err
 	}
 	if p == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	if p.Accessibility().Visibility() == project.VisibilityPrivate && (op == nil || !op.IsReadableProject(p.ID())) {
 		return nil, rerror.ErrNotFound
 	}
 

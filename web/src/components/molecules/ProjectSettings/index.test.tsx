@@ -52,7 +52,7 @@ describe("Project settings", () => {
       />,
     );
 
-    expect(screen.getByText(`Project Settings / ${name}`)).toBeVisible();
+    expect(screen.getByRole("heading", { name: `Project Settings / ${name}` })).toBeVisible();
   });
 
   test("Sections are visible successfully", async () => {

@@ -44,7 +44,7 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await page.getByLabel("close-circle").locator("svg").click();
   await page.locator(".ant-select-selection-overflow").click();
   await page.locator(".ant-select-item").click();
-  await page.getByText("Reviewer").click();
+  await page.getByRole("heading", { name: "Reviewer" }).click();
   await page.getByRole("button", { name: "Approve" }).click();
   await closeNotification(page);
   await page.getByLabel("back").click();
@@ -140,7 +140,7 @@ test("Navigating between item and request has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Version History" }).click();
   await page.getByRole("link", { name: requestTitle }).click();
   await expect(page.getByText(`Request / ${requestTitle}`)).toBeVisible();
-  await expect(page.getByText(requestTitle)).toBeVisible();
+  await expect(page.getByRole("heading", { name: requestTitle })).toBeVisible();
   await page.getByRole("button", { name: "Approve" }).click();
   await closeNotification(page);
   await page.getByRole("button", { name: itemTitle }).last().click();

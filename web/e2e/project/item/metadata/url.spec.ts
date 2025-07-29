@@ -48,7 +48,7 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("url1").fill("http://test1.com");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByText( "Item Information")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
   await expect(page.getByLabel("url1")).toHaveValue("http://test1.com");
 
   await page.getByRole("button", { name: "Back" }).click();
