@@ -11,7 +11,7 @@ export async function createProject(page: Page) {
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await page.getByText(id, { exact: true }).click();
-  await expect(page.getByRole("heading", { name: id })).toBeVisible();
+  await expect(page.getByText(id).first()).toBeVisible();
 }
 
 export async function deleteProject(page: Page) {

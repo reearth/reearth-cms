@@ -22,7 +22,7 @@ const BasicInnerContents: React.FC<Props> = ({
   const childrenArray = Children.toArray(children);
   return (
     <PaddedContent>
-      <Header title={<Title>{title}</Title>} subTitle={subtitle} onBack={onBack} />
+      <Header title={title} subTitle={subtitle} onBack={onBack} />
       {childrenArray.map((child, idx) => (
         <Section key={idx} flex={flexChildren} lastChild={childrenArray.length - 1 === idx}>
           {child}
@@ -42,10 +42,6 @@ const Header = styled(PageHeader)`
   background-color: #fff !important;
   padding: 24px;
   margin-bottom: 16px;
-`;
-
-const Title = styled.h4`
-  margin: 0;
 `;
 
 const Section = styled.div<{ flex?: boolean; lastChild?: boolean }>`

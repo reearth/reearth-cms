@@ -26,7 +26,7 @@ test.afterEach(async ({ page }) => {
 
 test.describe("Zip Upload Tests", () => {
   test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ page }) => {
-    await page.getByRole("button", { name: "Upload Asset" }).click();
+    await page.getByRole("button", { name: "upload Upload Asset" }).click();
     await page.getByRole("tab", { name: "URL" }).click();
     const urlInput = page.getByPlaceholder("Please input a valid URL");
     await urlInput.fill(zipUrl);
@@ -41,7 +41,7 @@ test.describe("Zip Upload Tests", () => {
   });
 
   test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ page }) => {
-    await page.getByRole("button", { name: "Upload Asset" }).click();
+    await page.getByRole("button", { name: "upload Upload Asset" }).click();
     await page.getByRole("tab", { name: "Local" }).click();
     const uploadInput = page.locator(".ant-upload input[type='file']");
     await uploadInput.setInputFiles(localZipPath);
