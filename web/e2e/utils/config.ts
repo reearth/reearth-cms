@@ -2,6 +2,7 @@ export const config = {
   api: process.env.REEARTH_CMS_API,
   userName: process.env.REEARTH_CMS_E2E_USERNAME,
   password: process.env.REEARTH_CMS_E2E_PASSWORD,
+  disableWorkspaceUI: process.env.REEARTH_CMS_DISABLE_WORKSPACE_UI,
 };
 
 export type Config = typeof config;

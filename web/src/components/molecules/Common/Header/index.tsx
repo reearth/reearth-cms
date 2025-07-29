@@ -52,7 +52,7 @@ const HeaderMolecule: React.FC<Props> = ({
     [currentWorkspace?.id, personalWorkspace?.id],
   );
 
-  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI ?? false;
+  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI === "true";
   const WorkspacesItems: MenuProps["items"] = useMemo(() => {
     const res: MenuProps["items"] = [
       {

@@ -33,7 +33,7 @@ const WorkspaceMenu: React.FC<Props> = ({
     { label: t("Home"), key: "home", icon: <Icon icon="home" />, show: "both", order: 1 },
   ];
 
-  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI ?? false;
+  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI  === "true";
   const items: WorkspaceItemType[] = useMemo(() => {
     const res = [
       {
