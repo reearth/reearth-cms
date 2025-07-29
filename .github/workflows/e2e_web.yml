@@ -6,6 +6,14 @@ on:
         description: "Target branch"
         required: false
         default: "main"
+      username:
+        description: "Username for the application"
+        required: false
+        type: string  
+      password:
+        description: "Password for the application"
+        required: false
+        type: string  
   schedule:
     - cron: "0 3 * * 1-5"
   workflow_call:
@@ -19,6 +27,16 @@ on:
       branch:
         required: true
         type: string
+    secrets:
+      REEARTH_WEB_E2E_USERNAME:
+        required: true
+      REEARTH_WEB_E2E_PASSWORD:
+        required: true
+env:
+  REEARTH_CMS_API: ${{ inputs.api_url || vars.REEARTH_CMS_API }}
+  REEARTH_CMS_E2E_BASEURL: ${{ inputs.base_url || vars.REEARTH_CMS_E2E_BASEURL }}
+  REEARTH_CMS_E2E_USERNAME: ${{ inputs.username || secrets.REEARTH_WEB_E2E_USERNAME }}
+  REEARTH_CMS_E2E_PASSWORD: ${{ inputs.password || secrets.REEARTH_WEB_E2E_PASSWORD }}
 jobs:
   e2e:
     name: playwright
@@ -26,11 +44,6 @@ jobs:
     defaults:
       run:
         working-directory: web
-    env:
-      REEARTH_CMS_API: ${{ inputs.api_url || vars.REEARTH_CMS_API }}
-      REEARTH_CMS_E2E_BASEURL: ${{ inputs.base_url || vars.REEARTH_CMS_E2E_BASEURL }}
-      REEARTH_CMS_E2E_USERNAME: ${{ vars.REEARTH_WEB_E2E_USERNAME }}
-      REEARTH_CMS_E2E_PASSWORD: ${{ vars.REEARTH_WEB_E2E_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
