@@ -77,7 +77,7 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByText(tag1).click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByText( "Item Information")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
   await expect(page.getByRole("tabpanel").getByText(tag1)).toBeVisible();
 
   await page.getByRole("button", { name: "back" }).click();
