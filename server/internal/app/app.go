@@ -81,6 +81,17 @@ func initInternalApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddlew
 		M2MAuthMiddleware(appCtx.Config),
 		usecaseMiddleware,
 	)
+	
+	// M2M API endpoints
+	if appCtx.Config.AuthM2M.Token != "" {
+		m2mGroup := api.Group("/m2m")
+		m2mGroup.Use(
+			M2MTokenAuthMiddleware(appCtx.Config.AuthM2M.Token),
+			usecaseMiddleware,
+		)
+		m2mGroup.GET("/assets/:uuid/is-private", M2MAssetHandler())
+	}
+	
 	api.POST("/signup", Signup(), usecaseMiddleware)
 }
 

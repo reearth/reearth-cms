@@ -27,8 +27,8 @@ type CopyModelParam struct {
 
 type FindByProjectAndKeywordParam struct {
 	ProjectID  id.ProjectID
-	Keyword    string
-	Sort       *model.Sort
+	Keyword    *string
+	Sort       *usecasex.Sort
 	Pagination *usecasex.Pagination
 }
 

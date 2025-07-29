@@ -79,13 +79,18 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, s *usecasex.Sort, p *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
 	filter := bson.M{
 		"workspace": bson.M{
 			"$in": ids.Strings(),
 		},
 	}
+	var s *usecasex.Sort
+	var p *usecasex.Pagination
 	if f != nil {
+		s = f.Sort
+		p = f.Pagination
+
 		if f.Visibility != nil {
 			filter["accessibility.visibility"] = f.Visibility.String()
 		}

@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
@@ -40,12 +41,12 @@ func TestInternalListProjectsAPI(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, err.Error(), "rpc error: code = InvalidArgument desc = at least one valid workspace_id is required")
 
-	// List projects for the workspace
+	// 1- List projects for the workspace
 	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 	assert.NoError(t, err)
 
-	assert.Equal(t, int64(1), l.TotalCount)
-	assert.Equal(t, 1, len(l.Projects))
+	assert.Equal(t, int64(2), l.TotalCount)
+	assert.Equal(t, 2, len(l.Projects))
 
 	p1 := l.Projects[0]
 	assert.Equal(t, pid.String(), p1.Id)
@@ -72,6 +73,9 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 
 	client := pb.NewReEarthCMSClient(clientConn)
 
+	// region Public Project
+
+	// 1- Get project owned by the user = should return the project
 	md := metadata.New(map[string]string{
 		"Authorization": "Bearer TestToken",
 		"User-Id":       uId.String(),
@@ -87,6 +91,72 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	assert.Equal(t, palias, p1.Alias)
 	assert.Equal(t, wId0.String(), p1.WorkspaceId)
 	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+
+	// 2- Get project with non-existing user = should return the project
+	md = metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       id.NewUserID().String(),
+	})
+	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
+
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias})
+	assert.NoError(t, err)
+
+	p1 = p.Project
+	assert.Equal(t, pid.String(), p1.Id)
+	assert.Equal(t, "p1", p1.Name)
+	assert.Equal(t, palias, p1.Alias)
+	assert.Equal(t, wId0.String(), p1.WorkspaceId)
+	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+
+	// 3- Get project not owned by the user = should return the project
+	md = metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId_2.String(),
+	})
+	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
+
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias})
+	assert.NoError(t, err)
+
+	p1 = p.Project
+	assert.Equal(t, pid.String(), p1.Id)
+	assert.Equal(t, "p1", p1.Name)
+	assert.Equal(t, palias, p1.Alias)
+	assert.Equal(t, wId0.String(), p1.WorkspaceId)
+	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+	// endregion
+
+	// region Private Project
+	// 1- Get project owned by the user = should return the project
+	md = metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId.String(),
+	})
+	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
+
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias2})
+	assert.NoError(t, err)
+
+	p1 = p.Project
+	assert.Equal(t, pid2.String(), p1.Id)
+	assert.Equal(t, "p2", p1.Name)
+	assert.Equal(t, palias2, p1.Alias)
+	assert.Equal(t, wId0.String(), p1.WorkspaceId)
+	assert.Equal(t, lo.ToPtr("p2 desc"), p1.Description)
+
+	// 2- Get project not owned by the user = should return a not found error
+	md = metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       id.NewUserID().String(),
+	})
+	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
+
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias2})
+	assert.Error(t, err)
+	assert.Equal(t, "rpc error: code = Unknown desc = not found", err.Error())
+	assert.Nil(t, p)
+	// endregion
 }
 
 // GRPC Check Alias
@@ -154,7 +224,7 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 	// Verify the project was created
 	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 	assert.NoError(t, err)
-	assert.Equal(t, int64(2), l.TotalCount)
+	assert.Equal(t, int64(3), l.TotalCount)
 	for _, p := range l.Projects {
 		if p.Alias == "new_project" {
 			assert.Equal(t, "New Project", p.Name)
@@ -231,7 +301,7 @@ func TestInternalDeleteProjectAPI(t *testing.T) {
 	// Verify the project was deleted
 	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 	assert.NoError(t, err)
-	assert.Equal(t, int64(0), l.TotalCount)
+	assert.Equal(t, int64(1), l.TotalCount)
 }
 
 // GRPC List Models in Project
