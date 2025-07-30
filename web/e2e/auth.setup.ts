@@ -6,10 +6,16 @@ import { config } from "./utils/config";
 
 const { userName, password } = config;
 
+const enableLinkToDashboard = config.enableLinkToDashboard === "true";
+
 test("authenticate", async ({ page }) => {
   expect(userName).toBeTruthy();
   expect(password).toBeTruthy();
   await page.goto(baseURL);
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (enableLinkToDashboard) {
+    await page.getByRole("button", { name: "Log In", exact: true }).click();
+  }
   await expect(page.getByRole("button").first()).toBeVisible();
   const isNew = await page.getByLabel("Email address").isVisible();
   // eslint-disable-next-line playwright/no-conditional-in-test

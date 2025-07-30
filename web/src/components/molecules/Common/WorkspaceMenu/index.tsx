@@ -33,7 +33,7 @@ const WorkspaceMenu: React.FC<Props> = ({
     { label: t("Home"), key: "home", icon: <Icon icon="home" />, show: "both", order: 1 },
   ];
 
-  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI  === "true";
+  const disableWorkspaceUi = window.REEARTH_CONFIG?.disableWorkspaceUi === true;
   const items: WorkspaceItemType[] = useMemo(() => {
     const res = [
       {
@@ -58,7 +58,7 @@ const WorkspaceMenu: React.FC<Props> = ({
         order: 5,
       },
     ];
-    if (!disableWorkspaceUI) {
+    if (!disableWorkspaceUi) {
       res.push({
         label: t("Member"),
         key: "members",
@@ -90,7 +90,7 @@ const WorkspaceMenu: React.FC<Props> = ({
           item.show === "both",
       )
       .sort((a, b) => a.order - b.order);
-  }, [t, isPersonalWorkspace, disableWorkspaceUI]);
+  }, [t, isPersonalWorkspace, disableWorkspaceUi]);
 
   const onClick = useCallback(
     (info: MenuInfo) => {

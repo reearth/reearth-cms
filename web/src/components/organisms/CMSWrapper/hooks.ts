@@ -135,7 +135,12 @@ export default () => {
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   const handleNavigateToSettings = useCallback(() => {
-    navigate(`/workspace/${personalWorkspace?.id}/account`);
+    const enableLinkToDashboard = window.REEARTH_CONFIG?.enableLinkToDashboard;
+    if (enableLinkToDashboard) {
+      window.open("https://reearth.io", "_blank", "noopener,noreferrer");
+    } else {
+      navigate(`/workspace/${personalWorkspace?.id}/account`);
+    }
   }, [personalWorkspace?.id, navigate]);
 
   const { data: projectData } = useGetProjectQuery({

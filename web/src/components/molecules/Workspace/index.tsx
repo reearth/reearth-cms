@@ -41,7 +41,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   onProjectCreate,
   onProjectAliasCheck,
 }) => {
-  const disableWorkspaceUI = window.REEARTH_CONFIG?.disableWorkspaceUI  === "true";
+  const disableWorkspaceUi = window.REEARTH_CONFIG?.disableWorkspaceUi === true;
 
   return (
     <InnerContent>
@@ -50,7 +50,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
         title="Projects"
         headerActions={
           <ButtonWrapper>
-            {!disableWorkspaceUI && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
+            {!disableWorkspaceUi && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
             <CreateProjectButton
               isFreePlan={isFreePlan}
               hasCreateRight={hasCreateRight}

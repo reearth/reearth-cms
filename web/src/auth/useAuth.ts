@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { AuthContext } from "./AuthProvider";
 
@@ -43,19 +44,25 @@ export function useCleanUrl() {
 
 export function useAuthenticationRequired(): [boolean, string | undefined] {
   const { isAuthenticated, isLoading, error: authError, login, logout } = useAuth();
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
     if (isLoading || isAuthenticated) {
       return;
     }
-
+    
     if (authError) {
       logout();
       return;
     }
-
-    login();
-  }, [authError, isAuthenticated, isLoading, login, logout]);
+    
+    const enableLinkToDashboard = window.REEARTH_CONFIG?.enableLinkToDashboard === true;
+    if (enableLinkToDashboard) {
+      navigate("login");
+    } else {
+      login();
+    }
+  }, [authError, isAuthenticated, isLoading, login, logout, navigate]);
 
   const error = useCleanUrl();
 

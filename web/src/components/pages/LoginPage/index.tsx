@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
 import Loading from "@reearth-cms/components/atoms/Loading";
+import Login from "@reearth-cms/components/atoms/LoginPage";
 import { useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 import { useUserId, useWorkspaceId } from "@reearth-cms/state";
 
-const RootPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const { isAuthenticated, isLoading, login } = useAuth();
   const { data } = useGetMeQuery();
 
@@ -25,14 +26,6 @@ const RootPage: React.FC = () => {
         }
       }
     }
-    if (!isAuthenticated && !isLoading) {
-      const enableLinkToDashboard = window.REEARTH_CONFIG?.enableLinkToDashboard === true;
-      if (enableLinkToDashboard) {
-        navigate("login");
-      } else {
-        login();
-      }
-    }
   }, [
     isAuthenticated,
     currentUserId,
@@ -44,7 +37,7 @@ const RootPage: React.FC = () => {
     setCurrentWorkspaceId,
   ]);
 
-  return isLoading ? <Loading spinnerSize="large" minHeight="100vh" /> : null;
+  return isAuthenticated || isLoading ? <Loading spinnerSize="large" minHeight="100vh" /> : <Login />;
 };
 
-export default RootPage;
+export default LoginPage;
