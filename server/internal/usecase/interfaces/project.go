@@ -77,6 +77,11 @@ var (
 	ErrProjectCreationLimitExceeded error = rerror.NewE(i18n.T("project creation limit exceeded"))
 )
 
+type ProjectLimitsResult struct {
+	PublicProjectsAllowed  bool
+	PrivateProjectsAllowed bool
+}
+
 type Project interface {
 	Fetch(context.Context, []id.ProjectID, *usecase.Operator) (project.List, error)
 	FindByIDOrAlias(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
@@ -90,4 +95,5 @@ type Project interface {
 	UpdateAPIKey(context.Context, UpdateAPITokenParam, *usecase.Operator) (*project.Project, error)
 	DeleteAPIKey(context.Context, id.ProjectID, id.APIKeyID, *usecase.Operator) (*project.Project, error)
 	RegenerateAPIKeyKey(context.Context, RegenerateKeyParam, *usecase.Operator) (*project.Project, error)
+	CheckProjectLimits(context.Context, accountdomain.WorkspaceID, *usecase.Operator) (*ProjectLimitsResult, error)
 }

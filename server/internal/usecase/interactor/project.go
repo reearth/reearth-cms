@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"sync"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -386,4 +387,74 @@ func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.Rege
 
 			return p, nil
 		})
+}
+
+func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdomain.WorkspaceID, op *usecase.Operator) (*interfaces.ProjectLimitsResult, error) {
+	if !op.IsUserOrIntegration() {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	// Check if user has access to the workspace
+	if !op.IsReadableWorkspace(workspaceID) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	result := &interfaces.ProjectLimitsResult{
+		PublicProjectsAllowed:  true,
+		PrivateProjectsAllowed: true,
+	}
+
+	// If no policy checker is configured, allow everything
+	if i.gateways == nil || i.gateways.PolicyChecker == nil {
+		return result, nil
+	}
+
+	// Use goroutines to check both policy types concurrently
+	var wg sync.WaitGroup
+	var publicErr, privateErr error
+
+	wg.Add(2)
+
+	// Check public project creation limit in goroutine
+	go func() {
+		defer wg.Done()
+		publicResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
+			WorkspaceID: workspaceID,
+			CheckType:   gateway.PolicyCheckGeneralPublicProjectCreation,
+			Value:       1,
+		})
+		if err != nil {
+			publicErr = err
+			return
+		}
+		result.PublicProjectsAllowed = publicResp.Allowed
+	}()
+
+	// Check private project creation limit in goroutine
+	go func() {
+		defer wg.Done()
+		privateResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
+			WorkspaceID: workspaceID,
+			CheckType:   gateway.PolicyCheckGeneralPrivateProjectCreation,
+			Value:       1,
+		})
+		if err != nil {
+			privateErr = err
+			return
+		}
+		result.PrivateProjectsAllowed = privateResp.Allowed
+	}()
+
+	// Wait for both goroutines to complete
+	wg.Wait()
+
+	// Check for errors from either goroutine
+	if publicErr != nil {
+		return nil, publicErr
+	}
+	if privateErr != nil {
+		return nil, privateErr
+	}
+
+	return result, nil
 }
