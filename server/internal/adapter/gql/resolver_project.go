@@ -204,6 +204,11 @@ func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*g
 	return loaders(ctx).Project.CheckAlias(ctx, alias)
 }
 
+// CheckWorkspaceProjectLimits is the resolver for the checkWorkspaceProjectLimits field.
+func (r *queryResolver) CheckWorkspaceProjectLimits(ctx context.Context, workspaceID gqlmodel.ID) (*gqlmodel.WorkspaceProjectLimits, error) {
+	return loaders(ctx).Project.CheckWorkspaceProjectLimits(ctx, workspaceID)
+}
+
 // Project returns ProjectResolver implementation.
 func (r *Resolver) Project() ProjectResolver { return &projectResolver{r} }
 

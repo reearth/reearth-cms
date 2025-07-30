@@ -1411,7 +1411,7 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			if tt.seedModels != nil {
-				err := db.Model.Save(ctx, tt.seedModels)
+				err := db.Model.Save(ctx, tt.seedModels.Clone())
 				assert.NoError(t, err)
 			}
 			itemUC := NewItem(db, nil)

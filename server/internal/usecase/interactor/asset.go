@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -159,12 +160,22 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		var size int64
 		file = inp.File
 
-		workspace, err := i.repos.Workspace.FindByID(ctx, prj.Workspace())
-		if err != nil {
-			return nil, nil, err
+		if i.gateways != nil && i.gateways.PolicyChecker != nil {
+			policyReq := gateway.PolicyCheckRequest{
+				WorkspaceID: prj.Workspace(),
+				CheckType:   gateway.PolicyCheckUploadAssetsSize,
+				Value:       file.Size,
+			}
+			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			if err != nil {
+				return nil, nil, rerror.NewE(i18n.T("policy check failed"))
+			}
+			if !policyResp.Allowed {
+				return nil, nil, interfaces.ErrAssetUploadSizeLimitExceeded
+			}
 		}
 
-		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())
+		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), prj.Workspace().String())
 		uuid, size, err = i.gateways.File.UploadAsset(ctxWithWorkspace, inp.File)
 		if err != nil {
 			return nil, nil, err
@@ -465,12 +476,22 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, interfaces.ErrOperationDenied
 	}
 
-	workspace, err := i.repos.Workspace.FindByID(ctx, prj.Workspace())
-	if err != nil {
-		return nil, err
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		policyReq := gateway.PolicyCheckRequest{
+			WorkspaceID: prj.Workspace(),
+			CheckType:   gateway.PolicyCheckUploadAssetsSize,
+			Value:       param.ContentLength,
+		}
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, rerror.NewE(i18n.T("policy check failed"))
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrAssetUploadSizeLimitExceeded
+		}
 	}
 
-	ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), workspace.ID().String())
+	ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), prj.Workspace().String())
 	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctxWithWorkspace, *param)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
 		return nil, rerror.ErrNotFound

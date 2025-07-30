@@ -1639,6 +1639,11 @@ type WorkspaceIntegrationMember struct {
 
 func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
 
+type WorkspaceProjectLimits struct {
+	PublicProjectsAllowed  bool `json:"publicProjectsAllowed"`
+	PrivateProjectsAllowed bool `json:"privateProjectsAllowed"`
+}
+
 type WorkspaceSettings struct {
 	ID       ID            `json:"id"`
 	Tiles    *ResourceList `json:"tiles,omitempty"`
