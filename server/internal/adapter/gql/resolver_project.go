@@ -6,7 +6,6 @@ package gql
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -207,7 +206,6 @@ func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*g
 
 // CheckWorkspaceProjectLimits is the resolver for the checkWorkspaceProjectLimits field.
 func (r *queryResolver) CheckWorkspaceProjectLimits(ctx context.Context, workspaceID gqlmodel.ID) (*gqlmodel.WorkspaceProjectLimits, error) {
-	fmt.Println("masuk")
 	return loaders(ctx).Project.CheckWorkspaceProjectLimits(ctx, workspaceID)
 }
 

@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"sync"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -409,51 +408,56 @@ func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdom
 		return result, nil
 	}
 
-	// Use goroutines to check both policy types concurrently
-	var wg sync.WaitGroup
-	var publicErr, privateErr error
+	// Define a result structure for channel communication
+	type policyResult struct {
+		isPublic bool
+		allowed  bool
+		err      error
+	}
 
-	wg.Add(2)
+	// Create channels to collect results
+	resultCh := make(chan policyResult, 2)
 
 	// Check public project creation limit in goroutine
 	go func() {
-		defer wg.Done()
 		publicResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
 			WorkspaceID: workspaceID,
 			CheckType:   gateway.PolicyCheckGeneralPublicProjectCreation,
 			Value:       1,
 		})
 		if err != nil {
-			publicErr = err
+			resultCh <- policyResult{isPublic: true, err: err}
 			return
 		}
-		result.PublicProjectsAllowed = publicResp.Allowed
+		resultCh <- policyResult{isPublic: true, allowed: publicResp.Allowed}
 	}()
 
 	// Check private project creation limit in goroutine
 	go func() {
-		defer wg.Done()
 		privateResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
 			WorkspaceID: workspaceID,
 			CheckType:   gateway.PolicyCheckGeneralPrivateProjectCreation,
 			Value:       1,
 		})
 		if err != nil {
-			privateErr = err
+			resultCh <- policyResult{isPublic: false, err: err}
 			return
 		}
-		result.PrivateProjectsAllowed = privateResp.Allowed
+		resultCh <- policyResult{isPublic: false, allowed: privateResp.Allowed}
 	}()
 
-	// Wait for both goroutines to complete
-	wg.Wait()
+	// Collect results from both goroutines
+	for i := 0; i < 2; i++ {
+		res := <-resultCh
+		if res.err != nil {
+			return nil, res.err
+		}
 
-	// Check for errors from either goroutine
-	if publicErr != nil {
-		return nil, publicErr
-	}
-	if privateErr != nil {
-		return nil, privateErr
+		if res.isPublic {
+			result.PublicProjectsAllowed = res.allowed
+		} else {
+			result.PrivateProjectsAllowed = res.allowed
+		}
 	}
 
 	return result, nil
