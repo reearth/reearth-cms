@@ -87,3 +87,19 @@ func (c *ProjectLoader) CheckAlias(ctx context.Context, alias string) (*gqlmodel
 
 	return &gqlmodel.ProjectAliasAvailability{Alias: alias, Available: ok}, nil
 }
+
+func (c *ProjectLoader) CheckWorkspaceProjectLimits(ctx context.Context, workspaceID gqlmodel.ID) (*gqlmodel.WorkspaceProjectLimits, error) {
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	ok, err := c.usecase.CheckProjectLimits(ctx, wid, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.WorkspaceProjectLimits{
+		PublicProjectsAllowed:  ok.PublicProjectsAllowed,
+		PrivateProjectsAllowed: ok.PrivateProjectsAllowed,
+	}, nil
+}

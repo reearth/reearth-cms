@@ -789,3 +789,211 @@ func TestProject_Delete(t *testing.T) {
 		})
 	}
 }
+
+// conditionalPolicyChecker allows different responses for different check types
+type conditionalPolicyChecker struct {
+	publicAllowed  bool
+	privateAllowed bool
+	shouldError    bool
+	errorType      gateway.PolicyCheckType
+}
+
+func (c *conditionalPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
+	if c.shouldError && req.CheckType == c.errorType {
+		return nil, errors.New("policy check error")
+	}
+
+	var allowed bool
+	switch req.CheckType {
+	case gateway.PolicyCheckGeneralPublicProjectCreation:
+		allowed = c.publicAllowed
+	case gateway.PolicyCheckGeneralPrivateProjectCreation:
+		allowed = c.privateAllowed
+	default:
+		allowed = true
+	}
+
+	return &gateway.PolicyCheckResponse{
+		Allowed:      allowed,
+		CheckType:    req.CheckType,
+		CurrentLimit: "test limit",
+		Message:      "test message",
+		Value:        req.Value,
+	}, nil
+}
+
+func TestProject_CheckProjectLimits(t *testing.T) {
+	wid1 := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	u := user.New().Name("test").NewID().Email("test@test.com").Workspace(wid1).MustBuild()
+	
+	// Valid operator with access to wid1
+	validOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1},
+		},
+	}
+
+	// Invalid operator (no user)
+	invalidOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{},
+	}
+
+	// Operator without workspace access
+	noAccessOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid2}, // different workspace
+		},
+	}
+
+	tests := []struct {
+		name          string
+		workspaceID   accountdomain.WorkspaceID
+		operator      *usecase.Operator
+		policyChecker gateway.PolicyChecker
+		want          *interfaces.ProjectLimitsResult
+		wantErr       error
+	}{
+		{
+			name:        "invalid operator",
+			workspaceID: wid1,
+			operator:    invalidOp,
+			want:        nil,
+			wantErr:     interfaces.ErrInvalidOperator,
+		},
+		{
+			name:        "no workspace access",
+			workspaceID: wid1,
+			operator:    noAccessOp,
+			want:        nil,
+			wantErr:     interfaces.ErrOperationDenied,
+		},
+		{
+			name:          "no policy checker - default allow",
+			workspaceID:   wid1,
+			operator:      validOp,
+			policyChecker: nil,
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  true,
+				PrivateProjectsAllowed: true,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "both projects allowed",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  true,
+				privateAllowed: true,
+			},
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  true,
+				PrivateProjectsAllowed: true,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "only public projects allowed",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  true,
+				privateAllowed: false,
+			},
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  true,
+				PrivateProjectsAllowed: false,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "only private projects allowed",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  false,
+				privateAllowed: true,
+			},
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  false,
+				PrivateProjectsAllowed: true,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "both projects denied",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  false,
+				privateAllowed: false,
+			},
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  false,
+				PrivateProjectsAllowed: false,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "public policy check error",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  true,
+				privateAllowed: true,
+				shouldError:    true,
+				errorType:      gateway.PolicyCheckGeneralPublicProjectCreation,
+			},
+			want:    nil,
+			wantErr: errors.New("policy check error"),
+		},
+		{
+			name:        "private policy check error",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  true,
+				privateAllowed: true,
+				shouldError:    true,
+				errorType:      gateway.PolicyCheckGeneralPrivateProjectCreation,
+			},
+			want:    nil,
+			wantErr: errors.New("policy check error"),
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			var gateways *gateway.Container
+			if tc.policyChecker != nil {
+				gateways = &gateway.Container{
+					PolicyChecker: tc.policyChecker,
+				}
+			}
+
+			projectUC := NewProject(db, gateways)
+
+			got, err := projectUC.CheckProjectLimits(ctx, tc.workspaceID, tc.operator)
+
+			if tc.wantErr != nil {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}

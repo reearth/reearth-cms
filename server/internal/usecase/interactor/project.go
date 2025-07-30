@@ -387,3 +387,78 @@ func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.Rege
 			return p, nil
 		})
 }
+
+func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdomain.WorkspaceID, op *usecase.Operator) (*interfaces.ProjectLimitsResult, error) {
+	if !op.IsUserOrIntegration() {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	// Check if user has access to the workspace
+	if !op.IsReadableWorkspace(workspaceID) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	result := &interfaces.ProjectLimitsResult{
+		PublicProjectsAllowed:  true,
+		PrivateProjectsAllowed: true,
+	}
+
+	// If no policy checker is configured, allow everything
+	if i.gateways == nil || i.gateways.PolicyChecker == nil {
+		return result, nil
+	}
+
+	// Define a result structure for channel communication
+	type policyResult struct {
+		isPublic bool
+		allowed  bool
+		err      error
+	}
+
+	// Create channels to collect results
+	resultCh := make(chan policyResult, 2)
+
+	// Check public project creation limit in goroutine
+	go func() {
+		publicResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
+			WorkspaceID: workspaceID,
+			CheckType:   gateway.PolicyCheckGeneralPublicProjectCreation,
+			Value:       1,
+		})
+		if err != nil {
+			resultCh <- policyResult{isPublic: true, err: err}
+			return
+		}
+		resultCh <- policyResult{isPublic: true, allowed: publicResp.Allowed}
+	}()
+
+	// Check private project creation limit in goroutine
+	go func() {
+		privateResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
+			WorkspaceID: workspaceID,
+			CheckType:   gateway.PolicyCheckGeneralPrivateProjectCreation,
+			Value:       1,
+		})
+		if err != nil {
+			resultCh <- policyResult{isPublic: false, err: err}
+			return
+		}
+		resultCh <- policyResult{isPublic: false, allowed: privateResp.Allowed}
+	}()
+
+	// Collect results from both goroutines
+	for i := 0; i < 2; i++ {
+		res := <-resultCh
+		if res.err != nil {
+			return nil, res.err
+		}
+
+		if res.isPublic {
+			result.PublicProjectsAllowed = res.allowed
+		} else {
+			result.PrivateProjectsAllowed = res.allowed
+		}
+	}
+
+	return result, nil
+}
