@@ -171,6 +171,9 @@ const ProjectCreationModal: React.FC<Props> = ({
         <Form.Item
           name="visibility"
           label={t("Project visibility")}
+          extra={t(
+            "Public projects are visible to everyone. Private projects are only accessible to workspace members.",
+          )}
           rules={[
             { required: true, message: t("Please choose the visibility settings of the project!") },
           ]}>
