@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -67,7 +66,7 @@ func TestFile_GetAssetFiles(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []gateway.FileEntry{
 		{Name: "xxx.txt", Size: 5},
-		{Name: path.Join("yyy", "hello.txt"), Size: 6},
+		{Name: "yyy/hello.txt", Size: 6},
 	}, files)
 }
 

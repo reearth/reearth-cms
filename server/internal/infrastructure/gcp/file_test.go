@@ -277,7 +277,7 @@ func TestFileRepo_UnsignedURLGeneration(t *testing.T) {
 
 			// Test the URL generation logic directly since we can't mock GCS
 			p := getGCSObjectPath(param.UUID, param.Filename)
-			uploadURL := f.publicBase.ResolveReference(&url.URL{Path: p})
+			uploadURL := f.publicBase.JoinPath(p)
 			
 			if workspace := getWorkspaceFromContext(ctx); workspace != "" {
 				query := uploadURL.Query()
@@ -287,7 +287,13 @@ func TestFileRepo_UnsignedURLGeneration(t *testing.T) {
 
 			// Verify the generated URL
 			assert.Equal(t, tt.expectedDomain, uploadURL.Host)
-			assert.Equal(t, tt.expectedPath, uploadURL.Path)
+			// JoinPath may or may not include leading slash depending on base URL
+			expectedPath := tt.expectedPath
+			actualPath := uploadURL.Path
+			if actualPath != "" && actualPath[0] != '/' && expectedPath != "" && expectedPath[0] == '/' {
+				actualPath = "/" + actualPath
+			}
+			assert.Equal(t, expectedPath, actualPath)
 
 			// Verify workspace query parameter if provided
 			if tt.workspaceID != "" {
