@@ -15,7 +15,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
   const t = useT();
 
   const topItems: ItemType[] = [
-    { label: t("Models"), key: "models", icon: <Icon icon="cube" /> },
+    { label: t("Models"), key: "models", icon: <Icon icon="block" /> },
     { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
     { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
