@@ -45,7 +45,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
 
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByText( "Item Information")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
   await expect(page.getByLabel("checkbox1")).not.toBeChecked();
 
   await page.getByRole("button", { name: "Back" }).click();
