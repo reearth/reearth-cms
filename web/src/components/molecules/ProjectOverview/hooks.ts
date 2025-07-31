@@ -2,8 +2,7 @@ import { ChangeEvent, useCallback, useEffect, useState } from "react";
 
 import { Project, UpdateProjectInput } from "../Workspace/types";
 
-import { ActiveKey } from ".";
-
+import { ActiveKey } from "./types";
 
 export default ({
   project,

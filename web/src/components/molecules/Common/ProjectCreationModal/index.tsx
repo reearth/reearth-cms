@@ -206,5 +206,5 @@ export default ProjectCreationModal;
 const StyledRadioGroup = styled(Radio.Group)`
   display: flex;
   flex-direction: column;
-  gap: 8;
+  gap: 8px;
 `;

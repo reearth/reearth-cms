@@ -16,6 +16,7 @@ import useHooks from "./hooks";
 import LicenseTab from "./LicenseTab";
 import ModelsTab from "./ModelsTab";
 import ReadmeTab from "./ReadmeTab";
+import { ActiveKey } from "./types";
 
 type Props = {
   project?: Project;
@@ -33,8 +34,6 @@ type Props = {
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
 };
-
-export type ActiveKey = "models" | "readme" | "license";
 
 const ProjectOverview: React.FC<Props> = ({
   project,
