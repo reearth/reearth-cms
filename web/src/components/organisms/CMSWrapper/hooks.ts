@@ -135,7 +135,12 @@ export default () => {
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   const handleNavigateToSettings = useCallback(() => {
-    navigate(`/workspace/${personalWorkspace?.id}/account`);
+    const dashboardProfileUrl = window.REEARTH_CONFIG?.dashboardProfileUrl;
+    if (dashboardProfileUrl) {
+      window.open(dashboardProfileUrl, "_blank", "noopener,noreferrer");
+    } else {
+      navigate(`/workspace/${personalWorkspace?.id}/account`);
+    }
   }, [personalWorkspace?.id, navigate]);
 
   const { data: projectData } = useGetProjectQuery({
@@ -158,7 +163,7 @@ export default () => {
     (info: MenuInfo) => {
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
-      } else if (info.key === "overview") {
+      } else if (info.key === "models") {
         navigate(`/workspace/${workspaceId}/project/${projectId}`);
       } else {
         navigate(`/workspace/${workspaceId}/project/${projectId}/${info.key}`);
