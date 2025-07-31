@@ -8,6 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
+import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import HeaderDropdown from "./Dropdown";
@@ -51,8 +52,9 @@ const HeaderMolecule: React.FC<Props> = ({
     [currentWorkspace?.id, personalWorkspace?.id],
   );
 
-  const WorkspacesItems: MenuProps["items"] = useMemo(
-    () => [
+  const disableWorkspaceUi = window.REEARTH_CONFIG?.disableWorkspaceUi === true;
+  const WorkspacesItems: MenuProps["items"] = useMemo(() => {
+    const res: MenuProps["items"] = [
       {
         label: t("Personal Account"),
         key: "personal-account",
@@ -92,15 +94,24 @@ const HeaderMolecule: React.FC<Props> = ({
             onClick: () => onWorkspaceNavigation(workspace.id),
           })),
       },
-      {
+    ];
+    if (!disableWorkspaceUi) {
+      res.push({
         label: t("Create Workspace"),
         key: "new-workspace",
         icon: <Icon icon="userGroupAdd" />,
         onClick: onWorkspaceModalOpen,
-      },
-    ],
-    [t, workspaces, onWorkspaceModalOpen, personalWorkspace?.id, onWorkspaceNavigation],
-  );
+      });
+    }
+    return res;
+  }, [
+    t,
+    workspaces,
+    disableWorkspaceUi,
+    personalWorkspace?.id,
+    onWorkspaceNavigation,
+    onWorkspaceModalOpen,
+  ]);
 
   const AccountItems: MenuProps["items"] = useMemo(
     () => [
@@ -125,23 +136,33 @@ const HeaderMolecule: React.FC<Props> = ({
       {logoUrl ? (
         <LogoIcon src={logoUrl} onClick={onHomeNavigation} />
       ) : (
-        <Logo onClick={onHomeNavigation}>{t("Re:Earth CMS")}</Logo>
+      <Logo src="/logo.svg" width="36" height="36" onClick={onHomeNavigation} />
       )}
-      <VerticalDivider />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
         items={WorkspacesItems}
         personal={currentIsPersonal}
+        showName={true}
+        showArrow={true}
       />
       <CurrentProject>
         {currentProject?.name && (
           <>
             <Break>/</Break>
             <ProjectText>{currentProject.name}</ProjectText>
+            {currentProject.accessibility?.visibility === ProjectVisibility.Private && (
+              <StyledIcon icon="lock" />
+            )}
           </>
         )}
       </CurrentProject>
-      <AccountDropdown name={username} items={AccountItems} personal={true} />
+      <AccountDropdown
+        name={username}
+        items={AccountItems}
+        personal={true}
+        showName={false}
+        showArrow={false}
+      />
       {url && (
         <LinkWrapper>
           <EditorLink rel="noreferrer" href={url.href} target="_blank">
@@ -156,24 +177,25 @@ const HeaderMolecule: React.FC<Props> = ({
 const MainHeader = styled(Header)`
   display: flex;
   align-items: center;
-  height: 48px;
+  height: 56px;
   line-height: 41px;
   padding: 0;
-  background-color: #1d1d1d;
+  background-color: #ffffff;
+  box-shadow: 0 -1px 0 0 #f0f0f0 inset;
 
   .ant-space-item {
-    color: #dbdbdb;
+    color: rgba(0, 0, 0, 0.85);
   }
 `;
 
-const Logo = styled.div`
+const Logo = styled.img`
   display: inline-block;
   color: #df3013;
   font-weight: 500;
   font-size: 14px;
   line-height: 48px;
   cursor: pointer;
-  padding: 0 40px 0 20px;
+  margin: 0 24px;
 `;
 
 const LogoIcon = styled.img`
@@ -182,23 +204,18 @@ const LogoIcon = styled.img`
   cursor: pointer;
 `;
 
-const VerticalDivider = styled.div`
-  display: inline-block;
-  height: 32px;
-  color: #fff;
-  margin: 0;
-  vertical-align: middle;
-  border-top: 0;
-  border-left: 1px solid #303030;
+const StyledIcon = styled(Icon)`
+  margin-left: 4px;
+  color: rgba(0, 0, 0, 0.85);
 `;
 
 const WorkspaceDropdown = styled(HeaderDropdown)`
-  margin-left: 20px;
-  padding-left: 20px;
+  background-color: #ffffff;
 `;
 
 const AccountDropdown = styled(HeaderDropdown)`
   padding-right: 20px;
+  background-color: #ffffff;
 `;
 
 const ProjectText = styled.p`
@@ -217,7 +234,7 @@ const CurrentProject = styled.div`
   margin: 0;
   display: flex;
   align-items: center;
-  color: #dbdbdb;
+  color: rgba(0, 0, 0, 0.85);
   flex: 1;
   min-width: 0;
 `;
@@ -236,10 +253,10 @@ const LinkWrapper = styled.div`
 
 const EditorLink = styled.a`
   border: 1px solid;
-  color: #d9d9d9;
+  color: rgba(0, 0, 0, 0.85);
   padding: 5px 16px;
   :hover {
-    color: #d9d9d9;
+    color: rgba(0, 0, 0, 0.85);
   }
 `;
 

@@ -2,13 +2,23 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+import { config } from "../utils/config";
+
+const disableWorkspaceUI = config.disableWorkspaceUi === "true";
+
 test.beforeEach(async ({ reearth, page }) => {
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
   await page.getByText("Settings").click();
 });
 
 test.afterEach(async ({ page }) => {
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+
   await deleteWorkspace(page);
 });
 

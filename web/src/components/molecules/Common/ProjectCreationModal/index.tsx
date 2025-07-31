@@ -1,21 +1,30 @@
+import styled from "@emotion/styled";
 import React, { useCallback, useState, useEffect, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Radio from "@reearth-cms/components/atoms/Radio";
+import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
+import { license_options, getLicenseContent } from "@reearth-cms/data/license";
+import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 
 export type FormValues = {
   name: string;
   alias: string;
+  visibility: ProjectVisibility;
   description: string;
+  license: string;
 };
 
 type Props = {
+  isFreePlan?: boolean;
   open: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
@@ -25,10 +34,13 @@ type Props = {
 const initialValues: FormValues = {
   name: "",
   alias: "",
+  visibility: ProjectVisibility.Public,
   description: "",
+  license: "",
 };
 
 const ProjectCreationModal: React.FC<Props> = ({
+  isFreePlan,
   open,
   onClose,
   onSubmit,
@@ -143,7 +155,7 @@ const ProjectCreationModal: React.FC<Props> = ({
           name="alias"
           label={t("Project alias")}
           extra={t(
-            "Project alias must be unique and at least 5 characters long. It can only contain letters, numbers, underscores, and dashes.",
+            "Used to create the project URL. Must be unique and at least 5 characters long, only lowercase letters, numbers, and hyphens are allowed.",
           )}
           rules={[
             {
@@ -156,8 +168,33 @@ const ProjectCreationModal: React.FC<Props> = ({
           ]}>
           <Input onChange={handleAliasChange} showCount maxLength={MAX_KEY_LENGTH} />
         </Form.Item>
+        <Form.Item
+          name="visibility"
+          label={t("Project visibility")}
+          extra={t(
+            "Public projects are visible to everyone. Private projects are only accessible to workspace members.",
+          )}
+          rules={[
+            { required: true, message: t("Please choose the visibility settings of the project!") },
+          ]}>
+          <StyledRadioGroup defaultValue="public" disabled={isFreePlan}>
+            <Radio value={ProjectVisibility.Public}>{t("Public")}</Radio>
+            <Radio value={ProjectVisibility.Private}>{t("Private")}</Radio>
+          </StyledRadioGroup>
+        </Form.Item>
         <Form.Item name="description" label={t("Project description")}>
           <TextArea rows={4} />
+        </Form.Item>
+        <Form.Item name="license" label={t("Project license")}>
+          <Select>
+            {license_options?.map(option => (
+              <Select.Option key={option.value} value={getLicenseContent(option.value)}>
+                <Tooltip title={option.description}>
+                  <span>{option.label}</span>
+                </Tooltip>
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>
@@ -165,3 +202,9 @@ const ProjectCreationModal: React.FC<Props> = ({
 };
 
 export default ProjectCreationModal;
+
+const StyledRadioGroup = styled(Radio.Group)`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
