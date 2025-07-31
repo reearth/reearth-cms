@@ -135,9 +135,9 @@ export default () => {
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   const handleNavigateToSettings = useCallback(() => {
-    const enableLinkToDashboard = window.REEARTH_CONFIG?.enableLinkToDashboard;
-    if (enableLinkToDashboard) {
-      window.open("https://reearth.io", "_blank", "noopener,noreferrer");
+    const dashboardProfileUrl = window.REEARTH_CONFIG?.dashboardProfileUrl;
+    if (dashboardProfileUrl) {
+      window.open(dashboardProfileUrl, "_blank", "noopener,noreferrer");
     } else {
       navigate(`/workspace/${personalWorkspace?.id}/account`);
     }

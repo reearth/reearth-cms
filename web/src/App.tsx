@@ -30,7 +30,6 @@ import MyIntegrations from "@reearth-cms/components/organisms/Settings/MyIntegra
 import Workspace from "@reearth-cms/components/organisms/Workspace";
 import WorkspaceSettings from "@reearth-cms/components/organisms/Workspace/Settings";
 import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
-import LoginPage from "@reearth-cms/components/pages/LoginPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
@@ -43,7 +42,6 @@ const router = createBrowserRouter(
     <>
       <Route index element={<RootPage />} />
       <Route path="auth/*" element={<RootPage />} />
-      <Route path="login" element={<LoginPage />} />
       <Route path="workspace" element={<CMSPageWrapper />}>
         <Route index element={<Workspace />} />
         <Route path=":workspaceId" element={<Workspace />} />
@@ -55,6 +53,14 @@ const router = createBrowserRouter(
           element={<MyIntegrationDetails />}
         />
         <Route path=":workspaceId/integrations" element={<Integration />} />
+        {/* <Route
+                    path=":workspaceId/role"
+                    element={<div>Role page - GOTTA DO THIS PAGE!!!</div>}
+                  />
+                  <Route
+                    path=":workspaceId/apiKey"
+                    element={<div>API Key page - GOTTA DO THIS PAGE!!!</div>}
+                  /> */}
         <Route path=":workspaceId/settings" element={<Settings />} />
         <Route path=":workspaceId/workspaceSettings" element={<WorkspaceSettings />} />
         <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />

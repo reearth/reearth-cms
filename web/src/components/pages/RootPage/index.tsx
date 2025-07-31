@@ -26,12 +26,7 @@ const RootPage: React.FC = () => {
       }
     }
     if (!isAuthenticated && !isLoading) {
-      const enableLinkToDashboard = window.REEARTH_CONFIG?.enableLinkToDashboard === true;
-      if (enableLinkToDashboard) {
-        navigate("login");
-      } else {
-        login();
-      }
+      login();
     }
   }, [
     isAuthenticated,
