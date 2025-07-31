@@ -11,7 +11,7 @@ export type Config = {
   cesiumIonAccessToken?: string;
   editorUrl: string;
   multiTenant?: Record<string, AuthInfo>;
-  disableWorkspaceUi?: boolean;
+  disableWorkspaceUi?: string;
   dashboardProfileUrl?: string;
 } & AuthInfo;
 

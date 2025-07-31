@@ -41,7 +41,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   onProjectCreate,
   onProjectAliasCheck,
 }) => {
-  const disableWorkspaceUi = window.REEARTH_CONFIG?.disableWorkspaceUi === true;
+  const disableWorkspaceUi = window.REEARTH_CONFIG?.disableWorkspaceUi === "true";
 
   return (
     <InnerContent>
