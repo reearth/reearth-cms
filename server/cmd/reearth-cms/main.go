@@ -217,10 +217,12 @@ func operatorProjects(ctx context.Context, g *repo.Container, w workspace.List, 
 	}
 	var cur *usecasex.Cursor
 	for {
-		projects, pi, err := g.Project.FindByWorkspaces(ctx, w.IDs(), nil, nil, usecasex.CursorPagination{
-			After: cur,
-			First: lo.ToPtr(int64(100)),
-		}.Wrap())
+		projects, pi, err := g.Project.FindByWorkspaces(ctx, w.IDs(), &interfaces.ProjectFilter{
+			Pagination: usecasex.CursorPagination{
+				After: cur,
+				First: lo.ToPtr(int64(100)),
+			}.Wrap(),
+		})
 		if err != nil {
 			return nil, nil, nil, nil, err
 		}

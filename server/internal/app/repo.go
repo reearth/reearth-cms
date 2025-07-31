@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/policy"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
@@ -84,9 +85,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
 		if conf.Asset_Public {
-			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
+			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = gcp.NewFileWithACL(conf.GCS.BucketName, conf.AssetBaseURL, privateBase, conf.GCS.PublicationCacheControl)
+			fileRepo, err = gcp.NewFileWithACL(conf.GCS.BucketName, conf.AssetBaseURL, privateBase, conf.GCS.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		}
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
@@ -94,9 +95,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	} else if conf.S3.BucketName != "" {
 		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
 		if conf.Asset_Public {
-			fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl)
+			fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = aws.NewFileWithACL(ctx, conf.S3.BucketName, conf.AssetBaseURL, privateBase, conf.S3.PublicationCacheControl)
+			fileRepo, err = aws.NewFileWithACL(ctx, conf.S3.BucketName, conf.AssetBaseURL, privateBase, conf.S3.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		}
 		if err != nil {
 			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
@@ -105,9 +106,9 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Infof("file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
 		if conf.Asset_Public {
-			fileRepo, err = fs.NewFile(datafs, conf.Host)
+			fileRepo, err = fs.NewFile(datafs, conf.Host, conf.AssetUploadURLReplacement)
 		} else {
-			fileRepo, err = fs.NewFileWithACL(datafs, conf.AssetBaseURL, privateBase)
+			fileRepo, err = fs.NewFileWithACL(datafs, conf.AssetBaseURL, privateBase, conf.AssetUploadURLReplacement)
 		}
 	}
 	if err != nil {
@@ -141,6 +142,27 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	} else {
 		log.Infof("task runner: not used")
 	}
+
+	// Policy Checker - configurable via environment
+	var policyChecker gateway.PolicyChecker
+	switch conf.Policy_Checker.Type {
+	case "http":
+		if conf.Policy_Checker.Endpoint == "" {
+			log.Fatalf("policy checker HTTP endpoint is required")
+		}
+		policyChecker = policy.NewHTTPPolicyChecker(
+			conf.Policy_Checker.Endpoint,
+			conf.Policy_Checker.Token,
+			conf.Policy_Checker.Timeout,
+		)
+		log.Infof("policy checker: using HTTP checker with endpoint: %s", conf.Policy_Checker.Endpoint)
+	case "permissive":
+		fallthrough
+	default:
+		policyChecker = policy.NewPermissiveChecker()
+		log.Infof("policy checker: using permissive checker (OSS mode)")
+	}
+	gateways.PolicyChecker = policyChecker
 
 	return cmsRepos, gateways, acRepos, acGateways
 }

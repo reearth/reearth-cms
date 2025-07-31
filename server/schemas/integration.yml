@@ -9,6 +9,9 @@ paths:
       - $ref: '#/components/parameters/workspaceIdParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+      - $ref: '#/components/parameters/keywordParam'
     get:
       operationId: ProjectFilter
       security:
@@ -193,6 +196,9 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+      - $ref: '#/components/parameters/keywordParam'
     get:
       operationId: ModelFilter
       security:

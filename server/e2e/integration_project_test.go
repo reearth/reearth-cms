@@ -41,10 +41,10 @@ func TestIntegrationProjectFilterAPI(t *testing.T) {
 
 	res.HasValue("page", 1).
 		HasValue("perPage", 50).
-		HasValue("totalCount", 1).
-		Path("$.projects[:].id").Array().IsEqual([]string{pid.String()})
+		HasValue("totalCount", 2).
+		Path("$.projects[:].id").Array().IsEqual([]string{pid2.String(), pid.String()})
 
-	res.Path("$.projects[:].workspaceId").Array().IsEqual([]string{wId0.String()})
+	res.Path("$.projects[:].workspaceId").Array().IsEqual([]string{wId0.String(), wId0.String()})
 }
 
 // POST /{workspaceId}/projects

@@ -22,7 +22,7 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.Cre
 		return nil, err
 	}
 
-	res, err := usecases(ctx).Project.Create(ctx, interfaces.CreateProjectParam{
+	params := interfaces.CreateProjectParam{
 		WorkspaceID:  wid,
 		Name:         input.Name,
 		Description:  input.Description,
@@ -30,7 +30,13 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.Cre
 		Readme:       input.Readme,
 		Alias:        input.Alias,
 		RequestRoles: lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) workspace.Role { return workspace.Role(r) }),
-	}, getOperator(ctx))
+	}
+	if input.Visibility != nil {
+		params.Accessibility = &interfaces.AccessibilityParam{
+			Visibility: gqlmodel.FromProjectVisibility(input.Visibility),
+		}
+	}
+	res, err := usecases(ctx).Project.Create(ctx, params, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -189,13 +195,18 @@ func (r *projectResolver) Workspace(ctx context.Context, obj *gqlmodel.Project) 
 }
 
 // Projects is the resolver for the projects field.
-func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error) {
-	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, pagination)
+func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error) {
+	return loaders(ctx).Project.FindByWorkspace(ctx, workspaceID, keyword, sort, pagination)
 }
 
 // CheckProjectAlias is the resolver for the checkProjectAlias field.
 func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error) {
 	return loaders(ctx).Project.CheckAlias(ctx, alias)
+}
+
+// CheckWorkspaceProjectLimits is the resolver for the checkWorkspaceProjectLimits field.
+func (r *queryResolver) CheckWorkspaceProjectLimits(ctx context.Context, workspaceID gqlmodel.ID) (*gqlmodel.WorkspaceProjectLimits, error) {
+	return loaders(ctx).Project.CheckWorkspaceProjectLimits(ctx, workspaceID)
 }
 
 // Project returns ProjectResolver implementation.

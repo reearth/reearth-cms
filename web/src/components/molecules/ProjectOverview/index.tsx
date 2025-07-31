@@ -1,22 +1,34 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
-import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { useT, Trans } from "@reearth-cms/i18n";
+import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
+import { useT } from "@reearth-cms/i18n";
 
-import ModelCard from "./ModelCard";
+import { Project, SortBy, UpdateProjectInput } from "../Workspace/types";
+
+import useHooks from "./hooks";
+import LicenseTab from "./LicenseTab";
+import ModelsTab from "./ModelsTab";
+import ReadmeTab from "./ReadmeTab";
+import { ActiveKey } from "./types";
 
 type Props = {
-  projectName?: string;
-  projectDescription?: string;
+  project?: Project;
   models?: Model[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
+  onModelSearch: (value: string) => void;
+  onModelSort: (sort: SortBy) => void;
   onModelModalOpen: () => void;
+  onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
@@ -24,13 +36,16 @@ type Props = {
 };
 
 const ProjectOverview: React.FC<Props> = ({
-  projectName,
-  projectDescription,
+  project,
   models,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  onProjectUpdate,
+  onModelSearch,
+  onModelSort,
   onModelModalOpen,
+  onHomeNavigation,
   onSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
@@ -38,11 +53,30 @@ const ProjectOverview: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  return (
-    <InnerContent title={projectName} subtitle={projectDescription} flexChildren>
-      <ContentSection
-        title={t("Models")}
-        headerActions={
+  const {
+    activeKey,
+    setActiveKey,
+    activeReadmeTab,
+    setActiveReadmeTab,
+    readmeEditMode,
+    readmeValue,
+    activeLicenseTab,
+    setActiveLicenseTab,
+    licenseEditMode,
+    licenseValue,
+    handleReadmeSave,
+    handleReadmeEdit,
+    handleLicenseSave,
+    handleLicenseEdit,
+    handleReadmeMarkdownChange,
+    handleLicenseMarkdownChange,
+    handleChooseLicenseTemplate,
+  } = useHooks({ project, onProjectUpdate });
+
+  const tabBarExtraContent = useMemo(
+    () => (
+      <div>
+        {activeKey === "models" && (
           <Button
             type="primary"
             icon={<Icon icon="plus" />}
@@ -50,79 +84,169 @@ const ProjectOverview: React.FC<Props> = ({
             disabled={!hasCreateRight}>
             {t("New Model")}
           </Button>
-        }>
-        {models?.length ? (
-          <GridArea>
-            {models.map(m => (
-              <ModelCard
-                key={m.id}
-                model={m}
-                hasUpdateRight={hasUpdateRight}
-                hasDeleteRight={hasDeleteRight}
-                onSchemaNavigate={onSchemaNavigate}
-                onContentNavigate={onContentNavigate}
-                onModelDeletionModalOpen={onModelDeletionModalOpen}
-                onModelUpdateModalOpen={onModelUpdateModalOpen}
-              />
-            ))}
-          </GridArea>
-        ) : (
-          <Placeholder>
-            <Heading>{t("No Models yet")}</Heading>
-            <Content>
-              <Actions>
-                {t("Create a new model")}
-                <Button
-                  type="primary"
-                  icon={<Icon icon="plus" />}
-                  onClick={onModelModalOpen}
-                  disabled={!hasCreateRight}>
-                  {t("New Model")}
-                </Button>
-              </Actions>
-              <span>
-                <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
-              </span>
-            </Content>
-          </Placeholder>
         )}
-      </ContentSection>
+        {activeKey === "readme" &&
+          (readmeEditMode ? (
+            <Button
+              type="primary"
+              icon={<Icon icon="save" />}
+              onClick={handleReadmeSave}
+              disabled={!hasUpdateRight}>
+              {t("Save Changes")}
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              icon={<Icon icon="edit" />}
+              onClick={handleReadmeEdit}
+              disabled={!hasUpdateRight}>
+              {t("Edit")}
+            </Button>
+          ))}
+        {activeKey === "license" &&
+          (licenseEditMode ? (
+            <Button
+              type="primary"
+              icon={<Icon icon="save" />}
+              onClick={handleLicenseSave}
+              disabled={!hasUpdateRight}>
+              {t("Save Changes")}
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              icon={<Icon icon="edit" />}
+              onClick={handleLicenseEdit}
+              disabled={!hasUpdateRight}>
+              {t("Edit")}
+            </Button>
+          ))}
+      </div>
+    ),
+    [
+      activeKey,
+      handleLicenseEdit,
+      handleLicenseSave,
+      handleReadmeEdit,
+      handleReadmeSave,
+      hasCreateRight,
+      hasUpdateRight,
+      licenseEditMode,
+      onModelModalOpen,
+      readmeEditMode,
+      t,
+    ],
+  );
+
+  return (
+    <InnerContent
+      title={
+        <Title>
+          <TitleContainer>
+            <div>
+              <HomeButton type="text" onClick={onHomeNavigation}>
+                {t("Home")}
+              </HomeButton>
+              /<ProjectName>{project?.name}</ProjectName>
+            </div>
+            <Tag
+              bordered
+              color={
+                project?.accessibility?.visibility === ProjectVisibility.Public ? "blue" : "default"
+              }>
+              {project?.accessibility?.visibility === ProjectVisibility.Public
+                ? t("Public")
+                : t("Private")}
+            </Tag>
+          </TitleContainer>
+          <DescriptionContainer>{project?.description}</DescriptionContainer>
+        </Title>
+      }
+      flexChildren>
+      <StyledTabs
+        activeKey={activeKey}
+        tabBarExtraContent={tabBarExtraContent}
+        onTabClick={key => setActiveKey(key as ActiveKey)}>
+        <Tabs.TabPane tab={t("Models")} key="models">
+          <ModelsTab
+            models={models}
+            hasCreateRight={hasCreateRight}
+            hasUpdateRight={hasUpdateRight}
+            hasDeleteRight={hasDeleteRight}
+            onModelSearch={onModelSearch}
+            onModelSort={onModelSort}
+            onModelModalOpen={onModelModalOpen}
+            onSchemaNavigate={onSchemaNavigate}
+            onContentNavigate={onContentNavigate}
+            onModelDeletionModalOpen={onModelDeletionModalOpen}
+            onModelUpdateModalOpen={onModelUpdateModalOpen}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={t("Readme")} key="readme">
+          <ReadmeTab
+            activeTab={activeReadmeTab}
+            editMode={readmeEditMode}
+            setActiveTab={setActiveReadmeTab}
+            value={readmeValue}
+            projectReadme={project?.readme}
+            onMarkdownChange={handleReadmeMarkdownChange}
+          />
+        </Tabs.TabPane>
+        <Tabs.TabPane tab={t("License")} key="license">
+          <LicenseTab
+            activeTab={activeLicenseTab}
+            editMode={licenseEditMode}
+            setActiveTab={setActiveLicenseTab}
+            value={licenseValue}
+            projectLicense={project?.license}
+            onMarkdownChange={handleLicenseMarkdownChange}
+            onChooseLicenseTemplate={handleChooseLicenseTemplate}
+          />
+        </Tabs.TabPane>
+      </StyledTabs>
     </InnerContent>
   );
 };
 
 export default ProjectOverview;
 
-const GridArea = styled.div`
-  display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  justify-content: space-between;
-`;
-
-const Placeholder = styled.div`
-  padding: 64px 0;
+const Title = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 24px;
+  justify-content: center;
 `;
 
-const Heading = styled.span`
-  font-size: 16px;
-  font-weight: 500;
-`;
-
-const Content = styled.div`
+const TitleContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  gap: 8px;
   align-items: center;
-  gap: 12px;
+`;
+
+const DescriptionContainer = styled.span`
+  color: var(--character-secondary-45, rgba(0, 0, 0, 0.45));
+  font-size: 14px;
+  padding: 0 15px;
+`;
+
+const HomeButton = styled(Button)`
   color: rgba(0, 0, 0, 0.45);
+  font-size: 20px;
+  font-weight: bold;
 `;
 
-const Actions = styled.div`
-  display: flex;
-  gap: 16px;
-  align-items: center;
+const ProjectName = styled.span`
+  padding: 0px 15px;
+`;
+
+const StyledTabs = styled(Tabs)`
+  background-color: #fafafa;
+  border-left: 1px solid #f0f0f0;
+  .ant-tabs-nav {
+    margin-bottom: 0;
+    padding: 20px;
+    background-color: #fff;
+  }
+  .ant-tabs-content-holder {
+    overflow-y: auto;
+  }
 `;

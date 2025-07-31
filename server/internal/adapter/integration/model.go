@@ -24,13 +24,18 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	ms, pi, err := uc.Model.FindByProject(ctx, prj.ID(), p, op)
+	ml, pi, err := uc.Model.FindByProjectAndKeyword(ctx, interfaces.FindByProjectAndKeywordParam{
+		ProjectID:  prj.ID(),
+		Keyword:    request.Params.Keyword,
+		Sort:       toModelSort(request.Params.Sort, request.Params.Dir),
+		Pagination: p,
+	}, op)
 	if err != nil {
 		return nil, err
 	}
 
-	models := make([]integrationapi.Model, 0, len(ms))
-	for _, m := range ms {
+	models := make([]integrationapi.Model, 0, len(ml))
+	for _, m := range ml {
 		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 		if err != nil {
 			return nil, err

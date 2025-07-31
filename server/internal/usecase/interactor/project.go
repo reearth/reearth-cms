@@ -31,12 +31,12 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, _ *usecase.Oper
 	return i.repos.Project.FindByIDs(ctx, ids)
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, p *usecasex.Pagination, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, f, nil, p)
+func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, f)
 }
 
-func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, s *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return i.repos.Project.FindByWorkspaces(ctx, wIds, f, s, p)
+func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	return i.repos.Project.FindByWorkspaces(ctx, wIds, f)
 }
 
 func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
@@ -47,6 +47,35 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator
 	}
+
+	visibility := project.VisibilityPublic
+	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
+		visibility = *param.Accessibility.Visibility
+	}
+
+	var checkType gateway.PolicyCheckType
+	if visibility == project.VisibilityPublic {
+		checkType = gateway.PolicyCheckGeneralPublicProjectCreation
+	} else {
+		checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
+	}
+
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		policyReq := gateway.PolicyCheckRequest{
+			WorkspaceID: param.WorkspaceID,
+			CheckType:   checkType,
+			Value:       1,
+		}
+
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, err
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrProjectCreationLimitExceeded
+		}
+	}
+
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			pb := project.New().
@@ -98,10 +127,42 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator
 	}
+
 	p, err := i.repos.Project.FindByID(ctx, param.ID)
 	if err != nil {
 		return nil, err
 	}
+
+	visibility := p.Accessibility().Visibility()
+	var updatedVisibility project.Visibility
+	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
+		updatedVisibility = *param.Accessibility.Visibility
+	}
+	if visibility != updatedVisibility {
+		var checkType gateway.PolicyCheckType
+		if updatedVisibility == project.VisibilityPublic {
+			checkType = gateway.PolicyCheckGeneralPublicProjectCreation
+		} else {
+			checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
+		}
+
+		if i.gateways != nil && i.gateways.PolicyChecker != nil {
+			policyReq := gateway.PolicyCheckRequest{
+				WorkspaceID: p.Workspace(),
+				CheckType:   checkType,
+				Value:       1,
+			}
+
+			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			if err != nil {
+				return nil, err
+			}
+			if !policyResp.Allowed {
+				return nil, interfaces.ErrProjectCreationLimitExceeded
+			}
+		}
+	}
+
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			if param.Name != nil {
@@ -135,6 +196,7 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 				if accessibility == nil {
 					accessibility = project.NewPublicAccessibility()
 				}
+
 				if param.Accessibility.Visibility != nil {
 					accessibility.SetVisibility(*param.Accessibility.Visibility)
 				}
@@ -324,4 +386,79 @@ func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.Rege
 
 			return p, nil
 		})
+}
+
+func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdomain.WorkspaceID, op *usecase.Operator) (*interfaces.ProjectLimitsResult, error) {
+	if !op.IsUserOrIntegration() {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	// Check if user has access to the workspace
+	if !op.IsReadableWorkspace(workspaceID) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	result := &interfaces.ProjectLimitsResult{
+		PublicProjectsAllowed:  true,
+		PrivateProjectsAllowed: true,
+	}
+
+	// If no policy checker is configured, allow everything
+	if i.gateways == nil || i.gateways.PolicyChecker == nil {
+		return result, nil
+	}
+
+	// Define a result structure for channel communication
+	type policyResult struct {
+		isPublic bool
+		allowed  bool
+		err      error
+	}
+
+	// Create channels to collect results
+	resultCh := make(chan policyResult, 2)
+
+	// Check public project creation limit in goroutine
+	go func() {
+		publicResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
+			WorkspaceID: workspaceID,
+			CheckType:   gateway.PolicyCheckGeneralPublicProjectCreation,
+			Value:       1,
+		})
+		if err != nil {
+			resultCh <- policyResult{isPublic: true, err: err}
+			return
+		}
+		resultCh <- policyResult{isPublic: true, allowed: publicResp.Allowed}
+	}()
+
+	// Check private project creation limit in goroutine
+	go func() {
+		privateResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
+			WorkspaceID: workspaceID,
+			CheckType:   gateway.PolicyCheckGeneralPrivateProjectCreation,
+			Value:       1,
+		})
+		if err != nil {
+			resultCh <- policyResult{isPublic: false, err: err}
+			return
+		}
+		resultCh <- policyResult{isPublic: false, allowed: privateResp.Allowed}
+	}()
+
+	// Collect results from both goroutines
+	for i := 0; i < 2; i++ {
+		res := <-resultCh
+		if res.err != nil {
+			return nil, res.err
+		}
+
+		if res.isPublic {
+			result.PublicProjectsAllowed = res.allowed
+		} else {
+			result.PrivateProjectsAllowed = res.allowed
+		}
+	}
+
+	return result, nil
 }

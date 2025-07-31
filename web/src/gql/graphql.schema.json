@@ -3107,6 +3107,18 @@
             "deprecationReason": null
           },
           {
+            "name": "visibility",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "ProjectVisibility",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "workspaceId",
             "description": null,
             "type": {
@@ -11361,6 +11373,18 @@
             "description": null,
             "args": [
               {
+                "name": "keyword",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "pagination",
                 "description": null,
                 "type": {
@@ -11383,6 +11407,18 @@
                     "name": "ID",
                     "ofType": null
                   }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "sort",
+                "description": null,
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "Sort",
+                  "ofType": null
                 },
                 "defaultValue": null,
                 "isDeprecated": false,
@@ -11549,11 +11585,35 @@
             "description": null,
             "args": [
               {
+                "name": "keyword",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "pagination",
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
                   "name": "Pagination",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "sort",
+                "description": null,
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "Sort",
                   "ofType": null
                 },
                 "defaultValue": null,

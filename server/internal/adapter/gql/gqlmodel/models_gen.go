@@ -313,13 +313,14 @@ type CreateModelInput struct {
 }
 
 type CreateProjectInput struct {
-	WorkspaceID  ID      `json:"workspaceId"`
-	Name         *string `json:"name,omitempty"`
-	Description  *string `json:"description,omitempty"`
-	License      *string `json:"license,omitempty"`
-	Readme       *string `json:"readme,omitempty"`
-	Alias        *string `json:"alias,omitempty"`
-	RequestRoles []Role  `json:"requestRoles,omitempty"`
+	WorkspaceID  ID                 `json:"workspaceId"`
+	Name         *string            `json:"name,omitempty"`
+	Description  *string            `json:"description,omitempty"`
+	License      *string            `json:"license,omitempty"`
+	Readme       *string            `json:"readme,omitempty"`
+	Alias        *string            `json:"alias,omitempty"`
+	Visibility   *ProjectVisibility `json:"visibility,omitempty"`
+	RequestRoles []Role             `json:"requestRoles,omitempty"`
 }
 
 type CreateRequestInput struct {
@@ -1637,6 +1638,11 @@ type WorkspaceIntegrationMember struct {
 }
 
 func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
+
+type WorkspaceProjectLimits struct {
+	PublicProjectsAllowed  bool `json:"publicProjectsAllowed"`
+	PrivateProjectsAllowed bool `json:"privateProjectsAllowed"`
+}
 
 type WorkspaceSettings struct {
 	ID       ID            `json:"id"`

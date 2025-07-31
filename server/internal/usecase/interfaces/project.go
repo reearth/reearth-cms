@@ -15,6 +15,9 @@ import (
 
 type ProjectFilter struct {
 	Visibility *project.Visibility
+	Keyword    *string
+	Sort       *usecasex.Sort
+	Pagination *usecasex.Pagination
 }
 type CreateProjectParam struct {
 	WorkspaceID   accountdomain.WorkspaceID
@@ -69,15 +72,21 @@ type UpdateAPITokenParam struct {
 }
 
 var (
-	ErrProjectAliasAlreadyUsed error = rerror.NewE(i18n.T("project alias is already used by another project"))
-	ErrInvalidProject                = rerror.NewE(i18n.T("invalid project"))
+	ErrProjectAliasAlreadyUsed      error = rerror.NewE(i18n.T("project alias is already used by another project"))
+	ErrInvalidProject                     = rerror.NewE(i18n.T("invalid project"))
+	ErrProjectCreationLimitExceeded error = rerror.NewE(i18n.T("project creation limit exceeded"))
 )
+
+type ProjectLimitsResult struct {
+	PublicProjectsAllowed  bool
+	PrivateProjectsAllowed bool
+}
 
 type Project interface {
 	Fetch(context.Context, []id.ProjectID, *usecase.Operator) (project.List, error)
 	FindByIDOrAlias(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
-	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *ProjectFilter, *usecasex.Pagination, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
-	FindByWorkspaces(context.Context, accountdomain.WorkspaceIDList, *ProjectFilter, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
+	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
+	FindByWorkspaces(context.Context, accountdomain.WorkspaceIDList, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateProjectParam, *usecase.Operator) (*project.Project, error)
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
 	CheckAlias(context.Context, string) (bool, error)
@@ -86,4 +95,5 @@ type Project interface {
 	UpdateAPIKey(context.Context, UpdateAPITokenParam, *usecase.Operator) (*project.Project, error)
 	DeleteAPIKey(context.Context, id.ProjectID, id.APIKeyID, *usecase.Operator) (*project.Project, error)
 	RegenerateAPIKeyKey(context.Context, RegenerateKeyParam, *usecase.Operator) (*project.Project, error)
+	CheckProjectLimits(context.Context, accountdomain.WorkspaceID, *usecase.Operator) (*ProjectLimitsResult, error)
 }

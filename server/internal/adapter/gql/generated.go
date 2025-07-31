@@ -593,26 +593,27 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AssetFile                 func(childComplexity int, assetID gqlmodel.ID) int
-		Assets                    func(childComplexity int, input gqlmodel.SearchAssetsInput) int
-		CheckGroupKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
-		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
-		CheckProjectAlias         func(childComplexity int, alias string) int
-		Groups                    func(childComplexity int, projectID *gqlmodel.ID, modelID *gqlmodel.ID) int
-		GuessSchemaFields         func(childComplexity int, input gqlmodel.GuessSchemaFieldsInput) int
-		IsItemReferenced          func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
-		Me                        func(childComplexity int) int
-		Models                    func(childComplexity int, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) int
-		ModelsByGroup             func(childComplexity int, groupID gqlmodel.ID) int
-		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
-		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
-		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) int
-		Requests                  func(childComplexity int, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) int
-		SearchItem                func(childComplexity int, input gqlmodel.SearchItemInput) int
-		UserByNameOrEmail         func(childComplexity int, nameOrEmail string) int
-		UserSearch                func(childComplexity int, keyword string) int
-		VersionsByItem            func(childComplexity int, itemID gqlmodel.ID) int
-		View                      func(childComplexity int, modelID gqlmodel.ID) int
+		AssetFile                   func(childComplexity int, assetID gqlmodel.ID) int
+		Assets                      func(childComplexity int, input gqlmodel.SearchAssetsInput) int
+		CheckGroupKeyAvailability   func(childComplexity int, projectID gqlmodel.ID, key string) int
+		CheckModelKeyAvailability   func(childComplexity int, projectID gqlmodel.ID, key string) int
+		CheckProjectAlias           func(childComplexity int, alias string) int
+		CheckWorkspaceProjectLimits func(childComplexity int, workspaceID gqlmodel.ID) int
+		Groups                      func(childComplexity int, projectID *gqlmodel.ID, modelID *gqlmodel.ID) int
+		GuessSchemaFields           func(childComplexity int, input gqlmodel.GuessSchemaFieldsInput) int
+		IsItemReferenced            func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
+		Me                          func(childComplexity int) int
+		Models                      func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) int
+		ModelsByGroup               func(childComplexity int, groupID gqlmodel.ID) int
+		Node                        func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
+		Nodes                       func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
+		Projects                    func(childComplexity int, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) int
+		Requests                    func(childComplexity int, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) int
+		SearchItem                  func(childComplexity int, input gqlmodel.SearchItemInput) int
+		UserByNameOrEmail           func(childComplexity int, nameOrEmail string) int
+		UserSearch                  func(childComplexity int, keyword string) int
+		VersionsByItem              func(childComplexity int, itemID gqlmodel.ID) int
+		View                        func(childComplexity int, modelID gqlmodel.ID) int
 	}
 
 	RemoveIntegrationFromWorkspacePayload struct {
@@ -933,6 +934,11 @@ type ComplexityRoot struct {
 		Role          func(childComplexity int) int
 	}
 
+	WorkspaceProjectLimits struct {
+		PrivateProjectsAllowed func(childComplexity int) int
+		PublicProjectsAllowed  func(childComplexity int) int
+	}
+
 	WorkspaceSettings struct {
 		ID       func(childComplexity int) int
 		Terrains func(childComplexity int) int
@@ -1076,10 +1082,11 @@ type QueryResolver interface {
 	SearchItem(ctx context.Context, input gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error)
 	IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error)
 	View(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.View, error)
-	Models(ctx context.Context, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
+	Models(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
-	Projects(ctx context.Context, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
+	Projects(ctx context.Context, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
 	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
+	CheckWorkspaceProjectLimits(ctx context.Context, workspaceID gqlmodel.ID) (*gqlmodel.WorkspaceProjectLimits, error)
 	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error)
 	Me(ctx context.Context) (*gqlmodel.Me, error)
 	UserSearch(ctx context.Context, keyword string) ([]*gqlmodel.User, error)
@@ -3664,6 +3671,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.CheckProjectAlias(childComplexity, args["alias"].(string)), true
 
+	case "Query.checkWorkspaceProjectLimits":
+		if e.complexity.Query.CheckWorkspaceProjectLimits == nil {
+			break
+		}
+
+		args, err := ec.field_Query_checkWorkspaceProjectLimits_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CheckWorkspaceProjectLimits(childComplexity, args["workspaceId"].(gqlmodel.ID)), true
+
 	case "Query.groups":
 		if e.complexity.Query.Groups == nil {
 			break
@@ -3717,7 +3736,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Models(childComplexity, args["projectId"].(gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Models(childComplexity, args["projectId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.Sort), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.modelsByGroup":
 		if e.complexity.Query.ModelsByGroup == nil {
@@ -3765,7 +3784,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Projects(childComplexity, args["workspaceId"].(gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Projects(childComplexity, args["workspaceId"].(gqlmodel.ID), args["keyword"].(*string), args["sort"].(*gqlmodel.Sort), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.requests":
 		if e.complexity.Query.Requests == nil {
@@ -4993,6 +5012,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.WorkspaceIntegrationMember.Role(childComplexity), true
+
+	case "WorkspaceProjectLimits.privateProjectsAllowed":
+		if e.complexity.WorkspaceProjectLimits.PrivateProjectsAllowed == nil {
+			break
+		}
+
+		return e.complexity.WorkspaceProjectLimits.PrivateProjectsAllowed(childComplexity), true
+
+	case "WorkspaceProjectLimits.publicProjectsAllowed":
+		if e.complexity.WorkspaceProjectLimits.PublicProjectsAllowed == nil {
+			break
+		}
+
+		return e.complexity.WorkspaceProjectLimits.PublicProjectsAllowed(childComplexity), true
 
 	case "WorkspaceSettings.id":
 		if e.complexity.WorkspaceSettings.ID == nil {
@@ -6682,7 +6715,7 @@ type ModelEdge {
 }
 
 extend type Query {
-  models(projectId: ID!, pagination: Pagination): ModelConnection!
+  models(projectId: ID!, keyword: String, sort: Sort, pagination: Pagination): ModelConnection!
   checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
@@ -6696,6 +6729,11 @@ extend type Mutation {
 	{Name: "../../../schemas/project.graphql", Input: `type ProjectAliasAvailability {
   alias: String!
   available: Boolean!
+}
+
+type WorkspaceProjectLimits {
+  publicProjectsAllowed: Boolean!
+  privateProjectsAllowed: Boolean!
 }
 
 enum ProjectVisibility {
@@ -6745,6 +6783,7 @@ input CreateProjectInput {
   license: String
   readme: String
   alias: String
+  visibility: ProjectVisibility
   requestRoles: [Role!]
 }
 
@@ -6829,8 +6868,9 @@ type ProjectEdge {
 }
 
 extend type Query {
-  projects(workspaceId: ID!, pagination: Pagination): ProjectConnection!
+  projects(workspaceId: ID!, keyword: String, sort: Sort, pagination: Pagination): ProjectConnection!
   checkProjectAlias(alias: String!): ProjectAliasAvailability!
+  checkWorkspaceProjectLimits(workspaceId: ID!): WorkspaceProjectLimits!
 }
 
 extend type Mutation {
@@ -9376,6 +9416,34 @@ func (ec *executionContext) field_Query_checkProjectAlias_argsAlias(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Query_checkWorkspaceProjectLimits_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_checkWorkspaceProjectLimits_argsWorkspaceID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["workspaceId"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_checkWorkspaceProjectLimits_argsWorkspaceID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.ID, error) {
+	if _, ok := rawArgs["workspaceId"]; !ok {
+		var zeroVal gqlmodel.ID
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
+	if tmp, ok := rawArgs["workspaceId"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.ID
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query_groups_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -9542,11 +9610,21 @@ func (ec *executionContext) field_Query_models_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["projectId"] = arg0
-	arg1, err := ec.field_Query_models_argsPagination(ctx, rawArgs)
+	arg1, err := ec.field_Query_models_argsKeyword(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["pagination"] = arg1
+	args["keyword"] = arg1
+	arg2, err := ec.field_Query_models_argsSort(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["sort"] = arg2
+	arg3, err := ec.field_Query_models_argsPagination(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["pagination"] = arg3
 	return args, nil
 }
 func (ec *executionContext) field_Query_models_argsProjectID(
@@ -9564,6 +9642,42 @@ func (ec *executionContext) field_Query_models_argsProjectID(
 	}
 
 	var zeroVal gqlmodel.ID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_models_argsKeyword(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["keyword"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("keyword"))
+	if tmp, ok := rawArgs["keyword"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_models_argsSort(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*gqlmodel.Sort, error) {
+	if _, ok := rawArgs["sort"]; !ok {
+		var zeroVal *gqlmodel.Sort
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+	if tmp, ok := rawArgs["sort"]; ok {
+		return ec.unmarshalOSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSort(ctx, tmp)
+	}
+
+	var zeroVal *gqlmodel.Sort
 	return zeroVal, nil
 }
 
@@ -9695,11 +9809,21 @@ func (ec *executionContext) field_Query_projects_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["workspaceId"] = arg0
-	arg1, err := ec.field_Query_projects_argsPagination(ctx, rawArgs)
+	arg1, err := ec.field_Query_projects_argsKeyword(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["pagination"] = arg1
+	args["keyword"] = arg1
+	arg2, err := ec.field_Query_projects_argsSort(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["sort"] = arg2
+	arg3, err := ec.field_Query_projects_argsPagination(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["pagination"] = arg3
 	return args, nil
 }
 func (ec *executionContext) field_Query_projects_argsWorkspaceID(
@@ -9717,6 +9841,42 @@ func (ec *executionContext) field_Query_projects_argsWorkspaceID(
 	}
 
 	var zeroVal gqlmodel.ID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_projects_argsKeyword(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["keyword"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("keyword"))
+	if tmp, ok := rawArgs["keyword"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_projects_argsSort(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*gqlmodel.Sort, error) {
+	if _, ok := rawArgs["sort"]; !ok {
+		var zeroVal *gqlmodel.Sort
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+	if tmp, ok := rawArgs["sort"]; ok {
+		return ec.unmarshalOSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSort(ctx, tmp)
+	}
+
+	var zeroVal *gqlmodel.Sort
 	return zeroVal, nil
 }
 
@@ -26627,7 +26787,7 @@ func (ec *executionContext) _Query_models(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Models(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Models(rctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.Sort), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -26753,7 +26913,7 @@ func (ec *executionContext) _Query_projects(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Projects(rctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Projects(rctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["keyword"].(*string), fc.Args["sort"].(*gqlmodel.Sort), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -26859,6 +27019,67 @@ func (ec *executionContext) fieldContext_Query_checkProjectAlias(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_checkProjectAlias_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_checkWorkspaceProjectLimits(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_checkWorkspaceProjectLimits(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CheckWorkspaceProjectLimits(rctx, fc.Args["workspaceId"].(gqlmodel.ID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.WorkspaceProjectLimits)
+	fc.Result = res
+	return ec.marshalNWorkspaceProjectLimits2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceProjectLimits(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_checkWorkspaceProjectLimits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "publicProjectsAllowed":
+				return ec.fieldContext_WorkspaceProjectLimits_publicProjectsAllowed(ctx, field)
+			case "privateProjectsAllowed":
+				return ec.fieldContext_WorkspaceProjectLimits_privateProjectsAllowed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkspaceProjectLimits", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_checkWorkspaceProjectLimits_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -35161,6 +35382,94 @@ func (ec *executionContext) fieldContext_WorkspaceIntegrationMember_integration(
 	return fc, nil
 }
 
+func (ec *executionContext) _WorkspaceProjectLimits_publicProjectsAllowed(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceProjectLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceProjectLimits_publicProjectsAllowed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PublicProjectsAllowed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkspaceProjectLimits_publicProjectsAllowed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkspaceProjectLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkspaceProjectLimits_privateProjectsAllowed(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceProjectLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceProjectLimits_privateProjectsAllowed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PrivateProjectsAllowed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkspaceProjectLimits_privateProjectsAllowed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkspaceProjectLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WorkspaceSettings_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceSettings) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkspaceSettings_id(ctx, field)
 	if err != nil {
@@ -38665,7 +38974,7 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name", "description", "license", "readme", "alias", "requestRoles"}
+	fieldsInOrder := [...]string{"workspaceId", "name", "description", "license", "readme", "alias", "visibility", "requestRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -38714,6 +39023,13 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Alias = data
+		case "visibility":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("visibility"))
+			data, err := ec.unmarshalOProjectVisibility2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectVisibility(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Visibility = data
 		case "requestRoles":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestRoles"))
 			data, err := ec.unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, v)
@@ -48542,6 +48858,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "checkWorkspaceProjectLimits":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_checkWorkspaceProjectLimits(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "requests":
 			field := field
 
@@ -51427,6 +51765,50 @@ func (ec *executionContext) _WorkspaceIntegrationMember(ctx context.Context, sel
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workspaceProjectLimitsImplementors = []string{"WorkspaceProjectLimits"}
+
+func (ec *executionContext) _WorkspaceProjectLimits(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.WorkspaceProjectLimits) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workspaceProjectLimitsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkspaceProjectLimits")
+		case "publicProjectsAllowed":
+			out.Values[i] = ec._WorkspaceProjectLimits_publicProjectsAllowed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "privateProjectsAllowed":
+			out.Values[i] = ec._WorkspaceProjectLimits_privateProjectsAllowed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -54872,6 +55254,20 @@ func (ec *executionContext) marshalNWorkspaceMember2ᚕgithubᚗcomᚋreearthᚋ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNWorkspaceProjectLimits2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceProjectLimits(ctx context.Context, sel ast.SelectionSet, v gqlmodel.WorkspaceProjectLimits) graphql.Marshaler {
+	return ec._WorkspaceProjectLimits(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWorkspaceProjectLimits2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceProjectLimits(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WorkspaceProjectLimits) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkspaceProjectLimits(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWorkspaceSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WorkspaceSettings) graphql.Marshaler {

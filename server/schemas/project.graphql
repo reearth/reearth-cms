@@ -3,6 +3,11 @@ type ProjectAliasAvailability {
   available: Boolean!
 }
 
+type WorkspaceProjectLimits {
+  publicProjectsAllowed: Boolean!
+  privateProjectsAllowed: Boolean!
+}
+
 enum ProjectVisibility {
   PUBLIC
   PRIVATE
@@ -50,6 +55,7 @@ input CreateProjectInput {
   license: String
   readme: String
   alias: String
+  visibility: ProjectVisibility
   requestRoles: [Role!]
 }
 
@@ -134,8 +140,9 @@ type ProjectEdge {
 }
 
 extend type Query {
-  projects(workspaceId: ID!, pagination: Pagination): ProjectConnection!
+  projects(workspaceId: ID!, keyword: String, sort: Sort, pagination: Pagination): ProjectConnection!
   checkProjectAlias(alias: String!): ProjectAliasAvailability!
+  checkWorkspaceProjectLimits(workspaceId: ID!): WorkspaceProjectLimits!
 }
 
 extend type Mutation {

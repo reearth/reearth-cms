@@ -11,6 +11,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -383,6 +384,12 @@ func TestProject_Update(t *testing.T) {
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).RequestRoles(r2).Alias("testAlias").UpdatedAt(mocktime).MustBuild()
 
+	// Project with explicit private visibility for policy test
+	pid3 := id.NewProjectID()
+	p3 := project.New().ID(pid3).Workspace(wid1).RequestRoles(r1).
+		Accessibility(project.NewPrivateAccessibility(project.PublicationSettings{}, nil)).
+		UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
+
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -402,6 +409,7 @@ func TestProject_Update(t *testing.T) {
 		args           args
 		want           *project.Project
 		mockProjectErr bool
+		policyChecker  gateway.PolicyChecker
 		wantErr        error
 	}{
 		{
@@ -498,6 +506,43 @@ func TestProject_Update(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name:  "update visibility change",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID: p1.ID(),
+					Accessibility: &interfaces.AccessibilityParam{
+						Visibility: lo.ToPtr(project.VisibilityPublic),
+					},
+				},
+				operator: op,
+			},
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				RequestRoles(r1).
+				UpdatedAt(mocktime).
+				Accessibility(project.NewPublicAccessibility()).
+				MustBuild(),
+			wantErr: nil,
+		},
+		{
+			name:  "update visibility change exceeds limit",
+			seeds: project.List{p3},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID: p3.ID(),
+					Accessibility: &interfaces.AccessibilityParam{
+						Visibility: lo.ToPtr(project.VisibilityPublic),
+					},
+				},
+				operator: op,
+			},
+			policyChecker: &mockPolicyChecker{allowed: false},
+			want:          nil,
+			wantErr:       interfaces.ErrProjectCreationLimitExceeded,
+		},
+		{
 			name: "mock error",
 			args: args{
 				upp: interfaces.UpdateProjectParam{
@@ -526,7 +571,14 @@ func TestProject_Update(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
+
+			var gateways *gateway.Container
+			if tc.policyChecker != nil {
+				gateways = &gateway.Container{
+					PolicyChecker: tc.policyChecker,
+				}
+			}
+			projectUC := NewProject(db, gateways)
 
 			got, err := projectUC.Update(ctx, tc.args.upp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -734,6 +786,214 @@ func TestProject_Delete(t *testing.T) {
 
 			_, err = db.Project.FindByID(ctx, tc.args.id)
 			assert.Equal(t, rerror.ErrNotFound, err)
+		})
+	}
+}
+
+// conditionalPolicyChecker allows different responses for different check types
+type conditionalPolicyChecker struct {
+	publicAllowed  bool
+	privateAllowed bool
+	shouldError    bool
+	errorType      gateway.PolicyCheckType
+}
+
+func (c *conditionalPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
+	if c.shouldError && req.CheckType == c.errorType {
+		return nil, errors.New("policy check error")
+	}
+
+	var allowed bool
+	switch req.CheckType {
+	case gateway.PolicyCheckGeneralPublicProjectCreation:
+		allowed = c.publicAllowed
+	case gateway.PolicyCheckGeneralPrivateProjectCreation:
+		allowed = c.privateAllowed
+	default:
+		allowed = true
+	}
+
+	return &gateway.PolicyCheckResponse{
+		Allowed:      allowed,
+		CheckType:    req.CheckType,
+		CurrentLimit: "test limit",
+		Message:      "test message",
+		Value:        req.Value,
+	}, nil
+}
+
+func TestProject_CheckProjectLimits(t *testing.T) {
+	wid1 := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	u := user.New().Name("test").NewID().Email("test@test.com").Workspace(wid1).MustBuild()
+	
+	// Valid operator with access to wid1
+	validOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1},
+		},
+	}
+
+	// Invalid operator (no user)
+	invalidOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{},
+	}
+
+	// Operator without workspace access
+	noAccessOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid2}, // different workspace
+		},
+	}
+
+	tests := []struct {
+		name          string
+		workspaceID   accountdomain.WorkspaceID
+		operator      *usecase.Operator
+		policyChecker gateway.PolicyChecker
+		want          *interfaces.ProjectLimitsResult
+		wantErr       error
+	}{
+		{
+			name:        "invalid operator",
+			workspaceID: wid1,
+			operator:    invalidOp,
+			want:        nil,
+			wantErr:     interfaces.ErrInvalidOperator,
+		},
+		{
+			name:        "no workspace access",
+			workspaceID: wid1,
+			operator:    noAccessOp,
+			want:        nil,
+			wantErr:     interfaces.ErrOperationDenied,
+		},
+		{
+			name:          "no policy checker - default allow",
+			workspaceID:   wid1,
+			operator:      validOp,
+			policyChecker: nil,
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  true,
+				PrivateProjectsAllowed: true,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "both projects allowed",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  true,
+				privateAllowed: true,
+			},
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  true,
+				PrivateProjectsAllowed: true,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "only public projects allowed",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  true,
+				privateAllowed: false,
+			},
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  true,
+				PrivateProjectsAllowed: false,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "only private projects allowed",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  false,
+				privateAllowed: true,
+			},
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  false,
+				PrivateProjectsAllowed: true,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "both projects denied",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  false,
+				privateAllowed: false,
+			},
+			want: &interfaces.ProjectLimitsResult{
+				PublicProjectsAllowed:  false,
+				PrivateProjectsAllowed: false,
+			},
+			wantErr: nil,
+		},
+		{
+			name:        "public policy check error",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  true,
+				privateAllowed: true,
+				shouldError:    true,
+				errorType:      gateway.PolicyCheckGeneralPublicProjectCreation,
+			},
+			want:    nil,
+			wantErr: errors.New("policy check error"),
+		},
+		{
+			name:        "private policy check error",
+			workspaceID: wid1,
+			operator:    validOp,
+			policyChecker: &conditionalPolicyChecker{
+				publicAllowed:  true,
+				privateAllowed: true,
+				shouldError:    true,
+				errorType:      gateway.PolicyCheckGeneralPrivateProjectCreation,
+			},
+			want:    nil,
+			wantErr: errors.New("policy check error"),
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			var gateways *gateway.Container
+			if tc.policyChecker != nil {
+				gateways = &gateway.Container{
+					PolicyChecker: tc.policyChecker,
+				}
+			}
+
+			projectUC := NewProject(db, gateways)
+
+			got, err := projectUC.CheckProjectLimits(ctx, tc.workspaceID, tc.operator)
+
+			if tc.wantErr != nil {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tc.wantErr.Error())
+				assert.Nil(t, got)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
