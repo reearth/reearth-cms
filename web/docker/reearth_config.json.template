@@ -7,5 +7,7 @@
     "coverImageUrl": $REEARTH_CMS_COVER_IMAGE_URL,
     "editorUrl": $REEARTH_CMS_EDITOR_URL,
     "logoUrl": $REEARTH_CMS_LOGO_URL,
-    "multiTenant": $REEARTH_CMS_MULTI_TENANT
+    "multiTenant": $REEARTH_CMS_MULTI_TENANT,
+    "disableWorkspaceUi": $REEARTH_CMS_DISABLE_WORKSPACE_UI,
+    "dashboardProfileUrl": $REEARTH_CMS_DASHBOARD_PROFILE_URL
 }
