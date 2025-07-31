@@ -149,7 +149,7 @@ export default () => {
   });
 
   const privateProjectsAllowed = useMemo(() => {
-    return projectLimitsData?.checkWorkspaceProjectLimits?.privateProjectsAllowed;
+    return projectLimitsData?.checkWorkspaceProjectLimits?.privateProjectsAllowed ?? false;
   }, [projectLimitsData]);
 
   return {
