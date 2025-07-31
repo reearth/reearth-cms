@@ -123,15 +123,15 @@ OK: ''
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
-Used to create the project URL. Must be unique and at least 5 characters long, only lowercase letters, numbers, and hyphens are allowed.: ''
+Used to create the project URL. Must be unique and at least 5 characters long, only lowercase letters, numbers, and hyphens are allowed.: プロジェクトURLの作成に使用されます。一意である必要があり、5文字以上の小文字の英字、数字、ハイフンのみを使用できます。
 Project alias is not valid: 無効なプロジェクトのエイリアスです
-Project visibility: ''
+Project visibility: プロジェクトの公開範囲
 Public projects are visible to everyone. Private projects are only accessible to workspace members.: 公開プロジェクトは誰でも閲覧可能です。非公開プロジェクトはワークスペースのメンバーのみがアクセスできます。
-Please choose the visibility settings of the project!: ''
-Public: ''
-Private: ''
+Please choose the visibility settings of the project!: プロジェクトの公開範囲を選択してください！
+Public: 公開
+Private: 非公開
 Project description: プロジェクト概要
-Project license: ''
+Project license: プロジェクトのライセンス
 Models: モデル
 Schema: スキーマ
 Content: コンテンツ
@@ -299,15 +299,15 @@ No Webhook yet: Webhookはまだありません
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Model: 新規モデル
-Save Changes: ''
-Readme: ''
-License: ''
-Choose a license template: ''
+Save Changes: 変更を保存
+Readme: README
+License: ライセンス
+Choose a license template: ライセンステンプレートを選択
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
 Last Modified: ''
-search models: ''
-Sort by: ''
+search models: モデルを検索
+Sort by: 並び替え
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Are you sure you want to set this project to public?: ''
 Are you sure you want to set this project to private?: ''
@@ -580,8 +580,8 @@ Failed to create group.: グループの作成に失敗しました。
 Successfully created group!: グループの作成に成功しました！
 Failed to update groups order.: グループの順序更新に失敗しました。
 Successfully updated groups order!: グループの順序変更に成功しました!
-Failed to update Project.: ''
-Successfully updated Project!: ''
+Failed to update Project.: プロジェクトの更新に失敗しました。
+Successfully updated Project!: プロジェクトの更新に成功しました。
 Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。

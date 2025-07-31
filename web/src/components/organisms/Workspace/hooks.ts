@@ -143,7 +143,7 @@ export default () => {
   );
 
   const isFreePlan = useMemo(() => {
-    return false;
+    return false; // TODO: implement this
   }, []);
 
   return {

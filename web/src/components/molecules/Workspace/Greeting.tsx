@@ -33,7 +33,6 @@ const Greeting: React.FC<Props> = ({ username, coverImageUrl }) => {
 const DashboardCard = styled.div`
   padding: 24px;
   height: 121px;
-
   background: #ffffff;
   display: flex;
   align-items: center;

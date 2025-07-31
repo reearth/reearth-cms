@@ -36,7 +36,7 @@ const HeaderMolecule: React.FC<Props> = ({
   onNavigateToSettings,
   onWorkspaceNavigation,
   onHomeNavigation,
-  // logoUrl,
+  logoUrl,
 }) => {
   const t = useT();
   const { logout } = useAuth();
@@ -133,11 +133,11 @@ const HeaderMolecule: React.FC<Props> = ({
 
   return (
     <MainHeader>
-      {/* {logoUrl ? (
+      {logoUrl ? (
         <LogoIcon src={logoUrl} onClick={onHomeNavigation} />
-      ) : ( */}
+      ) : (
       <Logo src="/logo.svg" width="36" height="36" onClick={onHomeNavigation} />
-      {/* )} */}
+      )}
       <WorkspaceDropdown
         name={currentWorkspace?.name}
         items={WorkspacesItems}
@@ -198,11 +198,11 @@ const Logo = styled.img`
   margin: 0 24px;
 `;
 
-// const LogoIcon = styled.img`
-//   width: 100px;
-//   margin: 0 40px 0 20px;
-//   cursor: pointer;
-// `;
+const LogoIcon = styled.img`
+  width: 100px;
+  margin: 0 40px 0 20px;
+  cursor: pointer;
+`;
 
 const StyledIcon = styled(Icon)`
   margin-left: 4px;

@@ -42,7 +42,6 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-// fix this test
 test("Read versions successfully", async ({ page }) => {
   const requestStatus = page.getByTestId("requestStatus").locator("span");
   await expect(page.getByText(dateReg)).toBeVisible();
