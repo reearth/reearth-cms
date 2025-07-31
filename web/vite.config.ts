@@ -35,7 +35,7 @@ export default defineConfig({
   envPrefix: "REEARTH_CMS_",
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
-    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash)
+    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash),
   },
   plugins: [
     react(),
@@ -43,7 +43,7 @@ export default defineConfig({
     cesium({ cesiumBaseUrl: `cesium-${cesiumPackageJson.version}/` }),
     serverHeaders(),
     config(),
-    tsconfigPaths()
+    tsconfigPaths(),
   ],
   css: {
     preprocessorOptions: {
@@ -112,7 +112,7 @@ function config(): Plugin {
       const configRes = JSON.stringify(
         {
           ...remoteReearthConfig,
-          api: "http://localhost:8080/api",
+          api: "http://localhost:8080",
           ...readEnv("REEARTH_CMS", {
             source: loadEnv(
               server.config.mode,

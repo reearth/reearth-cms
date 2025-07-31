@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import MyIntegrationForm from "./Form";
 
@@ -25,7 +25,7 @@ describe("Integration creation modal", () => {
   };
 
   test("Name, description, token, and code example are displayed successfully", async () => {
-    const api = "http://localhost:8080/api";
+    const api = "http://localhost:8080";
     vi.stubGlobal("REEARTH_CONFIG", { api });
     render(
       <MyIntegrationForm
