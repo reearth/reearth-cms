@@ -10,7 +10,7 @@ import { createModelFromOverview, modelName } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 
-const disableWorkspaceUI = config.disableWorkspaceUI === "true";
+const disableWorkspaceUI = config.disableWorkspaceUi === "true";
 
 test.beforeEach(async ({ reearth, page }) => {
   // eslint-disable-next-line playwright/no-skipped-test

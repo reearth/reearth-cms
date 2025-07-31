@@ -154,7 +154,6 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
 });
 
-// fix this test
 test("View reordering has succeeded", async ({ page }) => {
   await page.getByText("Content").click();
   await page.getByRole("menuitem", { name: modelName }).click();

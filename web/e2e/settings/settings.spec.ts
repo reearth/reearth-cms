@@ -4,7 +4,7 @@ import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { config } from "../utils/config";
 
-const disableWorkspaceUI = config.disableWorkspaceUI === "true";
+const disableWorkspaceUI = config.disableWorkspaceUi === "true";
 
 test.beforeEach(async ({ reearth, page }) => {
   // eslint-disable-next-line playwright/no-skipped-test
