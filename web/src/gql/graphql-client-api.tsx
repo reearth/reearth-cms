@@ -1440,6 +1440,7 @@ export type Query = {
   checkGroupKeyAvailability: KeyAvailability;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
+  checkWorkspaceProjectLimits: WorkspaceProjectLimits;
   groups: Array<Maybe<Group>>;
   guessSchemaFields: GuessSchemaFieldResult;
   isItemReferenced: Scalars['Boolean']['output'];
@@ -1482,6 +1483,11 @@ export type QueryCheckModelKeyAvailabilityArgs = {
 
 export type QueryCheckProjectAliasArgs = {
   alias: Scalars['String']['input'];
+};
+
+
+export type QueryCheckWorkspaceProjectLimitsArgs = {
+  workspaceId: Scalars['ID']['input'];
 };
 
 
@@ -2421,6 +2427,12 @@ export type WorkspaceIntegrationMember = {
 
 export type WorkspaceMember = WorkspaceIntegrationMember | WorkspaceUserMember;
 
+export type WorkspaceProjectLimits = {
+  __typename?: 'WorkspaceProjectLimits';
+  privateProjectsAllowed: Scalars['Boolean']['output'];
+  publicProjectsAllowed: Scalars['Boolean']['output'];
+};
+
 export type WorkspaceSettings = Node & {
   __typename?: 'WorkspaceSettings';
   id: Scalars['ID']['output'];
@@ -2886,6 +2898,13 @@ export type CheckProjectAliasQueryVariables = Exact<{
 
 
 export type CheckProjectAliasQuery = { __typename?: 'Query', checkProjectAlias: { __typename?: 'ProjectAliasAvailability', alias: string, available: boolean } };
+
+export type CheckProjectLimitsQueryVariables = Exact<{
+  workspaceId: Scalars['ID']['input'];
+}>;
+
+
+export type CheckProjectLimitsQuery = { __typename?: 'Query', checkWorkspaceProjectLimits: { __typename?: 'WorkspaceProjectLimits', publicProjectsAllowed: boolean, privateProjectsAllowed: boolean } };
 
 export type CreateProjectMutationVariables = Exact<{
   workspaceId: Scalars['ID']['input'];
@@ -6201,6 +6220,47 @@ export type CheckProjectAliasQueryHookResult = ReturnType<typeof useCheckProject
 export type CheckProjectAliasLazyQueryHookResult = ReturnType<typeof useCheckProjectAliasLazyQuery>;
 export type CheckProjectAliasSuspenseQueryHookResult = ReturnType<typeof useCheckProjectAliasSuspenseQuery>;
 export type CheckProjectAliasQueryResult = Apollo.QueryResult<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>;
+export const CheckProjectLimitsDocument = gql`
+    query CheckProjectLimits($workspaceId: ID!) {
+  checkWorkspaceProjectLimits(workspaceId: $workspaceId) {
+    publicProjectsAllowed
+    privateProjectsAllowed
+  }
+}
+    `;
+
+/**
+ * __useCheckProjectLimitsQuery__
+ *
+ * To run a query within a React component, call `useCheckProjectLimitsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckProjectLimitsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckProjectLimitsQuery({
+ *   variables: {
+ *      workspaceId: // value for 'workspaceId'
+ *   },
+ * });
+ */
+export function useCheckProjectLimitsQuery(baseOptions: Apollo.QueryHookOptions<CheckProjectLimitsQuery, CheckProjectLimitsQueryVariables> & ({ variables: CheckProjectLimitsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CheckProjectLimitsQuery, CheckProjectLimitsQueryVariables>(CheckProjectLimitsDocument, options);
+      }
+export function useCheckProjectLimitsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckProjectLimitsQuery, CheckProjectLimitsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CheckProjectLimitsQuery, CheckProjectLimitsQueryVariables>(CheckProjectLimitsDocument, options);
+        }
+export function useCheckProjectLimitsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CheckProjectLimitsQuery, CheckProjectLimitsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CheckProjectLimitsQuery, CheckProjectLimitsQueryVariables>(CheckProjectLimitsDocument, options);
+        }
+export type CheckProjectLimitsQueryHookResult = ReturnType<typeof useCheckProjectLimitsQuery>;
+export type CheckProjectLimitsLazyQueryHookResult = ReturnType<typeof useCheckProjectLimitsLazyQuery>;
+export type CheckProjectLimitsSuspenseQueryHookResult = ReturnType<typeof useCheckProjectLimitsSuspenseQuery>;
+export type CheckProjectLimitsQueryResult = Apollo.QueryResult<CheckProjectLimitsQuery, CheckProjectLimitsQueryVariables>;
 export const CreateProjectDocument = gql`
     mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!, $alias: String!, $license: String, $visibility: ProjectVisibility, $requestRoles: [Role!]) {
   createProject(

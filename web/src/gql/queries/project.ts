@@ -77,6 +77,15 @@ export const CHECK_PROJECT_ALIAS = gql`
   }
 `;
 
+export const CHECK_PROJECT_LIMITS = gql`
+  query CheckProjectLimits($workspaceId: ID!) {
+    checkWorkspaceProjectLimits(workspaceId: $workspaceId) {
+      publicProjectsAllowed
+      privateProjectsAllowed
+    }
+  }
+`;
+
 export const CREATE_PROJECT = gql`
   mutation CreateProject(
     $workspaceId: ID!

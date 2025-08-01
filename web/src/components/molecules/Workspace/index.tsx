@@ -14,7 +14,7 @@ import WorkspaceHeader from "./WorkspaceHeader";
 
 type Props = {
   username?: string;
-  isFreePlan?: boolean;
+  privateProjectsAllowed?: boolean;
   coverImageUrl?: string;
   projects: Project[];
   loading: boolean;
@@ -29,7 +29,7 @@ type Props = {
 
 const WorkspaceWrapper: React.FC<Props> = ({
   username,
-  isFreePlan,
+  privateProjectsAllowed,
   coverImageUrl,
   projects,
   loading,
@@ -52,7 +52,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
           <ButtonWrapper>
             {!disableWorkspaceUi && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
             <CreateProjectButton
-              isFreePlan={isFreePlan}
+              privateProjectsAllowed={privateProjectsAllowed}
               hasCreateRight={hasCreateRight}
               onProjectCreate={onProjectCreate}
               onProjectAliasCheck={onProjectAliasCheck}

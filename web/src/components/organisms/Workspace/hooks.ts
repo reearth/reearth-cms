@@ -15,6 +15,7 @@ import {
   useCheckProjectAliasLazyQuery,
   Project as GQLProject,
   useGetMeQuery,
+  useCheckProjectLimitsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -142,13 +143,18 @@ export default () => {
     [CheckProjectAlias],
   );
 
-  const isFreePlan = useMemo(() => {
-    return false; // TODO: implement this
-  }, []);
+  const { data: projectLimitsData } = useCheckProjectLimitsQuery({
+    variables: { workspaceId: workspaceId ?? "" },
+    skip: !workspaceId,
+  });
+
+  const privateProjectsAllowed = useMemo(() => {
+    return projectLimitsData?.checkWorkspaceProjectLimits?.privateProjectsAllowed ?? false;
+  }, [projectLimitsData]);
 
   return {
     username,
-    isFreePlan,
+    privateProjectsAllowed,
     coverImageUrl,
     projects,
     loading,
