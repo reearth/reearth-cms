@@ -179,7 +179,7 @@ const ProjectCreationModal: React.FC<Props> = ({
           ]}>
           <StyledRadioGroup defaultValue={ProjectVisibility.Public}>
             <Radio value={ProjectVisibility.Public}>{t("Public")}</Radio>
-            <Radio value={ProjectVisibility.Private} disabled={privateProjectsAllowed}>
+            <Radio value={ProjectVisibility.Private} disabled={!privateProjectsAllowed}>
               {t("Private")}
             </Radio>
           </StyledRadioGroup>
