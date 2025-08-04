@@ -13,14 +13,7 @@ type Props = {
   showArrow?: boolean;
 };
 
-const Dropdown: React.FC<Props> = ({
-  items,
-  name,
-  personal,
-  showName,
-  showArrow,
-  ...props
-}) => {
+const Dropdown: React.FC<Props> = ({ items, name, personal, showName, showArrow, ...props }) => {
   return (
     <StyledDropdown
       menu={{ items }}
@@ -42,8 +35,13 @@ export default Dropdown;
 
 const StyledDropdown = styled(DropdownAtom)`
   padding-left: 10px;
-  color: #000000;
-  background-color: #ffffff;
+  color: #fff;
+  background-color: #1d1d1d;
+
+  .anticon,
+  .anticon-caret-down {
+    color: #dbdbdb;
+  }
 `;
 const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {

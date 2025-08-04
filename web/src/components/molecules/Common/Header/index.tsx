@@ -136,7 +136,7 @@ const HeaderMolecule: React.FC<Props> = ({
       {logoUrl ? (
         <LogoIcon src={logoUrl} onClick={onHomeNavigation} />
       ) : (
-      <Logo src="/logo.svg" width="36" height="36" onClick={onHomeNavigation} />
+        <Logo src="/logo.svg" onClick={onHomeNavigation} />
       )}
       <WorkspaceDropdown
         name={currentWorkspace?.name}
@@ -177,14 +177,13 @@ const HeaderMolecule: React.FC<Props> = ({
 const MainHeader = styled(Header)`
   display: flex;
   align-items: center;
-  height: 56px;
+  height: 48px;
   line-height: 41px;
   padding: 0;
-  background-color: #ffffff;
-  box-shadow: 0 -1px 0 0 #f0f0f0 inset;
+  background-color: #1d1d1d;
 
   .ant-space-item {
-    color: rgba(0, 0, 0, 0.85);
+    color: #dbdbdb;
   }
 `;
 
@@ -206,16 +205,16 @@ const LogoIcon = styled.img`
 
 const StyledIcon = styled(Icon)`
   margin-left: 4px;
-  color: rgba(0, 0, 0, 0.85);
+  color: #dbdbdb;
 `;
 
 const WorkspaceDropdown = styled(HeaderDropdown)`
-  background-color: #ffffff;
+  margin-left: 20px;
+  padding-left: 20px;
 `;
 
 const AccountDropdown = styled(HeaderDropdown)`
   padding-right: 20px;
-  background-color: #ffffff;
 `;
 
 const ProjectText = styled.p`
@@ -234,7 +233,7 @@ const CurrentProject = styled.div`
   margin: 0;
   display: flex;
   align-items: center;
-  color: rgba(0, 0, 0, 0.85);
+  color: #dbdbdb;
   flex: 1;
   min-width: 0;
 `;
@@ -253,10 +252,10 @@ const LinkWrapper = styled.div`
 
 const EditorLink = styled.a`
   border: 1px solid;
-  color: rgba(0, 0, 0, 0.85);
+  color: #d9d9d9;
   padding: 5px 16px;
   :hover {
-    color: rgba(0, 0, 0, 0.85);
+    color: #d9d9d9;
   }
 `;
 

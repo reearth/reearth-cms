@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ChangeEventHandler } from "react";
+import { ChangeEvent } from "react";
 import ReactMarkdown from "react-markdown";
 
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
@@ -7,31 +7,22 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import MarkdownComponent from "./MarkdownComponent";
 
 type Props = {
-  activeTab?: string;
-  editMode: boolean;
-  setActiveTab?: (key: string) => void;
-  value?: string;
+  readmeValue: string;
   projectReadme?: string;
-  onMarkdownChange?: ChangeEventHandler<HTMLTextAreaElement>;
+  readmeEditMode: boolean;
+  onReadmeMarkdownChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
 };
 
 const ReadmeTab: React.FC<Props> = ({
-  activeTab,
-  editMode,
-  setActiveTab,
-  value,
+  readmeValue,
   projectReadme,
-  onMarkdownChange,
+  readmeEditMode,
+  onReadmeMarkdownChange,
 }) => {
   return (
     <ContentSection>
-      {editMode ? (
-        <MarkdownComponent
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          value={value}
-          onMarkdownChange={onMarkdownChange}
-        />
+      {readmeEditMode ? (
+        <MarkdownComponent value={readmeValue} onMarkdownChange={onReadmeMarkdownChange} />
       ) : (
         <StyledContainer>
           <ReactMarkdown>{projectReadme}</ReactMarkdown>
