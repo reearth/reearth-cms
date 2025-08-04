@@ -117,6 +117,7 @@ Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Go to Editor: エディタへ移動
 Link Asset: アセットをリンク
+Choose a license template: ライセンステンプレートを選択
 New: 追加
 Tag: タグ
 OK: ''
@@ -239,7 +240,7 @@ Remove: 削除
 No Integration yet: まだインテグレーションはありません
 Create a new: 新規作成
 readDocument: または<l>Re:Earth CMSの使い方</l>をまずお読みください
-License defines whether others can legally use and share your project & data: ''
+License defines whether others can legally use and share your project & data: ライセンスは、他の人があなたのプロジェクトやデータを合法的に使用・共有できるかどうかを定義します
 Save Changes: 変更を保存
 Add member: メンバー追加
 Add to workspace: ワークスペースに追加
@@ -303,7 +304,6 @@ No Webhook yet: Webhookはまだありません
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Model: 新規モデル
-Choose a license template: ライセンステンプレートを選択
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
 Last Modified: ''
@@ -324,7 +324,7 @@ Write something here to describe this record.: このレコードの説明を入
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
 If this option is chosen, all new model within the project will default follow it.: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
-README is a crucial document helping people quickly understand your project: ''
+README is a crucial document helping people quickly understand your project: README は、他の人があなたのプロジェクトをすばやく理解するのに役立つ重要なドキュメントです
 Leave your comment...: コメントを入力してください。
 Add Comment: コメントを追加
 Close: クローズ
