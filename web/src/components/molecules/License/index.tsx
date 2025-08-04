@@ -1,11 +1,14 @@
+import styled from "@emotion/styled";
 import { ChangeEvent } from "react";
+import ReactMarkdown from "react-markdown";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
+import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useT } from "@reearth-cms/i18n";
 
-import LicenseTab from "../ProjectOverview/LicenseTab";
+import MarkdownComponent from "../Common/MarkdownComponent";
 import { UpdateProjectInput } from "../Workspace/types";
 
 type Props = {
@@ -56,15 +59,30 @@ const License: React.FC<Props> = ({
           </Button>
         )
       }>
-      <LicenseTab
-        licenseValue={licenseValue}
-        projectLicense={projectLicense}
-        licenseEditMode={licenseEditMode}
-        onLicenseMarkdownChange={onLicenseMarkdownChange}
-        onChooseLicenseTemplate={onChooseLicenseTemplate}
-      />
+      <ContentSection>
+        {licenseEditMode ? (
+          <MarkdownComponent
+            needsTemplate
+            value={licenseValue}
+            onMarkdownChange={onLicenseMarkdownChange}
+            onChooseLicenseTemplate={onChooseLicenseTemplate}
+          />
+        ) : (
+          <StyledContainer>
+            <ReactMarkdown>{projectLicense}</ReactMarkdown>
+          </StyledContainer>
+        )}
+      </ContentSection>
     </InnerContent>
   );
 };
 
 export default License;
+
+const StyledContainer = styled.div`
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  height: 500px;
+  overflow-y: auto;
+`;
