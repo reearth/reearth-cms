@@ -5,7 +5,7 @@ import useHooks from "./hooks";
 const Workspace: React.FC = () => {
   const {
     username,
-    isFreePlan,
+    privateProjectsAllowed,
     coverImageUrl,
     projects,
     loading,
@@ -21,7 +21,7 @@ const Workspace: React.FC = () => {
   return (
     <WorkspaceWrapper
       username={username}
-      isFreePlan={isFreePlan}
+      privateProjectsAllowed={privateProjectsAllowed}
       coverImageUrl={coverImageUrl}
       projects={projects}
       loading={loading}

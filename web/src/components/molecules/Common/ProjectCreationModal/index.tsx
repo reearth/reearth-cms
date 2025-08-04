@@ -24,7 +24,7 @@ export type FormValues = {
 };
 
 type Props = {
-  isFreePlan?: boolean;
+  privateProjectsAllowed?: boolean;
   open: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
@@ -40,7 +40,7 @@ const initialValues: FormValues = {
 };
 
 const ProjectCreationModal: React.FC<Props> = ({
-  isFreePlan,
+  privateProjectsAllowed,
   open,
   onClose,
   onSubmit,
@@ -177,9 +177,11 @@ const ProjectCreationModal: React.FC<Props> = ({
           rules={[
             { required: true, message: t("Please choose the visibility settings of the project!") },
           ]}>
-          <StyledRadioGroup defaultValue="public" disabled={isFreePlan}>
+          <StyledRadioGroup defaultValue={ProjectVisibility.Public}>
             <Radio value={ProjectVisibility.Public}>{t("Public")}</Radio>
-            <Radio value={ProjectVisibility.Private}>{t("Private")}</Radio>
+            <Radio value={ProjectVisibility.Private} disabled={!privateProjectsAllowed}>
+              {t("Private")}
+            </Radio>
           </StyledRadioGroup>
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>

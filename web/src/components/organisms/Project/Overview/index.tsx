@@ -6,7 +6,6 @@ import useHooks from "./hooks";
 
 const ProjectOverview: React.FC = () => {
   const {
-    currentProject,
     models,
     modelModalShown,
     selectedModel,
@@ -35,7 +34,6 @@ const ProjectOverview: React.FC = () => {
   return (
     <>
       <ProjectOverviewMolecule
-        project={currentProject}
         models={models}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
