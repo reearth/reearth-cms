@@ -32,7 +32,7 @@ const DashboardCard = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: start;
+  align-items: flex-start;
   gap: 16px;
 `;
 
