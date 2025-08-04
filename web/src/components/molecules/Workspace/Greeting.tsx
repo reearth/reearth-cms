@@ -3,8 +3,6 @@ import React from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
-import logo from "./logo.svg";
-
 type Props = {
   username?: string;
   coverImageUrl?: string;
@@ -17,15 +15,12 @@ const Greeting: React.FC<Props> = ({ username, coverImageUrl }) => {
     <CoverImage src={coverImageUrl} />
   ) : (
     <DashboardCard>
-      <img src={logo} alt="logo" />
-      <div>
-        <Title>{t("Welcome to Re:Earth CMS, {{username}}!", { username })}</Title>
-        <SubTitle>
-          {t(
-            "Re:Earth CMS is a robust tool for collecting, creating, storing, and managing data, specifically designed for GIS applications.",
-          )}
-        </SubTitle>
-      </div>
+      <Title>{t("Welcome to Re:Earth CMS, {{username}}!", { username })}</Title>
+      <SubTitle>
+        {t(
+          "Re:Earth CMS is a robust tool for collecting, creating, storing, and managing data, specifically designed for GIS applications.",
+        )}
+      </SubTitle>
     </DashboardCard>
   );
 };
@@ -35,13 +30,15 @@ const DashboardCard = styled.div`
   height: 121px;
   background: #ffffff;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
   gap: 16px;
 `;
 
 const Title = styled.p`
   color: rgba(0, 0, 0, 0.85);
-  margin-bottom: 4px;
+  margin-bottom: 0;
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
