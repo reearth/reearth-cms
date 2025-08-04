@@ -76,6 +76,6 @@ const StyledContainer = styled.div`
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  height: 500px;
+  height: 700px;
   overflow-y: auto;
 `;

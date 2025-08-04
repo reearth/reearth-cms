@@ -222,6 +222,7 @@ const ProjectText = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: bold;
 `;
 
 const Break = styled.p`
