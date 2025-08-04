@@ -2,6 +2,7 @@ package internalapimodel
 
 import (
 	v1 "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
+	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -40,5 +41,39 @@ func SortFromPB(s *v1.SortInfo) *usecasex.Sort {
 	return &usecasex.Sort{
 		Key:      s.Key,
 		Reverted: s.Reverted,
+	}
+}
+
+func SortToViewSort(s *v1.SortInfo) *view.Sort {
+	if s == nil {
+		return nil
+	}
+
+	direction := view.DirectionAsc
+	if s.Reverted {
+		direction = view.DirectionDesc
+	}
+
+	var fieldType view.FieldType
+	switch s.Key {
+	case "createdAt", "created_at":
+		fieldType = view.FieldTypeCreationDate
+	case "updatedAt", "updated_at":
+		fieldType = view.FieldTypeModificationDate
+	case "id":
+		fieldType = view.FieldTypeId
+	case "status":
+		fieldType = view.FieldTypeStatus
+	default:
+		// Assume it's a field name for now
+		fieldType = view.FieldTypeField
+	}
+
+	return &view.Sort{
+		Field: view.FieldSelector{
+			Type: fieldType,
+			ID:   nil, // For now, we don't support sorting by specific field IDs via key
+		},
+		Direction: direction,
 	}
 }

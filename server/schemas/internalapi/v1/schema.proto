@@ -182,6 +182,7 @@ message ListModelsRequest {
 message ListItemsRequest {
   string model_id = 1;
   string project_id = 2;
+  optional string keyword = 3;
 
   optional PageInfo page_info = 100;
   optional SortInfo sort_info = 101;
