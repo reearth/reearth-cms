@@ -10,6 +10,7 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { toBoolean } from "@reearth-cms/utils/format";
 
 import HeaderDropdown from "./Dropdown";
 
@@ -52,7 +53,7 @@ const HeaderMolecule: React.FC<Props> = ({
     [currentWorkspace?.id, personalWorkspace?.id],
   );
 
-  const disableWorkspaceUi = window.REEARTH_CONFIG?.disableWorkspaceUi === "true";
+  const disableWorkspaceUi = toBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
   const WorkspacesItems: MenuProps["items"] = useMemo(() => {
     const res: MenuProps["items"] = [
       {

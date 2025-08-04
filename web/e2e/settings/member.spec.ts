@@ -1,9 +1,10 @@
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
+import { toBoolean } from "@reearth-cms/utils/format";
 
 import { config } from "../utils/config";
 
-const disableWorkspaceUI = config.disableWorkspaceUi === "true";
+const disableWorkspaceUI = toBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async ({ reearth, page }) => {
   // eslint-disable-next-line playwright/no-skipped-test

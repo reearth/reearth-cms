@@ -9,6 +9,7 @@ import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/Cre
 import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
+import { toBoolean } from "@reearth-cms/utils/format";
 
 import WorkspaceHeader from "./WorkspaceHeader";
 
@@ -41,7 +42,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   onProjectCreate,
   onProjectAliasCheck,
 }) => {
-  const disableWorkspaceUi = window.REEARTH_CONFIG?.disableWorkspaceUi === "true";
+  const disableWorkspaceUi = toBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
 
   return (
     <InnerContent>
