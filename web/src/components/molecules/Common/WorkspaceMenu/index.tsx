@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
-import { toBoolean } from "@reearth-cms/utils/format";
+import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 type Props = {
   inlineCollapsed: boolean;
@@ -34,7 +34,7 @@ const WorkspaceMenu: React.FC<Props> = ({
     { label: t("Home"), key: "home", icon: <Icon icon="home" />, show: "both", order: 1 },
   ];
 
-  const disableWorkspaceUi = toBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
+  const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
   const items: WorkspaceItemType[] = useMemo(() => {
     const res = [
       {

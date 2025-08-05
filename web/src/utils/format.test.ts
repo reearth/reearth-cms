@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { test, expect } from "vitest";
 
-import { dateTimeFormat, bytesFormat, transformDayjsToString, toBoolean } from "./format";
+import { dateTimeFormat, bytesFormat, transformDayjsToString, parseConfigBoolean } from "./format";
 
 dayjs.extend(utc);
 
@@ -41,16 +41,16 @@ test("transformMomentToString function returns original value for non-moment obj
 });
 
 test("toBoolean", () => {
-  expect(toBoolean(true)).toBe(true);
-  expect(toBoolean("true")).toBe(true);
-  expect(toBoolean("TRUE")).toBe(true);
-  expect(toBoolean("TrUe")).toBe(true);
-  expect(toBoolean(false)).toBe(false);
-  expect(toBoolean("false")).toBe(false);
-  expect(toBoolean("yes")).toBe(false);
-  expect(toBoolean("1")).toBe(false);
-  expect(toBoolean("")).toBe(false);
-  expect(toBoolean("abc")).toBe(false);
-  expect(toBoolean(null)).toBe(false);
-  expect(toBoolean(undefined)).toBe(false);
+  expect(parseConfigBoolean(true)).toBe(true);
+  expect(parseConfigBoolean("true")).toBe(true);
+  expect(parseConfigBoolean("TRUE")).toBe(true);
+  expect(parseConfigBoolean("TrUe")).toBe(true);
+  expect(parseConfigBoolean(false)).toBe(false);
+  expect(parseConfigBoolean("false")).toBe(false);
+  expect(parseConfigBoolean("yes")).toBe(false);
+  expect(parseConfigBoolean("1")).toBe(false);
+  expect(parseConfigBoolean("")).toBe(false);
+  expect(parseConfigBoolean("abc")).toBe(false);
+  expect(parseConfigBoolean(null)).toBe(false);
+  expect(parseConfigBoolean(undefined)).toBe(false);
 });

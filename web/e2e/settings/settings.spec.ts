@@ -1,11 +1,11 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
-import { toBoolean } from "@reearth-cms/utils/format";
+import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import { config } from "../utils/config";
 
-const disableWorkspaceUI = toBoolean(config.disableWorkspaceUi);
+const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async ({ reearth, page }) => {
   // eslint-disable-next-line playwright/no-skipped-test
