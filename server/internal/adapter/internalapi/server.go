@@ -315,7 +315,10 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 		return nil, err
 	}
 
-	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), "", nil)
+	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), req.GetKeyword(), nil)
+	if req.SortInfo != nil {
+		q = q.WithSort(internalapimodel.SortToViewSort(req.SortInfo))
+	}
 
 	items, pi, err := uc.Item.Search(ctx, *sp, q, internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
