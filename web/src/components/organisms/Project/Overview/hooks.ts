@@ -29,6 +29,7 @@ export default () => {
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
+  const [modelExportModalShown, setModelExportModalShown] = useState(false);
   const [searchedModelName, setSearchedModelName] = useState<string>("");
   const [modelSort, setModelSort] = useState<SortBy>("updatedAt");
   const t = useT();
@@ -96,6 +97,19 @@ export default () => {
     [setSelectedModel, handleModelModalOpen],
   );
 
+  const handleModelExportModalOpen = useCallback(
+    async (model: Model) => {
+      setSelectedModel(model);
+      setModelExportModalShown(true);
+    },
+    [setSelectedModel, setModelExportModalShown],
+  );
+
+  const handleModelExportModalClose = useCallback(async () => {
+    setSelectedModel(undefined);
+    setModelExportModalShown(false);
+  }, [setSelectedModel, setModelExportModalShown]);
+
   const handleModelDeletionModalOpen = useCallback(
     async (model: Model) => {
       setSelectedModel(model);
@@ -152,6 +166,14 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
+  // TODO: implement this function
+  const exportLoading = false;
+
+  // TODO: implement this function
+  const handleModelExport = useCallback(async (modelId?: string, format?: string) => {
+    if (!modelId && !format) return;
+  }, []);
+
   const handleHomeNavigation = useCallback(() => {
     navigate(`/workspace/${currentWorkspace?.id}`);
   }, [currentWorkspace?.id, navigate]);
@@ -193,7 +215,9 @@ export default () => {
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
+    modelExportModalShown,
     deleteLoading,
+    exportLoading,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -210,7 +234,10 @@ export default () => {
     handleModelDeletionModalOpen,
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
+    handleModelExportModalOpen,
+    handleModelExportModalClose,
     handleModelDelete,
+    handleModelExport,
     handleModelUpdate,
   };
 };

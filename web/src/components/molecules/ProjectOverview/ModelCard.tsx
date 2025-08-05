@@ -15,6 +15,7 @@ type Props = {
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
+  onModelExportModalOpen: (model: Model) => Promise<void>;
 };
 
 const ModelCard: React.FC<Props> = ({
@@ -25,6 +26,7 @@ const ModelCard: React.FC<Props> = ({
   onContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
+  onModelExportModalOpen,
 }) => {
   const { Meta } = Card;
   const t = useT();
@@ -38,6 +40,11 @@ const ModelCard: React.FC<Props> = ({
         disabled: !hasUpdateRight,
       },
       {
+        key: "export",
+        label: t("Export"),
+        onClick: () => onModelExportModalOpen(model),
+      },
+      {
         key: "delete",
         label: t("Delete"),
         onClick: () => onModelDeletionModalOpen(model),
@@ -45,7 +52,7 @@ const ModelCard: React.FC<Props> = ({
         disabled: !hasDeleteRight,
       },
     ],
-    [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelDeletionModalOpen],
+    [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelExportModalOpen, onModelDeletionModalOpen],
   );
 
   return (
