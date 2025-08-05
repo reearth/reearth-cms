@@ -77,6 +77,9 @@ type Config struct {
 
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
+	
+	// Export Model to Asset Configuration
+	Export_Model_To_Asset_BatchSize int `default:"200" envconfig:"EXPORT_MODEL_TO_ASSET_BATCH_SIZE"`
 }
 
 type HealthCheckConfig struct {

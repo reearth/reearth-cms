@@ -128,7 +128,7 @@ func TestNew(t *testing.T) {
 	uc := New(nil, nil, &accountrepo.Container{}, nil, ContainerConfig{})
 	assert.NotNil(t, uc)
 	assert.Equal(t, interfaces.Container{
-		Asset:             NewAsset(nil, nil),
+		Asset:             NewAsset(nil, nil, ContainerConfig{}),
 		Workspace:         accountinteractor.NewWorkspace(&accountrepo.Container{}, nil),
 		User:              accountinteractor.NewUser(&accountrepo.Container{}, nil, "", ""),
 		Item:              NewItem(nil, nil),

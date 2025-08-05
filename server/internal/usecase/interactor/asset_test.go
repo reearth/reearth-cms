@@ -3,6 +3,7 @@ package interactor
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"path"
 	"runtime"
@@ -16,11 +17,17 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -28,6 +35,7 @@ import (
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -135,7 +143,7 @@ func TestAsset_FindByID(t *testing.T) {
 				err := db.Asset.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
-			assetUC := NewAsset(db, &g)
+			assetUC := NewAsset(db, &g, ContainerConfig{})
 
 			got, err := assetUC.FindByID(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -238,7 +246,7 @@ func TestAsset_DecompressByID(t *testing.T) {
 				err := db.Asset.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
-			assetUC := NewAsset(db, &g)
+			assetUC := NewAsset(db, &g, ContainerConfig{})
 
 			got, err := assetUC.Decompress(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -334,7 +342,7 @@ func TestAsset_FindFileByID(t *testing.T) {
 				assert.Nil(t, err)
 			}
 
-			assetUC := NewAsset(db, nil)
+			assetUC := NewAsset(db, nil, ContainerConfig{})
 
 			got, err := assetUC.FindFileByID(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -447,7 +455,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 				err := db.Asset.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
-			assetUC := NewAsset(db, &g)
+			assetUC := NewAsset(db, &g, ContainerConfig{})
 
 			got, err := assetUC.FindByIDs(ctx, tc.arg, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 			if tc.wantErr != nil {
@@ -621,7 +629,7 @@ func TestAsset_Search(t *testing.T) {
 				err := db.Asset.Save(ctx, a.Clone())
 				assert.NoError(t, err)
 			}
-			assetUC := NewAsset(db, &g)
+			assetUC := NewAsset(db, &g, ContainerConfig{})
 
 			got, _, err := assetUC.Search(ctx, tc.args.pid, tc.args.f, tc.args.operator)
 			if tc.wantErr != nil {
@@ -1099,7 +1107,7 @@ func TestAsset_Update(t *testing.T) {
 				err := db.Asset.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			assetUC := NewAsset(db, &g)
+			assetUC := NewAsset(db, &g, ContainerConfig{})
 
 			got, err := assetUC.Update(ctx, tc.args.upp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -1525,6 +1533,1189 @@ func Test_detectPreviewType(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.want, detectPreviewType(tt.files))
+		})
+	}
+}
+
+func TestAsset_generateJSONContentWithPagination(t *testing.T) {
+	// Create test schema
+	schemaID := id.NewSchemaID()
+	projectID := id.NewProjectID()
+
+	// Create test model
+	modelID := id.NewModelID()
+	modelKey := id.NewKey("test_model")
+	testModel := model.New().
+		ID(modelID).
+		Project(projectID).
+		Schema(schemaID).
+		Key(modelKey).
+		Name("Test Model").
+		Description("Test model description").
+		MustBuild()
+
+	// Create test items
+	itemID1 := id.NewItemID()
+	itemID2 := id.NewItemID()
+	testItems := item.List{
+		item.New().
+			ID(itemID1).
+			Model(modelID).
+			Schema(schemaID).
+			Project(projectID).
+			Fields([]*item.Field{}).
+			MustBuild(),
+		item.New().
+			ID(itemID2).
+			Model(modelID).
+			Schema(schemaID).
+			Project(projectID).
+			Fields([]*item.Field{}).
+			MustBuild(),
+	}
+
+	tests := []struct {
+		name     string
+		model    *model.Model
+		items    item.List
+		pageInfo *usecasex.PageInfo
+		want     map[string]any
+		wantErr  bool
+	}{
+		{
+			name:     "Basic JSON generation without pagination",
+			model:    testModel,
+			items:    testItems,
+			pageInfo: nil,
+			want: map[string]any{
+				"model": map[string]any{
+					"id":          modelID.String(),
+					"name":        "Test Model",
+					"description": "Test model description",
+					"key":         modelKey.String(),
+				},
+				"items": testItems,
+			},
+			wantErr: false,
+		},
+		{
+			name:  "JSON generation with pagination info",
+			model: testModel,
+			items: testItems,
+			pageInfo: &usecasex.PageInfo{
+				TotalCount:      100,
+				HasNextPage:     true,
+				HasPreviousPage: false,
+				StartCursor:     lo.ToPtr(usecasex.Cursor("start123")),
+				EndCursor:       lo.ToPtr(usecasex.Cursor("end456")),
+			},
+			want: map[string]any{
+				"model": map[string]any{
+					"id":          modelID.String(),
+					"name":        "Test Model",
+					"description": "Test model description",
+					"key":         modelKey.String(),
+				},
+				"items": testItems,
+				"pagination": map[string]any{
+					"totalCount":  int64(100),
+					"hasNextPage": true,
+					"hasPrevPage": false,
+					"startCursor": lo.ToPtr(usecasex.Cursor("start123")),
+					"endCursor":   lo.ToPtr(usecasex.Cursor("end456")),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:  "Empty items with pagination",
+			model: testModel,
+			items: item.List{},
+			pageInfo: &usecasex.PageInfo{
+				TotalCount:      0,
+				HasNextPage:     false,
+				HasPreviousPage: false,
+				StartCursor:     nil,
+				EndCursor:       nil,
+			},
+			want: map[string]any{
+				"model": map[string]any{
+					"id":          modelID.String(),
+					"name":        "Test Model",
+					"description": "Test model description",
+					"key":         modelKey.String(),
+				},
+				"items": item.List{},
+				"pagination": map[string]any{
+					"totalCount":  int64(0),
+					"hasNextPage": false,
+					"hasPrevPage": false,
+					"startCursor": (*usecasex.Cursor)(nil),
+					"endCursor":   (*usecasex.Cursor)(nil),
+				},
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			t.Parallel()
+			// Create Asset instance
+			a := &Asset{}
+
+			// Call the function
+			result, err := a.generateJSONContentWithPagination(tt.model, tt.items, nil, tt.pageInfo)
+
+			// Check error
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+
+			// Parse the result JSON
+			var resultData map[string]any
+			err = json.Unmarshal(result, &resultData)
+			assert.NoError(t, err)
+
+			// Verify model data
+			modelData, ok := resultData["model"].(map[string]any)
+			assert.True(t, ok)
+			expectedModel := tt.want["model"].(map[string]any)
+			assert.Equal(t, expectedModel["id"], modelData["id"])
+			assert.Equal(t, expectedModel["name"], modelData["name"])
+			assert.Equal(t, expectedModel["description"], modelData["description"])
+			assert.Equal(t, expectedModel["key"], modelData["key"])
+
+			// Verify items exist (we can't easily compare the complex item structures)
+			itemsData, ok := resultData["items"]
+			assert.True(t, ok)
+			assert.NotNil(t, itemsData)
+
+			// Verify pagination if expected
+			if tt.pageInfo != nil {
+				paginationData, ok := resultData["pagination"].(map[string]any)
+				assert.True(t, ok)
+				expectedPagination := tt.want["pagination"].(map[string]any)
+				assert.Equal(t, expectedPagination["totalCount"], int64(paginationData["totalCount"].(float64)))
+				assert.Equal(t, expectedPagination["hasNextPage"], paginationData["hasNextPage"])
+				assert.Equal(t, expectedPagination["hasPrevPage"], paginationData["hasPrevPage"])
+			} else {
+				_, exists := resultData["pagination"]
+				assert.False(t, exists)
+			}
+
+			// Verify JSON is properly formatted (indented)
+			assert.Contains(t, string(result), "  ") // Should contain indentation
+		})
+	}
+}
+
+func TestAsset_generateGeoJSONContent(t *testing.T) {
+	// Create workspace and project (following TestItem_ItemsAsCSV pattern)
+	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
+	w := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+
+	// Create geometry supported types
+	gst := schema.GeometryObjectSupportedTypeList{
+		schema.GeometryObjectSupportedTypePoint,
+		schema.GeometryObjectSupportedTypeLineString,
+	}
+
+	// Create schema with geometry and non-geometry fields (following TestItem_ItemsAsCSV pattern)
+	schemaID := id.NewSchemaID()
+
+	// Create geometry field
+	geometryFieldID := id.NewFieldID()
+	geometryField := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).
+		ID(geometryFieldID).
+		Name("Location").
+		Key(id.RandomKey()).
+		MustBuild()
+
+	// Create text field
+	textFieldID := id.NewFieldID()
+	textField := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).
+		ID(textFieldID).
+		Name("Description").
+		Key(id.RandomKey()).
+		MustBuild()
+
+	// Create integer field
+	intFieldID := id.NewFieldID()
+	newInt, _ := schema.NewInteger(lo.ToPtr(int64(0)), lo.ToPtr(int64(1000)))
+	intField := schema.NewField(newInt.TypeProperty()).
+		ID(intFieldID).
+		Name("Count").
+		Key(id.RandomKey()).
+		MustBuild()
+
+	// Create schema with all fields
+	testSchema := schema.New().
+		ID(schemaID).
+		Workspace(w).
+		Project(prj.ID()).
+		Fields(schema.FieldList{geometryField, textField, intField}).
+		MustBuild()
+
+	// Create model
+	testModel := model.New().NewID().Schema(testSchema.ID()).Key(id.RandomKey()).Project(testSchema.Project()).MustBuild()
+
+	// Create test items with geometry and field values
+	itemID1 := id.NewItemID()
+	itemID2 := id.NewItemID()
+
+	// Point geometry JSON strings (following TestItem_ItemsAsCSV format)
+	pointGeometry1 := `{"coordinates":[139.6503,35.6762],"type":"Point"}`
+	pointGeometry2 := `{"coordinates":[140.1234,36.5678],"type":"Point"}`
+
+	testItems := item.List{
+		item.New().
+			ID(itemID1).
+			Model(testModel.ID()).
+			Schema(schemaID).
+			Project(testSchema.Project()).
+			Thread(id.NewThreadID().Ref()).
+			Fields([]*item.Field{
+				item.NewField(geometryFieldID, value.TypeGeometryObject.Value(pointGeometry1).AsMultiple(), nil),
+				item.NewField(textFieldID, value.TypeText.Value("Tokyo Station").AsMultiple(), nil),
+				item.NewField(intFieldID, value.TypeInteger.Value(int64(42)).AsMultiple(), nil),
+			}).
+			MustBuild(),
+		item.New().
+			ID(itemID2).
+			Model(testModel.ID()).
+			Schema(schemaID).
+			Project(testSchema.Project()).
+			Thread(id.NewThreadID().Ref()).
+			Fields([]*item.Field{
+				item.NewField(geometryFieldID, value.TypeGeometryObject.Value(pointGeometry2).AsMultiple(), nil),
+				item.NewField(textFieldID, value.TypeText.Value("Another Place").AsMultiple(), nil),
+				item.NewField(intFieldID, value.TypeInteger.Value(int64(99)).AsMultiple(), nil),
+			}).
+			MustBuild(),
+	}
+
+	tests := []struct {
+		name     string
+		schema   *schema.Schema
+		items    item.List
+		wantErr  bool
+		validate func(t *testing.T, result []byte)
+	}{
+		{
+			name:    "Generate GeoJSON with Point geometries and properties",
+			schema:  testSchema,
+			items:   testItems,
+			wantErr: false,
+			validate: func(t *testing.T, result []byte) {
+				var geoJSON map[string]any
+				err := json.Unmarshal(result, &geoJSON)
+				assert.NoError(t, err)
+
+				// Verify FeatureCollection structure
+				assert.Equal(t, "FeatureCollection", geoJSON["type"])
+
+				features, ok := geoJSON["features"].([]any)
+				assert.True(t, ok)
+				assert.Len(t, features, 2)
+
+				// Verify first feature
+				feature1 := features[0].(map[string]any)
+				assert.Equal(t, "Feature", feature1["type"])
+				assert.Equal(t, itemID1.String(), feature1["id"])
+
+				// Verify geometry
+				geometry1 := feature1["geometry"].(map[string]any)
+				assert.Equal(t, "Point", geometry1["type"])
+				coords1 := geometry1["coordinates"].([]any)
+				assert.Equal(t, 139.6503, coords1[0])
+				assert.Equal(t, 35.6762, coords1[1])
+
+				// Verify properties
+				properties1 := feature1["properties"].(map[string]any)
+				assert.Equal(t, "Tokyo Station", properties1["Description"])
+				assert.Equal(t, float64(42), properties1["Count"]) // JSON unmarshals numbers as float64
+
+				// Verify second feature
+				feature2 := features[1].(map[string]any)
+				assert.Equal(t, "Feature", feature2["type"])
+				assert.Equal(t, itemID2.String(), feature2["id"])
+
+				geometry2 := feature2["geometry"].(map[string]any)
+				assert.Equal(t, "Point", geometry2["type"])
+				coords2 := geometry2["coordinates"].([]any)
+				assert.Equal(t, 140.1234, coords2[0])
+				assert.Equal(t, 36.5678, coords2[1])
+
+				properties2 := feature2["properties"].(map[string]any)
+				assert.Equal(t, "Another Place", properties2["Description"])
+				assert.Equal(t, float64(99), properties2["Count"])
+			},
+		},
+		{
+			name:    "Error when schema has no geometry fields",
+			schema:  schema.New().ID(schemaID).Workspace(w).Project(prj.ID()).Fields([]*schema.Field{textField}).MustBuild(),
+			items:   item.List{},
+			wantErr: true,
+			validate: func(t *testing.T, result []byte) {
+				// Should not reach here if error is expected
+			},
+		},
+		{
+			name:    "Empty items with valid geometry schema",
+			schema:  testSchema,
+			items:   item.List{},
+			wantErr: false,
+			validate: func(t *testing.T, result []byte) {
+				var geoJSON map[string]any
+				err := json.Unmarshal(result, &geoJSON)
+				assert.NoError(t, err)
+
+				assert.Equal(t, "FeatureCollection", geoJSON["type"])
+				features := geoJSON["features"].([]any)
+				assert.Len(t, features, 0)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// Create Asset instance
+			a := &Asset{}
+
+			// Call the function
+			result, err := a.generateGeoJSONContent(tt.schema, tt.items)
+
+			// Check error expectation
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.NotEmpty(t, result)
+
+			// Run custom validation
+			tt.validate(t, result)
+
+			// Verify JSON is properly formatted (indented)
+			assert.Contains(t, string(result), "  ")
+		})
+	}
+}
+
+func TestAsset_generateCSVContent(t *testing.T) {
+	// Create workspace and project (following TestItem_ItemsAsCSV pattern)
+	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
+	w := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+
+	// Create geometry supported types
+	gst := schema.GeometryObjectSupportedTypeList{
+		schema.GeometryObjectSupportedTypePoint,
+		schema.GeometryObjectSupportedTypeLineString,
+	}
+
+	// Create schema with geometry and non-geometry fields (following TestItem_ItemsAsCSV pattern)
+	schemaID := id.NewSchemaID()
+
+	// Create geometry field
+	geometryFieldID := id.NewFieldID()
+	geometryField := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).
+		ID(geometryFieldID).
+		Name("Location").
+		Key(id.RandomKey()).
+		MustBuild()
+
+	// Create text field
+	textFieldID := id.NewFieldID()
+	textField := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).
+		ID(textFieldID).
+		Name("Description").
+		Key(id.RandomKey()).
+		MustBuild()
+
+	// Create integer field
+	intFieldID := id.NewFieldID()
+	newInt, _ := schema.NewInteger(lo.ToPtr(int64(0)), lo.ToPtr(int64(1000)))
+	intField := schema.NewField(newInt.TypeProperty()).
+		ID(intFieldID).
+		Name("Count").
+		Key(id.RandomKey()).
+		MustBuild()
+
+	// Create schema with all fields
+	testSchema := schema.New().
+		ID(schemaID).
+		Workspace(w).
+		Project(prj.ID()).
+		Fields([]*schema.Field{geometryField, textField, intField}).
+		MustBuild()
+
+	// Create model
+	testModel := model.New().
+		NewID().
+		Schema(testSchema.ID()).
+		Key(id.RandomKey()).
+		Project(testSchema.Project()).
+		MustBuild()
+
+	// Create test items with field values (following TestItem_ItemsAsCSV pattern)
+	itemID1 := id.NewItemID()
+	itemID2 := id.NewItemID()
+
+	// Create field values for item 1 (using correct syntax)
+	fi1_geo := item.NewField(geometryFieldID, value.TypeGeometryObject.Value(`{"type":"Point","coordinates":[139.6503,35.6762]}`).AsMultiple(), nil)
+	fi1_text := item.NewField(textFieldID, value.TypeText.Value("Tokyo Station").AsMultiple(), nil)
+	fi1_int := item.NewField(intFieldID, value.TypeInteger.Value(42).AsMultiple(), nil)
+	item1Fields := []*item.Field{fi1_geo, fi1_text, fi1_int}
+
+	// Create field values for item 2 (using correct syntax)
+	fi2_geo := item.NewField(geometryFieldID, value.TypeGeometryObject.Value(`{"type":"Point","coordinates":[140.1234,36.5678]}`).AsMultiple(), nil)
+	fi2_text := item.NewField(textFieldID, value.TypeText.Value("Another Place").AsMultiple(), nil)
+	fi2_int := item.NewField(intFieldID, value.TypeInteger.Value(99).AsMultiple(), nil)
+	item2Fields := []*item.Field{fi2_geo, fi2_text, fi2_int}
+
+	testItems := item.List{
+		item.New().
+			ID(itemID1).
+			Model(testModel.ID()).
+			Schema(testSchema.ID()).
+			Project(testSchema.Project()).
+			Thread(id.NewThreadID().Ref()).
+			Fields(item1Fields).
+			MustBuild(),
+		item.New().
+			ID(itemID2).
+			Model(testModel.ID()).
+			Schema(testSchema.ID()).
+			Project(testSchema.Project()).
+			Thread(id.NewThreadID().Ref()).
+			Fields(item2Fields).
+			MustBuild(),
+	}
+
+	tests := []struct {
+		name     string
+		schema   *schema.Schema
+		items    item.List
+		wantErr  bool
+		validate func(t *testing.T, result []byte)
+	}{
+		{
+			name:    "Generate CSV with Point geometries and properties",
+			schema:  testSchema,
+			items:   testItems,
+			wantErr: false,
+			validate: func(t *testing.T, result []byte) {
+				csvContent := string(result)
+				lines := strings.Split(csvContent, "\n")
+
+				// Remove empty lines
+				var nonEmptyLines []string
+				for _, line := range lines {
+					if strings.TrimSpace(line) != "" {
+						nonEmptyLines = append(nonEmptyLines, line)
+					}
+				}
+
+				// Should have header + 2 data rows
+				assert.GreaterOrEqual(t, len(nonEmptyLines), 3)
+
+				// Check header contains expected columns
+				header := nonEmptyLines[0]
+				assert.Contains(t, header, "location_lat")
+				assert.Contains(t, header, "location_lng")
+				assert.Contains(t, header, "Description")
+				assert.Contains(t, header, "Count")
+
+				// Check first data row
+				row1 := nonEmptyLines[1]
+				assert.Contains(t, row1, "35.6762")  // latitude
+				assert.Contains(t, row1, "139.6503") // longitude
+				assert.Contains(t, row1, "Tokyo Station")
+				assert.Contains(t, row1, "42")
+
+				// Check second data row
+				row2 := nonEmptyLines[2]
+				assert.Contains(t, row2, "36.5678")  // latitude
+				assert.Contains(t, row2, "140.1234") // longitude
+				assert.Contains(t, row2, "Another Place")
+				assert.Contains(t, row2, "99")
+			},
+		},
+		{
+			name:    "Generate CSV without Point geometry fields",
+			schema:  schema.New().ID(schemaID).Workspace(w).Project(prj.ID()).Fields([]*schema.Field{textField, intField}).MustBuild(),
+			items:   item.List{},
+			wantErr: false,
+			validate: func(t *testing.T, result []byte) {
+				csvContent := string(result)
+				lines := strings.Split(csvContent, "\n")
+
+				// Remove empty lines
+				var nonEmptyLines []string
+				for _, line := range lines {
+					if strings.TrimSpace(line) != "" {
+						nonEmptyLines = append(nonEmptyLines, line)
+					}
+				}
+
+				// Should have only header row
+				assert.Equal(t, 1, len(nonEmptyLines))
+
+				// Check header contains expected non-geometry columns only
+				header := nonEmptyLines[0]
+				assert.NotContains(t, header, "location_lat")
+				assert.NotContains(t, header, "location_lng")
+				assert.Contains(t, header, "Description")
+				assert.Contains(t, header, "Count")
+			},
+		},
+		{
+			name:    "Empty items with valid Point geometry schema",
+			schema:  testSchema,
+			items:   item.List{},
+			wantErr: false,
+			validate: func(t *testing.T, result []byte) {
+				csvContent := string(result)
+				lines := strings.Split(csvContent, "\n")
+
+				// Remove empty lines
+				var nonEmptyLines []string
+				for _, line := range lines {
+					if strings.TrimSpace(line) != "" {
+						nonEmptyLines = append(nonEmptyLines, line)
+					}
+				}
+
+				// Should have only header row
+				assert.Equal(t, 1, len(nonEmptyLines))
+
+				// Check header contains expected columns
+				header := nonEmptyLines[0]
+				assert.Contains(t, header, "location_lat")
+				assert.Contains(t, header, "location_lng")
+				assert.Contains(t, header, "Description")
+				assert.Contains(t, header, "Count")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// Create Asset instance
+			a := &Asset{}
+
+			// Call the function
+			result, err := a.generateCSVContent(tt.schema, tt.items)
+
+			// Check error expectation
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.NotEmpty(t, result)
+
+			// Run custom validation
+			tt.validate(t, result)
+		})
+	}
+}
+
+func TestAsset_fetchItemsInBatches(t *testing.T) {
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+
+	// Create test schema with fields
+	textFieldID := id.NewFieldID()
+	numberFieldID := id.NewFieldID()
+	boolFieldID := id.NewFieldID()
+	geoFieldID := id.NewFieldID()
+	numField, _ := schema.NewInteger(lo.ToPtr(int64(0)), lo.ToPtr(int64(999999)))
+	textField := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().ID(textFieldID).Key(id.RandomKey()).Name("title").MustBuild()
+	numberField := schema.NewField(numField.TypeProperty()).NewID().ID(numberFieldID).Key(id.RandomKey()).Name("rating").MustBuild()
+	boolField := schema.NewField(schema.NewBool().TypeProperty()).NewID().ID(boolFieldID).Key(id.RandomKey()).Name("active").MustBuild()
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint}
+	geoField := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().ID(geoFieldID).Key(id.RandomKey()).Name("location").MustBuild()
+
+	testSchema := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{textField, numberField, boolField, geoField}).MustBuild()
+
+	// Create different model IDs for each test case
+	touristModelID := id.NewModelID()
+	urbanModelID := id.NewModelID()
+	configModelID := id.NewModelID()
+
+	// Note: We'll create separate instances for each test to avoid data races
+
+	// Mock time for consistent timestamps
+	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
+	createTestItem := func(itemID id.ItemID, modelID id.ModelID, title string, number int64, isActive bool, geoData string) *item.Item {
+		fields := []*item.Field{
+			item.NewField(textFieldID, value.TypeText.Value(title).AsMultiple(), nil),
+			item.NewField(numberFieldID, value.TypeInteger.Value(number).AsMultiple(), nil),
+			item.NewField(boolFieldID, value.TypeBool.Value(isActive).AsMultiple(), nil),
+		}
+
+		// Add geometry field if provided
+		if geoData != "" {
+			fields = append(fields, item.NewField(geoFieldID, value.TypeGeometryObject.Value(geoData).AsMultiple(), nil))
+		}
+
+		return item.New().
+			ID(itemID).
+			Schema(testSchema.ID()).
+			Model(modelID).
+			Project(pid).
+			Thread(id.NewThreadID().Ref()).
+			Fields(fields).
+			MustBuild()
+	}
+
+	// Create diverse test datasets for each model
+	touristItems := item.List{
+		createTestItem(id.NewItemID(), touristModelID, "Tokyo Tower", 4, true, `{"type":"Point","coordinates":[139.7454,35.6586]}`),
+		createTestItem(id.NewItemID(), touristModelID, "Mount Fuji", 5, true, `{"type":"Point","coordinates":[138.7274,35.3606]}`),
+		createTestItem(id.NewItemID(), touristModelID, "Kyoto Temple", 5, true, `{"type":"Point","coordinates":[135.7681,35.0116]}`),
+	}
+
+	urbanItems := item.List{
+		createTestItem(id.NewItemID(), urbanModelID, "Central Station", 3, true, `{"type":"Point","coordinates":[139.7677,35.6811]}`),
+		createTestItem(id.NewItemID(), urbanModelID, "City Hospital", 4, true, `{"type":"Point","coordinates":[139.6503,35.6762]}`),
+		createTestItem(id.NewItemID(), urbanModelID, "Shopping Mall", 4, false, `{"type":"Point","coordinates":[139.7024,35.6598]}`),
+		createTestItem(id.NewItemID(), urbanModelID, "Public Library", 3, true, `{"type":"Point","coordinates":[139.6917,35.6895]}`),
+		createTestItem(id.NewItemID(), urbanModelID, "Fire Station", 5, true, `{"type":"Point","coordinates":[139.7413,35.6582]}`),
+	}
+
+	configItems := item.List{
+		createTestItem(id.NewItemID(), configModelID, "System Config", 1, true, `{"type":"Point","coordinates":[0,0]}`),
+		createTestItem(id.NewItemID(), configModelID, "User Preferences", 2, false, `{"type":"Point","coordinates":[1,1]}`),
+	}
+	restore()
+
+	type args struct {
+		modelID    id.ModelID
+		pagination *usecasex.Pagination
+	}
+
+	tests := []struct {
+		name        string
+		seedItems   item.List
+		seedSchema  *schema.Schema
+		modelID     id.ModelID
+		args        args
+		want        int
+		wantErr     error
+		mockItemErr bool
+	}{
+		{
+			name:       "Tourist attractions - direct fetch",
+			seedItems:  touristItems,
+			seedSchema: testSchema,
+			modelID:    touristModelID,
+			args: args{
+				modelID: touristModelID,
+				pagination: &usecasex.Pagination{
+					Cursor: &usecasex.CursorPagination{
+						First: lo.ToPtr(int64(10)),
+					},
+				},
+			},
+			want:    3,
+			wantErr: nil,
+		},
+		{
+			name:       "Urban facilities - limited fetch",
+			seedItems:  urbanItems,
+			seedSchema: testSchema,
+			modelID:    urbanModelID,
+			args: args{
+				modelID: urbanModelID,
+				pagination: &usecasex.Pagination{
+					Cursor: &usecasex.CursorPagination{
+						First: lo.ToPtr(int64(10)),
+					},
+				},
+			},
+			want:    5,
+			wantErr: nil,
+		},
+		{
+			name:       "Configuration items - fallback batch size",
+			seedItems:  configItems,
+			seedSchema: testSchema,
+			modelID:    configModelID,
+			args: args{
+				modelID: configModelID,
+				pagination: &usecasex.Pagination{
+					Cursor: &usecasex.CursorPagination{
+						First: lo.ToPtr(int64(5)),
+					},
+				},
+			},
+			want:    2,
+			wantErr: nil,
+		},
+		{
+			name:       "Empty dataset",
+			seedItems:  item.List{},
+			seedSchema: testSchema,
+			modelID:    touristModelID,
+			args: args{
+				modelID:    touristModelID,
+				pagination: nil, // Test with no pagination
+			},
+			want:    0,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			if tc.mockItemErr {
+				memory.SetItemError(db.Item, tc.wantErr)
+			}
+
+			// Create fresh instances for this test to avoid data races
+			testProject := project.New().ID(pid).Workspace(wid).MustBuild()
+			testModel := model.New().ID(tc.modelID).Schema(testSchema.ID()).Key(id.RandomKey()).Project(pid).MustBuild()
+
+			// Seed project and model
+			err := db.Project.Save(ctx, testProject)
+			assert.NoError(t, err)
+			err = db.Model.Save(ctx, testModel)
+			assert.NoError(t, err)
+			for _, seed := range tc.seedItems {
+				err := db.Item.Save(ctx, seed)
+				assert.NoError(t, err)
+				// Publish the item by adding Public ref to Latest version
+				err = db.Item.UpdateRef(ctx, seed.ID(), version.Public, version.Latest.OrVersion().Ref())
+				assert.NoError(t, err)
+			}
+			if tc.seedSchema != nil {
+				err := db.Schema.Save(ctx, tc.seedSchema)
+				assert.NoError(t, err)
+			}
+
+			// Create asset use case
+			assetUC := NewAsset(db, &gateway.Container{}, ContainerConfig{})
+			assetConcrete := assetUC.(*Asset)
+			assetConcrete.ignoreEvent = true
+
+			// Call fetchItemsInBatches
+			result, pageInfo, err := assetConcrete.fetchItemsInBatches(ctx, tc.args.modelID, tc.args.pagination)
+
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, len(result))
+			// pageInfo may be nil or populated depending on pagination settings
+			_ = pageInfo
+		})
+	}
+}
+
+func TestAsset_fetchItemsInBatches_ErrorHandling(t *testing.T) {
+	ctx := context.Background()
+	projectID := id.NewProjectID()
+	modelID := id.NewModelID()
+
+	tests := []struct {
+		name          string
+		setupDB       func(*repo.Container)
+		batchSize     int
+		pagination    *usecasex.Pagination
+		expectError   bool
+		errorContains string
+	}{
+		{
+			name:      "Invalid model ID handling",
+			batchSize: 1000, // Large batch size to ensure direct fetch
+			setupDB: func(db *repo.Container) {
+				w := accountdomain.NewWorkspaceID()
+				prj := project.New().ID(projectID).Workspace(w).MustBuild()
+				_ = db.Project.Save(context.Background(), prj)
+			},
+			pagination: &usecasex.Pagination{
+				Cursor: &usecasex.CursorPagination{
+					First: lo.ToPtr(int64(5)),
+				},
+			},
+			expectError:   false, // Should handle gracefully and return empty result
+			errorContains: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			// Setup memory database
+			db := memory.New()
+
+			// Apply test-specific setup
+			if tt.setupDB != nil {
+				tt.setupDB(db)
+			}
+
+			// Create asset interactor
+			asset := NewAsset(db, &gateway.Container{}, ContainerConfig{
+				ExportModelToAssetBatchSize: tt.batchSize,
+			})
+
+			// Cast to concrete type to access private method
+			assetConcrete := asset.(*Asset)
+
+			// Call the method under test
+			result, pageInfo, err := assetConcrete.fetchItemsInBatches(ctx, modelID, tt.pagination)
+
+			if tt.expectError {
+				assert.Error(t, err)
+				if tt.errorContains != "" {
+					assert.Contains(t, err.Error(), tt.errorContains)
+				}
+				assert.Nil(t, result)
+			} else {
+				assert.NoError(t, err)
+				// Result may be nil or empty when no items are found, which is acceptable
+				if result != nil {
+					assert.IsType(t, item.VersionedList{}, result)
+				}
+				_ = pageInfo
+			}
+		})
+	}
+}
+
+func TestAsset_ExportModelToAssets(t *testing.T) {
+	uid := accountdomain.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+
+	// Create test schema with fields
+	textFieldID := id.NewFieldID()
+	numberFieldID := id.NewFieldID()
+	boolFieldID := id.NewFieldID()
+	geoFieldID := id.NewFieldID()
+
+	textField := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().ID(textFieldID).Key(id.RandomKey()).Name("title").MustBuild()
+	numField, _ := schema.NewInteger(lo.ToPtr(int64(0)), lo.ToPtr(int64(999999)))
+	numberField := schema.NewField(numField.TypeProperty()).NewID().ID(numberFieldID).Key(id.RandomKey()).Name("rating").MustBuild()
+	boolField := schema.NewField(schema.NewBool().TypeProperty()).NewID().ID(boolFieldID).Key(id.RandomKey()).Name("active").MustBuild()
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint}
+	geoField := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().ID(geoFieldID).Key(id.RandomKey()).Name("location").MustBuild()
+
+	testSchema := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{textField, numberField, boolField, geoField}).MustBuild()
+
+	// Create different model IDs for each test case
+	jsonModelID := id.NewModelID()
+	geoJSONModelID := id.NewModelID()
+	csvModelID := id.NewModelID()
+
+	// Note: We'll create separate instances for each test to avoid data races
+
+	// Mock time for consistent timestamps
+	restore := util.MockNow(time.Now().Truncate(time.Millisecond).UTC())
+	createTestItem := func(itemID id.ItemID, modelID id.ModelID, title string, number int64, isActive bool, geoData string) *item.Item {
+		fields := []*item.Field{
+			item.NewField(textFieldID, value.TypeText.Value(title).AsMultiple(), nil),
+			item.NewField(numberFieldID, value.TypeInteger.Value(number).AsMultiple(), nil),
+			item.NewField(boolFieldID, value.TypeBool.Value(isActive).AsMultiple(), nil),
+		}
+
+		// Add geometry field if provided
+		if geoData != "" {
+			fields = append(fields, item.NewField(geoFieldID, value.TypeGeometryObject.Value(geoData).AsMultiple(), nil))
+		}
+
+		return item.New().
+			ID(itemID).
+			Schema(testSchema.ID()).
+			Model(modelID).
+			Project(pid).
+			Thread(id.NewThreadID().Ref()).
+			Fields(fields).
+			MustBuild()
+	}
+
+	jsonItems := item.List{
+		createTestItem(id.NewItemID(), jsonModelID, "JSON Export Item 1", 100, true, `{"type":"Point","coordinates":[139.7454,35.6586]}`),
+		createTestItem(id.NewItemID(), jsonModelID, "JSON Export Item 2", 200, false, `{"type":"Point","coordinates":[138.7274,35.3606]}`),
+	}
+
+	geoJSONItems := item.List{
+		createTestItem(id.NewItemID(), geoJSONModelID, "GeoJSON Location 1", 85, true, `{"type":"Point","coordinates":[139.6917,35.6895]}`),
+		createTestItem(id.NewItemID(), geoJSONModelID, "GeoJSON Location 2", 90, true, `{"type":"Point","coordinates":[135.5023,34.6937]}`),
+		createTestItem(id.NewItemID(), geoJSONModelID, "GeoJSON Location 3", 75, false, `{"type":"Point","coordinates":[132.4596,34.3853]}`),
+	}
+
+	csvItems := item.List{
+		createTestItem(id.NewItemID(), csvModelID, "CSV Data Row 1", 50, true, `{"type":"Point","coordinates":[140.1234,36.5678]}`),
+		createTestItem(id.NewItemID(), csvModelID, "CSV Data Row 2", 75, false, `{"type":"Point","coordinates":[140.2345,36.6789]}`),
+	}
+	restore()
+
+	type args struct {
+		param    interfaces.ExportModelToAssetsParam
+		operator *usecase.Operator
+	}
+
+	tests := []struct {
+		name        string
+		seedItems   item.List
+		seedSchema  *schema.Schema
+		modelID     id.ModelID
+		args        args
+		want        func(*testing.T, *asset.Asset) // Validation function
+		wantErr     error
+		wantErrMsg  string // For dynamic errors, check message instead
+		mockItemErr bool
+	}{
+		{
+			name:       "Export to JSON successfully",
+			seedItems:  jsonItems,
+			seedSchema: testSchema,
+			modelID:    jsonModelID,
+			args: args{
+				param: interfaces.ExportModelToAssetsParam{
+					ProjectID: pid,
+					Format:    interfaces.ExportFormatJSON,
+					Pagination: &usecasex.Pagination{
+						Cursor: &usecasex.CursorPagination{
+							First: lo.ToPtr(int64(10)),
+						},
+					},
+				},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User:             &uid,
+						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+					},
+				},
+			},
+			want: func(t *testing.T, result *asset.Asset) {
+				assert.NotNil(t, result)
+				assert.Equal(t, pid, result.Project())
+				assert.Contains(t, result.FileName(), ".json")
+				assert.True(t, result.Size() > 0)
+			},
+			wantErr: nil,
+		},
+		{
+			name:       "Export to GeoJSON successfully",
+			seedItems:  geoJSONItems,
+			seedSchema: testSchema,
+			modelID:    geoJSONModelID,
+			args: args{
+				param: interfaces.ExportModelToAssetsParam{
+					ProjectID:  pid,
+					Format:     interfaces.ExportFormatGeoJSON,
+					Pagination: nil, // Test without pagination
+				},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User:             &uid,
+						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+					},
+				},
+			},
+			want: func(t *testing.T, result *asset.Asset) {
+				assert.NotNil(t, result)
+				assert.Equal(t, pid, result.Project())
+				assert.Contains(t, result.FileName(), ".geojson")
+				assert.True(t, result.Size() > 0)
+			},
+			wantErr: nil,
+		},
+		{
+			name:       "Export to CSV successfully",
+			seedItems:  csvItems,
+			seedSchema: testSchema,
+			modelID:    csvModelID,
+			args: args{
+				param: interfaces.ExportModelToAssetsParam{
+					ProjectID: pid,
+					Format:    interfaces.ExportFormatCSV,
+					Pagination: &usecasex.Pagination{
+						Cursor: &usecasex.CursorPagination{
+							First: lo.ToPtr(int64(5)),
+						},
+					},
+				},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User:             &uid,
+						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+					},
+				},
+			},
+			want: func(t *testing.T, result *asset.Asset) {
+				assert.NotNil(t, result)
+				assert.Equal(t, pid, result.Project())
+				assert.Contains(t, result.FileName(), ".csv")
+				assert.True(t, result.Size() > 0)
+			},
+			wantErr: nil,
+		},
+		{
+			name:       "Invalid operator error",
+			seedItems:  jsonItems,
+			seedSchema: testSchema,
+			modelID:    jsonModelID,
+			args: args{
+				param: interfaces.ExportModelToAssetsParam{
+					ProjectID: pid,
+					Format:    interfaces.ExportFormatJSON,
+				},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{}, // No user or integration
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:       "Missing model error",
+			seedItems:  jsonItems,
+			seedSchema: testSchema,
+			modelID:    jsonModelID,
+			args: args{
+				param: interfaces.ExportModelToAssetsParam{
+					ProjectID: pid,
+					Model:     nil, // Missing model
+					Format:    interfaces.ExportFormatJSON,
+				},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User:             &uid,
+						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+					},
+				},
+			},
+			want:       nil,
+			wantErrMsg: "model is required",
+		},
+		{
+			name:       "Operation denied - no write permission",
+			seedItems:  jsonItems,
+			seedSchema: testSchema,
+			modelID:    jsonModelID,
+			args: args{
+				param: interfaces.ExportModelToAssetsParam{
+					ProjectID: pid,
+					Format:    interfaces.ExportFormatJSON,
+				},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User: &uid,
+					},
+					// No writable workspaces
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:       "Unsupported export format error",
+			seedItems:  jsonItems,
+			seedSchema: testSchema,
+			modelID:    jsonModelID,
+			args: args{
+				param: interfaces.ExportModelToAssetsParam{
+					ProjectID: pid,
+					Format:    interfaces.ExportFormat("INVALID"), // Invalid format
+				},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{
+						User:             &uid,
+						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+					},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrUnsupportedExportFormat,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+
+			t.Parallel()
+			ctx := context.Background()
+			db := memory.New()
+			if tc.mockItemErr {
+				memory.SetItemError(db.Item, tc.wantErr)
+			}
+
+			// Create fresh instances for this test to avoid data races
+			testProject := project.New().ID(pid).Workspace(wid).MustBuild()
+			testModel := model.New().ID(tc.modelID).Schema(testSchema.ID()).Key(id.RandomKey()).Project(pid).MustBuild()
+
+			// Seed project and model
+			err := db.Project.Save(ctx, testProject)
+			assert.NoError(t, err)
+			err = db.Model.Save(ctx, testModel)
+			assert.NoError(t, err)
+			for _, seed := range tc.seedItems {
+				err := db.Item.Save(ctx, seed)
+				assert.NoError(t, err)
+				// Publish the item by adding Public ref to Latest version
+				err = db.Item.UpdateRef(ctx, seed.ID(), version.Public, version.Latest.OrVersion().Ref())
+				assert.NoError(t, err)
+			}
+			if tc.seedSchema != nil {
+				err := db.Schema.Save(ctx, tc.seedSchema)
+				assert.NoError(t, err)
+			}
+
+			// Set the model in the param (needs to be set after model creation)
+			// Only set if not testing missing model error
+			if tc.wantErrMsg != "model is required" {
+				tc.args.param.Model = testModel
+			}
+
+			// Create asset use case with file gateway
+			g := &gateway.Container{
+				File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
+			}
+			assetUC := NewAsset(db, g, ContainerConfig{})
+			assetConcrete := assetUC.(*Asset)
+			assetConcrete.ignoreEvent = true
+
+			// Call ExportModelToAssets
+			result, err := assetConcrete.ExportModelToAssets(ctx, tc.args.param, tc.args.operator)
+
+			if tc.wantErrMsg != "" {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tc.wantErrMsg)
+				return
+			}
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			if tc.want != nil {
+				tc.want(t, result)
+			}
 		})
 	}
 }

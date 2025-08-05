@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
@@ -15,6 +16,14 @@ import (
 )
 
 type AssetFilterType string
+
+type ExportFormat string
+
+const (
+	ExportFormatJSON    ExportFormat = "json"
+	ExportFormatGeoJSON ExportFormat = "geojson"
+	ExportFormatCSV     ExportFormat = "csv"
+)
 
 type CreateAssetParam struct {
 	ProjectID         idx.ID[id.Project]
@@ -39,10 +48,18 @@ type CreateAssetUploadParam struct {
 	Cursor string
 }
 
+type ExportModelToAssetsParam struct {
+	ProjectID  idx.ID[id.Project]
+	Model      *model.Model
+	Format     ExportFormat
+	Pagination *usecasex.Pagination
+}
+
 var (
 	ErrCreateAssetFailed            error = rerror.NewE(i18n.T("failed to create asset"))
 	ErrFileNotIncluded              error = rerror.NewE(i18n.T("file not included"))
 	ErrAssetUploadSizeLimitExceeded error = rerror.NewE(i18n.T("asset upload size limit exceeded"))
+	ErrUnsupportedExportFormat      error = rerror.NewE(i18n.T("unsupported export format"))
 )
 
 type AssetFilter struct {
@@ -78,4 +95,5 @@ type Asset interface {
 	Unpublish(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (*AssetUpload, error)
 	RetryDecompression(context.Context, string) error
+	ExportModelToAssets(context.Context, ExportModelToAssetsParam, *usecase.Operator) (*asset.Asset, error)
 }
