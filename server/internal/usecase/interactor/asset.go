@@ -1237,20 +1237,13 @@ func (i *Asset) fetchItemsInBatches(ctx context.Context, modelID id.ModelID, pag
 			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
 		}
 
-		// Execute batch in goroutine
-		resultChan := make(chan batchResult, 1)
-		go func(modelID id.ModelID, pagination *usecasex.Pagination) {
-			items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, pagination)
-			resultChan <- batchResult{
-				items:    items,
-				pageInfo: pi,
-				err:      err,
-			}
-		}(modelID, batchPagination)
-
-		// Wait for batch result
-		result := <-resultChan
-		close(resultChan)
+		// Execute batch directly
+		items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, batchPagination)
+		result := batchResult{
+			items:    items,
+			pageInfo: pi,
+			err:      err,
+		}
 
 		if result.err != nil {
 			return nil, nil, result.err

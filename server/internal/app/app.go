@@ -42,7 +42,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	usecaseMiddleware := UsecaseMiddleware(appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{
 		SignupSecret:                appCtx.Config.SignupSecret,
 		AuthSrvUIDomain:             appCtx.Config.Host_Web,
-		ExportModelToAssetBatchSize: appCtx.Config.Export_Model_To_Asset_BatchSize,
+		ExportModelToAssetBatchSize: appCtx.Config.Export_Model_To_Asset_Batch_Size,
 	})
 
 	// apis
