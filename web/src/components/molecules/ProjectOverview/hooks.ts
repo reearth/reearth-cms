@@ -2,8 +2,6 @@ import { ChangeEvent, useCallback, useEffect, useState } from "react";
 
 import { Project, UpdateProjectInput } from "../Workspace/types";
 
-import { ActiveKey } from "./types";
-
 export default ({
   project,
   onProjectUpdate,
@@ -11,8 +9,6 @@ export default ({
   project?: Project;
   onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
 }) => {
-  const [activeKey, setActiveKey] = useState<ActiveKey>("models");
-
   const [activeReadmeTab, setActiveReadmeTab] = useState("edit");
   const [readmeEditMode, setReadmeEditMode] = useState(false);
   const [readmeValue, setReadmeValue] = useState("");
@@ -74,8 +70,6 @@ export default ({
   }, []);
 
   return {
-    activeKey,
-    setActiveKey,
     activeReadmeTab,
     setActiveReadmeTab,
     readmeEditMode,

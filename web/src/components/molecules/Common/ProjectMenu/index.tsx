@@ -36,6 +36,16 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
       icon: <Icon icon="send" />,
     },
     {
+      label: t("Readme"),
+      key: "readme",
+      icon: <Icon icon="read" />,
+    },
+    {
+      label: t("License"),
+      key: "license",
+      icon: <Icon icon="copyright" />,
+    },
+    {
       label: t("Settings"),
       key: "settings",
       icon: <Icon icon="settings" />,
