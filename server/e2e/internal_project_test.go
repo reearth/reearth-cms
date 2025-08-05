@@ -334,6 +334,48 @@ func TestInternalListModelsInProjectAPI(t *testing.T) {
 
 }
 
+// GRPC Get Model
+func TestInternalGetModelAPI(t *testing.T) {
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
+	assert.NoError(t, err)
+
+	client := pb.NewReEarthCMSClient(clientConn)
+	md := metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId.String(),
+	})
+	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+	// Get model by IDs
+	m, err := client.GetModel(mdCtx, &pb.ModelRequest{ProjectIdOrAlias: pid.String(), ModelIdOrAlias: mId1.String()})
+	assert.NoError(t, err)
+	assert.Equal(t, mId1.String(), m.Model.Id)
+	assert.Equal(t, ikey1.String(), m.Model.Key)
+	assert.Equal(t, "m1", m.Model.Name)
+	assert.Equal(t, pid.String(), m.Model.ProjectId)
+	assert.Equal(t, "m1 desc", m.Model.Description)
+	assert.NotNil(t, m.Model.Schema)
+
+	// Get model by aliases
+	m, err = client.GetModel(mdCtx, &pb.ModelRequest{ProjectIdOrAlias: palias, ModelIdOrAlias: ikey1.String()})
+	assert.NoError(t, err)
+	assert.Equal(t, mId1.String(), m.Model.Id)
+	assert.Equal(t, ikey1.String(), m.Model.Key)
+	assert.Equal(t, "m1", m.Model.Name)
+	assert.Equal(t, pid.String(), m.Model.ProjectId)
+	assert.Equal(t, "m1 desc", m.Model.Description)
+	assert.NotNil(t, m.Model.Schema)
+}
+
 // GRPC List Items in Model
 func TestInternalListItemsInModelAPI(t *testing.T) {
 	StartServer(t, &app.Config{
