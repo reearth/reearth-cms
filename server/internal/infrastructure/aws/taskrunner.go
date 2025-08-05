@@ -57,6 +57,12 @@ func (t *TaskRunner) Retry(ctx context.Context, id string) error {
 	return errors.New("not implemented")
 }
 
+// HealthCheck implements gateway.TaskRunner
+func (t *TaskRunner) HealthCheck(ctx context.Context) error {
+
+	return nil
+}
+
 func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset == nil {
 		return nil
