@@ -67,6 +67,7 @@ items should be on the same model: アイテムは全て同じモデルに対応
 max must be larger then min: 最大値は最小値より大きい必要があります。
 metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
 metadata schema not found: メタデータのスキーマが見つかりません。
+model is required: モデルは必須です。
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
 model should have at least one view: モデルには少なくとも 1 つのビューが必要です
 multiple reference is not supported: 複数参照はサポートされていません
@@ -91,11 +92,13 @@ reference field direction can not be changed: 参照フィールドの方向は�
 reference field model can not be changed: 参照フィールドのモデルは変更できません
 referenced field key exists: 参照フィールドのキーがすでに存在します
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
+schema is required for CSV export: CSVエクスポートにはスキーマが必要です。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。
 unauthorized: 未認証
 unsupported content encoding: サポートされていないContent-Encodingです。
 unsupported entity: サポートされていないエンティティです。
+unsupported export format: サポートされていないエクスポート形式です。
 unsupported geometry type: サポートされていないジオメトリタイプです。
 unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
