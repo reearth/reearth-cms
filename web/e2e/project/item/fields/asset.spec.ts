@@ -70,6 +70,47 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByText(uploadFileName_2)).toBeVisible();
 });
 
+test("Previewing JSON file from content page into new tab succeeded", async ({ page, context }) => {
+  await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
+  await page.getByLabel("Display name").fill("asset1");
+  await page.getByLabel("Settings").locator("#key").fill("asset1");
+  await page.getByLabel("Settings").locator("#description").fill("asset1 description");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("asset1#asset1");
+
+  await page.getByText("Content").click();
+  await page.getByRole("button", { name: "plus New Item" }).click();
+  await expect(page.locator("label")).toContainText("asset1");
+  await expect(page.getByRole("main")).toContainText("asset1 description");
+
+  await page.getByRole("button", { name: "Asset" }).click();
+  await page.getByRole("button", { name: "upload Upload Asset" }).click();
+  await page.getByRole("tab", { name: "URL" }).click();
+  await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_2);
+  await page.getByRole("button", { name: "Upload and Link" }).click();
+  await closeNotification(page);
+  await expect(page.getByRole("button", { name: `folder ${uploadFileName_2}` })).toBeVisible();
+  await expect(page.getByRole("button", { name: uploadFileName_2, exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
+
+  const [viewerPage] = await Promise.all([
+    context.waitForEvent("page"),
+    page.getByRole("button", { name: uploadFileName_2 }).last().click(),
+  ]);
+  await viewerPage.waitForLoadState("domcontentloaded");
+
+  const canvas = viewerPage.locator("canvas");
+  await expect(canvas).toBeVisible();
+
+  const viewerIsReady = await viewerPage.evaluate(() => {
+    return !!window.cesiumViewer && window.cesiumViewer.isDestroyed?.() === false;
+  });
+  expect(viewerIsReady).toBe(true);
+});
+
 test("Asset field editing has succeeded", async ({ page }) => {
   test.slow();
   await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
