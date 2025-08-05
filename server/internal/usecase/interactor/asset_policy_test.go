@@ -98,7 +98,7 @@ func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 			}
 
 			// Create asset use case
-			assetUC := NewAsset(db, &g)
+			assetUC := NewAsset(db, &g, ContainerConfig{})
 
 			// Create file with specified size
 			content := bytes.Repeat([]byte("a"), int(tc.fileSize))
@@ -150,7 +150,7 @@ func TestAsset_Create_WithPermissivePolicyChecker(t *testing.T) {
 		PolicyChecker: policy.NewPermissiveChecker(),
 	}
 
-	assetUC := NewAsset(db, &g)
+	assetUC := NewAsset(db, &g, ContainerConfig{})
 
 	// Test with reasonable file size - permissive checker should allow it
 	// Note: The file gateway still has its own hard limit of 10GB
@@ -220,7 +220,7 @@ func TestAsset_Create_WithHTTPPolicyChecker(t *testing.T) {
 		PolicyChecker: policy.NewHTTPPolicyChecker(server.URL, "", 5),
 	}
 
-	assetUC := NewAsset(db, &g)
+	assetUC := NewAsset(db, &g, ContainerConfig{})
 
 	// Test with small file - should be allowed
 	content := bytes.NewBufferString("small file")

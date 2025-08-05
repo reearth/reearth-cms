@@ -40,8 +40,9 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	)
 
 	usecaseMiddleware := UsecaseMiddleware(appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{
-		SignupSecret:    appCtx.Config.SignupSecret,
-		AuthSrvUIDomain: appCtx.Config.Host_Web,
+		SignupSecret:                appCtx.Config.SignupSecret,
+		AuthSrvUIDomain:             appCtx.Config.Host_Web,
+		ExportModelToAssetBatchSize: appCtx.Config.Export_Model_To_Asset_BatchSize,
 	})
 
 	// apis
@@ -86,7 +87,7 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 		M2MAuthMiddleware(appCtx.Config),
 		usecaseMiddleware,
 	)
-	
+
 	// M2M API endpoints
 	if appCtx.Config.AuthM2M.Token != "" {
 		m2mGroup := api.Group("/m2m")
@@ -96,7 +97,7 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 		)
 		m2mGroup.GET("/assets/:uuid/is-private", M2MAssetHandler())
 	}
-	
+
 	api.POST("/signup", Signup(), usecaseMiddleware)
 }
 

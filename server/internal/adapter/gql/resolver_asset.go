@@ -184,6 +184,54 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 	}, nil
 }
 
+// ExportModelToAsset is the resolver for the exportModelToAsset field.
+func (r *mutationResolver) ExportModelToAsset(ctx context.Context, input gqlmodel.ExportModelToAssetInput) (*gqlmodel.ExportModelToAssetPayload, error) {
+	pid, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	mid, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Find the model first
+	model, err := usecases(ctx).Model.FindByID(ctx, mid, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert GraphQL format to interfaces format
+	var format interfaces.ExportFormat
+	switch input.Format {
+	case gqlmodel.ExportFormatJSON:
+		format = interfaces.ExportFormatJSON
+	case gqlmodel.ExportFormatGeojson:
+		format = interfaces.ExportFormatGeoJSON
+	case gqlmodel.ExportFormatCSV:
+		format = interfaces.ExportFormatCSV
+	default:
+		return nil, errors.New("unsupported export format")
+	}
+
+	params := interfaces.ExportModelToAssetsParam{
+		ProjectID:  pid,
+		Model:      model,
+		Format:     format,
+		Pagination: input.Pagination.Into(),
+	}
+
+	asset, err := usecases(ctx).Asset.ExportModelToAssets(ctx, params, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.ExportModelToAssetPayload{
+		Asset: gqlmodel.ToAsset(asset),
+	}, nil
+}
+
 // AssetFile is the resolver for the assetFile field.
 func (r *queryResolver) AssetFile(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.AssetFile, error) {
 	id, err := id.AssetIDFrom(string(assetID))

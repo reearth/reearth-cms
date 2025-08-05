@@ -255,6 +255,10 @@ type ComplexityRoot struct {
 		WorkspaceID func(childComplexity int) int
 	}
 
+	ExportModelToAssetPayload struct {
+		Asset func(childComplexity int) int
+	}
+
 	FieldPayload struct {
 		Field func(childComplexity int) int
 	}
@@ -480,6 +484,7 @@ type ComplexityRoot struct {
 		DeleteView                         func(childComplexity int, input gqlmodel.DeleteViewInput) int
 		DeleteWebhook                      func(childComplexity int, input gqlmodel.DeleteWebhookInput) int
 		DeleteWorkspace                    func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
+		ExportModelToAsset                 func(childComplexity int, input gqlmodel.ExportModelToAssetInput) int
 		PublishItem                        func(childComplexity int, input gqlmodel.PublishItemInput) int
 		RegenerateAPIKey                   func(childComplexity int, input gqlmodel.RegenerateAPIKeyInput) int
 		RegenerateIntegrationToken         func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
@@ -1007,6 +1012,7 @@ type MutationResolver interface {
 	DeleteAssets(ctx context.Context, input gqlmodel.DeleteAssetsInput) (*gqlmodel.DeleteAssetsPayload, error)
 	DecompressAsset(ctx context.Context, input gqlmodel.DecompressAssetInput) (*gqlmodel.DecompressAssetPayload, error)
 	CreateAssetUpload(ctx context.Context, input gqlmodel.CreateAssetUploadInput) (*gqlmodel.CreateAssetUploadPayload, error)
+	ExportModelToAsset(ctx context.Context, input gqlmodel.ExportModelToAssetInput) (*gqlmodel.ExportModelToAssetPayload, error)
 	CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error)
 	CreateFields(ctx context.Context, input []*gqlmodel.CreateFieldInput) (*gqlmodel.FieldsPayload, error)
 	UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error)
@@ -1746,6 +1752,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DeleteWorkspacePayload.WorkspaceID(childComplexity), true
+
+	case "ExportModelToAssetPayload.asset":
+		if e.complexity.ExportModelToAssetPayload.Asset == nil {
+			break
+		}
+
+		return e.complexity.ExportModelToAssetPayload.Asset(childComplexity), true
 
 	case "FieldPayload.field":
 		if e.complexity.FieldPayload.Field == nil {
@@ -2969,6 +2982,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteWorkspace(childComplexity, args["input"].(gqlmodel.DeleteWorkspaceInput)), true
+
+	case "Mutation.exportModelToAsset":
+		if e.complexity.Mutation.ExportModelToAsset == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_exportModelToAsset_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ExportModelToAsset(childComplexity, args["input"].(gqlmodel.ExportModelToAssetInput)), true
 
 	case "Mutation.publishItem":
 		if e.complexity.Mutation.PublishItem == nil {
@@ -5136,6 +5161,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteViewInput,
 		ec.unmarshalInputDeleteWebhookInput,
 		ec.unmarshalInputDeleteWorkspaceInput,
+		ec.unmarshalInputExportModelToAssetInput,
 		ec.unmarshalInputFieldSelectorInput,
 		ec.unmarshalInputGuessSchemaFieldsInput,
 		ec.unmarshalInputItemFieldInput,
@@ -5473,6 +5499,12 @@ enum ContentTypesEnum {
   PLAIN
 }
 
+enum ExportFormat {
+  JSON
+  GEOJSON
+  CSV
+}
+
 input CreateAssetInput {
   projectId: ID!
   file: Upload
@@ -5515,6 +5547,13 @@ input DecompressAssetInput {
   assetId: ID!
 }
 
+input ExportModelToAssetInput {
+  projectId: ID!
+  modelId: ID!
+  format: ExportFormat!
+  pagination: Pagination
+}
+
 input AssetQueryInput {
   project: ID!
   keyword: String
@@ -5544,6 +5583,10 @@ type DeleteAssetsPayload {
 }
 
 type DecompressAssetPayload {
+  asset: Asset!
+}
+
+type ExportModelToAssetPayload {
   asset: Asset!
 }
 
@@ -5600,6 +5643,7 @@ extend type Mutation {
   deleteAssets(input: DeleteAssetsInput!): DeleteAssetsPayload
   decompressAsset(input: DecompressAssetInput!): DecompressAssetPayload
   createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
+  exportModelToAsset(input: ExportModelToAssetInput!): ExportModelToAssetPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFieldType {
@@ -7785,6 +7829,34 @@ func (ec *executionContext) field_Mutation_deleteWorkspace_args(ctx context.Cont
 	}
 	args["input"] = arg0
 	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_exportModelToAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_exportModelToAsset_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_exportModelToAsset_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.ExportModelToAssetInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.ExportModelToAssetInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNExportModelToAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelToAssetInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.ExportModelToAssetInput
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_publishItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
@@ -12523,6 +12595,90 @@ func (ec *executionContext) fieldContext_DeleteWorkspacePayload_workspaceId(_ co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportModelToAssetPayload_asset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ExportModelToAssetPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExportModelToAssetPayload_asset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Asset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Asset)
+	fc.Result = res
+	return ec.marshalNAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExportModelToAssetPayload_asset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportModelToAssetPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Asset_id(ctx, field)
+			case "project":
+				return ec.fieldContext_Asset_project(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Asset_projectId(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Asset_createdAt(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Asset_createdById(ctx, field)
+			case "items":
+				return ec.fieldContext_Asset_items(ctx, field)
+			case "size":
+				return ec.fieldContext_Asset_size(ctx, field)
+			case "previewType":
+				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "contentEncoding":
+				return ec.fieldContext_Asset_contentEncoding(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Asset_uuid(ctx, field)
+			case "thread":
+				return ec.fieldContext_Asset_thread(ctx, field)
+			case "threadId":
+				return ec.fieldContext_Asset_threadId(ctx, field)
+			case "url":
+				return ec.fieldContext_Asset_url(ctx, field)
+			case "fileName":
+				return ec.fieldContext_Asset_fileName(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			case "public":
+				return ec.fieldContext_Asset_public(ctx, field)
+			case "contentType":
+				return ec.fieldContext_Asset_contentType(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
 	}
 	return fc, nil
@@ -18796,6 +18952,62 @@ func (ec *executionContext) fieldContext_Mutation_createAssetUpload(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createAssetUpload_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_exportModelToAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_exportModelToAsset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ExportModelToAsset(rctx, fc.Args["input"].(gqlmodel.ExportModelToAssetInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ExportModelToAssetPayload)
+	fc.Result = res
+	return ec.marshalOExportModelToAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelToAssetPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_exportModelToAsset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "asset":
+				return ec.fieldContext_ExportModelToAssetPayload_asset(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExportModelToAssetPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_exportModelToAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -38051,6 +38263,54 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputExportModelToAssetInput(ctx context.Context, obj any) (gqlmodel.ExportModelToAssetInput, error) {
+	var it gqlmodel.ExportModelToAssetInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"projectId", "modelId", "format", "pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "projectId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectID = data
+		case "modelId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModelID = data
+		case "format":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("format"))
+			data, err := ec.unmarshalNExportFormat2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportFormat(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Format = data
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFieldSelectorInput(ctx context.Context, obj any) (gqlmodel.FieldSelectorInput, error) {
 	var it gqlmodel.FieldSelectorInput
 	asMap := map[string]any{}
@@ -43764,6 +44024,45 @@ func (ec *executionContext) _DeleteWorkspacePayload(ctx context.Context, sel ast
 	return out
 }
 
+var exportModelToAssetPayloadImplementors = []string{"ExportModelToAssetPayload"}
+
+func (ec *executionContext) _ExportModelToAssetPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ExportModelToAssetPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, exportModelToAssetPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExportModelToAssetPayload")
+		case "asset":
+			out.Values[i] = ec._ExportModelToAssetPayload_asset(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var fieldPayloadImplementors = []string{"FieldPayload"}
 
 func (ec *executionContext) _FieldPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.FieldPayload) graphql.Marshaler {
@@ -45788,6 +46087,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createAssetUpload":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createAssetUpload(ctx, field)
+			})
+		case "exportModelToAsset":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_exportModelToAsset(ctx, field)
 			})
 		case "createField":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -51135,6 +51438,21 @@ func (ec *executionContext) unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreeart
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNExportFormat2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportFormat(ctx context.Context, v any) (gqlmodel.ExportFormat, error) {
+	var res gqlmodel.ExportFormat
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNExportFormat2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportFormat(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ExportFormat) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNExportModelToAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelToAssetInput(ctx context.Context, v any) (gqlmodel.ExportModelToAssetInput, error) {
+	res, err := ec.unmarshalInputExportModelToAssetInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNFieldSelector2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelector(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FieldSelector) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -54301,6 +54619,13 @@ func (ec *executionContext) marshalODeleteWorkspacePayload2ᚖgithubᚗcomᚋree
 		return graphql.Null
 	}
 	return ec._DeleteWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOExportModelToAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelToAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ExportModelToAssetPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ExportModelToAssetPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOFieldPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FieldPayload) graphql.Marshaler {

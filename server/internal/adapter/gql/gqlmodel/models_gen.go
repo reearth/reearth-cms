@@ -509,6 +509,17 @@ type DeleteWorkspacePayload struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
 
+type ExportModelToAssetInput struct {
+	ProjectID  ID           `json:"projectId"`
+	ModelID    ID           `json:"modelId"`
+	Format     ExportFormat `json:"format"`
+	Pagination *Pagination  `json:"pagination,omitempty"`
+}
+
+type ExportModelToAssetPayload struct {
+	Asset *Asset `json:"asset"`
+}
+
 type FieldPayload struct {
 	Field *SchemaField `json:"field"`
 }
@@ -1951,6 +1962,63 @@ func (e *ContentTypesEnum) UnmarshalJSON(b []byte) error {
 }
 
 func (e ContentTypesEnum) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ExportFormat string
+
+const (
+	ExportFormatJSON    ExportFormat = "JSON"
+	ExportFormatGeojson ExportFormat = "GEOJSON"
+	ExportFormatCSV     ExportFormat = "CSV"
+)
+
+var AllExportFormat = []ExportFormat{
+	ExportFormatJSON,
+	ExportFormatGeojson,
+	ExportFormatCSV,
+}
+
+func (e ExportFormat) IsValid() bool {
+	switch e {
+	case ExportFormatJSON, ExportFormatGeojson, ExportFormatCSV:
+		return true
+	}
+	return false
+}
+
+func (e ExportFormat) String() string {
+	return string(e)
+}
+
+func (e *ExportFormat) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ExportFormat(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ExportFormat", str)
+	}
+	return nil
+}
+
+func (e ExportFormat) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ExportFormat) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ExportFormat) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

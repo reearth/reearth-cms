@@ -21,15 +21,16 @@ import (
 )
 
 type ContainerConfig struct {
-	SignupSecret    string
-	AuthSrvUIDomain string
+	SignupSecret                  string
+	AuthSrvUIDomain               string
+	ExportModelToAssetBatchSize   int
 }
 
 func New(r *repo.Container, g *gateway.Container,
 	ar *accountrepo.Container, ag *accountgateway.Container,
 	config ContainerConfig) interfaces.Container {
 	return interfaces.Container{
-		Asset:             NewAsset(r, g),
+		Asset:             NewAsset(r, g, config),
 		Workspace:         accountinteractor.NewWorkspace(ar, nil),
 		User:              accountinteractor.NewMultiUser(ar, ag, config.SignupSecret, config.AuthSrvUIDomain, ar.Users),
 		Project:           NewProject(r, g),

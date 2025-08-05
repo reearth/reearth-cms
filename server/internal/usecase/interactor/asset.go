@@ -1,7 +1,10 @@
 package interactor
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -18,8 +21,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -32,13 +39,15 @@ type contextKey string
 type Asset struct {
 	repos       *repo.Container
 	gateways    *gateway.Container
+	config      ContainerConfig
 	ignoreEvent bool
 }
 
-func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
+func NewAsset(r *repo.Container, g *gateway.Container, config ContainerConfig) interfaces.Asset {
 	return &Asset{
 		repos:    r,
 		gateways: g,
+		config:   config,
 	}
 }
 
@@ -808,4 +817,461 @@ func (i *Asset) event(ctx context.Context, e Event) error {
 
 func (i *Asset) RetryDecompression(ctx context.Context, id string) error {
 	return i.gateways.TaskRunner.Retry(ctx, id)
+}
+
+func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportModelToAssetsParam, op *usecase.Operator) (*asset.Asset, error) {
+	if op.AcOperator.User == nil && op.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	if inp.Model == nil {
+		return nil, rerror.NewE(i18n.T("model is required"))
+	}
+
+	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !op.IsWritableWorkspace(prj.Workspace()) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	m, err := i.repos.Model.FindByID(ctx, inp.Model.ID())
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch items for the model with batching
+	items, pi, err := i.fetchItemsInBatches(ctx, inp.Model.ID(), inp.Pagination)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate content based on format
+	var content []byte
+	var filename string
+	var contentType string
+
+	switch inp.Format {
+	case interfaces.ExportFormatJSON:
+		content, err = i.generateJSONContentWithPagination(inp.Model, items.Unwrap(), s, pi)
+		filename = fmt.Sprintf("%s.json", inp.Model.Key().String())
+		contentType = "application/json"
+	case interfaces.ExportFormatGeoJSON:
+		content, err = i.generateGeoJSONContent(s, items.Unwrap())
+		filename = fmt.Sprintf("%s.geojson", inp.Model.Key().String())
+		contentType = "application/geo+json"
+	case interfaces.ExportFormatCSV:
+		content, err = i.generateCSVContent(s, items.Unwrap())
+		filename = fmt.Sprintf("%s.csv", inp.Model.Key().String())
+		contentType = "text/csv"
+	default:
+		return nil, interfaces.ErrUnsupportedExportFormat
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Create file object
+	f := &file.File{
+		Name:        filename,
+		Size:        int64(len(content)),
+		ContentType: contentType,
+		Content:     io.NopCloser(bytes.NewReader(content)),
+	}
+
+	// Create asset using existing Create method
+	createParam := interfaces.CreateAssetParam{
+		ProjectID:         inp.ProjectID,
+		File:              f,
+		SkipDecompression: true,
+	}
+
+	a, _, err := i.Create(ctx, createParam, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return a, nil
+}
+
+func (i *Asset) generateJSONContentWithPagination(model *model.Model, items item.List, s *schema.Schema, pageInfo *usecasex.PageInfo) ([]byte, error) {
+
+	// Convert items to readable format with schema field names
+	itemsData := make([]map[string]any, 0, len(items))
+	for _, item := range items {
+		if item == nil {
+			continue
+		}
+
+		itemData := make(map[string]any)
+
+		// Extract field data using schema field names
+		for _, field := range item.Fields() {
+			if field == nil {
+				continue
+			}
+
+			// Extract the actual field value
+			var fieldValue any
+			if field.Value() != nil {
+				vv := field.Value().First()
+				if vv != nil {
+					fieldValue = vv.Interface()
+				}
+			}
+
+			fieldName := ""
+			if s != nil {
+				if schemaField := s.Field(field.FieldID()); schemaField != nil {
+					fieldName = schemaField.Name()
+				}
+			}
+
+			if fieldName != "" {
+				itemData[fieldName] = fieldValue
+			}
+		}
+
+		itemsData = append(itemsData, itemData)
+	}
+
+	data := map[string]any{
+		"model": map[string]any{
+			"id":          model.ID().String(),
+			"name":        model.Name(),
+			"description": model.Description(),
+			"key":         model.Key().String(),
+		},
+		"items": itemsData,
+	}
+
+	// Add pagination info if available
+	if pageInfo != nil {
+		data["pagination"] = map[string]any{
+			"totalCount":  pageInfo.TotalCount,
+			"hasNextPage": pageInfo.HasNextPage,
+			"hasPrevPage": pageInfo.HasPreviousPage,
+			"startCursor": pageInfo.StartCursor,
+			"endCursor":   pageInfo.EndCursor,
+		}
+	}
+
+	return json.MarshalIndent(data, "", "  ")
+}
+
+func (i *Asset) generateGeoJSONContent(s *schema.Schema, items item.List) ([]byte, error) {
+	// Require geometry fields for GeoJSON export
+	if s == nil || !s.HasGeometryFields() {
+		return nil, rerror.NewE(i18n.T("no geometry field in this model"))
+	}
+
+	// Create GeoJSON FeatureCollection
+	features := make([]map[string]any, 0, len(items))
+
+	for _, itm := range items {
+		if itm == nil {
+			continue
+		}
+
+		// Extract geometry fields
+		var geometry map[string]any
+		var hasGeometry bool
+
+		// Extract properties from non-geometry fields
+		properties := make(map[string]any)
+
+		// Iterate through schema fields to get proper field names and types
+		for _, schemaField := range s.Fields() {
+			if schemaField == nil {
+				continue
+			}
+
+			// Get the corresponding item field
+			itemField := itm.Field(schemaField.ID())
+			if itemField == nil || itemField.Value() == nil {
+				continue
+			}
+
+			// Handle geometry fields
+			if schemaField.Type().IsGeometryFieldType() {
+				if vv := itemField.Value().First(); vv != nil {
+					if geoStr, ok := vv.ValueString(); ok && geoStr != "" {
+						// Parse the GeoJSON string
+						var geoJSON map[string]any
+						if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+							geometry = geoJSON
+							hasGeometry = true
+						}
+					}
+				}
+				continue
+			}
+
+			// Handle non-geometry fields as properties
+			if vv := itemField.Value().First(); vv != nil {
+				fieldValue := vv.Interface()
+				if fieldValue != nil {
+					properties[schemaField.Name()] = fieldValue
+				}
+			}
+		}
+
+		// Only add feature if it has geometry
+		if hasGeometry {
+			feature := map[string]any{
+				"type":       "Feature",
+				"id":         itm.ID().String(),
+				"geometry":   geometry,
+				"properties": properties,
+			}
+			features = append(features, feature)
+		}
+	}
+
+	// Create FeatureCollection
+	featureCollection := map[string]any{
+		"type":     "FeatureCollection",
+		"features": features,
+	}
+
+	return json.MarshalIndent(featureCollection, "", "  ")
+}
+
+func (i *Asset) generateCSVContent(s *schema.Schema, items item.List) ([]byte, error) {
+	if s == nil {
+		return nil, rerror.NewE(i18n.T("schema is required for CSV export"))
+	}
+
+	// Create CSV buffer
+	var buf bytes.Buffer
+	writer := csv.NewWriter(&buf)
+
+	// Build headers - include all non-geometry fields
+	headers := []string{"id"}
+	var nonGeoFields []*schema.Field
+
+	// Add geometry coordinates if geometry fields exist
+	hasGeometry := s.HasGeometryFields()
+	if hasGeometry {
+		headers = append(headers, "location_lat", "location_lng")
+	}
+
+	// Add all non-geometry field names as headers
+	for _, field := range s.Fields() {
+		if field != nil && !field.Type().IsGeometryFieldType() {
+			headers = append(headers, field.Name())
+			nonGeoFields = append(nonGeoFields, field)
+		}
+	}
+
+	// Write header row
+	if err := writer.Write(headers); err != nil {
+		return nil, err
+	}
+
+	// Write data rows
+	rowCount := 0
+	for _, itm := range items {
+		if itm == nil {
+			continue
+		}
+
+		row := []string{itm.ID().String()}
+
+		// Add geometry coordinates if geometry fields exist
+		if hasGeometry {
+			lat, lng := i.extractPointCoordinates(itm, s)
+			row = append(row, lat, lng)
+		}
+
+		// Add non-geometry field values
+		for _, field := range nonGeoFields {
+			value := i.extractFieldValueAsString(itm, field)
+			row = append(row, value)
+		}
+
+		if err := writer.Write(row); err != nil {
+			return nil, err
+		}
+		rowCount++
+	}
+
+	// Flush the writer to ensure all data is written to the buffer
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		return nil, err
+	}
+
+	result := buf.Bytes()
+
+	return result, nil
+}
+
+// extractPointCoordinates extracts lat/lng from the first Point geometry field found
+func (i *Asset) extractPointCoordinates(itm *item.Item, s *schema.Schema) (string, string) {
+	for _, schemaField := range s.Fields() {
+		if schemaField == nil || !schemaField.Type().IsGeometryFieldType() {
+			continue
+		}
+
+		itemField := itm.Field(schemaField.ID())
+		if itemField == nil || itemField.Value() == nil {
+			continue
+		}
+
+		if vv := itemField.Value().First(); vv != nil {
+			if geoStr, ok := vv.ValueString(); ok && geoStr != "" {
+				// Parse the GeoJSON string
+				var geoJSON map[string]any
+				if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+					if geoType, ok := geoJSON["type"].(string); ok && geoType == "Point" {
+						if coords, ok := geoJSON["coordinates"].([]any); ok && len(coords) >= 2 {
+							if lng, ok := coords[0].(float64); ok {
+								if lat, ok := coords[1].(float64); ok {
+									return fmt.Sprintf("%.10f", lat), fmt.Sprintf("%.10f", lng)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return "", "" // Return empty if no Point geometry found
+}
+
+// extractFieldValueAsString extracts field value and converts it to string
+func (i *Asset) extractFieldValueAsString(itm *item.Item, schemaField *schema.Field) string {
+	if schemaField == nil {
+		return ""
+	}
+
+	itemField := itm.Field(schemaField.ID())
+	if itemField == nil || itemField.Value() == nil {
+		return ""
+	}
+
+	if vv := itemField.Value().First(); vv != nil {
+		fieldValue := vv.Interface()
+		if fieldValue == nil {
+			return ""
+		}
+
+		// Convert to string based on type
+		switch v := fieldValue.(type) {
+		case string:
+			return v
+		case int, int32, int64:
+			return fmt.Sprintf("%d", v)
+		case float32, float64:
+			return fmt.Sprintf("%.10f", v)
+		case bool:
+			return fmt.Sprintf("%t", v)
+		default:
+			return fmt.Sprintf("%v", v)
+		}
+	}
+
+	return ""
+}
+
+// fetchItemsInBatches fetches items in batches using configurable batch size (default 200) with goroutines for better performance
+func (i *Asset) fetchItemsInBatches(ctx context.Context, modelID id.ModelID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	batchSize := i.config.ExportModelToAssetBatchSize
+	if batchSize <= 0 {
+		batchSize = 200 // fallback to default
+	}
+
+	// If pagination is provided and small, fetch directly
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil && *pagination.Cursor.First <= int64(batchSize) {
+		return i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, pagination)
+	}
+
+	// For large requests or no pagination, use sequential batching with goroutines
+	var allItems item.VersionedList
+	var finalPageInfo *usecasex.PageInfo
+	var cursor *string
+
+	// Calculate total items to fetch
+	totalLimit := int64(2000) // Default max
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
+		totalLimit = *pagination.Cursor.First
+	}
+
+	// Handle initial cursor if provided
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.After != nil {
+		cursor = (*string)(pagination.Cursor.After)
+	}
+
+	// Channel for batch results
+	type batchResult struct {
+		items    item.VersionedList
+		pageInfo *usecasex.PageInfo
+		err      error
+	}
+
+	// Process batches sequentially but with goroutine for each batch
+	remaining := totalLimit
+	for remaining > 0 {
+		currentBatchSize := int64(batchSize)
+		if remaining < currentBatchSize {
+			currentBatchSize = remaining
+		}
+
+		// Create pagination for this batch
+		batchPagination := &usecasex.Pagination{
+			Cursor: &usecasex.CursorPagination{
+				First: &currentBatchSize,
+			},
+		}
+		if cursor != nil {
+			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
+		}
+
+		// Execute batch in goroutine
+		resultChan := make(chan batchResult, 1)
+		go func(modelID id.ModelID, pagination *usecasex.Pagination) {
+			items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, pagination)
+			resultChan <- batchResult{
+				items:    items,
+				pageInfo: pi,
+				err:      err,
+			}
+		}(modelID, batchPagination)
+
+		// Wait for batch result
+		result := <-resultChan
+		close(resultChan)
+
+		if result.err != nil {
+			return nil, nil, result.err
+		}
+
+		// Append results
+		allItems = append(allItems, result.items...)
+		finalPageInfo = result.pageInfo
+
+		// Update cursor for next batch
+		if result.pageInfo != nil && result.pageInfo.EndCursor != nil {
+			cursor = (*string)(result.pageInfo.EndCursor)
+		}
+
+		// If this batch returned fewer items than requested, we've reached the end
+		if len(result.items) < int(currentBatchSize) || (result.pageInfo != nil && !result.pageInfo.HasNextPage) {
+			break
+		}
+
+		remaining -= int64(len(result.items))
+	}
+
+	return allItems, finalPageInfo, nil
 }

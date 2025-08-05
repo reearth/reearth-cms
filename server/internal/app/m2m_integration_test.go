@@ -24,20 +24,20 @@ import (
 
 func TestM2MEndpointIntegration(t *testing.T) {
 	e := echo.New()
-	
+
 	db := memory.New()
 	g := &gateway.Container{
 		File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
 	}
 	uc := &interfaces.Container{
-		Asset:   interactor.NewAsset(db, g),
+		Asset:   interactor.NewAsset(db, g, interactor.ContainerConfig{}),
 		Project: interactor.NewProject(db, g),
 	}
-	
+
 	ctx := context.Background()
 	wid := accountdomain.NewWorkspaceID()
 	uid := accountdomain.NewUserID()
-	
+
 	privProj := project.New().NewID().
 		Workspace(wid).
 		Name("Private Project").
@@ -46,7 +46,7 @@ func TestM2MEndpointIntegration(t *testing.T) {
 			nil,
 			nil)).
 		MustBuild()
-	
+
 	pubProj := project.New().NewID().
 		Workspace(wid).
 		Name("Public Project").
@@ -55,7 +55,7 @@ func TestM2MEndpointIntegration(t *testing.T) {
 			nil,
 			nil)).
 		MustBuild()
-	
+
 	privAsset := asset.New().NewID().
 		Project(privProj.ID()).
 		CreatedByUser(uid).
@@ -63,7 +63,7 @@ func TestM2MEndpointIntegration(t *testing.T) {
 		Size(100).
 		NewUUID().
 		MustBuild()
-	
+
 	pubAsset := asset.New().NewID().
 		Project(pubProj.ID()).
 		CreatedByUser(uid).
@@ -71,12 +71,12 @@ func TestM2MEndpointIntegration(t *testing.T) {
 		Size(100).
 		NewUUID().
 		MustBuild()
-	
+
 	assert.NoError(t, db.Project.Save(ctx, privProj))
 	assert.NoError(t, db.Project.Save(ctx, pubProj))
 	assert.NoError(t, db.Asset.Save(ctx, privAsset))
 	assert.NoError(t, db.Asset.Save(ctx, pubAsset))
-	
+
 	token := "test-m2m-token"
 	authMiddleware := M2MTokenAuthMiddleware(token)
 	usecaseMiddleware := func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -86,55 +86,55 @@ func TestM2MEndpointIntegration(t *testing.T) {
 			return next(c)
 		}
 	}
-	
+
 	handler := echo.HandlerFunc(func(c echo.Context) error {
 		return authMiddleware(usecaseMiddleware(M2MAssetHandler()))(c)
 	})
-	
+
 	tests := []struct {
-		name           string
-		uuid           string
-		token          string
-		expectedStatus int
+		name            string
+		uuid            string
+		token           string
+		expectedStatus  int
 		expectedPrivate *bool
 	}{
 		{
-			name:           "Private asset with valid token",
-			uuid:           privAsset.UUID(),
-			token:          token,
-			expectedStatus: http.StatusOK,
+			name:            "Private asset with valid token",
+			uuid:            privAsset.UUID(),
+			token:           token,
+			expectedStatus:  http.StatusOK,
 			expectedPrivate: lo.ToPtr(true),
 		},
 		{
-			name:           "Public asset with valid token",
-			uuid:           pubAsset.UUID(),
-			token:          token,
-			expectedStatus: http.StatusOK,
+			name:            "Public asset with valid token",
+			uuid:            pubAsset.UUID(),
+			token:           token,
+			expectedStatus:  http.StatusOK,
 			expectedPrivate: lo.ToPtr(false),
 		},
 		{
-			name:           "Non-existent asset with valid token",
-			uuid:           "non-existent-uuid",
-			token:          token,
-			expectedStatus: http.StatusNotFound,
+			name:            "Non-existent asset with valid token",
+			uuid:            "non-existent-uuid",
+			token:           token,
+			expectedStatus:  http.StatusNotFound,
 			expectedPrivate: nil,
 		},
 		{
-			name:           "Private asset without token",
-			uuid:           privAsset.UUID(),
-			token:          "",
-			expectedStatus: http.StatusUnauthorized,
+			name:            "Private asset without token",
+			uuid:            privAsset.UUID(),
+			token:           "",
+			expectedStatus:  http.StatusUnauthorized,
 			expectedPrivate: nil,
 		},
 		{
-			name:           "Private asset with wrong token",
-			uuid:           privAsset.UUID(),
-			token:          "wrong-token",
-			expectedStatus: http.StatusUnauthorized,
+			name:            "Private asset with wrong token",
+			uuid:            privAsset.UUID(),
+			token:           "wrong-token",
+			expectedStatus:  http.StatusUnauthorized,
 			expectedPrivate: nil,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, "/api/m2m/assets/"+tt.uuid+"/is-private", nil)
@@ -142,17 +142,17 @@ func TestM2MEndpointIntegration(t *testing.T) {
 				req.Header.Set("Authorization", "Bearer "+tt.token)
 			}
 			rec := httptest.NewRecorder()
-			
+
 			c := e.NewContext(req, rec)
 			c.SetPath("/api/m2m/assets/:uuid/is-private")
 			c.SetParamNames("uuid")
 			c.SetParamValues(tt.uuid)
-			
+
 			err := handler(c)
 			assert.NoError(t, err)
-			
+
 			assert.Equal(t, tt.expectedStatus, rec.Code)
-			
+
 			if tt.expectedStatus == http.StatusOK && tt.expectedPrivate != nil {
 				var resp map[string]interface{}
 				assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &resp))
