@@ -306,6 +306,7 @@ Create a new project: 新規プロジェクトを作成
 New Model: 新規モデル
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
+Export: ''
 Last Modified: ''
 search models: モデルを検索
 Sort by: 並び替え
@@ -345,6 +346,14 @@ Are you sure you want to delete this group: 本当に<strong>{{name}}</strong>�
 This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
 This action will permanently delete the selected group and cannot be reversed.: この操作は選択したグループを永久に削除し、元に戻すことはできません。
 Warning: 注意
+Export not successful.: ''
+Generating...: ''
+Export successful!: ''
+Go to Assets: ''
+JSON: ''
+GeoJSON: ''
+File type: ''
+If a Geometry field is included, it is recommended to export as GeoJSON format.: ''
 Text: テキスト
 Time: 時間
 Boolean: ブーリアン

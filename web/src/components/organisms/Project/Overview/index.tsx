@@ -1,6 +1,6 @@
 import ProjectOverviewMolecule from "@reearth-cms/components/molecules/ProjectOverview";
 import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModal";
-import ExportModal from "@reearth-cms/components/molecules/Schema/ExportModal";
+import ExportModal from "@reearth-cms/components/molecules/Schema/ExportSchemaModal";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 
 import useHooks from "./hooks";
@@ -21,6 +21,7 @@ const ProjectOverview: React.FC = () => {
     handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,
+    handleGoToAssets,
     handleModelSearch,
     handleModelSort,
     handleModelKeyCheck,
@@ -78,6 +79,7 @@ const ProjectOverview: React.FC = () => {
         exportLoading={exportLoading}
         onExport={handleModelExport}
         onClose={handleModelExportModalClose}
+        onGoToAssets={handleGoToAssets}
       />
     </>
   );

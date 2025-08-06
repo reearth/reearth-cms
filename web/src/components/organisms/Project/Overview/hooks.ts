@@ -196,6 +196,10 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
+  const handleGoToAssets = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/asset`);
+  }, [currentWorkspace?.id, currentProject?.id, navigate]);
+
   const handleModelModalReset = useCallback(() => {
     setSelectedModel(undefined);
     handleModelModalClose();
@@ -227,6 +231,7 @@ export default () => {
     handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,
+    handleGoToAssets,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,
