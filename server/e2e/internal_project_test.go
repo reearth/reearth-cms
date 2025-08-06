@@ -442,3 +442,36 @@ func TestInternalListAssetsInProjectAPI(t *testing.T) {
 	assert.Equal(t, pid.String(), a.ProjectId)
 	assert.Equal(t, false, a.Public)
 }
+
+// GRPC Get Asset
+func TestInternalGetAssetAPI(t *testing.T) {
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
+	assert.NoError(t, err)
+
+	client := pb.NewReEarthCMSClient(clientConn)
+	md := metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId.String(),
+	})
+
+	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	a, err := client.GetAsset(mdCtx, &pb.AssetRequest{AssetId: aid1.String()})
+	assert.NoError(t, err)
+	assert.Equal(t, aid1.String(), a.Asset.Id)
+	assert.Equal(t, "aaa.jpg", a.Asset.Filename)
+	assert.Nil(t, a.Asset.PreviewType)
+	assert.Equal(t, uint64(1000), a.Asset.Size)
+	assert.Nil(t, a.Asset.ArchiveExtractionStatus)
+	assert.Equal(t, pid.String(), a.Asset.ProjectId)
+	assert.Equal(t, false, a.Asset.Public)
+}
