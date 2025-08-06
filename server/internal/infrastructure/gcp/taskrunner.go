@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"path"
 
-	"cloud.google.com/go/pubsub"
+	"cloud.google.com/go/pubsub/v2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/log"
@@ -319,7 +319,7 @@ func (t *TaskRunner) runPubSub(ctx context.Context, p task.Payload) error {
 		return rerror.ErrInternalBy(err)
 	}
 
-	topic := t.pubsub.Topic(t.conf.Topic)
+	topic := t.pubsub.Publisher(t.conf.Topic)
 	result := topic.Publish(ctx, &pubsub.Message{
 		Data: data,
 	})
