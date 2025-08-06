@@ -54,6 +54,20 @@ func TestInternalListProjectsAPI(t *testing.T) {
 	assert.Equal(t, palias, p1.Alias)
 	assert.Equal(t, wId0.String(), p1.WorkspaceId)
 	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+
+	// 2- List projects for the workspace with PublicOnly = true
+	l, err = client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}, PublicOnly: true})
+	assert.NoError(t, err)
+
+	assert.Equal(t, int64(1), l.TotalCount)
+	assert.Equal(t, 1, len(l.Projects))
+
+	p1 = l.Projects[0]
+	assert.Equal(t, pid.String(), p1.Id)
+	assert.Equal(t, "p1", p1.Name)
+	assert.Equal(t, palias, p1.Alias)
+	assert.Equal(t, wId0.String(), p1.WorkspaceId)
+	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
 }
 
 // GRPC Get Project
