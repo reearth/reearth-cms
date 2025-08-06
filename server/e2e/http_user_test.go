@@ -88,7 +88,7 @@ func TestSignUp(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/signup").
+	o := e.POST("/internal/signup").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
