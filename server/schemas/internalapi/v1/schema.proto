@@ -15,6 +15,7 @@ service ReEarthCMS {
   rpc CheckAliasAvailability(AliasAvailabilityRequest) returns (AliasAvailabilityResponse) {}
   rpc GetProject(ProjectRequest) returns (ProjectResponse) {}
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {}
+  rpc GetAsset(AssetRequest) returns (AssetResponse) {}
   rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse) {}
   rpc GetModel(ModelRequest) returns (ModelResponse) {}
   rpc ListModels(ListModelsRequest) returns (ListModelsResponse) {}
@@ -166,6 +167,10 @@ message ListProjectsRequest {
   optional SortInfo sort_info = 101;
 }
 
+message AssetRequest {
+  string asset_id = 1;
+}
+
 message ListAssetsRequest {
   string project_id = 1;
 
@@ -217,6 +222,10 @@ message ListProjectsResponse {
   int64 total_count = 2;
 
   PageInfo page_info = 100;
+}
+
+message AssetResponse {
+  Asset asset = 1;
 }
 
 message ListAssetsResponse {

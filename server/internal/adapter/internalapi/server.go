@@ -185,6 +185,28 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 	}, nil
 }
 
+func (s server) GetAsset(ctx context.Context, req *pb.AssetRequest) (*pb.AssetResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	aId, err := asset.IDFrom(req.AssetId)
+	if err != nil {
+		return nil, err
+	}
+
+	a, err := uc.Asset.FindByID(ctx, aId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	if a == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return &pb.AssetResponse{
+		Asset: internalapimodel.ToAsset(a),
+	}, nil
+}
+
 func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.ListAssetsResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
