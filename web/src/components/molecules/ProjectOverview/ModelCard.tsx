@@ -41,7 +41,7 @@ const ModelCard: React.FC<Props> = ({
       },
       {
         key: "export",
-        label: t("Export"),
+        label: t("Export to Asset"),
         onClick: () => onModelExportModalOpen(model),
       },
       {

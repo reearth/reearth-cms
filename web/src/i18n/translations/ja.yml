@@ -306,7 +306,7 @@ Create a new project: 新規プロジェクトを作成
 New Model: 新規モデル
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
-Export: ''
+Export to Asset: ''
 Last Modified: ''
 search models: モデルを検索
 Sort by: 並び替え
@@ -350,6 +350,7 @@ Export not successful.: ''
 Generating...: ''
 Export successful!: ''
 Go to Assets: ''
+Export: ''
 JSON: ''
 GeoJSON: ''
 File type: ''
