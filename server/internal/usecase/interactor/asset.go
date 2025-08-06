@@ -34,6 +34,11 @@ import (
 	"github.com/samber/lo"
 )
 
+const (
+	defaultFetchBatchSize = 200
+	defaultMaxItemsLimit  = 2000
+)
+
 type contextKey string
 
 type Asset struct {
@@ -1188,7 +1193,7 @@ func (i *Asset) extractFieldValueAsString(itm *item.Item, schemaField *schema.Fi
 func (i *Asset) fetchItemsInBatches(ctx context.Context, modelID id.ModelID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	batchSize := i.config.ExportModelToAssetBatchSize
 	if batchSize <= 0 {
-		batchSize = 200 // fallback to default
+		batchSize = defaultFetchBatchSize
 	}
 
 	// If pagination is provided and small, fetch directly
@@ -1202,7 +1207,7 @@ func (i *Asset) fetchItemsInBatches(ctx context.Context, modelID id.ModelID, pag
 	var cursor *string
 
 	// Calculate total items to fetch
-	totalLimit := int64(2000) // Default max
+	totalLimit := int64(defaultMaxItemsLimit) // Default max
 	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
 		totalLimit = *pagination.Cursor.First
 	}
