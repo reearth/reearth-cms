@@ -438,7 +438,7 @@ func TestInternalListItemsInModelAPI(t *testing.T) {
 	item := l.Items[0]
 	assert.Equal(t, itmId1.String(), item.Id)
 
-	// 3-
+	// 3- model contains items with different fields types
 
 	// create request & approve it to make the item published
 	res = createRequest2(e, pid.String(), "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId.String()}, []any{map[string]any{"itemId": itmId6.String(), "version": "latest"}})
