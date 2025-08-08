@@ -73,6 +73,7 @@ var (
 	fId7    = id.NewFieldID()
 	fId8    = id.NewFieldID()
 	fId9    = id.NewFieldID()
+	fId10   = id.NewFieldID()
 	dvsfId  = id.NewFieldID()
 	thId1   = id.NewThreadID()
 	thId2   = id.NewThreadID()
@@ -106,6 +107,7 @@ var (
 	sfKey7  = id.NewKey("geometry-key")
 	sfKey8  = id.NewKey("geometry-editor-key")
 	sfkey9  = id.NewKey("number-key")
+	sfkey10 = id.NewKey("integer-key")
 	gKey1   = id.RandomKey()
 	gKey2   = id.RandomKey()
 	igId1   = id.NewItemGroupID()
@@ -322,7 +324,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	float2 := float64(123.4)
 	sn1, _ := schema.NewNumber(&float1, &float2)
 	sf9 := schema.NewField(sn1.TypeProperty()).ID(fId9).Key(sfkey9).Type(sn1.TypeProperty()).MustBuild()
-	s8 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf9}).MustBuild()
+	sf10 := schema.NewField(lo.Must(schema.NewInteger(nil, nil)).TypeProperty()).ID(fId10).Key(sfkey10).MustBuild()
+	s8 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf9, sf10}).MustBuild()
 	if err := r.Schema.Save(ctx, s8); err != nil {
 		return err
 	}
@@ -421,9 +424,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Thread(thId6.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
-			item.NewField(fId9, value.MultipleFrom(value.TypeNumber, []*value.Value{
-				value.TypeNumber.Value(21.2),
-			}), nil),
+			item.NewField(fId9, value.MultipleFrom(value.TypeNumber, []*value.Value{value.TypeNumber.Value(21.2)}), nil),
+			item.NewField(fId10, value.MultipleFrom(value.TypeInteger, []*value.Value{value.TypeInteger.Value(123)}), nil),
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm6); err != nil {

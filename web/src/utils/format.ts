@@ -28,3 +28,9 @@ export const transformDayjsToString = (value: any) => {
 
   return value; // return the original value if it's neither a dayjs object nor an array of dayjs objects
 };
+
+export const parseConfigBoolean = (value: string | boolean | undefined | null): boolean => {
+  if (value === true) return true;
+  if (typeof value === "string") return value.toLowerCase() === "true";
+  return false;
+}

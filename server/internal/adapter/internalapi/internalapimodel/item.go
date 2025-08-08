@@ -40,6 +40,8 @@ func WrapPrimitive(value any) (*anypb.Any, error) {
 	switch v := value.(type) {
 	case string:
 		return anypb.New(wrapperspb.String(v))
+	case int64:
+		return anypb.New(wrapperspb.Int64(v))
 	case int32:
 		return anypb.New(wrapperspb.Int32(v))
 	case int:
