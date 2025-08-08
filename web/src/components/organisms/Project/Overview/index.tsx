@@ -1,5 +1,6 @@
 import ProjectOverviewMolecule from "@reearth-cms/components/molecules/ProjectOverview";
 import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModal";
+import ExportModal from "@reearth-cms/components/molecules/Schema/ExportSchemaModal";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 
 import useHooks from "./hooks";
@@ -10,7 +11,9 @@ const ProjectOverview: React.FC = () => {
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
+    modelExportModalShown,
     deleteLoading,
+    exportLoading,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -18,6 +21,7 @@ const ProjectOverview: React.FC = () => {
     handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,
+    handleGoToAssets,
     handleModelSearch,
     handleModelSort,
     handleModelKeyCheck,
@@ -27,7 +31,10 @@ const ProjectOverview: React.FC = () => {
     handleModelDeletionModalOpen,
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
+    handleModelExportModalOpen,
+    handleModelExportModalClose,
     handleModelDelete,
+    handleModelExport,
     handleModelUpdate,
   } = useHooks();
 
@@ -47,6 +54,7 @@ const ProjectOverview: React.FC = () => {
         onModelModalOpen={handleModelModalOpen}
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}
+        onModelExportModalOpen={handleModelExportModalOpen}
       />
       <FormModal
         data={selectedModel}
@@ -64,6 +72,14 @@ const ProjectOverview: React.FC = () => {
         onDelete={handleModelDelete}
         onClose={handleModelDeletionModalClose}
         isModel
+      />
+      <ExportModal
+        open={modelExportModalShown}
+        data={selectedModel}
+        exportLoading={exportLoading}
+        onExport={handleModelExport}
+        onClose={handleModelExportModalClose}
+        onGoToAssets={handleGoToAssets}
       />
     </>
   );
