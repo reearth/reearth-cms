@@ -73,7 +73,7 @@ func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKe
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
-			if !operator.IsMaintainingProject(param.ProjectId) {
+			if !operator.IsWritableProject(param.ProjectId) {
 				return nil, interfaces.ErrOperationDenied
 			}
 			return i.create(ctx, param)
@@ -147,7 +147,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				return nil, err
 			}
 
-			if !operator.IsMaintainingProject(m.Project()) {
+			if !operator.IsWritableProject(m.Project()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -193,7 +193,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 			if err != nil {
 				return err
 			}
-			if !operator.IsMaintainingProject(m.Project()) {
+			if !operator.IsWritableProject(m.Project()) {
 				return interfaces.ErrOperationDenied
 			}
 
@@ -233,7 +233,7 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 						if err != nil {
 							return nil, err
 						}
-						if !operator.IsMaintainingProject(p.ID()) {
+						if !operator.IsWritableProject(p.ID()) {
 							return nil, interfaces.ErrOperationDenied
 						}
 
@@ -285,7 +285,7 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 				return nil, rerror.ErrNotFound
 			}
 
-			if !operator.IsMaintainingProject(models.Projects()...) {
+			if !operator.IsWritableProject(models.Projects()...) {
 				return nil, interfaces.ErrOperationDenied
 			}
 			ordered := models.OrderByIDs(ids)
@@ -304,7 +304,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
-			if !operator.IsMaintainingProject(oldModel.Project()) {
+			if !operator.IsWritableProject(oldModel.Project()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
