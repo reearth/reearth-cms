@@ -17,6 +17,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/utils"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
@@ -185,6 +186,28 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 	}, nil
 }
 
+func (s server) GetAsset(ctx context.Context, req *pb.AssetRequest) (*pb.AssetResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	aId, err := asset.IDFrom(req.AssetId)
+	if err != nil {
+		return nil, err
+	}
+
+	a, err := uc.Asset.FindByID(ctx, aId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	if a == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return &pb.AssetResponse{
+		Asset: internalapimodel.ToAsset(a),
+	}, nil
+}
+
 func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.ListAssetsResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
@@ -224,6 +247,38 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 		TotalCount: pi.TotalCount,
 
 		PageInfo: internalapimodel.ToPageInfo(req.PageInfo),
+	}, nil
+}
+
+func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	if err != nil {
+		return nil, err
+	}
+	if p == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(req.ModelIdOrAlias), op)
+	if err != nil {
+		return nil, err
+	}
+	if m == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return nil, err
+	}
+
+	webProjectUrl := s.webBaseUrl.JoinPath("workspace", p.Workspace().String(), "project", p.ID().String())
+	pApiProjectUrl := s.pApiBaseUrl.JoinPath(p.Alias())
+
+	return &pb.ModelResponse{
+		Model: internalapimodel.ToModel(m, sp, webProjectUrl, pApiProjectUrl),
 	}, nil
 }
 
@@ -283,7 +338,10 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 		return nil, err
 	}
 
-	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), "", nil)
+	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), req.GetKeyword(), version.Public.Ref())
+	if req.SortInfo != nil {
+		q = q.WithSort(internalapimodel.SortToViewSort(req.SortInfo))
+	}
 
 	items, pi, err := uc.Item.Search(ctx, *sp, q, internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
