@@ -7835,29 +7835,12 @@ func (ec *executionContext) field_Mutation_deleteWorkspace_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_importAssetToItems_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Mutation_importAssetToItems_argsInput(ctx, rawArgs)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNImportAssetToItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportAssetToItemsInput)
 	if err != nil {
 		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
-}
-func (ec *executionContext) field_Mutation_importAssetToItems_argsInput(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (gqlmodel.ImportAssetToItemsInput, error) {
-	if _, ok := rawArgs["input"]; !ok {
-		var zeroVal gqlmodel.ImportAssetToItemsInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNImportAssetToItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportAssetToItemsInput(ctx, tmp)
-	}
-
-	var zeroVal gqlmodel.ImportAssetToItemsInput
-	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_publishItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
