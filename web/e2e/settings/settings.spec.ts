@@ -55,7 +55,7 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
   await closeNotification(page);
   await expect(page.getByText("url", { exact: true })).toBeVisible();
   const targetImageEl = page.locator(".ant-card-body .ant-card-meta-avatar > img");
-  await await expect(targetImageEl).toHaveAttribute("src", "http://image.com");
+  await expect(targetImageEl).toHaveAttribute("src", "http://image.com");
   await page
     .locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon")
     .click();
