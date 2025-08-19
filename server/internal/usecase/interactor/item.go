@@ -1228,11 +1228,12 @@ func (i Item) validateAndConvertFieldValue(fieldValue interface{}, schemaField *
 		return nil, fmt.Errorf("invalid boolean value: %v", fieldValue)
 
 	case value.TypeURL:
-		// Handle URL validation
+		// Handle URL validation with proper scheme and host requirements
 		if str, ok := fieldValue.(string); ok {
 			if str == "" {
 				return "", nil
 			}
+			// Parse and validate URL
 			u, err := url.Parse(str)
 			if err != nil || u == nil || u.Scheme == "" || u.Host == "" {
 				return nil, fmt.Errorf("invalid URL: %v", str)

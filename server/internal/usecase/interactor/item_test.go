@@ -1515,7 +1515,7 @@ func TestItem_validateAndConvertFieldValue(t *testing.T) {
 		// URL field type
 		{"url valid", value.TypeURL, "https://example.com", "https://example.com", false},
 		{"url empty", value.TypeURL, "", "", false},
-		{"url relative", value.TypeURL, "not a url", "not a url", false},            // Go's url.Parse is permissive
+		{"url invalid", value.TypeURL, "not a url", nil, true},                       // Invalid URL should be rejected
 		{"url with invalid char", value.TypeURL, "ht\ttp://example.com", nil, true}, // Contains invalid character
 		{"url non-string", value.TypeURL, 123, nil, true},
 
