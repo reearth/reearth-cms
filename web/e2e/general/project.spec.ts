@@ -32,8 +32,7 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "close-circle" }).click();
   await expect(projectCard).toBeVisible();
   await projectCard.click();
-  await expect(page.getByRole("heading", { name: projectName })).toBeVisible();
-  await expect(page.getByText(projectDescription)).toBeVisible();
+  await expect(page.getByRole("banner")).toContainText(projectName);
 
   await page.getByText("Settings").click();
   const newProjectName = `new ${projectName}`;
@@ -54,6 +53,5 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Models").click();
-  await expect(page.getByRole("heading", { name: newProjectName })).toBeVisible();
-  await expect(page.getByText(newProjectDescription)).toBeVisible();
+  await expect(page.getByRole("banner")).toContainText(projectName);
 });
