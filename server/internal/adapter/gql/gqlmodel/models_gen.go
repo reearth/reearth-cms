@@ -567,6 +567,17 @@ type GuessSchemaFieldsInput struct {
 	ModelID ID `json:"modelId"`
 }
 
+type ImportAssetToItemsInput struct {
+	AssetID ID `json:"assetId"`
+	ModelID ID `json:"modelId"`
+}
+
+type ImportAssetToItemsPayload struct {
+	Total      int `json:"total"`
+	Successful int `json:"successful"`
+	Failed     int `json:"failed"`
+}
+
 type Integration struct {
 	ID          ID                 `json:"id"`
 	Name        string             `json:"name"`

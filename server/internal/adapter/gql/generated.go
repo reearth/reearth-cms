@@ -300,6 +300,12 @@ type ComplexityRoot struct {
 		TotalCount func(childComplexity int) int
 	}
 
+	ImportAssetToItemsPayload struct {
+		Failed     func(childComplexity int) int
+		Successful func(childComplexity int) int
+		Total      func(childComplexity int) int
+	}
+
 	Integration struct {
 		Config      func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
@@ -480,6 +486,7 @@ type ComplexityRoot struct {
 		DeleteView                         func(childComplexity int, input gqlmodel.DeleteViewInput) int
 		DeleteWebhook                      func(childComplexity int, input gqlmodel.DeleteWebhookInput) int
 		DeleteWorkspace                    func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
+		ImportAssetToItems                 func(childComplexity int, input gqlmodel.ImportAssetToItemsInput) int
 		PublishItem                        func(childComplexity int, input gqlmodel.PublishItemInput) int
 		RegenerateAPIKey                   func(childComplexity int, input gqlmodel.RegenerateAPIKeyInput) int
 		RegenerateIntegrationToken         func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
@@ -1028,6 +1035,7 @@ type MutationResolver interface {
 	DeleteItem(ctx context.Context, input gqlmodel.DeleteItemInput) (*gqlmodel.DeleteItemPayload, error)
 	PublishItem(ctx context.Context, input gqlmodel.PublishItemInput) (*gqlmodel.PublishItemPayload, error)
 	UnpublishItem(ctx context.Context, input gqlmodel.UnpublishItemInput) (*gqlmodel.UnpublishItemPayload, error)
+	ImportAssetToItems(ctx context.Context, input gqlmodel.ImportAssetToItemsInput) (*gqlmodel.ImportAssetToItemsPayload, error)
 	CreateView(ctx context.Context, input gqlmodel.CreateViewInput) (*gqlmodel.ViewPayload, error)
 	UpdateView(ctx context.Context, input gqlmodel.UpdateViewInput) (*gqlmodel.ViewPayload, error)
 	UpdateViewsOrder(ctx context.Context, input gqlmodel.UpdateViewsOrderInput) (*gqlmodel.ViewsPayload, error)
@@ -1892,6 +1900,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.GuessSchemaFieldResult.TotalCount(childComplexity), true
+
+	case "ImportAssetToItemsPayload.failed":
+		if e.complexity.ImportAssetToItemsPayload.Failed == nil {
+			break
+		}
+
+		return e.complexity.ImportAssetToItemsPayload.Failed(childComplexity), true
+
+	case "ImportAssetToItemsPayload.successful":
+		if e.complexity.ImportAssetToItemsPayload.Successful == nil {
+			break
+		}
+
+		return e.complexity.ImportAssetToItemsPayload.Successful(childComplexity), true
+
+	case "ImportAssetToItemsPayload.total":
+		if e.complexity.ImportAssetToItemsPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.ImportAssetToItemsPayload.Total(childComplexity), true
 
 	case "Integration.config":
 		if e.complexity.Integration.Config == nil {
@@ -2968,6 +2997,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteWorkspace(childComplexity, args["input"].(gqlmodel.DeleteWorkspaceInput)), true
+
+	case "Mutation.importAssetToItems":
+		if e.complexity.Mutation.ImportAssetToItems == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_importAssetToItems_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ImportAssetToItems(childComplexity, args["input"].(gqlmodel.ImportAssetToItemsInput)), true
 
 	case "Mutation.publishItem":
 		if e.complexity.Mutation.PublishItem == nil {
@@ -5130,6 +5171,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteWorkspaceInput,
 		ec.unmarshalInputFieldSelectorInput,
 		ec.unmarshalInputGuessSchemaFieldsInput,
+		ec.unmarshalInputImportAssetToItemsInput,
 		ec.unmarshalInputItemFieldInput,
 		ec.unmarshalInputItemQueryInput,
 		ec.unmarshalInputItemSortInput,
@@ -6292,6 +6334,11 @@ input SearchItemInput {
   pagination: Pagination
 }
 
+input ImportAssetToItemsInput {
+  assetId: ID!
+  modelId: ID!
+}
+
 # Payloads
 type ItemPayload {
   item: Item!
@@ -6321,6 +6368,12 @@ type ItemEdge {
   node: Item
 }
 
+type ImportAssetToItemsPayload {
+  total: Int!
+  successful: Int!
+  failed: Int!
+}
+
 extend type Query {
   versionsByItem(itemId: ID!): [VersionedItem!]!
   searchItem(input: SearchItemInput!): ItemConnection!
@@ -6333,6 +6386,7 @@ extend type Mutation {
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
+  importAssetToItems(input: ImportAssetToItemsInput!): ImportAssetToItemsPayload
 }`, BuiltIn: false},
 	{Name: "../../../schemas/item_filter.graphql", Input: `## data Types: string, number, boolean, date, reference, asset, group, groupField
 
@@ -8387,6 +8441,34 @@ func (ec *executionContext) field_Mutation_deleteWorkspace_argsInput(
 	}
 
 	var zeroVal gqlmodel.DeleteWorkspaceInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_importAssetToItems_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_importAssetToItems_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_importAssetToItems_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (gqlmodel.ImportAssetToItemsInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal gqlmodel.ImportAssetToItemsInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNImportAssetToItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportAssetToItemsInput(ctx, tmp)
+	}
+
+	var zeroVal gqlmodel.ImportAssetToItemsInput
 	return zeroVal, nil
 }
 
@@ -15490,6 +15572,138 @@ func (ec *executionContext) fieldContext_GuessSchemaFieldResult_fields(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _ImportAssetToItemsPayload_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportAssetToItemsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImportAssetToItemsPayload_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImportAssetToItemsPayload_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportAssetToItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImportAssetToItemsPayload_successful(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportAssetToItemsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImportAssetToItemsPayload_successful(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Successful, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImportAssetToItemsPayload_successful(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportAssetToItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ImportAssetToItemsPayload_failed(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportAssetToItemsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImportAssetToItemsPayload_failed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Failed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImportAssetToItemsPayload_failed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportAssetToItemsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Integration_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Integration) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Integration_id(ctx, field)
 	if err != nil {
@@ -21865,6 +22079,66 @@ func (ec *executionContext) fieldContext_Mutation_unpublishItem(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_unpublishItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_importAssetToItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_importAssetToItems(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ImportAssetToItems(rctx, fc.Args["input"].(gqlmodel.ImportAssetToItemsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ImportAssetToItemsPayload)
+	fc.Result = res
+	return ec.marshalOImportAssetToItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportAssetToItemsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_importAssetToItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_ImportAssetToItemsPayload_total(ctx, field)
+			case "successful":
+				return ec.fieldContext_ImportAssetToItemsPayload_successful(ctx, field)
+			case "failed":
+				return ec.fieldContext_ImportAssetToItemsPayload_failed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImportAssetToItemsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_importAssetToItems_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -39899,6 +40173,40 @@ func (ec *executionContext) unmarshalInputGuessSchemaFieldsInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputImportAssetToItemsInput(ctx context.Context, obj any) (gqlmodel.ImportAssetToItemsInput, error) {
+	var it gqlmodel.ImportAssetToItemsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"assetId", "modelId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "assetId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AssetID = data
+		case "modelId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModelID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, obj any) (gqlmodel.ItemFieldInput, error) {
 	var it gqlmodel.ItemFieldInput
 	asMap := map[string]any{}
@@ -45980,6 +46288,55 @@ func (ec *executionContext) _GuessSchemaFieldResult(ctx context.Context, sel ast
 	return out
 }
 
+var importAssetToItemsPayloadImplementors = []string{"ImportAssetToItemsPayload"}
+
+func (ec *executionContext) _ImportAssetToItemsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ImportAssetToItemsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, importAssetToItemsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImportAssetToItemsPayload")
+		case "total":
+			out.Values[i] = ec._ImportAssetToItemsPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "successful":
+			out.Values[i] = ec._ImportAssetToItemsPayload_successful(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "failed":
+			out.Values[i] = ec._ImportAssetToItemsPayload_failed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var integrationImplementors = []string{"Integration", "Operator", "Node"}
 
 func (ec *executionContext) _Integration(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Integration) graphql.Marshaler {
@@ -47656,6 +48013,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "unpublishItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_unpublishItem(ctx, field)
+			})
+		case "importAssetToItems":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_importAssetToItems(ctx, field)
 			})
 		case "createView":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -53320,6 +53681,11 @@ func (ec *executionContext) marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcms
 	return ret
 }
 
+func (ec *executionContext) unmarshalNImportAssetToItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportAssetToItemsInput(ctx context.Context, v any) (gqlmodel.ImportAssetToItemsInput, error) {
+	res, err := ec.unmarshalInputImportAssetToItemsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -56186,6 +56552,13 @@ func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 	_ = ctx
 	res := graphql.MarshalString(string(*v))
 	return res
+}
+
+func (ec *executionContext) marshalOImportAssetToItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportAssetToItemsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ImportAssetToItemsPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ImportAssetToItemsPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {

@@ -27,6 +27,9 @@ var (
 	ErrItemMissing              = rerror.NewE(i18n.T("one or more items not found"))
 	ErrItemConflicted           = rerror.NewE(i18n.T("item has been changed before you change it"))
 	ErrMetadataMismatch         = rerror.NewE(i18n.T("metadata item and schema mismatch"))
+	ErrUnsupportedFileFormat    = rerror.NewE(i18n.T("unsupported file format. Only JSON and GeoJSON are supported"))
+	ErrInvalidJSONStructure     = rerror.NewE(i18n.T("invalid JSON structure"))
+	ErrInvalidGeoJSONStructure  = rerror.NewE(i18n.T("invalid GeoJSON structure"))
 )
 
 type ItemFieldParam struct {
@@ -114,6 +117,17 @@ type ImportItemsResponse struct {
 	NewFields schema.FieldList
 }
 
+type ImportAssetToItemsParam struct {
+	AssetID id.AssetID
+	ModelID id.ModelID
+}
+
+type ImportAssetToItemsResponse struct {
+	Total      int
+	Successful int
+	Failed     int
+}
+
 // ExportItemsToCSVResponse contains exported csv data from items
 type ExportItemsToCSVResponse struct {
 	PipeReader *io.PipeReader
@@ -143,6 +157,7 @@ type Item interface {
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
+	ImportAssetToItems(context.Context, ImportAssetToItemsParam, *usecase.Operator) (ImportAssetToItemsResponse, error)
 	TriggerImportJob(context.Context, id.AssetID, id.ModelID, string, string, string, bool, *usecase.Operator) error
 	// ItemsAsCSV exports items data in content to csv file by schema package.
 	ItemsAsCSV(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToCSVResponse, error)

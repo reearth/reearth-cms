@@ -102,6 +102,11 @@ input SearchItemInput {
   pagination: Pagination
 }
 
+input ImportAssetToItemsInput {
+  assetId: ID!
+  modelId: ID!
+}
+
 # Payloads
 type ItemPayload {
   item: Item!
@@ -131,6 +136,12 @@ type ItemEdge {
   node: Item
 }
 
+type ImportAssetToItemsPayload {
+  total: Int!
+  successful: Int!
+  failed: Int!
+}
+
 extend type Query {
   versionsByItem(itemId: ID!): [VersionedItem!]!
   searchItem(input: SearchItemInput!): ItemConnection!
@@ -143,4 +154,5 @@ extend type Mutation {
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
+  importAssetToItems(input: ImportAssetToItemsInput!): ImportAssetToItemsPayload
 }

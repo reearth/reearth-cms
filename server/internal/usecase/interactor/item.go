@@ -2,9 +2,13 @@ package interactor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -14,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -902,6 +907,373 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, sp *schema.Package, page *int,
 		FeatureCollections: featureCollections,
 		PageInfo:           pi,
 	}, nil
+}
+
+func (i Item) ImportAssetToItems(ctx context.Context, param interfaces.ImportAssetToItemsParam, operator *usecase.Operator) (interfaces.ImportAssetToItemsResponse, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return interfaces.ImportAssetToItemsResponse{}, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ImportAssetToItemsResponse, error) {
+
+		asset, err := i.repos.Asset.FindByID(ctx, param.AssetID)
+		if err != nil {
+			return interfaces.ImportAssetToItemsResponse{}, err
+		}
+
+		assetFile, err := i.repos.AssetFile.FindByID(ctx, param.AssetID)
+		if err != nil {
+			return interfaces.ImportAssetToItemsResponse{}, err
+		}
+
+		contentType := strings.ToLower(assetFile.ContentType())
+		isJSON := contentType == "application/json" || strings.HasSuffix(assetFile.Name(), ".json")
+		isGeoJSON := contentType == "application/geo+json" || strings.HasSuffix(assetFile.Name(), ".geojson")
+
+		if !isJSON && !isGeoJSON {
+			return interfaces.ImportAssetToItemsResponse{}, interfaces.ErrUnsupportedFileFormat
+		}
+
+		model, err := i.repos.Model.FindByID(ctx, param.ModelID)
+		if err != nil {
+			return interfaces.ImportAssetToItemsResponse{}, err
+		}
+
+		schema, err := i.repos.Schema.FindByID(ctx, model.Schema())
+		if err != nil {
+			return interfaces.ImportAssetToItemsResponse{}, err
+		}
+
+		if !operator.IsWritableWorkspace(schema.Workspace()) {
+			return interfaces.ImportAssetToItemsResponse{}, interfaces.ErrOperationDenied
+		}
+
+		fileContent, _, err := i.gateways.File.ReadAsset(ctx, asset.UUID(), asset.FileName(), nil)
+		if err != nil {
+			return interfaces.ImportAssetToItemsResponse{}, err
+		}
+		defer fileContent.Close()
+
+		contentBytes, err := io.ReadAll(fileContent)
+		if err != nil {
+			return interfaces.ImportAssetToItemsResponse{}, err
+		}
+
+		var successful, failed int
+		if isGeoJSON {
+			successful, failed, err = i.importGeoJSONToItems(ctx, contentBytes, schema, model, operator)
+		} else {
+			successful, failed, err = i.importJSONToItems(ctx, contentBytes, schema, model, operator)
+		}
+
+		if err != nil {
+			return interfaces.ImportAssetToItemsResponse{}, err
+		}
+
+		return interfaces.ImportAssetToItemsResponse{
+			Total:      successful + failed,
+			Successful: successful,
+			Failed:     failed,
+		}, nil
+	})
+}
+
+func (i Item) importJSONToItems(ctx context.Context, content []byte, schema *schema.Schema, model *model.Model, operator *usecase.Operator) (int, int, error) {
+	var jsonData struct {
+		Items []map[string]interface{} `json:"items"`
+	}
+
+	if err := json.Unmarshal(content, &jsonData); err != nil {
+		return 0, 0, interfaces.ErrInvalidJSONStructure
+	}
+
+	if jsonData.Items == nil {
+		return 0, 0, interfaces.ErrInvalidJSONStructure
+	}
+
+	var successful, failed int
+
+	for _, itemData := range jsonData.Items {
+		// Convert map to field parameters
+		fieldParams, err := i.mapToFieldParams(itemData, schema)
+		if err != nil {
+			failed++
+			continue
+		}
+
+		// Create item using existing Create logic
+		createParam := interfaces.CreateItemParam{
+			SchemaID: schema.ID(),
+			ModelID:  model.ID(),
+			Fields:   fieldParams,
+		}
+
+		_, err = i.Create(ctx, createParam, operator)
+		if err != nil {
+			failed++
+			continue
+		}
+
+		successful++
+	}
+
+	return successful, failed, nil
+}
+
+func (i Item) importGeoJSONToItems(ctx context.Context, content []byte, schema *schema.Schema, model *model.Model, operator *usecase.Operator) (int, int, error) {
+	var geoJSONData struct {
+		Type     string `json:"type"`
+		Features []struct {
+			Type       string         `json:"type"`
+			Geometry   map[string]any `json:"geometry"`
+			Properties map[string]any `json:"properties"`
+		} `json:"features"`
+	}
+
+	if err := json.Unmarshal(content, &geoJSONData); err != nil {
+		return 0, 0, interfaces.ErrInvalidGeoJSONStructure
+	}
+
+	if geoJSONData.Type != "FeatureCollection" || geoJSONData.Features == nil {
+		return 0, 0, interfaces.ErrInvalidGeoJSONStructure
+	}
+
+	var successful, failed int
+
+	for _, feature := range geoJSONData.Features {
+		// Start with properties
+		itemData := make(map[string]interface{})
+
+		// Add properties first
+		for k, v := range feature.Properties {
+			itemData[k] = v
+		}
+
+		// Convert properties to field parameters
+		fieldParams, err := i.mapToFieldParams(itemData, schema)
+		if err != nil {
+			failed++
+			continue
+		}
+
+		// Add geometry to the first geometric field found in schema
+		if feature.Geometry != nil {
+			geometryJSON, err := json.Marshal(feature.Geometry)
+			if err != nil {
+				failed++
+				continue
+			}
+
+			// Find first geometry field in schema
+			var geometryFieldFound bool
+			for _, f := range schema.Fields() {
+				if f.Type().IsGeometryFieldType() {
+					geometryFieldParam := interfaces.ItemFieldParam{
+						Field: lo.ToPtr(f.ID()),
+						Value: string(geometryJSON),
+					}
+					fieldParams = append(fieldParams, geometryFieldParam)
+					geometryFieldFound = true
+					break
+				}
+			}
+
+			if !geometryFieldFound {
+				// Skip this feature if no geometry field exists in schema
+				failed++
+				continue
+			}
+		}
+
+		// Create item using existing Create logic
+		createParam := interfaces.CreateItemParam{
+			SchemaID: schema.ID(),
+			ModelID:  model.ID(),
+			Fields:   fieldParams,
+		}
+
+		_, err = i.Create(ctx, createParam, operator)
+		if err != nil {
+			failed++
+			continue
+		}
+
+		successful++
+	}
+
+	return successful, failed, nil
+}
+
+func (i Item) mapToFieldParams(itemData map[string]interface{}, s *schema.Schema) ([]interfaces.ItemFieldParam, error) {
+	var fieldParams []interfaces.ItemFieldParam
+
+	// First, process fields that exist in the JSON data
+	for fieldName, fieldValue := range itemData {
+		// Find schema field by name
+		var schemaField *schema.Field
+		for _, f := range s.Fields() {
+			if f.Name() == fieldName {
+				schemaField = f
+				break
+			}
+		}
+
+		if schemaField == nil {
+			// Skip fields not in schema
+			continue
+		}
+
+		// Validate and convert value based on field type
+		validatedValue, err := i.validateAndConvertFieldValue(fieldValue, schemaField)
+		if err != nil {
+			// Skip invalid values instead of failing the entire import
+			continue
+		}
+
+		fieldParam := interfaces.ItemFieldParam{
+			Field: lo.ToPtr(schemaField.ID()),
+			Value: validatedValue,
+		}
+		fieldParams = append(fieldParams, fieldParam)
+	}
+
+	// Check for required fields that are missing from the input data
+	providedFieldNames := make(map[string]bool)
+	for fieldName := range itemData {
+		providedFieldNames[fieldName] = true
+	}
+
+	for _, schemaField := range s.Fields() {
+		if schemaField.Required() && !providedFieldNames[schemaField.Name()] {
+			// Required field is missing - add it with nil value to trigger validation error
+			fieldParam := interfaces.ItemFieldParam{
+				Field: lo.ToPtr(schemaField.ID()),
+				Value: nil,
+			}
+			fieldParams = append(fieldParams, fieldParam)
+		}
+	}
+
+	return fieldParams, nil
+}
+
+func (i Item) validateAndConvertFieldValue(fieldValue interface{}, schemaField *schema.Field) (interface{}, error) {
+	if fieldValue == nil {
+		return nil, nil
+	}
+
+	fieldType := schemaField.Type()
+
+	switch fieldType {
+	case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeTag:
+		// Convert to string
+		if str, ok := fieldValue.(string); ok {
+			return str, nil
+		}
+		// Try to convert non-strings to string
+		return fmt.Sprintf("%v", fieldValue), nil
+
+	case value.TypeInteger:
+		// Handle integer conversion
+		switch v := fieldValue.(type) {
+		case int:
+			return v, nil
+		case int64:
+			return int(v), nil
+		case float64:
+			// JSON numbers are float64 by default
+			return int(v), nil
+		case string:
+			if intVal, err := strconv.Atoi(v); err == nil {
+				return intVal, nil
+			}
+		}
+		return nil, fmt.Errorf("invalid integer value: %v", fieldValue)
+
+	case value.TypeNumber:
+		// Handle float conversion
+		switch v := fieldValue.(type) {
+		case float64:
+			return v, nil
+		case float32:
+			return float64(v), nil
+		case int:
+			return float64(v), nil
+		case int64:
+			return float64(v), nil
+		case string:
+			if floatVal, err := strconv.ParseFloat(v, 64); err == nil {
+				return floatVal, nil
+			}
+		}
+		return nil, fmt.Errorf("invalid number value: %v", fieldValue)
+
+	case value.TypeBool, value.TypeCheckbox:
+		// Handle boolean conversion
+		switch v := fieldValue.(type) {
+		case bool:
+			return v, nil
+		case string:
+			if boolVal, err := strconv.ParseBool(v); err == nil {
+				return boolVal, nil
+			}
+		case int:
+			return v != 0, nil
+		case float64:
+			return v != 0, nil
+		}
+		return nil, fmt.Errorf("invalid boolean value: %v", fieldValue)
+
+	case value.TypeURL:
+		// Handle URL validation
+		if str, ok := fieldValue.(string); ok {
+			if str == "" {
+				return "", nil
+			}
+			if _, err := url.Parse(str); err != nil {
+				return nil, fmt.Errorf("invalid URL: %v", str)
+			}
+			return str, nil
+		}
+		return nil, fmt.Errorf("invalid URL value: %v", fieldValue)
+
+	case value.TypeSelect:
+		// Convert to string and let schema validation handle allowed values
+		if str, ok := fieldValue.(string); ok {
+			return str, nil
+		}
+		return fmt.Sprintf("%v", fieldValue), nil
+
+	case value.TypeGeometryObject, value.TypeGeometryEditor:
+		// Handle geometry fields (should already be JSON string)
+		if str, ok := fieldValue.(string); ok {
+			// Validate that it's valid JSON
+			var geoJSON map[string]interface{}
+			if err := json.Unmarshal([]byte(str), &geoJSON); err != nil {
+				return nil, fmt.Errorf("invalid geometry JSON: %v", err)
+			}
+			return str, nil
+		}
+		return nil, fmt.Errorf("invalid geometry value: %v", fieldValue)
+
+	case value.TypeAsset:
+		// Handle asset references (expect string ID)
+		if str, ok := fieldValue.(string); ok {
+			return str, nil
+		}
+		return nil, fmt.Errorf("invalid asset value: %v", fieldValue)
+
+	case value.TypeReference:
+		// Handle references (expect string ID)
+		if str, ok := fieldValue.(string); ok {
+			return str, nil
+		}
+		return nil, fmt.Errorf("invalid reference value: %v", fieldValue)
+
+	default:
+		// For unknown types, try to convert to string
+		return fmt.Sprintf("%v", fieldValue), nil
+	}
 }
 
 func fromPagination(page, perPage *int) *usecasex.Pagination {
