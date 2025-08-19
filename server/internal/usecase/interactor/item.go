@@ -23,6 +23,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -926,9 +927,7 @@ func (i Item) ImportAssetToItems(ctx context.Context, param interfaces.ImportAss
 			return interfaces.ImportAssetToItemsResponse{}, err
 		}
 
-		contentType := strings.ToLower(assetFile.ContentType())
-		isJSON := contentType == "application/json" || strings.HasSuffix(assetFile.Name(), ".json")
-		isGeoJSON := contentType == "application/geo+json" || strings.HasSuffix(assetFile.Name(), ".geojson")
+		isJSON, isGeoJSON := detectJSONFileType(strings.ToLower(assetFile.ContentType()), assetFile.Name())
 
 		if !isJSON && !isGeoJSON {
 			return interfaces.ImportAssetToItemsResponse{}, interfaces.ErrUnsupportedFileFormat
@@ -952,7 +951,11 @@ func (i Item) ImportAssetToItems(ctx context.Context, param interfaces.ImportAss
 		if err != nil {
 			return interfaces.ImportAssetToItemsResponse{}, err
 		}
-		defer fileContent.Close()
+		defer func() {
+			if closeErr := fileContent.Close(); closeErr != nil {
+				log.Errorf("failed to close file content: %v", closeErr)
+			}
+		}()
 
 		contentBytes, err := io.ReadAll(fileContent)
 		if err != nil {
@@ -1079,7 +1082,7 @@ func (i Item) importGeoJSONToItems(ctx context.Context, content []byte, schema *
 			}
 
 			if !geometryFieldFound {
-				// Skip this feature if no geometry field exists in schema
+				log.Debugf("No geometry field found in schema '%s' for item with geometry: %s", schema.ID(), string(geometryJSON))
 				failed++
 				continue
 			}
@@ -1126,7 +1129,7 @@ func (i Item) mapToFieldParams(itemData map[string]interface{}, s *schema.Schema
 		// Validate and convert value based on field type
 		validatedValue, err := i.validateAndConvertFieldValue(fieldValue, schemaField)
 		if err != nil {
-			// Skip invalid values instead of failing the entire import
+			log.Debugf("Skipping field '%s' due to validation error: %v", fieldName, err)
 			continue
 		}
 
@@ -1230,8 +1233,12 @@ func (i Item) validateAndConvertFieldValue(fieldValue interface{}, schemaField *
 			if str == "" {
 				return "", nil
 			}
-			if _, err := url.Parse(str); err != nil {
+			u, err := url.Parse(str)
+			if err != nil || u == nil || u.Scheme == "" || u.Host == "" {
 				return nil, fmt.Errorf("invalid URL: %v", str)
+			}
+			if u.Scheme != "http" && u.Scheme != "https" {
+				return nil, fmt.Errorf("invalid URL scheme: %v", u.Scheme)
 			}
 			return str, nil
 		}
@@ -1297,4 +1304,10 @@ func fromPagination(page, perPage *int) *usecasex.Pagination {
 		Offset: (p - 1) * pp,
 		Limit:  pp,
 	}.Wrap()
+}
+
+func detectJSONFileType(contentType, assetFileName string) (bool, bool) {
+	isJSON := contentType == "application/json" || strings.HasSuffix(assetFileName, ".json")
+	isGeoJSON := contentType == "application/geo+json" || strings.HasSuffix(assetFileName, ".geojson")
+	return isJSON, isGeoJSON
 }

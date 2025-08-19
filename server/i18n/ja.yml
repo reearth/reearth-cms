@@ -35,6 +35,8 @@ file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
 file too large: ファイルサイズが大きすぎます。
 internal: 内部
+invalid GeoJSON structure: ""
+invalid JSON structure: ""
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
 invalid base URL: 無効なベースURLです。
@@ -96,6 +98,7 @@ title cannot be empty: タイトルは必須です。
 unauthorized: 未認証
 unsupported content encoding: サポートされていないContent-Encodingです。
 unsupported entity: サポートされていないエンティティです。
+unsupported file format. Only JSON and GeoJSON are supported: ""
 unsupported geometry type: サポートされていないジオメトリタイプです。
 unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
