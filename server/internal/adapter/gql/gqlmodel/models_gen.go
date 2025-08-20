@@ -510,7 +510,6 @@ type DeleteWorkspacePayload struct {
 }
 
 type ExportModelToAssetInput struct {
-	ProjectID  ID           `json:"projectId"`
 	ModelID    ID           `json:"modelId"`
 	Format     ExportFormat `json:"format"`
 	Pagination *Pagination  `json:"pagination,omitempty"`

@@ -49,7 +49,6 @@ type CreateAssetUploadParam struct {
 }
 
 type ExportModelToAssetsParam struct {
-	ProjectID  idx.ID[id.Project]
 	Model      *model.Model
 	Format     ExportFormat
 	Pagination *usecasex.Pagination

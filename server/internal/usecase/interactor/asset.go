@@ -833,15 +833,6 @@ func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportMo
 		return nil, rerror.NewE(i18n.T("model is required"))
 	}
 
-	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
-	if err != nil {
-		return nil, err
-	}
-
-	if !op.IsWritableWorkspace(prj.Workspace()) {
-		return nil, interfaces.ErrOperationDenied
-	}
-
 	m, err := i.repos.Model.FindByID(ctx, inp.Model.ID())
 	if err != nil {
 		return nil, err
@@ -852,34 +843,47 @@ func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportMo
 		return nil, err
 	}
 
-	// Fetch items for the model with batching
-	items, pi, err := i.fetchItemsInBatches(ctx, inp.Model.ID(), inp.Pagination)
-	if err != nil {
-		return nil, err
+	if !op.IsWritableWorkspace(s.Workspace()) {
+		return nil, interfaces.ErrOperationDenied
 	}
 
-	// Generate content based on format
-	var content []byte
-	var filename string
-	var contentType string
+	// Generate content based on format using streaming approach
+	filename := asset.GenerateExportFilename(inp.Model.Key().String(), string(inp.Format))
+	contentType := asset.ContentTypeForFormat(string(inp.Format))
 
-	switch inp.Format {
-	case interfaces.ExportFormatJSON:
-		content, err = i.generateJSONContentWithPagination(inp.Model, items.Unwrap(), s, pi)
-		filename = fmt.Sprintf("%s.json", inp.Model.Key().String())
-		contentType = "application/json"
-	case interfaces.ExportFormatGeoJSON:
-		content, err = i.generateGeoJSONContent(s, items.Unwrap())
-		filename = fmt.Sprintf("%s.geojson", inp.Model.Key().String())
-		contentType = "application/geo+json"
-	case interfaces.ExportFormatCSV:
-		content, err = i.generateCSVContent(s, items.Unwrap())
-		filename = fmt.Sprintf("%s.csv", inp.Model.Key().String())
-		contentType = "text/csv"
-	default:
+	// Validate supported format
+	if contentType == "" {
 		return nil, interfaces.ErrUnsupportedExportFormat
 	}
 
+	// Create a pipe for streaming content generation
+	pr, pw := io.Pipe()
+
+	// Start content generation in a goroutine
+	go func() {
+		defer func() {
+			if closeErr := pw.Close(); closeErr != nil {
+				log.Errorf("failed to close pipe writer: %v", closeErr)
+			}
+		}()
+
+		var err error
+		switch inp.Format {
+		case interfaces.ExportFormatJSON:
+			err = i.generateJSONContentStreaming(ctx, inp.Model, s, inp.Pagination, pw)
+		case interfaces.ExportFormatGeoJSON:
+			err = i.generateGeoJSONContentStreaming(ctx, inp.Model.ID(), s, inp.Pagination, pw)
+		case interfaces.ExportFormatCSV:
+			err = i.generateCSVContentStreaming(ctx, inp.Model.ID(), s, inp.Pagination, pw)
+		}
+
+		if err != nil {
+			_ = pw.CloseWithError(err)
+		}
+	}()
+
+	// Read all content from pipe
+	content, err := io.ReadAll(pr)
 	if err != nil {
 		return nil, err
 	}
@@ -894,7 +898,7 @@ func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportMo
 
 	// Create asset using existing Create method
 	createParam := interfaces.CreateAssetParam{
-		ProjectID:         inp.ProjectID,
+		ProjectID:         s.Project(),
 		File:              f,
 		SkipDecompression: true,
 	}
@@ -907,157 +911,311 @@ func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportMo
 	return a, nil
 }
 
-func (i *Asset) generateJSONContentWithPagination(model *model.Model, items item.List, s *schema.Schema, pageInfo *usecasex.PageInfo) ([]byte, error) {
+func (i *Asset) generateJSONContentStreaming(ctx context.Context, model *model.Model, s *schema.Schema, pagination *usecasex.Pagination, w io.Writer) error {
+	batchSize := i.config.ExportModelToAssetBatchSize
+	if batchSize <= 0 {
+		batchSize = defaultFetchBatchSize
+	}
 
-	// Convert items to readable format with schema field names
-	itemsData := make([]map[string]any, 0, len(items))
-	for _, item := range items {
-		if item == nil {
-			continue
+	// Write JSON structure opening
+	if _, err := w.Write([]byte("{\n  \"model\": {\n")); err != nil {
+		return err
+	}
+
+	// Write model metadata
+	modelData := fmt.Sprintf("    \"id\": %q,\n    \"name\": %q,\n    \"description\": %q,\n    \"key\": %q\n  },\n  \"items\": [\n",
+		model.ID().String(), model.Name(), model.Description(), model.Key().String())
+	if _, err := w.Write([]byte(modelData)); err != nil {
+		return err
+	}
+
+	// Stream items in batches
+	var cursor *string
+	isFirstItem := true
+	totalProcessed := 0
+
+	// Calculate total limit
+	totalLimit := int64(defaultMaxItemsLimit)
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
+		totalLimit = *pagination.Cursor.First
+	}
+
+	// Handle initial cursor
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.After != nil {
+		cursor = (*string)(pagination.Cursor.After)
+	}
+
+	remaining := totalLimit
+	for remaining > 0 {
+		currentBatchSize := int64(batchSize)
+		if remaining < currentBatchSize {
+			currentBatchSize = remaining
 		}
 
-		itemData := make(map[string]any)
+		// Create pagination for this batch
+		batchPagination := &usecasex.Pagination{
+			Cursor: &usecasex.CursorPagination{
+				First: &currentBatchSize,
+			},
+		}
+		if cursor != nil {
+			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
+		}
 
-		// Extract field data using schema field names
-		for _, field := range item.Fields() {
-			if field == nil {
+		// Fetch batch
+		items, pi, err := i.repos.Item.FindByModel(ctx, model.ID(), version.Public.Ref(), nil, batchPagination)
+		if err != nil {
+			return err
+		}
+
+		// Process each item in batch
+		for _, versioned := range items {
+			if versioned == nil {
+				continue
+			}
+			item := versioned.Value()
+			if item == nil {
 				continue
 			}
 
-			// Extract the actual field value
-			var fieldValue any
-			if field.Value() != nil {
-				vv := field.Value().First()
-				if vv != nil {
-					fieldValue = vv.Interface()
+			// Add comma before item (except for first item)
+			if !isFirstItem {
+				if _, err := w.Write([]byte(",\n")); err != nil {
+					return err
 				}
 			}
+			isFirstItem = false
 
-			fieldName := ""
-			if s != nil {
-				if schemaField := s.Field(field.FieldID()); schemaField != nil {
-					fieldName = schemaField.Name()
+			// Convert item to JSON format
+			itemData := make(map[string]any)
+			for _, field := range item.Fields() {
+				if field == nil {
+					continue
 				}
-			}
 
-			if fieldName != "" {
-				itemData[fieldName] = fieldValue
-			}
-		}
-
-		itemsData = append(itemsData, itemData)
-	}
-
-	data := map[string]any{
-		"model": map[string]any{
-			"id":          model.ID().String(),
-			"name":        model.Name(),
-			"description": model.Description(),
-			"key":         model.Key().String(),
-		},
-		"items": itemsData,
-	}
-
-	// Add pagination info if available
-	if pageInfo != nil {
-		data["pagination"] = map[string]any{
-			"totalCount":  pageInfo.TotalCount,
-			"hasNextPage": pageInfo.HasNextPage,
-			"hasPrevPage": pageInfo.HasPreviousPage,
-			"startCursor": pageInfo.StartCursor,
-			"endCursor":   pageInfo.EndCursor,
-		}
-	}
-
-	return json.MarshalIndent(data, "", "  ")
-}
-
-func (i *Asset) generateGeoJSONContent(s *schema.Schema, items item.List) ([]byte, error) {
-	// Require geometry fields for GeoJSON export
-	if s == nil || !s.HasGeometryFields() {
-		return nil, rerror.NewE(i18n.T("no geometry field in this model"))
-	}
-
-	// Create GeoJSON FeatureCollection
-	features := make([]map[string]any, 0, len(items))
-
-	for _, itm := range items {
-		if itm == nil {
-			continue
-		}
-
-		// Extract geometry fields
-		var geometry map[string]any
-		var hasGeometry bool
-
-		// Extract properties from non-geometry fields
-		properties := make(map[string]any)
-
-		// Iterate through schema fields to get proper field names and types
-		for _, schemaField := range s.Fields() {
-			if schemaField == nil {
-				continue
-			}
-
-			// Get the corresponding item field
-			itemField := itm.Field(schemaField.ID())
-			if itemField == nil || itemField.Value() == nil {
-				continue
-			}
-
-			// Handle geometry fields
-			if schemaField.Type().IsGeometryFieldType() {
-				if vv := itemField.Value().First(); vv != nil {
-					if geoStr, ok := vv.ValueString(); ok && geoStr != "" {
-						// Parse the GeoJSON string
-						var geoJSON map[string]any
-						if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
-							geometry = geoJSON
-							hasGeometry = true
-						}
+				var fieldValue any
+				if field.Value() != nil {
+					if vv := field.Value().First(); vv != nil {
+						fieldValue = vv.Interface()
 					}
 				}
+
+				if s != nil {
+					if schemaField := s.Field(field.FieldID()); schemaField != nil {
+						itemData[schemaField.Name()] = fieldValue
+					}
+				}
+			}
+
+			// Write item JSON
+			itemJSON, err := json.MarshalIndent(itemData, "    ", "  ")
+			if err != nil {
+				return err
+			}
+
+			if _, err := w.Write([]byte("    ")); err != nil {
+				return err
+			}
+			if _, err := w.Write(itemJSON); err != nil {
+				return err
+			}
+
+			totalProcessed++
+		}
+
+		// Update cursor for next batch
+		if pi != nil && pi.EndCursor != nil {
+			cursor = (*string)(pi.EndCursor)
+		}
+
+		// Check if we should continue
+		if len(items) < int(currentBatchSize) || (pi != nil && !pi.HasNextPage) {
+			break
+		}
+
+		remaining -= int64(len(items))
+	}
+
+	// Close JSON structure
+	if _, err := w.Write([]byte("\n  ]\n}")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i *Asset) generateGeoJSONContentStreaming(ctx context.Context, modelID id.ModelID, s *schema.Schema, pagination *usecasex.Pagination, w io.Writer) error {
+	// Require geometry fields for GeoJSON export
+	if s == nil || !s.HasGeometryFields() {
+		return rerror.NewE(i18n.T("no geometry field in this model"))
+	}
+
+	batchSize := i.config.ExportModelToAssetBatchSize
+	if batchSize <= 0 {
+		batchSize = defaultFetchBatchSize
+	}
+
+	// Write GeoJSON structure opening
+	if _, err := w.Write([]byte("{\n  \"type\": \"FeatureCollection\",\n  \"features\": [\n")); err != nil {
+		return err
+	}
+
+	// Stream items in batches
+	var cursor *string
+	isFirstFeature := true
+
+	// Calculate total limit
+	totalLimit := int64(defaultMaxItemsLimit)
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
+		totalLimit = *pagination.Cursor.First
+	}
+
+	// Handle initial cursor
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.After != nil {
+		cursor = (*string)(pagination.Cursor.After)
+	}
+
+	remaining := totalLimit
+	for remaining > 0 {
+		currentBatchSize := int64(batchSize)
+		if remaining < currentBatchSize {
+			currentBatchSize = remaining
+		}
+
+		// Create pagination for this batch
+		batchPagination := &usecasex.Pagination{
+			Cursor: &usecasex.CursorPagination{
+				First: &currentBatchSize,
+			},
+		}
+		if cursor != nil {
+			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
+		}
+
+		// Fetch batch
+		items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, batchPagination)
+		if err != nil {
+			return err
+		}
+
+		// Process each item in batch
+		for _, versioned := range items {
+			if versioned == nil {
+				continue
+			}
+			item := versioned.Value()
+			if item == nil {
 				continue
 			}
 
-			// Handle non-geometry fields as properties
-			if vv := itemField.Value().First(); vv != nil {
-				fieldValue := vv.Interface()
-				if fieldValue != nil {
-					properties[schemaField.Name()] = fieldValue
+			// Extract geometry and properties
+			var geometry map[string]any
+			var hasGeometry bool
+			properties := make(map[string]any)
+
+			// Iterate through schema fields
+			for _, schemaField := range s.Fields() {
+				if schemaField == nil {
+					continue
+				}
+
+				// Get the corresponding item field
+				itemField := item.Field(schemaField.ID())
+				if itemField == nil || itemField.Value() == nil {
+					continue
+				}
+
+				// Handle geometry fields
+				if schemaField.Type().IsGeometryFieldType() {
+					if vv := itemField.Value().First(); vv != nil {
+						if geoStr, ok := vv.ValueString(); ok && geoStr != "" {
+							// Parse the GeoJSON string
+							var geoJSON map[string]any
+							if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+								geometry = geoJSON
+								hasGeometry = true
+							}
+						}
+					}
+					continue
+				}
+
+				// Handle non-geometry fields as properties
+				if vv := itemField.Value().First(); vv != nil {
+					fieldValue := vv.Interface()
+					if fieldValue != nil {
+						properties[schemaField.Name()] = fieldValue
+					}
+				}
+			}
+
+			// Only add feature if it has geometry
+			if hasGeometry {
+				// Add comma before feature (except for first feature)
+				if !isFirstFeature {
+					if _, err := w.Write([]byte(",\n")); err != nil {
+						return err
+					}
+				}
+				isFirstFeature = false
+
+				// Create feature
+				feature := map[string]any{
+					"type":       "Feature",
+					"id":         item.ID().String(),
+					"geometry":   geometry,
+					"properties": properties,
+				}
+
+				// Write feature JSON
+				featureJSON, err := json.MarshalIndent(feature, "    ", "  ")
+				if err != nil {
+					return err
+				}
+
+				if _, err := w.Write([]byte("    ")); err != nil {
+					return err
+				}
+				if _, err := w.Write(featureJSON); err != nil {
+					return err
 				}
 			}
 		}
 
-		// Only add feature if it has geometry
-		if hasGeometry {
-			feature := map[string]any{
-				"type":       "Feature",
-				"id":         itm.ID().String(),
-				"geometry":   geometry,
-				"properties": properties,
-			}
-			features = append(features, feature)
+		// Update cursor for next batch
+		if pi != nil && pi.EndCursor != nil {
+			cursor = (*string)(pi.EndCursor)
 		}
+
+		// Check if we should continue
+		if len(items) < int(currentBatchSize) || (pi != nil && !pi.HasNextPage) {
+			break
+		}
+
+		remaining -= int64(len(items))
 	}
 
-	// Create FeatureCollection
-	featureCollection := map[string]any{
-		"type":     "FeatureCollection",
-		"features": features,
+	// Close GeoJSON structure
+	if _, err := w.Write([]byte("\n  ]\n}")); err != nil {
+		return err
 	}
 
-	return json.MarshalIndent(featureCollection, "", "  ")
+	return nil
 }
 
-func (i *Asset) generateCSVContent(s *schema.Schema, items item.List) ([]byte, error) {
+func (i *Asset) generateCSVContentStreaming(ctx context.Context, modelID id.ModelID, s *schema.Schema, pagination *usecasex.Pagination, w io.Writer) error {
 	if s == nil {
-		return nil, rerror.NewE(i18n.T("schema is required for CSV export"))
+		return rerror.NewE(i18n.T("schema is required for CSV export"))
 	}
 
-	// Create CSV buffer
-	var buf bytes.Buffer
-	writer := csv.NewWriter(&buf)
+	batchSize := i.config.ExportModelToAssetBatchSize
+	if batchSize <= 0 {
+		batchSize = defaultFetchBatchSize
+	}
+
+	// Create CSV writer
+	writer := csv.NewWriter(w)
+	defer writer.Flush()
 
 	// Build headers - include all non-geometry fields
 	headers := []string{"id"}
@@ -1079,46 +1237,95 @@ func (i *Asset) generateCSVContent(s *schema.Schema, items item.List) ([]byte, e
 
 	// Write header row
 	if err := writer.Write(headers); err != nil {
-		return nil, err
+		return err
 	}
 
-	// Write data rows
-	rowCount := 0
-	for _, itm := range items {
-		if itm == nil {
-			continue
-		}
+	// Stream items in batches
+	var cursor *string
 
-		row := []string{itm.ID().String()}
-
-		// Add geometry coordinates if geometry fields exist
-		if hasGeometry {
-			lat, lng := i.extractPointCoordinates(itm, s)
-			row = append(row, lat, lng)
-		}
-
-		// Add non-geometry field values
-		for _, field := range nonGeoFields {
-			value := i.extractFieldValueAsString(itm, field)
-			row = append(row, value)
-		}
-
-		if err := writer.Write(row); err != nil {
-			return nil, err
-		}
-		rowCount++
+	// Calculate total limit
+	totalLimit := int64(defaultMaxItemsLimit)
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
+		totalLimit = *pagination.Cursor.First
 	}
 
-	// Flush the writer to ensure all data is written to the buffer
-	writer.Flush()
-
-	if err := writer.Error(); err != nil {
-		return nil, err
+	// Handle initial cursor
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.After != nil {
+		cursor = (*string)(pagination.Cursor.After)
 	}
 
-	result := buf.Bytes()
+	remaining := totalLimit
+	for remaining > 0 {
+		currentBatchSize := int64(batchSize)
+		if remaining < currentBatchSize {
+			currentBatchSize = remaining
+		}
 
-	return result, nil
+		// Create pagination for this batch
+		batchPagination := &usecasex.Pagination{
+			Cursor: &usecasex.CursorPagination{
+				First: &currentBatchSize,
+			},
+		}
+		if cursor != nil {
+			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
+		}
+
+		// Fetch batch
+		items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, batchPagination)
+		if err != nil {
+			return err
+		}
+
+		// Write data rows for this batch
+		for _, versioned := range items {
+			if versioned == nil {
+				continue
+			}
+			item := versioned.Value()
+			if item == nil {
+				continue
+			}
+
+			row := []string{item.ID().String()}
+
+			// Add geometry coordinates if geometry fields exist
+			if hasGeometry {
+				lat, lng := i.extractPointCoordinates(item, s)
+				row = append(row, lat, lng)
+			}
+
+			// Add non-geometry field values
+			for _, field := range nonGeoFields {
+				value := i.extractFieldValueAsString(item, field)
+				row = append(row, value)
+			}
+
+			if err := writer.Write(row); err != nil {
+				return err
+			}
+		}
+
+		// Flush after each batch to ensure data is written
+		writer.Flush()
+		if err := writer.Error(); err != nil {
+			return err
+		}
+
+		// Update cursor for next batch
+		if pi != nil && pi.EndCursor != nil {
+			cursor = (*string)(pi.EndCursor)
+		}
+
+		// Check if we should continue
+		if len(items) < int(currentBatchSize) || (pi != nil && !pi.HasNextPage) {
+			break
+		}
+
+		remaining -= int64(len(items))
+	}
+
+	return nil
 }
 
 // extractPointCoordinates extracts lat/lng from the first Point geometry field found
@@ -1187,89 +1394,4 @@ func (i *Asset) extractFieldValueAsString(itm *item.Item, schemaField *schema.Fi
 	}
 
 	return ""
-}
-
-// fetchItemsInBatches fetches items in batches using configurable batch size (default 200) with goroutines for better performance
-func (i *Asset) fetchItemsInBatches(ctx context.Context, modelID id.ModelID, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	batchSize := i.config.ExportModelToAssetBatchSize
-	if batchSize <= 0 {
-		batchSize = defaultFetchBatchSize
-	}
-
-	// If pagination is provided and small, fetch directly
-	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil && *pagination.Cursor.First <= int64(batchSize) {
-		return i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, pagination)
-	}
-
-	// For large requests or no pagination, use sequential batching with goroutines
-	var allItems item.VersionedList
-	var finalPageInfo *usecasex.PageInfo
-	var cursor *string
-
-	// Calculate total items to fetch
-	totalLimit := int64(defaultMaxItemsLimit) // Default max
-	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
-		totalLimit = *pagination.Cursor.First
-	}
-
-	// Handle initial cursor if provided
-	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.After != nil {
-		cursor = (*string)(pagination.Cursor.After)
-	}
-
-	// Channel for batch results
-	type batchResult struct {
-		items    item.VersionedList
-		pageInfo *usecasex.PageInfo
-		err      error
-	}
-
-	// Process batches sequentially but with goroutine for each batch
-	remaining := totalLimit
-	for remaining > 0 {
-		currentBatchSize := int64(batchSize)
-		if remaining < currentBatchSize {
-			currentBatchSize = remaining
-		}
-
-		// Create pagination for this batch
-		batchPagination := &usecasex.Pagination{
-			Cursor: &usecasex.CursorPagination{
-				First: &currentBatchSize,
-			},
-		}
-		if cursor != nil {
-			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
-		}
-
-		// Execute batch directly
-		items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, batchPagination)
-		result := batchResult{
-			items:    items,
-			pageInfo: pi,
-			err:      err,
-		}
-
-		if result.err != nil {
-			return nil, nil, result.err
-		}
-
-		// Append results
-		allItems = append(allItems, result.items...)
-		finalPageInfo = result.pageInfo
-
-		// Update cursor for next batch
-		if result.pageInfo != nil && result.pageInfo.EndCursor != nil {
-			cursor = (*string)(result.pageInfo.EndCursor)
-		}
-
-		// If this batch returned fewer items than requested, we've reached the end
-		if len(result.items) < int(currentBatchSize) || (result.pageInfo != nil && !result.pageInfo.HasNextPage) {
-			break
-		}
-
-		remaining -= int64(len(result.items))
-	}
-
-	return allItems, finalPageInfo, nil
 }

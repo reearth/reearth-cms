@@ -5548,7 +5548,6 @@ input DecompressAssetInput {
 }
 
 input ExportModelToAssetInput {
-  projectId: ID!
   modelId: ID!
   format: ExportFormat!
   pagination: Pagination
@@ -7834,29 +7833,12 @@ func (ec *executionContext) field_Mutation_deleteWorkspace_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_exportModelToAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Mutation_exportModelToAsset_argsInput(ctx, rawArgs)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNExportModelToAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelToAssetInput)
 	if err != nil {
 		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
-}
-func (ec *executionContext) field_Mutation_exportModelToAsset_argsInput(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (gqlmodel.ExportModelToAssetInput, error) {
-	if _, ok := rawArgs["input"]; !ok {
-		var zeroVal gqlmodel.ExportModelToAssetInput
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNExportModelToAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelToAssetInput(ctx, tmp)
-	}
-
-	var zeroVal gqlmodel.ExportModelToAssetInput
-	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_publishItem_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
@@ -38270,20 +38252,13 @@ func (ec *executionContext) unmarshalInputExportModelToAssetInput(ctx context.Co
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "modelId", "format", "pagination"}
+	fieldsInOrder := [...]string{"modelId", "format", "pagination"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "projectId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ProjectID = data
 		case "modelId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
 			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)

@@ -112,7 +112,6 @@ input DecompressAssetInput {
 }
 
 input ExportModelToAssetInput {
-  projectId: ID!
   modelId: ID!
   format: ExportFormat!
   pagination: Pagination

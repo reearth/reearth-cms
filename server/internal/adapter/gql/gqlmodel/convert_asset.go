@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -209,6 +210,19 @@ func FromContentType(ct ContentTypesEnum) string {
 		return "application/pdf"
 	case ContentTypesEnumPlain:
 		return "text/plain"
+	default:
+		return ""
+	}
+}
+
+func MapFormat(format ExportFormat) interfaces.ExportFormat {
+	switch format {
+	case ExportFormatJSON:
+		return interfaces.ExportFormatJSON
+	case ExportFormatGeojson:
+		return interfaces.ExportFormatGeoJSON
+	case ExportFormatCSV:
+		return interfaces.ExportFormatCSV
 	default:
 		return ""
 	}
