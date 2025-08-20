@@ -172,6 +172,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
               />
               <Button
                 loading={regenerateLoading}
+                disabled={!keyId || keyId === "new"}
                 onClick={() => onAPIKeyRegenerate(currentKey?.id)}>
                 {t("Re-generate")}
               </Button>
