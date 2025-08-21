@@ -69,4 +69,7 @@ const Description = styled.p`
 
 const GridArea = styled.div`
   padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;

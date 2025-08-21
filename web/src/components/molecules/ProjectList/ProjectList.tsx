@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
+import Pagination from "@reearth-cms/components/atoms/Pagination";
 import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
@@ -47,13 +48,25 @@ const ProjectList: React.FC<Props> = ({
         </EmptyListWrapper>
       ) : (
         <Content>
-          {projects.map(project => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onProjectNavigation={onProjectNavigation}
-            />
-          ))}
+          <GridContainer>
+            <ProjectCardWrapper>
+              {projects.map(project => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onProjectNavigation={onProjectNavigation}
+                />
+              ))}
+            </ProjectCardWrapper>
+          </GridContainer>
+          <ProjectPagination
+            align="end"
+            current={1}
+            total={20}
+            showSizeChanger
+            showQuickJumper
+            pageSize={10}
+          />
         </Content>
       )}
     </StyledDashboardBlock>
@@ -62,15 +75,34 @@ const ProjectList: React.FC<Props> = ({
 
 const StyledDashboardBlock = styled.div`
   margin-top: 16px;
-  height: 100%;
   width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
-const Content = styled.div`
+const ProjectCardWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   justify-content: space-between;
   gap: 24px;
+  max-height: 350px;
+  /* TODO: fix trivial style issue */
+  /* padding: 16px 0; */
+  /* margin: 20px; */
+`;
+
+const GridContainer = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  /* TODO: fix trivial style issue */
+  /* padding: 16px 0; */
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 `;
 
 const EmptyListWrapper = styled.div`
@@ -102,6 +134,11 @@ const Title = styled.h1`
   font-size: 16px;
   line-height: 24px;
   color: #000;
+`;
+
+const ProjectPagination = styled(Pagination)`
+  padding-top: 12px;
+  box-shadow: 0 1px 0 0 #f0f0f0 inset;
 `;
 
 export default ProjectList;
