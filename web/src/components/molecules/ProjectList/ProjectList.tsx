@@ -12,18 +12,26 @@ type Props = {
   hasCreateRight: boolean;
   projects: ProjectListItem[];
   loading: boolean;
+  page: number;
+  pageSize: number;
+  totalCount: number;
   onProjectNavigation: (projectId: string) => void;
   onProjectCreate: (values: ProjectFormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onPageChange: (page: number, pageSize: number) => void;
 };
 
 const ProjectList: React.FC<Props> = ({
   hasCreateRight,
   projects,
   loading,
+  page,
+  pageSize,
+  totalCount,
   onProjectNavigation,
   onProjectCreate,
   onProjectAliasCheck,
+  onPageChange,
 }) => {
   const t = useT();
 
@@ -60,12 +68,14 @@ const ProjectList: React.FC<Props> = ({
             </ProjectCardWrapper>
           </GridContainer>
           <ProjectPagination
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
             align="end"
-            current={1}
-            total={20}
+            current={page}
+            total={totalCount}
             showSizeChanger
             showQuickJumper
-            pageSize={10}
+            pageSize={pageSize}
           />
         </Content>
       )}
