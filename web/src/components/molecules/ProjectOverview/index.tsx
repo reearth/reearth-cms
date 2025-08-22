@@ -2,9 +2,8 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ComplexInnerContent from "@reearth-cms/components/atoms/InnerContents/complex";
+import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
@@ -45,81 +44,60 @@ const ProjectOverview: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <ComplexInnerContent
-      center={
-        <Wrapper>
-          <PageHeader
-            title={t("Models")}
-            extra={
-              <Button
-                type="primary"
-                icon={<Icon icon="plus" />}
-                onClick={onModelModalOpen}
-                disabled={!hasCreateRight}>
-                {t("New Model")}
-              </Button>
-            }
-          />
-          <ContentSection
-            headerActions={
-              <Button
-                type="primary"
-                icon={<Icon icon="plus" />}
-                onClick={onModelModalOpen}
-                disabled={!hasCreateRight}>
-                {t("New Model")}
-              </Button>
-            }>
-            <ProjectHeader onModelSearch={onModelSearch} onModelSort={onModelSort} />
-            {models?.length ? (
-              <GridArea>
-                {models.map(m => (
-                  <ModelCard
-                    key={m.id}
-                    model={m}
-                    hasUpdateRight={hasUpdateRight}
-                    hasDeleteRight={hasDeleteRight}
-                    onSchemaNavigate={onSchemaNavigate}
-                    onContentNavigate={onContentNavigate}
-                    onModelDeletionModalOpen={onModelDeletionModalOpen}
-                    onModelUpdateModalOpen={onModelUpdateModalOpen}
-                  />
-                ))}
-              </GridArea>
-            ) : (
-              <Placeholder>
-                <Heading>{t("No Models yet")}</Heading>
-                <Content>
-                  <Actions>
-                    {t("Create a new model")}
-                    <Button
-                      type="primary"
-                      icon={<Icon icon="plus" />}
-                      onClick={onModelModalOpen}
-                      disabled={!hasCreateRight}>
-                      {t("New Model")}
-                    </Button>
-                  </Actions>
-                  <span>
-                    <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
-                  </span>
-                </Content>
-              </Placeholder>
-            )}
-          </ContentSection>
-        </Wrapper>
-      }
-    />
+    <InnerContent
+      title={t("Models")}
+      extra={
+        <Button
+          type="primary"
+          icon={<Icon icon="plus" />}
+          onClick={onModelModalOpen}
+          disabled={!hasCreateRight}>
+          {t("New Model")}
+        </Button>
+      }>
+      <ContentSection>
+        <ProjectHeader onModelSearch={onModelSearch} onModelSort={onModelSort} />
+        {models?.length ? (
+          <GridArea>
+            {models.map(m => (
+              <ModelCard
+                key={m.id}
+                model={m}
+                hasUpdateRight={hasUpdateRight}
+                hasDeleteRight={hasDeleteRight}
+                onSchemaNavigate={onSchemaNavigate}
+                onContentNavigate={onContentNavigate}
+                onModelDeletionModalOpen={onModelDeletionModalOpen}
+                onModelUpdateModalOpen={onModelUpdateModalOpen}
+              />
+            ))}
+          </GridArea>
+        ) : (
+          <Placeholder>
+            <Heading>{t("No Models yet")}</Heading>
+            <Content>
+              <Actions>
+                {t("Create a new model")}
+                <Button
+                  type="primary"
+                  icon={<Icon icon="plus" />}
+                  onClick={onModelModalOpen}
+                  disabled={!hasCreateRight}>
+                  {t("New Model")}
+                </Button>
+              </Actions>
+              <span>
+                <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
+              </span>
+            </Content>
+          </Placeholder>
+        )}
+      </ContentSection>
+    </InnerContent>
   );
 };
 
 export default ProjectOverview;
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  background-color: white;
-`;
 
 const GridArea = styled.div`
   margin-top: 12px;
