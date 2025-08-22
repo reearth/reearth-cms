@@ -69,6 +69,58 @@ func (t *TaskRunner) Retry(ctx context.Context, id string) error {
 	return nil
 }
 
+// HealthCheck implements gateway.TaskRunner
+func (t *TaskRunner) HealthCheck(ctx context.Context) error {
+	// Check PubSub connection
+	if t.pubsub == nil {
+		return rerror.ErrInternalBy(fmt.Errorf("pubsub client is not initialized"))
+	}
+
+	// Check if topic exists
+	topic := t.pubsub.Topic(t.conf.Topic)
+	exists, err := topic.Exists(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(fmt.Errorf("failed to check if pubsub topic exists: %w", err))
+	}
+	if !exists {
+		return rerror.ErrInternalBy(fmt.Errorf("pubsub topic %s does not exist", t.conf.Topic))
+	}
+
+	// Check Cloud Build API access
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(fmt.Errorf("failed to create cloud build service: %w", err))
+	}
+
+	// Check service account permissions
+	if t.conf.BuildServiceAccount == "" {
+		return rerror.ErrInternalBy(fmt.Errorf("build service account is not configured"))
+	}
+
+	// Check service account permissions using IAM API
+	if err := CheckServiceAccountPermissions(ctx, t.conf.GCPProject, t.conf.BuildServiceAccount); err != nil {
+		return err
+	}
+
+	// Check if worker pool exists if configured
+	if t.conf.WorkerPool != "" {
+		project := t.conf.GCPProject
+		region := t.conf.GCPRegion
+		if region == "" {
+			return rerror.ErrInternalBy(fmt.Errorf("GCP region is not configured but worker pool is specified"))
+		}
+
+		poolName := fmt.Sprintf("projects/%s/locations/%s/workerPools/%s", project, region, t.conf.WorkerPool)
+		call := cb.Projects.Locations.WorkerPools.Get(poolName)
+		_, err = call.Do()
+		if err != nil {
+			return rerror.ErrInternalBy(fmt.Errorf("failed to access worker pool %s: %w", t.conf.WorkerPool, err))
+		}
+	}
+
+	return nil
+}
+
 func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset != nil {
 		return decompressAsset(ctx, p, t.conf)
