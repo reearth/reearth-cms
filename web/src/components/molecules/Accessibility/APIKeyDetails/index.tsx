@@ -151,7 +151,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
             extra={t("You can write some here to describe this record.")}>
             <StyledTextArea />
           </Form.Item>
-          {keyId && (
+          {keyId && !isNewKey && (
             <TokenFormItem
               label={t("API Key")}
               extra={t("This is your secret token, please use as your env value.")}>
@@ -172,6 +172,7 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
               />
               <Button
                 loading={regenerateLoading}
+                disabled={!hasUpdateRight}
                 onClick={() => onAPIKeyRegenerate(currentKey?.id)}>
                 {t("Re-generate")}
               </Button>

@@ -2948,7 +2948,7 @@ export type CreateApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type CreateApiKeyMutation = { __typename?: 'Mutation', createAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }, public: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } | null };
+export type CreateApiKeyMutation = { __typename?: 'Mutation', createAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } } | null };
 
 export type UpdateApiKeyMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2959,7 +2959,7 @@ export type UpdateApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type UpdateApiKeyMutation = { __typename?: 'Mutation', updateAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }, public: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } | null };
+export type UpdateApiKeyMutation = { __typename?: 'Mutation', updateAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } } | null };
 
 export type DeleteApiKeyMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2975,7 +2975,7 @@ export type RegenerateApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type RegenerateApiKeyMutation = { __typename?: 'Mutation', regenerateAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }, public: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } | null };
+export type RegenerateApiKeyMutation = { __typename?: 'Mutation', regenerateAPIKey?: { __typename?: 'APIKeyPayload', apiKey: { __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } } } | null };
 
 export type GetRequestsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -6441,10 +6441,6 @@ export const CreateApiKeyDocument = gql`
         publicAssets
       }
     }
-    public {
-      publicModels
-      publicAssets
-    }
   }
 }
     `;
@@ -6491,10 +6487,6 @@ export const UpdateApiKeyDocument = gql`
         publicModels
         publicAssets
       }
-    }
-    public {
-      publicModels
-      publicAssets
     }
   }
 }
@@ -6575,10 +6567,6 @@ export const RegenerateApiKeyDocument = gql`
         publicModels
         publicAssets
       }
-    }
-    public {
-      publicModels
-      publicAssets
     }
   }
 }
