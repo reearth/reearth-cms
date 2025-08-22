@@ -65,6 +65,7 @@ const ProjectList: React.FC<Props> = ({
                   onProjectNavigation={onProjectNavigation}
                 />
               ))}
+              <SpaceHolder />
             </ProjectCardWrapper>
           </GridContainer>
           <ProjectPagination
@@ -97,16 +98,12 @@ const ProjectCardWrapper = styled.div`
   justify-content: space-between;
   gap: 24px;
   max-height: 350px;
-  /* TODO: fix trivial style issue */
-  /* padding: 16px 0; */
-  /* margin: 20px; */
+  margin: 0 24px;
 `;
 
 const GridContainer = styled.div`
   flex: 1;
   overflow-y: auto;
-  /* TODO: fix trivial style issue */
-  /* padding: 16px 0; */
 `;
 
 const Content = styled.div`
@@ -149,6 +146,13 @@ const Title = styled.h1`
 const ProjectPagination = styled(Pagination)`
   padding-top: 12px;
   box-shadow: 0 1px 0 0 #f0f0f0 inset;
+  padding: 12px;
+`;
+
+// a space holder to prevent shadow of project card being blocked by parent element
+const SpaceHolder = styled.div`
+  height: 1px;
+  grid-column: 1 / -1;
 `;
 
 export default ProjectList;

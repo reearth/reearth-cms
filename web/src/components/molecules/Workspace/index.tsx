@@ -67,7 +67,8 @@ const WorkspaceWrapper: React.FC<Props> = ({
               onProjectAliasCheck={onProjectAliasCheck}
             />
           </ButtonWrapper>
-        }>
+        }
+        hasPadding={false}>
         <WorkspaceHeader onProjectSearch={onProjectSearch} onProjectSort={onProjectSort} />
         <ProjectList
           hasCreateRight={hasCreateRight}

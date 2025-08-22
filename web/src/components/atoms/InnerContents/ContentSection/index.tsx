@@ -7,6 +7,7 @@ type Props = {
   headerActions?: ReactNode;
   children?: ReactNode;
   description?: string;
+  hasPadding?: boolean;
 };
 
 const ContentSection: React.FC<Props> = ({
@@ -15,6 +16,7 @@ const ContentSection: React.FC<Props> = ({
   children,
   danger,
   description,
+  hasPadding = true,
 }) => {
   return (
     <Wrapper danger={danger}>
@@ -27,7 +29,7 @@ const ContentSection: React.FC<Props> = ({
           {description && <Description>{description}</Description>}
         </Header>
       )}
-      <GridArea>{children}</GridArea>
+      <GridArea hasPadding={hasPadding}>{children}</GridArea>
     </Wrapper>
   );
 };
@@ -67,8 +69,8 @@ const Description = styled.p`
   margin: 4px 0 0;
 `;
 
-const GridArea = styled.div`
-  padding: 24px;
+const GridArea = styled.div<{ hasPadding: boolean }>`
+  ${({ hasPadding }) => hasPadding && "padding: 24px;"}
   flex: 1;
   display: flex;
   flex-direction: column;
