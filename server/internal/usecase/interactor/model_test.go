@@ -364,7 +364,7 @@ func TestModel_Create(t *testing.T) {
 					Value:       int64(0),
 				}).Return(nil, errors.New("policy check service error"))
 			},
-			wantErr: rerror.NewE(i18n.T("policy check failed")),
+			wantErr: rerror.NewE(i18n.T("model count policy check failed")),
 		},
 	}
 
