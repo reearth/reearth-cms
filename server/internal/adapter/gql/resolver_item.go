@@ -6,6 +6,7 @@ package gql
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
@@ -267,6 +268,33 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 	}
 	return &gqlmodel.UnpublishItemPayload{
 		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
+	}, nil
+}
+
+// ImportAssetToItems is the resolver for the importAssetToItems field.
+func (r *mutationResolver) ImportAssetToItems(ctx context.Context, input gqlmodel.ImportAssetToItemsInput) (*gqlmodel.ImportAssetToItemsPayload, error) {
+	assetID, err := gqlmodel.ToID[id.Asset](input.AssetID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid asset ID: %w", err)
+	}
+
+	modelID, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid model ID: %w", err)
+	}
+
+	res, err := usecases(ctx).Item.ImportAssetToItems(ctx, interfaces.ImportAssetToItemsParam{
+		AssetID: assetID,
+		ModelID: modelID,
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.ImportAssetToItemsPayload{
+		Total:      res.Total,
+		Successful: res.Successful,
+		Failed:     res.Failed,
 	}, nil
 }
 
