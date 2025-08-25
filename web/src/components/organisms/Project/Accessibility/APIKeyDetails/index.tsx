@@ -17,6 +17,7 @@ const APIKeyDetails: React.FC = () => {
     keyModels,
     updateLoading,
     regenerateLoading,
+    topRef,
     handleAPIKeyCreate,
     handleAPIKeyUpdate,
     handleAPIKeyRegenerate,
@@ -24,25 +25,27 @@ const APIKeyDetails: React.FC = () => {
   } = useHooks();
 
   return (
-    <APIKeyDetailsMolecule
-      apiUrl={apiUrl}
-      currentProject={currentProject}
-      currentKey={currentKey}
-      hasCreateRight={hasCreateRight}
-      hasUpdateRight={hasUpdateRight}
-      hasPublishRight={hasPublishRight}
-      initialValues={initialValues}
-      isNewKey={isNewKey}
-      keyModels={keyModels}
-      keyId={keyId}
-      createLoading={createLoading}
-      updateLoading={updateLoading}
-      regenerateLoading={regenerateLoading}
-      onAPIKeyCreate={handleAPIKeyCreate}
-      onAPIKeyUpdate={handleAPIKeyUpdate}
-      onAPIKeyRegenerate={handleAPIKeyRegenerate}
-      onBack={handleBack}
-    />
+    <div ref={topRef}>
+      <APIKeyDetailsMolecule
+        apiUrl={apiUrl}
+        currentProject={currentProject}
+        currentKey={currentKey}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasPublishRight={hasPublishRight}
+        initialValues={initialValues}
+        isNewKey={isNewKey}
+        keyModels={keyModels}
+        keyId={keyId}
+        createLoading={createLoading}
+        updateLoading={updateLoading}
+        regenerateLoading={regenerateLoading}
+        onAPIKeyCreate={handleAPIKeyCreate}
+        onAPIKeyUpdate={handleAPIKeyUpdate}
+        onAPIKeyRegenerate={handleAPIKeyRegenerate}
+        onBack={handleBack}
+      />
+    </div>
   );
 };
 
