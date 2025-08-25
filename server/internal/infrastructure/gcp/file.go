@@ -238,18 +238,20 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		return nil, err
 	}
 	opt := &storage.SignedURLOptions{
+		Scheme: storage.SigningSchemeV4,
 		Method:      http.MethodPut,
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
+		QueryParameters: map[string][]string{
+			"reearth-x-workspace": {param.Workspace},
+			"reearth-x-project":   {param.Project},
+			"reearth-x-public": {fmt.Sprintf("%v", param.Public)},
+		},
 	}
 
 	var headers []string
 	if param.ContentEncoding != "" {
 		headers = append(headers, "Content-Encoding: "+param.ContentEncoding)
-	}
-
-	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
-		headers = append(headers, "x-goog-meta-X-Reearth-Workspace-ID: "+workspace)
 	}
 
 	if len(headers) > 0 {
