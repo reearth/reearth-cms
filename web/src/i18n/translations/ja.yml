@@ -117,6 +117,7 @@ Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Go to Editor: エディタへ移動
 Link Asset: アセットをリンク
+Choose a license template: ライセンステンプレートを選択
 New: 追加
 Tag: タグ
 OK: ''
@@ -136,15 +137,16 @@ Models: モデル
 Schema: スキーマ
 Content: コンテンツ
 Request: リクエスト
+Readme: README
+License: ライセンス
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the new workspace!: 新しいワークスペースの名前を入力してください!
 Home: ホーム
+Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
-Member: メンバー
-Workspace: ワークスペース
-Account: アカウント
+Workspace Settings: ワークスペース設定
 Please input field!: フィールドを入力してください。
 Please select an option!: オプションを選択してください。
 URL is not valid: 無効なURLです
@@ -237,6 +239,8 @@ Remove: 削除
 No Integration yet: まだインテグレーションはありません
 Create a new: 新規作成
 readDocument: または<l>Re:Earth CMSの使い方</l>をまずお読みください
+License defines whether others can legally use and share your project & data: ライセンスは、他の人があなたのプロジェクトやデータを合法的に使用・共有できるかどうかを定義します
+Save Changes: 変更を保存
 Add member: メンバー追加
 Add to workspace: ワークスペースに追加
 Search user: ユーザー検索
@@ -299,10 +303,6 @@ No Webhook yet: Webhookはまだありません
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Model: 新規モデル
-Save Changes: 変更を保存
-Readme: README
-License: ライセンス
-Choose a license template: ライセンステンプレートを選択
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
 Last Modified: ''
@@ -323,6 +323,7 @@ Write something here to describe this record.: このレコードの説明を入
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
 If this option is chosen, all new model within the project will default follow it.: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
+README is a crucial document helping people quickly understand your project: README は、他の人があなたのプロジェクトをすばやく理解するのに役立つ重要なドキュメントです
 Leave your comment...: コメントを入力してください。
 Add Comment: コメントを追加
 Close: クローズ
@@ -503,7 +504,6 @@ Permanently removes the current workspace and all of its contents from Re:Earth 
 Workspace Name: ワークスペース名
 This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ワークスペース名はワークスペースを判別するために表示されます。あなたの会社名、部署名、その他プロジェクトのテーマなどを利用することをお勧めします。
 Please input a new workspace name!: 新しいワークスペース名を入力してください。
-Workspace Settings: ワークスペース設定
 Failed to update user.: ユーザーの更新に失敗しました。
 Successfully updated user!: ユーザーの更新に成功しました。
 Failed to update language.: 言語設定の更新に失敗しました。
@@ -572,6 +572,8 @@ Failed to delete view.: ビューの削除に失敗しました。
 Successfully deleted view!: ビューの削除に成功しました!
 Failed to update views order.: ビューの順序更新に失敗しました。
 Successfully updated views order!: ビューの順序変更に成功しました!
+Failed to update Project.: プロジェクトの更新に失敗しました。
+Successfully updated Project!: プロジェクトの更新に成功しました。
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to update models order.: モデルの順序更新に失敗しました。
@@ -580,8 +582,6 @@ Failed to create group.: グループの作成に失敗しました。
 Successfully created group!: グループの作成に成功しました！
 Failed to update groups order.: グループの順序更新に失敗しました。
 Successfully updated groups order!: グループの順序変更に成功しました!
-Failed to update Project.: プロジェクトの更新に失敗しました。
-Successfully updated Project!: プロジェクトの更新に成功しました。
 Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。

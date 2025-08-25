@@ -59,6 +59,7 @@ import {
   SaveOutlined,
   LockOutlined,
   BlockOutlined,
+  ReadOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -197,4 +198,5 @@ export default {
   save: SaveOutlined,
   lock: LockOutlined,
   block: BlockOutlined,
+  read: ReadOutlined,
 };

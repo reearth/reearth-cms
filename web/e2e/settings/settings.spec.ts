@@ -1,10 +1,11 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
+import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import { config } from "../utils/config";
 
-const disableWorkspaceUI = config.disableWorkspaceUi === "true";
+const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async ({ reearth, page }) => {
   // eslint-disable-next-line playwright/no-skipped-test
@@ -53,7 +54,8 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await expect(page.getByText("url", { exact: true })).toBeVisible();
-  await expect(page.locator("img")).toBeVisible();
+  const targetImageEl = page.locator(".ant-card-body .ant-card-meta-avatar > img");
+  await expect(targetImageEl).toHaveAttribute("src", "http://image.com");
   await page
     .locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon")
     .click();

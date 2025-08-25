@@ -57,7 +57,7 @@ const MarkdownComponent: React.FC<Props> = ({
       onChange={setActiveTab}>
       <Tabs.TabPane tab="Edit" key="edit">
         <TextArea
-          rows={20}
+          rows={30}
           value={value}
           onChange={onMarkdownChange}
           style={{ fontFamily: "monospace" }}
@@ -91,6 +91,33 @@ const StyledContainer = styled.div`
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  height: 500px;
+  height: 700px;
   overflow-y: auto;
+  font-family: inherit !important;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ul,
+  ol,
+  li,
+  blockquote,
+  table,
+  thead,
+  tbody,
+  pre,
+  code,
+  tr,
+  td,
+  th,
+  em,
+  strong,
+  a,
+  del {
+    font-family: inherit !important;
+  }
 `;

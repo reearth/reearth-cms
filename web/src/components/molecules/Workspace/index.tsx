@@ -9,12 +9,13 @@ import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/Cre
 import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
+import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import WorkspaceHeader from "./WorkspaceHeader";
 
 type Props = {
   username?: string;
-  isFreePlan?: boolean;
+  privateProjectsAllowed?: boolean;
   coverImageUrl?: string;
   projects: Project[];
   loading: boolean;
@@ -29,7 +30,7 @@ type Props = {
 
 const WorkspaceWrapper: React.FC<Props> = ({
   username,
-  isFreePlan,
+  privateProjectsAllowed,
   coverImageUrl,
   projects,
   loading,
@@ -41,7 +42,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   onProjectCreate,
   onProjectAliasCheck,
 }) => {
-  const disableWorkspaceUi = window.REEARTH_CONFIG?.disableWorkspaceUi === true;
+  const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
 
   return (
     <InnerContent>
@@ -52,7 +53,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
           <ButtonWrapper>
             {!disableWorkspaceUi && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
             <CreateProjectButton
-              isFreePlan={isFreePlan}
+              privateProjectsAllowed={privateProjectsAllowed}
               hasCreateRight={hasCreateRight}
               onProjectCreate={onProjectCreate}
               onProjectAliasCheck={onProjectAliasCheck}
