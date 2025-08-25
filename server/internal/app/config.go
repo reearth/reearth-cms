@@ -74,11 +74,21 @@ type Config struct {
 
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
+
+	// Policy Checker Configuration
+	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
 	Username string `pp:",omitempty"`
 	Password string `pp:",omitempty"`
+}
+
+type PolicyCheckerConfig struct {
+	Type     string `default:"permissive"`
+	Endpoint string
+	Token    string
+	Timeout  int `default:"30"`
 }
 
 type ServerConfig struct {
@@ -157,6 +167,7 @@ type AuthM2MConfig struct {
 	TTL     *int     `pp:",omitempty"`
 	Email   string   `pp:",omitempty"`
 	JWKSURI *string  `pp:",omitempty"`
+	Token   string   `pp:",omitempty"`
 }
 
 func (c *Config) Auths() (res AuthConfigs) {
@@ -374,6 +385,7 @@ func (c *Config) secrets() []string {
 		c.InternalApi.Token,
 		c.HealthCheck.Username,
 		c.HealthCheck.Password,
+		c.Policy_Checker.Token,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)

@@ -32,8 +32,7 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "close-circle" }).click();
   await expect(projectCard).toBeVisible();
   await projectCard.click();
-  await expect(page.getByText(projectName).first()).toBeVisible();
-  await expect(page.getByText(projectDescription)).toBeVisible();
+  await expect(page.getByRole("banner")).toContainText(projectName);
 
   await page.getByText("Settings").click();
   const newProjectName = `new ${projectName}`;
@@ -43,7 +42,9 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.locator("form").getByRole("button", { name: "Save changes" }).click();
   await closeNotification(page);
 
-  await expect(page.getByText(`Project Settings / ${newProjectName}`)).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: `Project Settings / ${newProjectName}` }),
+  ).toBeVisible();
   await expect(page.getByRole("banner")).toContainText(newProjectName);
   const ownerSwitch = page.getByRole("row", { name: "Owner" }).getByRole("switch");
   await ownerSwitch.click();
@@ -51,7 +52,6 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await expect(ownerSwitch).toHaveAttribute("aria-checked", "true");
   await closeNotification(page);
 
-  await page.getByText("Overview").click();
-  await expect(page.getByText(newProjectName).first()).toBeVisible();
-  await expect(page.getByText(newProjectDescription)).toBeVisible();
+  await page.getByText("Models").click();
+  await expect(page.getByRole("banner")).toContainText(projectName);
 });

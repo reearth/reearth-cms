@@ -25,7 +25,7 @@ import {
   useWorkspaceId,
   useUserRights,
 } from "@reearth-cms/state";
-import { splitPathname } from "@reearth-cms/utils/path";
+import { joinPaths, splitPathname } from "@reearth-cms/utils/path";
 
 import { userRightsGet } from "./utils";
 
@@ -35,6 +35,7 @@ export default () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const logoUrl = window.REEARTH_CONFIG?.logoUrl;
+  const dashboardBaseUrl = window.REEARTH_CONFIG?.dashboardBaseUrl;
 
   const [currentUserId, setCurrentUserId] = useUserId();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
@@ -135,8 +136,16 @@ export default () => {
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
 
   const handleNavigateToSettings = useCallback(() => {
-    navigate(`/workspace/${personalWorkspace?.id}/account`);
-  }, [personalWorkspace?.id, navigate]);
+    if (dashboardBaseUrl) {
+      window.open(
+        joinPaths(dashboardBaseUrl, personalWorkspace?.id ?? "", "settings/profile"),
+        "_blank",
+        "noopener,noreferrer",
+      );
+    } else {
+      navigate(`/workspace/${personalWorkspace?.id}/account`);
+    }
+  }, [dashboardBaseUrl, navigate, personalWorkspace?.id]);
 
   const { data: projectData } = useGetProjectQuery({
     variables: { projectId: projectId ?? "" },
@@ -158,7 +167,7 @@ export default () => {
     (info: MenuInfo) => {
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
-      } else if (info.key === "overview") {
+      } else if (info.key === "models") {
         navigate(`/workspace/${workspaceId}/project/${projectId}`);
       } else {
         navigate(`/workspace/${workspaceId}/project/${projectId}/${info.key}`);
@@ -171,11 +180,29 @@ export default () => {
     (info: MenuInfo) => {
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
+      } else if (info.key === "members" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, workspaceId ?? "", "members"),
+          "_blank",
+          "noopener,noreferrer",
+        );
+      } else if (info.key === "workspaceSettings" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, workspaceId ?? "", "settings/general"),
+          "_blank",
+          "noopener,noreferrer",
+        );
+      } else if (info.key === "account" && dashboardBaseUrl) {
+        window.open(
+          joinPaths(dashboardBaseUrl, workspaceId ?? "", "settings/profile"),
+          "_blank",
+          "noopener,noreferrer",
+        );
       } else {
         navigate(`/workspace/${workspaceId}/${info.key}`);
       }
     },
-    [navigate, workspaceId],
+    [dashboardBaseUrl, navigate, workspaceId],
   );
 
   const handleWorkspaceNavigation = useCallback(

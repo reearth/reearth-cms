@@ -15,7 +15,9 @@ service ReEarthCMS {
   rpc CheckAliasAvailability(AliasAvailabilityRequest) returns (AliasAvailabilityResponse) {}
   rpc GetProject(ProjectRequest) returns (ProjectResponse) {}
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {}
+  rpc GetAsset(AssetRequest) returns (AssetResponse) {}
   rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse) {}
+  rpc GetModel(ModelRequest) returns (ModelResponse) {}
   rpc ListModels(ListModelsRequest) returns (ListModelsResponse) {}
   rpc ListItems(ListItemsRequest) returns (ListItemsResponse) {}
   rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {}
@@ -165,11 +167,20 @@ message ListProjectsRequest {
   optional SortInfo sort_info = 101;
 }
 
+message AssetRequest {
+  string asset_id = 1;
+}
+
 message ListAssetsRequest {
   string project_id = 1;
 
   optional PageInfo page_info = 100;
   optional SortInfo sort_info = 101;
+}
+
+message ModelRequest {
+  string project_id_or_alias = 1;
+  string model_id_or_alias = 2;
 }
 
 message ListModelsRequest {
@@ -182,6 +193,7 @@ message ListModelsRequest {
 message ListItemsRequest {
   string model_id = 1;
   string project_id = 2;
+  optional string keyword = 3;
 
   optional PageInfo page_info = 100;
   optional SortInfo sort_info = 101;
@@ -212,11 +224,19 @@ message ListProjectsResponse {
   PageInfo page_info = 100;
 }
 
+message AssetResponse {
+  Asset asset = 1;
+}
+
 message ListAssetsResponse {
   repeated Asset assets = 1;
   int64 total_count = 2;
 
   PageInfo page_info = 100;
+}
+
+message ModelResponse {
+  Model model = 1;
 }
 
 message ListModelsResponse {

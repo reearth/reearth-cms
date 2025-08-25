@@ -6,6 +6,8 @@ export const fromGraphQLProject = (project: GQLProject): Project => ({
   name: project.name,
   description: project.description,
   alias: project.alias,
+  readme: project.readme,
+  license: project.license,
   requestRoles: project.requestRoles ?? [],
   accessibility: project.accessibility
     ? {

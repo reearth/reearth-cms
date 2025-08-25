@@ -1,8 +1,11 @@
 package e2e
 
 import (
+	"fmt"
+	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -11,6 +14,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // GRPC List Projects
@@ -49,6 +54,20 @@ func TestInternalListProjectsAPI(t *testing.T) {
 	assert.Equal(t, 2, len(l.Projects))
 
 	p1 := l.Projects[0]
+	assert.Equal(t, pid.String(), p1.Id)
+	assert.Equal(t, "p1", p1.Name)
+	assert.Equal(t, palias, p1.Alias)
+	assert.Equal(t, wId0.String(), p1.WorkspaceId)
+	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+
+	// 2- List projects for the workspace with PublicOnly = true
+	l, err = client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}, PublicOnly: true})
+	assert.NoError(t, err)
+
+	assert.Equal(t, int64(1), l.TotalCount)
+	assert.Equal(t, 1, len(l.Projects))
+
+	p1 = l.Projects[0]
 	assert.Equal(t, pid.String(), p1.Id)
 	assert.Equal(t, "p1", p1.Name)
 	assert.Equal(t, palias, p1.Alias)
@@ -334,9 +353,51 @@ func TestInternalListModelsInProjectAPI(t *testing.T) {
 
 }
 
+// GRPC Get Model
+func TestInternalGetModelAPI(t *testing.T) {
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
+	assert.NoError(t, err)
+
+	client := pb.NewReEarthCMSClient(clientConn)
+	md := metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId.String(),
+	})
+	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+	// Get model by IDs
+	m, err := client.GetModel(mdCtx, &pb.ModelRequest{ProjectIdOrAlias: pid.String(), ModelIdOrAlias: mId1.String()})
+	assert.NoError(t, err)
+	assert.Equal(t, mId1.String(), m.Model.Id)
+	assert.Equal(t, ikey1.String(), m.Model.Key)
+	assert.Equal(t, "m1", m.Model.Name)
+	assert.Equal(t, pid.String(), m.Model.ProjectId)
+	assert.Equal(t, "m1 desc", m.Model.Description)
+	assert.NotNil(t, m.Model.Schema)
+
+	// Get model by aliases
+	m, err = client.GetModel(mdCtx, &pb.ModelRequest{ProjectIdOrAlias: palias, ModelIdOrAlias: ikey1.String()})
+	assert.NoError(t, err)
+	assert.Equal(t, mId1.String(), m.Model.Id)
+	assert.Equal(t, ikey1.String(), m.Model.Key)
+	assert.Equal(t, "m1", m.Model.Name)
+	assert.Equal(t, pid.String(), m.Model.ProjectId)
+	assert.Equal(t, "m1 desc", m.Model.Description)
+	assert.NotNil(t, m.Model.Schema)
+}
+
 // GRPC List Items in Model
 func TestInternalListItemsInModelAPI(t *testing.T) {
-	StartServer(t, &app.Config{
+	e := StartServer(t, &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
 			Port:   "52050",
@@ -356,13 +417,47 @@ func TestInternalListItemsInModelAPI(t *testing.T) {
 	})
 	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
+	// 1- Model does not contain any published items
 	l, err := client.ListItems(mdCtx, &pb.ListItemsRequest{ProjectId: pid.String(), ModelId: mId1.String()})
+	assert.NoError(t, err)
+
+	assert.Equal(t, int64(0), l.TotalCount)
+	assert.Equal(t, 0, len(l.Items))
+
+	// 2- Model contains one published item
+
+	// create request & approve it to make the item published
+	res := createRequest2(e, pid.String(), "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId.String()}, []any{map[string]any{"itemId": itmId1.String(), "version": "latest"}})
+	approveRequest2(e, res.Path("$.data.createRequest.request.id").String().Raw())
+
+	l, err = client.ListItems(mdCtx, &pb.ListItemsRequest{ProjectId: pid.String(), ModelId: mId1.String()})
 	assert.NoError(t, err)
 
 	assert.Equal(t, int64(1), l.TotalCount)
 	assert.Equal(t, 1, len(l.Items))
 	item := l.Items[0]
 	assert.Equal(t, itmId1.String(), item.Id)
+
+	// 3- model contains items with different fields types
+
+	// create request & approve it to make the item published
+	res = createRequest2(e, pid.String(), "test", lo.ToPtr("test"), lo.ToPtr("WAITING"), []string{uId.String()}, []any{map[string]any{"itemId": itmId6.String(), "version": "latest"}})
+	approveRequest2(e, res.Path("$.data.createRequest.request.id").String().Raw())
+
+	l, err = client.ListItems(mdCtx, &pb.ListItemsRequest{ProjectId: pid.String(), ModelId: mId5.String()})
+	assert.NoError(t, err)
+
+	assert.Equal(t, int64(1), l.TotalCount)
+	assert.Equal(t, 1, len(l.Items))
+	item = l.Items[0]
+	assert.Equal(t, itmId6.String(), item.Id)
+	f, err := convertAnyToFloat32(item.Fields["number-key"])
+	assert.NoError(t, err)
+	assert.Equal(t, float32(21.2), f)
+
+	i, err := convertAnyToInt64(item.Fields["integer-key"])
+	assert.NoError(t, err)
+	assert.Equal(t, int64(123), i)
 }
 
 // GRPC List Assets in Project
@@ -399,4 +494,137 @@ func TestInternalListAssetsInProjectAPI(t *testing.T) {
 	assert.Nil(t, a.ArchiveExtractionStatus)
 	assert.Equal(t, pid.String(), a.ProjectId)
 	assert.Equal(t, false, a.Public)
+}
+
+// GRPC Get Asset
+func TestInternalGetAssetAPI(t *testing.T) {
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
+	assert.NoError(t, err)
+
+	client := pb.NewReEarthCMSClient(clientConn)
+	md := metadata.New(map[string]string{
+		"Authorization": "Bearer TestToken",
+		"User-Id":       uId.String(),
+	})
+
+	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+	a, err := client.GetAsset(mdCtx, &pb.AssetRequest{AssetId: aid1.String()})
+	assert.NoError(t, err)
+	assert.Equal(t, aid1.String(), a.Asset.Id)
+	assert.Equal(t, "aaa.jpg", a.Asset.Filename)
+	assert.Nil(t, a.Asset.PreviewType)
+	assert.Equal(t, uint64(1000), a.Asset.Size)
+	assert.Nil(t, a.Asset.ArchiveExtractionStatus)
+	assert.Equal(t, pid.String(), a.Asset.ProjectId)
+	assert.Equal(t, false, a.Asset.Public)
+}
+
+// TODO: improve common methods usage instead of duplicating
+func createRequest2(e *httpexpect.Expect, projectId, title string, description, state *string, reviewersId []string, items []any) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation CreateRequest($projectId: ID!, $title: String!, $description: String, $state: RequestState, $reviewersId: [ID!], $items: [RequestItemInput!]!) {
+    createRequest(
+      input: {projectId: $projectId, title: $title, description: $description, state: $state, reviewersId: $reviewersId, items: $items}
+    ) {
+      request {
+				id
+				items {
+					itemId
+					version
+					ref
+				}
+				title
+				description
+				createdBy {
+					id
+					name
+					email
+				}
+				workspaceId
+				projectId
+				threadId
+				reviewersId
+				state
+				createdAt
+				updatedAt
+				approvedAt
+				closedAt
+			}
+		}		
+  }`,
+		Variables: map[string]any{
+			"projectId":   projectId,
+			"title":       title,
+			"description": description,
+			"state":       state,
+			"reviewersId": reviewersId,
+			"items":       items,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+// TODO: improve common methods usage instead of duplicating
+func approveRequest2(e *httpexpect.Expect, requestId string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation ApproveRequest($requestId: ID!) {
+    approveRequest(input: { requestId: $requestId }) {
+      request {
+				id
+				state
+      }
+    }
+  }
+`,
+		Variables: map[string]any{
+			"requestId": requestId,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func convertAnyToFloat32(a *anypb.Any) (float32, error) {
+	var w wrapperspb.DoubleValue
+	if err := a.UnmarshalTo(&w); err != nil {
+		return 0, fmt.Errorf("failed to unmarshal Any to FloatValue: %w", err)
+	}
+	return float32(w.Value), nil
+}
+
+func convertAnyToInt64(a *anypb.Any) (int64, error) {
+	var w wrapperspb.Int64Value
+	if err := a.UnmarshalTo(&w); err != nil {
+		return 0, fmt.Errorf("failed to unmarshal Any to IntValue: %w", err)
+	}
+	return int64(w.Value), nil
 }

@@ -9,9 +9,11 @@ type Props = {
   items: MenuProps["items"];
   name?: string;
   personal: boolean;
+  showName?: boolean;
+  showArrow?: boolean;
 };
 
-const Dropdown: React.FC<Props> = ({ items, name, personal, ...props }) => {
+const Dropdown: React.FC<Props> = ({ items, name, personal, showName, showArrow, ...props }) => {
   return (
     <StyledDropdown
       menu={{ items }}
@@ -21,8 +23,8 @@ const Dropdown: React.FC<Props> = ({ items, name, personal, ...props }) => {
       <a onClick={e => e.preventDefault()}>
         <Space>
           <UserAvatar username={name ?? ""} shape={personal ? "circle" : "square"} size={"small"} />
-          <Text>{name}</Text>
-          <StyledIcon icon="caretDown" />
+          {showName && <Text>{name}</Text>}
+          {showArrow && <StyledIcon icon="caretDown" />}
         </Space>
       </a>
     </StyledDropdown>
@@ -35,10 +37,15 @@ const StyledDropdown = styled(DropdownAtom)`
   padding-left: 10px;
   color: #fff;
   background-color: #1d1d1d;
+
+  .anticon,
+  .anticon-caret-down {
+    color: #dbdbdb;
+  }
 `;
 const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
-    background-color: #141414 !important;
+    background-color: #ffffff !important;
     min-width: 190px;
     max-width: 205px;
     padding: 4px 0;
@@ -49,14 +56,14 @@ const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu-item-group-title,
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
-    color: #fff !important;
+    color: #000000 !important;
   }
   .ant-dropdown-menu-item-group-title {
     font-weight: 400;
     font-size: 12px;
     line-height: 22px;
     user-select: none;
-    color: #dbdbdb;
+    color: #000000;
   }
   .ant-dropdown-menu-item-group-list {
     max-height: 50vh;
@@ -73,7 +80,7 @@ const StyledDropdownMenu = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  color: #8c8c8c;
+  color: #000000;
 `;
 
 const Text = styled.p`
@@ -82,4 +89,5 @@ const Text = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: bold;
 `;

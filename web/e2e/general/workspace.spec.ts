@@ -1,5 +1,15 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
+import { parseConfigBoolean } from "@reearth-cms/utils/format";
+
+import { config } from "../utils/config";
+
+const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
+
+test.beforeEach(async () => {
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+});
 
 test("Workspace CRUD has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });

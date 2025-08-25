@@ -13,6 +13,8 @@ export type Config = {
   cesiumIonAccessToken?: string;
   editorUrl: string;
   multiTenant?: Record<string, AuthInfo>;
+  disableWorkspaceUi?: string | boolean;
+  dashboardBaseUrl?: string;
 } & AuthInfo;
 
 const env = import.meta.env;
@@ -35,6 +37,8 @@ export const defaultConfig: Config = {
     firebaseMessagingSenderId: env.REEARTH_CMS_FIREBASE_MESSAGING_SENDER_ID,
     firebaseAppId: env.REEARTH_CMS_FIREBASE_APP_ID,
   },
+  disableWorkspaceUi: env.REEARTH_CMS_DISABLE_WORKSPACE_UI,
+  dashboardBaseUrl: env.REEARTH_CMS_DASHBOARD_BASE_URL,
 };
 
 export default async function loadConfig() {
