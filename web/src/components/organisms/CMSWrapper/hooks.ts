@@ -69,6 +69,7 @@ export default () => {
       ? {
           id: foundWorkspace.id,
           name: foundWorkspace.name,
+          alias: foundWorkspace.alias,
           members: foundWorkspace.members?.map(member =>
             fromGraphQLMember(member as WorkspaceMember),
           ),
