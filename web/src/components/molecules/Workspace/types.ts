@@ -42,6 +42,7 @@ export type MemberInput = {
 export type Workspace = {
   id: string;
   name: string;
+  alias?: string;
   personal?: boolean;
   members?: Member[];
 };
