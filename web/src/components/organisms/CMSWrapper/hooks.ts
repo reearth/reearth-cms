@@ -69,6 +69,7 @@ export default () => {
       ? {
           id: foundWorkspace.id,
           name: foundWorkspace.name,
+          alias: foundWorkspace.alias,
           members: foundWorkspace.members?.map(member =>
             fromGraphQLMember(member as WorkspaceMember),
           ),
@@ -138,14 +139,14 @@ export default () => {
   const handleNavigateToSettings = useCallback(() => {
     if (dashboardBaseUrl) {
       window.open(
-        joinPaths(dashboardBaseUrl, personalWorkspace?.id ?? "", "settings/profile"),
+        joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "settings/profile"),
         "_blank",
         "noopener,noreferrer",
       );
     } else {
       navigate(`/workspace/${personalWorkspace?.id}/account`);
     }
-  }, [dashboardBaseUrl, navigate, personalWorkspace?.id]);
+  }, [currentWorkspace?.alias, dashboardBaseUrl, navigate, personalWorkspace?.id]);
 
   const { data: projectData } = useGetProjectQuery({
     variables: { projectId: projectId ?? "" },
@@ -182,19 +183,19 @@ export default () => {
         navigate(`/workspace/${workspaceId}`);
       } else if (info.key === "members" && dashboardBaseUrl) {
         window.open(
-          joinPaths(dashboardBaseUrl, workspaceId ?? "", "members"),
+          joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "members"),
           "_blank",
           "noopener,noreferrer",
         );
       } else if (info.key === "workspaceSettings" && dashboardBaseUrl) {
         window.open(
-          joinPaths(dashboardBaseUrl, workspaceId ?? "", "settings/general"),
+          joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "settings/general"),
           "_blank",
           "noopener,noreferrer",
         );
       } else if (info.key === "account" && dashboardBaseUrl) {
         window.open(
-          joinPaths(dashboardBaseUrl, workspaceId ?? "", "settings/profile"),
+          joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "settings/profile"),
           "_blank",
           "noopener,noreferrer",
         );
@@ -202,7 +203,7 @@ export default () => {
         navigate(`/workspace/${workspaceId}/${info.key}`);
       }
     },
-    [dashboardBaseUrl, navigate, workspaceId],
+    [currentWorkspace?.alias, dashboardBaseUrl, navigate, workspaceId],
   );
 
   const handleWorkspaceNavigation = useCallback(
