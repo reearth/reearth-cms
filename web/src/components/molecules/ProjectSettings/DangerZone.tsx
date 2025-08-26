@@ -83,7 +83,7 @@ const DangerZone: React.FC<Props> = ({
 
   return (
     <ContentSection title={t("Danger Zone")} danger>
-      <Title>{t("Visibility")}</Title>
+      <Title>{t("Change project visibility")}</Title>
       <StyledSelect
         disabled={!hasPublishRight}
         value={visibility}
