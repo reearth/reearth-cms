@@ -2,6 +2,7 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
+import { isCesiumViewerReady } from "@reearth-cms/e2e/utils/viewer";
 
 const uploadFileUrl_1 =
   "https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/tileset.json";
@@ -102,12 +103,7 @@ test("Previewing JSON file from content page into new tab succeeded", async ({ p
   ]);
   await viewerPage.waitForLoadState("domcontentloaded");
 
-  const canvas = viewerPage.locator("canvas");
-  await expect(canvas).toBeVisible();
-
-  const viewerIsReady = await viewerPage.evaluate(() => {
-    return !!window.cesiumViewer && window.cesiumViewer.isDestroyed?.() === false;
-  });
+  const viewerIsReady = await isCesiumViewerReady(viewerPage);
   expect(viewerIsReady).toBe(true);
 });
 

@@ -101,7 +101,6 @@ const ResiumViewer: React.FC<Props> = ({
     const checkViewer = () => {
       const viewer = viewerRef.current?.cesiumElement;
       if (viewer && !viewer.isDestroyed?.()) {
-        window.cesiumViewer = viewer;
         setIsLoading(false);
       } else if (retryCount < maxRetries) {
         retryCount++;
