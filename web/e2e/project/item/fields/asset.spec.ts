@@ -103,8 +103,8 @@ test("Previewing JSON file from content page into new tab succeeded", async ({ p
   ]);
   await viewerPage.waitForLoadState("domcontentloaded");
 
-  const viewerIsReady = await isCesiumViewerReady(viewerPage);
-  expect(viewerIsReady).toBe(true);
+  const isViewerReady = await isCesiumViewerReady(viewerPage);
+  expect(isViewerReady).toBe(true);
 });
 
 test("Asset field editing has succeeded", async ({ page }) => {
