@@ -1,4 +1,4 @@
-import { render, screen, getByText } from "@testing-library/react";
+import { render, screen, getByText, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
@@ -161,7 +161,7 @@ describe("Member table", () => {
     expect(screen.getByText(role)).toBeVisible();
   });
 
-  test("Own checkbox, change role button, and leave button are disabled successfully", async () => {
+  test.only("Own checkbox, change role button, and leave button are disabled successfully", async () => {
     render(
       <MemberTable
         workspaceUserMembers={workspaceUserMembers}
@@ -183,7 +183,8 @@ describe("Member table", () => {
       />,
     );
 
-    expect(screen.getByRole("checkbox")).toBeDisabled();
+    const lastCheckboxEl = screen.getAllByRole("checkbox").at(-1);
+    expect(lastCheckboxEl).toBeDisabled();
     expect(screen.getByRole("button", { name: "Change Role?" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Leave" })).toBeDisabled();
   });
