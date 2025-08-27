@@ -139,14 +139,14 @@ export default () => {
   const handleNavigateToSettings = useCallback(() => {
     if (dashboardBaseUrl) {
       window.open(
-        joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "settings/profile"),
+        joinPaths(dashboardBaseUrl, "settings/profile"),
         "_blank",
         "noopener,noreferrer",
       );
     } else {
       navigate(`/workspace/${personalWorkspace?.id}/account`);
     }
-  }, [currentWorkspace?.alias, dashboardBaseUrl, navigate, personalWorkspace?.id]);
+  }, [dashboardBaseUrl, navigate, personalWorkspace?.id]);
 
   const { data: projectData } = useGetProjectQuery({
     variables: { projectId: projectId ?? "" },
@@ -195,7 +195,7 @@ export default () => {
         );
       } else if (info.key === "account" && dashboardBaseUrl) {
         window.open(
-          joinPaths(dashboardBaseUrl, currentWorkspace?.alias ?? "", "settings/profile"),
+          joinPaths(dashboardBaseUrl, "settings/profile"),
           "_blank",
           "noopener,noreferrer",
         );
