@@ -51,6 +51,11 @@ type IssueUploadAssetParam struct {
 	ExpiresAt       time.Time
 
 	Cursor string
+
+	// Metadata for gcsproxy
+	Workspace string
+	Project   string
+	Public    bool
 }
 
 func (p IssueUploadAssetParam) GetOrGuessContentType() string {

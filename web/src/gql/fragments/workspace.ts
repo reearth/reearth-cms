@@ -6,6 +6,7 @@ export const workspaceFragment = gql`
   fragment WorkspaceFragment on Workspace {
     id
     name
+    alias
     members {
       ... on WorkspaceUserMember {
         user {

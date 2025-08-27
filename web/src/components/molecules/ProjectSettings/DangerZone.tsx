@@ -83,7 +83,7 @@ const DangerZone: React.FC<Props> = ({
 
   return (
     <ContentSection title={t("Danger Zone")} danger>
-      <Title>{t("Visibility")}</Title>
+      <Title>{t("Change project visibility")}</Title>
       <StyledSelect
         disabled={!hasPublishRight}
         value={visibility}
@@ -117,6 +117,7 @@ const maxWidth = "316px";
 
 const StyledSelect = styled(Select)`
   width: ${maxWidth};
+  margin-bottom: 24px;
 `;
 
 const Title = styled.h1`
@@ -130,5 +131,4 @@ const Text = styled.p`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  margin: 24px 0;
 `;
