@@ -16,15 +16,11 @@ export async function createRequest(page: Page, title = requestTitle) {
   await page.getByRole("menuitem", { name: "New Request" }).click();
   await page.getByLabel("Title").last().click();
   await page.getByLabel("Title").last().fill(title);
-  await page.locator(".ant-select-selection-overflow").click();
-  const reviewerName = await page
-    .locator("a")
-    .nth(1)
-    .locator("div")
-    .nth(2)
-    .locator("p")
-    .innerText();
-  await page.getByTitle(reviewerName).locator("div").click();
+
+  await page.click(".ant-select-selector");
+  const firstItem = page.locator(".ant-select-item").first();
+  await firstItem.click();
+
   await page.getByLabel("Description").click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
