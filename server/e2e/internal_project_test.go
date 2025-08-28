@@ -382,7 +382,7 @@ func TestInternalGetModelAPI(t *testing.T) {
 	assert.Equal(t, "m1", m.Model.Name)
 	assert.Equal(t, pid.String(), m.Model.ProjectId)
 	assert.Equal(t, "m1 desc", m.Model.Description)
-	assert.Equal(t, "https://example.com/api/p/PROJECT_ALIAS/purple-voice", m.Model.PublicApiEp)
+	assert.Equal(t, "https://example.com/api/p/PROJECT_ALIAS/"+ikey1.String(), m.Model.PublicApiEp)
 	assert.NotNil(t, m.Model.Schema)
 
 	// Get model by aliases
