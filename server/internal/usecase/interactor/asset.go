@@ -1,7 +1,10 @@
 package interactor
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -18,8 +21,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -27,18 +34,25 @@ import (
 	"github.com/samber/lo"
 )
 
+const (
+	defaultFetchBatchSize = 200
+	defaultMaxItemsLimit  = 2000
+)
+
 type contextKey string
 
 type Asset struct {
 	repos       *repo.Container
 	gateways    *gateway.Container
+	config      ContainerConfig
 	ignoreEvent bool
 }
 
-func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
+func NewAsset(r *repo.Container, g *gateway.Container, config ContainerConfig) interfaces.Asset {
 	return &Asset{
 		repos:    r,
 		gateways: g,
+		config:   config,
 	}
 }
 
@@ -808,4 +822,576 @@ func (i *Asset) event(ctx context.Context, e Event) error {
 
 func (i *Asset) RetryDecompression(ctx context.Context, id string) error {
 	return i.gateways.TaskRunner.Retry(ctx, id)
+}
+
+func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportModelToAssetsParam, op *usecase.Operator) (*asset.Asset, error) {
+	if op.AcOperator.User == nil && op.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	if inp.Model == nil {
+		return nil, rerror.NewE(i18n.T("model is required"))
+	}
+
+	m, err := i.repos.Model.FindByID(ctx, inp.Model.ID())
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	if err != nil {
+		return nil, err
+	}
+
+	if !op.IsWritableWorkspace(s.Workspace()) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	// Generate content based on format using streaming approach
+	filename := asset.GenerateExportFilename(inp.Model.Key().String(), string(inp.Format))
+	contentType := asset.ContentTypeForFormat(string(inp.Format))
+
+	// Validate supported format
+	if contentType == "" {
+		return nil, interfaces.ErrUnsupportedExportFormat
+	}
+
+	// Create a pipe for streaming content generation
+	pr, pw := io.Pipe()
+
+	// Start content generation in a goroutine
+	go func() {
+		defer func() {
+			if closeErr := pw.Close(); closeErr != nil {
+				log.Errorf("failed to close pipe writer: %v", closeErr)
+			}
+		}()
+
+		var err error
+		switch inp.Format {
+		case interfaces.ExportFormatJSON:
+			err = i.generateJSONContentStreaming(ctx, inp.Model, s, inp.Pagination, pw)
+		case interfaces.ExportFormatGeoJSON:
+			err = i.generateGeoJSONContentStreaming(ctx, inp.Model.ID(), s, inp.Pagination, pw)
+		case interfaces.ExportFormatCSV:
+			err = i.generateCSVContentStreaming(ctx, inp.Model.ID(), s, inp.Pagination, pw)
+		}
+
+		if err != nil {
+			_ = pw.CloseWithError(err)
+		}
+	}()
+
+	// Read all content from pipe
+	content, err := io.ReadAll(pr)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create file object
+	f := &file.File{
+		Name:        filename,
+		Size:        int64(len(content)),
+		ContentType: contentType,
+		Content:     io.NopCloser(bytes.NewReader(content)),
+	}
+
+	// Create asset using existing Create method
+	createParam := interfaces.CreateAssetParam{
+		ProjectID:         s.Project(),
+		File:              f,
+		SkipDecompression: true,
+	}
+
+	a, _, err := i.Create(ctx, createParam, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return a, nil
+}
+
+func (i *Asset) generateJSONContentStreaming(ctx context.Context, model *model.Model, s *schema.Schema, pagination *usecasex.Pagination, w io.Writer) error {
+	batchSize := i.config.ExportModelToAssetBatchSize
+	if batchSize <= 0 {
+		batchSize = defaultFetchBatchSize
+	}
+
+	// Write JSON structure opening
+	if _, err := w.Write([]byte("{\n  \"model\": {\n")); err != nil {
+		return err
+	}
+
+	// Write model metadata
+	modelData := fmt.Sprintf("    \"id\": %q,\n    \"name\": %q,\n    \"description\": %q,\n    \"key\": %q\n  },\n  \"items\": [\n",
+		model.ID().String(), model.Name(), model.Description(), model.Key().String())
+	if _, err := w.Write([]byte(modelData)); err != nil {
+		return err
+	}
+
+	// Stream items in batches
+	var cursor *string
+	isFirstItem := true
+	totalProcessed := 0
+
+	// Calculate total limit
+	totalLimit := int64(defaultMaxItemsLimit)
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
+		totalLimit = *pagination.Cursor.First
+	}
+
+	// Handle initial cursor
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.After != nil {
+		cursor = (*string)(pagination.Cursor.After)
+	}
+
+	remaining := totalLimit
+	for remaining > 0 {
+		currentBatchSize := int64(batchSize)
+		if remaining < currentBatchSize {
+			currentBatchSize = remaining
+		}
+
+		// Create pagination for this batch
+		batchPagination := &usecasex.Pagination{
+			Cursor: &usecasex.CursorPagination{
+				First: &currentBatchSize,
+			},
+		}
+		if cursor != nil {
+			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
+		}
+
+		// Fetch batch
+		items, pi, err := i.repos.Item.FindByModel(ctx, model.ID(), version.Public.Ref(), nil, batchPagination)
+		if err != nil {
+			return err
+		}
+
+		// Process each item in batch
+		for _, versioned := range items {
+			if versioned == nil {
+				continue
+			}
+			item := versioned.Value()
+			if item == nil {
+				continue
+			}
+
+			// Add comma before item (except for first item)
+			if !isFirstItem {
+				if _, err := w.Write([]byte(",\n")); err != nil {
+					return err
+				}
+			}
+			isFirstItem = false
+
+			// Convert item to JSON format
+			itemData := make(map[string]any)
+			for _, field := range item.Fields() {
+				if field == nil {
+					continue
+				}
+
+				var fieldValue any
+				if field.Value() != nil {
+					if vv := field.Value().First(); vv != nil {
+						fieldValue = vv.Interface()
+					}
+				}
+
+				if s != nil {
+					if schemaField := s.Field(field.FieldID()); schemaField != nil {
+						itemData[schemaField.Name()] = fieldValue
+					}
+				}
+			}
+
+			// Write item JSON
+			itemJSON, err := json.MarshalIndent(itemData, "    ", "  ")
+			if err != nil {
+				return err
+			}
+
+			if _, err := w.Write([]byte("    ")); err != nil {
+				return err
+			}
+			if _, err := w.Write(itemJSON); err != nil {
+				return err
+			}
+
+			totalProcessed++
+		}
+
+		// Update cursor for next batch
+		if pi != nil && pi.EndCursor != nil {
+			cursor = (*string)(pi.EndCursor)
+		}
+
+		// Check if we should continue
+		if len(items) < int(currentBatchSize) || (pi != nil && !pi.HasNextPage) {
+			break
+		}
+
+		remaining -= int64(len(items))
+	}
+
+	// Close JSON structure
+	if _, err := w.Write([]byte("\n  ]\n}")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i *Asset) generateGeoJSONContentStreaming(ctx context.Context, modelID id.ModelID, s *schema.Schema, pagination *usecasex.Pagination, w io.Writer) error {
+	// Require geometry fields for GeoJSON export
+	if s == nil || !s.HasGeometryFields() {
+		return rerror.NewE(i18n.T("no geometry field in this model"))
+	}
+
+	batchSize := i.config.ExportModelToAssetBatchSize
+	if batchSize <= 0 {
+		batchSize = defaultFetchBatchSize
+	}
+
+	// Write GeoJSON structure opening
+	if _, err := w.Write([]byte("{\n  \"type\": \"FeatureCollection\",\n  \"features\": [\n")); err != nil {
+		return err
+	}
+
+	// Stream items in batches
+	var cursor *string
+	isFirstFeature := true
+
+	// Calculate total limit
+	totalLimit := int64(defaultMaxItemsLimit)
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
+		totalLimit = *pagination.Cursor.First
+	}
+
+	// Handle initial cursor
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.After != nil {
+		cursor = (*string)(pagination.Cursor.After)
+	}
+
+	remaining := totalLimit
+	for remaining > 0 {
+		currentBatchSize := int64(batchSize)
+		if remaining < currentBatchSize {
+			currentBatchSize = remaining
+		}
+
+		// Create pagination for this batch
+		batchPagination := &usecasex.Pagination{
+			Cursor: &usecasex.CursorPagination{
+				First: &currentBatchSize,
+			},
+		}
+		if cursor != nil {
+			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
+		}
+
+		// Fetch batch
+		items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, batchPagination)
+		if err != nil {
+			return err
+		}
+
+		// Process each item in batch
+		for _, versioned := range items {
+			if versioned == nil {
+				continue
+			}
+			item := versioned.Value()
+			if item == nil {
+				continue
+			}
+
+			// Extract geometry and properties
+			var geometry map[string]any
+			var hasGeometry bool
+			properties := make(map[string]any)
+
+			// Iterate through schema fields
+			for _, schemaField := range s.Fields() {
+				if schemaField == nil {
+					continue
+				}
+
+				// Get the corresponding item field
+				itemField := item.Field(schemaField.ID())
+				if itemField == nil || itemField.Value() == nil {
+					continue
+				}
+
+				// Handle geometry fields
+				if schemaField.Type().IsGeometryFieldType() {
+					if vv := itemField.Value().First(); vv != nil {
+						if geoStr, ok := vv.ValueString(); ok && geoStr != "" {
+							// Parse the GeoJSON string
+							var geoJSON map[string]any
+							if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+								geometry = geoJSON
+								hasGeometry = true
+							}
+						}
+					}
+					continue
+				}
+
+				// Handle non-geometry fields as properties
+				if vv := itemField.Value().First(); vv != nil {
+					fieldValue := vv.Interface()
+					if fieldValue != nil {
+						properties[schemaField.Name()] = fieldValue
+					}
+				}
+			}
+
+			// Only add feature if it has geometry
+			if hasGeometry {
+				// Add comma before feature (except for first feature)
+				if !isFirstFeature {
+					if _, err := w.Write([]byte(",\n")); err != nil {
+						return err
+					}
+				}
+				isFirstFeature = false
+
+				// Create feature
+				feature := map[string]any{
+					"type":       "Feature",
+					"id":         item.ID().String(),
+					"geometry":   geometry,
+					"properties": properties,
+				}
+
+				// Write feature JSON
+				featureJSON, err := json.MarshalIndent(feature, "    ", "  ")
+				if err != nil {
+					return err
+				}
+
+				if _, err := w.Write([]byte("    ")); err != nil {
+					return err
+				}
+				if _, err := w.Write(featureJSON); err != nil {
+					return err
+				}
+			}
+		}
+
+		// Update cursor for next batch
+		if pi != nil && pi.EndCursor != nil {
+			cursor = (*string)(pi.EndCursor)
+		}
+
+		// Check if we should continue
+		if len(items) < int(currentBatchSize) || (pi != nil && !pi.HasNextPage) {
+			break
+		}
+
+		remaining -= int64(len(items))
+	}
+
+	// Close GeoJSON structure
+	if _, err := w.Write([]byte("\n  ]\n}")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i *Asset) generateCSVContentStreaming(ctx context.Context, modelID id.ModelID, s *schema.Schema, pagination *usecasex.Pagination, w io.Writer) error {
+	if s == nil {
+		return rerror.NewE(i18n.T("schema is required for CSV export"))
+	}
+
+	batchSize := i.config.ExportModelToAssetBatchSize
+	if batchSize <= 0 {
+		batchSize = defaultFetchBatchSize
+	}
+
+	// Create CSV writer
+	writer := csv.NewWriter(w)
+	defer writer.Flush()
+
+	// Build headers - include all non-geometry fields
+	headers := []string{"id"}
+	var nonGeoFields []*schema.Field
+
+	// Add geometry coordinates if geometry fields exist
+	hasGeometry := s.HasGeometryFields()
+	if hasGeometry {
+		headers = append(headers, "location_lat", "location_lng")
+	}
+
+	// Add all non-geometry field names as headers
+	for _, field := range s.Fields() {
+		if field != nil && !field.Type().IsGeometryFieldType() {
+			headers = append(headers, field.Name())
+			nonGeoFields = append(nonGeoFields, field)
+		}
+	}
+
+	// Write header row
+	if err := writer.Write(headers); err != nil {
+		return err
+	}
+
+	// Stream items in batches
+	var cursor *string
+
+	// Calculate total limit
+	totalLimit := int64(defaultMaxItemsLimit)
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.First != nil {
+		totalLimit = *pagination.Cursor.First
+	}
+
+	// Handle initial cursor
+	if pagination != nil && pagination.Cursor != nil && pagination.Cursor.After != nil {
+		cursor = (*string)(pagination.Cursor.After)
+	}
+
+	remaining := totalLimit
+	for remaining > 0 {
+		currentBatchSize := int64(batchSize)
+		if remaining < currentBatchSize {
+			currentBatchSize = remaining
+		}
+
+		// Create pagination for this batch
+		batchPagination := &usecasex.Pagination{
+			Cursor: &usecasex.CursorPagination{
+				First: &currentBatchSize,
+			},
+		}
+		if cursor != nil {
+			batchPagination.Cursor.After = (*usecasex.Cursor)(cursor)
+		}
+
+		// Fetch batch
+		items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, batchPagination)
+		if err != nil {
+			return err
+		}
+
+		// Write data rows for this batch
+		for _, versioned := range items {
+			if versioned == nil {
+				continue
+			}
+			item := versioned.Value()
+			if item == nil {
+				continue
+			}
+
+			row := []string{item.ID().String()}
+
+			// Add geometry coordinates if geometry fields exist
+			if hasGeometry {
+				lat, lng := i.extractPointCoordinates(item, s)
+				row = append(row, lat, lng)
+			}
+
+			// Add non-geometry field values
+			for _, field := range nonGeoFields {
+				value := i.extractFieldValueAsString(item, field)
+				row = append(row, value)
+			}
+
+			if err := writer.Write(row); err != nil {
+				return err
+			}
+		}
+
+		// Flush after each batch to ensure data is written
+		writer.Flush()
+		if err := writer.Error(); err != nil {
+			return err
+		}
+
+		// Update cursor for next batch
+		if pi != nil && pi.EndCursor != nil {
+			cursor = (*string)(pi.EndCursor)
+		}
+
+		// Check if we should continue
+		if len(items) < int(currentBatchSize) || (pi != nil && !pi.HasNextPage) {
+			break
+		}
+
+		remaining -= int64(len(items))
+	}
+
+	return nil
+}
+
+// extractPointCoordinates extracts lat/lng from the first Point geometry field found
+func (i *Asset) extractPointCoordinates(itm *item.Item, s *schema.Schema) (string, string) {
+	for _, schemaField := range s.Fields() {
+		if schemaField == nil || !schemaField.Type().IsGeometryFieldType() {
+			continue
+		}
+
+		itemField := itm.Field(schemaField.ID())
+		if itemField == nil || itemField.Value() == nil {
+			continue
+		}
+
+		if vv := itemField.Value().First(); vv != nil {
+			if geoStr, ok := vv.ValueString(); ok && geoStr != "" {
+				// Parse the GeoJSON string
+				var geoJSON map[string]any
+				if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+					if geoType, ok := geoJSON["type"].(string); ok && geoType == "Point" {
+						if coords, ok := geoJSON["coordinates"].([]any); ok && len(coords) >= 2 {
+							if lng, ok := coords[0].(float64); ok {
+								if lat, ok := coords[1].(float64); ok {
+									return fmt.Sprintf("%.10f", lat), fmt.Sprintf("%.10f", lng)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return "", "" // Return empty if no Point geometry found
+}
+
+// extractFieldValueAsString extracts field value and converts it to string
+func (i *Asset) extractFieldValueAsString(itm *item.Item, schemaField *schema.Field) string {
+	if schemaField == nil {
+		return ""
+	}
+
+	itemField := itm.Field(schemaField.ID())
+	if itemField == nil || itemField.Value() == nil {
+		return ""
+	}
+
+	if vv := itemField.Value().First(); vv != nil {
+		fieldValue := vv.Interface()
+		if fieldValue == nil {
+			return ""
+		}
+
+		// Convert to string based on type
+		switch v := fieldValue.(type) {
+		case string:
+			return v
+		case int, int32, int64:
+			return fmt.Sprintf("%d", v)
+		case float32, float64:
+			return fmt.Sprintf("%.10f", v)
+		case bool:
+			return fmt.Sprintf("%t", v)
+		default:
+			return fmt.Sprintf("%v", v)
+		}
+	}
+
+	return ""
 }
