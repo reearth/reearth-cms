@@ -188,7 +188,7 @@ func TestDeleteMe(t *testing.T) {
 
 func TestMe(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := ` { me{ id name email lang theme myWorkspaceId } }`
+	query := ` { me{ id name email lang theme myWorkspaceId profilePictureUrl } }`
 	request := GraphQLRequest{
 		Query: query,
 	}
