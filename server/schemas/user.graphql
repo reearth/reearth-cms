@@ -12,6 +12,7 @@ type Me {
   lang: Lang!
   theme: Theme!
   host: String
+  profilePictureUrl: String
   myWorkspaceId: ID!
   auths: [String!]!
   workspaces: [Workspace!]!
