@@ -35,6 +35,20 @@ func (m *MockTaskRunner) EXPECT() *MockTaskRunnerMockRecorder {
 	return m.recorder
 }
 
+// HealthCheck mocks base method.
+func (m *MockTaskRunner) HealthCheck(arg0 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HealthCheck", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// HealthCheck indicates an expected call of HealthCheck.
+func (mr *MockTaskRunnerMockRecorder) HealthCheck(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HealthCheck", reflect.TypeOf((*MockTaskRunner)(nil).HealthCheck), arg0)
+}
+
 // Retry mocks base method.
 func (m *MockTaskRunner) Retry(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()

@@ -9,4 +9,5 @@ import (
 type TaskRunner interface {
 	Run(context.Context, task.Payload) error
 	Retry(context.Context, string) error
+	HealthCheck(context.Context) error
 }

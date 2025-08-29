@@ -1485,6 +1485,10 @@ func (r *mockRunner) Retry(context.Context, string) error {
 	return nil
 }
 
+func (r *mockRunner) HealthCheck(context.Context) error {
+	return nil
+}
+
 func Test_detectPreviewType(t *testing.T) {
 	tests := []struct {
 		name  string
