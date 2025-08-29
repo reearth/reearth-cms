@@ -161,7 +161,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		var size int64
 		file = inp.File
 
-		var visibility project.Visibility
+		visibility := project.VisibilityPrivate
 		if prj.Accessibility() != nil && prj.Accessibility().Visibility() != "" {
 			visibility = prj.Accessibility().Visibility()
 		}
@@ -187,11 +187,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, interfaces.ErrDataTransferUploadSizeLimitExceeded
 			}
 
-			policyReq = gateway.PolicyCheckRequest{
-				WorkspaceID: prj.Workspace(),
-				CheckType:   gateway.PolicyCheckUploadAssetsSize,
-				Value:       file.Size,
-			}
+			policyReq.CheckType = gateway.PolicyCheckUploadAssetsSize
 
 			policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
 			if err != nil {
