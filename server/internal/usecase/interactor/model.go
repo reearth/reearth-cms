@@ -99,7 +99,7 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 			Value:       int64(currentModelNumber),
 		})
 		if err != nil {
-			return nil, rerror.NewE(i18n.T("model count policy check failed"))
+			return nil, err
 		}
 		if !policyResp.Allowed {
 			return nil, interfaces.ErrModelCountPerProjectExceeded

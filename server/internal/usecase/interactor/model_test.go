@@ -20,7 +20,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
-	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -364,7 +363,7 @@ func TestModel_Create(t *testing.T) {
 					Value:       int64(0),
 				}).Return(nil, errors.New("policy check service error"))
 			},
-			wantErr: rerror.NewE(i18n.T("model count policy check failed")),
+			wantErr: errors.New("policy check service error"),
 		},
 	}
 
