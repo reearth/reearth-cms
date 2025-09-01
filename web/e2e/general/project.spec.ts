@@ -1,57 +1,45 @@
-import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
-import { getId } from "@reearth-cms/e2e/utils/mock";
+import { expect } from "@playwright/test";
 
-test.afterEach(async ({ page }) => {
-  await page.getByText("Settings").click();
-  const deleteButton = page.getByRole("button", { name: "Delete Project" });
-  await deleteButton.waitFor({ state: "visible" });
-  await deleteButton.click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
-  await expect(page.getByText("new project name", { exact: true })).toBeHidden();
+import { test } from "@reearth-cms/e2e/fixtures/test";
+
+test.afterEach(async ({ projectSettingsPage, projectLayoutPage }) => {
+  await projectLayoutPage.navigateToSettings();
+  await projectSettingsPage.deleteProject();
 });
 
-test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
+test("Project CRUD and searching has succeeded", async ({
+  reearth,
+  homePage,
+  projectLayoutPage,
+  projectSettingsPage,
+}) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  const newProjectButton = page.getByRole("button", { name: "plus New Project" }).last();
-  await newProjectButton.click();
-  const projectName = getId();
-  const projectDescription = "project description";
-  await page.getByLabel("Project name").fill(projectName);
-  await page.getByLabel("Project description").fill(projectDescription);
-  await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page);
 
-  const projectCard = page.locator(".ant-card").filter({ hasText: projectName }).first();
-  await expect(projectCard).toBeVisible();
-  await expect(projectCard.getByText(projectDescription)).toBeVisible();
-  await page.getByPlaceholder("search projects").fill("no project");
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(projectCard).toBeHidden();
-  await page.getByRole("button", { name: "close-circle" }).click();
-  await expect(projectCard).toBeVisible();
-  await projectCard.click();
-  await expect(page.getByRole("banner")).toContainText(projectName);
+  const { id: projectName, description: projectDescription } = await homePage.createProject();
 
-  await page.getByText("Settings").click();
+  await homePage.expectProjectVisible(projectName, projectDescription);
+  await homePage.searchProjects("no project");
+  await homePage.expectProjectHidden(projectName);
+  await homePage.clearSearch();
+  await homePage.expectProjectVisible(projectName);
+  await homePage.openProject(projectName);
+  await projectLayoutPage.expectProjectNameInHeader(projectName);
+
+  await projectLayoutPage.navigateToSettings();
   const newProjectName = `new ${projectName}`;
   const newProjectDescription = `new ${projectDescription}`;
-  await page.getByLabel("Name").fill(newProjectName);
-  await page.getByLabel("Description").fill(newProjectDescription);
-  await page.locator("form").getByRole("button", { name: "Save changes" }).click();
-  await closeNotification(page);
+  await projectSettingsPage.updateProject(newProjectName, newProjectDescription);
 
-  await expect(
-    page.getByRole("heading", { name: `Project Settings / ${newProjectName}` }),
-  ).toBeVisible();
-  await expect(page.getByRole("banner")).toContainText(newProjectName);
-  const ownerSwitch = page.getByRole("row", { name: "Owner" }).getByRole("switch");
-  await ownerSwitch.click();
-  await page.getByRole("button", { name: "Save changes" }).nth(1).click();
-  await expect(ownerSwitch).toHaveAttribute("aria-checked", "true");
-  await closeNotification(page);
+  await projectSettingsPage.expectProjectSettingsTitle(newProjectName);
+  await projectLayoutPage.expectProjectNameInHeader(newProjectName);
+  await projectSettingsPage.toggleMemberSwitch("Owner");
+  await projectSettingsPage.getByRole("button", { name: "Save changes" }).nth(1).click();
+  await expect(projectSettingsPage.getMemberRow("Owner").getByRole("switch")).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await projectSettingsPage.closeNotification();
 
-  await page.getByText("Models").click();
-  await expect(page.getByRole("banner")).toContainText(projectName);
+  await projectLayoutPage.getByText("Models").click();
+  await projectLayoutPage.expectProjectNameInHeader(newProjectName);
 });
